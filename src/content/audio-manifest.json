@@ -1,0 +1,5 @@
+{
+  "_comment": "lineId -> relative path under public/audio/. Empty until real recordings/renders exist; AudioManager falls back to device TTS for any missing entry.",
+  "food.apple.en": "audio/en/apple.ogg",
+  "food.apple.fr": "audio/fr/pomme.ogg"
+}
