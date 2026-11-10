@@ -1,75 +1,77 @@
-# סקירה עצמאית: ארכיטקטורה ומפת עולמות (`ARCHITECTURE.md` ו־`WORLDS.md`)
+# Independent review: architecture and world map (`ARCHITECTURE.md` and `WORLDS.md`)
 
-סקירה לקריאה בלבד של [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) ו־[docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md).
+Read-only review of [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) and [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md).
 
----
-
-## 1. חוזקות קצרות
-
-1. **בידוד מנוע הפנאי (`src/core/leisure`):** הפרדת לוגיקת הצבירה, התקרות וה־idle מ־Phaser ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L59), [סעיף 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L166-L181)) מאפשרת בדיקות יחידה אמיתיות ב־Vitest ומונעת באגים של ערבוב יתרות או תלות ב־frame rate של המשחק.
-2. **הפרדת אחריות בין DOM לקנבס:** ההבחנה בין מעטפת עברית ב־HTML/CSS (פרופילים, אזור הורה, טפסים) לבין סצנות המשחק ב־Phaser ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L19)) תחסוך כאב ראש עצום של ניהול טפסים ו־RTL בתוך קנבס.
-3. **מודל דו־שכבתי לגיל 2 מול גיל 5:** ההגדרה ב־[docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L5) של עולם משותף עם וריאנט התנהגותי (חקירה בנגיעה מול משימה רב־שלבית) במקום שתי אפליקציות נפרדות היא נכונה פדגוגית והנדסית.
-4. **אסטרטגיית מיגרציה בטוחה:** שמירת האב־טיפוס החי בשורש עד להשלמת השלד ומסעדת החיות בענף נפרד ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L31), [סעיף 12](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L237-L241)) מונעת שבירה של המוצר הקיים.
-5. **מיקוד בדיקות ברגרסיה ויזואלית ולוגית:** השילוב של Vitest לחוקי פנאי ו־Playwright לצילומי מסך ברזולוציות טאבלט ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L210-L215)) תואם בדיוק את צורכי הסקירה האוטומטית במאגר.
+This review was written against the original Hebrew drafts. Line-number links refer to those drafts at the time of the review.
 
 ---
 
-## 2. סיכונים ובעיות
+## 1. Brief strengths
 
-### ארכיטקטורה ו־Phaser / Vite / PWA
-* **אופטימיות יתר לגבי "פיצול קוד לפי עולם":** ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L18) וב־[סעיף 11](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L229) נטען ש־Vite יפצל קוד לפי עולם. בפועל, ספריית `phaser` עצמה היא מונוליט של ~1MB ממוזער (או ~300KB gzipped), והיא נטענת כבר בכניסה. פיצול הקוד יחסוך קילובייטים בודדים של לוגיקת משחק, בעוד שהצוואר בקבוק האמיתי הוא טעינת ה־Assets (טקסטורות ואודיו) דרך ה־Loader של Phaser, ולא ה־JS bundle של Vite.
-* **מלכודת הקאש של `vite-plugin-pwa` (Workbox):** ב־[סעיף 9](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L202) כתוב ש־Service Worker ישמור אטלסים וקולות. אם מגדירים `precache` לכל הנכסים ב־Workbox, ובשלב ב' יתווספו מאות קובצי אודיו מוקלטים ב־3 שפות, ההתקנה הראשונה של ה־PWA תיכשל או תיתקע. חובה להפריד בין App Shell (ב־precache) לבין נכסי עולמות (Runtime Caching או טעינה יזומה בעת כניסה לעולם). בנוסף, חסרה התייחסות למנגנון עדכון גרסה (`skipWaiting` / באנר רענון להורה) — ב־PWA במצב `standalone` בטאבלט, ילדה יכולה להישאר חודשים על גרסה ישנה מהקאש.
-
-### RTL וקנבס
-* **טקסט עברי ב־Phaser Canvas הוא שדה מוקשים:** ב־[סעיף 4](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L128) נכתב על בידוד כיווניות גם לטקסט על קנבס. מנוע הטקסט של Phaser (`Phaser.GameObjects.Text`) מבוסס על `CanvasRenderingContext2D.fillText`, שיש לו באגים ידועים בכרום ב־Android עם שילוב עברית, סימני פיסוק ומספרים (BiDi), ואינו תומך ב־`dir="ltr"` או `unicode-bidi: isolate` של HTML. אם מציגים טקסט עברי או מעורב על הקנבס, הוא עלול להתהפך. הפתרון הנכון הוא להציג כל טקסט UI והוראות בשכבת ה־DOM שמעל הקנבס (`Phaser.GameObjects.DOMElement` או מעטפת HTML), ולהשאיר על הקנבס רק אובייקטים גרפיים או מילים בודדות ב־LTR.
-
-### שמע ו־TTS
-* **חוסר אמינות של Web Speech API ב־Android באוף־ליין:** ב־[סעיף 5](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L138) מוצע להמשיך בשלב א' עם TTS של המכשיר. בטאבלטים רבים של Android (במיוחד Samsung/Lenovo או גרסאות מסוימות של מנוע Google TTS), קולות צרפתית (`fr-FR`) או עברית (`he-IL`) אינם מותקנים מראש לאוף־ליין, או ש־`speechSynthesis.getVoices()` מחזיר מערך ריק בטעינה ראשונה עד לאירוע `voiceschanged` שלעיתים לא נורה ב־WebView/PWA. יותר מכך: לעיתים קרובות `speechSynthesis.speak()` נבלע בשקט בלי לזרוק שגיאה, כך שהילדה בת ה־2 תראה מסך דומם בלי להבין מה מבקשים ממנה.
-* **דקדוק ויידוע בצרפתית:** בסקיצת ה־JSON ([שורה 108](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L108)) מופיע `"fr": "pomme", "frGender": "f"`. בצרפתית אי אפשר להרכיב משפט טבעי כמו *"Je veux une pomme"* או *"Donne-moi du pain"* רק משם עצם ומין דקדוקי (`f`/`m`) בגלל תוויות חלקיות (partitif: `du`, `de la`, `de l'`) ואותיות ניקוד (`l'orange`). ניסיון להרכיב משפטים דינמית בקוד יוביל לצרפתית שבורה.
-
-### תוכן־כנתונים (Content-as-Data)
-* **פער בין הסכימה המוצעת למורכבות המשחקים:** סקיצת ה־JSON ב־[סעיף 3](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L95-L110) פשטנית מדי אפילו עבור הדרישות של גיל 5 באותו מסמך. ב־[docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L37) ו־[שורה 46](file:///workspace/kids-app/app/docs/WORLDS.md#L46) מדובר על בקשות עם תכונה ("תפוח אדום"), שלילה ("not the red hat"), או כלל שמשתנה באמצע ("עכשיו רק את הקטנים" ב־[שורה 76](file:///workspace/kids-app/app/docs/WORLDS.md#L76)). הסכימה המוצעת לא כוללת תכונות (`attributes`: צבע, גודל), תבניות משפט שלמות לפי שפה, או חוקי שלבים. אם לא תוגדר סכימה עשירה מראש (למשל עם Zod או TypeScript interfaces קשיחים), כל משחק יהפוך לקוד "תפור" (hardcoded) והבטחת ה"תוכן כנתונים" תתרוקן מתוכן.
-
-### מנוע פנאי
-* **זיהוי Idle אצל בת שנתיים ומעבר יום:** ב־[סעיף 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L174-L175) נקבע שהצבירה היא לפי השתתפות ושה־idle נבדק. במשחק שבו בת שנתיים מאזינה לשיר ([שיר המילים](file:///workspace/kids-app/app/docs/WORLDS.md#L48-L54)) או מתבוננת באנימציה במשך 25 שניות בלי לגעת במסך, מנגנון idle שמבוסס רק על אירועי `pointerdown` יחתוך לה את צבירת הזמן בטעות. כמו כן, לא הוגדר כיצד מחושב "מעבר יום" (חצות מקומי? מה קורה אם שינו שעה בטאבלט? האם יתרה שלא מומשה נמחקת בחצות או עוברת ליום הבא עד לתקרת היתרה?).
-
-### ביצועים בטאבלט Android בינוני
-* **מחוות מערכת וזיכרון GPU:** ב־[סעיף 11](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L226-L231) חסרה התייחסות לבעיה קריטית במשחקי גרירה בטאבלט לילדים: גרירה קרובה לקצוות המסך ב־Android מפעילה את מחוות ה־Back של המערכת או פותחת את וילון ההתראות. כמו כן, טאבלטים זולים מוגבלים מאוד ב־VRAM; טעינת מספר Texture Atlases בגודל `4096x4096` תגרום לקריסת WebGL Context. יש להגביל גודל אטלס ל־`2048x2048` ולפנות טקסטורות (`textures.remove`) ביציאה מעולם.
-
-### בדיקות ופרסום ל־Pages
-* **רינדור WebGL ב־Playwright ב־CI:** ב־[סעיף 10](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L213) מתוכננים צילומי מסך ב־Playwright בכל PR. ב־GitHub Actions (Ubuntu runners ללא GPU), כרום רץ ב־headless ומרנדר WebGL באמצעות SwiftShader (תוכנה), שלעיתים נכשל או מייצר ארטיפקטים שונים מ־Canvas 2D, או שהצילום מתבצע לפני ש־Phaser סיים לטעון פונטים וטקסטורות ולרנדר פריים יציב.
-
-### היקף העולמות וצינור הגרפיקה
-* **היקף לא ריאלי וסתירה פנימית באנימציות:** [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md) מפרט 12 משחקים ב־4 עולמות, כשלכל אחד שני וריאנטים (גיל 2 ו־5) ו־3 שפות. גם אם נבנים בשלבים, יצירת נכסים אחידים ב־AI ([סעיף 6](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L156-L160)) היא משימה ידנית כבדה: כלי AI לתמונות (Midjourney/DALL-E) מתקשים מאוד לייצר **את אותה דמות בדיוק** בזוויות והבעות שונות עם רקע שקוף נקי. בנוסף, כתוב ב־[שורה 160](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L160) שמנפישים ב־Phaser Tweens, אך ב־[שורה 138](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L138) נדרשת "אנימציית פה" כגיבוי להיעדר קול — דבר שמחייב החלפת ספרייטים (frame-by-frame) לכל דמות ולא סתם Tween של מיקום/גודל.
+1. **Isolation of the leisure engine (`src/core/leisure`):** Separating earning logic, caps, and idle from Phaser ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L59), [section 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L166-L181)) enables real unit tests in Vitest and prevents bugs of mixed balances or dependence on the game's frame rate.
+2. **Separation of concerns between DOM and canvas:** Distinguishing a Hebrew shell in HTML/CSS (profiles, parent area, forms) from game scenes in Phaser ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L19)) will save a huge headache of managing forms and RTL inside a canvas.
+3. **Two-layer model for age 2 vs age 5:** The definition in [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L5) of a shared world with a behavioral variant (touch exploration vs a multi-step task) instead of two separate apps is right pedagogically and engineering-wise.
+4. **Safe migration strategy:** Keeping the live prototype at the root until the skeleton and Animal Restaurant are completed on a separate branch ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L31), [section 12](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L237-L241)) avoids breaking the existing product.
+5. **Test focus on visual and logical regression:** Combining Vitest for leisure rules and Playwright for screenshots at tablet resolutions ([docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L210-L215)) matches exactly the needs of automated review in the repository.
 
 ---
 
-## 3. חורים חסרים במסמך
+## 2. Risks and problems
 
-1. **ארכיטקטורת "פינת הפנאי" ומימוש היתרה:** ב־[docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L21) מופיעה "פינת הפנאי (בועות, ציור חופשי, סרטון קצר בעתיד)". איך מתבצע מעבר ממצב למידה למצב פנאי? איך נראה הטיימר שסופר אחורה בלי להלחיץ ילדה בת שנתיים? ומה קורה ברגע שהיתרה מתאפסת באמצע ציור בסטודיו — האם חוטפים לה את המסך מיד או מאפשרים לסיים את הפעולה הנוכחית (Grace period)?
-2. **עמידות בפני קלט של פעוטות (Multi-touch & Palm Rejection):** פעוטות בני שנתיים מניחים יד שלמה על הטאבלט ולוחצים באצבע השנייה, או מקישים 10 פעמים בשנייה על אותו פריט. אין התייחסות לניהול Multi-touch ב־Phaser, נעילת קלט בזמן השמעת משוב/אנימציה (debounce), והרחקת כפתורי יציאה/עזרה משולי המסך.
-3. **מדיניות פקיעת יתרה וצבירה יומית:** מה קורה ליתרת פנאי שנצברה היום ולא נוצלה? האם היא מתאפסת בלילה או נשמרת? מהו בדיוק ההבדל בין 5 התקרות המוזכרות ב־[סעיף 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L177) ("פנאי בסיסי, יחס המרה, תקרת צבירה, תקרת מימוש, תקרת יתרה, ותקרה כוללת ליום")? ריבוי המושגים הזה מבלבל גם למתכנת וגם להורה במסך ההגדרות.
-4. **גיבוי ושחזור מול מחיקת מטמון דפדפן:** ב־[סעיף 9](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L201) ייצוא/ייבוא לקובץ נדחה ל"בהמשך". מאחר שכל הנתונים ב־`localStorage`/`IndexedDB`, ניקוי נתוני גלישה בכרום בטאבלט ימחק את כל הפרופילים, ההגדרות, ההתקדמות והציורים של הבנות.
+### Architecture and Phaser / Vite / PWA
+* **Over-optimism about "code splitting by world":** In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L18) and [section 11](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L229) it is claimed that Vite will split code by world. In practice, the `phaser` library itself is a monolith of ~1MB minified (or ~300KB gzipped), and it is loaded already on entry. Code splitting will save only a few kilobytes of game logic, while the real bottleneck is loading assets (textures and audio) through Phaser's Loader, not Vite's JS bundle.
+* **The `vite-plugin-pwa` (Workbox) cache trap:** [Section 9](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L202) says the Service Worker will store atlases and audio. If `precache` is set for all assets in Workbox, and in phase B hundreds of recorded audio files in 3 languages are added, the first PWA install will fail or get stuck. The App Shell (in precache) must be separated from world assets (runtime caching or proactive loading on entering a world). In addition, there is no mention of a version-update mechanism (`skipWaiting` / a refresh banner for the parent) — in a `standalone` PWA on a tablet, a child can stay for months on an old cached version.
+
+### RTL and canvas
+* **Hebrew text on a Phaser canvas is a minefield:** [Section 4](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L128) discusses direction isolation also for text on canvas. Phaser's text engine (`Phaser.GameObjects.Text`) is based on `CanvasRenderingContext2D.fillText`, which has known bugs in Chrome on Android with a mix of Hebrew, punctuation, and numbers (BiDi), and does not support HTML `dir="ltr"` or `unicode-bidi: isolate`. If Hebrew or mixed text is shown on the canvas, it may reverse. The right solution is to show all UI text and instructions in a DOM layer above the canvas (`Phaser.GameObjects.DOMElement` or an HTML shell), and leave on the canvas only graphic objects or isolated LTR words.
+
+### Audio and TTS
+* **Unreliability of the Web Speech API on Android offline:** [Section 5](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L138) proposes continuing in phase A with device TTS. On many Android tablets (especially Samsung/Lenovo or certain versions of the Google TTS engine), French (`fr-FR`) or Hebrew (`he-IL`) voices are not preinstalled for offline use, or `speechSynthesis.getVoices()` returns an empty array on first load until a `voiceschanged` event that sometimes never fires in a WebView/PWA. Worse: `speechSynthesis.speak()` is often swallowed silently without throwing an error, so the 2-year-old will see a silent screen without understanding what is being asked of her.
+* **French grammar and articles:** In the JSON sketch ([line 108](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L108)) `"fr": "pomme", "frGender": "f"` appears. In French you cannot assemble a natural sentence such as *"Je veux une pomme"* or *"Donne-moi du pain"* from a noun and grammatical gender (`f`/`m`) alone, because of partitive articles (`du`, `de la`, `de l'`) and elision (`l'orange`). Trying to assemble sentences dynamically in code will lead to broken French.
+
+### Content-as-data
+* **Gap between the proposed schema and game complexity:** The JSON sketch in [section 3](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L95-L110) is too simplistic even for the age-5 requirements in the same document. [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L37) and [line 46](file:///workspace/kids-app/app/docs/WORLDS.md#L46) talk about requests with an attribute ("red apple" / Hebrew UI example: "תפוח אדום"), negation ("not the red hat"), or a rule that changes mid-way ("now only the small ones" in [line 76](file:///workspace/kids-app/app/docs/WORLDS.md#L76)). The proposed schema does not include attributes (`attributes`: color, size), complete sentence templates per language, or stage rules. If a rich schema is not defined up front (for example with Zod or strict TypeScript interfaces), every game will become hardcoded and the "content as data" promise will be emptied of meaning.
+
+### Leisure engine
+* **Idle detection for a two-year-old, and day rollover:** [Section 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L174-L175) states that earning is by participation and that idle is checked. In a game where a two-year-old is listening to a song ([Word Song](file:///workspace/kids-app/app/docs/WORLDS.md#L48-L54)) or watching an animation for 25 seconds without touching the screen, an idle mechanism based only on `pointerdown` events will cut her time earning by mistake. Also, how "day rollover" is computed is not defined (local midnight? what happens if the time is changed on the tablet? is unredeemed balance deleted at midnight or carried to the next day up to the balance cap?).
+
+### Performance on a mid-range Android tablet
+* **System gestures and GPU memory:** [Section 11](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L226-L231) lacks a reference to a critical problem in drag games on a children's tablet: dragging near the screen edges on Android triggers the system Back gesture or opens the notification shade. Also, cheap tablets are very limited in VRAM; loading several Texture Atlases of size `4096x4096` will crash the WebGL context. Atlas size should be limited to `2048x2048`, and textures should be released (`textures.remove`) on leaving a world.
+
+### Tests and publishing to Pages
+* **WebGL rendering in Playwright in CI:** [Section 10](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L213) plans Playwright screenshots on every PR. On GitHub Actions (Ubuntu runners without a GPU), Chrome runs headless and renders WebGL through SwiftShader (software), which sometimes fails or produces artifacts different from Canvas 2D, or the shot is taken before Phaser has finished loading fonts and textures and rendering a stable frame.
+
+### Worlds scope and the graphics pipeline
+* **Unrealistic scope and an internal contradiction in animations:** [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md) details 12 games in 4 worlds, each with two variants (age 2 and 5) and 3 languages. Even if they are built in stages, producing consistent assets with AI ([section 6](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L156-L160)) is a heavy manual task: image AI tools (Midjourney/DALL-E) struggle badly to produce **exactly the same character** at different angles and expressions with a clean transparent background. In addition, [line 160](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L160) says animation is done with Phaser Tweens, but [line 138](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L138) requires "mouth animation" as a fallback for missing audio — which requires sprite replacement (frame-by-frame) for each character, not merely a position/size tween.
 
 ---
 
-## 4. המלצות קונקרטיות לשינוי במסמכים ובתוכנית
+## 3. Gaps missing from the document
 
-1. **ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) סעיף 3 (תוכן כנתונים):** לשנות את סקיצת ה־JSON כך שלא תכיל מילים בודדות שמהן הקוד מרכיב משפטים, אלא מפתחות למשפטים שלמים ותקינים דקדוקית בכל שפה (כולל תווית יידוע בצרפתית, למשל `"frPrompt": "Donne-moi une pomme"`), ולהוסיף שדה `attributes` (`color`, `size`) לכל פריט.
-2. **ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) סעיף 4 (i18n ו־RTL):** לקבוע כלל ברזל ארכיטקטוני: **אין לרנדר משפטים בעברית או טקסט דו־כיווני בתוך `Phaser.GameObjects.Text` על הקנבס.** כל טקסט עברי יוצג בשכבת HTML/CSS מעל הקנבס.
-3. **ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) סעיף 5 (אסטרטגיית שמע):** להקדים את הפקת הקולות המוקלטים (אפילו באמצעות כלי TTS איכותי במחשב הפיתוח שנשמר כקבצי `.mp3`/`.ogg` סטטיים במאגר) כבר לשלב 3 (מסעדת החיות), ולא לדחות לשלב 7. זה יפתור מיד גם את בעיית האוף־ליין של Web Speech API ב־Android וגם את איכות ההגייה בצרפתית, באפס עלות זמן־ריצה.
-4. **ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) סעיף 7 (מנוע הפנאי):** לפשט את מודל התקרות מ־5 תקרות שונות ל־3 פרמטרים ברורים לכל היותר (למשל: פנאי בסיסי יומי, יחס המרה, ותקרת פנאי יומית מקסימלית), ולהגדיר שזמן השמעת אודיו/אנימציה של המשחק אינו נספר כ־idle.
-5. **ב־[docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) סעיף 10 (בדיקות):** להגדיר חשיפת אובייקט סטטוס גלובלי במצב בדיקה (למשל `window.__GAME_READY__`) או שימוש ב־Canvas 2D renderer ב־CI כדי שצילומי המסך ב־Playwright יהיו דטרמיניסטיים ולא יצלמו מסך טעינה שחור.
-6. **ב־[docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md) ובמפת הדרכים:** לצמצם את הגדרת ה־MVP לשתי תבניות משחק בלבד ("בחירה/הגשה" ו"מיון/גרירה") ולעולם אחד מלא ("בית השפות" + "בועות" כפינת פנאי) לפני שמתכננים 4 עולמות ו־12 משחקים.
+1. **Architecture of the "Leisure Corner" and balance redemption:** [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md#L21) mentions a "Leisure Corner (bubbles, free drawing, a short video in the future)". How does the transition from learning mode to leisure mode work? What does the countdown timer look like without stressing a two-year-old? And what happens the moment the balance hits zero mid-drawing in the studio — is the screen snatched immediately, or is the current action allowed to finish (grace period)?
+2. **Toddler input resilience (multi-touch and palm rejection):** Two-year-olds rest a whole hand on the tablet and press with the other finger, or tap the same item 10 times a second. There is no treatment of multi-touch management in Phaser, locking input while feedback/animation plays (debounce), and keeping exit/help buttons away from the screen edges.
+3. **Balance expiry and daily earning policy:** What happens to leisure balance earned today and not used? Does it reset at night or is it kept? What exactly is the difference between the 5 caps mentioned in [section 7](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L177) ("base leisure, conversion ratio, earning cap, redemption cap, balance cap, and an overall daily cap")? This many terms is confusing both for a programmer and for a parent on the settings screen.
+4. **Backup and restore vs clearing the browser cache:** In [section 9](file:///workspace/kids-app/app/docs/ARCHITECTURE.md#L201) file export/import is deferred to "later". Because all data is in `localStorage`/`IndexedDB`, clearing browsing data in Chrome on the tablet will delete all of the girls' profiles, settings, progress, and drawings.
 
 ---
 
-## 5. מה חייב אישור של מאור לפני תחילת המימוש
+## 4. Concrete recommendations for changes to the documents and the plan
 
-לפני כתיבת שורת קוד אחת בשלד החדש, מאור חייב להכריע ולאשר את הנקודות הבאות:
+1. **In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) section 3 (content as data):** Change the JSON sketch so it does not contain isolated words from which the code assembles sentences, but keys for complete, grammatically correct sentences in each language (including the French article, for example `"frPrompt": "Donne-moi une pomme"`), and add an `attributes` field (`color`, `size`) on every item.
+2. **In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) section 4 (i18n and RTL):** Set a hard architectural rule: **Do not render Hebrew sentences or bidirectional text inside `Phaser.GameObjects.Text` on the canvas.** All Hebrew text will be shown in an HTML/CSS layer above the canvas.
+3. **In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) section 5 (audio strategy):** Bring forward the production of recorded voices (even using a quality TTS tool on the development machine, saved as static `.mp3`/`.ogg` files in the repository) already to stage 3 (Animal Restaurant), and do not defer it to stage 7. This will immediately solve both the offline Web Speech API problem on Android and French pronunciation quality, at zero runtime cost.
+4. **In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) section 7 (leisure engine):** Simplify the caps model from 5 different caps to at most 3 clear parameters (for example: daily base leisure, conversion ratio, and a maximum daily leisure cap), and define that time spent playing the game's audio/animation is not counted as idle.
+5. **In [docs/ARCHITECTURE.md](file:///workspace/kids-app/app/docs/ARCHITECTURE.md) section 10 (tests):** Define exposure of a global status object in test mode (for example `window.__GAME_READY__`) or use of a Canvas 2D renderer in CI so Playwright screenshots are deterministic and do not capture a black loading screen.
+6. **In [docs/WORLDS.md](file:///workspace/kids-app/app/docs/WORLDS.md) and the roadmap:** Narrow the MVP definition to only two game templates ("choice/serve" and "sort/drag") and one complete world ("Language House" + "Bubbles" as the leisure corner) before planning 4 worlds and 12 games.
 
-1. **המחסנית הטכנולוגית ומעבר ה־Pages:** אישור המעבר ל־Vite + TypeScript + Phaser 3 ושינוי הגדרות GitHub Pages לפרסום מתוך GitHub Actions (תיקיית `dist`) במקום משורש `main`.
-2. **חוקי מנוע הפנאי המדויקים:** מהם הפרמטרים שההורה שולט בהם (האם באמת נחוצות 5 תקרות שונות?), מהו סף ה־idle בשניות לכל גיל, מה קורה ליתרה בחצות, ואיך מתנהג המסך כשנגמר זמן הפנאי באמצע משחק/יצירה.
-3. **פתרון הקול לשלב הראשון:** האם מאור מאשר לייצר מראש קובצי קול סטטיים (MP3/OGG) ולארוז אותם במאגר כבר במשחק הראשון במקום להסתמך על ה־TTS המובנה והבעייתי של Android?
-4. **דגם הטאבלט של המשפחה:** מהו הדגם המדויק, גודל המסך וגרסת ה־Android של הטאבלט שבו הבנות משתמשות (נדרש לקביעת רזולוציית הקנבס, בדיקת WebGL ותמיכת TTS).
-5. **כיוון אמנותי ודמויות הבית:** אישור סגנון האיור והדמויות הקבועות שילוו את הבנות במפה ובעולמות.
+---
+
+## 5. What requires Maor's approval before implementation starts
+
+Before writing a single line of code in the new skeleton, Maor must decide and approve the following points:
+
+1. **The technology stack and the Pages move:** Approval of the move to Vite + TypeScript + Phaser 3, and changing GitHub Pages settings to publish from GitHub Actions (the `dist` folder) instead of from the root of `main`.
+2. **The exact leisure-engine rules:** Which parameters the parent controls (are 5 different caps really needed?), what the idle threshold in seconds is for each age, what happens to the balance at midnight, and how the screen behaves when leisure time runs out mid-game/creation.
+3. **The audio solution for the first stage:** Does Maor approve producing static audio files (MP3/OGG) in advance and packaging them in the repository already in the first game, instead of relying on Android's built-in and problematic TTS?
+4. **The family's tablet model:** What is the exact model, screen size, and Android version of the tablet the girls use (needed to set canvas resolution, test WebGL, and TTS support).
+5. **Art direction and the house characters:** Approval of the illustration style and the fixed characters that will accompany the girls on the map and in the worlds.

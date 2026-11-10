@@ -1,62 +1,64 @@
-# סקירה — `docs/ARCHITECTURE.md` + `docs/WORLDS.md`
+# Review — `docs/ARCHITECTURE.md` + `docs/WORLDS.md`
 
-## 1. חוזקות
+This review was written against the original Hebrew drafts. Line-number links refer to those drafts at the time of the review.
 
-- תיוג עקבי ("הצעה — ממתין לאישור") מפריד היטב בין מה שכבר הוחלט (צבירת פנאי, עברית, Android, אוף־ליין) למה שעדיין טעון החלטה של מאור — נוח לסקירה ולחתימה חלקית.
-- הפרדת שכבות (מפת עולם / תבנית משחק / תוכן JSON) היא העוגן החזק ביותר במסמך: אם היא תוחזק, היא באמת מצמצמת כל משחק חדש לקובץ תוכן + נכסים, כמו שנכתב בשורה 79.
-- כללי מנוע הפנאי (סעיף 7) חדים וטובים מנקודת מבט חינוכית: אין קנס על טעות, idle לא מזכה, אין תחרות בין אחיות — זה מתורגם נכון מה"חזון" לכללי מערכת ניתנים לבדיקה.
-- מדיניות הפרטיות/שמע (סעיף 5, 9) ברורה ועקבית: אין שליחת קול הילד לשרת, אין תמלול, הכול במכשיר.
-- תוכנית הפריסה לא שוברת את האתר החי עד מיזוג מאושר — גישה אחראית למוצר שבשימוש בפועל של שתי ילדות.
+## 1. Strengths
 
-## 2. סיכונים ובעיות
+- Consistent tagging ("proposal — pending owner approval") separates well what is already decided (leisure earning, Hebrew, Android, offline) from what still needs Maor's decision — convenient for review and partial sign-off.
+- The layer split (world map / game template / JSON content) is the strongest anchor in the document: if it is maintained, it really reduces each new game to a content file + assets, as written on line 79.
+- The leisure-engine rules (section 7) are sharp and sound from an educational point of view: no penalty for a mistake, idle does not earn, no competition between sisters — this is correctly translated from the "vision" into testable system rules.
+- The privacy/audio policy (sections 5, 9) is clear and consistent: no sending the child's voice to a server, no transcription, everything on the device.
+- The rollout plan does not break the live site until an approved merge — a responsible approach for a product two children already use.
 
-**ארכיטקטורה.** אין החלטה על ניהול מצב בין שכבת ה־DOM (עברית, אזור הורה) לשכבת Phaser (קנבס) — איך הם מדברים (אירועים? store משותף?), מה קורה אם סצנה ב־Phaser קורסת (crash) בזמן שהילדה באמצע משחק — האם האפליקציה "תקועה" או שיש נתיב חזרה למפה? זה לא מוזכר בכלל. גם אין מילה על schema migration ל־`localStorage`/IndexedDB כשתוכן/כללים משתנים בין גרסאות — פרופיל קיים של בת עם יתרת פנאי לא יכול "להישבר" כשמוסיפים עולם.
+## 2. Risks and problems
 
-**Phaser/Vite/PWA.** יש מתח לא פתור בין "פיצול קוד ונכסים לפי עולם" (סעיף 11) לבין Workbox/`vite-plugin-pwa` שבדרך כלל עושה precache אגרסיבי של כל מה שב־build — בלי החלטה מפורשת על אסטרטגיית caching (precache רק לשלד, runtime caching לעולמות), הדרישה ל"לא לטעון הכול בבת אחת" ו"עובד אוף־ליין אחרי הורדה פעם אחת" יכולות להתנגש. גם אין תקציב בייט/MB קונקרטי לטעינה ראשונה (Phaser core עצמו כבר כמה מאות KB).
+**Architecture.** There is no decision on state management between the DOM layer (Hebrew, parent area) and the Phaser layer (canvas) — how they talk (events? a shared store?), and what happens if a Phaser scene crashes while the girl is mid-game — does the app get "stuck", or is there a path back to the map? This is not mentioned at all. There is also no word on schema migration for `localStorage`/IndexedDB when content/rules change between versions — an existing profile of a daughter with a leisure balance cannot "break" when a world is added.
 
-**RTL וקנבס.** סעיף 4 פותר נכון את הכיווניות עבור טקסט לימודי מבודד, אבל לא מתייחס לטקסט/כפתורים *בתוך* הקנבס עצמו (למשל "השמע שוב" שמופיע כאלמנט Phaser קרוב לדמות) — ל־Phaser אין bidi shaping מובנה לעברית, וזה בדיוק המקום שדורש בדיקה מוקדמת ולא רק לאחר המיגרציה. גם אין החלטה על scale mode בין לנדסקייפ לפורטרט (FIT מול ENVELOP, letterboxing) — מוזכר רק כבדיקת Playwright, לא כעיצוב.
+**Phaser/Vite/PWA.** There is an unresolved tension between "code and asset splitting by world" (section 11) and Workbox/`vite-plugin-pwa`, which usually does aggressive precache of everything in the build — without an explicit decision on a caching strategy (precache only the shell, runtime caching for worlds), the requirements "do not load everything at once" and "works offline after a one-time download" can conflict. There is also no concrete byte/MB budget for the first load (Phaser core itself is already several hundred KB).
 
-**שמע/TTS.** הפתרון לחוסר קול כלל קיים (שורה 138), אבל התרחיש הנפוץ יותר — קול צרפתי גרוע/עם מבטא שגוי שקיים במכשיר אך מבטא לא נכון — לא מטופל, וזה בדיוק המקרה שסעיף 5 עצמו מדגיש ("מין דקדוקי... חייב להיות נכון"). אין גם אזכור של pre-warm לקול לפני תחילת אינטראקציה כדי למנוע latency.
+**RTL and canvas.** Section 4 correctly solves directionality for isolated learning text, but does not address text/buttons *inside* the canvas itself (for example "play again" appearing as a Phaser element near the character) — Phaser has no built-in bidi shaping for Hebrew, and this is exactly the place that needs early testing, not only after the migration. There is also no decision on scale mode between landscape and portrait (FIT vs ENVELOP, letterboxing) — it is mentioned only as a Playwright check, not as a design.
 
-**תוכן־כנתונים.** אין בכלל validation של סכימת JSON ב־CI. אם מאור או מישהו אחר יערוך תוכן ישירות, קובץ שבור יכול לעלות ל־Pages ולשבור משחק חי בלי שאף בדיקה תתפוס את זה — זו תוספת קטנה וקריטית שחסרה בסעיף 10.
+**Audio/TTS.** The solution for a complete absence of voice already exists (line 138), but the more common scenario — a poor French voice / with a wrong accent that exists on the device but pronounces incorrectly — is not handled, and that is exactly the case section 5 itself emphasizes ("grammatical gender... must be correct"). There is also no mention of pre-warming the voice before interaction starts, to avoid latency.
 
-**מנוע פנאי.** הכלכלה מבוססת שעון מכשיר — איפוס שעון (בכוונה או בטעות) מאפס תקרות יומיות; ריבוי פרופילים על מכשיר אחד עשוי לאפשר "איפוס idle" בהחלפת פרופיל מהירה. אלה לא חובה לפתור כרגע, אבל שתיקה מלאה בנושא לא נכונה — לפחות צריך סעיף "מגבלות ידועות".
+**Content-as-data.** There is no JSON schema validation in CI at all. If Maor or someone else edits content directly, a broken file can go up to Pages and break a live game without any test catching it — this is a small and critical addition missing from section 10.
 
-**ביצועים בטאבלט בינוני.** היעדים (30fps, 64px מגע) הגיוניים אך לא מצוטטים ביחס לדגם מכשיר אמיתי — "דגם המכשיר עדיין לא נמסר" (שורה 223) אומר שהיעדים כרגע לא ניתנים לאימות. גם אין מדיניות GC של טקסטורות בין סצנות (destroy מול sleep) — על Android ישן, WebView memory leak הוא תקלה שכיחה יותר מ-FPS.
+**Leisure engine.** The economy is based on the device clock — resetting the clock (on purpose or by accident) resets daily caps; multiple profiles on one device may allow an "idle reset" by a fast profile switch. These do not have to be solved now, but complete silence on the topic is not right — at least a "known limitations" subsection is needed.
 
-**בדיקות.** אין בדיקת e2e לעבודה אוף־ליין בפועל (service worker, cache) למרות שזו דרישת ליבה. השוואת צילומי מסך (visual regression) עם אנימציות Phaser יכולה להיות "פלאקי" — אין אזכור של סף סבילות.
+**Performance on a mid-range tablet.** The targets (30fps, 64px touch) are reasonable but are not quoted against a real device model — "device model not yet provided" (line 223) means the targets are not currently verifiable. There is also no texture GC policy between scenes (destroy vs sleep) — on older Android, a WebView memory leak is a more common failure than FPS.
 
-**פרסום ל-Pages.** המעבר מ"branch root" ל"GitHub Actions artifact" הוא שינוי בהגדרות ריפו (לא רק קוד) שדורש פעולת admin של מאור, ואין תוכנית rollback אם ה-deploy הראשון שובר את האתר החי שהילדות משתמשות בו עכשיו.
+**Tests.** There is no e2e test for actual offline operation (service worker, cache) even though this is a core requirement. Visual regression of screenshots with Phaser animations can be "flaky" — there is no mention of a tolerance threshold.
 
-**היקף העולמות.** `WORLDS.md` מציג 5 אזורים × 3 משחקים × 2 גילים — תפריט חזון מלא, לא פיילוט. יש הפניה ל-roadmap ב-ARCHITECTURE, אבל בתוך `WORLDS.md` עצמו אין סימון מפורש של מה בפיילוט ומה "חזון בלבד" — סיכון לbloat.
+**Publishing to Pages.** The move from "branch root" to "GitHub Actions artifact" is a change in repo settings (not only code) that requires an admin action by Maor, and there is no rollback plan if the first deploy breaks the live site the girls are using now.
 
-## 3. חורים חסרים
+**Worlds scope.** `WORLDS.md` presents 5 areas × 3 games × 2 ages — a full vision menu, not a pilot. There is a pointer to the roadmap in ARCHITECTURE, but inside `WORLDS.md` itself there is no explicit mark of what is in the pilot and what is "vision only" — a risk of bloat.
 
-- אין telemetry/לוג שגיאות אפילו מקומי — "אין אנליטיקה" טוב לפרטיות, אבל גם אומר שלמאור אין שום דרך לדעת שמשהו נשבר בפועל אצל הילדות מרחוק.
-- אין decision על content-authoring: איך מאור בעצמו יוסיף מילה/שלב בלי לכתוב JSON גולמי נכון ב-100%.
-- אין התייחסות לאובדן נתונים: ניקוי אפליקציה/PWA uninstall מוחק את כל היתרה וההתקדמות; ה"ייצוא/ייבוא" מתוכנן רק "בהמשך" (שורה 201) — כלומר בפיילוט הסיכון הזה קיים ולא מוזכר כסיכון.
-- אין מטריצת תאימות (גרסאות Android/Chrome מינימליות).
-- אין תהליך בדיקת זכויות יוצרים/דמיון דמויות לנכסי AI, מעבר להצהרת כוונות (סעיף 6) — איך בודקים בפועל.
-- אין קביעה סופית למנגנון שער ההורה (סעיף 8 משאיר "אפשר להשאיר שאלת כפל, או..." כבחירה פתוחה בלי להצביע על ברירת מחדל).
-- בקטע "מה לא בונים בפיילוט" ב-WORLDS.md אין רשימת P0 מפורשת בתוך הקובץ עצמו.
+## 3. Missing gaps
 
-## 4. המלצות קונקרטיות לשינוי
+- No telemetry/error log even locally — "no analytics" is good for privacy, but it also means Maor has no way to know remotely that something actually broke for the girls.
+- No decision on content-authoring: how Maor himself will add a word/stage without writing raw JSON correctly 100% of the time.
+- No treatment of data loss: clearing the app / uninstalling the PWA deletes all balance and progress; "export/import" is planned only "later" (line 201) — meaning in the pilot this risk exists and is not mentioned as a risk.
+- No compatibility matrix (minimum Android/Chrome versions).
+- No copyright/character-resemblance review process for AI assets, beyond a statement of intent (section 6) — how this is actually checked.
+- No final decision on the parent-gate mechanism (section 8 leaves "the multiplication question can stay, or..." as an open choice without pointing to a default).
+- In the "what is not built in the pilot" section of WORLDS.md there is no explicit P0 list inside the file itself.
 
-1. בסעיף 1 (PWA): להוסיף פסקה שמחליטה explicitly בין precache לשלד בלבד מול runtime caching לעולמות, כדי לא להתנגש עם סעיף 11.
-2. בסעיף 10: להוסיף שלב CI של "content lint" — אימות סכימת JSON (למשל zod) לפני build.
-3. בסעיף 11: להחליף יעדים כלליים ביעד מדיד (למשל "טעינה ראשונית ≤ X MB") ולקבוע שהבדיקה בפועל מחכה לדגם מכשיר קונקרטי.
-4. בסעיף 1/"פרסום מוצע": להוסיף שורה שמציינת ששינוי מקור ה-Pages דורש פעולת admin של מאור ושיש לבדוק על preview URL לפני ההחלפה בפועל, עם תוכנית חזרה.
-5. בסעיף 7: להוסיף תת-סעיף "מגבלות ידועות" (שעון מכשיר, מחיקת אפליקציה) כדי שהשקיפות תהיה כתובה ולא רק מובנת מאליה.
-6. ב-WORLDS.md: לסמן בתוך הקובץ עצמו (לא רק בהפניה ל-ARCHITECTURE) אילו משחקים הם "פיילוט P0" לעומת חזון רחב.
-7. סעיף 8: להחליט/להציע ברירת מחדל אחת למנגנון שער ההורה, לא שתי אפשרויות פתוחות.
+## 4. Concrete recommendations for change
 
-## 5. מה חייב אישור מפורש של מאור לפני מימוש
+1. In section 1 (PWA): add a paragraph that decides explicitly between precache for the shell only vs runtime caching for worlds, so it does not conflict with section 11.
+2. In section 10: add a CI "content lint" step — JSON schema validation (for example zod) before the build.
+3. In section 11: replace general targets with a measurable one (for example "initial load ≤ X MB") and state that actual testing waits for a concrete device model.
+4. In section 1 / "Proposed publishing": add a line stating that changing the Pages source requires an admin action by Maor, and that it should be tested on a preview URL before the live swap, with a rollback plan.
+5. In section 7: add a "known limitations" subsection (device clock, app deletion) so the transparency is written down and not only implied.
+6. In WORLDS.md: mark inside the file itself (not only by reference to ARCHITECTURE) which games are "P0 pilot" versus the broader vision.
+7. Section 8: decide/propose one default for the parent-gate mechanism, not two open options.
 
-- מעבר מחסנית ל-Vite+TS+Phaser+PWA (שינוי אדריכלי מהותי, לא רק טכני).
-- שינוי מקור הפרסום ב-GitHub Pages (פעולת admin על ריפו ציבורי חי).
-- סגנון גרפי/דמויות (כבר מסומן נכון בסעיף 6, רק לחדד).
-- רישיון גופן (Noto או אחר).
-- ערכי ברירת המחדל של מנוע הפנאי (10/5 דקות, תקרת 30 דקות) — כרגע "זמניים" אך צריך שמישהו יאשר אותם רשמית לפני קוד.
-- רשימת האזורים/שמם ב-WORLDS.md וסדר הפיילוט בפועל (לא כל 15 המשחקים).
-- מנגנון שער ההורה.
-- מדיניות telemetry מקומי/לוג שגיאות — האם מותר בכלל, ובאיזו צורה, בהינתן "אין אנליטיקה חיצונית".
+## 5. What requires Maor's explicit approval before implementation
+
+- Stack move to Vite+TS+Phaser+PWA (a substantial architectural change, not only a technical one).
+- Changing the publish source on GitHub Pages (an admin action on a live public repo).
+- Graphic style/characters (already marked correctly in section 6, just to sharpen).
+- Font license (Noto or another).
+- Default values of the leisure engine (10/5 minutes, 30-minute cap) — currently "temporary", but someone needs to formally approve them before code.
+- The list of areas/their names in WORLDS.md and the actual pilot order (not all 15 games).
+- The parent-gate mechanism.
+- Local telemetry / error-log policy — whether it is allowed at all, and in what form, given "no external analytics".

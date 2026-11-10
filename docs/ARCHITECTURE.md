@@ -1,100 +1,100 @@
-# ארכיטקטורה ומפת דרכים — אפליקציית הלמידה לבנות
+# Architecture and roadmap — learning app for the girls
 
-סטטוס: **הצעה — ממתין לאישור**. המסמך מתאר כיוון טכני ומבני לגרסה הבאה. הוא אינו משנה את האפליקציה החיה בכתובת [מסעדת החיות](https://tzoomy.github.io/kids-app/). בחירות שמאור טרם אישר מסומנות במפורש.
+Status: **proposal — pending owner approval**. This document describes a technical and structural direction for the next version. It does not change the live app at [Animal Restaurant](https://tzoomy.github.io/kids-app/). Choices Maor has not yet approved are marked explicitly.
 
-המסמך נשען על `vision-summary.md` ועל `gpt-research-plan.md` (מחוץ למאגר, בתיקיית העבודה). דרישות הליבה שכבר נקבעו: מענה לשתי הבנות (כיום בנות 2 ו־5), ממשק בעברית, לימוד אנגלית וחיזוק צרפתית, טאבלט Android כמכשיר עיקרי, צבירת זמן פנאי מפעילות חינוכית, אזור הורה, הנאה מהתוכן החינוכי עצמו, עבודה ללא רשת, איסוף נתונים מינימלי, ואי שימוש בשירותים בתשלום בזמן הריצה.
+The document draws on `vision-summary.md` and `gpt-research-plan.md` (outside the repository, in the working folder). Core requirements already decided: support both daughters (currently ages 2 and 5), Hebrew UI, English learning and French reinforcement, Android tablet as the primary device, leisure time earned from educational activity, a parent area, enjoyment of the educational content itself, offline use, minimal data collection, and no paid services at runtime.
 
-האב־טיפוס הנוכחי הוא דף HTML/JS אחד עם אימוג'י, TTS של המכשיר, ושמירה ב־`localStorage`. הוא מוכיח את הלולאה הבסיסית (פרופיל ← משחק ← צבירה ← פנאי ← הורה), אבל אינו מתאים לגרפיקה ואנימציות ברמה גבוהה או להוספת עולמות בלי לשכתב את הקוד בכל פעם.
+The current prototype is a single HTML/JS page with emoji, device TTS, and `localStorage`. It proves the basic loop (profile ← game ← earning ← leisure ← parent), but it is not suitable for high-quality graphics and animation, or for adding worlds without rewriting the code each time.
 
 ---
 
-## 1. מחסנית טכנולוגית
+## 1. Technology stack
 
-**הצעה — ממתין לאישור:** Vite + TypeScript + Phaser 3, כ־PWA סטטית שמתפרסמת ל־GitHub Pages.
+**proposal — pending owner approval:** Vite + TypeScript + Phaser 3, as a static PWA published to GitHub Pages.
 
-| שכבה | בחירה מוצעת | נימוק |
+| Layer | Proposed choice | Rationale |
 |---|---|---|
-| מנוע משחק | Phaser 3 | מיועד למשחקי דפדפן: סצנות, ספרייטים, אנימציות, גרירה, פיזיקה בסיסית ואודיו. נשאר אפליקציית ווב שמוסיפים למסך הבית, בלי חנות ובלי שירות בתשלום. |
-| שפה וכלי בנייה | TypeScript + Vite | טיפוסים למנוע הפנאי, לתוכן JSON ולסצנות; בנייה מהירה; פיצול קוד לפי עולם; פלט סטטי ל־Pages. |
-| ממשק מעטפת | HTML/CSS קטן מחוץ לקנבס, או DOM בתוך Phaser | ניווט עברי, אזור הורה וטפסים נוחים יותר ב־DOM; המשחקים עצמם על הקנבס. |
-| PWA | `vite-plugin-pwa` (Workbox) | מטמון נכסים לעבודה ללא רשת, מניפסט בעברית, אייקונים, `standalone`. |
-| בדיקות | Vitest + Playwright | יחידות למנוע הפנאי ותוכן; צילומי מסך בגודל טאבלט בכל PR. |
-| פרסום | GitHub Actions → GitHub Pages | בנייה מ־`main` (או מתגית), העלאת תיקיית `dist` בלבד. חינמי, בלי שרת ובלי ספק אחסון נוסף. |
+| Game engine | Phaser 3 | Built for browser games: scenes, sprites, animations, drag-and-drop, basic physics, and audio. Remains a web app that can be added to the home screen, with no store and no paid service. |
+| Language and build | TypeScript + Vite | Types for the leisure engine, JSON content, and scenes; fast builds; code splitting by world; static output for Pages. |
+| Shell UI | Small HTML/CSS outside the canvas, or DOM inside Phaser | Hebrew navigation, the parent area, and forms are easier in the DOM; the games themselves are on the canvas. |
+| PWA | `vite-plugin-pwa` (Workbox) | Asset caching for offline use, Hebrew manifest, icons, `standalone`. |
+| Tests | Vitest + Playwright | Unit tests for the leisure engine and content; tablet-sized screenshots on every PR. |
+| Publishing | GitHub Actions → GitHub Pages | Build from `main` (or a tag), upload the `dist` folder only. Free, no server, no extra hosting provider. |
 
-חלופות שנשקלו ונדחו לפי שעה (גם הן **הצעה — ממתין לאישור**):
+Alternatives considered and deferred for now (also **proposal — pending owner approval**):
 
-- להמשיך ב־HTML/JS טהור: מהיר לאב־טיפוס, חלש לאנימציה, לאטלסים ולמשחקי גרירה.
-- PixiJS בלבד: ציור מצוין, אבל בלי סצנות, פיזיקה וקלט מוכנים; נבנה יותר קוד בעצמנו.
-- Godot / Unity לייצוא ווב: כבד יותר לצוות CLI, פחות טבעי לתוכן JSON ול־PWA קלילה, וקשה יותר לסקירת PR.
-- Capacitor / אפליקציית חנות: יעד עתידי אפשרי, לא נחוץ כל עוד הטאבלט פותח את האתר ומוסיף אותו למסך הבית.
+- Continue with plain HTML/JS: fast for a prototype, weak for animation, atlases, and drag-and-drop games.
+- PixiJS only: excellent rendering, but no ready-made scenes, physics, or input; we would build more code ourselves.
+- Godot / Unity for web export: heavier for a CLI team, less natural for JSON content and a light PWA, and harder to review in a PR.
+- Capacitor / a store app: a possible future target, not needed as long as the tablet opens the site and adds it to the home screen.
 
-המעבר יתבצע בענף נפרד, בלי לשבור את האתר החי עד שאישור ומיזוג. עד אז קבצי האב־טיפוס נשארים בשורש המאגר, כפי שהם היום.
+The migration will happen on a separate branch, without breaking the live site until approval and merge. Until then the prototype files stay at the repository root, as they are today.
 
-### פרסום מוצע
+### Proposed publishing
 
 ```
-PR מאושר → מיזוג ל-main → GitHub Action
-  (npm ci, בדיקות, vite build)
-  → העלאת dist ל-GitHub Pages
+Approved PR → merge to main → GitHub Action
+  (npm ci, tests, vite build)
+  → upload dist to GitHub Pages
 ```
 
-**הצעה — ממתין לאישור:** לאחר המעבר, Pages יוגדר לפרסום מתוצר ה־Action ולא משורש `main`. כתובת המשחק תישאר `https://tzoomy.github.io/kids-app/`. יש לקבוע `base: '/kids-app/'` ב־Vite. שינוי מקור הפרסום הוא פעולת הגדרות במאגר, ודורש אישור וביצוע של מאור (או מי שיש לו הרשאת admin). לפני ההחלפה בכתובת החיה יש לבדוק build ב־preview (למשל Pages של הענף, או הפעלה מקומית של `dist`). אם הפרסום הראשון נשבר, חוזרים זמנית לפרסום משורש `main` שבו נשמר האב־טיפוס, או ל־commit האחרון שעבד. המאגר ציבורי; אין לשים בו מפתחות, שמות אמיתיים של הבנות, או נתוני שימוש.
+**proposal — pending owner approval:** After the migration, Pages will be configured to publish from the Action output rather than from the root of `main`. The game URL will remain `https://tzoomy.github.io/kids-app/`. Set `base: '/kids-app/'` in Vite. Changing the publish source is a repository settings action, and requires Maor's approval and action (or someone with admin permission). Before swapping the live URL, test a build in preview (for example branch Pages, or a local run of `dist`). If the first publish breaks, temporarily fall back to publishing from the root of `main`, where the prototype is kept, or to the last commit that worked. The repository is public; do not put keys, the girls' real names, or usage data in it.
 
-**מטמון PWA (עודכן אחרי הסקירות):** precache רק לשלד האפליקציה (HTML, JS של הליבה כולל Phaser, CSS, אייקונים, תוכן המינימום למשחק הדגל אם הוא חלק מהעלייה הראשונה). נכסי עולמות, אטלסים וקולות — runtime caching או טעינה יזומה בכניסה לעולם, כדי שההתקנה הראשונה לא תנסה להוריד את כל הספרייה. אחרי שנכס ירד פעם אחת, הוא זמין ללא רשת. חסר גם מנגנון עדכון: ב־PWA במצב `standalone` הקאש עלול להשאיר גרסה ישנה; **הצעה — ממתין לאישור** להציג להורה באנר רענון פשוט, בלי `skipWaiting` אלים באמצע משחק.
+**PWA cache (updated after the reviews):** Precache only the app shell (HTML, core JS including Phaser, CSS, icons, and the minimum content for the flagship game if it is part of the first launch). World assets, atlases, and audio — runtime caching or proactive loading on entering a world, so the first install does not try to download the entire library. After an asset has been downloaded once, it is available offline. An update mechanism is also missing: in a `standalone` PWA the cache can leave an old version in place; **proposal — pending owner approval** to show the parent a simple refresh banner, without an aggressive `skipWaiting` in the middle of a game.
 
-הערה על פיצול קוד: חבילת Phaser עצמה מגיעה כבר בכניסה (בסדר גודל של מאות קילובייטים אחרי gzip). החיסכון החשוב הוא בנכסים לפי עולם, לא בפיצול JS של כמה קילובייטים של לוגיקת משחק.
+Note on code splitting: the Phaser bundle itself already arrives on first entry (on the order of hundreds of kilobytes after gzip). The important savings are in per-world assets, not in splitting a few kilobytes of game logic JS.
 
 ---
 
-## 2. מבנה תיקיות מוצע
+## 2. Proposed folder structure
 
-**הצעה — ממתין לאישור.** המבנה יופיע בענף המימוש, לא בפריסת האב־טיפוס הנוכחית.
+**proposal — pending owner approval.** The structure will appear on the implementation branch, not in the current prototype layout.
 
 ```
 kids-app/
   AGENTS.md, CLAUDE.md, GEMINI.md
-  docs/                  # ארכיטקטורה, עולמות, צוות, סקירות
-  index.html             # נקודת הכניסה של Vite
-  public/                # מניפסט, אייקונים, .nojekyll
+  docs/                  # architecture, worlds, team, reviews
+  index.html             # Vite entry point
+  public/                # manifest, icons, .nojekyll
   src/
     main.ts
-    game/                # יצירת Phaser.Game, הגדרות סצנות
+    game/                # Phaser.Game creation, scene config
     core/
-      leisure/           # מנוע צבירת הפנאי — מודול משותף, בלי תלות ב־Phaser
-      storage/           # פרופילים, הגדרות הורה, התקדמות
-      audio/             # TTS כעת, קבצי קול מוקלטים בהמשך, SFX
-      input/             # מגע גדול, ביטול זום, נגישות בסיסית
-    ui/                  # מעטפת עברית: בחירת פרופיל, מפת עולם, אזור הורה
-    worlds/              # סצנת מפה + כניסה לעולם
+      leisure/           # leisure-earning engine — shared module, no Phaser dependency
+      storage/           # profiles, parent settings, progress
+      audio/             # TTS for now, recorded audio files later, SFX
+      input/             # large touch targets, disable zoom, basic accessibility
+    ui/                  # Hebrew shell: profile select, world map, parent area
+    worlds/              # map scene + world entry
     games/
-      templates/         # תבניות: בחירה, גרירה, מיון, רצף, יצירה
-      restaurant/        # מסעדת החיות (המשחק הראשון למיגרציה)
-    content/             # תוכן כנתונים (JSON), לא לוגיקה
+      templates/         # templates: choice, drag, sort, sequence, create
+      restaurant/        # Animal Restaurant (first game to migrate)
+    content/             # content as data (JSON), not logic
       worlds.json
       games/
       i18n/
-    assets/              # מקורות גרפיקה; האטלסים נבנים ל־public/assets
+    assets/              # graphics sources; atlases are built to public/assets
   tests/
-    unit/                # Vitest, בעיקר core/leisure וטעינת תוכן
-    e2e/                 # Playwright, כולל צילומי מסך
-  .github/workflows/     # CI: בדיקות + build; פרסום רק מ-main
+    unit/                # Vitest, mainly core/leisure and content loading
+    e2e/                 # Playwright, including screenshots
+  .github/workflows/     # CI: tests + build; publish only from main
 ```
 
-כל משחק חדש אמור לדרוש בעיקר קובץ תוכן, נכסים, ובמקרה הצורך הרחבה קטנה לתבנית קיימת — לא עותק של כל האפליקציה.
+Each new game should mainly need a content file, assets, and when necessary a small extension to an existing template — not a copy of the whole app.
 
 ---
 
-## 3. מפת עולם, תבנית משחק, ותוכן כנתונים
+## 3. World map, game template, and content as data
 
-**הצעה — ממתין לאישור.** פירוט העולמות והמשחקים ב־`docs/WORLDS.md`.
+**proposal — pending owner approval.** World and game details are in `docs/WORLDS.md`.
 
-שלוש שכבות נפרדות:
+Three separate layers:
 
-1. **מפת העולם** — סצנה אחת שבה הילדה בוחרת אזור (בית השפות, גינת המספרים, מעבדת הטבע, סטודיו יצירה, ופינת פנאי מאושרת). הכניסה לעולם מציגה כמה משחקים. המפה משותפת לשתי הבנות; מה שמשתנה הוא מסלול האינטראקציה, מספר הבחירות, וההדרכה.
-2. **תבנית משחק** — קוד כללי לסוג פעולה: בחירה בין פריטים, גרירה והנחה, מיון למדפים, רצף צעדים, יצירה חופשית. התבנית יודעת להציג דמות, להשמיע בקשה, לקבל פעולה, לתת משוב, ולדווח למנוע הפנאי ולמעקב הלמידה.
-3. **תוכן כנתונים** — JSON לכל משחק: מיומנות, שפת לימוד, פריטים, משפטים, רמות, אילו פעילויות מזכות בפנאי, וקישורים לנכסי גרפיקה וקול. הוספת מאכלים, מילים או שלב חדש נעשית בקובץ התוכן.
+1. **World map** — one scene where the girl chooses an area (Language House, Number Garden, Nature Lab, Art Studio, and an approved leisure corner). Entering a world shows several games. The map is shared by both girls; what changes is the interaction path, the number of choices, and the guidance.
+2. **Game template** — generic code for a type of action: choosing among items, drag and drop, sorting onto shelves, a sequence of steps, free creation. The template knows how to show a character, play a request, accept an action, give feedback, and report to the leisure engine and learning tracking.
+3. **Content as data** — JSON for each game: skill, learning language, items, sentences, levels, which activities earn leisure, and links to graphics and audio assets. Adding foods, words, or a new stage is done in the content file.
 
-סקיצה לתוכן (לא סופית; עודכנה אחרי הסקירות). המשפטים בשפות הלימוד נשמרים שלמים ומאושרים, ולא מורכבים בקוד משם עצם ומין דקדוקי בלבד — במיוחד בצרפתית (יידוע, partitif, `l'orange`). לפריטים יש תכונות (צבע, גודל) כשהמשחק צריך אותן. הסכימה תוגדר ב־TypeScript ותאומת ב־CI (למשל ב־Zod) לפני כל build, כדי שקובץ תוכן שבור לא יעלה ל־Pages.
+Content sketch (not final; updated after the reviews). Learning-language sentences are stored complete and approved, and are not assembled in code from a noun and grammatical gender alone — especially in French (articles, partitive, `l'orange`). Items have attributes (color, size) when the game needs them. The schema will be defined in TypeScript and validated in CI (for example with Zod) before every build, so a broken content file does not go up to Pages.
 
 ```json
 {
@@ -124,168 +124,167 @@ kids-app/
 }
 ```
 
-עקרונות תוכן:
+Content principles:
 
-- שפת לימוד אחת לכל סיבוב, עם כפתור עזרה בעברית.
-- התקדמות נשמרת לפי מיומנות ושפה, לא כציון כללי אחד.
-- חזרה מזכה לפי כללים, אבל לא בלי הגבלה על אותו שלב קל.
-- אין כישלון מעניש: טעות מביאה רמז או הדגמה, לא הורדת יתרת פנאי.
-- בשלב הראשון מאור והצוות עורכים JSON; כלי עריכה ידידותי להורה הוא יעד מאוחר, לא תנאי לפיילוט.
-
----
-
-## 4. i18n ו־RTL
-
-**הצעה — ממתין לאישור.**
-
-- מעטפת האפליקציה, הניווט, אזור ההורה וההסברים: עברית, `dir="rtl"`, `lang="he"`.
-- מחרוזות מעטפת בקובצי i18n (לפחות `he`), כדי לא להטמיע טקסט בקוד. אין דרישה כרגע לממשק באנגלית או בצרפתית.
-- **כלל מוצע (עודכן אחרי הסקירות) — ממתין לאישור:** אין לרנדר משפטים בעברית או טקסט דו־כיווני ב־`Phaser.GameObjects.Text` על הקנבס. ל־Canvas `fillText` יש באגים ידועים ב־BiDi בכרום ב־Android. טקסט UI והוראות יוצגים בשכבת HTML/CSS מעל הקנבס (מעטפת או `DOMElement`). על הקנבס נשארים גרפיקה, ומילים בודדות ב־LTR בשפת הלימוד בלבד אם צריך.
-- תוכן הלימוד באנגלית ובצרפתית מוצג בבידוד כיווניות (`dir="ltr"` / isolate) בשכבת ה־DOM.
-- **הצעה — ממתין לאישור** למצב סקייל: `Phaser.Scale.FIT` עם letterbox, ללנדסקייפ ולפורטרט, בלי לחתוך כפתורים. כפתורי יציאה ועזרה לא יושבים על שולי המסך, כדי לא להתנגש במחוות המערכת של Android (חזרה, וילון התראות).
-- פונטים: משפחת גופנים אחת שתומכת היטב בעברית ובאותיות לטיניות, נארזת באפליקציה כדי לעבוד ללא רשת. **הצעה — ממתין לאישור:** גופן חופשי עם רישיון ברור (למשל משפחת Noto), בלי גופנים בתשלום.
-- כפתורים, מטרות מגע ואזורי גרירה גדולים; אין להסתמך על קריאה אצל בת השנתיים — הקול מוביל, הטקסט תומך. יש לטפל בלחיצות חוזרות, multi-touch ויד שמונחת על המסך (palm), ולנעול קלט בזמן משוב קצר.
+- One learning language per round, with a Hebrew help button.
+- Progress is stored by skill and language, not as a single overall score.
+- Repetition earns credit according to rules, but not without a limit on the same easy stage.
+- No punishing failure: a mistake brings a hint or a demonstration, not a reduction of the leisure balance.
+- In the first stage Maor and the team edit JSON; a parent-friendly editor is a later goal, not a requirement for the pilot.
 
 ---
 
-## 5. אסטרטגיית שמע
+## 4. i18n and RTL
 
-**הצעה — ממתין לאישור.**
+**proposal — pending owner approval.**
 
-שלב א׳ היה, באב־טיפוס, Web Speech API. הסקירות מזהירות שזה שביר בטאבלטי Android: קול צרפתי או עברי עלול להיות חסר לאוף־ליין, `getVoices()` ריק בטעינה, ו־`speak()` לפעמים נכשל בשקט. לבת השנתיים מסך דומם הוא כשל חווייתי, לא רק בעיית איכות. גם כשיש קול, המבטא או המין הדקדוקי עלולים להיות שגויים.
-
-**הצעה מעודכנת — ממתין לאישור:** כבר במיגרציית מסעדת החיות לארוז קובצי קול סטטיים (`.ogg`/`.mp3`) לכל משפט לימודי, שנוצרו בפיתוח (הקלטה אנושית אם אפשר, או TTS איכותי במחשב הפיתוח כגישור). כך המשחק עובד ללא רשת ואיכות הצרפתית לא תלויה במכשיר. הקלטות משפחתיות או מקצועיות נשארות יעד איכות, ולא חייבות לחכות לסוף כל העולמות. אם מאור יעדיף להישאר עם TTS המכשיר בשלב הראשון — חייבים גיבוי טקסט + אנימציית פה (ספרייטים של פה, לא רק tween של גודל), ובדיקה בטאבלט המשפחה.
-
-אחרי המגע הראשון מחממים את מערכת השמע כדי להקטין השהיה. זמן האזנה והסתכלות באנימציה נחשב השתתפות, לא idle.
-
-SFX קצרים (הצלחה, רמז, מעבר) יכולים להישאר סינתטיים או קבצים קטנים כבר בשלב א׳.
-
-מדיניות: אין שליחת קול הילדה לשרת, אין תמלול, ואין AI בזמן אמת בצד הלקוח כדרישה. שימוש ב־AI מותר בפיתוח ובהפקת נכסים, לא בשימוש החי של הילדה, אלא אם מאור יחליט אחרת.
+- App shell, navigation, parent area, and explanations: Hebrew, `dir="rtl"`, `lang="he"`.
+- Shell strings in i18n files (at least `he`), so text is not hard-coded. There is no current requirement for an English or French UI.
+- **Proposed rule (updated after the reviews) — pending owner approval:** Do not render Hebrew sentences or bidirectional text in `Phaser.GameObjects.Text` on the canvas. Canvas `fillText` has known BiDi bugs in Chrome on Android. UI text and instructions are shown in an HTML/CSS layer above the canvas (the shell or a `DOMElement`). On the canvas: graphics, and isolated LTR words in the learning language only if needed.
+- Learning content in English and French is shown with direction isolation (`dir="ltr"` / isolate) in the DOM layer.
+- **proposal — pending owner approval** for scale mode: `Phaser.Scale.FIT` with letterboxing, for landscape and portrait, without clipping buttons. Exit and help buttons do not sit on the screen edges, so they do not collide with Android system gestures (back, notification shade).
+- Fonts: one font family that supports Hebrew and Latin letters well, bundled with the app so it works offline. **proposal — pending owner approval:** a free font with a clear license (for example the Noto family), no paid fonts.
+- Buttons, touch targets, and drag areas are large; do not rely on reading for the two-year-old — audio leads, text supports. Handle repeated taps, multi-touch, and a hand resting on the screen (palm), and lock input during short feedback.
 
 ---
 
-## 6. צינור גרפיקה ואנימציה
+## 5. Audio strategy
 
-**הצעה — ממתין לאישור.**
+**proposal — pending owner approval.**
 
-כיוון סגנון (לבחירת מאור): איור חם ועגול לילדים, צבעים רוויים בניגודיות גבוהה, קו ברור, פנים ידידותיות, בלי דמויות מוגנות בזכויות יוצרים ובלי עומס פרטים ברקע. אותו סגנון לכל העולמות, עם פלטה שונה לכל אזור.
+Phase A in the prototype was the Web Speech API. The reviews warn that this is fragile on Android tablets: a French or Hebrew voice may be missing offline, `getVoices()` may be empty on load, and `speak()` sometimes fails silently. For the two-year-old, a silent screen is an experience failure, not only a quality issue. Even when a voice is present, the accent or grammatical gender may be wrong.
 
-צינור עבודה מוצע:
+**Updated proposal — pending owner approval:** Already in the Animal Restaurant migration, package static audio files (`.ogg`/`.mp3`) for every learning sentence, produced in development (a human recording if possible, or quality TTS on the development machine as a bridge). This way the game works offline and French quality does not depend on the device. Family or professional recordings remain a quality goal, and do not have to wait until all worlds are done. If Maor prefers to stay with device TTS in the first stage — a text fallback plus mouth animation is required (mouth sprites, not only a size tween), and a test on the family tablet.
 
-1. מגדירים גיליון סגנון קצר (דמות, רקע, חפץ, אייקון) ודוגמאות ייחוס.
-2. מייצרים נכסים בעזרת כלי AI לפי גיליון דמות קבוע, ואז בודקים אחידות, קריאות במסך טאבלט, ורגישות תרבותית. כלי AI מתקשים לשמור על אותה דמות בזוויות ובהבעות שונות עם רקע שקוף; לכן נדרשת עריכה ידנית, ואין להניח ש־"צינור AI" מייצר לבד סט מוכן למשחק. בודקים גם שאין דמיון בעייתי לדמויות מוגנות.
-3. חותכים לספרייטים בגדלים קבועים, ומרכיבים texture atlas (למשל בעזרת כלי חופשי) כדי לצמצם טעינות. **הצעה:** גודל אתלס מקסימלי 2048×2048, כדי להקטין קריסות WebGL בטאבלטים חלשים. ביציאה מעולם משחררים טקסטורות (`textures.remove` / destroy), לא רק מסתירים סצנה.
-4. שומרים מקורות (PNG/SVG) בנפרד מהאטלסים שבבנייה.
-5. מנפישים קודם ב־Phaser Tweens (כניסה, נדנוד, הגשה). אנימציית פה או הבעות דורשות פריימים (frame animation), לא רק שינוי גודל. Lottie מתאים למעברי UI קצרים. Spine או חלופה קלת משקל — רק אם יופיע צורך בדמויות עם שלד; זה יעד מאוחר, לא חובה למשחק הראשון.
+After the first touch, warm up the audio system to reduce latency. Time spent listening and watching an animation counts as participation, not idle.
 
-יעדי ביצוע לגרפיקה: אתלס לדמות ולחפצי המשחק, רקע אחד או שניים לכל סצנה, הימנעות מתמונות ענק ב־PNG לא דחוס. פורמט מוצע: WebP או PNG מותאם, עם גיבוי.
+Short SFX (success, hint, transition) can stay synthesized or small files already in phase A.
+
+Policy: do not send the child's voice to a server, no transcription, and no real-time AI on the client as a requirement. AI use is allowed in development and asset production, not in the child's live use, unless Maor decides otherwise.
 
 ---
 
-## 7. מנוע זמן הפנאי — מודול משותף
+## 6. Graphics and animation pipeline
 
-זהו רכיב ליבה שכבר נקבע כדרישה. פרטי הכללים עדיין **הצעה — ממתין לאישור**.
+**proposal — pending owner approval.**
 
-המודול (`src/core/leisure`) אינו תלוי ב־Phaser. כל משחק מדווח לו: התחלת פעילות, פעולה, השהיה, יציאה, סיום. הוא מחשב זמן השתתפות מזכה, יתרה, תקרות ומימוש, ושומר בנפרד ראיות למידה (מיומנות, שפה, הצלחה עצמאית או עם רמז).
+Style direction (for Maor to choose): warm, rounded illustration for children, saturated colors with high contrast, a clear outline, friendly faces, no copyrighted characters, and no busy detail in the background. The same style across all worlds, with a different palette per area.
 
-כללים מוצעים, בהתאם למסמכי החזון (לא מדיניות סופית):
+Proposed workflow:
 
-- הצבירה לפי השתתפות, כולל חשיבה, טעויות ורמזים; לא לפי מהירות או הצלחה.
-- מסך ברקע, נעילה, או היעדר אינטראקציה ארוך אינם מזכים. משך ה־idle נבדק כדי לא לפגוע בילדה שחושבת.
-- אין קנס על טעות, אין העברת יתרה בין אחיות, אין דירוג ביניהן.
-- ההורה קובע לכל פרופיל: פנאי בסיסי, יחס המרה, תקרת צבירה, תקרת מימוש, תקרת יתרה, ותקרה כוללת ליום.
-- באב־טיפוס נקבעו זמנית 10 דקות למידה תמורת 5 דקות פנאי, ותקרת צבירה של 30 דקות. אלה ערכי ברירת מחדל זמניים בלבד.
-- יצירה מזכה רק אם סומנה כך בתוכן; פנאי עצמו אינו מייצר זכאות חדשה.
-- מעבר יום: חצות לפי שעון המכשיר המקומי. יתרה שלא מומשה נשמרת עד תקרת היתרה, ומימוש למחרת כפוף לתקרות אותו יום (כפי שהוצע במסמך החזון). אין פקיעה מלחיצה.
-- האזנה להוראה ואנימציה של המשחק אינן idle. סף ה־idle עצמו, ושוני אפשרי בין גיל 2 לגיל 5, **הצעה — ממתין לאישור** (באב־טיפוס: 20 שניות בלי מגע).
-- כשנגמר זמן הפנאי באמצע פעילות, **הצעה — ממתין לאישור:** לא חוטפים את המסך מיד; נותנים לסיים פעולה קצרה או יצירה פתוחה (grace period), עם התראה רגועה מראש, ואז חוזרים למפה או לסיום.
-- מגבלות ידועות: איפוס או שינוי שעון המכשיר יכול להשפיע על תקרות יומיות; האפליקציה לא יכולה להגן מפני זה במלואה ב־PWA. ניקוי נתוני האתר או הסרת ה־PWA מוחק התקדמות ויתרות עד שיהיה ייצוא.
+1. Define a short style sheet (character, background, object, icon) and reference examples.
+2. Generate assets with AI tools from a fixed character sheet, then check consistency, readability on a tablet screen, and cultural sensitivity. AI tools struggle to keep the same character across angles and expressions with a transparent background; manual editing is therefore required, and an "AI pipeline" should not be assumed to produce a game-ready set on its own. Also check that there is no problematic resemblance to protected characters.
+3. Slice into sprites at fixed sizes, and build a texture atlas (for example with a free tool) to reduce loads. **Proposal:** maximum atlas size 2048×2048, to reduce WebGL crashes on weaker tablets. On leaving a world, release textures (`textures.remove` / destroy), do not only hide the scene.
+4. Keep sources (PNG/SVG) separate from the built atlases.
+5. Animate first with Phaser Tweens (entrance, bob, serving). Mouth animation or expressions require frames (frame animation), not only a size change. Lottie is suitable for short UI transitions. Spine or a lightweight alternative — only if a need for skeletal characters appears; that is a later goal, not a requirement for the first game.
 
-ג׳מיני הציע לפשט ל־3 פרמטרים הוריים בלבד. המודל המפורט נשמר כהצעה כי כך תואר בחזון, אבל מסך ההורה חייב להישאר פשוט: אפשר להציג יחס ותקרה יומית, ואת השאר כברירות מחדל מתקדמות. מאור יכריע.
-
-בדיקות יחידה יכסו המרה, תקרות, מעבר יום, idle מול האזנה, grace period, וחזרה על אותה פעילות.
+Graphics performance targets: an atlas for the character and game objects, one or two backgrounds per scene, avoid huge uncompressed PNGs. Proposed format: WebP or optimized PNG, with a fallback.
 
 ---
 
-## 8. אזור הורה
+## 7. Leisure-time engine — a shared module
 
-**הצעה — ממתין לאישור** לפרטי הכניסה והמסכים; עצם האזור כבר נדרש.
+This is a core component already set as a requirement. Rule details are still **proposal — pending owner approval**.
 
-- כניסה שילדים לא עוברים במקרה. **הצעה — ממתין לאישור, ברירת מחדל מוצעת:** להשאיר בינתיים את שאלת הכפל מהאב־טיפוס, ולאפשר להורה להחליף לקוד קצר כשירצה. לא סיסמה בענן.
-- לכל פרופיל: שם תצוגה שההורה בוחר (לא חובה שמות אמיתיים במאגר או במסך), יחס וזמן, שפות לימוד פעילות, ותוכן פנאי מאושר.
-- דוח פשוט: זמן השתתפות, פנאי שנצבר ומומש, חשיפה למילים או למשחקים — בלי ציונים השוואתיים ובלי הקלטות.
-- שינוי תקציב או תוכן רק מכאן.
+The module (`src/core/leisure`) does not depend on Phaser. Every game reports to it: activity start, action, pause, exit, completion. It computes qualifying participation time, balance, caps, and redemption, and separately stores learning evidence (skill, language, independent success or with a hint).
 
----
+Proposed rules, following the vision documents (not final policy):
 
-## 9. אחסון, פרטיות ועבודה ללא רשת
+- Earning is based on participation, including thinking, mistakes, and hints; not on speed or success.
+- A backgrounded screen, a lock, or a long absence of interaction does not earn credit. The idle duration is checked so as not to penalize a child who is thinking.
+- No penalty for a mistake, no transfer of balance between sisters, no ranking between them.
+- The parent sets for each profile: base leisure, conversion ratio, earning cap, redemption cap, balance cap, and an overall daily cap.
+- In the prototype, 10 minutes of learning for 5 minutes of leisure, and an earning cap of 30 minutes, were set temporarily. These are temporary default values only.
+- Creation earns only if marked as such in the content; leisure itself does not create new entitlement.
+- Day rollover: midnight according to the device's local clock. Unredeemed balance is kept up to the balance cap, and redemption the next day is subject to that day's caps (as proposed in the vision document). No stressful expiry.
+- Listening to an instruction and watching a game animation are not idle. The idle threshold itself, and a possible difference between age 2 and age 5, is a **proposal — pending owner approval** (in the prototype: 20 seconds without touch).
+- When leisure time runs out mid-activity, **proposal — pending owner approval:** do not snatch the screen immediately; allow a short action or an open creation to finish (grace period), with a calm advance warning, and then return to the map or to an ending.
+- Known limitations: resetting or changing the device clock can affect daily caps; the app cannot fully protect against this in a PWA. Clearing site data or removing the PWA deletes progress and balances until an export exists.
 
-**הצעה — ממתין לאישור.**
+Gemini proposed simplifying to only 3 parent parameters. The detailed model is kept as a proposal because that is how it was described in the vision, but the parent screen must stay simple: a ratio and a daily cap can be shown, with the rest as advanced defaults. Maor will decide.
 
-- כל הנתונים נשארים במכשיר. בלי חשבון, בלי אנליטיקה חיצונית, בלי סנכרון ענן בגרסה הראשונה. לוג שגיאות שנשלח החוצה אינו חלק מהתוכנית. לוג מקומי שמוצג להורה הוא רעיון פתוח, **הצעה — ממתין לאישור**, ולא יופעל בלי החלטה.
-- אחסון מוצע: `localStorage` להגדרות ויתרות קטנות, ו־IndexedDB אם ניגשים ליצירות (ציורים) או ליומן אירועים ארוך. לכל מבנה נתונים יהיה מספר סכימה וקוד מיגרציה, כדי שעדכון משחק לא ישבור יתרה קיימת. ייצוא/ייבוא ידני לקובץ יכול להגיע בהמשך לגיבוי בין מכשירים; עד אז מחיקת נתוני כרום היא סיכון ידוע, ויש לציין זאת לאזור ההורה.
-- ה־Service Worker שומר את השלד, ואחר כך את הנכסים שכבר ירדו. משחק שהורד פעם אחת אמור לעבוד בלי רשת.
-- קול סטטי שנארז עם התוכן הוא הבסיס לאוף־ליין אמין; TTS מכשיר אינו מספיק לכך.
-- המאגר הציבורי מכיל רק קוד, תוכן משחק ונכסים מקוריים. אין בו נתוני שימוש.
-
----
-
-## 10. בדיקות
-
-**הצעה — ממתין לאישור.**
-
-- Vitest: מנוע פנאי, טעינת JSON, אימות סכימה, בחירת רמה לפי פרופיל, כללי חזרה, i18n בסיסי.
-- Playwright: מסע קצר (בחירת פרופיל, כניסה למשחק, אזור הורה) על גודל טאבלט. **הצעה:** 1280×800 ו־800×1280 (לנדסקייפ ופורטרט), עם צילומי מסך כ־artifacts בכל PR. בהמשך אפשר להוסיף מכשיר אמיתי או הדמיית Android.
-- צילומי Phaser ב־CI (Ubuntu, בלי GPU) עלולים להיות לא יציבים ב־WebGL/SwiftShader, או להצטלם לפני סיום טעינה. **הצעה:** לחשוף במצב בדיקה דגל כמו `window.__GAME_READY__` אחרי פריים יציב, להמתין לפונטים ולטקסטורות, לקבוע סף סבילות לרגרסיה חזותית, ובמידת הצורך להריץ את ה־CI ב־Canvas 2D.
-- בדיקת e2e אחת לפחות לאוף־ליין (שלד + נכסים שכבר במטמון), כי זו דרישת ליבה.
-- בדיקות לא מודדות "האם הילדה למדה", אלא שהמשחק לא נשבר, שהצבירה נכונה, וששינוי גרפי נראה בסקירה.
-- CI רץ על כל PR; פרסום ל־Pages רק אחרי מיזוג ל־`main`.
+Unit tests will cover conversion, caps, day rollover, idle vs. listening, grace period, and repeating the same activity.
 
 ---
 
-## 11. ביצועים בטאבלטי Android בינוניים
+## 8. Parent area
 
-**הצעה — ממתין לאישור** ליעדים המספריים.
+**proposal — pending owner approval** for the login and screen details; the area itself is already required.
 
-יעדים לבדיקה בטאבלט המשפחה (דגם המכשיר עדיין לא נמסר):
-
-- עלייה ראשונה סבירה ברשת, ואחר כך עלייה מהירה מהמטמון. יעד מספרי לשוקל השלד (MB) ייקבע אחרי שנמדוד את Phaser והנכסים של משחק הדגל, ובבדיקה על דגם הטאבלט של המשפחה (עדיין לא נמסר). בלי הדגם, יעדי FPS ומשקל הם כיוון בלבד.
-- תנועה חלקה בערך 30 פריימים לשנייה במשחק פעיל; 60 רצוי במפה ובמעברים קלים, לא חובה בכל סצנה.
-- מטרות מגע גדולות (בערך 64px ומעלה), בלי הסתמכות על הובר.
-- חימום אודיו אחרי המגע הראשון (מגבלה בדפדפנים).
-- פיצול קוד ונכסים לפי עולם, כדי לא לטעון את כל המשחקים בבת אחת.
-- כיבוי סצנות לא פעילות, הגבלת אפקטים כבדים, ושמירה על רזולוציית משחק שמתאימה למסך בלי לרנדר ל־4K מיותר.
-- בדיקה במצב חיסכון בסוללה ובכרום בטאבלט, כולל TTS ומגע.
+- An entry children will not pass by accident. **proposal — pending owner approval, proposed default:** keep the multiplication question from the prototype for now, and let the parent switch to a short code when they want. No cloud password.
+- For each profile: a display name the parent chooses (real names are not required in the repo or on screen), ratio and time, active learning languages, and approved leisure content.
+- A simple report: participation time, leisure earned and redeemed, exposure to words or games — no comparative scores and no recordings.
+- Budget or content changes only from here.
 
 ---
 
-## 12. מפת דרכים
+## 9. Storage, privacy, and offline use
 
-הסדר **הצעה — ממתין לאישור**. כל שלב הוא ענף ו־PR, בלי לשנות את האתר החי עד למיזוג מאושר.
+**proposal — pending owner approval.**
 
-1. **מסמכי יסוד** (המסמך הזה, עולמות, צוות) — סקירה ואישור כיוון.
-2. **שלד Vite + TypeScript + Phaser + PWA + CI**, עם מסך מפה ריק והעברה של מנוע הפנאי ואזור ההורה למודולים נבדקים. האב־טיפוס הישן נשאר זמין עד שהשלד מחליף אותו באותה כתובת.
-3. **מיגרציית מסעדת החיות** לתבנית משחק, עם גרפיקה ואנימציות ראשונות, תוכן JSON, שתי רמות הגיל, וקבצי קול סטטיים למשפטים (אם מאור יאשר). זה המשחק הראשון שמרגיש כמו "משחק אמיתי".
-4. **מפת עולם** ופינת פנאי (בועות), ואחר כך עוד משחק אחד בבית השפות.
-5. **גינת המספרים** — משחק כמות ראשון, אחרי שיש שתי תבניות יציבות (בחירה/הגשה ומיון/גרירה).
-6. **מעבדת הטבע** ו**סטודיו יצירה** — לפי מה שהבנות נהנו ממנו, לא את כל הרעיונות בבת אחת.
-7. **הקלטות איכות** למשחק הדגל ולמשפטים שכבר יציבים, אם שלב 3 התחיל ב־TTS מעבדתי.
-8. בהמשך החזון, לא בפיילוט: שליטה בתוכן המכשיר, טווח גילים רחב יותר, וגיבוי בין מכשירים.
-
-קריטריון איכות לכל שלב: הילדה מבינה מה לעשות בלי לקרוא, נהנית לחזור, הצבירה שקופה להורה, והמשחק עובד בטאבלט בלי רשת.
-
+- All data stays on the device. No account, no external analytics, no cloud sync in the first version. An error log sent outward is not part of the plan. A local log shown to the parent is an open idea, **proposal — pending owner approval**, and will not be turned on without a decision.
+- Proposed storage: `localStorage` for settings and small balances, and IndexedDB if we store creations (drawings) or a long event journal. Every data structure will have a schema number and migration code, so a game update does not break an existing balance. Manual file export/import can come later for backup across devices; until then, clearing Chrome data is a known risk, and this should be noted in the parent area.
+- The Service Worker stores the shell, and then the assets that have already been downloaded. A game downloaded once should work without a network.
+- Static audio packaged with the content is the basis for reliable offline use; device TTS is not enough for that.
+- The public repository contains only code, game content, and original assets. It does not contain usage data.
 
 ---
 
-## 13. מה עודכן אחרי סקירות קלוד וג׳מיני
+## 10. Testing
 
-הסקירות הגולמיות: `docs/reviews/2026-11-10-claude-architecture.md`, `docs/reviews/2026-11-10-gemini-architecture.md`.
+**proposal — pending owner approval.**
 
-נקודות שאימצנו לשני המסמכים: הפרדת precache של השלד מ־runtime cache של עולמות; כלל לא לרנדר עברית/BiDi על קנבס Phaser; משפטים שלמים בתוכן JSON ואימות סכימה ב־CI; סימון P0 ב־`WORLDS.md`; תוכנית rollback וצורך באישור admin לשינוי Pages; מגבלות שעון המכשיר ומחיקת נתונים; מיגרציית סכימת אחסון; האזנה אינה idle; חלון חסד בסיום פנאי; הגבלת אתלס ל־2048; טיפול במחוות שוליים, multi-touch ו־CI של Playwright; וקידום קול סטטי כהצעה כבר במשחק הדגל.
+- Vitest: leisure engine, JSON loading, schema validation, level selection by profile, repetition rules, basic i18n.
+- Playwright: a short journey (profile selection, entering a game, parent area) at tablet size. **Proposal:** 1280×800 and 800×1280 (landscape and portrait), with screenshots as artifacts on every PR. Later a real device or Android emulation can be added.
+- Phaser screenshots in CI (Ubuntu, no GPU) may be unstable under WebGL/SwiftShader, or may be captured before loading finishes. **Proposal:** in test mode expose a flag such as `window.__GAME_READY__` after a stable frame, wait for fonts and textures, set a visual-regression tolerance threshold, and if needed run CI with Canvas 2D.
+- At least one e2e test for offline (shell + assets already in cache), because this is a core requirement.
+- Tests do not measure "whether the child learned", but that the game does not break, that earning is correct, and that a visual change is visible in review.
+- CI runs on every PR; publish to Pages only after merge to `main`.
 
-### אי־הסכמות בין הסוקרים, ומה הוחלט במסמך
+---
 
-1. **מספר התקרות.** ג׳מיני המליץ לצמצם ל־3 פרמטרים הוריים; קלוד לא דרש זאת והתמקד במגבלות השעון ובסכימה. המסמך שומר את המודל מהחזון כהצעה, ומבקש ממשק הורה פשוט עם שדות מתקדמים מוסתרים. מאור יכריע.
-2. **מתי נכנס קול סטטי.** קלוד הדגיש כשלים של TTS במכשיר; ג׳מיני המליץ לארוז קבצים כבר במיגרציית המסעדה. אימצנו את המלצת ג׳מיני כהצעה, בלי לבטל הקלטה אנושית כשלב איכות.
-3. **היקף הפיילוט.** ג׳מיני הציע לצמצם את המסמך עצמו לשתי תבניות ועולם אחד; קלוד הציע לסמן P0 בתוך מפת החזון. אימצנו את גישת קלוד: המפה נשארת, עם סימון סדר ברור.
-4. **טלמטריה.** קלוד העלה לוג שגיאות מקומי כחור; ג׳מיני לא דרש זאת. לא מוסיפים איסוף שגיאות, גם לא מקומי, בלי אישור מאור.
+## 11. Performance on mid-range Android tablets
+
+**proposal — pending owner approval** for the numeric targets.
+
+Targets to test on the family tablet (device model not yet provided):
+
+- A reasonable first load on the network, then a fast load from cache. A numeric target for shell weight (MB) will be set after we measure Phaser and the flagship game's assets, and after a test on the family's tablet model (not yet provided). Without the model, FPS and weight targets are direction only.
+- Smooth motion of about 30 frames per second in an active game; 60 is desirable on the map and in light transitions, not required in every scene.
+- Large touch targets (about 64px and up), with no reliance on hover.
+- Audio warmup after the first touch (a browser limitation).
+- Code and asset splitting by world, so not all games are loaded at once.
+- Shut down inactive scenes, limit heavy effects, and keep a game resolution that fits the screen without rendering unnecessary 4K.
+- Test in battery-saver mode and in Chrome on the tablet, including TTS and touch.
+
+---
+
+## 12. Roadmap
+
+The order is a **proposal — pending owner approval**. Each stage is a branch and a PR, without changing the live site until an approved merge.
+
+1. **Foundation documents** (this document, worlds, team) — review and direction approval.
+2. **Vite + TypeScript + Phaser + PWA + CI skeleton**, with an empty map screen and a move of the leisure engine and parent area into tested modules. The old prototype stays available until the skeleton replaces it at the same URL.
+3. **Animal Restaurant migration** to a game template, with first graphics and animations, JSON content, both age levels, and static audio files for the sentences (if Maor approves). This is the first game that should feel like a "real game".
+4. **World map** and leisure corner (bubbles), and then one more game in the Language House.
+5. **Number Garden** — first quantity game, after two stable templates exist (choice/serve and sort/drag).
+6. **Nature Lab** and **Art Studio** — according to what the girls enjoyed, not all ideas at once.
+7. **Quality recordings** for the flagship game and for sentences that are already stable, if stage 3 started with development-machine TTS.
+8. Later in the vision, not in the pilot: control of device content, a wider age range, and backup across devices.
+
+Quality criterion for each stage: the girl understands what to do without reading, enjoys coming back, earning is transparent to the parent, and the game works on the tablet without a network.
+
+---
+
+## 13. What was updated after the Claude and Gemini reviews
+
+Raw reviews: `docs/reviews/2026-11-10-claude-architecture.md`, `docs/reviews/2026-11-10-gemini-architecture.md`.
+
+Points adopted into both documents: separating shell precache from runtime cache for worlds; a rule not to render Hebrew/BiDi on a Phaser canvas; complete sentences in JSON content and schema validation in CI; P0 marking in `WORLDS.md`; a rollback plan and the need for admin approval to change Pages; device-clock and data-deletion limitations; storage schema migration; listening is not idle; a grace period at the end of leisure; atlas limit of 2048; handling of edge gestures, multi-touch, and Playwright CI; and promoting static audio as a proposal already for the flagship game.
+
+### Disagreements between the reviewers, and what was decided in the document
+
+1. **Number of caps.** Gemini recommended narrowing to 3 parent parameters; Claude did not require that and focused on clock limitations and schema. The document keeps the vision model as a proposal, and asks for a simple parent interface with advanced fields hidden. Maor will decide.
+2. **When static audio lands.** Claude emphasized device-TTS failures; Gemini recommended packaging files already in the restaurant migration. We adopted Gemini's recommendation as a proposal, without dropping human recording as a quality stage.
+3. **Pilot scope.** Gemini proposed narrowing the document itself to two templates and one world; Claude proposed marking P0 inside the vision map. We adopted Claude's approach: the map stays, with a clear order marked.
+4. **Telemetry.** Claude raised a local error log as a gap; Gemini did not require it. We do not add error collection, even local, without Maor's approval.

@@ -1,25 +1,28 @@
 # AGENTS.md
 
-כללי עבודה לכל סוכן (Claude Code, Gemini/Antigravity, Grok Bot ואחרים) במאגר `tzoomy/kids-app`.
+Rules for every agent (Claude Code, Gemini/Antigravity, Grok Bot, and others) in the `tzoomy/kids-app` repository.
 
-## מה זה המוצר
+## What this product is
 
-אפליקציית למידה משפחתית לבנותיו של מאור (מסלולי גיל 2 ו־5). ממשק בעברית, לימוד אנגלית וחיזוק צרפתית, משחק בטאבלט Android, צבירת זמן פנאי מפעילות חינוכית, אזור הורה, עבודה ללא רשת, ואיסוף נתונים מינימלי. האתר החי: https://tzoomy.github.io/kids-app/
+A family learning app for Maor's daughters (age-2 and age-5 tracks). Hebrew UI, English learning and French reinforcement, played on an Android tablet, leisure time earned from educational play, a parent area, offline use, and minimal data collection. Live site: https://tzoomy.github.io/kids-app/
 
-מסמכי הכיוון: `docs/ARCHITECTURE.md`, `docs/WORLDS.md`, `docs/TEAM.md`. בחירות שמאור טרם אישר מסומנות שם כ־**הצעה — ממתין לאישור**. אין להתייחס להצעה כאל החלטה.
+Direction documents: `docs/ARCHITECTURE.md`, `docs/WORLDS.md`, `docs/TEAM.md`. Choices Maor has not yet approved are marked there as **proposal — pending owner approval**. Do not treat a proposal as a decision.
 
-## חובה
+## Language
 
-- עברית לממשק המשתמש ולתיאורי PR/Issue. מונחים טכניים יכולים להישאר באנגלית.
-- לא לשנות את האפליקציה החיה (קבצי האב־טיפוס בשורש: `index.html`, `app.js`, `style.css`, `sw.js`, `manifest.json`, אייקונים) אלא במשימה שמאור אישר במפורש להחליף או לעדכן את האתר.
-- לא למזג ל־`main` שינוי משמעותי בלי אישור מאור.
-- לא להעלות סודות, מפתחות API, שמות אמיתיים של הילדות, או נתוני שימוש. המאגר ציבורי.
-- לא להוסיף שירותים בתשלום, אנליטיקה חיצונית, פרסומות, או AI בזמן הריצה של הילדה, אלא אם מאור ביקש זאת.
-- נכסים מקוריים בלבד; לא להעתיק דמויות, איורים או קולות מאפליקציות השראה (Tiger eAcademy, Lingokids, Sago Mini, Khan Academy Kids ואחרות).
-- ענף לכל משימה. לא לעבוד ישירות על `main`, לא לדחוף force לענף משותף, לא לשכתב היסטוריה של `main`.
-- מנוע הפנאי הוא מודול משותף נבדק, בלי קנס על טעות ובלי ערבוב יתרות בין פרופילים.
-- שמירת נתונים במכשיר בלבד.
+All code, comments, documentation, commit messages, issue and pull request titles and descriptions, and all prompts to Claude, Gemini, or any other agent must be in English only. Kid-facing app UI strings stay in Hebrew (learning content may also include English and French). Hebrew is used only in conversation between Maor and Grok Bot, not in the repository and not in work among agents.
 
-## סקירות ושמירת פלט
+## Required
 
-סקירות גולמיות נשמרות ב־`docs/reviews/`. סקירת קוד או ארכיטקטורה היא לקריאה אלא אם המשימה מבקשת גם תיקון.
+- Do not change the live app (prototype files at the repo root: `index.html`, `app.js`, `style.css`, `sw.js`, `manifest.json`, icons) except in a task Maor has explicitly approved to replace or update the site.
+- Do not merge a meaningful change to `main` without Maor's approval.
+- Do not upload secrets, API keys, the girls' real names, or usage data. The repository is public.
+- Do not add paid services, external analytics, ads, or AI at the child's runtime, unless Maor asked for that.
+- Original assets only; do not copy characters, art, or audio from inspiration apps (Tiger eAcademy, Lingokids, Sago Mini, Khan Academy Kids, and others).
+- One branch per task. Do not work directly on `main`, do not force-push a shared branch, do not rewrite `main` history.
+- The leisure engine is a shared, tested module, with no penalty for mistakes and no mixing of balances across profiles.
+- Persist data on the device only.
+
+## Reviews and saving output
+
+Raw reviews are stored in `docs/reviews/`. A code or architecture review is read-only unless the task also asks for a fix.

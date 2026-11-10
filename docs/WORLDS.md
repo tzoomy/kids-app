@@ -1,188 +1,188 @@
-# מפת עולמות ומשחקים
+# World and game map
 
-סטטוס: **הצעה — ממתין לאישור**. זו מפת תוכן לתכנון, לא התחייבות לבנות את כל המשחקים בבת אחת. הסדר המוצע למימוש מופיע ב־`docs/ARCHITECTURE.md`. הרעיונות מקוריים; הם שואלים *דפוסים* מאפליקציות ההשראה, ולא מעתיקים דמויות, עלילות או נכסים.
+Status: **proposal — pending owner approval**. This is a content map for planning, not a commitment to build every game at once. The proposed implementation order is in `docs/ARCHITECTURE.md`. The ideas are original; they borrow *patterns* from the inspiration apps, and do not copy characters, plots, or assets.
 
-העולם משותף לשתי הבנות. לכל משחק יש וריאנט לגיל 2 (חקירה, מעט בחירות, נגיעה, קול והדגמה, אפשר לסיים בכל רגע) ווריאנט לגיל 5 (משימה בתוך סיפור, כמה שלבים, תכונה נוספת או כלל משתנה). הגיל הוא מסלול ברירת מחדל בפרופיל; היכולת בכל תחום ובכל שפה נמדדת בנפרד ולא מקדמת אוטומטית תחומים אחרים.
+The world is shared by both girls. Each game has an age-2 variant (exploration, few choices, touch, audio and demonstration, can finish at any moment) and an age-5 variant (a task inside a story, several steps, an extra attribute or a changing rule). Age is the default track on the profile; ability in each domain and language is measured separately and does not automatically advance other domains.
 
-מעטפת הניווט בעברית. במשחקי שפה, שפת הלימוד בסיבוב היא אנגלית או צרפתית. במשחקי מספרים ומדע ההוראה מתחילה בעברית, אלא אם המטרה עצמה היא אוצר מילים בשפת לימוד.
+The navigation shell is in Hebrew. In language games, the learning language for a round is English or French. In number and science games the instruction starts in Hebrew, unless the goal itself is vocabulary in a learning language.
 
-### מה בפיילוט ומה בחזון (עודכן אחרי הסקירות)
+### What is in the pilot and what is in the vision (updated after the reviews)
 
-הטבלה הזו חיה בתוך המסמך הזה, לא רק במפת הדרכים, כדי שלא ייראה שכל 12 המשחקים הם היקף המימוש הקרוב.
+This table lives in this document, not only in the roadmap, so it does not look as if all 12 games are the near-term implementation scope.
 
-| שלב | היקף | סטטוס |
+| Stage | Scope | Status |
 |---|---|---|
-| P0 | שלד + מפה, מסעדת החיות בשתי רמות הגיל, פינת פנאי (בועות), מנוע פנאי ואזור הורה | **הצעה — ממתין לאישור**; זה הצעד הבא אחרי אישור הארכיטקטורה |
-| P1 | עוד משחק אחד בבית השפות (מזוודת הטיול או שיר המילים) + תבנית מיון/גרירה | אחרי ש־P0 יציב בטאבלט |
-| P2 | משחק ראשון בגינת המספרים (רכבת הפיקניק) | לפי מה שהבנות נהנו ממנו |
-| חזון | שאר המשחקים והאזורים במסמך | לא נבנים בבת אחת |
+| P0 | Skeleton + map, Animal Restaurant at both age levels, leisure corner (bubbles), leisure engine and parent area | **proposal — pending owner approval**; this is the next step after architecture approval |
+| P1 | One more game in the Language House (Travel Suitcase or Word Song) + a sort/drag template | After P0 is stable on the tablet |
+| P2 | First Number Garden game (Picnic Train) | According to what the girls enjoyed |
+| Vision | The remaining games and areas in this document | Not built all at once |
 
-שתי תבניות היסוד ל־P0–P1: **בחירה/הגשה** ו**מיון/גרירה**. השאר נפתחות כשיש צורך אמיתי.
+The two foundation templates for P0–P1: **choice/serve** and **sort/drag**. The rest are opened when there is a real need.
 
 ---
 
-## המפה הראשית
+## The main map
 
-הילדה בוחרת אזור באי־בית קטן. האזורים המוצעים:
+The girl chooses an area on a small home island. The proposed areas:
 
-| אזור | תפקיד | מזכה בפנאי? |
+| Area | Role | Earns leisure? |
 |---|---|---|
-| בית השפות | הבנת מילים ובקשות באנגלית ובצרפתית | כן |
-| גינת המספרים | כמות, מיון, השוואה | כן, כשהפעילות מוגדרת חינוכית |
-| מעבדת הטבע | יצורים, סיבה ותוצאה, סקרנות | כן |
-| סטודיו יצירה | ציור, צביעה, בנייה; חלק מהפעילויות מזכות | לפי סימון בתוכן |
-| פינת הפנאי | תוכן שההורה אישר (למשל בועות, ציור חופשי, סרטון קצר בעתיד) | לא; צורך יתרה |
+| Language House | Understanding words and requests in English and French | Yes |
+| Number Garden | Quantity, sorting, comparison | Yes, when the activity is marked educational |
+| Nature Lab | Creatures, cause and effect, curiosity | Yes |
+| Art Studio | Drawing, coloring, building; some activities earn | According to the mark in the content |
+| Leisure Corner | Content the parent approved (for example bubbles, free drawing, a short video in the future) | No; spends balance |
 
-מספר האזורים ושמם **הצעה — ממתין לאישור**. שלושת חדרי הלמידה הופיעו כבר במסמכי החזון; הסטודיו ופינת הפנאי הוצעו לצידם.
-
----
-
-## בית השפות
-
-מטרה: להבין בקשה או מילה בשפת הלימוד ולפעול בעולם. השראה כללית: הדרכה קולית והתקדמות ברורה מ־Tiger eAcademy; שירים ומשחקי מילים עם דמויות קבועות מ־Lingokids; למידה דרך הכנת הזמנה או סידור חנות כמו הדפוס של Sago Mini.
-
-### 1. מסעדת החיות — משחק הדגל הקיים
-
-- **שלב:** P0.
-
-- **הפעולה:** חיה מבקשת מאכל בקול, הילדה מכינה ומגישה, החיה מגיבה בשמחה.
-- **היעד הלימודי:** הבנת שמות מאכלים ובקשות באנגלית או בצרפתית.
-- **דפוס השראה:** Sago Mini (פעולה בתוך עולם מוכר מלמדת); Tiger eAcademy (הוראה קולית, משוב מיידי, התקדמות נראית).
-- **גיל 2:** בחירה בין שני מאכלים, הדגמה אם צריך, נגיעה גדולה, אפשר לבקש לשמוע שוב.
-- **גיל 5:** בקשה עם כמות או תכונה (תפוח אדום, שני עוגיות), לפעמים שני צעדים (לבחור ואז להגיש).
-- **סטטוס:** קיים כאב־טיפוס; המיגרציה לגרפיקה, אנימציה ותוכן JSON היא המשימה הראשונה אחרי השלד.
-
-### 2. מזוודת הטיול / רכבת המילים
-
-- **שלב:** P1 (אחד משניים; לא שניהם חובה באותו סבב).
-
-- **הפעולה:** דמות מתכוננת לטיול או לפיקניק ומבקשת פריטים בשפת הלימוד; הילדה שמה אותם בתיק או בקרון.
-- **היעד הלימודי:** אוצר מילים של בגדים, חפצים וטבע, והבנת "שימי את…".
-- **דפוס השראה:** Sago Mini (הכנה לעולם משחק); Lingokids (מילים בקבוצות נושא); Tiger eAcademy (רצף קצר מונחה קול).
-- **גיל 2:** פריט אחד מתוך שניים, השמה בנגיעה (לא חובה גרירה מדויקת).
-- **גיל 5:** שניים־שלושה פריטים, אולי שלילה או תיאור ("not the red hat" / "pas le chapeau rouge") בשלב מתקדם.
-
-### 3. שיר המילים עם דמויות הבית
-
-- **שלב:** P1 (חלופה או השלמה למזוודת הטיול).
-
-- **הפעולה:** דמות קבועה מהמפה שרה או אומרת חרוז קצר, והילדה נוגעת במה שנאמר בזמן או בסיום השורה.
-- **היעד הלימודי:** האזנה לקצב ולמילה מטרה, חזרה מהנה על אותן מילים.
-- **דפוס השראה:** Lingokids (שירים ודמויות קבועות); Tiger eAcademy (ליווי קולי ברור).
-- **גיל 2:** שיר קצר מאוד, מילה אחת בולטת, חזרה חופשית בלי לחץ זמן.
-- **גיל 5:** שתיים־שלוש מילים, בחירה בסוף השיר, או השלמת מילה חסרה מהתמונות.
+The number of areas and their names are a **proposal — pending owner approval**. The three learning rooms already appeared in the vision documents; the studio and the leisure corner were proposed alongside them.
 
 ---
 
-## גינת המספרים
+## Language House
 
-מטרה: תחושת כמות, התאמה אחד־לאחד, מיון והשוואה. ההוראה בעברית, אלא אם משלבים במכוון ספירה באנגלית או בצרפתית כמיומנות נפרדת. השראה כללית: פעולה שמלמדת (כמו הרעיון מאחורי DragonBox, בלי להעתיק את המכניקה); מסלול לפי תחום מ־Khan Academy Kids; חקירה רגועה מ־Sago Mini.
+Goal: understand a request or a word in the learning language and act in the world. General inspiration: voice guidance and clear progress from Tiger eAcademy; songs and word games with fixed characters from Lingokids; learning by preparing an order or arranging a shop, in the pattern of Sago Mini.
 
-### 1. רכבת הפיקניק
+### 1. Animal Restaurant — the existing flagship game
 
-- **שלב:** P2, משחק הכמות הראשון המוצע.
+- **Stage:** P0.
 
-- **הפעולה:** לנוסעים חסר ציוד; הילדה מחלקת, רואה שהרכבת מוכנה, והדמויות יוצאות לדרך.
-- **היעד הלימודי:** התאמה אחד־לאחד, "כמה חסר", כמויות קטנות.
-- **דפוס השראה:** Sago Mini (עולם חיות/נסיעה); Khan Academy Kids (תרגול כמות בהקשר, לא דף תרגילים).
-- **גיל 2:** פריט אחד לכל דמות (שתיים־שלוש דמויות).
-- **גיל 5:** לגלות כמה חסר, לחלק בכמה דרכים, או להשוות בין שני קרונות.
+- **Action:** An animal asks for food out loud, the girl prepares and serves it, the animal reacts happily.
+- **Learning goal:** Understanding food names and requests in English or French.
+- **Inspiration pattern:** Sago Mini (acting inside a familiar world teaches); Tiger eAcademy (voice instruction, immediate feedback, visible progress).
+- **Age 2:** A choice between two foods, a demonstration if needed, a large touch target, can ask to hear again.
+- **Age 5:** A request with a quantity or an attribute (a red apple, two cookies), sometimes two steps (choose and then serve).
+- **Status:** Exists as a prototype; migration to graphics, animation, and JSON content is the first task after the skeleton.
 
-### 2. ערוגות המיון
+### 2. Travel Suitcase / Word Train
 
-- **שלב:** חזון / אחרי P2; התבנית עצמה (מיון/גרירה) מתחילה מוקדם יותר אם צריך.
+- **Stage:** P1 (one of two; both are not required in the same round).
 
-- **הפעולה:** פירות, עלים או פרחים "נופלים" מהסדר; הילדה מחזירה אותם לערוגה לפי צבע, צורה או גודל.
-- **היעד הלימודי:** מיון לפי תכונה, אחר כך לפי שתי תכונות.
-- **דפוס השראה:** Sago Mini / רעיון "החנות המבולגנת" מהחזון; Tiger eAcademy (משימה קצרה עם כלל ברור).
-- **גיל 2:** תכונה אחת, שתי ערוגות, הנחה בנגיעה.
-- **גיל 5:** שתי תכונות או כלל שמשתנה באמצע ("עכשיו רק את הקטנים").
+- **Action:** A character is getting ready for a trip or a picnic and asks for items in the learning language; the girl puts them in the bag or in the carriage.
+- **Learning goal:** Vocabulary of clothes, objects, and nature, and understanding "put the…".
+- **Inspiration pattern:** Sago Mini (preparing for a play world); Lingokids (words in topic groups); Tiger eAcademy (a short voice-guided sequence).
+- **Age 2:** One item out of two, placed by touch (precise dragging is not required).
+- **Age 5:** Two or three items, perhaps negation or a description ("not the red hat" / "pas le chapeau rouge") at an advanced stage.
 
-### 3. מאזני הגן
+### 3. Word Song with the house characters
 
-- **שלב:** חזון.
+- **Stage:** P1 (alternative or complement to Travel Suitcase).
 
-- **הפעולה:** צד אחד של מאזניים או סל חסר; הילדה מוסיפה פריטים עד שהצדדים מאוזנים או מגיעים ליעד.
-- **היעד הלימודי:** השוואת כמויות, "יותר / פחות / אותו דבר", הרכבה של מספרים קטנים.
-- **דפוס השראה:** פעולה מוחשית שמלמדת כמות (השראה עקרונית מ־DragonBox Numbers); Khan Academy Kids (התקדמות הדרגתית בחשבון).
-- **גיל 2:** להוסיף עד שמגיעים לאותו מספר ויזואלי, בלי סמלים.
-- **גיל 5:** להשלים לסכום נתון, או לבחור בין שתי דרכים להרכיב את אותו מספר.
-
----
-
-## מעבדת הטבע
-
-מטרה: סקרנות, שיום בעברית ובשפות הלימוד לפי הצורך, סיבה ותוצאה. השראה: חקירה בלי כישלון מ־Sago Mini / Pok Pok; מסלול מגוון (ספר קצר + פעילות) מ־Khan Academy Kids; משימות קצרות מונחות קול מ־Tiger eAcademy.
-
-### 1. מי גר כאן?
-
-- **שלב:** חזון (מועמד ראשון למעבדת הטבע, אחרי שיש למידה יציבה בשפה ובכמות).
-
-- **הפעולה:** הילדה עוזרת לחיה לחזור הביתה (קן, מערה, מים, עץ) לפי רמז קולי או תמונה.
-- **היעד הלימודי:** שיוך יצור לסביבה, אוצר מילים של חיות.
-- **דפוס השראה:** Sago Mini (חקירה רגועה, העולם מגיב); Tiger eAcademy (הוראה קולית קצרה).
-- **גיל 2:** שתי חיות ושני בתים, תגובה מיידית וחמה גם בניסיון שני.
-- **גיל 5:** רמז תיאורי ("I sleep in a cave" / "Je vis dans l'eau"), או כמה יצורים ברצף.
-
-### 2. מזג האוויר בחלון
-
-- **שלב:** חזון.
-
-- **הפעולה:** הילדה משנה שמש, גשם או רוח ורואה מה קורה לצמחים, לשלולית או לכביסה.
-- **היעד הלימודי:** סיבה ותוצאה, אוצר מילים של מזג אוויר, חיזוי פשוט.
-- **דפוס השראה:** Sago Mini (משחק חופשי בלי כישלון); Khan Academy Kids (מדע מוחשי קצר).
-- **גיל 2:** מתג אחד — לגעת ולראות מה קורה, בלי "תשובה נכונה".
-- **גיל 5:** "מה יקרה אם…", בחירת לבוש מתאים, או שני שינויים ברצף.
-
-### 3. ספר הטבע הקטן
-
-- **שלב:** חזון.
-
-- **הפעולה:** ספר קצר עם דף אינטראקטיבי: לגעת ביצור, לשמוע את שמו, להזיז אלמנט אחד בעמוד.
-- **היעד הלימודי:** שיום, האזנה, רצף סיפור קצר.
-- **דפוס השראה:** Khan Academy Kids (ספר + פעילות באותו מסלול); Lingokids (מילים עם דמות קבועה).
-- **גיל 2:** שני־שלושה דפים, נגיעה חופשית, אפשר לצאת בכל דף.
-- **גיל 5:** שאלה קטנה בסוף הסיפור, או מילה בשפת לימוד ליד התמונה.
+- **Action:** A fixed character from the map sings or says a short rhyme, and the girl touches what was said in time or at the end of the line.
+- **Learning goal:** Listening for rhythm and a target word, enjoyable repetition of the same words.
+- **Inspiration pattern:** Lingokids (songs and fixed characters); Tiger eAcademy (clear voice accompaniment).
+- **Age 2:** A very short song, one prominent word, free repetition with no time pressure.
+- **Age 5:** Two or three words, a choice at the end of the song, or completing a missing word from the pictures.
 
 ---
 
-## סטודיו יצירה
+## Number Garden
 
-מטרה: הבעה, מוטוריקה, בחירה. יצירה חינוכית מסומנת יכולה לזכות בפנאי; יצירה חופשית יכולה לשמש גם כפנאי. השראה: יצירה ב־Sago Mini וב־Khan Academy Kids; גיוון המסלול היומי מ־Khan Academy Kids.
+Goal: a sense of quantity, one-to-one matching, sorting, and comparison. Instruction is in Hebrew, unless English or French counting is deliberately included as a separate skill. General inspiration: action that teaches (like the idea behind DragonBox, without copying the mechanic); a path by domain from Khan Academy Kids; calm exploration from Sago Mini.
 
-### 1. צביעת העולם
+### 1. Picnic Train
 
-- **שלב:** חזון קרוב; יכול להופיע מוקדם אם חסר פנאי/יצירה מעבר לבועות.
+- **Stage:** P2, the first proposed quantity game.
 
-- **הפעולה:** צביעת דמות או רקע מהמפה בצבעים גדולים, עם מילוי אזורים.
-- **היעד הלימודי:** שמות צבעים (עברית, ואפשר אנגלית/צרפתית), בחירה וסיום יצירה.
-- **דפוס השראה:** Sago Mini ו־Khan Academy Kids (יצירה כחלק מהעולם, לא כלי נפרד וקר).
-- **גיל 2:** מילוי בנגיעה, מעט צבעים גדולים, אין "יציאה מהקו" שנחשבת לטעות.
-- **גיל 5:** יותר אזורים, בקשה אופציונלית ("color the apple red"), שמירת היצירה באלבום מקומי.
+- **Action:** Passengers are missing equipment; the girl distributes it, sees that the train is ready, and the characters set off.
+- **Learning goal:** One-to-one matching, "how many are missing", small quantities.
+- **Inspiration pattern:** Sago Mini (an animal/travel world); Khan Academy Kids (quantity practice in context, not a worksheet).
+- **Age 2:** One item for each character (two or three characters).
+- **Age 5:** Discover how many are missing, distribute in several ways, or compare two carriages.
 
-### 2. תזמורת המטבח / מעבדת הצלילים
+### 2. Sorting Beds
 
-- **שלב:** חזון.
+- **Stage:** Vision / after P2; the template itself (sort/drag) starts earlier if needed.
 
-- **הפעולה:** נגיעה בכלים או ביצורים משמיעה צלילים; אפשר לחזור על דפוס קצר.
-- **היעד הלימודי:** סיבה ותוצאה, האזנה לדפוס, חיקוי רצף קצר.
-- **דפוס השראה:** Sago Mini (חקירה חופשית); Tiger eAcademy (רצף קצר מונחה, בגירסת הגדולה).
-- **גיל 2:** נגינה חופשית בלי כישלון.
-- **גיל 5:** לחזור על רצף של שניים־שלושה צלילים, או לבחור כלי לפי שם בשפת לימוד.
+- **Action:** Fruit, leaves, or flowers have "fallen" out of order; the girl returns them to the bed by color, shape, or size.
+- **Learning goal:** Sorting by one attribute, then by two attributes.
+- **Inspiration pattern:** Sago Mini / the "messy shop" idea from the vision; Tiger eAcademy (a short task with a clear rule).
+- **Age 2:** One attribute, two beds, placement by touch.
+- **Age 5:** Two attributes, or a rule that changes mid-way ("now only the small ones").
 
-### 3. בועות וחלומות (גם כפנאי)
+### 3. Garden Scales
 
-- **שלב:** P0 כפינת פנאי.
+- **Stage:** Vision.
 
-- **הפעולה:** נגיעה בבועות, התפצצות משמחת, שינוי צבעים. קיים ברוח האב־טיפוס.
-- **היעד הלימודי:** משני; בעיקר ויסות, הנאה, וסיום רגוע.
-- **דפוס השראה:** פנאי בתוך האפליקציה, כמו פינת פעילות חופשית ולא כמו שיעור.
-- **גיל 2 ו־5:** אותה פעילות, עם צפיפות ומורכבות שונות. אם זו פינת פנאי — אינה מזכה זמן חדש.
+- **Action:** One side of a scale or basket is short; the girl adds items until the sides balance or reach a target.
+- **Learning goal:** Comparing quantities, "more / less / the same", composing small numbers.
+- **Inspiration pattern:** A concrete action that teaches quantity (principle inspired by DragonBox Numbers); Khan Academy Kids (gradual progress in arithmetic).
+- **Age 2:** Add until the same visual number is reached, with no symbols.
+- **Age 5:** Complete to a given sum, or choose between two ways to compose the same number.
 
 ---
 
-## מה לא בונים בפיילוט
+## Nature Lab
 
-**הצעה — ממתין לאישור.** נשמר לחזון הרחב: קריאה וכתיבה שיטתית בעברית, פיזיקה וכימיה, AI והבנת מערכות, שליטה בתוכן המכשיר, ומסלולי גיל 6–9. גם כאן לא נעתיק תכנים מאפליקציות ההשראה ולא נשלב פרסומות, רכישות או חשבון ענן.
+Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause and effect. Inspiration: exploration without failure from Sago Mini / Pok Pok; a varied path (a short book + an activity) from Khan Academy Kids; short voice-guided tasks from Tiger eAcademy.
 
-דמויות העולם יהיו מקוריות וקבועות (מטבח, גן, מעבדה, סטודיו), כדי שהבנות יזהו אותן ממפה למשחק. בחירת הדמויות והסגנון **הצעה — ממתין לאישור**.
+### 1. Who Lives Here?
+
+- **Stage:** Vision (first candidate for the Nature Lab, after language and quantity learning are stable).
+
+- **Action:** The girl helps an animal go home (nest, cave, water, tree) according to a voice hint or a picture.
+- **Learning goal:** Matching a creature to a habitat, animal vocabulary.
+- **Inspiration pattern:** Sago Mini (calm exploration, the world responds); Tiger eAcademy (short voice instruction).
+- **Age 2:** Two animals and two homes, an immediate warm reaction even on a second try.
+- **Age 5:** A descriptive hint ("I sleep in a cave" / "Je vis dans l'eau"), or several creatures in sequence.
+
+### 2. Weather in the Window
+
+- **Stage:** Vision.
+
+- **Action:** The girl changes sun, rain, or wind and sees what happens to the plants, the puddle, or the laundry.
+- **Learning goal:** Cause and effect, weather vocabulary, simple prediction.
+- **Inspiration pattern:** Sago Mini (free play with no failure); Khan Academy Kids (short concrete science).
+- **Age 2:** One switch — touch and see what happens, with no "right answer".
+- **Age 5:** "What will happen if…", choosing suitable clothing, or two changes in sequence.
+
+### 3. Little Nature Book
+
+- **Stage:** Vision.
+
+- **Action:** A short book with an interactive page: touch a creature, hear its name, move one element on the page.
+- **Learning goal:** Naming, listening, a short story sequence.
+- **Inspiration pattern:** Khan Academy Kids (a book + an activity on the same path); Lingokids (words with a fixed character).
+- **Age 2:** Two or three pages, free touching, can leave on any page.
+- **Age 5:** A small question at the end of the story, or a learning-language word next to the picture.
+
+---
+
+## Art Studio
+
+Goal: expression, motor skills, choice. Marked educational creation can earn leisure; free creation can also serve as leisure. Inspiration: creation in Sago Mini and Khan Academy Kids; daily-path variety from Khan Academy Kids.
+
+### 1. Color the World
+
+- **Stage:** Near-term vision; can appear early if leisure/creation beyond bubbles is missing.
+
+- **Action:** Coloring a character or a background from the map with large colors, with area fills.
+- **Learning goal:** Color names (Hebrew, and optionally English/French), choosing and finishing a creation.
+- **Inspiration pattern:** Sago Mini and Khan Academy Kids (creation as part of the world, not a separate, cold tool).
+- **Age 2:** Fill by touch, a few large colors, "going outside the line" is not treated as a mistake.
+- **Age 5:** More areas, an optional request ("color the apple red"), saving the creation in a local album.
+
+### 2. Kitchen Orchestra / Sound Lab
+
+- **Stage:** Vision.
+
+- **Action:** Touching utensils or creatures plays sounds; a short pattern can be repeated.
+- **Learning goal:** Cause and effect, listening to a pattern, imitating a short sequence.
+- **Inspiration pattern:** Sago Mini (free exploration); Tiger eAcademy (a short guided sequence, in the older-girl version).
+- **Age 2:** Free playing with no failure.
+- **Age 5:** Repeat a sequence of two or three sounds, or choose an instrument by name in the learning language.
+
+### 3. Bubbles and Dreams (also as leisure)
+
+- **Stage:** P0 as the leisure corner.
+
+- **Action:** Touching bubbles, a joyful pop, changing colors. Exists in the spirit of the prototype.
+- **Learning goal:** Secondary; mainly regulation, enjoyment, and a calm ending.
+- **Inspiration pattern:** Leisure inside the app, like a free-play corner and not like a lesson.
+- **Age 2 and 5:** The same activity, with different density and complexity. If this is a leisure corner — it does not earn new time.
+
+---
+
+## What is not built in the pilot
+
+**proposal — pending owner approval.** Kept for the broader vision: systematic Hebrew reading and writing, physics and chemistry, AI and systems understanding, control of device content, and age 6–9 tracks. Here too we will not copy content from the inspiration apps, and we will not add ads, purchases, or a cloud account.
+
+World characters will be original and consistent (kitchen, garden, lab, studio), so the girls recognize them from the map to the game. Character and style choices are a **proposal — pending owner approval**.
