@@ -1,0 +1,35 @@
+{
+  "worlds": [
+    {
+      "id": "language-house",
+      "nameHe": "בית השפות",
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "animal-restaurant"
+    },
+    {
+      "id": "number-garden",
+      "nameHe": "גן המספרים",
+      "status": "locked",
+      "earnsLeisure": true
+    },
+    {
+      "id": "nature-lab",
+      "nameHe": "מעבדת הטבע",
+      "status": "locked",
+      "earnsLeisure": true
+    },
+    {
+      "id": "art-studio",
+      "nameHe": "סטודיו האמנות",
+      "status": "locked",
+      "earnsLeisure": false
+    },
+    {
+      "id": "leisure-corner",
+      "nameHe": "פינת הכיף",
+      "status": "leisure",
+      "earnsLeisure": false
+    }
+  ]
+}

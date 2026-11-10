@@ -1,0 +1,139 @@
+{
+  "id": "animal-restaurant",
+  "world": "language-house",
+  "template": "choice-serve",
+  "skill": "listen-and-choose-food",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "choiceCount": 2, "counts": [1], "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "choiceCount": 3, "counts": [1, 2, 3], "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "thanks": {
+    "en": ["Yummy! Thank you!", "Great job!", "Delicious!"],
+    "fr": ["Miam ! Merci !", "Bravo !", "Délicieux !"]
+  },
+  "helpTextHe": "החיה מבקשת אוכל. הקשיבי ובחרי את הצלחת המתאימה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
+  "items": [
+    {
+      "id": "apple",
+      "he": "תפוח",
+      "color": "red",
+      "shape": "apple",
+      "prompts": {
+        "en": { "1": "I want an apple, please!", "2": "I want two apples, please!", "3": "I want three apples, please!" },
+        "fr": { "1": "Je voudrais une pomme, s'il te plaît !", "2": "Je voudrais deux pommes, s'il te plaît !", "3": "Je voudrais trois pommes, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "banana",
+      "he": "בננה",
+      "color": "yellow",
+      "shape": "banana",
+      "prompts": {
+        "en": { "1": "I want a banana, please!", "2": "I want two bananas, please!", "3": "I want three bananas, please!" },
+        "fr": { "1": "Je voudrais une banane, s'il te plaît !", "2": "Je voudrais deux bananes, s'il te plaît !", "3": "Je voudrais trois bananes, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "carrot",
+      "he": "גזר",
+      "color": "orange",
+      "shape": "carrot",
+      "prompts": {
+        "en": { "1": "I want a carrot, please!", "2": "I want two carrots, please!", "3": "I want three carrots, please!" },
+        "fr": { "1": "Je voudrais une carotte, s'il te plaît !", "2": "Je voudrais deux carottes, s'il te plaît !", "3": "Je voudrais trois carottes, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "grapes",
+      "he": "ענבים",
+      "color": "purple",
+      "shape": "grapes",
+      "prompts": {
+        "en": { "1": "I want some grapes, please!" },
+        "fr": { "1": "Je voudrais du raisin, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "cheese",
+      "he": "גבינה",
+      "color": "yellow",
+      "shape": "cheese",
+      "prompts": {
+        "en": { "1": "I want some cheese, please!" },
+        "fr": { "1": "Je voudrais du fromage, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "strawberry",
+      "he": "תות",
+      "color": "red",
+      "shape": "strawberry",
+      "prompts": {
+        "en": { "1": "I want a strawberry, please!", "2": "I want two strawberries, please!", "3": "I want three strawberries, please!" },
+        "fr": { "1": "Je voudrais une fraise, s'il te plaît !", "2": "Je voudrais deux fraises, s'il te plaît !", "3": "Je voudrais trois fraises, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "broccoli",
+      "he": "ברוקולי",
+      "color": "green",
+      "shape": "broccoli",
+      "prompts": {
+        "en": { "1": "I want some broccoli, please!" },
+        "fr": { "1": "Je voudrais du brocoli, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "cookie",
+      "he": "עוגייה",
+      "color": "brown",
+      "shape": "cookie",
+      "prompts": {
+        "en": { "1": "I want a cookie, please!", "2": "I want two cookies, please!", "3": "I want three cookies, please!" },
+        "fr": { "1": "Je voudrais un biscuit, s'il te plaît !", "2": "Je voudrais deux biscuits, s'il te plaît !", "3": "Je voudrais trois biscuits, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "egg",
+      "he": "ביצה",
+      "color": "white",
+      "shape": "egg",
+      "prompts": {
+        "en": { "1": "I want an egg, please!", "2": "I want two eggs, please!", "3": "I want three eggs, please!" },
+        "fr": { "1": "Je voudrais un œuf, s'il te plaît !", "2": "Je voudrais deux œufs, s'il te plaît !", "3": "Je voudrais trois œufs, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "pear",
+      "he": "אגס",
+      "color": "green",
+      "shape": "pear",
+      "prompts": {
+        "en": { "1": "I want a pear, please!", "2": "I want two pears, please!", "3": "I want three pears, please!" },
+        "fr": { "1": "Je voudrais une poire, s'il te plaît !", "2": "Je voudrais deux poires, s'il te plaît !", "3": "Je voudrais trois poires, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "orange",
+      "he": "תפוז",
+      "color": "orange",
+      "shape": "orange",
+      "prompts": {
+        "en": { "1": "I want an orange, please!", "2": "I want two oranges, please!", "3": "I want three oranges, please!" },
+        "fr": { "1": "Je voudrais une orange, s'il te plaît !", "2": "Je voudrais deux oranges, s'il te plaît !", "3": "Je voudrais trois oranges, s'il te plaît !" }
+      }
+    },
+    {
+      "id": "fish",
+      "he": "דג",
+      "color": "blue",
+      "shape": "fish",
+      "prompts": {
+        "en": { "1": "I want some fish, please!" },
+        "fr": { "1": "Je voudrais du poisson, s'il te plaît !" }
+      }
+    }
+  ]
+}

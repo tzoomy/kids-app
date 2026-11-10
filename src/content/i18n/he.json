@@ -1,0 +1,61 @@
+{
+  "appTitle": "מסעדת החיות",
+  "whoIsPlaying": "מי משחקת?",
+  "leisureBalance": "זמן פנאי",
+  "parentArea": "הורים",
+  "back": "חזרה",
+  "home": "בית",
+  "worldMap": {
+    "title": "האי הקטן שלנו",
+    "languageHouse": "בית השפות",
+    "numberGarden": "גן המספרים",
+    "natureLab": "מעבדת הטבע",
+    "artStudio": "סטודיו האמנות",
+    "leisureCorner": "פינת הכיף",
+    "comingSoon": "בקרוב"
+  },
+  "restaurant": {
+    "helpButton": "עזרה",
+    "hearAgain": "שמעי שוב",
+    "stars": "כוכבים"
+  },
+  "bubbles": {
+    "title": "בועות וחלומות",
+    "timeLeft": "זמן שנשאר",
+    "lowWarning": "עוד קצת זמן!",
+    "endTitle": "זמן הפנאי נגמר",
+    "endMessage": "כל הכבוד! רוצה לבקר שוב את החיות במסעדה?",
+    "goToRestaurant": "למסעדה",
+    "goHome": "בית"
+  },
+  "parent": {
+    "gateTitle": "אזור הורים",
+    "gateQuestion": "כמה זה {a} × {b}?",
+    "enter": "כניסה",
+    "cancel": "ביטול",
+    "settingsTitle": "הגדרות הורים",
+    "learnMinutesLabel": "דקות למידה פעילה",
+    "leisureMinutesLabel": "מרוויחות דקות פנאי",
+    "dailyCapLabel": "תקרת צבירה יומית (דקות פנאי)",
+    "idleSecondsLabel": "שניות ללא מגע שלא נספרות",
+    "languagesLabel": "שפות",
+    "languagesBoth": "אנגלית + צרפתית",
+    "languagesEn": "אנגלית",
+    "languagesFr": "צרפתית",
+    "placeholderNote": "ברירות המחדל (10 דק׳ למידה → 5 דק׳ פנאי, תקרה 30 דק׳, סף חוסר פעילות 20 שנ׳) הן זמניות עד להחלטת מאור.",
+    "wipeNote": "ניקוי נתוני האתר בדפדפן מוחק את כל ההתקדמות.",
+    "resetBalance": "איפוס יתרה",
+    "plusFive": "+5 דק׳",
+    "save": "שמירה",
+    "exit": "יציאה",
+    "ageTrack2": "קטנה (2)",
+    "ageTrack5": "גדולה (5)",
+    "report": "דיווח",
+    "participationToday": "פעילות היום",
+    "earnedToday": "נצבר היום",
+    "balance": "יתרה",
+    "participationTotal": "סה״כ למידה",
+    "refreshApp": "רענון האפליקציה"
+  },
+  "switchProfile": "החלפה"
+}
