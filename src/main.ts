@@ -1,3 +1,7 @@
+import '@fontsource/noto-sans-hebrew/hebrew-400.css';
+import '@fontsource/noto-sans-hebrew/hebrew-700.css';
+import '@fontsource/noto-sans/latin-400.css';
+import '@fontsource/noto-sans/latin-700.css';
 import './styles/shell.css';
 import type Phaser from 'phaser';
 import { Store } from './core/storage/store';
@@ -5,6 +9,7 @@ import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from '
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, isE2e } from './game/createGame';
+import { initPwa } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import type { AgeTrack } from './core/storage/schema';
 
@@ -12,7 +17,7 @@ const shellRoot = document.getElementById('shell-root');
 if (!shellRoot) throw new Error('#shell-root missing from web/index.html');
 
 const store = new Store();
-const audioManager = new AudioManager([new StaticFileProvider(loadAudioManifest()), new DeviceTtsProvider()]);
+const audioManager = new AudioManager([new StaticFileProvider(loadAudioManifest(), import.meta.env.BASE_URL), new DeviceTtsProvider()]);
 const sfx = new SfxPlayer();
 const shell = new AppShell(shellRoot);
 
@@ -31,6 +36,7 @@ function warmupAudioOnce(): void {
   sfx.warmup();
 }
 document.addEventListener('pointerdown', warmupAudioOnce, { once: true });
+initPwa();
 
 function openParentGate(onDone: () => void): void {
   // Test-only bypass behind ?e2e=1 so Playwright can reach the settings screen
@@ -90,6 +96,16 @@ function showProfileSelectScreen(): void {
   );
 }
 
+function returnToProfileSelect(): void {
+  audioManager.stopAll();
+  game?.scene.stop('RestaurantScene');
+  game?.scene.stop('BubblesScene');
+  game?.scene.stop('MapScene');
+  context.currentProfileId = null;
+  shell.clearChrome();
+  showProfileSelectScreen();
+}
+
 function pickProfile(profileId: string): void {
   context.currentProfileId = profileId;
   warmupAudioOnce();
@@ -100,6 +116,7 @@ function pickProfile(profileId: string): void {
         shell.clearOverlay();
         game?.scene.getScene('MapScene')?.scene.restart();
       });
+    context.onExitToProfileSelect = returnToProfileSelect;
     game = createGame(document.getElementById('game-root')!, context);
   } else {
     game.scene.stop('RestaurantScene');

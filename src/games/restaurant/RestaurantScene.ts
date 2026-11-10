@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
-import { drawAnimal, drawFoodIcon, ANIMAL_KINDS } from '../../assets/vectorArt';
+import { drawAnimal, drawFoodIcon, ANIMAL_KINDS, paintRestaurantKitchen } from '../../assets/vectorArt';
 import { PALETTE } from '../../assets/colors';
 import { buildRound, isCorrectChoice, pickLanguage, type ChoiceOption, type RoundSpec } from '../templates/choiceServe';
 import type { LearningSession } from '../../core/leisure';
@@ -38,7 +38,17 @@ export class RestaurantScene extends Phaser.Scene {
     this.visibilityHandler = () => this.session.setHidden(document.hidden);
     document.addEventListener('visibilitychange', this.visibilityHandler);
 
-    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.session.tick(1) });
+    this.time.addEvent({
+      delay: 1000,
+      loop: true,
+      callback: () => {
+        this.session.tick(1);
+        this.context.store.persist();
+        this.refreshChrome();
+      },
+    });
+
+    paintRestaurantKitchen(this);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 
@@ -50,6 +60,9 @@ export class RestaurantScene extends Phaser.Scene {
 
   private cleanup(): void {
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
+    this.context.audio.stopAll();
+    this.session.reportListening(false);
+    this.session.reportCelebrating(false);
     this.session.exit();
   }
 
@@ -71,6 +84,7 @@ export class RestaurantScene extends Phaser.Scene {
   }
 
   private goBack(): void {
+    this.context.audio.stopAll();
     this.context.store.persist();
     this.context.shell.clearPromptBubble();
     this.scene.start('MapScene');
@@ -96,8 +110,9 @@ export class RestaurantScene extends Phaser.Scene {
     this.round = { ...spec, done: false, tries: 0 };
 
     const animalKind = ANIMAL_KINDS[Math.floor(Math.random() * ANIMAL_KINDS.length)];
-    this.animalContainer = drawAnimal(this, animalKind, 200);
-    this.animalContainer.setPosition(this.scale.width / 2, this.scale.height * 0.3);
+    this.animalContainer = drawAnimal(this, animalKind, 260);
+    const landscape = this.scale.width >= this.scale.height;
+    this.animalContainer.setPosition(this.scale.width / 2, this.scale.height * (landscape ? 0.48 : 0.36));
     this.animalContainer.setInteractive({ useHandCursor: true });
     this.animalContainer.on('pointerdown', () => this.speakPrompt());
     this.tweens.add({
@@ -113,7 +128,7 @@ export class RestaurantScene extends Phaser.Scene {
     const n = spec.choices.length;
     const spacing = Math.min(260, (this.scale.width - 80) / n);
     const startX = this.scale.width / 2 - ((n - 1) * spacing) / 2;
-    const y = this.scale.height * 0.72;
+    const y = this.scale.height * 0.64;
     spec.choices.forEach((choice, i) => {
       const container = this.buildChoiceContainer(choice);
       container.setPosition(startX + i * spacing, y);
@@ -131,25 +146,32 @@ export class RestaurantScene extends Phaser.Scene {
   }
 
   private buildChoiceContainer(choice: ChoiceOption): Phaser.GameObjects.Container {
-    const iconSize = 70;
+    const iconSize = 108;
     const gap = 16;
     const totalWidth = choice.count * iconSize + (choice.count - 1) * gap;
     const group = this.add.container(0, 0);
+    const plateW = Math.max(iconSize * 1.5, totalWidth + 36);
+    const plate = this.add.ellipse(0, iconSize * 0.42, plateW, iconSize * 0.62, 0xf7f1e1);
+    plate.setStrokeStyle(4, 0x33302a);
+    group.add(plate);
     for (let i = 0; i < choice.count; i++) {
       const icon = drawFoodIcon(this, choice.item.shape, choice.item.color, iconSize);
       icon.setPosition(-totalWidth / 2 + iconSize / 2 + i * (iconSize + gap), 0);
       group.add(icon);
     }
-    group.setSize(Math.max(120, totalWidth + 40), 180);
+    group.setSize(Math.max(128, plateW + 16), 200);
     return group;
   }
 
   private async speakPrompt(): Promise<void> {
     if (!this.round) return;
     this.session.reportListening(true);
-    const lineId = `food.${this.round.target.item.id}.${this.round.language}`;
-    await this.context.audio.play({ lineId, lang: this.round.language, text: this.round.promptText });
-    this.session.reportListening(false);
+    const lineId = `food.${this.round.target.item.id}.${this.round.target.count}.${this.round.language}`;
+    try {
+      await this.context.audio.play({ lineId, lang: this.round.language, text: this.round.promptText });
+    } finally {
+      this.session.reportListening(false);
+    }
   }
 
   private giveHint(): void {
@@ -199,9 +221,10 @@ export class RestaurantScene extends Phaser.Scene {
     const content = this.context.content.restaurant;
     const lang = this.round!.language;
     const lines = content.thanks[lang];
-    const line = lines[Math.floor(Math.random() * lines.length)];
+    const thanksIndex = Math.floor(Math.random() * lines.length);
+    const line = lines[thanksIndex];
     this.time.delayedCall(250, () => {
-      void this.context.audio.play({ lineId: `thanks.${lang}`, lang, text: line });
+      void this.context.audio.play({ lineId: `thanks.${lang}.${thanksIndex}`, lang, text: line });
     });
 
     this.time.delayedCall(2200, () => {

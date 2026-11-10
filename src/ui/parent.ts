@@ -1,6 +1,7 @@
 import { el, formatClock } from './dom';
 import type { AppState, LanguageSetting } from '../core/storage/schema';
 import heStrings from '../content/i18n/he.json';
+import { applyPwaUpdate, pwaNeedsRefresh } from '../pwa';
 
 export function renderParentGate(root: HTMLElement, onSuccess: () => void, onCancel: () => void): void {
   const a = 3 + Math.floor(Math.random() * 7);
@@ -46,6 +47,8 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
   const screen = el('div', 'shell-fullscreen');
   const card = el('div', 'shell-card');
   card.appendChild(el('h2', undefined, `⚙️ ${t.settingsTitle}`));
+  const body = el('div', 'shell-card-body');
+  card.appendChild(body);
 
   const mkNumberField = (labelText: string, value: number, min: number): HTMLInputElement => {
     const label = el('label');
@@ -55,7 +58,7 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
     input.min = String(min);
     input.value = String(value);
     label.appendChild(input);
-    card.appendChild(label);
+    body.appendChild(label);
     return input;
   };
 
@@ -79,14 +82,14 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
   }
   langSelect.value = state.settings.languages;
   langLabel.appendChild(langSelect);
-  card.appendChild(langLabel);
+  body.appendChild(langLabel);
 
-  card.appendChild(el('hr'));
+  body.appendChild(el('hr'));
 
   const profileInputs: { id: string; nameInput: HTMLInputElement; ageSelect: HTMLSelectElement }[] = [];
   for (const profile of state.profiles) {
     const data = state.data[profile.id];
-    const label = el('label');
+    const label = el('label', 'shell-profile-edit');
     const nameInput = el('input');
     nameInput.value = profile.name;
     nameInput.style.width = '140px';
@@ -100,15 +103,15 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
     ageSelect.value = profile.ageTrack;
     label.appendChild(nameInput);
     label.appendChild(ageSelect);
-    card.appendChild(label);
+    body.appendChild(label);
     profileInputs.push({ id: profile.id, nameInput, ageSelect: ageSelect as HTMLSelectElement });
 
     const note = el(
       'div',
       'shell-note',
-      `${t.participationToday}: ${formatClock(data.activeSec)} · ${t.balance}: ${formatClock(data.balanceSec)} · ${t.earnedToday}: ${formatClock(data.earnedTodaySec)} · ⭐${data.stars}`,
+      `${t.participationTotal}: ${formatClock(data.activeSec)} · ${t.balance}: ${formatClock(data.balanceSec)} · ${t.earnedToday}: ${formatClock(data.earnedTodaySec)} · ⭐${data.stars}`,
     );
-    card.appendChild(note);
+    body.appendChild(note);
 
     const actionRow = el('div', 'shell-row');
     const resetBtn = el('button', 'shell-btn', t.resetBalance);
@@ -122,13 +125,19 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
     plusBtn.addEventListener('click', () => callbacks.onPlusFive(profile.id));
     actionRow.appendChild(resetBtn);
     actionRow.appendChild(plusBtn);
-    card.appendChild(actionRow);
+    body.appendChild(actionRow);
   }
 
-  card.appendChild(el('p', 'shell-note', t.placeholderNote));
-  card.appendChild(el('p', 'shell-note', t.wipeNote));
+  body.appendChild(el('p', 'shell-note', t.placeholderNote));
+  body.appendChild(el('p', 'shell-note', t.wipeNote));
+  if (pwaNeedsRefresh()) {
+    const refresh = el('button', 'shell-btn', t.refreshApp);
+    refresh.addEventListener('click', () => { void applyPwaUpdate(); });
+    body.appendChild(refresh);
+  }
 
-  const buttonRow = el('div', 'shell-row');
+
+  const buttonRow = el('div', 'shell-row shell-card-actions');
   const saveBtn = el('button', 'shell-btn', t.save);
   const exitBtn = el('button', 'shell-btn', t.exit);
   exitBtn.dataset.testid = 'parent-exit-btn';

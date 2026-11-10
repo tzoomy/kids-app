@@ -27,6 +27,9 @@ test.describe('kids-app journey', () => {
     await page.goto('/?e2e=1');
 
     await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+    if (sizeTag === '1280x800' || sizeTag === '800x1280') {
+      await page.screenshot({ path: path.join(screenshotsDir, `profiles-${sizeTag}.png`) });
+    }
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
 
@@ -63,17 +66,58 @@ test.describe('kids-app journey', () => {
       (window as unknown as { __testHooks__: { seedBalanceSec: (s: number) => void } }).__testHooks__.seedBalanceSec(sec);
     }, 42);
     await goToScreen(page, 'restaurant');
+    await page.waitForTimeout(400);
+
+    const before = await page.locator('[data-testid="leisure-balance"]').innerText();
+    expect(before).toMatch(/0:4[2-9]|0:5\d/); // 0:42 or a second or two of earning
 
     const canvas = page.locator('canvas');
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
-    // Tap a few spots near the bottom of the canvas where choice icons render;
-    // mistakes should never move the balance shown in the top bar.
+    // Tap near the left plate (y ≈ 0.64) — a miss must never reduce the balance.
     if (box) {
       for (let i = 0; i < 3; i++) {
-        await page.mouse.click(box.x + box.width * 0.2, box.y + box.height * 0.72);
-        await page.waitForTimeout(150);
+        await page.mouse.click(box.x + box.width * 0.28, box.y + box.height * 0.64);
+        await page.waitForTimeout(200);
       }
     }
+
+    const after = await page.locator('[data-testid="leisure-balance"]').innerText();
+    const parse = (s: string) => {
+      const m = s.match(/(\d+):(\d+)/);
+      return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+    };
+    expect(parse(after)).toBeGreaterThanOrEqual(parse(before));
+  });
+
+  test('parent multiplication gate is shown when e2e bypass is off', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+    await page.locator('[data-testid="parent-gate-btn"]').click();
+    await expect(page.getByText('אזור הורים')).toBeVisible();
+    await expect(page.getByText(/כמה זה/)).toBeVisible();
+    await page.getByRole('button', { name: 'ביטול' }).click();
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+  });
+
+  test('shell stays available after going offline', async ({ page, context }) => {
+    await page.goto('/?e2e=1');
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+    // Give the production service worker a chance to take control, then reload so
+    // the page is served from cache before we cut the network.
+    await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        await navigator.serviceWorker.ready;
+      } catch {
+        // ignore — preview environments without a SW still have HTTP cache
+      }
+    });
+    await page.reload();
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+    await context.setOffline(true);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible({ timeout: 15_000 });
+    await context.setOffline(false);
   });
 });

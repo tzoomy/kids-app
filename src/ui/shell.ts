@@ -44,10 +44,12 @@ export class AppShell {
   }
 
   showParentGate(onSuccess: () => void, onCancel: () => void): void {
+    this.clearChrome();
     renderParentGate(this.overlayRoot, onSuccess, onCancel);
   }
 
   showParentSettings(state: AppState, callbacks: ParentSettingsCallbacks): void {
+    this.clearChrome();
     renderParentSettings(this.overlayRoot, state, callbacks);
   }
 

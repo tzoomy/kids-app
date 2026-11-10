@@ -51,6 +51,20 @@ describe('content schema validation', () => {
     expect(Object.keys(manifest)).not.toContain('_comment');
   });
 
+  it('the audio manifest has a lineId per food, count, and language', () => {
+    const manifest = loadAudioManifest();
+    const restaurant = loadAnimalRestaurant();
+    for (const item of restaurant.items) {
+      for (const lang of ['en', 'fr'] as const) {
+        for (const count of [1, 2, 3]) {
+          expect(manifest[`food.${item.id}.${count}.${lang}`]).toMatch(/\.ogg$/);
+        }
+      }
+    }
+    expect(manifest['thanks.en.0']).toBeTruthy();
+    expect(manifest['thanks.fr.0']).toBeTruthy();
+  });
+
   it('WorldsFileSchema rejects an empty world list', () => {
     expect(() => WorldsFileSchema.parse({ worlds: [] })).toThrow();
   });

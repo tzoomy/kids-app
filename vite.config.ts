@@ -20,16 +20,16 @@ export default defineConfig({
   plugins: [
     VitePWA({
       srcDir: 'web',
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: 'auto',
       manifest: false, // we ship our own public/manifest.webmanifest
       workbox: {
         // Precache only the app shell. World/game assets are cached at runtime
         // as they are requested, so first install does not pull the whole library.
-        globPatterns: ['**/*.{js,css,html}'],
+        globPatterns: ['**/*.{js,css,html,woff,woff2,json,svg,png,webmanifest,ico}'],
         runtimeCaching: [
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ogg|mp3)$/,
+            urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ogg|mp3|woff2?|json)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'kids-app-assets',

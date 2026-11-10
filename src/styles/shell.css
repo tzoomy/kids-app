@@ -1,7 +1,4 @@
-@font-face {
-  font-family: 'Noto Sans Hebrew';
-  src: local('Noto Sans Hebrew');
-}
+
 
 * {
   box-sizing: border-box;
@@ -251,4 +248,127 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+.shell-map-title {
+  font-size: clamp(18px, 3.6vmin, 28px);
+  font-weight: 700;
+  color: #3a3328;
+  text-shadow: 0 1px 0 #fff;
+  pointer-events: none;
+  text-align: center;
+  flex: 1;
+}
+
+.shell-map-pin {
+  position: absolute;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+.shell-map-pin-label {
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: clamp(13px, 2.4vmin, 18px);
+  color: #33302a;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+}
+
+.shell-map-pin-soon {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b6258;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+.shell-map-pin.is-locked .shell-map-pin-label {
+  opacity: 0.85;
+}
+
+.shell-prompt-bubble {
+  line-height: 1.25;
+  max-width: min(86vw, 720px);
+  overflow-wrap: anywhere;
+}
+
+.shell-card input,
+.shell-card select {
+  width: auto;
+  min-width: 160px;
+  max-width: 46vw;
+}
+
+.shell-card select {
+  min-width: 220px;
+}
+
+.shell-card .shell-note {
+  line-height: 1.45;
+  margin: 10px 0 0;
+}
+
+.shell-profile-edit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+.shell-profile-edit input {
+  min-width: 160px;
+  flex: 1;
+}
+
+.shell-card-actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px 0 4px;
+  margin-top: 8px;
+  z-index: 1;
+}
+
+.shell-prompt-bubble {
+  top: 8.5vmin;
+  padding: 1.2vmin 3vmin;
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .shell-prompt-bubble {
+    top: 8vmin;
+    max-width: min(70vw, 640px);
+  }
+}
+
+.shell-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shell-card-body {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-bottom: 8px;
+}
+
+.shell-card-actions {
+  position: static;
+  flex-shrink: 0;
+  background: #fff;
+  padding: 12px 0 4px;
+  margin-top: 4px;
 }

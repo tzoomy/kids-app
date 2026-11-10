@@ -1,20 +1,62 @@
 import { el, formatClock, clear } from './dom';
 import heStrings from '../content/i18n/he.json';
 
+export interface MapPin {
+  id: string;
+  label: string;
+  locked: boolean;
+  comingSoon?: string;
+  gameX: number;
+  gameY: number;
+}
+
 export interface MapChromeOptions {
+  title: string;
   balanceSec: number;
   onParent: () => void;
+  onSwitchProfile: () => void;
+  pins: MapPin[];
+  canvas: HTMLCanvasElement;
+  gameWidth: number;
+  gameHeight: number;
 }
 
 export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void {
   clear(root);
   const bar = el('div', 'shell-top-bar');
-  bar.appendChild(el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`));
   const parentBtn = el('button', 'shell-pill', `🔒 ${heStrings.parentArea}`);
   parentBtn.dataset.testid = 'parent-gate-btn';
   parentBtn.addEventListener('click', opts.onParent);
   bar.appendChild(parentBtn);
+  bar.appendChild(el('span', 'shell-map-title', opts.title));
+  const right = el('div', 'shell-row');
+  right.style.gap = '1vmin';
+  const homeBtn = el('button', 'shell-pill', `🏠 ${heStrings.home}`);
+  homeBtn.dataset.testid = 'switch-profile-btn';
+  homeBtn.addEventListener('click', opts.onSwitchProfile);
+  right.appendChild(homeBtn);
+  const balance = el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`);
+  balance.dataset.testid = 'leisure-balance';
+  right.appendChild(balance);
+  bar.appendChild(right);
   root.appendChild(bar);
+  renderMapPins(root, opts);
+}
+
+export function renderMapPins(root: HTMLElement, opts: Pick<MapChromeOptions, 'pins' | 'canvas' | 'gameWidth' | 'gameHeight'>): void {
+  root.querySelectorAll('.shell-map-pin').forEach((n) => n.remove());
+  const canvasRect = opts.canvas.getBoundingClientRect();
+  const rootRect = root.getBoundingClientRect();
+  for (const pin of opts.pins) {
+    const node = el('div', `shell-map-pin${pin.locked ? ' is-locked' : ''}`);
+    node.appendChild(el('span', 'shell-map-pin-label', pin.label));
+    if (pin.comingSoon) node.appendChild(el('span', 'shell-map-pin-soon', pin.comingSoon));
+    const left = canvasRect.left - rootRect.left + (pin.gameX / opts.gameWidth) * canvasRect.width;
+    const top = canvasRect.top - rootRect.top + (pin.gameY / opts.gameHeight) * canvasRect.height;
+    node.style.left = `${left}px`;
+    node.style.top = `${top}px`;
+    root.appendChild(node);
+  }
 }
 
 export interface RestaurantChromeOptions {
@@ -42,7 +84,9 @@ export function renderRestaurantChrome(root: HTMLElement, opts: RestaurantChrome
   const right = el('div', 'shell-row');
   right.style.gap = '1vmin';
   right.appendChild(el('span', 'shell-pill', `⭐ ${opts.starCount}`));
-  right.appendChild(el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`));
+  const balance = el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`);
+  balance.dataset.testid = 'leisure-balance';
+  right.appendChild(balance);
   const helpBtn = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
   helpBtn.addEventListener('click', opts.onHelp);
   right.appendChild(helpBtn);

@@ -2,6 +2,9 @@ import type { AudioProvider, SpeechRequest } from './types';
 
 const BCP47: Record<string, string> = { en: 'en-US', fr: 'fr-FR' };
 
+/** Safety cap so a missing onend/onerror on Android Chrome cannot hang listening forever. */
+export const TTS_SAFETY_TIMEOUT_MS = 8000;
+
 /** Device Web Speech API TTS. Fragile on some Android tablets, used as the fallback. */
 export class DeviceTtsProvider implements AudioProvider {
   readonly id = 'device-tts';
@@ -26,11 +29,30 @@ export class DeviceTtsProvider implements AudioProvider {
   }
 
   play(request: SpeechRequest): Promise<boolean> {
-    if (!this.isAvailable()) return Promise.resolve(false);
+    if (!this.isAvailable() || typeof SpeechSynthesisUtterance === 'undefined') {
+      return Promise.resolve(false);
+    }
     const synth = window.speechSynthesis;
     synth.cancel();
 
     return new Promise<boolean>((resolve) => {
+      let settled = false;
+      const finish = (ok: boolean) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        resolve(ok);
+      };
+
+      const timer = window.setTimeout(() => {
+        try {
+          synth.cancel();
+        } catch {
+          // ignore
+        }
+        finish(false);
+      }, TTS_SAFETY_TIMEOUT_MS);
+
       const lang = BCP47[request.lang] ?? request.lang;
       const utterance = new SpeechSynthesisUtterance(request.text);
       utterance.lang = lang;
@@ -42,12 +64,12 @@ export class DeviceTtsProvider implements AudioProvider {
         this.voices.find((v) => v.lang.toLowerCase().startsWith(request.lang));
       if (voice) utterance.voice = voice;
 
-      utterance.onend = () => resolve(true);
-      utterance.onerror = () => resolve(false);
+      utterance.onend = () => finish(true);
+      utterance.onerror = () => finish(false);
       try {
         synth.speak(utterance);
       } catch {
-        resolve(false);
+        finish(false);
       }
     });
   }
