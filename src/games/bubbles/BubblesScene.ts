@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { drawBubble } from '../../assets/vectorArt';
 import type { LeisureSession } from '../../core/leisure';
+import { transitionTo } from '../../anim/transitions';
 
 const LOW_BALANCE_WARNING_SEC = 30;
 
@@ -49,7 +50,7 @@ export class BubblesScene extends Phaser.Scene {
 
   private goBack(): void {
     this.context.store.persist();
-    this.scene.start('MapScene');
+    transitionTo(this, 'MapScene', { style: 'iris' });
   }
 
   private tick(): void {
@@ -104,8 +105,8 @@ export class BubblesScene extends Phaser.Scene {
     this.context.sfx.end();
     this.children.removeAll();
     this.context.shell.showBubblesEndScreen(
-      () => this.scene.start('RestaurantScene'),
-      () => this.scene.start('MapScene'),
+      () => transitionTo(this, 'RestaurantScene', { style: 'iris' }),
+      () => transitionTo(this, 'MapScene', { style: 'iris' }),
     );
   }
 }

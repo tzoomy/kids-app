@@ -37,7 +37,7 @@ test.describe('kids-app journey', () => {
     await page.screenshot({ path: path.join(screenshotsDir, `map-${sizeTag}.png`) });
 
     await goToScreen(page, 'restaurant');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1500); // let the animal hop in and the plates pop in
     await page.screenshot({ path: path.join(screenshotsDir, `restaurant-${sizeTag}.png`) });
 
     await page.evaluate((sec) => {

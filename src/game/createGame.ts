@@ -3,6 +3,8 @@ import { MapScene } from '../worlds/MapScene';
 import { RestaurantScene } from '../games/restaurant/RestaurantScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import type { AppContext } from './appContext';
+import { PreloadScene } from '../anim/PreloadScene';
+import { registerProjectArt } from '../anim/registerArt';
 
 declare global {
   interface Window {
@@ -25,6 +27,7 @@ function pickBaseSize(): { width: number; height: number } {
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
   const { width, height } = pickBaseSize();
+  registerProjectArt();
 
   const game = new Phaser.Game({
     type: isE2e() ? Phaser.CANVAS : Phaser.AUTO,
@@ -36,11 +39,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    // Only MapScene auto-starts; Restaurant/Bubbles are added inactive and started
-    // explicitly on navigation, so their create() doesn't fire until entered.
-    scene: [MapScene],
+    // Only PreloadScene auto-starts (it loads registered art, then starts MapScene).
+    // Map/Restaurant/Bubbles are added inactive and started explicitly on navigation,
+    // so their create() doesn't fire until entered.
+    scene: [PreloadScene],
   });
 
+  game.scene.add('MapScene', MapScene, false);
   game.scene.add('RestaurantScene', RestaurantScene, false);
   game.scene.add('BubblesScene', BubblesScene, false);
 
@@ -50,6 +55,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     goToScreen(screen) {
       window.__GAME_READY__ = false;
       const sceneKey = screen === 'map' ? 'MapScene' : screen === 'restaurant' ? 'RestaurantScene' : 'BubblesScene';
+      game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
       game.scene.stop('RestaurantScene');
       game.scene.stop('BubblesScene');
