@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animal Rig Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 18px;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .row {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      padding: 16px 20px;
+      box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06);
+    }
+    .row-title {
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: capitalize;
+      margin-bottom: 10px;
+      color: #3B2A22;
+    }
+    .poses {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      justify-items: center;
+    }
+    .pose-card {
+      background: #FFF6E8;
+      border: 2px dashed #E5BE94;
+      border-radius: 18px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stage-wrap {
+      width: 280px;
+      height: 336px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stage {
+      width: 400px;
+      height: 480px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: scale(0.7);
+      transform-origin: 0 0;
+    }
+    .pose-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #5C4338;
+      margin-top: 6px;
+    }
+    .part-img {
+      position: absolute;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    .head-group {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <h1>Animal Restaurant — Rig &amp; Pose Verification</h1>
+  <div id="grid" class="grid"></div>
+
+  <script src="./rigs-data.js"></script>
+  <script>
+    const POSES = [
+      {
+        label: '1. Neutral Smile',
+        mouth: 'smile',
+        eyesClosed: false,
+        headDeg: 0,
+        earLDeg: 0,
+        earRDeg: 0,
+        tailDeg: 0,
+      },
+      {
+        label: '2. Eyes Closed (Blink)',
+        mouth: 'smile',
+        eyesClosed: true,
+        headDeg: 0,
+        earLDeg: 0,
+        earRDeg: 0,
+        tailDeg: 6,
+      },
+      {
+        label: '3. Open + Head +8° / Ears -10°',
+        mouth: 'open',
+        eyesClosed: false,
+        headDeg: 8,
+        earLDeg: -10,
+        earRDeg: -10,
+        tailDeg: 10,
+      },
+      {
+        label: '4. Hmm + Head -8°',
+        mouth: 'hmm',
+        eyesClosed: false,
+        headDeg: -8,
+        earLDeg: 6,
+        earRDeg: -6,
+        tailDeg: -8,
+      },
+    ];
+
+    async function loadRigs() {
+      if (window.__RIGS_DATA__) return window.__RIGS_DATA__;
+      const res = await fetch('./rigs.json');
+      return res.json();
+    }
+
+    function createPartImg(kind, fileKey, part, refX, refY, extraDeg = 0) {
+      const img = document.createElement('img');
+      img.className = 'part-img';
+      img.src = `../../public/art/animals/${kind}/${fileKey}.svg`;
+      img.width = part.width;
+      img.height = part.height;
+      img.style.width = `${part.width}px`;
+      img.style.height = `${part.height}px`;
+      const left = refX + part.x - part.originX * part.width;
+      const top = refY + part.y - part.originY * part.height;
+      img.style.left = `${left}px`;
+      img.style.top = `${top}px`;
+      img.style.zIndex = String(part.depth);
+      img.style.transformOrigin = `${part.originX * 100}% ${part.originY * 100}%`;
+
+      const transforms = [];
+      if (extraDeg !== 0) transforms.push(`rotate(${extraDeg}deg)`);
+      if (part.flipX) transforms.push('scaleX(-1)');
+      if (transforms.length > 0) {
+        img.style.transform = transforms.join(' ');
+      }
+      return img;
+    }
+
+    function buildPoseStage(rig, pose) {
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+      const feetX = 200;
+      const feetY = 470;
+
+      const parts = rig.parts;
+      const headPart = parts.head;
+
+      // Body-level parts
+      for (const [id, part] of Object.entries(parts)) {
+        if (id === 'head' || part.parent === 'head') continue;
+        const deg = id === 'tail' ? pose.tailDeg : 0;
+        const img = createPartImg(rig.kind, part.key, part, feetX, feetY, deg);
+        stage.appendChild(img);
+      }
+
+      // Head container anchored at head pivot (feetX + headPart.x, feetY + headPart.y)
+      if (headPart) {
+        const headGroup = document.createElement('div');
+        headGroup.className = 'head-group';
+        headGroup.style.left = `${feetX + headPart.x}px`;
+        headGroup.style.top = `${feetY + headPart.y}px`;
+        headGroup.style.zIndex = String(headPart.depth);
+        headGroup.style.transformOrigin = '0 0';
+        if (pose.headDeg !== 0) {
+          headGroup.style.transform = `rotate(${pose.headDeg}deg)`;
+        }
+
+        const headChildren = [];
+        for (const [id, part] of Object.entries(parts)) {
+          if (id === 'head' || part.parent === 'head') {
+            headChildren.push([id, part]);
+          }
+        }
+        headChildren.sort((a, b) => a[1].depth - b[1].depth);
+
+        for (const [id, part] of headChildren) {
+          let fileKey = part.key;
+          if ((id === 'eyeL' || id === 'eyeR') && pose.eyesClosed) {
+            fileKey = rig.eyeClosedKey;
+          } else if (id === 'mouth') {
+            fileKey = rig.mouthKeys[pose.mouth];
+          }
+          let deg = 0;
+          if (id === 'earL') deg = pose.earLDeg;
+          if (id === 'earR') deg = pose.earRDeg;
+
+          const img = createPartImg(
+            rig.kind,
+            fileKey,
+            part,
+            -headPart.x,
+            -headPart.y,
+            deg
+          );
+          headGroup.appendChild(img);
+        }
+
+        stage.appendChild(headGroup);
+      }
+
+      return stage;
+    }
+
+    async function render() {
+      const data = await loadRigs();
+      const grid = document.getElementById('grid');
+      for (const kind of data.ANIMAL_ART_KINDS) {
+        const rig = data.ANIMAL_RIGS[kind];
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const title = document.createElement('div');
+        title.className = 'row-title';
+        title.textContent = `${kind}`;
+        row.appendChild(title);
+
+        const posesWrap = document.createElement('div');
+        posesWrap.className = 'poses';
+
+        for (const pose of POSES) {
+          const card = document.createElement('div');
+          card.className = 'pose-card';
+
+          const stageWrap = document.createElement('div');
+          stageWrap.className = 'stage-wrap';
+          stageWrap.appendChild(buildPoseStage(rig, pose));
+          card.appendChild(stageWrap);
+
+          const label = document.createElement('div');
+          label.className = 'pose-label';
+          label.textContent = pose.label;
+          card.appendChild(label);
+
+          posesWrap.appendChild(card);
+        }
+
+        row.appendChild(posesWrap);
+        grid.appendChild(row);
+      }
+      window.__PREVIEW_READY__ = true;
+    }
+
+    render();
+  </script>
+</body>
+</html>

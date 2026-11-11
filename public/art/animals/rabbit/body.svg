@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 210" width="220" height="210">
+  <!-- Neck extension tucked under head -->
+  <path d="M 80 44 C 80 12, 140 12, 140 44 Z" fill="#EBD5B8" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Main Plump Bunny Torso -->
+  <path d="M 68 34 C 48 60, 40 108, 44 150 C 48 182, 76 194, 110 194 C 144 194, 172 182, 176 150 C 180 108, 172 60, 152 34 C 138 22, 82 22, 68 34 Z" fill="#FFF3E2"/>
+  <!-- Neck and bottom shadow -->
+  <path d="M 68 34 C 82 22, 138 22, 152 34 C 142 50, 78 50, 68 34 Z" fill="#EBD5B8"/>
+  <path d="M 45 146 C 52 180, 78 194, 110 194 C 142 194, 168 180, 175 146 C 162 172, 138 180, 110 180 C 82 180, 58 172, 45 146 Z" fill="#EBD5B8"/>
+
+  <!-- Pure White Fluffy Belly & Chest Tuft -->
+  <path d="M 110 66 C 84 66, 68 92, 68 122 C 68 152, 86 172, 110 172 C 134 172, 152 152, 152 122 C 152 92, 136 66, 110 66 Z" fill="#FFFFFF"/>
+
+  <!-- Torso Outline -->
+  <path d="M 68 34 C 48 60, 40 108, 44 150 C 48 182, 76 194, 110 194 C 144 194, 172 182, 176 150 C 180 108, 172 60, 152 34 C 138 22, 82 22, 68 34 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left & Right Chunky Bunny Arms flowing from shoulders -->
+  <g>
+    <path d="M 56 58 C 28 66, 8 98, 14 124 C 20 144, 44 144, 56 124 C 62 112, 64 90, 62 72 Z" fill="#FFF3E2"/>
+    <path d="M 14 114 C 16 138, 40 144, 56 124 C 44 132, 24 130, 14 114 Z" fill="#EBD5B8"/>
+    <ellipse cx="34" cy="116" rx="9" ry="11" transform="rotate(-18 34 116)" fill="#FFACC5"/>
+    <path d="M 54 58 C 26 66, 8 98, 14 124 C 20 144, 44 144, 56 124 C 60 114, 62 100, 62 86" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M 164 58 C 192 66, 212 98, 206 124 C 200 144, 176 144, 164 124 C 158 112, 156 90, 158 72 Z" fill="#FFF3E2"/>
+    <path d="M 206 114 C 204 138, 180 144, 164 124 C 176 132, 196 130, 206 114 Z" fill="#EBD5B8"/>
+    <ellipse cx="186" cy="116" rx="9" ry="11" transform="rotate(18 186 116)" fill="#FFACC5"/>
+    <path d="M 166 58 C 194 66, 212 98, 206 124 C 200 144, 176 144, 164 124 C 160 114, 158 100, 158 86" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Bunny Hopper Feet planted at y=201.6 -->
+  <g>
+    <ellipse cx="74" cy="186" rx="32" ry="17" fill="#FFF3E2"/>
+    <path d="M 44 188 C 48 200, 60 203, 74 203 C 88 203, 100 200, 104 188 C 92 196, 56 196, 44 188 Z" fill="#EBD5B8"/>
+    <ellipse cx="74" cy="185" rx="14" ry="8" fill="#FFACC5"/>
+    <ellipse cx="74" cy="186" rx="32" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <ellipse cx="146" cy="186" rx="32" ry="17" fill="#FFF3E2"/>
+    <path d="M 116 188 C 120 200, 132 203, 146 203 C 160 203, 172 200, 176 188 C 164 196, 128 196, 116 188 Z" fill="#EBD5B8"/>
+    <ellipse cx="146" cy="185" rx="14" ry="8" fill="#FFACC5"/>
+    <ellipse cx="146" cy="186" rx="32" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

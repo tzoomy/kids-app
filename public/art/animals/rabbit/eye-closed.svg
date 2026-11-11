@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Soft biscuit eyelid crease shadow -->
+  <path d="M 11 33 C 17 20, 37 20, 43 33" fill="none" stroke="#EBD5B8" stroke-width="6" stroke-linecap="round"/>
+  <!-- Happy arched closed eye -->
+  <path d="M 10 31 C 16 17, 38 17, 44 31" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Outer bunny lashes -->
+  <path d="M 11 29 Q 4 25 3 20" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 13 33 Q 6 32 4 29" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

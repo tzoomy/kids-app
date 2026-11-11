@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Soft orange eyelid crease shadow -->
+  <path d="M 11 33 C 17 20, 37 20, 43 33" fill="none" stroke="#E58426" stroke-width="6" stroke-linecap="round"/>
+  <!-- Happy arched closed eye -->
+  <path d="M 10 31 C 16 17, 38 17, 44 31" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Winged kitty lash flick -->
+  <path d="M 11 30 Q 3 25 3 20" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 210" width="220" height="210">
+  <!-- Neck extension tucked under head -->
+  <path d="M 80 44 C 80 12, 140 12, 140 44 Z" fill="#E58426" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Main Marmalade Kitten Torso -->
+  <path d="M 68 34 C 48 60, 42 108, 46 150 C 50 182, 76 194, 110 194 C 144 194, 170 182, 174 150 C 178 108, 172 60, 152 34 C 138 22, 82 22, 68 34 Z" fill="#FFA647"/>
+  <!-- Neck and bottom shadow -->
+  <path d="M 68 34 C 82 22, 138 22, 152 34 C 142 50, 78 50, 68 34 Z" fill="#E58426"/>
+  <path d="M 47 146 C 54 180, 78 194, 110 194 C 142 194, 166 180, 173 146 C 160 172, 138 180, 110 180 C 82 180, 60 172, 47 146 Z" fill="#E58426"/>
+  <!-- Shoulder highlight -->
+  <path d="M 62 62 C 54 84, 52 112, 56 132 C 60 112, 62 86, 70 66 Z" fill="#FFC278"/>
+
+  <!-- Tabby side stripes -->
+  <path d="M 46 102 C 58 98, 66 102, 66 108 C 66 112, 56 114, 45 114 Z" fill="#C96815"/>
+  <path d="M 45 126 C 58 122, 66 126, 66 132 C 66 136, 56 138, 45 138 Z" fill="#C96815"/>
+  <path d="M 174 102 C 162 98, 154 102, 154 108 C 154 112, 164 114, 175 114 Z" fill="#C96815"/>
+  <path d="M 175 126 C 162 122, 154 126, 154 132 C 154 136, 164 138, 175 138 Z" fill="#C96815"/>
+
+  <!-- Warm Cream Belly Patch -->
+  <ellipse cx="110" cy="122" rx="40" ry="48" fill="#FFF4E4"/>
+
+  <!-- Torso Outline -->
+  <path d="M 68 34 C 48 60, 42 108, 46 150 C 50 182, 76 194, 110 194 C 144 194, 170 182, 174 150 C 178 108, 172 60, 152 34 C 138 22, 82 22, 68 34 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left & Right Chunky Kitten Arms with Cream Mittens -->
+  <g>
+    <path d="M 56 58 C 28 66, 8 98, 14 124 C 20 144, 44 144, 56 124 C 62 112, 64 90, 62 72 Z" fill="#FFA647"/>
+    <path d="M 13 106 C 12 124, 22 142, 38 140 C 48 138, 54 130, 56 122 C 44 114, 28 110, 13 106 Z" fill="#FFF4E4"/>
+    <ellipse cx="34" cy="116" rx="8" ry="10" transform="rotate(-18 34 116)" fill="#FF9EBB"/>
+    <path d="M 54 58 C 26 66, 8 98, 14 124 C 20 144, 44 144, 56 124 C 60 114, 62 100, 62 86" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M 164 58 C 192 66, 212 98, 206 124 C 200 144, 176 144, 164 124 C 158 112, 156 90, 158 72 Z" fill="#FFA647"/>
+    <path d="M 207 106 C 208 124, 198 142, 182 140 C 172 138, 166 130, 164 122 C 176 114, 192 110, 207 106 Z" fill="#FFF4E4"/>
+    <ellipse cx="186" cy="116" rx="8" ry="10" transform="rotate(18 186 116)" fill="#FF9EBB"/>
+    <path d="M 166 58 C 194 66, 212 98, 206 124 C 200 144, 176 144, 164 124 C 160 114, 158 100, 158 86" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Cute Cream-Tipped Kitty Feet planted at y=201.6 -->
+  <g>
+    <ellipse cx="76" cy="186" rx="28" ry="16" fill="#FFF4E4"/>
+    <path d="M 50 188 C 54 199, 64 202, 76 202 C 88 202, 98 199, 102 188 C 90 195, 62 195, 50 188 Z" fill="#F0DEC2"/>
+    <ellipse cx="76" cy="186" rx="28" ry="16" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="68" y1="188" x2="68" y2="198" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+    <line x1="84" y1="188" x2="84" y2="198" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+
+    <ellipse cx="144" cy="186" rx="28" ry="16" fill="#FFF4E4"/>
+    <path d="M 118 188 C 122 199, 132 202, 144 202 C 156 202, 166 199, 170 188 C 158 195, 130 195, 118 188 Z" fill="#F0DEC2"/>
+    <ellipse cx="144" cy="186" rx="28" ry="16" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="136" y1="188" x2="136" y2="198" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+    <line x1="152" y1="188" x2="152" y2="198" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>
