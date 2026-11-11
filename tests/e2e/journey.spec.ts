@@ -59,14 +59,20 @@ async function getRoundInfo(page: Page): Promise<RoundInfo> {
   );
 }
 
-/** Click a point given in game coordinates. */
-async function clickGame(page: Page, x: number, y: number): Promise<void> {
+/** Convert a game-coordinate point to a client-pixel position on the canvas. */
+async function gameClientPoint(page: Page, x: number, y: number): Promise<{ cx: number; cy: number }> {
   const size = await page.evaluate(() =>
     (window as unknown as { __testHooks__: { getGameSize: () => { width: number; height: number } } }).__testHooks__.getGameSize(),
   );
   const box = await page.locator('canvas').boundingBox();
   if (!box) throw new Error('no canvas');
-  await page.mouse.click(box.x + (x / size.width) * box.width, box.y + (y / size.height) * box.height);
+  return { cx: box.x + (x / size.width) * box.width, cy: box.y + (y / size.height) * box.height };
+}
+
+/** Click a point given in game coordinates. */
+async function clickGame(page: Page, x: number, y: number): Promise<void> {
+  const { cx, cy } = await gameClientPoint(page, x, y);
+  await page.mouse.click(cx, cy);
 }
 
 test.describe('kids-app journey', () => {
@@ -186,8 +192,11 @@ test.describe('kids-app journey', () => {
 
     const wrongIndex = info.choiceCenters.findIndex((_, i) => i !== info.correctIndex);
     const wrong = info.choiceCenters[wrongIndex];
-    await clickGame(page, wrong.x, wrong.y);
-    await clickGame(page, wrong.x, wrong.y); // an accidental double tap, inside the input lock
+    // Resolve the canvas point once so both clicks stay inside the 400ms input lock,
+    // even on a slow CI runner where two full clickGame() lookups can drift apart.
+    const wrongPoint = await gameClientPoint(page, wrong.x, wrong.y);
+    await page.mouse.click(wrongPoint.cx, wrongPoint.cy);
+    await page.mouse.click(wrongPoint.cx, wrongPoint.cy);
     await expect.poll(async () => (await getRoundInfo(page)).tries).toBe(1);
     expect(await balanceSec(page)).toBeGreaterThanOrEqual(before);
 
