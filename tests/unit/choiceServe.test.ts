@@ -73,3 +73,17 @@ describe('shuffle', () => {
     expect([...result].sort()).toEqual(input);
   });
 });
+
+describe('buildRound target position', () => {
+  it('puts the correct answer in every slot over many rounds (not always the first)', () => {
+    const random = seededRandom(7);
+    const items = content.items;
+    const config = content.ageTracks.age5;
+    const slots = new Set<number>();
+    for (let i = 0; i < 200; i++) {
+      const round = buildRound(items, config, 'en', random);
+      slots.add(round.choices.findIndex((c) => isCorrectChoice(c, round.target)));
+    }
+    expect([...slots].sort()).toEqual([0, 1, 2]);
+  });
+});

@@ -46,9 +46,22 @@ export function wait(scene: Phaser.Scene, ms: number): Promise<void> {
   });
 }
 
+/**
+ * Stops only the tweens on `target` that animate one of `props`, so e.g. a press squash
+ * (scale) does not cancel an idle float (y) running on the same object.
+ */
+export function killTweensOfProps(scene: Phaser.Scene, target: object, props: readonly string[]): void {
+  for (const t of scene.tweens.getTweensOf(target)) {
+    const data = (t as Phaser.Tweens.Tween).data as { key?: string }[] | undefined;
+    if (data?.some((d) => d.key !== undefined && props.includes(d.key))) t.stop();
+  }
+}
+
+const SCALE_PROPS = ['scale', 'scaleX', 'scaleY'] as const;
+
 /** Anticipation squash, stretch, then a springy settle back to rest scale. */
 export function squashStretch(scene: Phaser.Scene, target: Target, restX = 1, restY = 1): Promise<void> {
-  scene.tweens.killTweensOf(target);
+  killTweensOfProps(scene, target, SCALE_PROPS);
   return chainAsync(scene, {
     targets: target,
     tweens: [
@@ -61,7 +74,7 @@ export function squashStretch(scene: Phaser.Scene, target: Target, restX = 1, re
 
 /** Quick press-down squash for tap feedback, releasing with a little overshoot. */
 export function pressSquash(scene: Phaser.Scene, target: Target, restX = 1, restY = 1): Promise<void> {
-  scene.tweens.killTweensOf(target);
+  killTweensOfProps(scene, target, SCALE_PROPS);
   return chainAsync(scene, {
     targets: target,
     tweens: [
