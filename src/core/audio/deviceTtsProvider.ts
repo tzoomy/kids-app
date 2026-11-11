@@ -1,6 +1,6 @@
 import type { AudioProvider, SpeechRequest } from './types';
 
-const BCP47: Record<string, string> = { en: 'en-US', fr: 'fr-FR' };
+const BCP47: Record<string, string> = { en: 'en-US', fr: 'fr-FR', he: 'he-IL' };
 
 /** Safety cap so a missing onend/onerror on Android Chrome cannot hang listening forever. */
 export const TTS_SAFETY_TIMEOUT_MS = 8000;

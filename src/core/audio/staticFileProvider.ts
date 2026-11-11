@@ -1,13 +1,15 @@
 import type { AudioManifest, AudioProvider, SpeechRequest } from './types';
 
 /**
- * Plays pre-recorded/pre-rendered static audio files per the manifest.
- * Ready for real files later; until then every lookup 404s and the
- * AudioManager falls back to device TTS.
+ * Plays pre-rendered static voice clips (Gemini TTS, voice Leda) listed in the manifest.
+ * Lines without a clip resolve false so the AudioManager falls back to device TTS.
+ * The returned promise always settles: on end, on error, or when stop() interrupts it,
+ * so callers can safely drive a "talking" animation off it.
  */
 export class StaticFileProvider implements AudioProvider {
   readonly id = 'static-file';
   private current: HTMLAudioElement | null = null;
+  private settleCurrent: ((played: boolean) => void) | null = null;
 
   constructor(
     private readonly manifest: AudioManifest,
@@ -16,6 +18,10 @@ export class StaticFileProvider implements AudioProvider {
 
   isAvailable(): boolean {
     return typeof Audio !== 'undefined';
+  }
+
+  has(lineId: string): boolean {
+    return Boolean(this.manifest[lineId]);
   }
 
   warmup(): void {
@@ -31,8 +37,13 @@ export class StaticFileProvider implements AudioProvider {
   }
 
   stop(): void {
-    this.current?.pause();
+    const audio = this.current;
+    const settle = this.settleCurrent;
     this.current = null;
+    this.settleCurrent = null;
+    audio?.pause();
+    // An interrupted clip counts as handled: do not fall back to device TTS.
+    settle?.(true);
   }
 
   play(request: SpeechRequest): Promise<boolean> {
@@ -40,27 +51,31 @@ export class StaticFileProvider implements AudioProvider {
     const path = this.manifest[request.lineId];
     if (!path) return Promise.resolve(false);
 
+    // A new line interrupts the previous one.
+    this.stop();
+
     return new Promise<boolean>((resolve) => {
       const audio = new Audio(this.baseUrl + path);
-      this.current = audio;
-      const cleanup = () => {
+      let settled = false;
+      const finish = (played: boolean) => {
+        if (settled) return;
+        settled = true;
         audio.removeEventListener('ended', onEnded);
         audio.removeEventListener('error', onError);
+        if (this.current === audio) {
+          this.current = null;
+          this.settleCurrent = null;
+        }
+        resolve(played);
       };
-      const onEnded = () => {
-        cleanup();
-        resolve(true);
-      };
-      const onError = () => {
-        cleanup();
-        resolve(false);
-      };
+      const onEnded = () => finish(true);
+      const onError = () => finish(false);
+      this.current = audio;
+      this.settleCurrent = finish;
       audio.addEventListener('ended', onEnded);
       audio.addEventListener('error', onError);
-      audio.play().catch(() => {
-        cleanup();
-        resolve(false);
-      });
+      if (request.rate && request.rate !== 1) audio.playbackRate = request.rate;
+      audio.play().catch(() => finish(false));
     });
   }
 }

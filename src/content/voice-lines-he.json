@@ -1,0 +1,18 @@
+{
+  "_comment": "Hebrew guidance voice lines (kid-facing, feminine address). lineId = he.{key}. Rendered to public/audio/he/{key}.mp3 by scripts/tts/generate_voice.py.",
+  "welcome": "שלום! מי משחקת היום?",
+  "map.choose": "לאן נלך היום? בואי נבקר בבית השפות!",
+  "map.comingSoon": "המקום הזה עוד בבנייה. נבקר בו בקרוב!",
+  "restaurant.intro": "ברוכה הבאה למסעדת החיות! החיות רעבות. הקשיבי מה הן מבקשות, ובחרי את הצלחת המתאימה.",
+  "restaurant.help": "החיה מבקשת אוכל. הקשיבי ובחרי את הצלחת המתאימה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
+  "retry.0": "כמעט! בואי נקשיב שוב.",
+  "retry.1": "הממ, זה לא זה. ננסה שוב?",
+  "retry.2": "לא נורא! הקשיבי לחיה ונסי שוב.",
+  "praise.0": "כל הכבוד!",
+  "praise.1": "איזו מלצרית מעולה!",
+  "praise.2": "יופי! החיה ממש שמחה!",
+  "leisure.earned": "הרווחת עוד זמן כיף!",
+  "bubbles.intro": "זמן כיף! פוצצי את הבועות.",
+  "bubbles.lowWarning": "עוד קצת זמן!",
+  "bubbles.end": "כל הכבוד! רוצה לבקר שוב את החיות במסעדה?"
+}

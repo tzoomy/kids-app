@@ -24,9 +24,10 @@ export default defineConfig({
       injectRegister: 'auto',
       manifest: false, // we ship our own public/manifest.webmanifest
       workbox: {
-        // Precache only the app shell. World/game assets are cached at runtime
+        // Precache the app shell plus the voice clips (~1.5 MB of 48 kbps mono MP3) so the
+        // restaurant speaks offline from the first launch. Other world assets are cached at runtime
         // as they are requested, so first install does not pull the whole library.
-        globPatterns: ['**/*.{js,css,html,woff,woff2,json,svg,png,webmanifest,ico}'],
+        globPatterns: ['**/*.{js,css,html,woff,woff2,json,svg,png,webmanifest,ico,mp3}'],
         runtimeCaching: [
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ogg|mp3|woff2?|json)$/,
