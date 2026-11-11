@@ -68,31 +68,55 @@ export interface RestaurantChromeOptions {
   onHelp: () => void;
 }
 
-export function renderRestaurantChrome(root: HTMLElement, opts: RestaurantChromeOptions): void {
-  clear(root);
-  const bar = el('div', 'shell-top-bar');
-  const backBtn = el('button', 'shell-pill', '⬅️');
-  backBtn.addEventListener('click', opts.onBack);
-  bar.appendChild(backBtn);
+export type RestaurantHudValues = Pick<RestaurantChromeOptions, 'starCount' | 'balanceSec' | 'earnedTodaySec' | 'dailyCapSec'>;
 
-  const progress = el('div', 'shell-progress');
-  const fill = el('div');
-  fill.style.width = `${Math.min(100, (opts.earnedTodaySec / Math.max(1, opts.dailyCapSec)) * 100)}%`;
-  progress.appendChild(fill);
-  bar.appendChild(progress);
+/** Set text only when it changed, so the browser does not restart anything needlessly. */
+function setText(node: HTMLElement, text: string): void {
+  if (node.textContent !== text) node.textContent = text;
+}
 
-  const right = el('div', 'shell-row');
-  right.style.gap = '1vmin';
-  right.appendChild(el('span', 'shell-pill', `⭐ ${opts.starCount}`));
-  const balance = el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`);
-  balance.dataset.testid = 'leisure-balance';
-  right.appendChild(balance);
-  const helpBtn = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
-  helpBtn.addEventListener('click', opts.onHelp);
-  right.appendChild(helpBtn);
-  bar.appendChild(right);
+/** Top bar of the restaurant. Built once; update() touches only what changed. */
+export class RestaurantHud {
+  private readonly stars: HTMLElement;
+  private readonly balance: HTMLElement;
+  private readonly fill: HTMLElement;
 
-  root.appendChild(bar);
+  constructor(root: HTMLElement, opts: RestaurantChromeOptions) {
+    clear(root);
+    const bar = el('div', 'shell-top-bar');
+    const backBtn = el('button', 'shell-pill', '⬅️');
+    backBtn.addEventListener('click', opts.onBack);
+    bar.appendChild(backBtn);
+
+    const progress = el('div', 'shell-progress');
+    this.fill = el('div');
+    progress.appendChild(this.fill);
+    bar.appendChild(progress);
+
+    const right = el('div', 'shell-row');
+    right.style.gap = '1vmin';
+    this.stars = el('span', 'shell-pill');
+    this.stars.dataset.testid = 'star-count';
+    right.appendChild(this.stars);
+    this.balance = el('span', 'shell-pill');
+    this.balance.dataset.testid = 'leisure-balance';
+    right.appendChild(this.balance);
+    const helpBtn = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
+    helpBtn.addEventListener('click', opts.onHelp);
+    right.appendChild(helpBtn);
+    bar.appendChild(right);
+    root.appendChild(bar);
+    this.update(opts);
+  }
+
+  update(values: Partial<RestaurantHudValues>): void {
+    if (values.starCount !== undefined) setText(this.stars, `⭐ ${values.starCount}`);
+    if (values.balanceSec !== undefined) setText(this.balance, `⏳ ${formatClock(values.balanceSec)}`);
+    if (values.earnedTodaySec !== undefined && values.dailyCapSec !== undefined) {
+      const width = `${Math.min(100, (values.earnedTodaySec / Math.max(1, values.dailyCapSec)) * 100)}%`;
+      if (this.fill.style.width !== width) this.fill.style.width = width;
+    }
+  }
 }
 
 export function renderPromptBubble(root: HTMLElement, text: string, onTap: () => void): void {
@@ -137,15 +161,27 @@ export interface BubblesChromeOptions {
   onBack: () => void;
 }
 
-export function renderBubblesChrome(root: HTMLElement, opts: BubblesChromeOptions): void {
-  clear(root);
-  const bar = el('div', 'shell-top-bar');
-  const backBtn = el('button', 'shell-pill', '⬅️');
-  backBtn.addEventListener('click', opts.onBack);
-  bar.appendChild(backBtn);
-  const countdown = el('span', `shell-countdown${opts.low ? ' low' : ''}`, `⏳ ${formatClock(opts.balanceSec)}`);
-  bar.appendChild(countdown);
-  root.appendChild(bar);
+/** Bubbles top bar. Built once; update() changes only the countdown text and low flag. */
+export class BubblesHud {
+  private readonly countdown: HTMLElement;
+
+  constructor(root: HTMLElement, opts: BubblesChromeOptions) {
+    clear(root);
+    const bar = el('div', 'shell-top-bar');
+    const backBtn = el('button', 'shell-pill', '⬅️');
+    backBtn.addEventListener('click', opts.onBack);
+    bar.appendChild(backBtn);
+    this.countdown = el('span', 'shell-countdown');
+    this.countdown.dataset.testid = 'bubbles-countdown';
+    bar.appendChild(this.countdown);
+    root.appendChild(bar);
+    this.update(opts);
+  }
+
+  update(values: Pick<BubblesChromeOptions, 'balanceSec' | 'low'>): void {
+    setText(this.countdown, `⏳ ${formatClock(values.balanceSec)}`);
+    this.countdown.classList.toggle('low', values.low);
+  }
 }
 
 export function renderBubblesEndScreen(root: HTMLElement, onRestaurant: () => void, onHome: () => void): void {
