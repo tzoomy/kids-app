@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+  <g id="fills" stroke="none">
+    <path id="flower-stem" fill="#FFFDF9" d="M 303 303 A 56 56 0 0 0 337 303 C 335 390 332 480 334 565 L 298 565 C 296 480 300 390 303 303 Z" />
+    <path id="flower-leaf" fill="#FFFDF9" d="M 334 440 C 385 405 460 410 485 448 C 460 492 390 500 334 472 Z" />
+    <path id="flower-petal-1" fill="#FFFDF9" d="M 294 201 C 260 120 275 75 320 75 C 365 75 380 120 346 201 A 56 56 0 0 0 294 201 Z" />
+    <path id="flower-petal-2" fill="#FFFDF9" d="M 359 210 C 430 155 478 162 490 202 C 502 242 462 275 375 260 A 56 56 0 0 0 359 210 Z" />
+    <path id="flower-petal-3" fill="#FFFDF9" d="M 372 271 C 458 295 480 345 446 380 C 412 415 362 385 337 303 A 56 56 0 0 0 372 271 Z" />
+    <path id="flower-petal-4" fill="#FFFDF9" d="M 303 303 C 278 385 228 415 194 380 C 160 345 182 295 268 271 A 56 56 0 0 0 303 303 Z" />
+    <path id="flower-petal-5" fill="#FFFDF9" d="M 265 260 C 178 275 138 242 150 202 C 162 162 210 155 281 210 A 56 56 0 0 0 265 260 Z" />
+    <path id="flower-center" fill="#FFFDF9" d="M 320 194 A 56 56 0 1 0 320 306 A 56 56 0 1 0 320 194 Z" />
+  </g>
+  <g id="outlines" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 303 303 C 300 390 296 480 298 565 L 334 565 C 332 480 335 390 337 303" />
+    <path d="M 334 440 C 385 405 460 410 485 448 C 460 492 390 500 334 472" />
+    <path d="M 294 201 C 260 120 275 75 320 75 C 365 75 380 120 346 201" />
+    <path d="M 359 210 C 430 155 478 162 490 202 C 502 242 462 275 375 260" />
+    <path d="M 372 271 C 458 295 480 345 446 380 C 412 415 362 385 337 303" />
+    <path d="M 303 303 C 278 385 228 415 194 380 C 160 345 182 295 268 271" />
+    <path d="M 265 260 C 178 275 138 242 150 202 C 162 162 210 155 281 210" />
+    <circle cx="320" cy="250" r="56" />
+    <path d="M 356 456 C 392 444 432 444 460 450" stroke-width="4" />
+  </g>
+</svg>

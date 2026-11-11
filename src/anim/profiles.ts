@@ -51,6 +51,22 @@ export const ANIM_PROFILE = {
     glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
+
+  // Puppet Says (Language House) — pose knobs only; no game logic.
+  puppet: {
+    jump: { height: 72, duration: 520, stretch: 1.1, ease: 'Quad.easeOut' },
+    clap: { distance: 78, duration: 180, repeats: 3, ease: 'Sine.easeInOut' },
+    wave: { angle: 28, duration: 200, repeats: 4, ease: 'Sine.easeInOut' },
+    sleep: { headAngle: 12, duration: 640, ease: 'Sine.easeInOut' },
+    dance: { hop: 18, duration: 280, ease: 'Sine.easeInOut' },
+  },
+
+  // Color the World (Art Studio) — fill / splash knobs only; no game logic.
+  color: {
+    fill: { duration: 280, ease: 'Quad.easeOut' },
+    splash: { scale: 1.35, duration: 320, ease: 'Back.easeOut' },
+    burst: { duration: 420, ease: 'Quad.easeOut' },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

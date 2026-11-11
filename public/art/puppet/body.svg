@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Felt neck peeking at the top -->
+    <rect x="154" y="196" width="52" height="38" rx="16" ry="16" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 157 204 Q 180 220 203 204 L 203 218 Q 180 228 157 218 Z" fill="#E5BF98"/>
+
+    <!-- Pear-shaped rounded shirt torso -->
+    <path d="M 134 220 L 226 220 Q 248 220 254 252 L 262 344 Q 266 394 218 396 L 142 396 Q 94 394 98 344 L 106 252 Q 112 220 134 220 Z" fill="#4D96FF" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Shirt highlight on upper left shoulder/chest -->
+    <path d="M 132 228 L 164 228 Q 134 244 122 326 L 108 326 L 114 254 Q 118 228 132 228 Z" fill="#8CC0FF"/>
+
+    <!-- Shirt shadow along lower hem and right side -->
+    <path d="M 244 256 L 254 344 Q 258 388 214 390 L 136 390 Q 114 390 106 374 Q 146 382 204 374 Q 242 368 244 256 Z" fill="#2B6FD6"/>
+
+    <!-- Re-stroke torso outline cleanly on top of shading -->
+    <path d="M 134 220 L 226 220 Q 248 220 254 252 L 262 344 Q 266 394 218 396 L 142 396 Q 94 394 98 344 L 106 252 Q 112 220 134 220 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Soft rounded collar trim -->
+    <path d="M 146 218 Q 180 240 214 218 Q 222 226 214 234 Q 180 254 146 234 Q 138 226 146 218 Z" fill="#8CC0FF" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

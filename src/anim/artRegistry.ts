@@ -76,6 +76,18 @@ export function instrumentArtKey(name: string): string | undefined {
   return keyForUrl(`art/instruments/${name}.svg`);
 }
 
+export function puppetArtKey(name: string): string | undefined {
+  return keyForUrl(`art/puppet/${name}.svg`);
+}
+
+export function coloringArtKey(name: string): string | undefined {
+  return keyForUrl(`art/coloring/${name}.svg`);
+}
+
+export function paletteArtKey(name: string): string | undefined {
+  return keyForUrl(`art/palette/${name}.svg`);
+}
+
 
 /**
  * Lists every texture key a rig needs (parts plus the eye-closed and mouth variants),

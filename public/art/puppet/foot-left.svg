@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left rounded shoe sitting on y=480 around x=130 -->
+    <path d="M 114 438 L 150 438 Q 160 438 160 456 L 160 468 Q 160 477 146 477 L 106 477 Q 92 477 94 462 Q 96 440 114 438 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Shoe toe highlight -->
+    <ellipse cx="114" cy="452" rx="12" ry="6" fill="#CC926B"/>
+    <!-- Shoe sole shadow -->
+    <rect x="96" y="467" width="62" height="8" rx="4" ry="4" fill="#5C3422"/>
+    <!-- Re-stroke shoe outline cleanly -->
+    <path d="M 114 438 L 150 438 Q 160 438 160 456 L 160 468 Q 160 477 146 477 L 106 477 Q 92 477 94 462 Q 96 440 114 438 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

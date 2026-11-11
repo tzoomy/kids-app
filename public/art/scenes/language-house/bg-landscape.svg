@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <!-- Upper wall -->
+  <rect x="0" y="0" width="1280" height="520" fill="#FFF3E0"/>
+  <path d="M 0 0 L 1280 0 L 1280 90 Q 640 120 0 90 Z" fill="#FFF6E8"/>
+
+  <!-- Lower wainscot wall -->
+  <rect x="0" y="400" width="1280" height="104" fill="#F7DEC0" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="0" y="406" width="1280" height="16" fill="#FFF3E0"/>
+
+  <!-- Baseboard -->
+  <rect x="0" y="504" width="1280" height="24" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wooden floor -->
+  <rect x="0" y="528" width="1280" height="272" fill="#D9A06B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="0" y="531" width="1280" height="28" fill="#CC926B"/>
+  <rect x="0" y="748" width="1280" height="52" fill="#B87D56"/>
+
+  <!-- Subtle floor plank lines -->
+  <path d="M 0 595 L 1280 595 M 0 670 L 1280 670 M 0 748 L 1280 748 M 260 528 L 180 595 M 980 528 L 1060 595 M 210 595 L 120 670 M 1040 595 L 1140 670" stroke="#9E6540" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- Calm central floor rug for puppet and stage -->
+  <ellipse cx="640" cy="672" rx="350" ry="74" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="640" cy="668" rx="316" ry="58" fill="#FFF6E8"/>
+  <path d="M 355 660 Q 640 618 925 660" stroke="#FFFDF9" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+  <!-- Left window with sky and hill -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Window outer frame -->
+    <rect x="96" y="88" width="224" height="264" rx="28" ry="28" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 104 326 Q 208 346 312 326 L 312 344 Q 208 352 104 344 Z" fill="#F0DEC2"/>
+    <!-- Window glass sky -->
+    <rect x="116" y="108" width="184" height="220" rx="18" ry="18" fill="#B8E6FF" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Soft cloud -->
+    <path d="M 148 176 Q 148 158 166 158 Q 176 144 196 148 Q 214 148 218 164 Q 232 166 230 180 Q 230 190 214 190 L 160 190 Q 148 190 148 176 Z" fill="#FFFDF9"/>
+    <!-- Distant rolling hill -->
+    <path d="M 119 278 Q 185 248 297 284 L 297 316 Q 297 325 288 325 L 128 325 Q 119 325 119 316 Z" fill="#98D886"/>
+    <path d="M 122 284 Q 185 256 294 290" stroke="#8AE07E" stroke-width="5" fill="none"/>
+    <!-- Window cross muntin -->
+    <line x1="208" y1="108" x2="208" y2="328" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="116" y1="218" x2="300" y2="218" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="208" y1="108" x2="208" y2="328" stroke="#3B2A22" stroke-width="5"/>
+    <line x1="116" y1="218" x2="300" y2="218" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Window sill -->
+    <rect x="82" y="338" width="252" height="22" rx="10" ry="10" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="90" y="348" width="236" height="8" rx="4" ry="4" fill="#F0DEC2"/>
+    <!-- Cozy single left curtain drape -->
+    <path d="M 78 78 L 154 78 Q 148 186 124 260 Q 114 312 128 368 L 80 368 Q 68 230 78 78 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 86 86 L 114 86 Q 104 200 94 358 L 84 358 Q 76 220 86 86 Z" fill="#FFE073"/>
+    <!-- Curtain rod -->
+    <rect x="64" y="68" width="284" height="14" rx="7" ry="7" fill="#B87D56" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+
+  <!-- Right wall shelf with plant and blocks -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Shelf brackets -->
+    <path d="M 968 216 L 968 242 L 990 216 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 1138 216 L 1138 242 L 1116 216 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Wooden shelf board -->
+    <rect x="936" y="196" width="236" height="22" rx="10" ry="10" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="944" y="206" width="220" height="8" rx="4" ry="4" fill="#B87D56"/>
+
+    <!-- Simple wooden blocks on left of shelf -->
+    <rect x="962" y="152" width="44" height="44" rx="8" ry="8" fill="#4D96FF" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 970 160 L 996 160 L 970 186 Z" fill="#8CC0FF"/>
+    <rect x="1008" y="162" width="36" height="34" rx="7" ry="7" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 1015 169 L 1036 169 L 1015 188 Z" fill="#FFE073"/>
+
+    <!-- Potted leafy plant on right of shelf -->
+    <!-- Leaves -->
+    <path d="M 1106 142 Q 1068 112 1066 146 Q 1066 168 1102 156 Z" fill="#57C457" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 1114 142 Q 1152 110 1154 144 Q 1154 166 1116 156 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 1110 144 Q 1094 94 1110 92 Q 1126 94 1110 144 Z" fill="#8AE07E" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Pot -->
+    <path d="M 1084 144 L 1136 144 L 1128 196 L 1092 196 Z" fill="#C9894B" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 1114 148 L 1132 148 L 1125 192 L 1112 192 Z" fill="#B87D56"/>
+    <rect x="1078" y="136" width="64" height="14" rx="6" ry="6" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

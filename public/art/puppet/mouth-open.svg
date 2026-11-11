@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft under-lip shadow -->
+    <ellipse cx="180" cy="195" rx="18" ry="12" fill="#E5BF98"/>
+    <!-- Small singing oval mouth around (180, 190) -->
+    <ellipse cx="180" cy="190" rx="18" ry="14" fill="#9E2A3B" stroke="#3B2A22" stroke-width="5.5"/>
+    <!-- Warm pink tongue inside lower mouth -->
+    <path d="M 166 195 Q 180 185 194 195 Q 190 204 180 204 Q 170 204 166 195 Z" fill="#FF758F"/>
+    <!-- Re-stroke mouth outline cleanly -->
+    <ellipse cx="180" cy="190" rx="18" ry="14" fill="none" stroke="#3B2A22" stroke-width="5.5"/>
+  </g>
+</svg>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Upper wall -->
+  <rect x="0" y="0" width="800" height="800" fill="#FFF3E0"/>
+  <path d="M 0 0 L 800 0 L 800 110 Q 400 140 0 110 Z" fill="#FFF6E8"/>
+
+  <!-- Lower wainscot wall -->
+  <rect x="0" y="650" width="800" height="124" fill="#F7DEC0" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="0" y="656" width="800" height="18" fill="#FFF3E0"/>
+
+  <!-- Baseboard -->
+  <rect x="0" y="774" width="800" height="26" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wooden floor -->
+  <rect x="0" y="800" width="800" height="480" fill="#D9A06B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="0" y="803" width="800" height="36" fill="#CC926B"/>
+  <rect x="0" y="1190" width="800" height="90" fill="#B87D56"/>
+
+  <!-- Subtle floor plank lines -->
+  <path d="M 0 895 L 800 895 M 0 1010 L 800 1010 M 0 1140 L 800 1140 M 180 800 L 120 895 M 620 800 L 680 895 M 140 1010 L 70 1140 M 660 1010 L 730 1140" stroke="#9E6540" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- Calm central floor rug in lower-middle area -->
+  <ellipse cx="400" cy="1025" rx="286" ry="86" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="400" cy="1020" rx="254" ry="68" fill="#FFF6E8"/>
+  <path d="M 176 1010 Q 400 962 624 1010" stroke="#FFFDF9" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+  <!-- Upper left window with sky and hill -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="64" y="106" width="212" height="256" rx="28" ry="28" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 72 336 Q 170 354 268 336 L 268 354 Q 170 360 72 354 Z" fill="#F0DEC2"/>
+    <rect x="84" y="126" width="172" height="212" rx="18" ry="18" fill="#B8E6FF" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Soft cloud -->
+    <path d="M 112 192 Q 112 174 130 174 Q 140 160 158 164 Q 176 164 180 180 Q 194 182 192 196 Q 192 206 176 206 L 124 206 Q 112 206 112 192 Z" fill="#FFFDF9"/>
+    <!-- Distant rolling hill -->
+    <path d="M 87 290 Q 150 262 253 296 L 253 326 Q 253 335 244 335 L 96 335 Q 87 335 87 326 Z" fill="#98D886"/>
+    <path d="M 90 296 Q 150 270 250 302" stroke="#8AE07E" stroke-width="5" fill="none"/>
+    <!-- Window cross muntin -->
+    <line x1="170" y1="126" x2="170" y2="338" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="84" y1="232" x2="256" y2="232" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="170" y1="126" x2="170" y2="338" stroke="#3B2A22" stroke-width="5"/>
+    <line x1="84" y1="232" x2="256" y2="232" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Window sill -->
+    <rect x="52" y="348" width="236" height="22" rx="10" ry="10" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="60" y="358" width="220" height="8" rx="4" ry="4" fill="#F0DEC2"/>
+    <!-- Cozy single left curtain drape -->
+    <path d="M 48 96 L 120 96 Q 114 200 92 272 Q 82 322 96 378 L 50 378 Q 38 242 48 96 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 56 104 L 82 104 Q 72 214 62 368 L 54 368 Q 46 232 56 104 Z" fill="#FFE073"/>
+    <!-- Curtain rod -->
+    <rect x="36" y="86" width="268" height="14" rx="7" ry="7" fill="#B87D56" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+
+  <!-- Upper right wall shelf with plant and blocks -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 548 236 L 548 262 L 570 236 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 706 236 L 706 262 L 684 236 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="5"/>
+    <rect x="518" y="216" width="220" height="22" rx="10" ry="10" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="526" y="226" width="204" height="8" rx="4" ry="4" fill="#B87D56"/>
+
+    <!-- Simple wooden blocks -->
+    <rect x="542" y="172" width="44" height="44" rx="8" ry="8" fill="#4D96FF" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 550 180 L 576 180 L 550 206 Z" fill="#8CC0FF"/>
+    <rect x="588" y="182" width="36" height="34" rx="7" ry="7" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 595 189 L 616 189 L 595 208 Z" fill="#FFE073"/>
+
+    <!-- Potted leafy plant -->
+    <path d="M 676 162 Q 638 132 636 166 Q 636 188 672 176 Z" fill="#57C457" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 684 162 Q 722 130 724 164 Q 724 186 686 176 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 680 164 Q 664 114 680 112 Q 696 114 680 164 Z" fill="#8AE07E" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 654 164 L 706 164 L 698 216 L 662 216 Z" fill="#C9894B" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 684 168 L 702 168 L 695 212 L 682 212 Z" fill="#B87D56"/>
+    <rect x="648" y="156" width="64" height="14" rx="6" ry="6" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, puppetArtKey, coloringArtKey, paletteArtKey } from '../../src/anim/artRegistry';
+import { PUPPET_LAYER_ORDER, COLORING_PAGES, CRAYON_IDS, POT_IDS, MIX_RECIPES } from '../../src/assets/art/puppetColor';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -56,6 +57,39 @@ describe('real art manifest', () => {
     for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
     expect(fxArtKey('instrument-glow')).toBeDefined();
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
+
+  it('registers Puppet Says layers, the stage, and Language House scenes', () => {
+    for (const part of PUPPET_LAYER_ORDER) expect(puppetArtKey(part), part).toBeDefined();
+    expect(puppetArtKey('eye-closed')).toBeDefined();
+    expect(puppetArtKey('mouth-open')).toBeDefined();
+    expect(puppetArtKey('mouth-sleep')).toBeDefined();
+    expect(propArtKey('puppet-stage')).toBeDefined();
+    expect(sceneArtKey('language-house', 'bg-landscape')).toBeDefined();
+    expect(sceneArtKey('language-house', 'bg-portrait')).toBeDefined();
+  });
+
+  it('registers Color the World pages, palette, mix cards, and Art Studio scenes', () => {
+    for (const page of Object.keys(COLORING_PAGES)) expect(coloringArtKey(page), page).toBeDefined();
+    for (const id of CRAYON_IDS) expect(paletteArtKey(`crayon-${id}`), id).toBeDefined();
+    for (const id of POT_IDS) expect(paletteArtKey(`pot-${id}`), id).toBeDefined();
+    for (const mix of MIX_RECIPES) expect(paletteArtKey(`mix-${mix.id}`), mix.id).toBeDefined();
+    expect(fxArtKey('splash')).toBeDefined();
+    expect(fxArtKey('fill-burst')).toBeDefined();
+    expect(sceneArtKey('art-studio', 'bg-landscape')).toBeDefined();
+    expect(sceneArtKey('art-studio', 'bg-portrait')).toBeDefined();
+  });
+
+  it('gives every Color the World page the documented fill-region ids', () => {
+    const PUBLIC_DIR = path.resolve(__dirname, '../../public');
+    for (const [page, ids] of Object.entries(COLORING_PAGES)) {
+      const svg = fs.readFileSync(path.join(PUBLIC_DIR, `art/coloring/${page}.svg`), 'utf8');
+      expect(svg.includes('id="fills"'), page).toBe(true);
+      expect(svg.includes('id="outlines"'), page).toBe(true);
+      for (const id of ids) {
+        expect(svg.includes(`id="${id}"`), `${page} ${id}`).toBe(true);
+      }
+    }
   });
 });
 
