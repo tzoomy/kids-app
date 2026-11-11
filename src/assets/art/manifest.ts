@@ -147,8 +147,8 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'puppet-foot-left', url: 'art/puppet/foot-left.svg', width: 360, height: 480 },
   { key: 'puppet-foot-right', url: 'art/puppet/foot-right.svg', width: 360, height: 480 },
   { key: 'prop-puppet-stage', url: 'art/props/puppet-stage.svg', width: 520, height: 200 },
-  { key: 'language-house-bg-landscape', url: 'art/scenes/language-house/bg-landscape.svg', width: 1280, height: 800 },
-  { key: 'language-house-bg-portrait', url: 'art/scenes/language-house/bg-portrait.svg', width: 800, height: 1280 },
+  { key: 'puppet-stage-bg-landscape', url: 'art/scenes/puppet-stage/bg-landscape.svg', width: 1280, height: 800 },
+  { key: 'puppet-stage-bg-portrait', url: 'art/scenes/puppet-stage/bg-portrait.svg', width: 800, height: 1280 },
 
   // Color the World (Art Studio)
   { key: 'coloring-apple', url: 'art/coloring/apple.svg', width: 640, height: 640 },

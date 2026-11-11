@@ -59,14 +59,14 @@ describe('real art manifest', () => {
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
   });
 
-  it('registers Puppet Says layers, the stage, and Language House scenes', () => {
+  it('registers Puppet Says layers, the stage, and puppet-stage scenes', () => {
     for (const part of PUPPET_LAYER_ORDER) expect(puppetArtKey(part), part).toBeDefined();
     expect(puppetArtKey('eye-closed')).toBeDefined();
     expect(puppetArtKey('mouth-open')).toBeDefined();
     expect(puppetArtKey('mouth-sleep')).toBeDefined();
     expect(propArtKey('puppet-stage')).toBeDefined();
-    expect(sceneArtKey('language-house', 'bg-landscape')).toBeDefined();
-    expect(sceneArtKey('language-house', 'bg-portrait')).toBeDefined();
+    expect(sceneArtKey('puppet-stage', 'bg-landscape')).toBeDefined();
+    expect(sceneArtKey('puppet-stage', 'bg-portrait')).toBeDefined();
   });
 
   it('registers Color the World pages, palette, mix cards, and Art Studio scenes', () => {
