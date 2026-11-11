@@ -16,3 +16,4 @@ export { registerProjectArt } from './registerArt';
 export * from './transitionTiming';
 export * from './worldMotion';
 export * from './homesTrainMotion';
+export * from './trainLayout';

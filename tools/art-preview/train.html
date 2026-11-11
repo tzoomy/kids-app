@@ -44,6 +44,26 @@
       70% { left: 48%; bottom: 28%; transform: scale(0.7) rotate(0); }
       100% { left: 48%; bottom: 22%; transform: scale(0.7); }
     }
+    /* 10-seat (and any long consist): pan at tap-friendly scale, do not shrink. Mirrors src/anim/trainLayout.ts */
+    /* Tablet-portrait-width viewport so the long consist must pan (mirrors planTrainView). */
+    .stage-pan { height: 400px; width: 100%; max-width: 760px; margin-inline: auto; }
+    .pan-viewport {
+      position: absolute;
+      inset: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .pan-world { position: relative; height: 100%; }
+    .pan-world img.bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 72%;
+    }
+    .pan-viewport .train { left: 16px; }
+    .edge-fade {
+      position: absolute; top: 0; bottom: 18px; width: 56px; z-index: 8; pointer-events: none;
+    }
+    .edge-fade.right { right: 0; background: linear-gradient(to right, transparent, #FFF6E8); }
     .strip { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 14px 16px; align-items: flex-end; background: #FFF6E8; }
     .swatch { text-align: center; width: 100px; }
     .swatch img { width: 96px; height: 80px; object-fit: contain; display: block; margin: 0 auto; }
@@ -61,17 +81,15 @@
       <div class="note">Two 2-seat cars plus a 1-seat car. One seat shows a “how many missing?” outline; an apple is being handed out.</div>
       <div class="stage tall state-chug" id="scene-five"></div>
     </div>
-    <div class="row">
-      <div class="card">
-        <div class="label">Two seats (age 2)</div>
-        <div class="note">Engine + one 2-seat car. The train arrives from the right.</div>
-        <div class="stage state-arrive" id="scene-two"></div>
-      </div>
-      <div class="card">
-        <div class="label">Ten seats (composed)</div>
-        <div class="note">Engine + four 2-seat cars + one 1-seat car. Outlines mark empty seats.</div>
-        <div class="stage" id="scene-ten"></div>
-      </div>
+    <div class="card">
+      <div class="label">Two seats (age 2)</div>
+      <div class="note">Engine + one 2-seat car. The train arrives from the right.</div>
+      <div class="stage state-arrive" id="scene-two"></div>
+    </div>
+    <div class="card">
+      <div class="label">Ten seats — panning view at tap-friendly scale</div>
+      <div class="note">The consist is not shrunk to fit. This card uses a 760px tablet-portrait viewport: passengers stay as large as in the five-seat scene, and the rest of the train is reached by panning (layout helper: src/anim/trainLayout.ts). Scroll sideways to see the remaining cars.</div>
+      <div class="stage stage-pan" id="scene-ten"></div>
     </div>
     <div class="card">
       <div class="label">Modular pieces and helper outlines</div>
@@ -176,10 +194,32 @@
       train.className = 'train';
       addCar(train, 'engine');
       plan.cars.forEach((car) => addCar(train, car.type, car.seats));
-      if (plan.compact) train.style.transform = 'scale(0.62)';
-      if (plan.compact) train.style.transformOrigin = 'left bottom';
       if (plan.left) train.style.left = plan.left;
-      stage.appendChild(train);
+
+      if (plan.pan) {
+        const viewport = document.createElement('div');
+        viewport.className = 'pan-viewport';
+        const world = document.createElement('div');
+        world.className = 'pan-world';
+        // Same math as trainContentWidth(10, 1) in src/anim/trainLayout.ts
+        const ENGINE_W = 180, CAR_W = 160, SINGLE_W = 100;
+        let contentW = ENGINE_W + 16;
+        plan.cars.forEach((car) => { contentW += car.type === 'single' ? SINGLE_W : CAR_W; });
+        world.style.width = Math.max(contentW + 40, stage.clientWidth || 1200) + 'px';
+        const bg = stage.querySelector('img.bg');
+        if (bg) world.appendChild(bg);
+        world.appendChild(train);
+        viewport.appendChild(world);
+        stage.appendChild(viewport);
+        const fade = document.createElement('div');
+        fade.className = 'edge-fade right';
+        stage.appendChild(fade);
+        // Camera starts at the engine so the screenshot shows large passengers;
+        // the rest of the consist is reached by panning (offset may be set).
+        viewport.scrollLeft = plan.scrollLeft || 0;
+      } else {
+        stage.appendChild(train);
+      }
     }
 
     fillScene(document.getElementById('scene-five'), {
@@ -198,8 +238,7 @@
       ],
     });
     fillScene(document.getElementById('scene-ten'), {
-      compact: true,
-      left: '2%',
+      pan: true,
       cars: [
         { type: 'car', seats: [{ kind: 'bear' }, { kind: 'rabbit' }] },
         { type: 'car', seats: [{ kind: 'cat' }, { kind: 'dog' }] },

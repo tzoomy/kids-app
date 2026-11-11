@@ -19,6 +19,8 @@
 
     <!-- Generous dark rounded burrow opening (settle target) -->
     <path d="M 114 218 C 110 144 146 112 200 112 C 254 112 290 144 286 218 C 256 232 144 232 114 218 Z" fill="#261710" />
+    <!-- Pale inner lip so a light animal (rabbit) has contrast at the opening edge -->
+    <path d="M 114 218 C 110 144 146 112 200 112 C 254 112 290 144 286 218 C 256 232 144 232 114 218 Z" fill="none" stroke="#FAD9B8" stroke-width="7" />
     <!-- Subtle inner tunnel depth ring -->
     <path d="M 122 186 C 126 142 156 120 200 120 C 244 120 274 142 278 186 C 264 152 236 134 200 134 C 164 134 136 152 122 186 Z" fill="#5C4338" stroke="none" />
   </g>

@@ -21,11 +21,18 @@
     .home img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
     .home .back { z-index: 1; }
     .home .front { z-index: 4; }
-    .animal { position: absolute; left: 50%; width: 110px; height: 132px; transform: translateX(-50%); z-index: 3; transform-origin: 50% 100%; }
-    .animal img { position: absolute; left: 0; width: 100%; object-fit: contain; }
-    .animal img.body { bottom: 0; height: 58%; z-index: 1; }
-    .animal img.face { bottom: 28%; height: 72%; z-index: 2; }
-    .animal.settled { bottom: 28px; transform: translateX(-50%) scale(0.86); }
+    .animal { position: absolute; left: 50%; width: 110px; height: 150px; transform: translateX(-50%); z-index: 3; transform-origin: 50% 100%; overflow: visible; }
+    .animal img { position: absolute; object-fit: contain; }
+    .animal img.ear { width: 34%; height: 52%; top: -6%; z-index: 1; }
+    .animal img.ear-left { left: 0; }
+    .animal img.ear-right { right: 0; left: auto; }
+    .animal img.body { left: 0; width: 100%; bottom: 0; height: 48%; z-index: 2; }
+    .animal img.face { left: 0; width: 100%; bottom: 24%; height: 58%; z-index: 3; }
+    .animal img.eye { width: 18%; height: 15%; bottom: 50%; z-index: 4; }
+    .animal img.eye-left { left: 22%; }
+    .animal img.eye-right { right: 22%; left: auto; }
+    .animal.settled { bottom: 28px; transform: translateX(-50%) scale(0.9); }
+    .animal.peek { width: 128px; height: 170px; }
     .animal.walking { bottom: 20px; left: 18%; animation: walkHome 1.8s ease-in-out infinite; }
     .state-walk .animal.walking { animation: walkHome 1.8s ease-in-out infinite; }
     @keyframes walkHome {
@@ -64,7 +71,7 @@
     const ART = '../../public/art';
     const HOMES = [
       { id: 'nest', kind: 'bird', label: 'Nest — bird (new)', w: 180, h: 140, walk: true, settlePct: 0.22 },
-      { id: 'burrow', kind: 'rabbit', label: 'Burrow — rabbit (reused)', w: 200, h: 140, settlePct: 0.28 },
+      { id: 'burrow', kind: 'rabbit', label: 'Burrow — rabbit (reused)', w: 200, h: 160, settlePct: 0.34, peek: true },
       { id: 'pond', kind: 'frog', label: 'Pond — frog (new)', w: 210, h: 140, settlePct: 0.24 },
       { id: 'hive', kind: 'bee', label: 'Hive — bee (new)', w: 140, h: 180, settlePct: 0.32 },
       { id: 'kennel', kind: 'dog', label: 'Kennel — dog (reused)', w: 180, h: 160, settlePct: 0.16, animalH: 0.72 },
@@ -75,19 +82,28 @@
       ['honeycomb', 'hive'], ['bone', 'kennel'], ['leaf', 'tree'],
     ];
 
+    const EAR_KINDS = new Set(['rabbit', 'dog', 'cat', 'bear', 'panda', 'lion', 'owl']);
+
+    function addImg(parent, className, src, alt) {
+      const img = document.createElement('img');
+      img.className = className;
+      img.src = src;
+      img.alt = alt || '';
+      parent.appendChild(img);
+      return img;
+    }
+
     function animalEl(kind, cls) {
       const el = document.createElement('div');
       el.className = 'animal ' + (cls || '');
-      const body = document.createElement('img');
-      body.className = 'body';
-      body.src = `${ART}/animals/${kind}/body.svg`;
-      body.alt = '';
-      const head = document.createElement('img');
-      head.className = 'face';
-      head.src = `${ART}/animals/${kind}/head.svg`;
-      head.alt = kind;
-      el.appendChild(body);
-      el.appendChild(head);
+      if (EAR_KINDS.has(kind)) {
+        addImg(el, 'ear ear-left', `${ART}/animals/${kind}/ear-left.svg`, '');
+        addImg(el, 'ear ear-right', `${ART}/animals/${kind}/ear-right.svg`, '');
+      }
+      addImg(el, 'body', `${ART}/animals/${kind}/body.svg`, '');
+      addImg(el, 'face', `${ART}/animals/${kind}/head.svg`, kind);
+      addImg(el, 'eye eye-left', `${ART}/animals/${kind}/eye-open.svg`, '');
+      addImg(el, 'eye eye-right', `${ART}/animals/${kind}/eye-open.svg`, '');
       return el;
     }
 
@@ -107,7 +123,7 @@
       el.appendChild(back);
       if (mode === 'walk' && spec.walk) el.appendChild(animalEl(spec.kind, 'walking'));
       else if (mode === 'settled' || mode === 'all') {
-        const a = animalEl(spec.kind, 'settled');
+        const a = animalEl(spec.kind, 'settled' + (spec.peek ? ' peek' : ''));
         if (spec.settlePct != null) a.style.bottom = (spec.settlePct * 100) + '%';
         if (spec.animalH) {
           a.style.height = (spec.animalH * 132) + 'px';
@@ -135,7 +151,10 @@
         h.style.bottom = places[i][1];
         // scale animals down in the hero
         const a = h.querySelector('.animal');
-        if (a) { a.style.width = '72px'; a.style.height = '86px'; }
+        if (a) {
+          if (spec.peek) { a.style.width = '92px'; a.style.height = '122px'; }
+          else { a.style.width = '72px'; a.style.height = '96px'; }
+        }
         stage.appendChild(h);
       });
     }
