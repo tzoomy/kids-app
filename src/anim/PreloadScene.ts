@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import { getArtManifest } from './artRegistry';
 import { queueArtManifest } from './assetLoader';
 import { PALETTE } from '../assets/colors';
+import { setAppScreen } from '../pwa';
 
 const HARD_TIMEOUT_MS = 12000;
 const FILE_TIMEOUT_MS = 8000;
@@ -23,6 +24,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   init(data: PreloadData): void {
+    setAppScreen('loading');
     this.next = data?.next ?? 'MapScene';
     this.started = false;
   }

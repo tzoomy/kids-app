@@ -9,7 +9,7 @@ import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from '
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, isE2e } from './game/createGame';
-import { initPwa } from './pwa';
+import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import type { AgeTrack } from './core/storage/schema';
@@ -37,9 +37,15 @@ function warmupAudioOnce(): void {
   sfx.warmup();
 }
 document.addEventListener('pointerdown', warmupAudioOnce, { once: true });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) store.persist();
+});
+setPersistBeforePwaUpdate(() => store.persist());
+setAppScreen('profile');
 initPwa();
 
 function openParentGate(onDone: () => void): void {
+  setAppScreen('parent');
   // Test-only bypass behind ?e2e=1 so Playwright can reach the settings screen
   // deterministically. The real multiplication gate stays intact in production.
   if (isE2e()) {
@@ -116,6 +122,7 @@ function welcomeOnce(): void {
 }
 
 function showProfileSelectScreen(): void {
+  setAppScreen('profile');
   const state = store.getState();
   const entries = state.profiles.map((profile) => ({
     profile,
@@ -130,6 +137,7 @@ function showProfileSelectScreen(): void {
 }
 
 function returnToProfileSelect(): void {
+  store.persist();
   audioManager.stopAll();
   game?.scene.stop('RestaurantScene');
   game?.scene.stop('BubblesScene');
@@ -140,6 +148,7 @@ function returnToProfileSelect(): void {
 }
 
 function pickProfile(profileId: string): void {
+  setAppScreen('loading');
   context.currentProfileId = profileId;
   audioManager.stopAll();
   warmupAudioOnce();

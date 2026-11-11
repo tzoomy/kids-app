@@ -15,6 +15,7 @@ import { heLine, heVariant } from '../../content/voiceLines';
 import type { SpeechRequest } from '../../core/audio/types';
 import { crossedWholeMinute, shouldPraise, shouldSayRetry } from './voiceRules';
 import { DEPTH, addCounterFront, buildPlate, detachFood, paintBackground, type PlateView } from './restaurantArt';
+import { setAppScreen } from '../../pwa';
 
 export interface RoundInfo {
   correctIndex: number;
@@ -82,6 +83,7 @@ export class RestaurantScene extends Phaser.Scene {
   }
 
   create(): void {
+    setAppScreen('restaurant');
     this.context = this.game.registry.get('appContext') as AppContext;
     const profile = this.context.store
       .getState()
