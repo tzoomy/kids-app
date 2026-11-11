@@ -116,6 +116,8 @@ export const AnimalRestaurantContentSchema = z
       const path = ['adaptive', 'levels', i];
       if (level.choiceCount === undefined) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'restaurant levels require choiceCount' });
+      } else if (level.choiceCount < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'restaurant levels require choiceCount of at least 2' });
       } else if (level.choiceCount > value.items.length) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'choiceCount exceeds the number of items' });
       }

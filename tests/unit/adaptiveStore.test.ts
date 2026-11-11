@@ -117,6 +117,27 @@ describe('AdaptiveStore', () => {
   });
 });
 
+describe('stored day strings', () => {
+  const payload = (s: unknown) => JSON.stringify({ schemaVersion: 1, profileId: 'a', skills: { [KEY]: s } });
+
+  it('drops an item with a malformed lastSeenDay and keeps the rest', () => {
+    const bad = { ...skill(), items: { ...skill().items, pear: { box: 2, seen: 1, clean: 0, lastSeenDay: 'yesterday' } } };
+    const { profile } = parseAdaptiveProfile(payload(bad), 'a');
+    expect(Object.keys(profile.skills[KEY].items)).toEqual(['apple']);
+  });
+
+  it('drops a skill with a malformed lastPlayedDay', () => {
+    for (const day of ['', '2026-1-2', '2026-13-45', 'not-a-day']) {
+      const { profile } = parseAdaptiveProfile(payload({ ...skill(), lastPlayedDay: day }), 'a');
+      expect(profile.skills[KEY]).toBeUndefined();
+    }
+  });
+
+  it('accepts a well-formed day', () => {
+    expect(parseAdaptiveProfile(payload(skill()), 'a').profile.skills[KEY]).toBeDefined();
+  });
+});
+
 describe('migrations', () => {
   it('invokes the chain for an older version (stub v0 fixture)', () => {
     const v0 = JSON.stringify({ schemaVersion: 0, levels: { [KEY]: 3 } });

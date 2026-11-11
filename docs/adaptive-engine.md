@@ -55,7 +55,7 @@ export const GameAdaptiveSchema = z.object({
 }).superRefine(/* 1 <= min <= start <= max <= levels.length for each track */);
 ```
 
-`AnimalRestaurantContentSchema` gains `adaptive: GameAdaptiveSchema`. A restaurant-specific refinement checks that `choiceCount` is set on every level and is ≤ `items.length`. `AgeTrackConfigSchema` drops `choiceCount` and `counts`, which move into the levels. It keeps `hintMode` and `hintDelayMs`, because those are age policy, not difficulty.
+`AnimalRestaurantContentSchema` gains `adaptive: GameAdaptiveSchema`. A restaurant-specific refinement checks that `choiceCount` is set on every level and is between 2 and `items.length` (a 1-plate level would make every answer a free clean). `AgeTrackConfigSchema` drops `choiceCount` and `counts`, which move into the levels. It keeps `hintMode` and `hintDelayMs`, because those are age policy, not difficulty.
 
 How the 8 research games map onto the levers (§4 of the research doc):
 
@@ -118,8 +118,8 @@ All functions are pure. They return new objects and never mutate their inputs. T
 | `clampToTrack(skill, meta, track)` | Clamps the level to `[min, max]` of the *current* track. It runs on every read, so a parent who changes a child's age track never leaves an out-of-range level behind. |
 | `decideChange(skill, meta, track): -1 \| 0 \| 1` | Returns `-1` if the last `downWindow` entries of `recent` contain at least `downMisses` misses. Otherwise `+1` if `cleanStreak >= upCleanStreak`. Otherwise `0`. Down wins over up if both are true, which only happens with odd custom rules. |
 | `applyChange(skill, delta, meta, track)` | Sets `level = clamp(level + delta)`, `recent = []`, `cleanStreak = 0`. If `delta < 0`, sets `afterDrop = true`. At the floor, a down decision still clears `recent` and sets `afterDrop` (a soft drop: the child gets a known item even though the level cannot fall). At the ceiling, an up decision is a no-op and `cleanStreak` keeps counting. |
-| `recordTrial(skill, session, result, meta, track, today)` → `{ skill, session, change }` | Classifies the result. Updates the item (below). Pushes to `recent`. `clean` increments `cleanStreak`, while `assisted` and `miss` reset it to 0. A miss enqueues a retry at `trialIndex + retryAfterTrials`. Then `trialIndex++` and `trialsInRound++`. With an `after-trial` policy and `changesInRound < maxChangesPerRound`, it applies `decideChange`. When `trialsInRound` reaches `trialsPerRound`, it calls `endRound`. |
-| `endRound(skill, session, meta, track)` | With a `between-rounds` policy, applies `decideChange` once. It always resets `trialsInRound` and `changesInRound`. Leaving the game also counts as a round boundary. |
+| `recordTrial(skill, session, result, meta, track, today)` → `{ skill, session, change }` | Classifies the result. Updates the item (below). Pushes to `recent`. `clean` increments `cleanStreak`, while `assisted` and `miss` reset it to 0. A miss enqueues a retry at `trialIndex + retryAfterTrials`. Then `trialIndex++` and `trialsInRound++`. It then computes `decideChange` after every trial. With an `after-trial` policy and `changesInRound < maxChangesPerRound`, it applies the decision at once. With `between-rounds`, it stores the decision in `session.pendingChange` (a down replaces an up; a pending down is never replaced; `recent` and `cleanStreak` are not cleared until the change is applied), so the windows span rounds. When `trialsInRound` reaches `trialsPerRound`, it calls `endRound`. |
+| `endRound(skill, session, meta, track)` | Applies `session.pendingChange` (at most one change) through `applyChange`, then clears it. It always resets `trialsInRound` and `changesInRound`. Leaving the game also counts as a round boundary, and a second call is a no-op. |
 | `selectNextItem(skill, session, candidates, meta, today, random): string` | See the priority list below. |
 | `trackPolicy(track): TrackPolicy` | See §5. |
 
@@ -129,6 +129,9 @@ All functions are pure. They return new objects and never mutate their inputs. T
 - **Hinted**: the auto-hint (glow plus repeat after `hintDelayMs`) fired before the first tap. A voluntary replay (tapping the animal or the bubble) is **not** a hint, because listening again is behaviour we want.
 - **Down rule choice: "2 misses within the last 3 trials"** (`downMisses: 2, downWindow: 3`). "2 in a row" never fires for a child alternating miss/hit at 50%. That child would also never reach 3 clean in a row, so she would stall at a level that is too hard, far below the 75–85% (age 5) and about 90% (age 2) targets. The window matches the research's restaurant-specific rule. Setting `downWindow: 2` gives strict "2 in a row". Both values are configurable per game.
 - `recent` is cleared on every level change, so misses made at the old level never cause a second drop at the new one.
+- **Age 2 decides across rounds.** The up/down rules look at the last trials regardless of round boundaries, but the change only lands at a round end. Example: round 1 = clean, clean, miss and round 2 = miss, clean, clean holds 2 misses in trials 3–5, so the level drops at the end of round 2. Round 1 = miss, clean, clean and round 2 = clean, assisted, clean completes 3 clean at trial 4, so the level rises at the end of round 2, even though the streak broke at trial 5.
+- **Blocked drop on age 5.** If the one-change cap blocks a drop (for example a rise at trial 1, then two misses), the drop is stored in `pendingChange` and applied at the round boundary. It is still a single change and `recent` is cleared by it, so the next round's first answer, even a clean one, cannot trigger a stale drop. A blocked rise is not carried: the clean streak re-fires it on the next clean answer.
+- **`assisted` on the age-5 track (v1).** Age 5 uses `hintMode` other than `demonstrate`, so the idle auto-hint timer is not started and no hint fires before the first tap. Age-5 outcomes are therefore only `clean` or `miss` in v1; `assisted` occurs on the age-2 track only. Starting the idle hint on age 5 would change existing behaviour and needs owner approval.
 
 **Item update (Leitner, per skill, so per language)**: `clean` raises the box by 1 (max 5). `miss` sets the box to 1. `assisted` keeps the box unchanged. `seen++`, and `lastSeenDay = today`. Review intervals in days by box: `[0, 0, 2, 4, 7]`.
 
@@ -219,9 +222,9 @@ L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner 
   - Read the level descriptor. If `choiceCount` changed, recompute `layout.plates` via `computeRestaurantLayout`.
   - `targetId = session.selectNextItem(eligibleIds)`, where eligible means all items. At quantity levels, items without count prompts still work at count 1.
   - Call `buildRound(..., targetId)`.
-  - Reset `round.hinted = false` and `round.recorded = false`.
-- `giveHint()`: if it fires from the idle timer while `!round.recorded`, set `round.hinted = true`.
-- `choose()`: after the existing lock check, if `!round.recorded`, call `session.record({ itemId: target.item.id, firstTryCorrect, hinted })` and set `recorded = true`. The session persists. Wrong-tap feedback, hints, stars and leisure calls are unchanged.
+  - Create a `TrialTracker(itemId, language)` for the round (`src/games/restaurant/trialTracker.ts`, pure and unit-tested). `nextRoundLanguage` keeps the language for the round and re-picks early if the parent disabled it.
+- `giveHint()`: calls `tracker.onHint()`, which sets hinted only before the first plate tap. Replays (animal or bubble tap) never call it.
+- `choose()`: after the existing lock check, calls `tracker.onPlateTap(correct)`. It returns a `TrialResult` for the first accepted tap only (then `null`), and the scene passes it to `session.record`. The session persists. Wrong-tap feedback, hints, stars and leisure calls are unchanged.
 - `cleanup()`: call `session.endVisit()` (round boundary plus persist).
 - `RoundInfo` gains `level` and `skillKey`. These are additive; e2e reads only the fields it declares.
 

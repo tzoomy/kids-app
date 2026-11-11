@@ -173,6 +173,49 @@ describe('change cap and timing', () => {
   });
 });
 
+describe('decisions across rounds', () => {
+  const at = (level: number, track: AgeTrack): SkillState => ({ ...initialSkill(meta, track, TODAY), level });
+
+  it('age2: 2 misses in 3 trials spanning two rounds drop at the end of the second round', () => {
+    // Round 1 = clean, clean, miss; round 2 = miss, clean, clean. Trials 3-5 hold 2 misses.
+    const r = play(['c', 'c', 'm', 'm', 'c', 'c'], { track: 'age2', skill: at(3, 'age2') });
+    expect(r.changes).toEqual([0, 0, 0, 0, 0, -1]);
+    expect(r.skill.level).toBe(2);
+  });
+
+  it('age2: 3 clean in a row spanning two rounds rise at the end of the second round, even if the streak breaks later', () => {
+    // Round 1 = miss, clean, clean; round 2 = clean, assisted, clean. Trials 2-4 are clean.
+    const r = play(['m', 'c', 'c', 'c', 'a', 'c'], { track: 'age2', skill: at(2, 'age2') });
+    expect(r.changes).toEqual([0, 0, 0, 0, 0, 1]);
+    expect(r.skill.level).toBe(3);
+  });
+
+  it('age2: a pending down replaces a pending up, and at most one change is applied', () => {
+    // Trial 4 completes 3 clean (pending up); trials 5-6 add 2 misses in the window (down replaces it).
+    const r = play(['m', 'c', 'c', 'c', 'm', 'm'], { track: 'age2', skill: at(3, 'age2') });
+    expect(r.changes).toEqual([0, 0, 0, 0, 0, -1]);
+    expect(r.skill.level).toBe(2);
+    expect(r.session.pendingChange).toBe(0);
+  });
+
+  it('age2: endRound on an empty session changes nothing', () => {
+    const s = initialSession();
+    const closed = endRound(at(2, 'age2'), s, meta, 'age2');
+    expect(closed.change).toBe(0);
+    expect(closed.skill.level).toBe(2);
+  });
+
+  it('age5: a decision blocked by the one-change cap is applied once at the round boundary, not on the next clean answer', () => {
+    // Streak of 2 carried in: trial 1 goes up, trials 2-3 are misses and the down is blocked by the cap.
+    const start: SkillState = { ...at(4, 'age5'), cleanStreak: 2 };
+    const r = play(['c', 'm', 'm', 'c'], { skill: start });
+    expect(r.changes).toEqual([1, 0, -1, 0]);
+    expect(r.skill.level).toBe(4);
+    expect(r.skill.recent).toEqual(['clean']);
+    expect(r.session.pendingChange).toBe(0);
+  });
+});
+
 describe('bounds', () => {
   it('up at the ceiling is a no-op and the streak keeps counting', () => {
     const top = { ...initialSkill(meta, 'age5', TODAY), level: 5 };

@@ -77,6 +77,7 @@ export function initialSession(): SkillSessionState {
     retryQueue: [],
     lastItemId: null,
     knownSinceNew: 0,
+    pendingChange: 0,
   };
 }
 
@@ -136,27 +137,39 @@ export interface StepResult {
   change: LevelChange;
 }
 
-function tryChange(
+function applyStep(
   skill: SkillState,
   session: SkillSessionState,
+  delta: LevelChange,
   meta: GameLevelsMeta,
   track: AgeTrack,
 ): StepResult {
-  const delta = decideChange(skill, meta);
   const next = applyChange(skill, delta, meta, track);
   if (next === skill) return { skill, session, change: 0 };
   return { skill: next, session: { ...session, changesInRound: session.changesInRound + 1 }, change: delta };
 }
 
-/** Closes a round: applies a deferred change (between-rounds policy) and resets round counters. */
+/** A newer down replaces a pending up; a pending down is never replaced; an up never replaces anything. */
+function mergePending(pending: LevelChange, delta: LevelChange): LevelChange {
+  if (delta === -1) return -1;
+  if (delta === 1 && pending === 0) return 1;
+  return pending;
+}
+
+/**
+ * Closes a round: applies the pending change, if any, and resets round counters. The pending change
+ * is set after trials (possibly spanning the previous round) under the between-rounds policy, and
+ * for a decision that the one-change cap blocked under the after-trial policy. It is at most one change.
+ */
 export function endRound(skill: SkillState, session: SkillSessionState, meta: GameLevelsMeta, track: AgeTrack): StepResult {
   let result: StepResult = { skill, session, change: 0 };
-  if (trackPolicy(track).levelChange === 'between-rounds' && session.changesInRound < meta.rules.maxChangesPerRound) {
-    result = tryChange(skill, session, meta, track);
+  // The cap counts changes made inside the round; the boundary change belongs to the new round's budget.
+  if (session.pendingChange !== 0) {
+    result = applyStep(skill, session, session.pendingChange, meta, track);
   }
   return {
     ...result,
-    session: { ...result.session, trialsInRound: 0, changesInRound: 0 },
+    session: { ...result.session, trialsInRound: 0, changesInRound: 0, pendingChange: 0 },
   };
 }
 
@@ -193,11 +206,19 @@ export function recordTrial(
   };
 
   let change: LevelChange = 0;
+  const delta = decideChange(skill, meta);
   if (trackPolicy(track).levelChange === 'after-trial' && session.changesInRound < meta.rules.maxChangesPerRound) {
-    const step = tryChange(skill, session, meta, track);
+    const step = applyStep(skill, session, delta, meta, track);
     skill = step.skill;
     session = step.session;
     change = step.change;
+  } else if (trackPolicy(track).levelChange === 'between-rounds') {
+    // Decide after every trial (so windows span rounds); apply at the round end.
+    session = { ...session, pendingChange: mergePending(session.pendingChange, delta) };
+  } else if (delta === -1) {
+    // After-trial, but the cap blocked a drop. Apply it at the round boundary so it cannot fire
+    // right after a later clean answer. A blocked rise needs no carry: the streak re-fires it.
+    session = { ...session, pendingChange: -1 };
   }
 
   if (session.trialsInRound >= meta.rules.trialsPerRound) {

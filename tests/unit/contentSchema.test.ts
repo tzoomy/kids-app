@@ -48,7 +48,11 @@ describe('content schema validation', () => {
     delete noChoiceCount.adaptive.levels[0].choiceCount;
     expect(AnimalRestaurantContentSchema.safeParse(noChoiceCount).success).toBe(false);
 
-    const tooManyPlates = JSON.parse(JSON.stringify(valid));
+    const onePlate = JSON.parse(JSON.stringify(valid));
+    onePlate.adaptive.levels[0].choiceCount = 1;
+    expect(AnimalRestaurantContentSchema.safeParse(onePlate).success).toBe(false);
+
+    const tooManyPlates =JSON.parse(JSON.stringify(valid));
     tooManyPlates.adaptive.levels[0].choiceCount = valid.items.length + 1;
     expect(AnimalRestaurantContentSchema.safeParse(tooManyPlates).success).toBe(false);
 

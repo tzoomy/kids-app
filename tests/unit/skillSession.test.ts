@@ -85,6 +85,18 @@ describe('SkillSession', () => {
     expect(writes()).toBe(before + 1);
   });
 
+  it('endVisit is idempotent: a second call changes nothing', () => {
+    const { driver } = memoryDriver();
+    const { session, store } = make(driver, 'age2');
+    session.record('en', { itemId: IDS[0], firstTryCorrect: true, hinted: false });
+    session.record('en', { itemId: IDS[1], firstTryCorrect: true, hinted: false });
+    session.endVisit();
+    const after = JSON.stringify(store.getProfile('a'));
+    session.endVisit();
+    expect(JSON.stringify(store.getProfile('a'))).toBe(after);
+    expect(session.level('en')).toBe(1);
+  });
+
   it('age2 climbs after a clean round of 3 and the level survives a reload', () => {
     const { driver } = memoryDriver();
     const first = make(driver, 'age2');

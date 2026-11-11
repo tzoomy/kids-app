@@ -26,11 +26,17 @@ function isCount(v: unknown): v is number {
   return typeof v === 'number' && Number.isInteger(v) && v >= 0;
 }
 
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function isDay(v: unknown): v is string {
+  return typeof v === 'string' && DAY_RE.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
+}
+
 function parseItem(v: unknown): ItemState | null {
   if (!isRecord(v)) return null;
   const { box, seen, clean, lastSeenDay } = v;
   if (typeof box !== 'number' || !Number.isInteger(box) || box < 1 || box > 5) return null;
-  if (!isCount(seen) || !isCount(clean) || typeof lastSeenDay !== 'string') return null;
+  if (!isCount(seen) || !isCount(clean) || !isDay(lastSeenDay)) return null;
   return { box: box as Box, seen, clean, lastSeenDay };
 }
 
@@ -38,7 +44,7 @@ function parseSkill(v: unknown): SkillState | null {
   if (!isRecord(v)) return null;
   const { level, cleanStreak, recent, afterDrop, lastPlayedDay, items } = v;
   if (typeof level !== 'number' || !Number.isInteger(level) || level < 1) return null;
-  if (!isCount(cleanStreak) || typeof afterDrop !== 'boolean' || typeof lastPlayedDay !== 'string') return null;
+  if (!isCount(cleanStreak) || typeof afterDrop !== 'boolean' || !isDay(lastPlayedDay)) return null;
   if (!Array.isArray(recent) || !recent.every((o) => typeof o === 'string' && OUTCOMES.includes(o))) return null;
   if (!isRecord(items)) return null;
   const parsedItems: Record<string, ItemState> = {};

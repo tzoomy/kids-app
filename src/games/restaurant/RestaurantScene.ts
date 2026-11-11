@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
-import { buildRound, isCorrectChoice, pickLanguage, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
+import { buildRound, isCorrectChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
+import { TrialTracker, nextRoundLanguage } from './trialTracker';
 import { buildMeta, type SkillSession } from '../../core/adaptive';
 import type { LearningSession } from '../../core/leisure';
 import type { AgeTrackConfig } from '../../content/schema';
@@ -42,10 +43,8 @@ export interface RoundInfo {
 interface ActiveRound extends RoundSpec {
   done: boolean;
   tries: number;
-  /** The idle auto-hint fired before the first plate tap. A voluntary replay never sets this. */
-  hinted: boolean;
-  /** The engine already got this trial's first accepted plate tap. */
-  recorded: boolean;
+  /** Decides what the engine records for this trial (once; hint only from the idle auto-hint). */
+  tracker: TrialTracker;
   level: number;
   skillKey: string;
 }
@@ -270,9 +269,11 @@ export class RestaurantScene extends Phaser.Scene {
     const content = this.context.content.restaurant;
     const settings = this.context.store.getState().settings;
     // One round = trialsPerRound animals of the same language, so each round feeds one skill.
-    if (this.roundLang === null || this.skills.atRoundBoundary(this.roundLang)) {
-      this.roundLang = pickLanguage(settings.languages);
-    }
+    this.roundLang = nextRoundLanguage(
+      this.roundLang,
+      this.roundLang === null || this.skills.atRoundBoundary(this.roundLang),
+      settings.languages,
+    );
     const language = this.roundLang;
     const adaptive = content.adaptive;
     const levelNumber = this.skills.level(language);
@@ -289,8 +290,7 @@ export class RestaurantScene extends Phaser.Scene {
       ...spec,
       done: false,
       tries: 0,
-      hinted: false,
-      recorded: false,
+      tracker: new TrialTracker(spec.target.item.id, language),
       level: levelNumber,
       skillKey: this.skills.key(language),
     };
@@ -403,7 +403,7 @@ export class RestaurantScene extends Phaser.Scene {
       return;
     }
     // Only the idle auto-hint before the first tap counts as a hint (later ones follow a recorded miss).
-    if (!this.round.recorded) this.round.hinted = true;
+    this.round.tracker.onHint();
     const view = this.correctPlate();
     if (view) {
       void hintPulse(this, view.root);
@@ -420,15 +420,9 @@ export class RestaurantScene extends Phaser.Scene {
     void pressSquash(this, view.root);
 
     const correct = isCorrectChoice(view.choice, this.round.target);
-    if (!this.round.recorded) {
-      // Exactly once per trial: the first accepted plate tap. Later taps are ignored by the engine.
-      this.round.recorded = true;
-      this.skills.record(this.round.language as Lang, {
-        itemId: this.round.target.item.id,
-        firstTryCorrect: correct,
-        hinted: this.round.hinted,
-      });
-    }
+    // Exactly once per trial: the first accepted plate tap. Later taps yield null.
+    const result = this.round.tracker.onPlateTap(correct);
+    if (result) this.skills.record(this.round.language, result);
 
     if (correct) {
       this.round.done = true;

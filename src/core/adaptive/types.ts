@@ -74,6 +74,8 @@ export interface SkillSessionState {
   retryQueue: { itemId: string; dueAtTrial: number }[];
   lastItemId: string | null;
   knownSinceNew: number;
+  /** Decision computed after a trial and applied at the round end (see endRound). */
+  pendingChange: LevelChange;
 }
 
 export interface TrackPolicy {

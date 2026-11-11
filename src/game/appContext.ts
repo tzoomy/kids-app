@@ -1,4 +1,4 @@
-import { Store } from '../core/storage/store';
+import { Store, type StorageDriver } from '../core/storage/store';
 import { AdaptiveStore } from '../core/storage/adaptiveStore';
 import { localDayKey } from '../core/storage/dayKey';
 import type { AgeTrack } from '../core/storage/schema';
@@ -36,8 +36,10 @@ export class AppContext {
     public readonly content: ContentBundle,
     public readonly shell: AppShell,
     public readonly nowMs: () => number = () => Date.now(),
+    adaptiveDriver?: StorageDriver | null,
   ) {
-    this.adaptive = new AdaptiveStore();
+    // `undefined` keeps the browser default; tests may pass an in-memory driver.
+    this.adaptive = adaptiveDriver === undefined ? new AdaptiveStore() : new AdaptiveStore(adaptiveDriver);
   }
 
   /** Age track of the current profile (defaults to age5 like the rest of the app). */

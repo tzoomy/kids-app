@@ -127,18 +127,18 @@ function buildFixedTargetRound(
  */
 export function buildRound(
   items: readonly RestaurantItem[],
-  ageConfig: ChoiceServeLevel,
+  level: ChoiceServeLevel,
   language: Lang,
   random: () => number = Math.random,
   targetId?: string,
 ): RoundSpec {
-  const n = ageConfig.choiceCount;
+  const n = level.choiceCount;
   const fixed = targetId === undefined ? undefined : items.find((i) => i.id === targetId);
-  if (fixed) return buildFixedTargetRound(items, fixed, ageConfig, language, random);
+  if (fixed) return buildFixedTargetRound(items, fixed, level, language, random);
   const pool = shuffle(items, random);
   const anchor = pool[0];
-  const anchorCounts = supportedCounts(anchor, language, ageConfig.counts);
-  const useCountVariant = ageConfig.counts.length > 1 && anchorCounts.length > 1 && random() < 0.5;
+  const anchorCounts = supportedCounts(anchor, language, level.counts);
+  const useCountVariant = level.counts.length > 1 && anchorCounts.length > 1 && random() < 0.5;
 
   let choices: ChoiceOption[];
   if (useCountVariant) {
