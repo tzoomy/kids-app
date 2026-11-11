@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 280" width="360" height="280">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Leafy cloud, shallow dip at the crown so an animal can peek -->
+    <path d="M 40 176 C 28 132, 52 96, 96 92 C 108 58, 152 46, 184 66 C 210 42, 262 50, 276 88 C 326 90, 348 132, 328 178 C 340 216, 300 252, 180 252 C 60 252, 22 216, 40 176 Z" fill="#57C457"/>
+    <path d="M 48 200 C 70 240, 120 244, 180 244 C 240 244, 300 240, 316 200 C 292 228, 230 232, 180 232 C 130 232, 70 228, 48 200 Z" fill="#3CA33C"/>
+    <path d="M 92 118 C 108 96, 140 94, 160 114 C 136 108, 110 110, 92 118 Z" fill="#8AE07E"/>
+    <path d="M 228 116 C 246 96, 280 100, 292 120 C 270 112, 246 110, 228 116 Z" fill="#8AE07E"/>
+    <!-- Berries tucked into the right foliage, clearly not eyes -->
+    <circle cx="286" cy="168" r="8" fill="#E03E5B"/>
+    <circle cx="300" cy="182" r="6.5" fill="#E03E5B"/>
+    <circle cx="274" cy="184" r="6" fill="#E03E5B"/>
+    <circle cx="284" cy="165" r="2.4" fill="#FFFDF9"/>
+    <path d="M 40 176 C 28 132, 52 96, 96 92 C 108 58, 152 46, 184 66 C 210 42, 262 50, 276 88 C 326 90, 348 132, 328 178 C 340 216, 300 252, 180 252 C 60 252, 22 216, 40 176 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

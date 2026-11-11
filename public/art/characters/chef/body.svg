@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!-- Neck tucked under head -->
+  <path d="M 92 46 C 92 14, 148 14, 148 46 Z" fill="#FAD9B8"/>
+  <path d="M 92 34 C 104 44, 136 44, 148 34 L 148 46 L 92 46 Z" fill="#E5BF98"/>
+  <path d="M 92 46 C 92 14, 148 14, 148 46" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Stubby dark trousers and simple warm shoes near bottom center -->
+  <g>
+    <!-- Left leg -->
+    <path d="M 66 174 L 66 208 C 66 216, 108 216, 108 208 L 108 174 Z" fill="#3D3532"/>
+    <path d="M 66 194 C 76 204, 98 204, 108 194 L 108 208 C 108 216, 66 216, 66 208 Z" fill="#282220"/>
+    <path d="M 66 174 L 66 208 C 66 216, 108 216, 108 208 L 108 174" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right leg -->
+    <path d="M 132 174 L 132 208 C 132 216, 174 216, 174 208 L 174 174 Z" fill="#3D3532"/>
+    <path d="M 132 194 C 142 204, 164 204, 174 194 L 174 208 C 174 216, 132 216, 132 208 Z" fill="#282220"/>
+    <path d="M 132 174 L 132 208 C 132 216, 174 216, 174 208 L 174 174" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Left shoe -->
+    <ellipse cx="84" cy="216" rx="28" ry="15" fill="#7A4B2A"/>
+    <ellipse cx="78" cy="211" rx="12" ry="5" fill="#B87D56"/>
+    <ellipse cx="84" cy="216" rx="28" ry="15" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right shoe -->
+    <ellipse cx="156" cy="216" rx="28" ry="15" fill="#7A4B2A"/>
+    <ellipse cx="150" cy="211" rx="12" ry="5" fill="#B87D56"/>
+    <ellipse cx="156" cy="216" rx="28" ry="15" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Short arms with bearCream hands -->
+  <g>
+    <!-- Left hand -->
+    <circle cx="28" cy="132" r="16" fill="#FAD9B8"/>
+    <path d="M 14 136 C 18 146, 36 148, 42 136 C 34 142, 22 142, 14 136 Z" fill="#E5BF98"/>
+    <circle cx="28" cy="132" r="16" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Left coat sleeve -->
+    <path d="M 64 56 C 36 64, 14 92, 16 120 C 26 128, 44 126, 54 114 C 62 100, 66 80, 64 56 Z" fill="#FFFDF9"/>
+    <path d="M 16 110 C 24 122, 42 122, 54 114 C 44 126, 26 128, 16 120 Z" fill="#F0DEC2"/>
+    <path d="M 64 56 C 36 64, 14 92, 16 120 C 26 128, 44 126, 54 114" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right hand -->
+    <circle cx="212" cy="132" r="16" fill="#FAD9B8"/>
+    <path d="M 198 136 C 202 146, 220 148, 226 136 C 218 142, 206 142, 198 136 Z" fill="#E5BF98"/>
+    <circle cx="212" cy="132" r="16" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right coat sleeve -->
+    <path d="M 176 56 C 204 64, 226 92, 224 120 C 214 128, 196 126, 186 114 C 178 100, 174 80, 176 56 Z" fill="#FFFDF9"/>
+    <path d="M 224 110 C 216 122, 198 122, 186 114 C 196 126, 214 128, 224 120 Z" fill="#F0DEC2"/>
+    <path d="M 176 56 C 204 64, 226 92, 224 120 C 214 128, 196 126, 186 114" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Plump round chef coat torso -->
+  <path d="M 74 40 C 50 64, 42 114, 48 160 C 52 184, 80 194, 120 194 C 160 194, 188 184, 192 160 C 198 114, 190 64, 166 40 C 150 28, 90 28, 74 40 Z" fill="#FFFDF9"/>
+
+  <!-- Coat lower belly and side shadow -->
+  <path d="M 48 148 C 54 182, 82 194, 120 194 C 158 194, 186 182, 192 148 C 178 174, 154 182, 120 182 C 86 182, 62 174, 48 148 Z" fill="#F0DEC2"/>
+  <path d="M 74 40 C 90 28, 150 28, 166 40 C 154 58, 86 58, 74 40 Z" fill="#F0DEC2"/>
+
+  <!-- Double-breasted chef coat front seam and friendly buttons -->
+  <path d="M 138 64 C 142 108, 142 150, 138 192" fill="none" stroke="#5C4338" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="102" cy="102" r="6" fill="#5C4338"/>
+  <circle cx="126" cy="102" r="6" fill="#5C4338"/>
+  <circle cx="102" cy="138" r="6" fill="#5C4338"/>
+  <circle cx="126" cy="138" r="6" fill="#5C4338"/>
+
+  <!-- Chef coat main outline -->
+  <path d="M 74 40 C 50 64, 42 114, 48 160 C 52 184, 80 194, 120 194 C 160 194, 188 184, 192 160 C 198 114, 190 64, 166 40 C 150 28, 90 28, 74 40 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Simple orange neckerchief -->
+  <g>
+    <!-- Collar band -->
+    <path d="M 70 42 C 86 64, 154 64, 170 42 C 160 30, 80 30, 70 42 Z" fill="#F4A261"/>
+    <path d="M 74 46 C 90 64, 150 64, 166 46 C 152 56, 88 56, 74 46 Z" fill="#D4622A"/>
+    <path d="M 70 42 C 86 64, 154 64, 170 42 C 160 30, 80 30, 70 42 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Neckerchief tails and knot -->
+    <path d="M 112 56 L 98 82 C 104 86, 114 84, 120 72 C 126 84, 136 86, 142 82 L 128 56 Z" fill="#F4A261" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="120" cy="56" rx="12" ry="9" fill="#F4A261" stroke="#3B2A22" stroke-width="5.5"/>
+  </g>
+</svg>
