@@ -75,3 +75,65 @@ export const ANIMAL_ART_KINDS: string[];
 ## Audio hooks (Grok Bot)
 
 The audio layer resolves `lineId` to a static file (Gemini TTS, voice Leda) and falls back to device TTS. Line ids: `food.{id}.{count}.{lang}`, `thanks.{lang}.{index}`, and Hebrew guidance `he.{key}` (see `src/content/audio-manifest.json`). `AudioManager.play()` resolves when the clip ends — use it to drive the `talking` state.
+
+## Animation system API (implemented on `feat/p1-anim`)
+
+Everything lives in `src/anim/` (public surface re-exported from `src/anim/index.ts`). Pure modules (no Phaser) are unit-tested in `tests/unit/anim*.test.ts`.
+
+| Module | Purpose |
+|---|---|
+| `profiles.ts` | `ANIM_PROFILE`: every amplitude, duration and easing. Tune feel here only. |
+| `motion.ts` | Global reduced-motion factor (`prefers-reduced-motion` -> `ANIM_PROFILE.reducedMotionFactor`). `amp()`, `ampScale()`, `ampCount()` scale amplitudes, scale deltas and particle counts. `setMotionFactor()` overrides it (tests, a future parent setting). |
+| `tweens.ts` | Promise-returning helpers: `squashStretch`, `pressSquash`, `popIn` / `popOut`, `bounce`, `wobble`, `shakeSoft`, `floatIdle`, `invitePulse`, `hintPulse`, `flyArc` (allocation-free arc via `arc.ts`), `wait`, `chain`. |
+| `juice.ts` | `Juice.for(scene).burst(kind, x, y, count?)` for `star`, `sparkle`, `heart`, `crumb`, `confetti`. One pooled emitter per kind per scene, capped by `ANIM_PROFILE.particles.maxPerEmitter`. Uses the FX SVGs when loaded, otherwise generates a simple texture once per game. |
+| `transitions.ts` | `transitionTo(fromScene, key, { style: 'fade' | 'iris' | 'slide', originX?, originY?, data? })`. Under 400 ms in total, ignores double taps, target scenes need no changes. Reduced motion always fades. |
+| `stateMachine.ts` | Pure `CharacterStateMachine` and the `TRANSITIONS` table. |
+| `Character.ts` | `new Character(scene, { kind, x, y /* feet */, displayHeight, depth })` with `enter(fromX)`, `talk(promise)`, `happy()`, `munch(ms?)`, `hmm()`, `poke()`, `exit(toX)`, `mouthPoint()`, `headPoint()`, `destroy()`. Every action returns a Promise that resolves when it finishes or is superseded. Idle life (breathing, sway, blink every 2-5 s, ear wiggle, tail wag) always runs in the background. All tweens and timers are cleaned up on `destroy()` and on scene shutdown. |
+| `rigTypes.ts` | `RigPart`, `AnimalRig`, `ArtManifestEntry` — identical to the contract above. |
+| `artRegistry.ts` | `registerAnimalRigs(rigs)`, `registerArtManifest(entries)`, and lookups (`foodArtKey`, `propArtKey`, `sceneArtKey`, `fxArtKey`, `animalPartKey`). Lookups resolve by **file path** (e.g. `art/animals/bear/ear-left.svg`), so the manifest may use any key naming. |
+| `fallbackRig.ts` / `characterArt.ts` | `planCharacterArt(kind, exists)` picks the layered rig only if every texture it needs is registered **and loaded**; otherwise a single-part rig built on the `drawAnimal` texture. A missing SVG never produces a half-drawn animal. |
+| `assetLoader.ts` / `PreloadScene.ts` | The first scene. Loads every manifest SVG with `this.load.svg(key, BASE_URL + url, { width, height })`, shows three bouncing dots and a progress bar, skips missing files (warning in the console), and moves on after at most 12 s no matter what. |
+| `registerArt.ts` | `registerProjectArt()`, called once from `createGame`. **The art plug point.** |
+
+### Registering the art (when `src/assets/art/**` lands)
+
+In `src/anim/registerArt.ts`, uncomment the imports and the two calls:
+
+```ts
+import { ANIMAL_RIGS } from '../assets/art/rigs';
+import { ART_MANIFEST } from '../assets/art/manifest'; // use the actual export name
+registerAnimalRigs(ANIMAL_RIGS);
+registerArtManifest(ART_MANIFEST);
+```
+
+Nothing else needs to change: the PreloadScene loads the manifest, the Character switches to the layered rig per kind, and the restaurant background, counter, plate, plate shadow, foods and FX particles switch to the SVGs wherever a texture is loaded. Kinds or files that are missing keep the procedural fallback.
+
+Rig expectations the Character relies on: part ids `body`, `head` (container pivot = the head part's `x, y`), and optional `tail`, `mane`, `earL`, `earR`, `eyeL`, `eyeR`, `mouth`. Parts with `parent: 'head'` go into the head container, positioned relative to the head pivot, and are sorted by `depth` within it. The head container uses the head part's `depth` among body-level parts. Swapped textures (`eyeClosedKey`, `mouthKeys`) keep the open eye or mouth part's scale and origin, so they should be rasterized at the same scale as the part they replace.
+
+### Adding a new character state
+
+1. Add the state to `CharacterState` and its row and column in `TRANSITIONS` (`src/anim/stateMachine.ts`). If it should settle back to idle by itself, add it to `RETURNS_TO_IDLE`. Add a test in `tests/unit/animStateMachine.test.ts`.
+2. Add its feel values under `ANIM_PROFILE.character` (`src/anim/profiles.ts`).
+3. Add a method on `Character` that follows the existing pattern:
+
+```ts
+wave(): Promise<void> {
+  const token = this.begin('wave');           // -1 when the transition is not allowed
+  if (token < 0) return Promise.resolve();
+  const p = this.actionPromise();             // resolves on finish or when superseded
+  this.trackTween(chain(this.scene, {         // tracked so it is stopped on the next state or destroy
+    targets: this.motion,                     // motion: y / angle / squash; head: tilt and nod
+    tweens: [/* ... values via amp() / ampScale() ... */],
+    onComplete: () => this.finish(token),     // resets the mouth, relaxes, settles to idle
+  }));
+  return p;
+}
+```
+
+Use `amp()` / `ampScale()` for every amplitude so reduced motion keeps working. Do not stop the ambient tweens on `breath`. Use `this.trackTimer()` for timers.
+
+### Restaurant integration notes
+
+- `src/games/restaurant/restaurantLayout.ts` (pure, tested) owns positions for 1280x800 and 800x1280. The animal's feet sit behind a counter front drawn above it (`restaurantArt.ts`).
+- Correct answer: plate press squash, the other plates pop out, the food flies on an arc into `mouthPoint()`, then `munch()`, star and confetti burst, `happy()` with hearts, a star flies to the HUD star pill and bumps it, the thanks line plays through `talk()`, then `exit()` and the next animal `enter()`s. Wrong answer: plate `wobble`, animal `hmm()`, then the usual hint or retry after 450 ms.
+- Requests for other owners: the HUD rebuilds the whole chrome every second (`renderRestaurantChrome` replaces `chromeRoot` and `setRestaurantChrome` clears the overlay). The restaurant works around it by re-adding the prompt bubble and skipping refreshes while help is open, but an in-place update in `src/ui/hud.ts`, plus a `data-testid` on the star pill, would be cleaner.
