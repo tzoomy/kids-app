@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 148" width="88" height="148">
+  <!-- Chunky floppy left dog ear in warm dark patch brown, anchored near top-right -->
+  <path d="M 80 28 C 76 10, 52 6, 36 18 C 16 34, 6 72, 10 108 C 13 132, 32 142, 50 134 C 66 126, 74 98, 74 68 C 74 52, 82 40, 80 28 Z" fill="#8C5230"/>
+  <!-- Inner/bottom ear shadow -->
+  <path d="M 10 102 C 13 130, 32 142, 50 134 C 66 126, 74 98, 74 68 C 66 96, 56 116, 42 122 C 28 128, 16 118, 10 102 Z" fill="#6E3D20"/>
+  <!-- Soft outer ear highlight -->
+  <path d="M 40 24 C 24 38, 16 68, 18 96 C 22 68, 30 42, 46 28 Z" fill="#A86B43"/>
+  <!-- Outline -->
+  <path d="M 80 28 C 76 10, 52 6, 36 18 C 16 34, 6 72, 10 108 C 13 132, 32 142, 50 134 C 66 126, 74 98, 74 68 C 74 52, 82 40, 80 28 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

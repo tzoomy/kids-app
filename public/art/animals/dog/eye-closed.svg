@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Soft subtle eyelid crease that works on both patch and golden fur -->
+  <path d="M 12 27 C 18 15, 36 15, 42 27" fill="none" stroke="#5C4338" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+  <!-- Happy arched closed eye -->
+  <path d="M 10 31 C 16 17, 38 17, 44 31" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Outer lash flick -->
+  <path d="M 11 30 Q 4 26 4 21" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

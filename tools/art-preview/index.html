@@ -234,7 +234,12 @@
     async function render() {
       const data = await loadRigs();
       const grid = document.getElementById('grid');
-      for (const kind of data.ANIMAL_ART_KINDS) {
+      const params = new URLSearchParams(window.location.search);
+      const kindsParam = params.get('kinds');
+      const kinds = kindsParam
+        ? kindsParam.split(',').filter((k) => data.ANIMAL_RIGS[k])
+        : data.ANIMAL_ART_KINDS;
+      for (const kind of kinds) {
         const rig = data.ANIMAL_RIGS[kind];
         const row = document.createElement('div');
         row.className = 'row';

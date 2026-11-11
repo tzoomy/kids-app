@@ -34,7 +34,10 @@ async function main() {
 
   const shotsDir = path.join(__dirname, 'shots');
   fs.mkdirSync(shotsDir, { recursive: true });
-  const outPath = path.join(shotsDir, 'animals.png');
+  const batches = [
+    { file: 'animals.png', kinds: 'bear,rabbit,cat' },
+    { file: 'animals-2.png', kinds: 'dog,panda,lion' },
+  ];
 
   const browser = await chromium.launch();
   try {
@@ -42,15 +45,18 @@ async function main() {
       viewport: { width: 1360, height: 1320 },
       deviceScaleFactor: 1,
     });
-    const htmlUrl = pathToFileURL(path.join(__dirname, 'index.html')).href;
-    await page.goto(htmlUrl, { waitUntil: 'load' });
-    await page.waitForFunction(() => window.__PREVIEW_READY__ === true);
-    await page.waitForFunction(() => {
-      const imgs = Array.from(document.querySelectorAll('img'));
-      return imgs.length > 0 && imgs.every((img) => img.complete && img.naturalWidth > 0);
-    });
-    await page.screenshot({ path: outPath, fullPage: true });
-    console.log(`Saved screenshot to ${outPath}`);
+    const baseHtmlUrl = pathToFileURL(path.join(__dirname, 'index.html')).href;
+    for (const batch of batches) {
+      const outPath = path.join(shotsDir, batch.file);
+      await page.goto(`${baseHtmlUrl}?kinds=${batch.kinds}`, { waitUntil: 'load' });
+      await page.waitForFunction(() => window.__PREVIEW_READY__ === true);
+      await page.waitForFunction(() => {
+        const imgs = Array.from(document.querySelectorAll('img'));
+        return imgs.length > 0 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+      });
+      await page.screenshot({ path: outPath, fullPage: true });
+      console.log(`Saved screenshot to ${outPath}`);
+    }
   } finally {
     await browser.close();
   }

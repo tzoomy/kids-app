@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 194" width="236" height="194">
+  <!-- Main plump puppy head silhouette -->
+  <path d="M 118 12 C 62 12, 26 42, 18 92 C 10 142, 36 182, 118 182 C 200 182, 226 142, 218 92 C 210 42, 174 12, 118 12 Z" fill="#E8AA6B"/>
+
+  <!-- Cute Warm Cinnamon-Brown Eye Patch on Left Side (high contrast with dark lashes) -->
+  <ellipse cx="68" cy="92" rx="37" ry="38" transform="rotate(-12 68 92)" fill="#A86B43"/>
+  <path d="M 34 80 C 30 104, 46 128, 70 128 C 88 128, 102 114, 104 96 C 94 114, 78 122, 62 120 C 44 118, 34 100, 34 80 Z" fill="#8C5230"/>
+
+  <!-- Soft lower cheek & chin shadow -->
+  <path d="M 18 112 C 18 154, 48 182, 118 182 C 188 182, 218 154, 218 112 C 206 148, 174 168, 118 168 C 62 168, 30 148, 18 112 Z" fill="#C9894B"/>
+
+  <!-- Smooth crown highlight crescent -->
+  <path d="M 62 38 C 84 22, 134 18, 170 30 C 134 24, 88 28, 62 38 Z" fill="#F7C48E"/>
+
+  <!-- Rosy Blush Cheeks -->
+  <ellipse cx="44" cy="126" rx="20" ry="13" transform="rotate(6 44 126)" fill="#FF8FA3"/>
+  <ellipse cx="40" cy="123" rx="8" ry="4" transform="rotate(6 40 123)" fill="#FFC2CE"/>
+  <ellipse cx="192" cy="126" rx="20" ry="13" transform="rotate(-6 192 126)" fill="#FF8FA3"/>
+  <ellipse cx="188" cy="123" rx="8" ry="4" transform="rotate(-6 188 123)" fill="#FFC2CE"/>
+
+  <!-- Warm Cream Puppy Muzzle -->
+  <ellipse cx="118" cy="128" rx="50" ry="36" fill="#FFF2DE"/>
+  <path d="M 70 136 C 76 154, 96 164, 118 164 C 140 164, 160 154, 166 136 C 154 150, 136 156, 118 156 C 100 156, 82 150, 70 136 Z" fill="#F0DEC2"/>
+
+  <!-- Cute Rounded Puppy Nose + Bridge Line -->
+  <line x1="118" y1="112" x2="118" y2="124" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 98 97 C 98 89, 138 89, 138 97 C 138 107, 126 116, 118 116 C 110 116, 98 107, 98 97 Z" fill="#3B2A22"/>
+  <ellipse cx="112" cy="96" rx="7.5" ry="3.2" fill="#FFFDF9"/>
+
+  <!-- Friendly Eyebrows -->
+  <path d="M 52 54 Q 66 46 80 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 184 54 Q 170 46 156 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head Outline with cute puppy forehead fur tuft -->
+  <path d="M 106 13 C 110 4, 117 4, 120 11 C 125 5, 132 7, 129 13 C 178 15, 210 44, 218 92 C 226 142, 200 182, 118 182 C 36 182, 10 142, 18 92 C 26 42, 58 14, 106 13 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

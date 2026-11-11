@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 136" width="104" height="136">
+  <!-- Cheerful upward-wagging puppy tail with deep left overlap base -->
+  <path d="M 4 96 C 28 92, 52 72, 60 36 C 64 14, 84 8, 92 26 C 100 46, 88 86, 60 110 C 42 124, 20 126, 4 120 Z" fill="#E8AA6B"/>
+  <!-- Underside shadow -->
+  <path d="M 4 120 C 20 126, 42 124, 60 110 C 84 90, 96 58, 94 34 C 86 62, 72 88, 52 102 C 36 114, 18 114, 4 110 Z" fill="#C9894B"/>
+  <!-- Cream tail tip -->
+  <path d="M 56 48 C 59 32, 60 22, 68 16 C 76 10, 86 14, 92 26 C 95 34, 94 44, 91 54 C 80 46, 68 44, 56 48 Z" fill="#FFF2DE"/>
+  <!-- Highlight -->
+  <path d="M 38 78 C 48 68, 54 56, 56 44 C 50 58, 42 70, 30 78 Z" fill="#F7C48E"/>
+  <!-- Outline -->
+  <path d="M 4 96 C 28 92, 52 72, 60 36 C 64 14, 84 8, 92 26 C 100 46, 88 86, 60 110 C 42 124, 20 126, 4 120 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

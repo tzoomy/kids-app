@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="88" height="88">
+  <!-- Round golden lion right ear with deep tucked base -->
+  <path d="M 54 80 C 76 66, 82 38, 68 20 C 54 4, 26 8, 14 26 C 4 40, 8 64, 20 82 Z" fill="#FFBF47"/>
+  <!-- Outer ear shadow -->
+  <path d="M 54 80 C 70 68, 76 48, 72 32 C 70 50, 58 66, 38 76 Z" fill="#E29E26"/>
+  <!-- Outer ear highlight -->
+  <path d="M 62 22 C 50 12, 32 14, 22 24 C 34 18, 50 18, 62 22 Z" fill="#FFD87A"/>
+  <!-- Cream inner ear -->
+  <ellipse cx="42" cy="44" rx="18" ry="18" fill="#FFF2D6"/>
+  <path d="M 56 36 C 52 26, 36 24, 28 32 C 36 28, 50 30, 56 36 Z" fill="#E29E26"/>
+  <!-- Outline -->
+  <path d="M 54 80 C 76 66, 82 38, 68 20 C 54 4, 26 8, 14 26 C 4 40, 8 64, 20 82 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

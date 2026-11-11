@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 156" width="116" height="156">
+  <!-- Golden curving lion tail stalk with deep tucked left base -->
+  <path d="M 4 118 C 28 116, 54 102, 66 72 C 72 56, 74 44, 86 42 C 92 52, 86 78, 72 102 C 56 128, 30 140, 4 138 Z" fill="#FFBF47"/>
+  <!-- Stalk underside shadow -->
+  <path d="M 4 138 C 30 140, 56 128, 72 102 C 82 84, 88 64, 88 50 C 80 72, 68 94, 52 112 C 36 126, 18 130, 4 130 Z" fill="#E29E26"/>
+  <!-- Stalk Outline -->
+  <path d="M 4 118 C 28 116, 54 102, 66 72 C 72 56, 74 44, 86 42 C 92 52, 86 78, 72 102 C 56 128, 30 140, 4 138 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Fluffy Tufted Lion Tail Tip -->
+  <path d="M 64 56 C 54 42, 60 20, 78 12 C 92 6, 104 10, 108 18 C 112 28, 106 48, 92 58 C 80 66, 70 64, 64 56 Z" fill="#D4622A"/>
+  <!-- Tuft shadow -->
+  <path d="M 66 54 C 72 64, 82 64, 92 58 C 104 50, 110 34, 108 22 C 102 38, 92 48, 80 52 C 74 54, 69 54, 66 54 Z" fill="#B04816"/>
+  <!-- Tuft highlight -->
+  <path d="M 66 36 C 68 24, 78 16, 92 14 C 82 18, 72 26, 66 36 Z" fill="#EB8149"/>
+  <!-- Tuft Outline -->
+  <path d="M 64 56 C 54 42, 60 20, 78 12 C 92 6, 104 10, 108 18 C 112 28, 106 48, 92 58 C 80 66, 70 64, 64 56 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
