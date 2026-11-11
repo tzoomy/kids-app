@@ -1,25 +1,81 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
-import { drawAnimal, drawFoodIcon, ANIMAL_KINDS, paintRestaurantKitchen } from '../../assets/vectorArt';
-import { PALETTE } from '../../assets/colors';
-import { buildRound, isCorrectChoice, pickLanguage, type ChoiceOption, type RoundSpec } from '../templates/choiceServe';
+import { ANIMAL_KINDS } from '../../assets/vectorArt';
+import { buildRound, isCorrectChoice, pickLanguage, type RoundSpec } from '../templates/choiceServe';
 import type { LearningSession } from '../../core/leisure';
 import type { AgeTrackConfig } from '../../content/schema';
+import { Character } from '../../anim/Character';
+import { Juice, fxTextureKey } from '../../anim/juice';
+import { ANIM_PROFILE } from '../../anim/profiles';
+import { isReducedMotion } from '../../anim/motion';
+import { transitionTo } from '../../anim/transitions';
+import { flyArc, hintPulse, invitePulse, popIn, popOut, pressSquash, wait, wobble } from '../../anim/tweens';
+import { computeRestaurantLayout, type RestaurantLayout } from './restaurantLayout';
+import { heLine, heVariant } from '../../content/voiceLines';
+import type { SpeechRequest } from '../../core/audio/types';
+import { crossedWholeMinute, shouldPraise, shouldSayRetry } from './voiceRules';
+import { DEPTH, addCounterFront, buildPlate, detachFood, paintBackground, type PlateView } from './restaurantArt';
+
+export interface RoundInfo {
+  correctIndex: number;
+  choiceCount: number;
+  choiceCenters: Array<{ x: number; y: number }>;
+  /** Tap point on the animal (repeats the food request). */
+  animalCenter: { x: number; y: number };
+  /** Animal tap zone in game coordinates. */
+  animalHit: { left: number; top: number; right: number; bottom: number };
+  language: string;
+  promptText: string;
+  tries: number;
+  correctCount: number;
+  /** Animal state machine state ('enter', 'idle', 'talking', ...). */
+  characterState: string;
+  /** True once the animal has finished hopping in and every plate has popped in. */
+  ready: boolean;
+}
 
 interface ActiveRound extends RoundSpec {
   done: boolean;
   tries: number;
 }
 
+/** Plate taps are ignored this long after a wrong tap, so a double tap counts as one try. */
+const WRONG_TAP_LOCK_MS = 400;
+/** Pause after a wrong tap so the gentle "hmm" reads before the hint/retry speech. */
+const HINT_AFTER_HMM_MS = 450;
+/** Never wait longer than this for the thanks line before the next animal. */
+const THANKS_MAX_WAIT_MS = 2600;
+/** When a praise line follows, give the thanks line this long to finish so they never overlap. */
+const THANKS_BEFORE_PRAISE_MAX_MS = 5000;
+/** Cap for the short Hebrew follow-up lines (praise, leisure.earned) before the animal leaves. */
+const NARRATOR_MAX_WAIT_MS = 3500;
+
 export class RestaurantScene extends Phaser.Scene {
   private context!: AppContext;
   private session!: LearningSession;
   private ageConfig!: AgeTrackConfig;
+  private layout!: RestaurantLayout;
   private round: ActiveRound | null = null;
-  private animalContainer?: Phaser.GameObjects.Container;
-  private choiceContainers: Phaser.GameObjects.Container[] = [];
+  private character?: Character;
+  private animalHit?: Phaser.GameObjects.Zone;
+  private plates: PlateView[] = [];
   private hintTimer?: Phaser.Time.TimerEvent;
+  /** The single pending retry/hint after a wrong tap; only the last wrong tap speaks. */
+  private retryTimer?: Phaser.Time.TimerEvent;
+  private inputLockedUntil = 0;
   private visibilityHandler?: () => void;
+  /** Incremented per round and on shutdown; async flows bail when it changes. */
+  private roundToken = 0;
+  private lastKind = '';
+  private helpOpen = false;
+  /** True while the Hebrew intro line plays, so the auto-hint does not cut it off. */
+  private introPlaying = false;
+  private introPending = true;
+  private correctCount = 0;
+  private lastBalanceSec = 0;
+  private earnedPending = false;
+  /** Bumped by every new voice flow; an older multi-line flow bails when it sees a newer one. */
+  private speakSeq = 0;
 
   constructor() {
     super('RestaurantScene');
@@ -31,11 +87,27 @@ export class RestaurantScene extends Phaser.Scene {
       .getState()
       .profiles.find((p) => p.id === this.context.requireProfileId());
     this.ageConfig = this.context.content.restaurant.ageTracks[profile?.ageTrack ?? 'age5'];
+    this.round = null;
+    this.character = undefined;
+    this.plates = [];
+    this.helpOpen = false;
+    this.introPlaying = false;
+    this.introPending = true;
+    this.correctCount = 0;
+    this.earnedPending = false;
+    this.speakSeq = 0;
+    this.inputLockedUntil = 0;
+    this.retryTimer = undefined;
+    this.hintTimer = undefined;
 
     this.session = this.context.createLearningSession();
     this.session.start();
 
-    this.visibilityHandler = () => this.session.setHidden(document.hidden);
+    this.visibilityHandler = () => {
+      this.session.setHidden(document.hidden);
+      // Phaser's clock pauses while hidden; do not leave the narrator talking to a locked screen.
+      if (document.hidden) this.context.audio.stopAll();
+    };
     document.addEventListener('visibilitychange', this.visibilityHandler);
 
     this.time.addEvent({
@@ -44,21 +116,30 @@ export class RestaurantScene extends Phaser.Scene {
       callback: () => {
         this.session.tick(1);
         this.context.store.persist();
-        this.refreshChrome();
+        this.updateHud();
       },
     });
 
-    paintRestaurantKitchen(this);
+    this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.ageConfig.choiceCount);
+    paintBackground(this, this.layout);
+    addCounterFront(this, this.layout);
+    this.createAnimalHitArea();
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 
-    this.refreshChrome();
+    this.buildHud();
+    this.lastBalanceSec = this.profileState().balanceSec;
     this.startRound();
 
     window.__GAME_READY__ = true;
   }
 
   private cleanup(): void {
+    this.roundToken++;
+    this.round = null;
+    this.character?.destroy();
+    this.character = undefined;
+    this.plates = [];
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.context.audio.stopAll();
     this.session.reportListening(false);
@@ -70,7 +151,8 @@ export class RestaurantScene extends Phaser.Scene {
     return this.context.store.getProfileState(this.context.requireProfileId(), new Date(this.context.nowMs()));
   }
 
-  private refreshChrome(): void {
+  /** Builds the top bar once; afterwards it is only updated in place. */
+  private buildHud(): void {
     const state = this.profileState();
     const settings = this.context.store.getState().settings;
     this.context.shell.setRestaurantChrome({
@@ -83,25 +165,79 @@ export class RestaurantScene extends Phaser.Scene {
     });
   }
 
+  /** Per-second refresh of balance/progress. Stars update only when the flying star lands. */
+  private updateHud(): void {
+    const state = this.profileState();
+    const settings = this.context.store.getState().settings;
+    this.context.shell.updateRestaurantChrome({
+      balanceSec: state.balanceSec,
+      earnedTodaySec: state.earnedTodaySec,
+      dailyCapSec: settings.dailyEarnCapMinutes * 60,
+    });
+    if (crossedWholeMinute(this.lastBalanceSec, state.balanceSec)) this.earnedPending = true;
+    this.lastBalanceSec = state.balanceSec;
+  }
+
   private goBack(): void {
     this.context.audio.stopAll();
     this.context.store.persist();
     this.context.shell.clearPromptBubble();
-    this.scene.start('MapScene');
+    transitionTo(this, 'MapScene', { style: 'iris' });
   }
 
   private showHelp(): void {
     this.session.reportInteraction();
-    this.context.shell.showHelp(this.context.content.restaurant.helpTextHe, () => this.session.reportInteraction());
+    this.helpOpen = true;
+    // The help line replaces whatever is playing; older flows see the new seq and stop.
+    const seq = ++this.speakSeq;
+    this.introPlaying = false;
+    this.session.reportListening(true);
+    void this.context.audio.play(heLine('restaurant.help')).finally(() => {
+      if (seq === this.speakSeq) this.session.reportListening(false);
+    });
+    this.context.shell.showHelp(this.context.content.restaurant.helpTextHe, () => {
+      this.helpOpen = false;
+      this.session.reportInteraction();
+      // Closing the card cuts the help line and repeats the food request.
+      if (this.round && !this.round.done) void this.speakPrompt();
+    });
+  }
+
+  /** Tapping the animal repeats the request. Static zone over the visible animal. */
+  private createAnimalHitArea(): void {
+    const h = this.layout.animal.hit;
+    this.animalHit = this.add
+      .zone((h.left + h.right) / 2, (h.top + h.bottom) / 2, h.right - h.left, h.bottom - h.top)
+      .setDepth(DEPTH.animalHit)
+      .setInteractive({ useHandCursor: true });
+    this.animalHit.on('pointerdown', () => {
+      if (!this.round || this.round.done) return;
+      // Ignore taps while the animal is still hopping in; the intro/request starts by itself.
+      if (this.character?.state === 'enter') return;
+      this.session.reportInteraction();
+      this.character?.poke();
+      void this.speakPrompt();
+    });
+  }
+
+  private pickKind(): string {
+    const options = ANIMAL_KINDS.filter((k) => k !== this.lastKind);
+    const kind = options[Math.floor(Math.random() * options.length)] ?? ANIMAL_KINDS[0];
+    this.lastKind = kind;
+    return kind;
   }
 
   private startRound(): void {
+    const token = ++this.roundToken;
     this.session.reportListening(false);
     this.session.reportCelebrating(false);
-    this.choiceContainers.forEach((c) => c.destroy());
-    this.choiceContainers = [];
-    this.animalContainer?.destroy();
+    this.plates.forEach((p) => p.root.destroy());
+    this.plates = [];
+    this.character?.destroy();
     this.hintTimer?.remove();
+    this.retryTimer?.remove();
+    this.retryTimer = undefined;
+    this.inputLockedUntil = 0;
 
     const content = this.context.content.restaurant;
     const settings = this.context.store.getState().settings;
@@ -109,145 +245,270 @@ export class RestaurantScene extends Phaser.Scene {
     const spec = buildRound(content.items, this.ageConfig, language);
     this.round = { ...spec, done: false, tries: 0 };
 
-    const animalKind = ANIMAL_KINDS[Math.floor(Math.random() * ANIMAL_KINDS.length)];
-    this.animalContainer = drawAnimal(this, animalKind, 260);
-    const landscape = this.scale.width >= this.scale.height;
-    this.animalContainer.setPosition(this.scale.width / 2, this.scale.height * (landscape ? 0.48 : 0.36));
-    this.animalContainer.setInteractive({ useHandCursor: true });
-    this.animalContainer.on('pointerdown', () => this.speakPrompt());
-    this.tweens.add({
-      targets: this.animalContainer,
-      y: this.animalContainer.y - 14,
-      angle: -3,
-      duration: 900,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
+    const a = this.layout.animal;
+    const character = new Character(this, {
+      kind: this.pickKind(),
+      x: a.x,
+      y: a.feetY,
+      displayHeight: a.displayHeight,
+      depth: DEPTH.animal,
+    });
+    this.character = character;
+    void character.enter(a.enterFromX).then(() => {
+      if (token !== this.roundToken || !this.round || this.round.done) return;
+      // The intro plays once per visit, before the very first food request.
+      const intro = this.introPending ? heLine('restaurant.intro') : undefined;
+      this.introPending = false;
+      void this.speakPrompt(intro);
     });
 
-    const n = spec.choices.length;
-    const spacing = Math.min(260, (this.scale.width - 80) / n);
-    const startX = this.scale.width / 2 - ((n - 1) * spacing) / 2;
-    const y = this.scale.height * 0.64;
+    const { xs, y, spacing, hits } = this.layout.plates;
     spec.choices.forEach((choice, i) => {
-      const container = this.buildChoiceContainer(choice);
-      container.setPosition(startX + i * spacing, y);
-      container.setInteractive({ useHandCursor: true });
-      container.on('pointerdown', () => this.choose(container, choice));
-      this.choiceContainers.push(container);
+      const view = buildPlate(this, choice, spacing, hits[i], xs[i], y);
+      if (view.root.input) view.root.input.cursor = 'pointer';
+      view.root.on('pointerdown', () => this.choose(view));
+      const delay = 120 + i * ANIM_PROFILE.popIn.stagger;
+      void popIn(this, view.body, delay).then(() => {
+        if (token === this.roundToken && view.body.scene) view.invite = invitePulse(this, view.body, i * 180);
+      });
+      this.plates.push(view);
     });
 
     this.context.shell.setPromptBubble(spec.promptText, () => this.speakPrompt());
-    this.time.delayedCall(300, () => this.speakPrompt());
 
     if (this.ageConfig.hintMode === 'demonstrate') {
       this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint());
     }
   }
 
-  private buildChoiceContainer(choice: ChoiceOption): Phaser.GameObjects.Container {
-    const iconSize = 108;
-    const gap = 16;
-    const totalWidth = choice.count * iconSize + (choice.count - 1) * gap;
-    const group = this.add.container(0, 0);
-    const plateW = Math.max(iconSize * 1.5, totalWidth + 36);
-    const plate = this.add.ellipse(0, iconSize * 0.42, plateW, iconSize * 0.62, 0xf7f1e1);
-    plate.setStrokeStyle(4, 0x33302a);
-    group.add(plate);
-    for (let i = 0; i < choice.count; i++) {
-      const icon = drawFoodIcon(this, choice.item.shape, choice.item.color, iconSize);
-      icon.setPosition(-totalWidth / 2 + iconSize / 2 + i * (iconSize + gap), 0);
-      group.add(icon);
-    }
-    group.setSize(Math.max(128, plateW + 16), 200);
-    return group;
-  }
-
-  private async speakPrompt(): Promise<void> {
-    if (!this.round) return;
+  /**
+   * Speaks the food request, optionally preceded by one Hebrew narrator line. Narrator lines
+   * are awaited (never overlapped) and do not animate the animal; only the food request does.
+   * A newer call (tap on the animal, hint, help) supersedes an older one.
+   */
+  private async speakPrompt(before?: SpeechRequest): Promise<void> {
+    // While the help card is open only the help line may talk; closing it repeats the request.
+    if (!this.round || this.helpOpen) return;
+    const seq = ++this.speakSeq;
+    const round = this.round;
     this.session.reportListening(true);
-    const lineId = `food.${this.round.target.item.id}.${this.round.target.count}.${this.round.language}`;
-    try {
-      await this.context.audio.play({ lineId, lang: this.round.language, text: this.round.promptText });
-    } finally {
-      this.session.reportListening(false);
-    }
-  }
-
-  private giveHint(): void {
-    if (!this.round || this.round.done) return;
-    const target = this.round.target;
-    const container = this.choiceContainers.find((_, i) => isCorrectChoice(this.round!.choices[i], target));
-    if (container) {
-      this.tweens.add({ targets: container, scale: 1.12, duration: 300, yoyo: true, repeat: 2 });
-    }
-    this.context.sfx.hint();
-    void this.speakPrompt();
-  }
-
-  private choose(container: Phaser.GameObjects.Container, choice: ChoiceOption): void {
-    if (!this.round || this.round.done) return;
-    this.session.reportInteraction();
-
-    if (isCorrectChoice(choice, this.round.target)) {
-      this.round.done = true;
-      this.hintTimer?.remove();
-      this.onCorrect(container);
-    } else {
-      this.round.tries++;
-      this.tweens.add({ targets: container, x: container.x - 10, duration: 60, yoyo: true, repeat: 3 });
-      if (this.ageConfig.hintMode === 'demonstrate') {
-        this.context.sfx.tap();
-        this.giveHint();
-      } else {
-        this.context.sfx.hint();
-        if (this.round.tries >= 2) this.giveHint();
-        else void this.speakPrompt();
+    if (before) {
+      this.introPlaying = before.lineId === 'he.restaurant.intro';
+      try {
+        await this.context.audio.play(before);
+      } finally {
+        if (seq === this.speakSeq) this.introPlaying = false;
+      }
+      if (seq !== this.speakSeq || round.done || this.round !== round) {
+        if (seq === this.speakSeq) this.session.reportListening(false);
+        return;
       }
     }
+    const lineId = `food.${this.round.target.item.id}.${this.round.target.count}.${this.round.language}`;
+    const speech = this.context.audio.play({ lineId, lang: this.round.language, text: this.round.promptText });
+    void this.character?.talk(speech);
+    try {
+      await speech;
+    } finally {
+      // A newer voice flow owns the flag now; clearing it here would mark the child as idle.
+      if (seq === this.speakSeq) this.session.reportListening(false);
+    }
   }
 
-  private onCorrect(container: Phaser.GameObjects.Container): void {
+  /** Test hook data: where the plates are (game coordinates) and which one is correct. */
+  getRoundInfo(): RoundInfo | null {
+    if (!this.round || this.round.done) return null;
+    const round = this.round;
+    const hit = this.layout.animal.hit;
+    const characterState = this.character?.state ?? 'none';
+    return {
+      correctIndex: this.plates.findIndex((p) => isCorrectChoice(p.choice, round.target)),
+      choiceCount: this.plates.length,
+      choiceCenters: this.plates.map((p) => ({ x: p.root.x, y: p.root.y })),
+      animalHit: hit,
+      animalCenter: { x: (hit.left + hit.right) / 2, y: (hit.top + hit.bottom) / 2 },
+      language: round.language,
+      promptText: round.promptText,
+      tries: round.tries,
+      correctCount: this.correctCount,
+      characterState,
+      ready: characterState !== 'enter' && this.plates.every((p) => Math.abs(p.body.scaleX - 1) < 0.1 && p.body.scaleX > 0.9),
+    };
+  }
+
+  private correctPlate(): PlateView | undefined {
+    const round = this.round;
+    if (!round) return undefined;
+    return this.plates.find((p) => isCorrectChoice(p.choice, round.target));
+  }
+
+  private giveHint(before?: SpeechRequest): void {
+    if (!this.round || this.round.done) return;
+    // Do not talk over the intro or the help line; look again a bit later.
+    if (this.introPlaying || this.helpOpen) {
+      this.hintTimer?.remove();
+      this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint(before));
+      return;
+    }
+    const view = this.correctPlate();
+    if (view) {
+      void hintPulse(this, view.root);
+      Juice.for(this).burst('sparkle', view.root.x, view.root.y);
+    }
+    this.context.sfx.hint();
+    void this.speakPrompt(before);
+  }
+
+  private choose(view: PlateView): void {
+    if (!this.round || this.round.done) return;
+    if (this.time.now < this.inputLockedUntil) return;
+    this.session.reportInteraction();
+    void pressSquash(this, view.root);
+
+    if (isCorrectChoice(view.choice, this.round.target)) {
+      this.round.done = true;
+      this.hintTimer?.remove();
+      this.retryTimer?.remove();
+      void this.onCorrect(view);
+      return;
+    }
+
+    this.round.tries++;
+    this.inputLockedUntil = this.time.now + WRONG_TAP_LOCK_MS;
+    void wobble(this, view.body);
+    void this.character?.hmm();
+    const token = this.roundToken;
+    const retry = shouldSayRetry(this.round.tries) ? heVariant('retry') : undefined;
+    const later = (fn: () => void) => {
+      this.retryTimer?.remove();
+      this.retryTimer = this.time.delayedCall(HINT_AFTER_HMM_MS, () => {
+        if (token === this.roundToken && this.round && !this.round.done) fn();
+      });
+    };
+    if (this.ageConfig.hintMode === 'demonstrate') {
+      this.context.sfx.tap();
+      later(() => this.giveHint(retry));
+    } else {
+      this.context.sfx.hint();
+      if (this.round.tries >= 2) later(() => this.giveHint());
+      else later(() => void this.speakPrompt(retry));
+    }
+  }
+
+  private async onCorrect(view: PlateView): Promise<void> {
+    const token = this.roundToken;
+    const alive = () => token === this.roundToken;
+    const character = this.character;
+    const round = this.round!;
+    const juice = Juice.for(this);
+
     this.context.sfx.yay();
+    this.speakSeq++;
+    this.introPlaying = false;
+    this.correctCount++;
+    this.context.audio.stopAll();
+    this.context.shell.clearPromptBubble();
     this.session.complete();
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();
-    this.refreshChrome();
 
-    this.tweens.add({ targets: container, scale: 1.15, duration: 200, yoyo: true });
-    this.burst(container.x, container.y);
-
-    const content = this.context.content.restaurant;
-    const lang = this.round!.language;
-    const lines = content.thanks[lang];
-    const thanksIndex = Math.floor(Math.random() * lines.length);
-    const line = lines[thanksIndex];
-    this.time.delayedCall(250, () => {
-      void this.context.audio.play({ lineId: `thanks.${lang}.${thanksIndex}`, lang, text: line });
+    view.invite?.stop();
+    view.invite = undefined;
+    juice.burst('sparkle', view.root.x, view.root.y);
+    this.plates.forEach((p, i) => {
+      if (p === view) return;
+      p.invite?.stop();
+      p.root.disableInteractive();
+      void popOut(this, p.root, 80 + i * 60);
     });
 
-    this.time.delayedCall(2200, () => {
-      this.session.reportCelebrating(false);
-      this.startRound();
+    // Food flies on an arc into the animal's mouth, one piece after another.
+    const mouth = character ? character.mouthPoint() : new Phaser.Math.Vector2(this.layout.animal.x, this.layout.animal.hitTop);
+    const flights = view.foods.map((food, i) => {
+      detachFood(this, food);
+      return flyArc(this, food, mouth.x, mouth.y, { delay: 120 + i * ANIM_PROFILE.flyArc.stagger, spin: 25 }).then(() => {
+        if (food.scene) food.destroy();
+      });
+    });
+    void popOut(this, view.root, 200);
+    await Promise.all(flights);
+    if (!alive()) return;
+
+    if (character) await character.munch();
+    if (!alive()) return;
+
+    // Celebration: stars + confetti, happy bounce with hearts, star flies to the counter.
+    const head = character ? character.headPoint() : mouth;
+    juice.burst('star', head.x, head.y);
+    juice.burst('confetti', this.layout.animal.x, head.y - 40);
+    this.flyStarToCounter(head.x, head.y);
+
+    const lang = round.language;
+    const lines = this.context.content.restaurant.thanks[lang];
+    const thanksIndex = Math.floor(Math.random() * lines.length);
+    const thanks = this.context.audio.play({ lineId: `thanks.${lang}.${thanksIndex}`, lang, text: lines[thanksIndex] });
+    if (character) {
+      await character.happy();
+      if (!alive()) return;
+      await Promise.race([character.talk(thanks), wait(this, THANKS_MAX_WAIT_MS)]);
+    } else {
+      await Promise.race([thanks, wait(this, THANKS_MAX_WAIT_MS)]);
+    }
+    if (!alive()) return;
+    await this.afterThanks(thanks, alive);
+    if (!alive()) return;
+
+    this.session.reportCelebrating(false);
+    if (character) await character.exit(this.layout.animal.exitToX);
+    if (!alive()) return;
+    this.startRound();
+  }
+
+  /**
+   * Optional Hebrew follow-ups after the thanks line: a praise variant on every 3rd correct
+   * answer, otherwise (at this calm moment) the leisure-earned line if a minute was gained.
+   * Each line is awaited so nothing overlaps; the animal does not "talk" for them.
+   */
+  private async afterThanks(thanks: Promise<unknown>, alive: () => boolean): Promise<void> {
+    const praise = shouldPraise(this.correctCount);
+    if ((!praise && !this.earnedPending) || this.helpOpen) return;
+    // Let the thanks line finish first (bounded), so the follow-up never cuts it off.
+    await Promise.race([thanks, wait(this, THANKS_BEFORE_PRAISE_MAX_MS)]);
+    if (!alive() || this.helpOpen) return;
+    const line = praise ? heVariant('praise') : heLine('leisure.earned');
+    if (!praise) this.earnedPending = false;
+    await Promise.race([this.context.audio.play(line), wait(this, NARRATOR_MAX_WAIT_MS)]);
+  }
+
+  /** A star flies from the animal to the HUD star pill, which then bumps. */
+  private flyStarToCounter(fromX: number, fromY: number): void {
+    const target = this.starPillGamePoint();
+    const finish = () => {
+      if (!this.sys.isActive()) return;
+      this.context.shell.updateRestaurantChrome({ starCount: this.profileState().stars });
+      this.context.shell.bumpStarPill(isReducedMotion() ? 1.08 : 1.35);
+    };
+    if (!target) {
+      finish();
+      return;
+    }
+    const star = this.add.image(fromX, fromY, fxTextureKey(this, 'star')).setDepth(DEPTH.flyingFood + 1).setScale(0.9);
+    void flyArc(this, star, target.x, target.y, { duration: 650, height: 120, endScale: 0.55, spin: 180 }).then(() => {
+      if (star.scene) star.destroy();
+      finish();
     });
   }
 
-  private burst(x: number, y: number): void {
-    const colors = [PALETTE.yellow, PALETTE.pink, PALETTE.blue];
-    for (let i = 0; i < 8; i++) {
-      const dot = this.add.circle(x, y, 8, colors[i % colors.length]);
-      const angle = (i / 8) * Math.PI * 2;
-      this.tweens.add({
-        targets: dot,
-        x: x + Math.cos(angle) * 140,
-        y: y + Math.sin(angle) * 140,
-        alpha: 0,
-        scale: 0.3,
-        duration: 700,
-        ease: 'Cubic.easeOut',
-        onComplete: () => dot.destroy(),
-      });
-    }
+  private starPillGamePoint(): { x: number; y: number } | undefined {
+    const r = this.context.shell.starPillRect();
+    const canvas = this.game.canvas;
+    if (!r || !canvas) return undefined;
+    const c = canvas.getBoundingClientRect();
+    if (c.width === 0 || c.height === 0) return undefined;
+    return {
+      x: ((r.left + r.width / 2 - c.left) / c.width) * this.scale.width,
+      y: ((r.top + r.height / 2 - c.top) / c.height) * this.scale.height,
+    };
   }
 }

@@ -2,6 +2,12 @@ import Phaser from 'phaser';
 import type { AppContext } from '../game/appContext';
 import { drawWorldBuilding, paintMapBackdrop } from '../assets/vectorArt';
 import type { MapPin } from '../ui/hud';
+import { heLine } from '../content/voiceLines';
+import { transitionTo } from '../anim/transitions';
+import { popIn, floatIdle, pressSquash } from '../anim/tweens';
+
+/** Module scope = once per page load / app session. */
+let mapGuidancePlayed = false;
 
 export class MapScene extends Phaser.Scene {
   constructor() {
@@ -24,6 +30,8 @@ export class MapScene extends Phaser.Scene {
     const startY = cy - ((rows - 1) * spacingY) / 2 + (portrait ? this.scale.height * 0.04 : 0);
 
     const pins: MapPin[] = [];
+    // Set once the child has tapped anything, so the "where to go" line never talks over a tap.
+    let touched = false;
 
     worlds.forEach((world, i) => {
       const col = i % cols;
@@ -35,33 +43,33 @@ export class MapScene extends Phaser.Scene {
       building.setPosition(x, y);
       building.setAlpha(locked ? 0.72 : 1);
 
-      this.tweens.add({
-        targets: building,
-        y: y - 8,
-        duration: 1800 + i * 140,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut',
+      // Staggered pop-in, then a gentle idle float.
+      void popIn(this, building, 80 + i * 70).then(() => {
+        if (building.scene) floatIdle(this, building, 8, 1800 + i * 140);
       });
 
       building.setInteractive({ useHandCursor: true });
       building.on('pointerdown', () => {
         context.sfx.tap();
+        touched = true;
+        context.audio.stopAll();
+        void pressSquash(this, building);
         if (world.status === 'locked') {
           context.shell.showToast(`${context.content.he.worldMap.comingSoon} 🌱`);
+          void context.audio.play(heLine('map.comingSoon'));
           return;
         }
         if (world.status === 'leisure') {
           const profileState = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
           if (profileState.balanceSec > 0) {
-            this.scene.start('BubblesScene');
+            transitionTo(this, 'BubblesScene', { style: 'iris', originX: x, originY: y });
           } else {
             context.shell.showToast(`⏳ 0:00`);
           }
           return;
         }
         if (world.entryGameId === 'animal-restaurant') {
-          this.scene.start('RestaurantScene');
+          transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
         }
       });
 
@@ -103,6 +111,16 @@ export class MapScene extends Phaser.Scene {
       this.scale.off('resize', paintChrome);
       window.removeEventListener('resize', paintChrome);
     });
+
+    // One gentle "where shall we go" line per app session (not every visit), after a short pause.
+    if (!mapGuidancePlayed) {
+      this.time.delayedCall(1200, () => {
+        if (touched) return;
+        mapGuidancePlayed = true;
+        void context.audio.play(heLine('map.choose'));
+      });
+    }
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => context.audio.stopAll());
 
     window.__GAME_READY__ = true;
   }

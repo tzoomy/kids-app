@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main Crumb -->
+    <path d="M26 14 C38 12 48 20 46 32 C44 44 32 48 20 44 C10 40 12 16 26 14 Z" fill="#D99B56"/>
+    <path d="M45 26 C46 28 46 30 46 32 C44 44 32 48 20 44 C15 42 13 36 13 31 C22 39 36 38 45 26 Z" fill="#B87835"/>
+    <ellipse cx="24" cy="22" rx="5" ry="3" transform="rotate(-20 24 22)" fill="#F0B97A"/>
+    <path d="M26 14 C38 12 48 20 46 32 C44 44 32 48 20 44 C10 40 12 16 26 14 Z" fill="none" stroke="#3B2A22" stroke-width="4"/>
+    <!-- Companion Tiny Crumb -->
+    <circle cx="48" cy="48" r="6" fill="#D99B56" stroke="#3B2A22" stroke-width="3.5"/>
+  </g>
+</svg>

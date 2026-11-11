@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 168" width="116" height="168">
+  <!-- Thick cheerful S-curved tabby tail with deep tucked left base -->
+  <path d="M 4 128 C 28 124, 54 106, 62 74 C 68 48, 56 20, 78 12 C 98 6, 110 26, 102 52 C 92 86, 86 122, 58 144 C 40 158, 18 158, 4 152 Z" fill="#FFA647"/>
+  <!-- Underside shadow -->
+  <path d="M 4 152 C 18 158, 40 158, 58 144 C 86 122, 92 86, 102 52 C 94 74, 80 112, 52 134 C 34 146, 16 146, 4 142 Z" fill="#E58426"/>
+  <!-- Cream tail tip -->
+  <path d="M 62 46 C 63 26, 60 16, 78 12 C 98 6, 110 26, 102 52 C 90 42, 76 42, 62 46 Z" fill="#FFF4E4"/>
+  <!-- Tabby tail stripes -->
+  <path d="M 60 72 C 74 70, 86 76, 94 84 C 92 92, 90 96, 88 100 C 78 90, 68 84, 56 84 Z" fill="#C96815"/>
+  <path d="M 46 102 C 60 104, 72 112, 78 122 C 74 128, 70 132, 66 136 C 58 124, 48 116, 36 112 Z" fill="#C96815"/>
+  <!-- Outline -->
+  <path d="M 4 128 C 28 124, 54 106, 62 74 C 68 48, 56 20, 78 12 C 98 6, 110 26, 102 52 C 92 86, 86 122, 58 144 C 40 158, 18 158, 4 152 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

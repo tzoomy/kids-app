@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 196" width="236" height="196">
+  <!-- Main plump bear head silhouette -->
+  <path d="M 118 12 C 62 12, 26 42, 18 92 C 10 142, 36 184, 118 184 C 200 184, 226 142, 218 92 C 210 42, 174 12, 118 12 Z" fill="#C87D4B"/>
+
+  <!-- Soft lower cheek & chin shadow -->
+  <path d="M 18 112 C 18 156, 48 184, 118 184 C 188 184, 218 156, 218 112 C 206 150, 174 170, 118 170 C 62 170, 30 150, 18 112 Z" fill="#A96032"/>
+
+  <!-- Smooth crown highlight crescent -->
+  <path d="M 52 44 C 72 22, 128 18, 166 28 C 128 24, 78 30, 52 44 Z" fill="#E09A6C"/>
+
+  <!-- Rosy Blush Cheeks -->
+  <ellipse cx="44" cy="126" rx="20" ry="13" transform="rotate(6 44 126)" fill="#FF8FA3"/>
+  <ellipse cx="40" cy="123" rx="8" ry="4" transform="rotate(6 40 123)" fill="#FFC2CE"/>
+  <ellipse cx="192" cy="126" rx="20" ry="13" transform="rotate(-6 192 126)" fill="#FF8FA3"/>
+  <ellipse cx="188" cy="123" rx="8" ry="4" transform="rotate(-6 188 123)" fill="#FFC2CE"/>
+
+  <!-- Warm Cream Muzzle (soft un-outlined edge like rabbit & cat) -->
+  <ellipse cx="118" cy="130" rx="48" ry="36" fill="#FAD9B8"/>
+  <path d="M 72 138 C 78 156, 96 166, 118 166 C 140 166, 158 156, 164 138 C 152 152, 136 158, 118 158 C 100 158, 84 152, 72 138 Z" fill="#E5BF98"/>
+
+  <!-- Cute Rounded Triangle Nose + Bridge Line -->
+  <line x1="118" y1="114" x2="118" y2="126" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 100 99 C 100 92, 136 92, 136 99 C 136 108, 125 117, 118 117 C 111 117, 100 108, 100 99 Z" fill="#3B2A22"/>
+  <ellipse cx="113" cy="98" rx="7" ry="3" fill="#FFFDF9"/>
+
+  <!-- Friendly Eyebrows -->
+  <path d="M 52 58 Q 66 50 80 56" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 184 58 Q 170 50 156 56" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head Outline with little forehead fur tuft -->
+  <path d="M 108 13 C 112 5, 118 5, 121 11 C 125 6, 131 8, 128 13 C 178 15, 210 44, 218 92 C 226 142, 200 184, 118 184 C 36 184, 10 142, 18 92 C 26 42, 60 14, 108 13 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

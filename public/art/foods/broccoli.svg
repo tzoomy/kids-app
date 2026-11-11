@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stalk & Branches -->
+    <g>
+      <path d="M92 132 L72 108 L104 102 L128 128 L152 102 L184 108 L164 132 L158 210 C158 222 146 230 128 230 C110 230 98 222 98 210 Z" fill="#9FD984"/>
+      <!-- Stalk Shadow -->
+      <path d="M132 132 L164 132 L158 210 C158 222 146 230 128 230 C122 230 116 229 112 227 C130 224 136 210 136 186 Z" fill="#7BB862"/>
+      <!-- Stalk Highlight -->
+      <path d="M110 150 L110 204" fill="none" stroke="#CFF27E" stroke-width="8"/>
+      <!-- Stalk Outline -->
+      <path d="M92 132 L72 108 L104 102 L128 128 L152 102 L184 108 L164 132 L158 210 C158 222 146 230 128 230 C110 230 98 222 98 210 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M118 144 L126 164 M140 140 L132 162" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    </g>
+
+    <!-- Fluffy Broccoli Crown -->
+    <g>
+      <!-- Base Puff Shape -->
+      <path d="M68 148 C38 148 24 122 36 96 C28 70 50 44 82 48 C96 26 138 22 158 42 C188 34 218 56 214 86 C232 106 220 146 186 146 C172 158 146 160 128 150 C110 160 82 158 68 148 Z" fill="#57C457"/>
+      <!-- Crown Shadow along bottom bumps -->
+      <path d="M214 86 C232 106 220 146 186 146 C172 158 146 160 128 150 C110 160 82 158 68 148 C48 148 34 136 32 118 C48 134 72 134 86 124 C104 138 136 138 154 124 C174 134 198 124 206 102 C210 96 212 90 214 86 Z" fill="#3CA33C"/>
+      <!-- Soft Inner Floret Texture (green-on-green, zero face pareidolia) -->
+      <path d="M72 106 C84 118 106 118 118 104 C130 118 156 118 168 102" fill="none" stroke="#3CA33C" stroke-width="7"/>
+      <circle cx="96" cy="88" r="5" fill="#3CA33C"/>
+      <circle cx="148" cy="82" r="5.5" fill="#3CA33C"/>
+      <circle cx="174" cy="92" r="4.5" fill="#3CA33C"/>
+      <!-- Crown Highlights -->
+      <path d="M52 84 C54 68 68 58 82 62" fill="none" stroke="#8AE07E" stroke-width="9"/>
+      <path d="M104 50 C116 38 138 38 148 50" fill="none" stroke="#8AE07E" stroke-width="9"/>
+      <path d="M168 56 C180 52 194 60 196 74" fill="none" stroke="#8AE07E" stroke-width="8"/>
+      <circle cx="114" cy="46" r="4" fill="#FFFDF9"/>
+      <circle cx="64" cy="68" r="3.5" fill="#FFFDF9"/>
+      <!-- Crown Outline -->
+      <path d="M68 148 C38 148 24 122 36 96 C28 70 50 44 82 48 C96 26 138 22 158 42 C188 34 218 56 214 86 C232 106 220 146 186 146 C172 158 146 160 128 150 C110 160 82 158 68 148 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cookie Dough Base (soft scalloped round shape) -->
+    <path d="M128 36 C158 34 188 46 204 72 C224 98 226 136 212 168 C198 200 166 222 128 220 C90 222 58 200 44 168 C30 136 32 98 52 72 C68 46 98 34 128 36 Z" fill="#D99B56"/>
+    <!-- Cookie Rim Shadow -->
+    <path d="M204 72 C224 98 226 136 212 168 C198 200 166 222 128 220 C90 222 58 200 44 168 C40 158 37 148 36 138 C52 178 90 202 134 200 C178 198 208 164 210 118 C210 102 208 86 204 72 Z" fill="#B87835"/>
+    <!-- Cookie Highlight -->
+    <path d="M58 106 C64 80 86 60 114 54" fill="none" stroke="#F0B97A" stroke-width="12"/>
+    <circle cx="56" cy="126" r="5" fill="#F0B97A"/>
+
+    <!-- Chocolate Chips -->
+    <g fill="#52321E" stroke="#3B2A22" stroke-width="5">
+      <!-- Top center chip -->
+      <path d="M120 78 C120 66 142 66 142 78 C142 88 120 88 120 78 Z"/>
+      <!-- Left chip -->
+      <path d="M68 126 C68 112 92 112 92 126 C92 136 68 136 68 126 Z"/>
+      <!-- Center big chip -->
+      <path d="M114 132 C114 116 144 116 144 132 C144 146 114 146 114 132 Z"/>
+      <!-- Top right chip -->
+      <path d="M162 106 C162 94 186 94 186 106 C186 118 162 118 162 106 Z"/>
+      <!-- Bottom left chip -->
+      <path d="M84 174 C84 160 110 160 110 174 C110 186 84 186 84 174 Z"/>
+      <!-- Bottom right chip -->
+      <path d="M148 168 C148 154 176 154 176 168 C176 180 148 180 148 168 Z"/>
+    </g>
+    <!-- Chip tiny shine dots -->
+    <circle cx="125" cy="126" r="3" fill="#8C5230"/>
+    <circle cx="76" cy="120" r="2.5" fill="#8C5230"/>
+    <circle cx="158" cy="162" r="3" fill="#8C5230"/>
+
+    <!-- Baked Crumb Texture Lines -->
+    <path d="M104 98 C108 102 114 102 118 98" fill="none" stroke="#B87835" stroke-width="4"/>
+    <path d="M146 148 C150 152 156 152 160 148" fill="none" stroke="#B87835" stroke-width="4"/>
+
+    <!-- Cookie Outer Outline -->
+    <path d="M128 36 C158 34 188 46 204 72 C224 98 226 136 212 168 C198 200 166 222 128 220 C90 222 58 200 44 168 C30 136 32 98 52 72 C68 46 98 34 128 36 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

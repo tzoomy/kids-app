@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 108" width="96" height="108">
+  <!-- Perky rounded-triangle right cat ear with wide, deep tucked base -->
+  <path d="M 74 104 C 84 76, 88 38, 80 14 C 76 4, 62 6, 48 16 C 28 30, 10 60, 8 102 Z" fill="#FFA647"/>
+  <!-- Outer ear shadow -->
+  <path d="M 74 104 C 82 78, 84 46, 80 20 C 76 48, 66 76, 50 98 Z" fill="#E58426"/>
+  <!-- Outer ear highlight -->
+  <path d="M 72 12 C 60 12, 42 24, 28 44 C 44 28, 60 18, 72 12 Z" fill="#FFC278"/>
+  <!-- Sweet pink inner ear triangle -->
+  <path d="M 58 88 C 68 68, 72 40, 68 26 C 66 20, 58 22, 50 28 C 38 38, 28 60, 28 86 Z" fill="#FF9EBB"/>
+  <!-- Outline -->
+  <path d="M 74 104 C 84 76, 88 38, 80 14 C 76 4, 62 6, 48 16 C 28 30, 10 60, 8 102 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

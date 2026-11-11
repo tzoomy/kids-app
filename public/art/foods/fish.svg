@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Dorsal Fin -->
+    <path d="M88 82 C102 48 144 46 162 82 Z" fill="#2B6FD6" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Bottom Ventral Fin -->
+    <path d="M128 170 C140 196 164 194 170 164 Z" fill="#2B6FD6" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Tail Fin -->
+    <g>
+      <path d="M180 128 C198 100 228 78 234 96 C238 110 224 122 214 128 C224 134 238 146 234 160 C228 178 198 156 180 128 Z" fill="#4D96FF"/>
+      <path d="M180 128 C224 134 238 146 234 160 C228 178 198 156 180 128 Z" fill="#2B6FD6"/>
+      <path d="M180 128 C198 100 228 78 234 96 C238 110 224 122 214 128 C224 134 238 146 234 160 C228 178 198 156 180 128 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Main Fish Body (No eye or mouth — pure food silhouette) -->
+    <g>
+      <path d="M24 128 C24 86 68 70 114 70 C154 70 178 96 190 128 C178 160 154 186 114 186 C68 186 24 170 24 128 Z" fill="#4D96FF"/>
+      <!-- Creamy Blue Belly -->
+      <path d="M28 140 C56 128 136 128 184 140 C172 166 148 186 114 186 C74 186 36 172 28 140 Z" fill="#D6EAFF"/>
+      <!-- Bottom Shadow -->
+      <path d="M44 164 C78 176 138 174 176 154 C164 172 142 186 114 186 C82 186 56 176 44 164 Z" fill="#8CC0FF"/>
+      <!-- Smooth Glossy Highlights -->
+      <path d="M90 88 C110 82 136 84 154 92 C158 94 156 102 150 100 C134 94 112 92 92 98 C86 100 84 90 90 88 Z" fill="#8CC0FF"/>
+      <ellipse cx="56" cy="104" rx="12" ry="7" transform="rotate(-28 56 104)" fill="#8CC0FF"/>
+      <ellipse cx="54" cy="102" rx="5" ry="3" transform="rotate(-28 54 102)" fill="#FFFDF9"/>
+      <!-- Gill Curve (food detail, no face) -->
+      <path d="M74 84 C88 110 88 146 74 172" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Cute Scale Arcs -->
+      <path d="M118 106 C126 114 126 124 118 132" fill="none" stroke="#2B6FD6" stroke-width="5"/>
+      <path d="M138 104 C146 112 146 122 138 130" fill="none" stroke="#2B6FD6" stroke-width="5"/>
+      <path d="M158 108 C166 116 166 126 158 134" fill="none" stroke="#2B6FD6" stroke-width="5"/>
+      <!-- Body Outline -->
+      <path d="M24 128 C24 86 68 70 114 70 C154 70 178 96 190 128 C178 160 154 186 114 186 C68 186 24 170 24 128 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Side Pectoral Fin -->
+    <path d="M96 136 C112 124 130 132 126 148 C122 162 102 156 96 136 Z" fill="#8CC0FF" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

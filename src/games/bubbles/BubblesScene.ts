@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { drawBubble } from '../../assets/vectorArt';
 import type { LeisureSession } from '../../core/leisure';
+import { heLine } from '../../content/voiceLines';
+import type { SpeechRequest } from '../../core/audio/types';
+import { transitionTo } from '../../anim/transitions';
 
 const LOW_BALANCE_WARNING_SEC = 30;
 
@@ -12,6 +15,10 @@ export class BubblesScene extends Phaser.Scene {
   private tickTimer?: Phaser.Time.TimerEvent;
   private ended = false;
   private visibilityHandler?: () => void;
+  private warnedLow = false;
+  private alive = false;
+  /** Narrator lines run one after another so they never overlap. */
+  private voiceChain: Promise<void> = Promise.resolve();
 
   constructor() {
     super('BubblesScene');
@@ -21,8 +28,14 @@ export class BubblesScene extends Phaser.Scene {
     this.context = this.game.registry.get('appContext') as AppContext;
     this.session = this.context.createLeisureSession();
     this.ended = false;
+    this.warnedLow = false;
+    this.alive = true;
+    this.voiceChain = Promise.resolve();
 
-    this.visibilityHandler = () => this.session.setHidden(document.hidden);
+    this.visibilityHandler = () => {
+      this.session.setHidden(document.hidden);
+      if (document.hidden) this.context.audio.stopAll();
+    };
     document.addEventListener('visibilitychange', this.visibilityHandler);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 
@@ -31,25 +44,41 @@ export class BubblesScene extends Phaser.Scene {
     this.spawnTimer = this.time.addEvent({ delay: 600, loop: true, callback: () => this.spawnBubble() });
     this.tickTimer = this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
 
-    this.refreshChrome();
+    this.buildChrome();
+    this.say(heLine('bubbles.intro'));
     window.__GAME_READY__ = true;
   }
 
   private cleanup(): void {
+    this.alive = false;
+    this.context.audio.stopAll();
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
-  private refreshChrome(): void {
+  /** Queue a Hebrew narrator line after any line still playing. */
+  private say(request: SpeechRequest): void {
+    this.voiceChain = this.voiceChain.then(() => (this.alive && !this.ended ? this.context.audio.play(request).then(() => undefined) : undefined));
+  }
+
+  private buildChrome(): void {
     this.context.shell.setBubblesChrome({
       balanceSec: this.session.balanceSec,
-      low: this.session.balanceSec <= LOW_BALANCE_WARNING_SEC,
+      low: this.isLow(),
       onBack: () => this.goBack(),
     });
   }
 
+  private isLow(): boolean {
+    return this.session.balanceSec <= LOW_BALANCE_WARNING_SEC;
+  }
+
+  private refreshChrome(): void {
+    this.context.shell.updateBubblesChrome({ balanceSec: this.session.balanceSec, low: this.isLow() });
+  }
+
   private goBack(): void {
     this.context.store.persist();
-    this.scene.start('MapScene');
+    transitionTo(this, 'MapScene', { style: 'iris' });
   }
 
   private tick(): void {
@@ -57,6 +86,10 @@ export class BubblesScene extends Phaser.Scene {
     const result = this.session.tick(1);
     this.context.store.persist();
     this.refreshChrome();
+    if (!this.warnedLow && this.isLow() && !result.endedNow) {
+      this.warnedLow = true;
+      this.say(heLine('bubbles.lowWarning'));
+    }
     if (result.endedNow) this.endSession();
   }
 
@@ -102,10 +135,13 @@ export class BubblesScene extends Phaser.Scene {
     this.spawnTimer?.remove();
     this.tickTimer?.remove();
     this.context.sfx.end();
+    this.context.audio.stopAll();
+    this.voiceChain = Promise.resolve();
+    void this.context.audio.play(heLine('bubbles.end'));
     this.children.removeAll();
     this.context.shell.showBubblesEndScreen(
-      () => this.scene.start('RestaurantScene'),
-      () => this.scene.start('MapScene'),
+      () => transitionTo(this, 'RestaurantScene', { style: 'iris' }),
+      () => transitionTo(this, 'MapScene', { style: 'iris' }),
     );
   }
 }

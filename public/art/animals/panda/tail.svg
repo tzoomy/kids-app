@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72">
+  <!-- Round pom-pom panda tail with deep overlap base on the left -->
+  <path d="M 4 34 C 12 18, 34 10, 50 18 C 64 25, 68 44, 56 56 C 44 68, 22 66, 4 54 Z" fill="#3D3532"/>
+  <!-- Bottom shadow -->
+  <path d="M 8 50 C 24 62, 44 64, 56 54 C 62 48, 64 40, 62 32 C 58 46, 42 54, 20 50 Z" fill="#282220"/>
+  <!-- Top highlight -->
+  <ellipse cx="40" cy="24" rx="11" ry="6" transform="rotate(-15 40 24)" fill="#594E4A"/>
+  <!-- Outline -->
+  <path d="M 4 34 C 12 18, 34 10, 50 18 C 64 25, 68 44, 56 56 C 44 68, 22 66, 4 54 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
-import { RestaurantScene } from '../games/restaurant/RestaurantScene';
+import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import type { AppContext } from './appContext';
+import { PreloadScene } from '../anim/PreloadScene';
+import { registerProjectArt } from '../anim/registerArt';
 
 declare global {
   interface Window {
@@ -10,6 +12,12 @@ declare global {
     __testHooks__?: {
       goToScreen: (screen: 'map' | 'restaurant' | 'bubbles') => void;
       seedBalanceSec: (sec: number) => void;
+      /** Current restaurant round (null when none is active); centers are in game coordinates. */
+      getRoundInfo: () => RoundInfo | null;
+      /** Names of the currently active scenes. */
+      getActiveScenes: () => string[];
+      /** Game canvas size in game coordinates. */
+      getGameSize: () => { width: number; height: number };
     };
   }
 }
@@ -25,6 +33,7 @@ function pickBaseSize(): { width: number; height: number } {
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
   const { width, height } = pickBaseSize();
+  registerProjectArt();
 
   const game = new Phaser.Game({
     type: isE2e() ? Phaser.CANVAS : Phaser.AUTO,
@@ -36,20 +45,24 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    // Only MapScene auto-starts; Restaurant/Bubbles are added inactive and started
-    // explicitly on navigation, so their create() doesn't fire until entered.
-    scene: [MapScene],
+    // Only PreloadScene auto-starts (it loads registered art, then starts MapScene).
+    // Map/Restaurant/Bubbles are added inactive and started explicitly on navigation,
+    // so their create() doesn't fire until entered.
+    scene: [PreloadScene],
   });
 
+  game.scene.add('MapScene', MapScene, false);
   game.scene.add('RestaurantScene', RestaurantScene, false);
   game.scene.add('BubblesScene', BubblesScene, false);
 
   game.registry.set('appContext', context);
 
-  window.__testHooks__ = {
+  // Test/recording hooks exist only with ?e2e=1 (they expose the correct answer).
+  if (isE2e()) window.__testHooks__ = {
     goToScreen(screen) {
       window.__GAME_READY__ = false;
       const sceneKey = screen === 'map' ? 'MapScene' : screen === 'restaurant' ? 'RestaurantScene' : 'BubblesScene';
+      game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
       game.scene.stop('RestaurantScene');
       game.scene.stop('BubblesScene');
@@ -59,6 +72,16 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       const state = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
       state.balanceSec = sec;
       context.store.persist();
+    },
+    getRoundInfo() {
+      const scene = game.scene.getScene('RestaurantScene') as RestaurantScene | null;
+      return scene && game.scene.isActive('RestaurantScene') ? scene.getRoundInfo() : null;
+    },
+    getActiveScenes() {
+      return game.scene.getScenes(true).map((s) => s.scene.key);
+    },
+    getGameSize() {
+      return { width: game.scale.width, height: game.scale.height };
     },
   };
 

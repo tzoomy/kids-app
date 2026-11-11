@@ -11,6 +11,7 @@ import { AppContext } from './game/appContext';
 import { createGame, isE2e } from './game/createGame';
 import { initPwa } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { heLine } from './content/voiceLines';
 import type { AgeTrack } from './core/storage/schema';
 
 const shellRoot = document.getElementById('shell-root');
@@ -83,6 +84,37 @@ function openParentSettings(onDone: () => void): void {
   });
 }
 
+let welcomed = false;
+/**
+ * Plays the Hebrew welcome once. Autoplay may be blocked before the first gesture: then it
+ * fails silently and we retry on the first tap on the profile screen (unless that tap picks
+ * a profile, which stops the audio).
+ */
+function welcomeOnce(): void {
+  if (welcomed) return;
+  const tryPlay = (): void => {
+    if (welcomed) return;
+    welcomed = true;
+    audioManager.play(heLine('welcome')).then(
+      (played) => {
+        if (!played) armWelcomeOnGesture();
+      },
+      () => armWelcomeOnGesture(),
+    );
+  };
+  const armWelcomeOnGesture = (): void => {
+    welcomed = false;
+    document.addEventListener(
+      'pointerdown',
+      () => {
+        if (context.currentProfileId === null && !welcomed) tryPlay();
+      },
+      { once: true },
+    );
+  };
+  tryPlay();
+}
+
 function showProfileSelectScreen(): void {
   const state = store.getState();
   const entries = state.profiles.map((profile) => ({
@@ -94,6 +126,7 @@ function showProfileSelectScreen(): void {
     (id) => pickProfile(id),
     () => openParentGate(() => showProfileSelectScreen()),
   );
+  welcomeOnce();
 }
 
 function returnToProfileSelect(): void {
@@ -108,6 +141,7 @@ function returnToProfileSelect(): void {
 
 function pickProfile(profileId: string): void {
   context.currentProfileId = profileId;
+  audioManager.stopAll();
   warmupAudioOnce();
 
   if (!game) {

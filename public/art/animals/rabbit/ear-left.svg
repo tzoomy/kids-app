@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 164" width="84" height="164">
+  <!-- Tall spoon-shaped left bunny ear with wide, deep tucked base -->
+  <path d="M 24 160 C 16 118, 8 68, 18 28 C 24 8, 52 6, 62 26 C 74 52, 76 114, 72 160 Z" fill="#FFF3E2"/>
+  <!-- Outer ear shadow -->
+  <path d="M 24 160 C 18 120, 12 76, 16 40 C 18 78, 28 118, 42 156 Z" fill="#EBD5B8"/>
+  <!-- Outer ear highlight -->
+  <path d="M 30 16 C 44 12, 56 20, 62 42 C 54 26, 42 20, 30 16 Z" fill="#FFFFFF"/>
+  <!-- Sweet pink inner ear -->
+  <path d="M 38 144 C 28 108, 24 64, 32 36 C 36 22, 50 22, 54 36 C 62 64, 60 108, 56 144 Z" fill="#FFACC5"/>
+  <!-- Inner ear top shadow -->
+  <path d="M 32 54 C 30 34, 48 22, 54 36 C 56 44, 56 54, 56 64 C 50 44, 38 42, 32 54 Z" fill="#F28BA8"/>
+  <!-- Outline -->
+  <path d="M 24 160 C 16 118, 8 68, 18 28 C 24 8, 52 6, 62 26 C 74 52, 76 114, 72 160 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

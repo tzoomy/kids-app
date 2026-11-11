@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="800" height="750" fill="#FFF3E0"/>
+    <!-- Wallpaper Stripes -->
+    <path d="M28 92h36v658H28zM108 92h36v658h-36zM188 92h36v658h-36zM268 92h36v658h-36zM348 92h36v658h-36zM428 92h36v658h-36zM508 92h36v658h-36zM588 92h36v658h-36zM668 92h36v658h-36zM748 92h36v658h-36z" fill="#F7DEC0" fill-opacity="0.45"/>
+
+    <!-- Plain HUD Header Band (y=0..92) -->
+    <rect x="0" y="0" width="800" height="86" fill="#FFF3E0"/>
+    <rect x="0" y="84" width="800" height="10" fill="#F7DEC0" stroke="#7A5C48" stroke-width="3"/>
+
+    <!-- Lower Wainscot Wall (y=740..1020) -->
+    <rect x="0" y="740" width="800" height="280" fill="#F7DEC0"/>
+    <rect x="0" y="736" width="800" height="14" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+    <g fill="#FFF3E0" fill-opacity="0.5" stroke="#E5BE94" stroke-width="4">
+      <rect x="36" y="770" width="150" height="120" rx="10"/>
+      <rect x="216" y="770" width="368" height="120" rx="10"/>
+      <rect x="614" y="770" width="150" height="120" rx="10"/>
+    </g>
+    <rect x="0" y="1020" width="800" height="260" fill="#B87D56" stroke="#7A5C48" stroke-width="4"/>
+
+    <!-- Bunting Garland -->
+    <g stroke="#7A5C48" stroke-width="3.5">
+      <path d="M180 94 Q400 142 620 94" fill="none"/>
+      <path d="M230 103 L250 135 L270 108 Z" fill="#EE6C62"/>
+      <path d="M292 112 L312 144 L332 116 Z" fill="#FFD166"/>
+      <path d="M356 117 L376 148 L396 118 Z" fill="#98D886"/>
+      <path d="M404 118 L424 148 L444 117 Z" fill="#B8E6FF"/>
+      <path d="M468 116 L488 144 L508 112 Z" fill="#FFD166"/>
+      <path d="M530 108 L550 135 L570 103 Z" fill="#EE6C62"/>
+    </g>
+
+    <!-- Upper Left Window -->
+    <g>
+      <path d="M48 310 A96 92 0 0 1 240 310 L240 464 L48 464 Z" fill="#B8E6FF" stroke="#7A5C48" stroke-width="5"/>
+      <circle cx="102" cy="286" r="20" fill="#FFF3B0"/>
+      <path d="M144 306 C144 294 158 288 168 294 C176 284 192 284 200 296 C210 296 216 304 212 314 L146 314 Z" fill="#FFFDF9"/>
+      <path d="M50 404 Q116 362 184 396 Q216 410 238 398 L238 462 L50 462 Z" fill="#98D886"/>
+      <path d="M114 420 Q180 384 238 410 L238 462 L114 462 Z" fill="#8AE07E"/>
+      <line x1="144" y1="220" x2="144" y2="464" stroke="#FFF8EE" stroke-width="7"/>
+      <line x1="50" y1="360" x2="238" y2="360" stroke="#FFF8EE" stroke-width="7"/>
+      <path d="M48 310 A96 92 0 0 1 240 310 L240 464 L48 464 Z" fill="none" stroke="#7A5C48" stroke-width="6"/>
+      <g stroke="#7A5C48" stroke-width="4.5">
+        <path d="M36 256 L78 256 L74 294 C74 306 58 310 48 304 C38 298 34 288 36 256 Z" fill="#EE6C62"/>
+        <path d="M78 256 L111 256 L109 296 C109 306 97 310 87 306 C77 302 74 296 74 294 Z" fill="#FFF8EE"/>
+        <path d="M111 256 L144 256 L144 296 C144 306 132 310 122 306 C112 302 109 296 109 296 Z" fill="#EE6C62"/>
+        <path d="M144 256 L177 256 L179 296 C179 306 167 310 157 306 C147 302 144 296 144 296 Z" fill="#FFF8EE"/>
+        <path d="M177 256 L210 256 L214 294 C214 306 202 310 192 306 C182 302 179 296 179 296 Z" fill="#EE6C62"/>
+        <path d="M210 256 L252 256 C254 288 250 298 240 304 C228 310 214 306 214 294 Z" fill="#FFF8EE"/>
+        <rect x="32" y="244" width="224" height="14" rx="7" fill="#E5BE94"/>
+      </g>
+      <rect x="34" y="460" width="220" height="18" rx="8" fill="#E5BE94" stroke="#7A5C48" stroke-width="5"/>
+      <path d="M188 432 L220 432 L214 460 L194 460 Z" fill="#F4A261" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M204 432 C194 416 180 416 186 428" fill="#8AE07E" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M204 432 C214 414 228 416 222 428" fill="#57C457" stroke="#7A5C48" stroke-width="4"/>
+    </g>
+
+    <!-- Upper Right Shelves -->
+    <g stroke="#7A5C48" stroke-width="4.5">
+      <rect x="564" y="262" width="44" height="56" rx="12" fill="#FFD166"/>
+      <rect x="570" y="252" width="32" height="12" rx="5" fill="#EE6C62"/>
+      <ellipse cx="578" cy="284" rx="5" ry="11" fill="#FFF3B0" stroke="none"/>
+      <rect x="624" y="272" width="40" height="46" rx="10" fill="#B8E6FF"/>
+      <rect x="628" y="262" width="32" height="12" rx="5" fill="#FFF8EE"/>
+      <path d="M686 276 L728 276 L720 318 L694 318 Z" fill="#F4A261"/>
+      <path d="M707 276 C692 256 676 262 684 274" fill="#8AE07E"/>
+      <path d="M707 276 C722 254 740 262 730 274" fill="#57C457"/>
+      <circle cx="734" cy="292" r="8" fill="#8AE07E"/>
+      <circle cx="740" cy="308" r="7" fill="#57C457"/>
+      <path d="M558 332 L558 350 M736 332 L736 350" stroke-width="6"/>
+      <rect x="536" y="318" width="224" height="16" rx="8" fill="#E5BE94"/>
+
+      <rect x="574" y="380" width="56" height="72" rx="16" fill="#FFF8EE"/>
+      <rect x="584" y="368" width="36" height="14" rx="6" fill="#E5BE94"/>
+      <circle cx="602" cy="363" r="6.5" fill="#E5BE94"/>
+      <circle cx="594" cy="418" r="9" fill="#D99B56" stroke="none"/>
+      <circle cx="612" cy="424" r="8" fill="#B87835" stroke="none"/>
+      <path d="M656 428 C656 448 708 448 708 428 Z" fill="#EE6C62"/>
+      <path d="M660 412 C660 430 704 430 704 412 Z" fill="#FFF8EE"/>
+      <path d="M558 468 L558 486 M736 468 L736 486" stroke-width="6"/>
+      <rect x="536" y="452" width="224" height="16" rx="8" fill="#E5BE94"/>
+    </g>
+
+    <!-- Pendant Lamps -->
+    <g>
+      <circle cx="312" cy="196" r="48" fill="#FFF3B0" fill-opacity="0.45"/>
+      <line x1="312" y1="94" x2="312" y2="162" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M294 194 A18 14 0 0 0 330 194 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M272 194 C272 166 292 156 312 156 C332 156 352 166 352 194 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M286 178 C294 168 304 164 316 164" fill="none" stroke="#FFF3B0" stroke-width="4.5"/>
+
+      <circle cx="488" cy="196" r="48" fill="#FFF3B0" fill-opacity="0.45"/>
+      <line x1="488" y1="94" x2="488" y2="162" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M470 194 A18 14 0 0 0 506 194 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M448 194 C448 166 468 156 488 156 C508 156 528 166 528 194 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M462 178 C470 168 480 164 492 164" fill="none" stroke="#FFF3B0" stroke-width="4.5"/>
+    </g>
+  </g>
+</svg>

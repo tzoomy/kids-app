@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Wedge Face -->
+    <path d="M36 122 L150 50 C196 58 220 88 222 126 L36 122 Z" fill="#FFE073"/>
+    <!-- Top Soft Rim Shadow along curved back edge -->
+    <path d="M150 50 C196 58 220 88 222 126 L204 125 C200 94 180 68 144 56 Z" fill="#FFCA3A"/>
+    <!-- Top Highlight -->
+    <path d="M64 108 L144 58" fill="none" stroke="#FFFDF9" stroke-width="6"/>
+    <!-- Front Side Face -->
+    <path d="M36 122 L222 126 L222 190 C222 200 214 206 204 206 L52 202 C42 202 36 194 36 184 Z" fill="#FFCA3A"/>
+    <!-- Bottom & Right Shadow on Front Face -->
+    <path d="M36 178 L202 180 L202 126 L222 126 L222 190 C222 200 214 206 204 206 L52 202 C42 202 36 194 36 184 Z" fill="#E8A317"/>
+
+    <!-- Cheese Holes -->
+    <!-- Top large hole -->
+    <ellipse cx="148" cy="92" rx="18" ry="11" fill="#E8A317" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Top small hole -->
+    <ellipse cx="106" cy="104" rx="10" ry="6" fill="#E8A317" stroke="#3B2A22" stroke-width="4.5"/>
+    <!-- Front large hole -->
+    <circle cx="96" cy="162" r="20" fill="#D98A0F"/>
+    <path d="M82 148 A20 20 0 0 1 114 170 C106 160 92 156 82 148 Z" fill="#B87309"/>
+    <circle cx="96" cy="162" r="20" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Front right hole -->
+    <circle cx="174" cy="154" r="13" fill="#D98A0F" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Edge notch hole on bottom -->
+    <path d="M132 204 A15 15 0 0 1 162 204 Z" fill="#D98A0F" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Edge notch hole on left -->
+    <path d="M36 140 A12 12 0 0 1 36 164 Z" fill="#D98A0F" stroke="#3B2A22" stroke-width="5"/>
+
+    <!-- Outer & Dividing Outlines -->
+    <path d="M36 122 L148 52 C152 50 158 50 164 52 C202 64 222 92 222 126 L222 190 C222 200 214 206 204 206 L52 202 C42 202 36 194 36 184 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M36 122 L222 126" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

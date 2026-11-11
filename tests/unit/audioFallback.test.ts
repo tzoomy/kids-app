@@ -67,4 +67,34 @@ describe('AudioManager fallback', () => {
     expect(staticProvider.stop).toHaveBeenCalled();
     expect(ttsProvider.stop).toHaveBeenCalled();
   });
+
+  it('stops every provider before a new line (single voice)', async () => {
+    const a = fakeProvider('static-file', true, true);
+    const b = fakeProvider('device-tts', true, true);
+    const manager = new AudioManager([a, b]);
+    await manager.play(request);
+    expect(a.stop).toHaveBeenCalled();
+    expect(b.stop).toHaveBeenCalled();
+  });
+
+  it('a line superseded while its static clip was failing does not fall back to device TTS', async () => {
+    let failFirst: (v: boolean) => void = () => {};
+    const staticProvider: AudioProvider = {
+      id: 'static-file',
+      isAvailable: () => true,
+      play: vi.fn((req: SpeechRequest) =>
+        req.lineId === 'A' ? new Promise<boolean>((r) => (failFirst = r)) : Promise.resolve(true),
+      ),
+      warmup: vi.fn(),
+      stop: vi.fn(),
+    };
+    const tts = fakeProvider('device-tts', true, true);
+    const manager = new AudioManager([staticProvider, tts]);
+    const first = manager.play({ ...request, lineId: 'A' });
+    const second = manager.play({ ...request, lineId: 'B' });
+    await expect(second).resolves.toBe(true);
+    failFirst(false); // A's static attempt fails late
+    await expect(first).resolves.toBe(false);
+    expect(tts.play).not.toHaveBeenCalled();
+  });
 });

@@ -1,7 +1,7 @@
-export type SpeechLang = 'en' | 'fr';
+export type SpeechLang = 'en' | 'fr' | 'he';
 
 export interface SpeechRequest {
-  /** Stable id used to look up a static audio file in the manifest, e.g. "food.apple.en". */
+  /** Stable id used to look up a static audio file in the manifest, e.g. "food.apple.1.en" or "he.retry.0". */
   lineId: string;
   lang: SpeechLang;
   /** Fallback text for device TTS, and the only source of truth when no file exists yet. */

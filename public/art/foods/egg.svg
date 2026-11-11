@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Egg White Base -->
+    <path d="M124 38 C166 34 202 58 214 96 C228 138 214 192 174 212 C136 230 92 220 62 198 C30 174 26 128 46 90 C64 56 88 42 124 38 Z" fill="#FFFDF9"/>
+    <!-- Egg White Shadow -->
+    <path d="M214 96 C228 138 214 192 174 212 C136 230 92 220 62 198 C46 186 36 168 34 148 C50 184 96 206 146 198 C192 190 212 150 208 106 C210 102 212 98 214 96 Z" fill="#E6DFD3"/>
+    <!-- Egg White Outline -->
+    <path d="M124 38 C166 34 202 58 214 96 C228 138 214 192 174 212 C136 230 92 220 62 198 C30 174 26 128 46 90 C64 56 88 42 124 38 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Soft Shadow Under Yolk -->
+    <ellipse cx="132" cy="138" rx="50" ry="46" fill="#E6DFD3"/>
+
+    <!-- Sunny Yolk -->
+    <g>
+      <circle cx="128" cy="130" r="46" fill="#FFB703"/>
+      <!-- Yolk Shadow -->
+      <path d="M92 158 A46 46 0 0 0 172 116 C164 146 130 166 92 158 Z" fill="#E89600"/>
+      <!-- Yolk Glossy Highlight -->
+      <ellipse cx="108" cy="108" rx="14" ry="8" transform="rotate(-30 108 108)" fill="#FFF2A6"/>
+      <circle cx="102" cy="105" r="5" fill="#FFFDF9"/>
+      <circle cx="96" cy="122" r="4" fill="#FFF2A6"/>
+      <!-- Yolk Outline -->
+      <circle cx="128" cy="130" r="46" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

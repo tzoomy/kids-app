@@ -56,8 +56,8 @@ describe('content schema validation', () => {
     const restaurant = loadAnimalRestaurant();
     for (const item of restaurant.items) {
       for (const lang of ['en', 'fr'] as const) {
-        for (const count of [1, 2, 3]) {
-          expect(manifest[`food.${item.id}.${count}.${lang}`]).toMatch(/\.ogg$/);
+        for (const count of Object.keys(item.prompts[lang] ?? {})) {
+          expect(manifest[`food.${item.id}.${count}.${lang}`]).toMatch(/\.mp3$/);
         }
       }
     }

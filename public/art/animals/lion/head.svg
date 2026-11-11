@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 182" width="224" height="182">
+  <!-- Main plump golden lion cub head silhouette -->
+  <path d="M 112 12 C 58 12, 24 40, 16 86 C 8 134, 34 172, 112 172 C 190 172, 216 134, 208 86 C 200 40, 166 12, 112 12 Z" fill="#FFBF47"/>
+
+  <!-- Soft lower cheek & chin shadow -->
+  <path d="M 16 106 C 16 146, 44 172, 112 172 C 180 172, 208 146, 208 106 C 196 140, 166 158, 112 158 C 58 158, 28 140, 16 106 Z" fill="#E29E26"/>
+
+  <!-- Smooth crown highlight crescent -->
+  <path d="M 52 40 C 72 20, 124 16, 158 26 C 124 22, 76 28, 52 40 Z" fill="#FFD87A"/>
+
+  <!-- Rosy Blush Cheeks -->
+  <ellipse cx="42" cy="118" rx="19" ry="12" transform="rotate(6 42 118)" fill="#FF8FA3"/>
+  <ellipse cx="38" cy="115" rx="7.5" ry="3.8" transform="rotate(6 38 115)" fill="#FFC2CE"/>
+  <ellipse cx="182" cy="118" rx="19" ry="12" transform="rotate(-6 182 118)" fill="#FF8FA3"/>
+  <ellipse cx="178" cy="115" rx="7.5" ry="3.8" transform="rotate(-6 178 115)" fill="#FFC2CE"/>
+
+  <!-- Warm Cream Lion Muzzle -->
+  <ellipse cx="112" cy="120" rx="46" ry="34" fill="#FFF2D6"/>
+  <path d="M 68 128 C 74 146, 92 154, 112 154 C 132 154, 150 146, 156 128 C 144 142, 128 146, 112 146 C 96 146, 80 142, 68 128 Z" fill="#F0DEC2"/>
+
+  <!-- Broad Rounded Lion Cub Nose + Bridge Line -->
+  <line x1="112" y1="106" x2="112" y2="118" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 94 91 C 94 83, 130 83, 130 91 C 130 101, 119 110, 112 110 C 105 110, 94 101, 94 91 Z" fill="#5C3422" stroke="#3B2A22" stroke-width="4.5" stroke-linejoin="round"/>
+  <ellipse cx="107" cy="90" rx="6.5" ry="2.8" fill="#FFFDF9"/>
+
+  <!-- Friendly Eyebrows -->
+  <path d="M 48 52 Q 62 44 76 50" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 176 52 Q 162 44 148 50" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head Outline -->
+  <path d="M 112 12 C 58 12, 24 40, 16 86 C 8 134, 34 172, 112 172 C 190 172, 216 134, 208 86 C 200 40, 166 12, 112 12 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

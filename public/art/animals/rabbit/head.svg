@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 228 184" width="228" height="184">
+  <!-- Main chubby bunny head with fluffy lower cheeks -->
+  <path d="M 114 14 C 62 14, 30 42, 22 86 C 10 116, 14 148, 38 164 C 58 176, 86 176, 114 176 C 142 176, 170 176, 190 164 C 214 148, 218 116, 206 86 C 198 42, 166 14, 114 14 Z" fill="#FFF3E2"/>
+
+  <!-- Soft biscuit lower cheek shadow -->
+  <path d="M 16 114 C 16 148, 42 176, 114 176 C 186 176, 212 148, 212 114 C 200 148, 170 162, 114 162 C 58 162, 28 148, 16 114 Z" fill="#EBD5B8"/>
+
+  <!-- Pure white forehead & crown highlight -->
+  <ellipse cx="114" cy="34" rx="44" ry="12" fill="#FFFFFF"/>
+
+  <!-- Rosy Blush Cheeks -->
+  <ellipse cx="44" cy="118" rx="19" ry="12" transform="rotate(6 44 118)" fill="#FF8FA3"/>
+  <ellipse cx="40" cy="115" rx="7" ry="3.5" transform="rotate(6 40 115)" fill="#FFC2CE"/>
+  <ellipse cx="184" cy="118" rx="19" ry="12" transform="rotate(-6 184 118)" fill="#FF8FA3"/>
+  <ellipse cx="180" cy="115" rx="7" ry="3.5" transform="rotate(-6 180 115)" fill="#FFC2CE"/>
+
+  <!-- Fluffy White Muzzle Puff -->
+  <ellipse cx="114" cy="124" rx="44" ry="32" fill="#FFFFFF"/>
+  <path d="M 72 132 C 78 148, 94 156, 114 156 C 134 156, 150 148, 156 132 C 144 144, 130 148, 114 148 C 98 148, 84 144, 72 132 Z" fill="#EBD5B8"/>
+
+  <!-- Sweet Pink Bunny Nose + Bridge Line -->
+  <line x1="114" y1="110" x2="114" y2="122" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 99 96 C 99 89, 129 89, 129 96 C 129 104, 120 112, 114 112 C 108 112, 99 104, 99 96 Z" fill="#FF758F" stroke="#3B2A22" stroke-width="4.5" stroke-linejoin="round"/>
+  <ellipse cx="110" cy="95" rx="5.5" ry="2.5" fill="#FFFDF9"/>
+
+  <!-- Friendly Eyebrows -->
+  <path d="M 54 54 Q 68 46 82 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 174 54 Q 160 46 146 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head Outline with cute crown fur tuft -->
+  <path d="M 104 15 C 108 6, 114 6, 117 12 C 121 7, 127 9, 124 15 C 170 17, 198 44, 206 86 C 218 116, 214 148, 190 164 C 170 176, 142 176, 114 176 C 86 176, 58 176, 38 164 C 14 148, 10 116, 22 86 C 30 44, 58 17, 104 15 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

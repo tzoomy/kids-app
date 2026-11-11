@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 186" width="240" height="186">
+  <!-- Main plush kitten head with smooth cheek fluff tufts -->
+  <path d="M 120 14 C 66 14, 30 42, 20 88 C 12 108, 8 122, 18 128 C 16 148, 44 176, 120 176 C 196 176, 224 148, 222 128 C 232 122, 228 108, 220 88 C 210 42, 174 14, 120 14 Z" fill="#FFA647"/>
+
+  <!-- Lower cheek shadow -->
+  <path d="M 18 120 C 16 148, 44 176, 120 176 C 196 176, 224 148, 222 120 C 206 152, 172 162, 120 162 C 68 162, 34 152, 18 120 Z" fill="#E58426"/>
+
+  <!-- Sunny crown highlight -->
+  <ellipse cx="74" cy="36" rx="22" ry="7" transform="rotate(-14 74 36)" fill="#FFC278"/>
+  <ellipse cx="166" cy="36" rx="22" ry="7" transform="rotate(14 166 36)" fill="#FFC278"/>
+
+  <!-- Cute Tabby Forehead Stripes -->
+  <path d="M 114 14 L 126 14 L 123 42 C 121 46, 119 46, 117 42 Z" fill="#C96815"/>
+  <path d="M 96 16 L 106 15 L 106 36 C 105 40, 101 40, 99 36 Z" fill="#C96815"/>
+  <path d="M 144 16 L 134 15 L 134 36 C 135 40, 139 40, 141 36 Z" fill="#C96815"/>
+
+  <!-- Rosy Blush Cheeks -->
+  <ellipse cx="46" cy="122" rx="19" ry="12" transform="rotate(6 46 122)" fill="#FF8FA3"/>
+  <ellipse cx="42" cy="119" rx="7" ry="3.5" transform="rotate(6 42 119)" fill="#FFC2CE"/>
+  <ellipse cx="194" cy="122" rx="19" ry="12" transform="rotate(-6 194 122)" fill="#FF8FA3"/>
+  <ellipse cx="190" cy="119" rx="7" ry="3.5" transform="rotate(-6 190 119)" fill="#FFC2CE"/>
+
+  <!-- Cream Muzzle Patch -->
+  <ellipse cx="120" cy="126" rx="44" ry="32" fill="#FFF4E4"/>
+  <path d="M 78 134 C 84 150, 100 158, 120 158 C 140 158, 156 150, 162 134 C 150 146, 136 150, 120 150 C 104 150, 90 146, 78 134 Z" fill="#F0DEC2"/>
+
+  <!-- Coral-Pink Kitty Nose + Bridge Line -->
+  <line x1="120" y1="112" x2="120" y2="124" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 105 97 C 105 91, 135 91, 135 97 C 135 105, 126 113, 120 113 C 114 113, 105 105, 105 97 Z" fill="#FF6B8B" stroke="#3B2A22" stroke-width="4.5" stroke-linejoin="round"/>
+  <ellipse cx="116" cy="96" rx="5.5" ry="2.5" fill="#FFFDF9"/>
+
+  <!-- Friendly Eyebrows -->
+  <path d="M 56 56 Q 70 48 84 54" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 184 56 Q 170 48 156 54" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Cute Whiskers -->
+  <path d="M 28 112 Q 14 108 6 110" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 30 126 Q 16 126 8 130" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 212 112 Q 226 108 234 110" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 210 126 Q 224 126 232 130" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Head Outline -->
+  <path d="M 120 14 C 66 14, 30 42, 20 88 C 12 108, 8 122, 18 128 C 16 148, 44 176, 120 176 C 196 176, 224 148, 222 128 C 232 122, 228 108, 220 88 C 210 42, 174 14, 120 14 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

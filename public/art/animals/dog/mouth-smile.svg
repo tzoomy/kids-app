@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Cheerful puppy pink tongue peek -->
+  <path d="M 24 20 C 24 35, 44 35, 44 20 Z" fill="#FF758F" stroke="#3B2A22" stroke-width="4.5" stroke-linejoin="round"/>
+  <line x1="34" y1="21" x2="34" y2="27" stroke="#3B2A22" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Happy double-curve puppy smile -->
+  <path d="M 14 14 C 18 25, 30 25, 34 15 C 38 25, 50 25, 54 14" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cheek dimple ticks -->
+  <path d="M 10 15 Q 13 11 17 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 58 15 Q 55 11 51 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

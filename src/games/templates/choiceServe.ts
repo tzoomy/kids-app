@@ -71,7 +71,9 @@ export function buildRound(
   }
 
   const shuffled = shuffle(choices, random);
-  const target = shuffled[0];
+  // Pick the target independently of display order, so the right answer is not always
+  // in the same slot (choices are rendered left-to-right in `shuffled` order).
+  const target = shuffled[Math.min(shuffled.length - 1, Math.floor(random() * shuffled.length))];
   return { language, target, choices: shuffled, promptText: promptFor(target.item, language, target.count) };
 }
 

@@ -1,6 +1,6 @@
 import type { AudioProvider, SpeechRequest } from './types';
 
-const BCP47: Record<string, string> = { en: 'en-US', fr: 'fr-FR' };
+const BCP47: Record<string, string> = { en: 'en-US', fr: 'fr-FR', he: 'he-IL' };
 
 /** Safety cap so a missing onend/onerror on Android Chrome cannot hang listening forever. */
 export const TTS_SAFETY_TIMEOUT_MS = 8000;
@@ -24,12 +24,21 @@ export class DeviceTtsProvider implements AudioProvider {
     if (this.isAvailable()) window.speechSynthesis.cancel();
   }
 
+  private hasVoiceFor(lang: string): boolean {
+    if (!this.voices.length) this.loadVoices();
+    return this.voices.some((v) => v.lang.toLowerCase().startsWith(lang) || (lang === 'he' && v.lang.toLowerCase().startsWith('iw')));
+  }
+
   private loadVoices(): void {
     this.voices = window.speechSynthesis.getVoices();
   }
 
   play(request: SpeechRequest): Promise<boolean> {
     if (!this.isAvailable() || typeof SpeechSynthesisUtterance === 'undefined') {
+      return Promise.resolve(false);
+    }
+    if (request.lang === 'he' && !this.hasVoiceFor('he')) {
+      // Silence is better than Hebrew read by an English voice.
       return Promise.resolve(false);
     }
     const synth = window.speechSynthesis;

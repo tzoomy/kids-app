@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" width="320" height="140">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Ceramic Base / Under-rim -->
+    <path d="M36 78 C36 114 92 130 160 130 C228 130 284 114 284 78 Z" fill="#E2D4BE" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Main Plate Rim Oval -->
+    <ellipse cx="160" cy="66" rx="148" ry="54" fill="#FFFBF2"/>
+    <!-- Lower Rim Soft Shading -->
+    <path d="M18 80 A148 54 0 0 0 302 80 C276 106 222 114 160 114 C98 114 44 106 18 80 Z" fill="#F3E9D8"/>
+    <!-- Decorative Rim Stripe Accent -->
+    <ellipse cx="160" cy="65" rx="134" ry="45" fill="none" stroke="#F4A261" stroke-width="5"/>
+    <!-- Inner Plate Well -->
+    <ellipse cx="160" cy="64" rx="108" ry="34" fill="#F3E9D8"/>
+    <!-- Inner Well Top Depth Shadow -->
+    <path d="M56 56 A108 34 0 0 1 264 56 A112 30 0 0 0 56 56 Z" fill="#E2D4BE"/>
+    <ellipse cx="160" cy="64" rx="108" ry="34" fill="none" stroke="#E2D4BE" stroke-width="3"/>
+    <!-- Rim Gloss Highlight -->
+    <path d="M42 46 C64 32 104 24 148 22" fill="none" stroke="#FFFDF9" stroke-width="6"/>
+    <!-- Main Plate Outer Outline -->
+    <ellipse cx="160" cy="66" rx="148" ry="54" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

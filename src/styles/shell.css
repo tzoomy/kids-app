@@ -205,7 +205,9 @@ body {
 .shell-progress {
   width: min(50vw, 320px);
   height: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.78);
+  border: 2px solid rgba(122, 92, 72, 0.25);
+  box-sizing: border-box;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -341,13 +343,17 @@ body {
 }
 
 .shell-prompt-bubble {
-  top: 8.5vmin;
-  padding: 1.2vmin 3vmin;
+  top: 7.4vmin;
+  padding: 0.8vmin 2.6vmin;
+  font-size: clamp(18px, 3.6vmin, 30px);
+  /* left: 50% would otherwise shrink-wrap the text to half the screen and force two lines. */
+  width: max-content;
+  max-width: min(94vw, 720px);
 }
 
 @media (min-aspect-ratio: 1/1) {
   .shell-prompt-bubble {
-    top: 8vmin;
+    top: 7.4vmin;
     max-width: min(70vw, 640px);
   }
 }

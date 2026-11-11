@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" width="240" height="220">
+  <!-- Neck extension tucked under head -->
+  <path d="M 88 45 C 88 12, 152 12, 152 45 Z" fill="#282220" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Main Chubby Panda Torso (Cream-White) -->
+  <path d="M 74 36 C 52 62, 42 114, 46 158 C 50 192, 82 204, 120 204 C 158 204, 190 192, 194 158 C 198 114, 188 62, 166 36 C 150 22, 90 22, 74 36 Z" fill="#FFFBF5"/>
+
+  <!-- Classic Panda Dark Shoulder Saddle Band -->
+  <path d="M 74 36 C 58 54, 48 80, 46 102 C 74 92, 96 88, 120 88 C 144 88, 166 92, 194 102 C 192 80, 182 54, 166 36 C 150 22, 90 22, 74 36 Z" fill="#3D3532"/>
+  <!-- Neck shadow on dark band -->
+  <path d="M 74 36 C 90 22, 150 22, 166 36 C 156 54, 84 54, 74 36 Z" fill="#282220"/>
+
+  <!-- Soft Cream Belly Shadow at bottom of torso -->
+  <path d="M 47 154 C 54 190, 84 204, 120 204 C 156 204, 186 190, 193 154 C 178 182, 152 190, 120 190 C 88 190, 62 182, 47 154 Z" fill="#E5DDD0"/>
+  <!-- Soft Belly Highlight -->
+  <ellipse cx="120" cy="136" rx="44" ry="38" fill="#FFFFFF"/>
+
+  <!-- Torso Outline -->
+  <path d="M 74 36 C 52 62, 42 114, 46 158 C 50 192, 82 204, 120 204 C 158 204, 190 192, 194 158 C 198 114, 188 62, 166 36 C 150 22, 90 22, 74 36 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left & Right Chunky Dark Panda Arms flowing from shoulders -->
+  <g>
+    <path d="M 62 60 C 32 68, 10 100, 16 128 C 22 148, 46 148, 58 128 C 66 114, 68 92, 66 74 Z" fill="#3D3532"/>
+    <path d="M 16 118 C 18 142, 42 148, 58 128 C 46 136, 26 134, 16 118 Z" fill="#282220"/>
+    <path d="M 46 68 C 30 76, 20 96, 20 112 C 26 96, 34 80, 50 72 Z" fill="#594E4A"/>
+    <ellipse cx="36" cy="120" rx="9" ry="11" transform="rotate(-20 36 120)" fill="#FF9EBB"/>
+    <path d="M 58 60 C 30 68, 10 100, 16 128 C 22 148, 46 148, 58 128 C 64 118, 66 102, 66 88" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M 178 60 C 208 68, 230 100, 224 128 C 218 148, 194 148, 182 128 C 174 114, 172 92, 174 74 Z" fill="#3D3532"/>
+    <path d="M 224 118 C 222 142, 198 148, 182 128 C 194 136, 214 134, 224 118 Z" fill="#282220"/>
+    <path d="M 194 68 C 210 76, 220 96, 220 112 C 214 96, 206 80, 190 72 Z" fill="#594E4A"/>
+    <ellipse cx="204" cy="120" rx="9" ry="11" transform="rotate(20 204 120)" fill="#FF9EBB"/>
+    <path d="M 182 60 C 210 68, 230 100, 224 128 C 218 148, 194 148, 182 128 C 176 118, 174 102, 174 88" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Stubby Dark Panda Feet/Legs planted at y=211 -->
+  <g>
+    <ellipse cx="82" cy="196" rx="30" ry="17" fill="#3D3532"/>
+    <path d="M 54 198 C 58 210, 70 213, 82 213 C 94 213, 106 210, 110 198 C 98 206, 66 206, 54 198 Z" fill="#282220"/>
+    <path d="M 60 186 C 70 180, 94 180, 104 186 C 92 183, 72 183, 60 186 Z" fill="#594E4A"/>
+    <ellipse cx="82" cy="195" rx="13" ry="7.5" fill="#FF9EBB"/>
+    <ellipse cx="82" cy="196" rx="30" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <ellipse cx="158" cy="196" rx="30" ry="17" fill="#3D3532"/>
+    <path d="M 130 198 C 134 210, 146 213, 158 213 C 170 213, 182 210, 186 198 C 174 206, 142 206, 130 198 Z" fill="#282220"/>
+    <path d="M 136 186 C 146 180, 170 180, 180 186 C 168 183, 148 183, 136 186 Z" fill="#594E4A"/>
+    <ellipse cx="158" cy="195" rx="13" ry="7.5" fill="#FF9EBB"/>
+    <ellipse cx="158" cy="196" rx="30" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

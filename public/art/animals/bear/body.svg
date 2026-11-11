@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" width="240" height="220">
+  <!-- Neck extension tucked under head -->
+  <path d="M 88 45 C 88 12, 152 12, 152 45 Z" fill="#A96032" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Main Chubby Torso -->
+  <path d="M 74 36 C 52 62, 42 114, 46 158 C 50 192, 82 204, 120 204 C 158 204, 190 192, 194 158 C 198 114, 188 62, 166 36 C 150 22, 90 22, 74 36 Z" fill="#C87D4B"/>
+  <!-- Torso Shadow (under neck and bottom curve) -->
+  <path d="M 74 36 C 90 22, 150 22, 166 36 C 156 54, 84 54, 74 36 Z" fill="#A96032"/>
+  <path d="M 47 154 C 54 190, 84 204, 120 204 C 156 204, 186 190, 193 154 C 178 182, 152 190, 120 190 C 88 190, 62 182, 47 154 Z" fill="#A96032"/>
+  <!-- Torso Highlight -->
+  <path d="M 68 64 C 58 88, 56 118, 60 140 C 66 118, 68 90, 78 68 Z" fill="#E09A6C"/>
+
+  <!-- Warm Cream Belly Patch -->
+  <ellipse cx="120" cy="128" rx="46" ry="52" fill="#FAD9B8"/>
+  <path d="M 76 142 C 84 168, 100 180, 120 180 C 140 180, 156 168, 164 142 C 150 162, 136 170, 120 170 C 104 170, 90 162, 76 142 Z" fill="#E5BF98"/>
+
+  <!-- Torso Outline -->
+  <path d="M 74 36 C 52 62, 42 114, 46 158 C 50 192, 82 204, 120 204 C 158 204, 190 192, 194 158 C 198 114, 188 62, 166 36 C 150 22, 90 22, 74 36 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left & Right Chunky Arms flowing from shoulders -->
+  <g>
+    <path d="M 62 60 C 32 68, 10 100, 16 128 C 22 148, 46 148, 58 128 C 66 114, 68 92, 66 74 Z" fill="#C87D4B"/>
+    <path d="M 16 118 C 18 142, 42 148, 58 128 C 46 136, 26 134, 16 118 Z" fill="#A96032"/>
+    <ellipse cx="36" cy="120" rx="10" ry="12" transform="rotate(-20 36 120)" fill="#FAD9B8"/>
+    <path d="M 58 60 C 30 68, 10 100, 16 128 C 22 148, 46 148, 58 128 C 64 118, 66 102, 66 88" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M 178 60 C 208 68, 230 100, 224 128 C 218 148, 194 148, 182 128 C 174 114, 172 92, 174 74 Z" fill="#C87D4B"/>
+    <path d="M 224 118 C 222 142, 198 148, 182 128 C 194 136, 214 134, 224 118 Z" fill="#A96032"/>
+    <ellipse cx="204" cy="120" rx="10" ry="12" transform="rotate(20 204 120)" fill="#FAD9B8"/>
+    <path d="M 182 60 C 210 68, 230 100, 224 128 C 218 148, 194 148, 182 128 C 176 118, 174 102, 174 88" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Stubby Feet planted at y=211 -->
+  <g>
+    <ellipse cx="82" cy="196" rx="30" ry="17" fill="#C87D4B"/>
+    <path d="M 54 198 C 58 210, 70 213, 82 213 C 94 213, 106 210, 110 198 C 98 206, 66 206, 54 198 Z" fill="#A96032"/>
+    <ellipse cx="82" cy="195" rx="14" ry="8" fill="#FAD9B8"/>
+    <ellipse cx="82" cy="196" rx="30" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <ellipse cx="158" cy="196" rx="30" ry="17" fill="#C87D4B"/>
+    <path d="M 130 198 C 134 210, 146 213, 158 213 C 170 213, 182 210, 186 198 C 174 206, 142 206, 130 198 Z" fill="#A96032"/>
+    <ellipse cx="158" cy="195" rx="14" ry="8" fill="#FAD9B8"/>
+    <ellipse cx="158" cy="196" rx="30" ry="17" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
