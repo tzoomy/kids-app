@@ -21,8 +21,8 @@ export const ANIM_PROFILE = {
   flyArc: { duration: 520, height: 170, endScale: 0.45, stagger: 110, ease: 'Sine.easeIn' },
 
   character: {
-    enter: { duration: 820, hops: 3, hopHeight: 46, ease: 'Linear' },
-    exit: { duration: 700, hops: 3, hopHeight: 40, waveAngle: 9, waveDuration: 150, waveRepeats: 2 },
+    enter: { duration: 680, hops: 3, hopHeight: 42, ease: 'Linear' },
+    exit: { duration: 520, hops: 2, hopHeight: 36, waveAngle: 9, waveDuration: 110, waveRepeats: 1 },
     breath: { scaleX: 0.988, scaleY: 1.022, duration: 1400, ease: 'Sine.easeInOut' },
     sway: { angle: 1.6, duration: 2200, ease: 'Sine.easeInOut' },
     blink: { minDelay: 2000, maxDelay: 5000, closedFor: 120 },
@@ -40,7 +40,7 @@ export const ANIM_PROFILE = {
     star: { count: 10, speedMin: 180, speedMax: 380, lifespan: 750, scaleStart: 0.7, gravityY: 300 },
     sparkle: { count: 8, speedMin: 60, speedMax: 180, lifespan: 600, scaleStart: 0.55, gravityY: 0 },
     heart: { count: 6, speedMin: 70, speedMax: 150, lifespan: 1100, scaleStart: 0.6, gravityY: -120 },
-    crumb: { count: 6, speedMin: 90, speedMax: 200, lifespan: 520, scaleStart: 0.45, gravityY: 700 },
+    crumb: { count: 8, speedMin: 110, speedMax: 230, lifespan: 650, scaleStart: 0.62, gravityY: 480 },
     confetti: { count: 18, speedMin: 220, speedMax: 460, lifespan: 1300, scaleStart: 0.5, gravityY: 520 },
   },
 

@@ -69,7 +69,7 @@ export const ANIMAL_ART_KINDS: string[];
 
 - `src/anim/`: tween/timeline helpers (squash-and-stretch, pop-in, bounce, wobble, shake-soft), a particle/juice helper using the FX sprites, a scene-transition helper (soft iris/fade/slide, under 400 ms), and a `Character` built from an `AnimalRig` with a small state machine: `enter`, `idle` (breathing, blink every 2–5 s, occasional ear/tail wiggle), `talking` (mouth flaps while the voice line plays), `happy` (bounce + squash-and-stretch + hearts), `munch` (food flies to mouth, chew loop, crumbs), `hmm` (gentle head tilt, `mouth-hmm`, no shake of the whole body, never punishing), `exit`.
 - Animation amplitudes/durations live in one tunable data object (`src/anim/profiles.ts`) so design can tune feel without touching logic.
-- Performance: rasterized SVG textures, no per-frame Graphics redraws, pooled particles, cap simultaneous tweens; respect `prefers-reduced-motion` by reducing amplitude.
+- Performance: rasterized SVG textures, no per-frame Graphics redraws, pooled particles, keep simultaneous tweens low; respect `prefers-reduced-motion` by reducing amplitude.
 - Until Gemini's art lands, the Character must work with a fallback (current `drawAnimal` image as a single-part rig) so the branch stays runnable.
 
 ## Audio hooks (Grok Bot)
@@ -134,6 +134,7 @@ Use `amp()` / `ampScale()` for every amplitude so reduced motion keeps working. 
 
 ### Restaurant integration notes
 
-- `src/games/restaurant/restaurantLayout.ts` (pure, tested) owns positions for 1280x800 and 800x1280. The animal's feet sit behind a counter front drawn above it (`restaurantArt.ts`).
+- `src/games/restaurant/restaurantLayout.ts` (pure, tested) owns positions for 1280x800 and 800x1280. The animal's feet sit behind a counter front drawn above it (`restaurantArt.ts`). The counter is stretched from its top to the bottom of the screen; plates sit on its cream surface and line up with its three panels (2 plates use the outer-left/right thirds). It also owns every tap rectangle: plate hit areas start `PLATE_HIT_OVERHANG` above the counter top and the animal zone stops where they begin, so the two never overlap (unit-tested for both orientations and both age tracks). Three foods on one plate are arranged 2 back / 1 front.
+- Wrong-tap handling: plate taps are ignored for 400 ms after a wrong tap (a double tap is one try), only the last wrong tap schedules the retry/hint, and `wobble` / `hintPulse` replace their previous tween on the same target (`killTweensOfProps` does not see `TweenChain`s, so those two track their own).
+- `window.__testHooks__` exists only with `?e2e=1`. `getRoundInfo().ready` is true once the animal has hopped in and the plates have popped in; e2e tests wait on it instead of sleeping.
 - Correct answer: plate press squash, the other plates pop out, the food flies on an arc into `mouthPoint()`, then `munch()`, star and confetti burst, `happy()` with hearts, a star flies to the HUD star pill and bumps it, the thanks line plays through `talk()`, then `exit()` and the next animal `enter()`s. Wrong answer: plate `wobble`, animal `hmm()`, then the usual hint or retry after 450 ms.
-- Requests for other owners: the HUD rebuilds the whole chrome every second (`renderRestaurantChrome` replaces `chromeRoot` and `setRestaurantChrome` clears the overlay). The restaurant works around it by re-adding the prompt bubble and skipping refreshes while help is open, but an in-place update in `src/ui/hud.ts`, plus a `data-testid` on the star pill, would be cleaner.
