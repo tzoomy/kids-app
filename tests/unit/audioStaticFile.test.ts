@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { StaticFileProvider } from '@/core/audio/staticFileProvider';
+import crypto from 'node:crypto';
+import { StaticFileProvider, STATIC_CLIP_GRACE_MS, STATIC_CLIP_HARD_TIMEOUT_MS } from '@/core/audio/staticFileProvider';
+import textHashes from '@/content/audio-text-hashes.json';
 import { loadAudioManifest, loadAnimalRestaurant } from '@/content/loadContent';
 import { heLine, heVariant } from '@/content/voiceLines';
 import heLines from '@/content/voice-lines-he.json';
@@ -11,6 +13,7 @@ class FakeAudio {
   listeners: Record<string, Array<() => void>> = {};
   paused = false;
   playbackRate = 1;
+  duration = NaN;
   muted = false;
   volume = 1;
   constructor(public src = '') {
@@ -38,7 +41,10 @@ describe('StaticFileProvider', () => {
     FakeAudio.instances = [];
     vi.stubGlobal('Audio', FakeAudio);
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   const req = { lineId: 'food.apple.1.en', lang: 'en' as const, text: 'I want an apple, please!' };
 
@@ -80,6 +86,37 @@ describe('StaticFileProvider', () => {
   });
 });
 
+describe('StaticFileProvider safety timeout', () => {
+  beforeEach(() => {
+    FakeAudio.instances = [];
+    vi.stubGlobal('Audio', FakeAudio);
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+  const req = { lineId: 'x', lang: 'en' as const, text: 'x' };
+
+  it('settles a clip that never ends after its duration plus a grace period', async () => {
+    const p = new StaticFileProvider({ x: 'a.mp3' });
+    const done = p.play(req);
+    const a = FakeAudio.instances[0];
+    a.duration = 2;
+    a.emit('loadedmetadata');
+    vi.advanceTimersByTime(2000 + STATIC_CLIP_GRACE_MS + 10);
+    await expect(done).resolves.toBe(true);
+    expect(a.paused).toBe(true);
+  });
+
+  it('settles a clip whose metadata never loads after the hard timeout', async () => {
+    const p = new StaticFileProvider({ x: 'a.mp3' });
+    const done = p.play(req);
+    vi.advanceTimersByTime(STATIC_CLIP_HARD_TIMEOUT_MS + 10);
+    await expect(done).resolves.toBe(true);
+  });
+});
+
 describe('voice clip coverage', () => {
   const manifest = loadAudioManifest();
   const publicDir = path.resolve(__dirname, '../../public');
@@ -104,6 +141,40 @@ describe('voice clip coverage', () => {
     for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((_, i) => valid.add(`thanks.${lang}.${i}`));
     for (const key of Object.keys(heLines)) if (!key.startsWith('_')) valid.add(`he.${key}`);
     for (const id of Object.keys(manifest)) expect(valid.has(id), id).toBe(true);
+  });
+
+  it('every line the app can request has a clip', () => {
+    const content = loadAnimalRestaurant();
+    const ids: string[] = [];
+    for (const item of content.items) {
+      for (const lang of ['en', 'fr'] as const) {
+        for (const count of Object.keys(item.prompts[lang] ?? {})) ids.push(`food.${item.id}.${count}.${lang}`);
+      }
+    }
+    for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((_, i) => ids.push(`thanks.${lang}.${i}`));
+    for (const key of Object.keys(heLines)) if (!key.startsWith('_')) ids.push(`he.${key}`);
+    const missing = ids.filter((id) => !manifest[id]);
+    expect(missing).toEqual([]);
+  });
+
+  it('every clip was rendered from the current text (re-run scripts/tts/generate_voice.py after copy edits)', () => {
+    // Must match text_hash() in scripts/tts/generate_voice.py.
+    const prefix = 'gemini-3.8-flash-tts|Leda|warm, cheerful, slow and clear, speaking to a 2 to 5 year old|';
+    const content = loadAnimalRestaurant();
+    const texts: Record<string, string> = {};
+    for (const item of content.items) {
+      for (const lang of ['en', 'fr'] as const) {
+        for (const [count, text] of Object.entries(item.prompts[lang] ?? {})) texts[`food.${item.id}.${count}.${lang}`] = text;
+      }
+    }
+    for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((t, i) => (texts[`thanks.${lang}.${i}`] = t));
+    for (const [key, text] of Object.entries(heLines)) if (!key.startsWith('_')) texts[`he.${key}`] = text;
+    const hashes = textHashes as Record<string, string>;
+    const stale = Object.keys(manifest).filter((id) => {
+      const h = crypto.createHash('sha1').update(prefix + texts[id], 'utf8').digest('hex').slice(0, 12);
+      return hashes[id] !== h;
+    });
+    expect(stale).toEqual([]);
   });
 
   it('builds Hebrew guidance requests', () => {

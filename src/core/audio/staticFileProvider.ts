@@ -6,6 +6,11 @@ import type { AudioManifest, AudioProvider, SpeechRequest } from './types';
  * The returned promise always settles: on end, on error, or when stop() interrupts it,
  * so callers can safely drive a "talking" animation off it.
  */
+/** Hard cap for one clip when its duration is unknown (the longest clip is about 10 s). */
+export const STATIC_CLIP_HARD_TIMEOUT_MS = 15000;
+/** Grace period added to a clip's known duration before it is treated as stuck. */
+export const STATIC_CLIP_GRACE_MS = 1500;
+
 export class StaticFileProvider implements AudioProvider {
   readonly id = 'static-file';
   private current: HTMLAudioElement | null = null;
@@ -57,11 +62,29 @@ export class StaticFileProvider implements AudioProvider {
     return new Promise<boolean>((resolve) => {
       const audio = new Audio(this.baseUrl + path);
       let settled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const arm = (ms: number) => {
+        if (timer !== undefined) clearTimeout(timer);
+        // A stalled load or an audio-focus pause must not leave the caller (and the
+        // leisure "listening" flag) waiting forever: treat a stuck clip as finished.
+        timer = setTimeout(() => {
+          audio.pause();
+          finish(true);
+        }, ms);
+      };
+      const onMeta = () => {
+        const d = audio.duration;
+        if (Number.isFinite(d) && d > 0) {
+          arm((d * 1000) / (audio.playbackRate || 1) + STATIC_CLIP_GRACE_MS);
+        }
+      };
       const finish = (played: boolean) => {
         if (settled) return;
         settled = true;
+        if (timer !== undefined) clearTimeout(timer);
         audio.removeEventListener('ended', onEnded);
         audio.removeEventListener('error', onError);
+        audio.removeEventListener('loadedmetadata', onMeta);
         if (this.current === audio) {
           this.current = null;
           this.settleCurrent = null;
@@ -74,6 +97,8 @@ export class StaticFileProvider implements AudioProvider {
       this.settleCurrent = finish;
       audio.addEventListener('ended', onEnded);
       audio.addEventListener('error', onError);
+      audio.addEventListener('loadedmetadata', onMeta);
+      arm(STATIC_CLIP_HARD_TIMEOUT_MS);
       if (request.rate && request.rate !== 1) audio.playbackRate = request.rate;
       audio.play().catch(() => finish(false));
     });

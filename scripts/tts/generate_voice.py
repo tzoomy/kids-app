@@ -13,7 +13,9 @@ Usage (from the repo root, with GEMINI_API_KEY in the environment):
   clips that exist, so missing lines fall back to device TTS.
 - Raw API takes are cached outside the repo (VOICE_RAW_DIR, default
   ../voice-p1/raw) so a re-split never needs another request.
-- Never prints the API key.
+- src/content/audio-text-hashes.json records the text each clip was rendered from;
+  editing a sentence makes its batch re-render on the next run (and fails CI until then).
+- Requires Python 3.9+ and the google-genai package; never prints the API key.
 """
 from __future__ import annotations
 
@@ -32,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTENT = ROOT / "src/content/games/animal-restaurant.json"
 HE_LINES = ROOT / "src/content/voice-lines-he.json"
 MANIFEST = ROOT / "src/content/audio-manifest.json"
+HASHES = ROOT / "src/content/audio-text-hashes.json"
 AUDIO_DIR = ROOT / "public/audio"
 RAW_DIR = Path(os.environ.get("VOICE_RAW_DIR", ROOT.parent / "voice-p1" / "raw"))
 REPORT = RAW_DIR.parent / "report.json"
@@ -80,8 +83,22 @@ def collect_lines() -> list[dict]:
     for key, text in he.items():
         if key.startswith("_"):
             continue
-        lines.append({"id": f"he.{key}", "lang": "he", "text": text, "path": f"audio/he/{re.sub(r'([a-z])([A-Z])', r'\1-\2', key).replace('.', '-').lower()}.mp3"})
+        slug = re.sub(r"([a-z])([A-Z])", r"\1-\2", key).replace(".", "-").lower()
+        lines.append({"id": f"he.{key}", "lang": "he", "text": text, "path": f"audio/he/{slug}.mp3"})
     return lines
+
+
+def text_hash(text: str) -> str:
+    """Must match tests/unit/audioStaticFile.test.ts (sha1 of model|voice|style|text, 12 hex chars)."""
+    return hashlib.sha1(f"{MODEL_ID}|{VOICE}|{STYLE}|{text}".encode("utf-8")).hexdigest()[:12]
+
+
+def load_hashes() -> dict:
+    return json.loads(HASHES.read_text(encoding="utf-8")) if HASHES.exists() else {}
+
+
+def clip_is_current(line: dict, hashes: dict) -> bool:
+    return (ROOT / "public" / line["path"]).exists() and hashes.get(line["id"]) == text_hash(line["text"])
 
 
 def make_batches(lines: list[dict]) -> list[list[dict]]:
@@ -287,6 +304,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--resplit-only", action="store_true")
+    ap.add_argument("--bootstrap-hashes", action="store_true", help="record hashes for existing clips without re-rendering")
     ap.add_argument("--max-requests", type=int, default=8)
     ap.add_argument("--min-conf", type=float, default=0.0)
     args = ap.parse_args()
@@ -300,12 +318,20 @@ def main() -> int:
             log(f"  {batch_key(b)}: {len(b)} lines, first={b[0]['id']}")
         return 0
 
+    hashes = load_hashes()
+    if args.bootstrap_hashes:
+        for l in lines:
+            if (ROOT / "public" / l["path"]).exists():
+                hashes.setdefault(l["id"], text_hash(l["text"]))
+        HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        log(f"bootstrapped {len(hashes)} hashes")
+        return 0
     used = 0
     for b in batches:
         key = batch_key(b)
         raw = RAW_DIR / f"{key}.wav"
-        if all((ROOT / "public" / l["path"]).exists() for l in b) and not args.resplit_only:
-            log(f"skip {key}: all clips exist")
+        if all(clip_is_current(l, hashes) for l in b) and not args.resplit_only:
+            log(f"skip {key}: all clips exist and match their text")
             continue
         if not raw.exists():
             if args.resplit_only:
@@ -350,6 +376,8 @@ def main() -> int:
             continue
         for l, (s, e) in zip(b, intervals):
             encode_clip(raw, s, e, ROOT / "public" / l["path"])
+            hashes[l["id"]] = text_hash(l["text"])
+    HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     n = write_manifest(lines)
     log(f"requests used this run: {used}; clips in manifest: {n}/{len(lines)}")
     return 0
