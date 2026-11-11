@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Berry Body -->
+    <g>
+      <path d="M128 66 C188 66 218 98 212 142 C206 186 164 232 128 232 C92 232 50 186 44 142 C38 98 68 66 128 66 Z" fill="#F9415A"/>
+      <!-- Shadow -->
+      <path d="M204 102 C212 114 214 128 212 142 C206 186 164 232 128 232 C100 232 68 202 52 168 C84 202 126 214 162 190 C192 170 202 134 204 102 Z" fill="#D1233D"/>
+      <!-- Highlight -->
+      <path d="M68 134 C66 112 78 96 94 92" fill="none" stroke="#FF8FA0" stroke-width="11"/>
+      <circle cx="70" cy="154" r="5" fill="#FF8FA0"/>
+      <circle cx="84" cy="98" r="4" fill="#FFFDF9"/>
+      <!-- Seeds -->
+      <g fill="#FFE57F" stroke="#3B2A22" stroke-width="3.5">
+        <ellipse cx="96" cy="122" rx="4.5" ry="7"/>
+        <ellipse cx="130" cy="116" rx="4.5" ry="7"/>
+        <ellipse cx="164" cy="124" rx="4.5" ry="7"/>
+        <ellipse cx="82" cy="162" rx="4.5" ry="7"/>
+        <ellipse cx="114" cy="158" rx="4.5" ry="7"/>
+        <ellipse cx="148" cy="156" rx="4.5" ry="7"/>
+        <ellipse cx="180" cy="158" rx="4.5" ry="7"/>
+        <ellipse cx="106" cy="196" rx="4.5" ry="7"/>
+        <ellipse cx="136" cy="198" rx="4.5" ry="7"/>
+        <ellipse cx="160" cy="190" rx="4.5" ry="7"/>
+      </g>
+      <!-- Berry Outline -->
+      <path d="M128 66 C188 66 218 98 212 142 C206 186 164 232 128 232 C92 232 50 186 44 142 C38 98 68 66 128 66 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Stem -->
+    <path d="M124 58 C124 42 130 28 140 24 C146 22 150 28 145 34 C138 40 136 48 136 58 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Leafy Calyx Crown -->
+    <g>
+      <path d="M128 50 C106 44 74 52 62 72 C78 82 100 80 112 70 C114 86 120 96 128 96 C136 96 142 86 144 70 C156 80 178 82 194 72 C182 52 150 44 128 50 Z" fill="#57C457"/>
+      <path d="M112 70 C114 86 120 96 128 96 C136 96 142 86 144 70 C156 80 178 82 194 72 C186 64 174 62 158 64 C146 66 138 78 128 78 C118 78 110 66 98 64 C82 62 70 64 62 72 C78 82 100 80 112 70 Z" fill="#3CA33C"/>
+      <path d="M84 60 C96 55 110 55 120 58" fill="none" stroke="#8AE07E" stroke-width="5"/>
+      <path d="M128 50 C106 44 74 52 62 72 C78 82 100 80 112 70 C114 86 120 96 128 96 C136 96 142 86 144 70 C156 80 178 82 194 72 C182 52 150 44 128 50 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

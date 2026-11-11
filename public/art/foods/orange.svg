@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Orange Sphere Body -->
+    <g>
+      <circle cx="128" cy="140" r="88" fill="#FF922B"/>
+      <!-- Shadow -->
+      <path d="M56 190 A88 88 0 0 0 208 104 C202 162 152 212 88 206 C74 204 64 198 56 190 Z" fill="#E06D0B"/>
+      <!-- Highlight -->
+      <path d="M64 126 C68 98 86 78 112 72" fill="none" stroke="#FFC078" stroke-width="14"/>
+      <circle cx="62" cy="148" r="6" fill="#FFC078"/>
+      <ellipse cx="82" cy="92" rx="7" ry="4" transform="rotate(-35 82 92)" fill="#FFFDF9"/>
+      <!-- Citrus Peel Dimples -->
+      <g fill="#E06D0B">
+        <circle cx="152" cy="156" r="4"/>
+        <circle cx="170" cy="142" r="3.5"/>
+        <circle cx="164" cy="172" r="4"/>
+        <circle cx="138" cy="178" r="3.5"/>
+        <circle cx="182" cy="158" r="3.5"/>
+      </g>
+      <!-- Outline -->
+      <circle cx="128" cy="140" r="88" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Leaf -->
+    <g>
+      <path d="M132 54 C150 28 192 22 208 42 C194 68 156 72 132 54 Z" fill="#57C457"/>
+      <path d="M132 54 C156 72 194 68 208 42 C196 56 164 58 132 54 Z" fill="#3CA33C"/>
+      <path d="M154 40 C166 34 182 34 190 40" fill="none" stroke="#8AE07E" stroke-width="5"/>
+      <path d="M132 54 C150 28 192 22 208 42 C194 68 156 72 132 54 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M140 52 C158 50 176 48 192 44" fill="none" stroke="#3B2A22" stroke-width="4"/>
+    </g>
+
+    <!-- Top Calyx Button & Short Stem -->
+    <path d="M112 56 C120 48 136 48 144 56 C138 64 118 64 112 56 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M124 54 L124 38 C124 32 132 32 132 38 L132 54 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

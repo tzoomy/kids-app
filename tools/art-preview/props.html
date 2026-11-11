@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Animal Restaurant — Props, Foods &amp; Scene Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FAF0E1;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #3B2A22;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      align-items: center;
+    }
+    .scene-frame {
+      position: relative;
+      overflow: hidden;
+      background: #FFF3E0;
+      box-shadow: 0 8px 28px rgba(59, 42, 34, 0.15);
+    }
+    #shot-landscape {
+      width: 1280px;
+      height: 800px;
+    }
+    #shot-portrait {
+      width: 800px;
+      height: 1280px;
+    }
+    .layer {
+      position: absolute;
+      display: block;
+      user-select: none;
+    }
+
+    /* Foods & FX Sheet */
+    #shot-foods {
+      width: 1280px;
+      background: #FFF9EF;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      padding: 32px;
+    }
+    .sheet-title {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: #3B2A22;
+    }
+    .foods-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      justify-items: center;
+    }
+    .food-card {
+      background: #FFF3E0;
+      border: 2px dashed #E5BE94;
+      border-radius: 18px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .food-card img {
+      width: 256px;
+      height: 256px;
+      display: block;
+    }
+    .food-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: #5C4338;
+    }
+    .fx-row {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 2px dashed #E5BE94;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .fx-card {
+      background: #FFF3E0;
+      border: 2px dashed #E5BE94;
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .fx-card img.fx-native {
+      width: 64px;
+      height: 64px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. LANDSCAPE SCENE (1280 x 800) -->
+  <div id="shot-landscape" class="scene-frame">
+    <img class="layer" src="/art/scenes/restaurant/bg-landscape.svg" style="left:0; top:0; width:1280px; height:800px;" />
+
+    <!-- Bear-sized placeholder silhouette in the center behind the counter -->
+    <svg class="layer" viewBox="0 0 400 480" style="left:440px; top:165px; width:400px; height:480px;">
+      <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Ears -->
+        <circle cx="110" cy="96" r="44" fill="#C87D4B" />
+        <circle cx="110" cy="96" r="24" fill="#FAD9B8" stroke="none" />
+        <circle cx="290" cy="96" r="44" fill="#C87D4B" />
+        <circle cx="290" cy="96" r="24" fill="#FAD9B8" stroke="none" />
+        <!-- Torso -->
+        <ellipse cx="200" cy="340" rx="88" ry="110" fill="#C87D4B" />
+        <ellipse cx="200" cy="350" rx="56" ry="76" fill="#FAD9B8" stroke="none" />
+        <!-- Head -->
+        <ellipse cx="200" cy="176" rx="108" ry="92" fill="#C87D4B" />
+        <ellipse cx="200" cy="198" rx="46" ry="34" fill="#FAD9B8" />
+        <!-- Eyes & Nose & Smile -->
+        <circle cx="152" cy="166" r="16" fill="#261710" stroke="none" />
+        <circle cx="147" cy="160" r="6" fill="#FFFDF9" stroke="none" />
+        <circle cx="248" cy="166" r="16" fill="#261710" stroke="none" />
+        <circle cx="243" cy="160" r="6" fill="#FFFDF9" stroke="none" />
+        <ellipse cx="122" cy="194" rx="18" ry="10" fill="#FF8FA3" stroke="none" />
+        <ellipse cx="278" cy="194" rx="18" ry="10" fill="#FF8FA3" stroke="none" />
+        <ellipse cx="200" cy="184" rx="14" ry="10" fill="#3B2A22" stroke="none" />
+        <path d="M184 202 Q200 218 216 202" fill="none" stroke="#3B2A22" stroke-width="5" />
+      </g>
+    </svg>
+
+    <!-- Counter at bottom (top of counter around y=550) -->
+    <img class="layer" src="/art/scenes/restaurant/counter.svg" style="left:0; top:545px; width:1280px; height:260px;" />
+
+    <!-- Plate 1 (Left): 3 Apples side by side -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:70px; top:590px; width:320px; height:60px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:70px; top:505px; width:320px; height:140px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:86px; top:474px; width:108px; height:108px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:176px; top:484px; width:108px; height:108px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:264px; top:474px; width:108px; height:108px;" />
+
+    <!-- Plate 2 (Center): 2 Strawberries -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:480px; top:590px; width:320px; height:60px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:480px; top:505px; width:320px; height:140px;" />
+    <img class="layer" src="/art/foods/strawberry.svg" style="left:526px; top:468px; width:122px; height:122px;" />
+    <img class="layer" src="/art/foods/strawberry.svg" style="left:634px; top:472px; width:122px; height:122px;" />
+
+    <!-- Plate 3 (Right): 1 Fish -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:890px; top:590px; width:320px; height:60px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:890px; top:505px; width:320px; height:140px;" />
+    <img class="layer" src="/art/foods/fish.svg" style="left:970px; top:462px; width:160px; height:160px;" />
+  </div>
+
+  <!-- 2. PORTRAIT SCENE (800 x 1280) -->
+  <div id="shot-portrait" class="scene-frame">
+    <img class="layer" src="/art/scenes/restaurant/bg-portrait.svg" style="left:0; top:0; width:800px; height:1280px;" />
+
+    <!-- Bear-sized placeholder silhouette in the center behind the counter -->
+    <svg class="layer" viewBox="0 0 400 480" style="left:200px; top:500px; width:400px; height:480px;">
+      <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="110" cy="96" r="44" fill="#C87D4B" />
+        <circle cx="110" cy="96" r="24" fill="#FAD9B8" stroke="none" />
+        <circle cx="290" cy="96" r="44" fill="#C87D4B" />
+        <circle cx="290" cy="96" r="24" fill="#FAD9B8" stroke="none" />
+        <ellipse cx="200" cy="340" rx="88" ry="110" fill="#C87D4B" />
+        <ellipse cx="200" cy="350" rx="56" ry="76" fill="#FAD9B8" stroke="none" />
+        <ellipse cx="200" cy="176" rx="108" ry="92" fill="#C87D4B" />
+        <ellipse cx="200" cy="198" rx="46" ry="34" fill="#FAD9B8" />
+        <circle cx="152" cy="166" r="16" fill="#261710" stroke="none" />
+        <circle cx="147" cy="160" r="6" fill="#FFFDF9" stroke="none" />
+        <circle cx="248" cy="166" r="16" fill="#261710" stroke="none" />
+        <circle cx="243" cy="160" r="6" fill="#FFFDF9" stroke="none" />
+        <ellipse cx="122" cy="194" rx="18" ry="10" fill="#FF8FA3" stroke="none" />
+        <ellipse cx="278" cy="194" rx="18" ry="10" fill="#FF8FA3" stroke="none" />
+        <ellipse cx="200" cy="184" rx="14" ry="10" fill="#3B2A22" stroke="none" />
+        <path d="M184 202 Q200 218 216 202" fill="none" stroke="#3B2A22" stroke-width="5" />
+      </g>
+    </svg>
+
+    <!-- Counter scaled to 800 wide, counter top around y=900 -->
+    <img class="layer" src="/art/scenes/restaurant/counter.svg" style="left:0; top:900px; width:800px; height:380px;" />
+
+    <!-- 3 Plates on Portrait Counter (sitting on countertop y=900..1014) -->
+    <!-- Plate 1 (Left): 3 Apples side by side -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:24px; top:956px; width:236px; height:44px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:24px; top:888px; width:236px; height:104px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:34px; top:862px; width:82px; height:82px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:101px; top:870px; width:82px; height:82px;" />
+    <img class="layer" src="/art/foods/apple.svg" style="left:166px; top:862px; width:82px; height:82px;" />
+
+    <!-- Plate 2 (Center): Cheese & Cookie -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:282px; top:956px; width:236px; height:44px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:282px; top:888px; width:236px; height:104px;" />
+    <img class="layer" src="/art/foods/cheese.svg" style="left:316px; top:856px; width:94px; height:94px;" />
+    <img class="layer" src="/art/foods/cookie.svg" style="left:402px; top:860px; width:90px; height:90px;" />
+
+    <!-- Plate 3 (Right): Broccoli -->
+    <img class="layer" src="/art/props/plate-shadow.svg" style="left:540px; top:956px; width:236px; height:44px;" />
+    <img class="layer" src="/art/props/plate.svg" style="left:540px; top:888px; width:236px; height:104px;" />
+    <img class="layer" src="/art/foods/broccoli.svg" style="left:600px; top:846px; width:114px; height:114px;" />
+  </div>
+
+  <!-- 3. FOODS & FX NATIVE-SIZE SHEET -->
+  <div id="shot-foods">
+    <div class="sheet-title">Animal Restaurant — 12 Foods (256×256 native) &amp; 4 FX (64×64 native)</div>
+    <div class="foods-grid">
+      <div class="food-card"><img src="/art/foods/apple.svg" /><span class="food-label">apple (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/banana.svg" /><span class="food-label">banana (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/carrot.svg" /><span class="food-label">carrot (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/grapes.svg" /><span class="food-label">grapes (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/cheese.svg" /><span class="food-label">cheese (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/strawberry.svg" /><span class="food-label">strawberry (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/broccoli.svg" /><span class="food-label">broccoli (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/cookie.svg" /><span class="food-label">cookie (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/egg.svg" /><span class="food-label">egg (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/pear.svg" /><span class="food-label">pear (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/orange.svg" /><span class="food-label">orange (256×256)</span></div>
+      <div class="food-card"><img src="/art/foods/fish.svg" /><span class="food-label">fish (256×256)</span></div>
+    </div>
+    <div class="fx-row">
+      <div class="fx-card"><img class="fx-native" src="/art/fx/star.svg" /><span class="food-label">star (64×64)</span></div>
+      <div class="fx-card"><img class="fx-native" src="/art/fx/sparkle.svg" /><span class="food-label">sparkle (64×64)</span></div>
+      <div class="fx-card"><img class="fx-native" src="/art/fx/heart.svg" /><span class="food-label">heart (64×64)</span></div>
+      <div class="fx-card"><img class="fx-native" src="/art/fx/crumb.svg" /><span class="food-label">crumb (64×64)</span></div>
+      <div class="fx-card"><img src="/art/props/plate.svg" style="width:320px;height:140px;" /><span class="food-label">plate (320×140)</span></div>
+    </div>
+  </div>
+
+</body>
+</html>

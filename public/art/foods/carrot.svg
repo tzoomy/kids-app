@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Leafy Greens at Top Right -->
+    <g>
+      <!-- Back Leaves -->
+      <path d="M168 88 C162 56 174 24 194 24 C210 24 206 58 184 88 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M168 88 C198 66 232 62 232 82 C232 98 198 102 168 88 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Center Front Leaf -->
+      <path d="M166 90 C184 52 218 32 230 46 C242 60 212 92 166 90 Z" fill="#57C457"/>
+      <path d="M166 90 C212 92 242 60 230 46 C228 64 204 82 166 90 Z" fill="#3CA33C"/>
+      <path d="M188 62 C200 50 212 46 218 48" fill="none" stroke="#8AE07E" stroke-width="5"/>
+      <path d="M166 90 C184 52 218 32 230 46 C242 60 212 92 166 90 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+    <!-- Carrot Body -->
+    <g>
+      <path d="M132 62 C154 44 212 102 194 124 C174 148 92 218 52 226 C34 230 26 222 30 204 C38 164 108 82 132 62 Z" fill="#FF8533"/>
+      <!-- Shadow -->
+      <path d="M184 86 C198 102 200 116 194 124 C174 148 92 218 52 226 C40 228 32 225 30 216 C74 206 148 142 174 108 C180 100 183 92 184 86 Z" fill="#E06316"/>
+      <!-- Highlight -->
+      <path d="M134 80 C114 98 78 138 56 176" fill="none" stroke="#FFB380" stroke-width="11"/>
+      <circle cx="48" cy="192" r="5" fill="#FFFDF9"/>
+      <!-- Outline -->
+      <path d="M132 62 C154 44 212 102 194 124 C174 148 92 218 52 226 C34 230 26 222 30 204 C38 164 108 82 132 62 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Cute Carrot Crease Lines -->
+      <path d="M116 78 C126 86 134 94 140 104" fill="none" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M138 166 C128 156 120 146 114 138" fill="none" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M74 134 C82 142 90 150 96 160" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

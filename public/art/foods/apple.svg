@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stem -->
+    <path d="M126 68 C126 48 134 32 144 26 C150 23 154 29 149 35 C142 42 138 54 138 68 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Leaf -->
+    <g>
+      <path d="M136 52 C152 30 192 26 206 44 C194 68 158 72 136 52 Z" fill="#57C457"/>
+      <path d="M136 52 C158 72 194 68 206 44 C196 56 164 60 136 52 Z" fill="#3CA33C"/>
+      <path d="M154 41 C166 35 182 35 190 40" fill="none" stroke="#8AE07E" stroke-width="5"/>
+      <path d="M136 52 C152 30 192 26 206 44 C194 68 158 72 136 52 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M142 51 C160 49 178 47 192 44" fill="none" stroke="#3B2A22" stroke-width="4"/>
+    </g>
+    <!-- Apple Body -->
+    <g>
+      <path d="M128 68 C102 52 42 62 36 122 C30 182 72 232 110 232 C120 232 124 227 128 227 C132 227 136 232 146 232 C184 232 226 182 220 122 C214 62 154 52 128 68 Z" fill="#F24C4C"/>
+      <!-- Shadow -->
+      <path d="M210 92 C218 148 182 208 140 214 C126 216 116 214 98 220 C76 226 56 208 48 190 C64 218 92 232 110 232 C120 232 124 227 128 227 C132 227 136 232 146 232 C184 232 226 182 220 122 C218 108 215 99 210 92 Z" fill="#CC3333"/>
+      <!-- Highlight -->
+      <path d="M62 112 C64 92 80 78 96 78 C102 78 104 86 96 89 C84 93 75 104 73 118 C71 126 61 122 62 112 Z" fill="#FF8585"/>
+      <circle cx="67" cy="138" r="6" fill="#FF8585"/>
+      <ellipse cx="80" cy="94" rx="7" ry="4" transform="rotate(-30 80 94)" fill="#FFFDF9"/>
+      <!-- Outline -->
+      <path d="M128 68 C102 52 42 62 36 122 C30 182 72 232 110 232 C120 232 124 227 128 227 C132 227 136 232 146 232 C184 232 226 182 220 122 C214 62 154 52 128 68 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Top dimple crease -->
+      <path d="M108 68 C120 76 136 76 148 68" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    </g>
+  </g>
+</svg>
