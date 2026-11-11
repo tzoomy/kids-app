@@ -6,7 +6,7 @@ import { drawFoodIcon, paintRestaurantKitchen } from '../../assets/vectorArt';
 import { PALETTE } from '../../assets/colors';
 import { foodArtKey, propArtKey, sceneArtKey } from '../../anim/artRegistry';
 import type { ChoiceOption } from '../templates/choiceServe';
-import { ICON_GAP, iconSizeFor, plateWidthFor, type RestaurantLayout } from './restaurantLayout';
+import { PLATE_ASPECT, foodOffsets, iconSizeFor, plateWidthFor, type Rect, type RestaurantLayout } from './restaurantLayout';
 
 export const DEPTH = {
   background: -10,
@@ -35,7 +35,8 @@ export function addCounterFront(scene: Phaser.Scene, layout: RestaurantLayout): 
   const art = sceneArtKey('restaurant', 'counter');
   if (loaded(scene, art)) {
     const img = scene.add.image(layout.width / 2, layout.counter.top, art).setOrigin(0.5, 0).setDepth(DEPTH.counter);
-    img.setScale(layout.width / img.width);
+    // Stretch from the counter top to the bottom edge so there is no dead zone below it.
+    img.setDisplaySize(layout.width, layout.counter.height);
     return img;
   }
   const { left, top, width, height, stripHeight } = layout.counter;
@@ -76,41 +77,43 @@ function buildFood(scene: Phaser.Scene, choice: ChoiceOption, iconSize: number):
   return drawFoodIcon(scene, choice.item.shape, choice.item.color, iconSize);
 }
 
-export function buildPlate(scene: Phaser.Scene, choice: ChoiceOption, spacing: number): PlateView {
+/** `hit` is the plate tap rectangle in game coordinates; it is converted to plate-local space. */
+export function buildPlate(scene: Phaser.Scene, choice: ChoiceOption, spacing: number, hit: Rect, rootX: number, rootY: number): PlateView {
   const iconSize = iconSizeFor(spacing, choice.count);
   const plateW = plateWidthFor(iconSize, choice.count);
-  const plateH = Math.max(46, iconSize * 0.62);
-  const plateY = Math.max(iconSize, 70) * 0.42;
+  const plateH = plateW * PLATE_ASPECT;
+  // Local origin = plate centre, so the plate sits on the counter surface at the root position.
   const root = scene.add.container(0, 0).setDepth(DEPTH.plates);
   const body = scene.add.container(0, 0);
   root.add(body);
 
   const shadowKey = propArtKey('plate-shadow');
   if (loaded(scene, shadowKey)) {
-    body.add(scene.make.image({ key: shadowKey, x: 0, y: plateY + plateH * 0.25, add: false }).setDisplaySize(plateW * 1.05, plateH * 0.7));
+    body.add(scene.make.image({ key: shadowKey, x: 0, y: plateH * 0.25, add: false }).setDisplaySize(plateW * 1.05, plateH * 0.7));
   } else {
-    body.add(scene.add.ellipse(0, plateY + plateH * 0.22, plateW * 0.96, plateH * 0.75, 0x000000, 0.12));
+    body.add(scene.add.ellipse(0, plateH * 0.22, plateW * 0.96, plateH * 0.75, 0x000000, 0.12));
   }
   const plateKey = propArtKey('plate');
   if (loaded(scene, plateKey)) {
-    body.add(scene.make.image({ key: plateKey, x: 0, y: plateY, add: false }).setDisplaySize(plateW, plateW * (140 / 320)));
+    body.add(scene.make.image({ key: plateKey, x: 0, y: 0, add: false }).setDisplaySize(plateW, plateH));
   } else {
-    const plate = scene.add.ellipse(0, plateY, plateW, plateH, 0xf7f1e1);
+    const plate = scene.add.ellipse(0, 0, plateW, plateH, 0xf7f1e1);
     plate.setStrokeStyle(4, PALETTE.outline);
     body.add(plate);
-    body.add(scene.add.ellipse(0, plateY - plateH * 0.08, plateW * 0.7, plateH * 0.5, 0xffffff, 0.55));
+    body.add(scene.add.ellipse(0, -plateH * 0.08, plateW * 0.7, plateH * 0.5, 0xffffff, 0.55));
   }
 
-  const totalWidth = choice.count * iconSize + (choice.count - 1) * ICON_GAP;
   const foods: Phaser.GameObjects.Container[] = [];
-  for (let i = 0; i < choice.count; i++) {
+  for (const off of foodOffsets(iconSize, choice.count)) {
     const food = buildFood(scene, choice, iconSize);
-    food.setPosition(-totalWidth / 2 + iconSize / 2 + i * (iconSize + ICON_GAP), 0);
+    food.setPosition(off.x, off.y);
     body.add(food);
     foods.push(food);
   }
 
-  root.setSize(Math.max(128, plateW + 16), 200);
+  // No setSize: a sized container offsets custom hit areas by its display origin.
+  root.setPosition(rootX, rootY);
+  root.setInteractive(new Phaser.Geom.Rectangle(hit.left - rootX, hit.top - rootY, hit.right - hit.left, hit.bottom - hit.top), Phaser.Geom.Rectangle.Contains);
   return { choice, root, body, foods };
 }
 
