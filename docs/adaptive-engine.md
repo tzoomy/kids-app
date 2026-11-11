@@ -1,6 +1,6 @@
 # Adaptive-difficulty engine (design, issue #16)
 
-Status: **design for review**. The owner approved the feature in issue #16. Items marked **owner decision** are choices this design makes that Maor can still change before or after implementation. Source spec: the research doc `games-per-world.md`, sections 3, 4 and 6 (PR #15, not merged yet).
+Status: **approved for implementation**. The owner approved the feature in issue #16 and decided the open questions on 2026-11-11 (see the end of this doc). Source spec: the research doc `games-per-world.md`, sections 3, 4 and 6 (PR #15, not merged yet).
 
 ## 1. Scope and non-goals
 
@@ -166,7 +166,7 @@ All functions are pure. They return new objects and never mutate their inputs. T
 | `interaction` | `tap` (tap-to-send; forced) | `drag` where the template supports it, otherwise `tap` |
 | `useResponseTime` | `false` (hard-coded; content cannot enable it) | `false` in v1 (skip-ahead deferred) |
 | `levelChange` | `between-rounds` | `after-trial` (takes effect from the next trial, at most `maxChangesPerRound`) |
-| Restaurant levels (**owner decision**) | start L1, max L3 | start L3, max L5 |
+| Restaurant levels (owner decided) | start L1, max L5 (no ceiling: `max = levels.length`) | start L4, max L5 |
 
 The policy is code, not content, so no game JSON can put speed scoring or drag on the age-2 track. `rtMs` may be recorded on `TrialResult`, but in v1 no function reads it. A test asserts this.
 
@@ -187,7 +187,7 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
 
 ```json
 "adaptive": {
-  "tracks": { "age2": { "start": 1, "min": 1, "max": 3 }, "age5": { "start": 3, "min": 1, "max": 5 } },
+  "tracks": { "age2": { "start": 1, "min": 1, "max": 5 }, "age5": { "start": 4, "min": 1, "max": 5 } },
   "levels": [
     { "choiceCount": 2, "counts": [1],       "distractor": "far",  "request": "noun" },
     { "choiceCount": 3, "counts": [1],       "distractor": "far",  "request": "noun" },
@@ -198,7 +198,7 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
 }
 ```
 
-L4 is today's age-5 behaviour (3 plates, quantities). Starting age 5 at L3 follows research §6 ("age 5 → L3"). **Owner decision:** start at L4 if Maor wants today's age-5 experience unchanged. L5 needs a 4-plate layout. `computeRestaurantLayout` already handles `n > 3` generically, but 4 plates need visual QA on both orientations.
+L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner decision), so today's age-5 experience is unchanged on first play. This deviates from research §6 ("age 5 → L3"). Age 2 has no ceiling and can climb through all levels. L5 needs a 4-plate layout. `computeRestaurantLayout` already handles `n > 3` generically, but 4 plates need visual QA on both orientations.
 
 **`choiceServe.ts`.** `buildRound(items, level: ChoiceServeLevel, language, random, targetId?: string)`, where `ChoiceServeLevel = { choiceCount; counts; distractor? }` is read from the level descriptor.
 - If `targetId` is given, it is the target item. The template picks the distractors:
@@ -253,7 +253,7 @@ L4 is today's age-5 behaviour (3 plates, quantities). Starting age 5 at L3 follo
 - `adaptiveStore.test.ts`:
   - Defaults when the key is empty; round-trip; corrupt JSON gives defaults; a future `schemaVersion` gives defaults and is never written.
   - Malformed skill entries are dropped; per-profile keys are isolated; the migration chain is invoked for older versions (stub v0 fixture).
-- `skillSession.test.ts`: record persists after each trial; `endVisit` closes the round; `initialSkill` uses the track start (age2 → L1, age5 → L3).
+- `skillSession.test.ts`: record persists after each trial; `endVisit` closes the round; `initialSkill` uses the track start (age2 → L1, age5 → L4); age2 max equals the level count.
 - `adaptiveLeisureIsolation.test.ts`: the three checks in §6.
 - Updates to existing tests:
   - `choiceServe.test.ts`: level-based `buildRound`, `targetId` honoured, `far`/`near` distractors, count variant only at quantity levels.
@@ -278,9 +278,9 @@ L4 is today's age-5 behaviour (3 plates, quantities). Starting age 5 at L3 follo
 
 **Unchanged:** everything in `src/core/leisure`, `tests/e2e/*`, `main.ts`, `createGame.ts`, root prototype files, `package.json`, the vite/tsconfig/vitest/playwright configs and CI. No new dependencies.
 
-**Owner decisions:**
-1. Age-5 start level: L3 (research) or L4 (today's behaviour).
-2. Age-2 ceiling: L3.
-3. The down rule: 2 misses in the last 3 trials.
+**Owner decisions (Maor, 2026-11-11, final):**
+1. Age 5 starts at L4 (today's behaviour).
+2. Age 2 has no level ceiling (`max = levels.length`); she can climb through all levels.
+3. Down rule: 2 misses in the last 3 trials (`downMisses: 2`, `downWindow: 3`).
 4. The language stays fixed per round of 3 animals.
-5. A voluntary replay is not a hint.
+5. Tapping to replay the request is not a hint.
