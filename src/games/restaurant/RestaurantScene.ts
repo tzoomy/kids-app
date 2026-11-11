@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
-import { buildRound, isCorrectChoice, pickLanguage, type ChoiceServeLevel, type RoundSpec } from '../templates/choiceServe';
+import { buildRound, isCorrectChoice, pickLanguage, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
+import { buildMeta, type SkillSession } from '../../core/adaptive';
 import type { LearningSession } from '../../core/leisure';
 import type { AgeTrackConfig } from '../../content/schema';
 import { Character } from '../../anim/Character';
@@ -28,6 +29,9 @@ export interface RoundInfo {
   language: string;
   promptText: string;
   tries: number;
+  /** Adaptive level (1-based) and skill key of the current animal. */
+  level: number;
+  skillKey: string;
   correctCount: number;
   /** Animal state machine state ('enter', 'idle', 'talking', ...). */
   characterState: string;
@@ -38,6 +42,12 @@ export interface RoundInfo {
 interface ActiveRound extends RoundSpec {
   done: boolean;
   tries: number;
+  /** The idle auto-hint fired before the first plate tap. A voluntary replay never sets this. */
+  hinted: boolean;
+  /** The engine already got this trial's first accepted plate tap. */
+  recorded: boolean;
+  level: number;
+  skillKey: string;
 }
 
 /** Plate taps are ignored this long after a wrong tap, so a double tap counts as one try. */
@@ -56,6 +66,9 @@ export class RestaurantScene extends Phaser.Scene {
   private session!: LearningSession;
   private ageConfig!: AgeTrackConfig;
   private level!: ChoiceServeLevel;
+  private skills!: SkillSession;
+  /** Language of the current round of animals; stays fixed until the round boundary. */
+  private roundLang: Lang | null = null;
   private layout!: RestaurantLayout;
   private round: ActiveRound | null = null;
   private character?: Character;
@@ -90,9 +103,16 @@ export class RestaurantScene extends Phaser.Scene {
       .getState()
       .profiles.find((p) => p.id === this.context.requireProfileId());
     const track = profile?.ageTrack ?? 'age5';
-    const adaptive = this.context.content.restaurant.adaptive;
-    this.ageConfig = this.context.content.restaurant.ageTracks[track];
-    // Phase 1: the scene plays the track's start level; adaptive wiring comes in phase 2.
+    const restaurant = this.context.content.restaurant;
+    const adaptive = restaurant.adaptive;
+    this.ageConfig = restaurant.ageTracks[track];
+    this.skills = this.context.createSkillSession(
+      restaurant.world,
+      restaurant.id,
+      buildMeta({ levelCount: adaptive.levels.length, tracks: adaptive.tracks, rules: adaptive.rules }),
+    );
+    // Language and level are chosen per round in startRound; the first layout uses the track's start level.
+    this.roundLang = null;
     this.level = adaptive.levels[adaptive.tracks[track].start - 1] as ChoiceServeLevel;
     this.round = null;
     this.character = undefined;
@@ -152,6 +172,7 @@ export class RestaurantScene extends Phaser.Scene {
     this.session.reportListening(false);
     this.session.reportCelebrating(false);
     this.session.exit();
+    this.skills.endVisit();
   }
 
   private profileState() {
@@ -248,9 +269,31 @@ export class RestaurantScene extends Phaser.Scene {
 
     const content = this.context.content.restaurant;
     const settings = this.context.store.getState().settings;
-    const language = pickLanguage(settings.languages);
-    const spec = buildRound(content.items, this.level, language);
-    this.round = { ...spec, done: false, tries: 0 };
+    // One round = trialsPerRound animals of the same language, so each round feeds one skill.
+    if (this.roundLang === null || this.skills.atRoundBoundary(this.roundLang)) {
+      this.roundLang = pickLanguage(settings.languages);
+    }
+    const language = this.roundLang;
+    const adaptive = content.adaptive;
+    const levelNumber = this.skills.level(language);
+    this.level = adaptive.levels[levelNumber - 1] as ChoiceServeLevel;
+    if (this.level.choiceCount !== this.layout.plates.xs.length) {
+      this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.level.choiceCount);
+    }
+    const targetId = this.skills.selectNextItem(
+      language,
+      content.items.map((i) => i.id),
+    );
+    const spec = buildRound(content.items, this.level, language, Math.random, targetId);
+    this.round = {
+      ...spec,
+      done: false,
+      tries: 0,
+      hinted: false,
+      recorded: false,
+      level: levelNumber,
+      skillKey: this.skills.key(language),
+    };
 
     const a = this.layout.animal;
     const character = new Character(this, {
@@ -337,6 +380,8 @@ export class RestaurantScene extends Phaser.Scene {
       language: round.language,
       promptText: round.promptText,
       tries: round.tries,
+      level: round.level,
+      skillKey: round.skillKey,
       correctCount: this.correctCount,
       characterState,
       ready: characterState !== 'enter' && this.plates.every((p) => Math.abs(p.body.scaleX - 1) < 0.1 && p.body.scaleX > 0.9),
@@ -357,6 +402,8 @@ export class RestaurantScene extends Phaser.Scene {
       this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint(before));
       return;
     }
+    // Only the idle auto-hint before the first tap counts as a hint (later ones follow a recorded miss).
+    if (!this.round.recorded) this.round.hinted = true;
     const view = this.correctPlate();
     if (view) {
       void hintPulse(this, view.root);
@@ -372,7 +419,18 @@ export class RestaurantScene extends Phaser.Scene {
     this.session.reportInteraction();
     void pressSquash(this, view.root);
 
-    if (isCorrectChoice(view.choice, this.round.target)) {
+    const correct = isCorrectChoice(view.choice, this.round.target);
+    if (!this.round.recorded) {
+      // Exactly once per trial: the first accepted plate tap. Later taps are ignored by the engine.
+      this.round.recorded = true;
+      this.skills.record(this.round.language as Lang, {
+        itemId: this.round.target.item.id,
+        firstTryCorrect: correct,
+        hinted: this.round.hinted,
+      });
+    }
+
+    if (correct) {
       this.round.done = true;
       this.hintTimer?.remove();
       this.retryTimer?.remove();
