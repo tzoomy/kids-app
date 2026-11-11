@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey } from '../../src/anim/artRegistry';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -56,6 +56,29 @@ describe('real art manifest', () => {
     for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
     expect(fxArtKey('instrument-glow')).toBeDefined();
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
+
+  it('registers Sorting Beds and Travel Suitcase art', () => {
+    for (const name of ['garden-bed-back', 'garden-bed-front', 'rule-sign-post', 'rule-sign-plaque', 'shelf', 'suitcase-back', 'suitcase-front']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['rule-icon-color-red', 'rule-icon-color-yellow', 'rule-icon-color-blue', 'rule-icon-shape-tulip', 'rule-icon-shape-daisy', 'rule-icon-shape-round', 'rule-icon-size-small', 'rule-icon-size-large']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    expect(flowerArtKey('stem-small')).toBeDefined();
+    expect(flowerArtKey('stem-large')).toBeDefined();
+    for (const shape of ['tulip', 'daisy', 'round']) {
+      for (const color of ['red', 'yellow', 'blue']) {
+        expect(flowerArtKey(`bloom-${shape}-${color}`), `bloom-${shape}-${color}`).toBeDefined();
+      }
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('number-garden', name), `number-garden/${name}`).toBeDefined();
+      expect(sceneArtKey('language-house', name), `language-house/${name}`).toBeDefined();
+    }
+    for (const name of ['hat', 'hat-yellow', 'hat-blue', 'shoes', 'shoes-red', 'shoes-yellow', 'sunglasses', 'ball', 'ball-red', 'ball-blue', 'book', 'coat', 'coat-red', 'coat-blue', 'shirt', 'shirt-yellow', 'shirt-blue', 'socks', 'bottle', 'toothbrush', 'teddy', 'umbrella']) {
+      expect(itemArtKey(name), name).toBeDefined();
+    }
   });
 });
 

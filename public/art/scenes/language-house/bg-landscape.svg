@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <!-- Upper warm wall -->
+  <rect x="0" y="0" width="1280" height="410" fill="#FFF3E0"/>
+
+  <!-- Subtle vertical wallpaper stripes (calm, low contrast) -->
+  <g fill="#F7DEC0" opacity="0.45">
+    <rect x="60" y="0" width="28" height="410"/>
+    <rect x="180" y="0" width="28" height="410"/>
+    <rect x="300" y="0" width="28" height="410"/>
+    <rect x="420" y="0" width="28" height="410"/>
+    <rect x="540" y="0" width="28" height="410"/>
+    <rect x="660" y="0" width="28" height="410"/>
+    <rect x="780" y="0" width="28" height="410"/>
+    <rect x="900" y="0" width="28" height="410"/>
+    <rect x="1020" y="0" width="28" height="410"/>
+    <rect x="1140" y="0" width="28" height="410"/>
+  </g>
+
+  <!-- Lower wainscoting wall -->
+  <rect x="0" y="410" width="1280" height="106" fill="#F7DEC0"/>
+  <!-- Wainscot recessed panels -->
+  <g fill="#FFF3E0" stroke="#E5BE94" stroke-width="4" stroke-linejoin="round">
+    <rect x="48" y="432" width="170" height="54" rx="10"/>
+    <rect x="258" y="432" width="170" height="54" rx="10"/>
+    <rect x="468" y="432" width="170" height="54" rx="10"/>
+    <rect x="678" y="432" width="170" height="54" rx="10"/>
+    <rect x="888" y="432" width="170" height="54" rx="10"/>
+    <rect x="1098" y="432" width="134" height="54" rx="10"/>
+  </g>
+
+  <!-- Chair rail and baseboard trim -->
+  <rect x="0" y="396" width="1280" height="18" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+  <rect x="0" y="500" width="1280" height="22" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+
+  <!-- Wooden floor -->
+  <rect x="0" y="522" width="1280" height="278" fill="#D9A06B"/>
+  <!-- Floor top shadow under baseboard -->
+  <rect x="0" y="524" width="1280" height="14" fill="#C08552" opacity="0.45"/>
+
+  <!-- Floor plank lines -->
+  <g stroke="#C08552" stroke-width="4" stroke-linecap="round">
+    <line x1="0" y1="568" x2="1280" y2="568"/>
+    <line x1="0" y1="622" x2="1280" y2="622"/>
+    <line x1="0" y1="684" x2="1280" y2="684"/>
+    <line x1="0" y1="754" x2="1280" y2="754"/>
+    <!-- Plank joints -->
+    <line x1="210" y1="522" x2="180" y2="568"/>
+    <line x1="680" y1="522" x2="670" y2="568"/>
+    <line x1="1060" y1="522" x2="1085" y2="568"/>
+    <line x1="390" y1="568" x2="365" y2="622"/>
+    <line x1="910" y1="568" x2="930" y2="622"/>
+    <line x1="160" y1="622" x2="125" y2="684"/>
+    <line x1="620" y1="622" x2="610" y2="684"/>
+    <line x1="1120" y1="622" x2="1155" y2="684"/>
+    <line x1="340" y1="684" x2="310" y2="754"/>
+    <line x1="830" y1="684" x2="855" y2="754"/>
+    <line x1="520" y1="754" x2="505" y2="800"/>
+    <line x1="1040" y1="754" x2="1065" y2="800"/>
+  </g>
+
+  <!-- Cozy oval floor rug in the mid-floor area for the suitcase -->
+  <ellipse cx="640" cy="676" rx="390" ry="92" fill="#F0DEC2" stroke="#7A5C48" stroke-width="5"/>
+  <ellipse cx="640" cy="672" rx="356" ry="74" fill="#FFF6E8" stroke="#E5BE94" stroke-width="4"/>
+
+  <!-- Left window looking out to soft sky and rolling hills -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Window outer frame shadow -->
+    <rect x="74" y="64" width="228" height="284" rx="28" fill="#E5BE94"/>
+    <!-- Window frame -->
+    <rect x="68" y="56" width="228" height="284" rx="28" fill="#FFF6E8" stroke="#7A5C48" stroke-width="5"/>
+    <!-- Sky -->
+    <rect x="88" y="76" width="188" height="240" rx="16" fill="#B8E6FF" stroke="#7A5C48" stroke-width="4"/>
+    <!-- Soft cloud -->
+    <path d="M116 142 C116 128 130 120 144 124 C152 112 174 112 182 124 C196 122 206 132 204 144 C204 152 194 156 182 156 L128 156 C120 156 116 150 116 142 Z" fill="#FFFDF9"/>
+    <!-- Rolling green hills -->
+    <path d="M88 262 Q145 232 210 256 Q248 268 276 250 L276 316 L88 316 Z" fill="#8AE07E"/>
+    <path d="M88 280 Q168 254 276 278 L276 316 L88 316 Z" fill="#98D886"/>
+    <!-- Window muntin bars -->
+    <line x1="182" y1="76" x2="182" y2="316" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="88" y1="196" x2="276" y2="196" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="182" y1="76" x2="182" y2="316" stroke="#7A5C48" stroke-width="4"/>
+    <line x1="88" y1="196" x2="276" y2="196" stroke="#7A5C48" stroke-width="4"/>
+    <rect x="88" y="76" width="188" height="240" rx="16" fill="none" stroke="#7A5C48" stroke-width="4"/>
+    <!-- Window sill -->
+    <rect x="54" y="328" width="256" height="24" rx="10" fill="#FFF6E8" stroke="#7A5C48" stroke-width="5"/>
+    <path d="M62 344 L302 344" stroke="#F0DEC2" stroke-width="5"/>
+  </g>
+
+  <!-- Warm ceiling pendant lamp on the top right -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="1130" y1="0" x2="1130" y2="76"/>
+    <ellipse cx="1130" cy="118" rx="46" ry="22" fill="#FFF6E8"/>
+    <path d="M1076 114 C1076 76 1184 76 1184 114 Z" fill="#FFD166"/>
+    <path d="M1094 106 C1102 86 1132 82 1148 88" fill="none" stroke="#FFF6E8" stroke-width="5"/>
+  </g>
+
+  <!-- Small potted leafy plant on the far right floor corner -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="1166" cy="566" rx="46" ry="12" fill="#C08552" stroke="none" opacity="0.5"/>
+    <!-- Leaves -->
+    <path d="M1162 490 C1126 468 1110 432 1126 414 C1144 412 1168 442 1168 486 Z" fill="#3CA33C"/>
+    <path d="M1170 490 C1206 464 1222 428 1204 410 C1184 410 1164 442 1166 486 Z" fill="#57C457"/>
+    <path d="M1166 492 C1150 446 1158 400 1172 392 C1188 402 1186 448 1170 492 Z" fill="#8AE07E"/>
+    <!-- Terracotta pot -->
+    <path d="M1132 498 L1200 498 L1190 562 C1189 567 1184 570 1178 570 L1154 570 C1148 570 1143 567 1142 562 Z" fill="#C9894B"/>
+    <path d="M1172 498 L1200 498 L1190 562 C1189 567 1184 570 1178 570 L1168 570 Z" fill="#8C5230" stroke="none"/>
+    <path d="M1132 498 L1200 498 L1190 562 C1189 567 1184 570 1178 570 L1154 570 C1148 570 1143 567 1142 562 Z" fill="none"/>
+    <rect x="1124" y="482" width="84" height="20" rx="8" fill="#E8AA6B"/>
+  </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Shared ground line -->
+  <line x1="20" y1="140" x2="140" y2="140" stroke="#7A5C48" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Faint small ghost flower on the left for size comparison -->
+  <g fill="#F0DEC2" stroke="#7A5C48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 6">
+    <path d="M44 100 L44 138"/>
+    <circle cx="44" cy="88" r="16"/>
+  </g>
+
+  <!-- Clear, bold large flower on the right -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tall sturdy stem -->
+    <path d="M102 64 L102 138" stroke="#57C457" stroke-width="12"/>
+    <path d="M102 64 L102 138" fill="none"/>
+    <!-- Two lush leaves -->
+    <path d="M100 116 C80 106 70 114 78 128 C84 136 96 130 100 120 Z" fill="#57C457"/>
+    <path d="M104 98 C124 88 134 96 126 110 C120 118 108 112 104 102 Z" fill="#57C457"/>
+
+    <!-- Large flower petals -->
+    <circle cx="102" cy="30" r="15" fill="#F24C4C"/>
+    <circle cx="102" cy="74" r="15" fill="#F24C4C"/>
+    <circle cx="80" cy="52" r="15" fill="#F24C4C"/>
+    <circle cx="124" cy="52" r="15" fill="#F24C4C"/>
+    <circle cx="86" cy="36" r="15" fill="#F24C4C"/>
+    <circle cx="118" cy="36" r="15" fill="#F24C4C"/>
+    <circle cx="86" cy="68" r="15" fill="#F24C4C"/>
+    <circle cx="118" cy="68" r="15" fill="#F24C4C"/>
+    <!-- Large flower gold center -->
+    <circle cx="102" cy="52" r="16" fill="#FFD43B"/>
+    <path d="M92 46 C96 40 104 38 110 42 C104 42 96 44 92 48 Z" fill="#FFF2A6" stroke="none"/>
+  </g>
+</svg>

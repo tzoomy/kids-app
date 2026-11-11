@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 260" width="520" height="260">
+  <!-- Raised wooden bed lower front wall (base shadow & depth) -->
+  <path d="M24 148 L24 184 C24 215 52 238 88 238 L432 238 C468 238 496 215 496 184 L496 148 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Warm mid-wood band on front vertical wall -->
+  <path d="M28 148 L28 176 C28 204 54 224 88 224 L432 224 C466 224 492 204 492 176 L492 148 Z" fill="#B87D56"/>
+
+  <!-- Top rim of wooden planter bed -->
+  <rect x="20" y="24" width="480" height="184" rx="64" ry="64" fill="#B87D56" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Top rim highlight along upper and front edges -->
+  <path d="M84 30 L436 30 C468 30 492 54 492 86 L492 104 C492 68 466 44 432 44 L88 44 C54 44 28 68 28 104 L28 86 C28 54 52 30 84 30 Z" fill="#CC926B"/>
+  <path d="M28 144 C28 176 54 202 88 202 L432 202 C466 202 492 176 492 144 L492 156 C492 184 468 204 436 204 L84 204 C52 204 28 184 28 156 Z" fill="#CC926B"/>
+
+  <!-- Subtle wooden plank joint lines on rim -->
+  <g stroke="#3B2A22" stroke-width="4" stroke-linecap="round">
+    <line x1="150" y1="26" x2="156" y2="48"/>
+    <line x1="370" y1="26" x2="364" y2="48"/>
+    <line x1="150" y1="184" x2="150" y2="236"/>
+    <line x1="370" y1="184" x2="370" y2="236"/>
+  </g>
+
+  <!-- Large open soil patch (the drop target) -->
+  <rect x="48" y="48" width="424" height="136" rx="46" ry="46" fill="#C9894B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Soil inner top shadow under the back wooden lip -->
+  <path d="M94 51 L426 51 C450 51 469 70 469 94 L469 104 C469 80 448 66 422 66 L98 66 C72 66 51 80 51 104 L51 94 C51 70 70 51 94 51 Z" fill="#8C5230"/>
+
+  <!-- Soil soft highlight mound in the lower-middle interior -->
+  <path d="M108 136 C178 122 342 122 412 136 C434 140 444 156 426 166 C356 176 164 176 94 166 C76 156 86 140 108 136 Z" fill="#E8AA6B"/>
+
+  <!-- Re-stroke soil border cleanly on top of soil shading -->
+  <rect x="48" y="48" width="424" height="136" rx="46" ry="46" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -51,6 +51,19 @@ export const ANIM_PROFILE = {
     glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
+
+  /** Sorting Beds drop / settle and rule-sign switch. */
+  sorting: {
+    drop: { duration: 520, arcHeight: 120, endScale: 0.92, ease: 'Sine.easeIn' },
+    settle: { duration: 280, squash: 0.9, ease: 'Back.easeOut' },
+    ruleSwitch: { duration: 480, ease: 'Sine.easeInOut' },
+  },
+
+  /** Travel Suitcase pack-into-case and landing bounce. */
+  suitcase: {
+    pack: { duration: 560, arcHeight: 140, endScale: 0.88, ease: 'Sine.easeIn' },
+    bounce: { height: 22, duration: 360, ease: 'Sine.easeOut' },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

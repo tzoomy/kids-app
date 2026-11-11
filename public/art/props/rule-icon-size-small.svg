@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Shared ground line -->
+  <line x1="20" y1="140" x2="140" y2="140" stroke="#7A5C48" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Faint larger ghost flower on the right for size comparison -->
+  <g fill="#F0DEC2" stroke="#7A5C48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 7">
+    <path d="M108 66 L108 138"/>
+    <path d="M108 108 C124 102 134 110 126 122 C120 128 112 122 108 114 Z"/>
+    <circle cx="108" cy="48" r="28"/>
+  </g>
+
+  <!-- Clear, bright small flower on the left -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Short sturdy stem -->
+    <path d="M54 96 L54 138" stroke="#57C457" stroke-width="10"/>
+    <path d="M54 96 L54 138" fill="none"/>
+    <!-- One small leaf -->
+    <path d="M54 122 C68 114 78 120 72 130 C68 136 58 132 54 124 Z" fill="#57C457"/>
+    <!-- Small flower petals -->
+    <circle cx="54" cy="74" r="11" fill="#F24C4C"/>
+    <circle cx="54" cy="102" r="11" fill="#F24C4C"/>
+    <circle cx="40" cy="88" r="11" fill="#F24C4C"/>
+    <circle cx="68" cy="88" r="11" fill="#F24C4C"/>
+    <circle cx="44" cy="78" r="11" fill="#F24C4C"/>
+    <circle cx="64" cy="78" r="11" fill="#F24C4C"/>
+    <circle cx="44" cy="98" r="11" fill="#F24C4C"/>
+    <circle cx="64" cy="98" r="11" fill="#F24C4C"/>
+    <!-- Small flower gold center -->
+    <circle cx="54" cy="88" r="11" fill="#FFD43B"/>
+  </g>
+</svg>

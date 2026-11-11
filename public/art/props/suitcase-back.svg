@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" width="640" height="440">
+  <!-- Soft contact shadow under suitcase -->
+  <ellipse cx="320" cy="406" rx="272" ry="22" fill="#C08552" opacity="0.32"/>
+
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top carry handle behind standing lid -->
+    <path d="M266 36 L266 20 C266 11 274 6 284 6 L356 6 C366 6 374 11 374 20 L374 36" fill="none" stroke="#3B2A22" stroke-width="16"/>
+    <path d="M266 36 L266 20 C266 11 274 6 284 6 L356 6 C366 6 374 11 374 20 L374 36" fill="none" stroke="#B04816" stroke-width="8"/>
+    <rect x="254" y="24" width="24" height="14" rx="5" fill="#C08552"/>
+    <rect x="362" y="24" width="24" height="14" rx="5" fill="#C08552"/>
+
+    <!-- OPEN STANDING LID (upper back shell) -->
+    <path d="M98 214 L84 68 C82 42 100 26 126 26 L514 26 C540 26 558 42 556 68 L542 214 Z" fill="#D4622A"/>
+    <!-- Lid top highlight band -->
+    <path d="M90 68 C88 46 104 32 126 32 L514 32 C536 32 552 46 550 68 L546 54 C544 40 530 34 512 34 L128 34 C110 34 96 40 94 54 Z" fill="#EB8149" stroke="none"/>
+    <!-- Lid lower shadow near hinge -->
+    <path d="M98 188 L542 188 L542 214 L98 214 Z" fill="#B04816" stroke="none"/>
+    <!-- Lid outer contour re-stroke -->
+    <path d="M98 214 L84 68 C82 42 100 26 126 26 L514 26 C540 26 558 42 556 68 L542 214 Z" fill="none"/>
+
+    <!-- Lid corner protectors -->
+    <path d="M84 74 L84 64 C83 42 100 26 124 26 L136 26 C116 32 98 48 96 74 Z" fill="#B04816"/>
+    <path d="M556 74 L556 64 C557 42 540 26 516 26 L504 26 C524 32 542 48 544 74 Z" fill="#B04816"/>
+
+    <!-- Lid interior recessed lining -->
+    <path d="M116 198 L106 72 C105 54 116 44 134 44 L506 44 C524 44 535 54 534 72 L524 198 Z" fill="#F7DEC0"/>
+    <!-- Lid lining highlight -->
+    <path d="M112 96 L108 72 C107 58 118 48 134 48 L506 48 C522 48 533 58 532 72 L528 96 Z" fill="#FFF2D6" stroke="none"/>
+    <!-- Lid inner fabric pocket with gentle elastic gather -->
+    <path d="M112 134 Q320 148 528 134 L524 198 L116 198 Z" fill="#FFF2D6" stroke="#7A5C48" stroke-width="4"/>
+    <path d="M112 134 Q320 148 528 134" fill="none" stroke="#E5BE94" stroke-width="6"/>
+    <path d="M116 198 L106 72 C105 54 116 44 134 44 L506 44 C524 44 535 54 534 72 L524 198 Z" fill="none"/>
+
+    <!-- Hinge connectors between lid and tray -->
+    <rect x="156" y="198" width="36" height="20" rx="6" fill="#C08552"/>
+    <rect x="448" y="198" width="36" height="20" rx="6" fill="#C08552"/>
+
+    <!-- BOTTOM TRAY OUTER SHELL (open base) -->
+    <path d="M92 212 L548 212 C562 212 572 220 576 234 L592 308 C595 320 594 358 588 378 C584 392 570 400 550 400 L90 400 C70 400 56 392 52 378 C46 358 45 320 48 308 L64 234 C68 220 78 212 92 212 Z" fill="#D4622A"/>
+    <!-- Rim highlight along upper outer bevel -->
+    <path d="M92 216 L548 216 C560 216 568 222 572 234 L588 306 L572 306 L558 232 L82 232 L68 306 L52 306 L68 234 C72 222 80 216 92 216 Z" fill="#EB8149" stroke="none"/>
+
+    <!-- GENEROUS OPEN INTERIOR (pack target) -->
+    <path d="M104 224 L536 224 C546 224 554 230 557 240 L570 306 C572 316 564 368 544 374 L96 374 C76 368 68 316 70 306 L83 240 C86 230 94 224 104 224 Z" fill="#F7DEC0"/>
+    <!-- Interior side & back wall shading for depth -->
+    <path d="M104 224 L536 224 C546 224 554 230 557 240 L570 306 L552 314 L538 252 L102 252 L88 314 L70 306 L83 240 C86 230 94 224 104 224 Z" fill="#E5BE94" stroke="none"/>
+    <!-- Soft cream quilted bed floor inside tray -->
+    <path d="M88 312 L102 252 L538 252 L552 312 L542 368 L98 368 Z" fill="#FFF2D6" stroke="#E5BE94" stroke-width="4"/>
+    <!-- Subtle quilting lines on tray floor -->
+    <line x1="210" y1="254" x2="196" y2="366" stroke="#F7DEC0" stroke-width="4"/>
+    <line x1="320" y1="254" x2="320" y2="366" stroke="#F7DEC0" stroke-width="4"/>
+    <line x1="430" y1="254" x2="444" y2="366" stroke="#F7DEC0" stroke-width="4"/>
+    <!-- Re-stroke open interior rim -->
+    <path d="M104 224 L536 224 C546 224 554 230 557 240 L570 306 C572 316 564 368 544 374 L96 374 C76 368 68 316 70 306 L83 240 C86 230 94 224 104 224 Z" fill="none"/>
+
+    <!-- NEAR-SIDE FRONT WALL (matches suitcase-front.svg exactly) -->
+    <path d="M48 306 C48 296 58 292 68 298 C76 304 88 310 106 310 L534 310 C552 310 564 304 572 298 C582 292 592 296 592 306 L588 378 C584 392 570 400 550 400 L90 400 C70 400 56 392 52 378 Z" fill="#D4622A"/>
+    <!-- Front wall bottom shadow -->
+    <path d="M53 368 L587 368 L585 378 C581 391 568 397 550 397 L90 397 C72 397 59 391 55 378 Z" fill="#B04816" stroke="none"/>
+    <!-- Front rim top highlight lip -->
+    <path d="M56 306 C64 302 82 316 106 316 L534 316 C558 316 576 302 584 306 L580 322 C568 324 552 326 534 326 L106 326 C88 326 72 324 60 322 Z" fill="#EB8149" stroke="none"/>
+    <!-- Re-stroke front wall contour -->
+    <path d="M48 306 C48 296 58 292 68 298 C76 304 88 310 106 310 L534 310 C552 310 564 304 572 298 C582 292 592 296 592 306 L588 378 C584 392 570 400 550 400 L90 400 C70 400 56 392 52 378 Z" fill="none"/>
+
+    <!-- Front bottom corner bumpers -->
+    <path d="M50 356 L52 378 C56 392 70 400 90 400 L104 400 C84 392 70 378 68 356 Z" fill="#B04816"/>
+    <path d="M590 356 L588 378 C584 392 570 400 550 400 L536 400 C556 392 570 378 572 356 Z" fill="#B04816"/>
+
+    <!-- Two brass latches on the front rim -->
+    <rect x="148" y="302" width="38" height="32" rx="8" fill="#C08552"/>
+    <rect x="155" y="308" width="24" height="10" rx="4" fill="#FFD166" stroke="none"/>
+    <rect x="454" y="302" width="38" height="32" rx="8" fill="#C08552"/>
+    <rect x="461" y="308" width="24" height="10" rx="4" fill="#FFD166" stroke="none"/>
+
+    <!-- Front carry handle -->
+    <rect x="252" y="342" width="22" height="24" rx="6" fill="#C08552"/>
+    <rect x="366" y="342" width="22" height="24" rx="6" fill="#C08552"/>
+    <rect x="266" y="346" width="108" height="20" rx="10" fill="#B04816"/>
+    <path d="M276 352 L364 352" stroke="#EB8149" stroke-width="5"/>
+  </g>
+</svg>

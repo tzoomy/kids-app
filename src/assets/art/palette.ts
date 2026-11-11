@@ -142,6 +142,19 @@ export const ART_PALETTE = {
   starShadow: '#F59F00',
   heartPink: '#FF5C77',
   heartShadow: '#E03E5B',
+
+  // Number Garden / Sorting Beds
+  soil: '#C9894B',
+  soilShadow: '#8C5230',
+  soilHighlight: '#E8AA6B',
+  gardenPath: '#F0DEC2',
+
+  // Language House / Travel Suitcase
+  caseLeather: '#D4622A',
+  caseLeatherShadow: '#B04816',
+  caseLeatherHighlight: '#EB8149',
+  caseCream: '#FFF2D6',
+  caseLining: '#F7DEC0',
 } as const;
 
 export type ArtPaletteKey = keyof typeof ART_PALETTE;
