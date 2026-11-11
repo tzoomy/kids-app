@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { AppContext } from '../game/appContext';
 import { drawWorldBuilding, paintMapBackdrop } from '../assets/vectorArt';
 import type { MapPin } from '../ui/hud';
+import { transitionTo } from '../anim/transitions';
+import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 
 export class MapScene extends Phaser.Scene {
   constructor() {
@@ -35,18 +37,15 @@ export class MapScene extends Phaser.Scene {
       building.setPosition(x, y);
       building.setAlpha(locked ? 0.72 : 1);
 
-      this.tweens.add({
-        targets: building,
-        y: y - 8,
-        duration: 1800 + i * 140,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut',
+      // Staggered pop-in, then a gentle idle float.
+      void popIn(this, building, 80 + i * 70).then(() => {
+        if (building.scene) floatIdle(this, building, 8, 1800 + i * 140);
       });
 
       building.setInteractive({ useHandCursor: true });
       building.on('pointerdown', () => {
         context.sfx.tap();
+        void pressSquash(this, building);
         if (world.status === 'locked') {
           context.shell.showToast(`${context.content.he.worldMap.comingSoon} 🌱`);
           return;
@@ -54,14 +53,14 @@ export class MapScene extends Phaser.Scene {
         if (world.status === 'leisure') {
           const profileState = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
           if (profileState.balanceSec > 0) {
-            this.scene.start('BubblesScene');
+            transitionTo(this, 'BubblesScene', { style: 'iris', originX: x, originY: y });
           } else {
             context.shell.showToast(`⏳ 0:00`);
           }
           return;
         }
         if (world.entryGameId === 'animal-restaurant') {
-          this.scene.start('RestaurantScene');
+          transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
         }
       });
 
