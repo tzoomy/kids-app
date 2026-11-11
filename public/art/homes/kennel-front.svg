@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 320" width="360" height="320">
+  <!-- Front roof overhang trim, arched doorframe, and threshold sill only; doorway interior stays completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Arched wooden doorway trim ring (interior x=122..238, y=120..266 is completely open) -->
+    <path fill-rule="evenodd" d="M 108 266 V 176 A 72 72 0 0 1 252 176 V 266 H 238 V 178 A 58 58 0 0 0 122 178 V 266 Z" fill="#D9A06B" />
+
+    <!-- Front wooden base threshold sill -->
+    <rect x="44" y="266" width="272" height="28" rx="12" fill="#B87D56" />
+    <path d="M 56 272 H 304 C 296 278 64 278 56 272 Z" fill="#CC926B" stroke="none" />
+    <path d="M 52 284 H 308 C 304 290 56 290 52 284 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Peaked red roof overhang front edge -->
+    <path d="M 32 128 L 168 30 C 176 24 184 24 192 30 L 328 128 C 336 134 332 148 320 148 C 314 148 308 144 302 140 L 180 52 L 58 140 C 52 144 46 148 40 148 C 28 148 24 134 32 128 Z" fill="#EE6C62" />
+    <path d="M 48 122 L 176 32 C 180 30 182 30 186 32 L 312 122 L 304 128 L 180 40 L 56 128 Z" fill="#FFF6E8" stroke="none" />
+  </g>
+</svg>

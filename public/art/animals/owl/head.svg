@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 196" width="236" height="196">
+  <!-- Plump rounded owl head silhouette -->
+  <path d="M 118 14 C 60 14, 22 44, 16 96 C 10 146, 40 184, 118 184 C 196 184, 226 146, 220 96 C 214 44, 176 14, 118 14 Z" fill="#C87D4B"/>
+
+  <!-- Lower cheek and chin shadow -->
+  <path d="M 16 114 C 18 158, 50 184, 118 184 C 186 184, 218 158, 220 114 C 206 150, 174 170, 118 170 C 62 170, 30 150, 16 114 Z" fill="#A96032"/>
+
+  <!-- Crown highlight crescent -->
+  <path d="M 52 40 C 74 22, 128 18, 168 28 C 128 24, 78 28, 52 40 Z" fill="#E09A6C"/>
+
+  <!-- Soft heart-shaped cream facial disk -->
+  <path d="M 118 64 C 98 40, 40 42, 34 88 C 28 134, 66 164, 118 164 C 170 164, 208 134, 202 88 C 196 42, 138 40, 118 64 Z" fill="#FAD9B8"/>
+
+  <!-- Facial disk lower shading -->
+  <path d="M 36 106 C 44 142, 74 164, 118 164 C 162 164, 192 142, 200 106 C 186 136, 158 152, 118 152 C 78 152, 50 136, 36 106 Z" fill="#F0DEC2"/>
+
+  <!-- Rosy blush cheeks -->
+  <ellipse cx="46" cy="126" rx="19" ry="12" transform="rotate(6 46 126)" fill="#FF8FA3"/>
+  <ellipse cx="42" cy="123" rx="7.5" ry="3.8" transform="rotate(6 42 123)" fill="#FFFDF9"/>
+  <ellipse cx="190" cy="126" rx="19" ry="12" transform="rotate(-6 190 126)" fill="#FF8FA3"/>
+  <ellipse cx="186" cy="123" rx="7.5" ry="3.8" transform="rotate(-6 186 123)" fill="#FFFDF9"/>
+
+  <!-- Small neutral upper beak bridge (completed by mouth beak parts) -->
+  <path d="M 105 112 C 110 104, 126 104, 131 112 C 131 119, 124 125, 118 125 C 112 125, 105 119, 105 112 Z" fill="#FFCA3A" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="116" cy="110" rx="5.5" ry="2.2" fill="#FFD166"/>
+
+  <!-- Friendly feather brow lines -->
+  <path d="M 52 54 Q 68 44 84 52" fill="none" stroke="#5C3422" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 184 54 Q 168 44 152 52" fill="none" stroke="#5C3422" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head outline with little crown feather tuft -->
+  <path d="M 108 15 C 112 7, 118 7, 121 13 C 125 8, 131 10, 128 15 C 178 17, 214 46, 220 96 C 226 146, 196 184, 118 184 C 40 184, 10 146, 16 96 C 22 46, 58 16, 108 15 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

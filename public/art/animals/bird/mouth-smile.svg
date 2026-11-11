@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Smiling rounded orange bird beak -->
+  <path d="M 14 18 C 18 8, 50 8, 54 18 C 56 28, 44 38, 34 38 C 24 38, 12 28, 14 18 Z" fill="#FF8533"/>
+  <!-- Lower beak shadow -->
+  <path d="M 16 24 C 20 34, 26 38, 34 38 C 42 38, 48 34, 52 24 C 44 30, 24 30, 16 24 Z" fill="#E8A317"/>
+  <!-- Upper beak highlight -->
+  <ellipse cx="32" cy="14" rx="11" ry="4" fill="#FFD166"/>
+  <!-- Beak outline -->
+  <path d="M 14 18 C 18 8, 50 8, 54 18 C 56 28, 44 38, 34 38 C 24 38, 12 28, 14 18 Z" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Gentle happy beak smile line -->
+  <path d="M 15 20 C 24 27, 44 27, 53 20" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

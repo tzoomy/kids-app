@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Thoughtful compact orange beak -->
+  <path d="M 16 19 C 20 9, 48 9, 52 19 C 54 27, 44 35, 34 35 C 24 35, 14 27, 16 19 Z" fill="#FF8533"/>
+  <!-- Lower beak shadow -->
+  <path d="M 18 24 C 22 32, 28 35, 34 35 C 40 35, 46 32, 50 24 C 42 29, 26 29, 18 24 Z" fill="#E8A317"/>
+  <!-- Upper highlight -->
+  <ellipse cx="32" cy="15" rx="10" ry="3.5" fill="#FFD166"/>
+  <!-- Beak outline -->
+  <path d="M 16 19 C 20 9, 48 9, 52 19 C 54 27, 44 35, 34 35 C 24 35, 14 27, 16 19 Z" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Thoughtful wavy beak seam (never a frown) -->
+  <path d="M 18 22 C 26 20, 34 25, 42 21 C 46 19, 49 18, 51 19" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

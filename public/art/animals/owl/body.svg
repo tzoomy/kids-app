@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" width="240" height="220">
+  <!-- Neck tab tucked under head -->
+  <path d="M 88 44 C 88 12, 152 12, 152 44 Z" fill="#A96032" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Plump warm brown owl torso -->
+  <path d="M 72 36 C 48 60, 40 112, 46 158 C 52 192, 82 202, 120 202 C 158 202, 188 192, 194 158 C 200 112, 192 60, 168 36 C 150 22, 90 22, 72 36 Z" fill="#C87D4B"/>
+
+  <!-- Under-neck and lower body shadow -->
+  <path d="M 72 36 C 90 22, 150 22, 168 36 C 156 54, 84 54, 72 36 Z" fill="#A96032"/>
+  <path d="M 47 152 C 54 188, 84 202, 120 202 C 156 202, 186 188, 193 152 C 178 180, 152 188, 120 188 C 88 188, 62 180, 47 152 Z" fill="#A96032"/>
+
+  <!-- Upper torso highlight -->
+  <path d="M 66 62 C 56 86, 54 114, 58 136 C 64 114, 68 88, 76 66 Z" fill="#E09A6C"/>
+
+  <!-- Warm cream belly patch -->
+  <ellipse cx="120" cy="126" rx="48" ry="54" fill="#FAD9B8"/>
+  <path d="M 74 140 C 82 166, 98 180, 120 180 C 142 180, 158 166, 166 140 C 152 160, 136 170, 120 170 C 104 170, 88 160, 74 140 Z" fill="#F0DEC2"/>
+
+  <!-- Soft owl chest feather scallops -->
+  <path d="M 96 96 Q 106 105 116 96" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 124 96 Q 134 105 144 96" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 88 116 Q 98 125 108 116" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 110 118 Q 120 127 130 118" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 132 116 Q 142 125 152 116" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 100 138 Q 110 147 120 138" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 120 138 Q 130 147 140 138" fill="none" stroke="#A96032" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Torso outline -->
+  <path d="M 72 36 C 48 60, 40 112, 46 158 C 52 192, 82 202, 120 202 C 158 202, 188 192, 194 158 C 200 112, 192 60, 168 36 C 150 22, 90 22, 72 36 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Folded feathered wings at sides -->
+  <g>
+    <!-- Left folded wing -->
+    <path d="M 60 56 C 28 68, 12 108, 22 148 C 28 168, 48 168, 58 148 C 66 130, 68 92, 60 56 Z" fill="#C87D4B"/>
+    <path d="M 20 128 C 24 162, 46 168, 58 148 C 46 154, 30 148, 20 128 Z" fill="#5C3422"/>
+    <path d="M 30 78 C 22 96, 20 116, 24 132 C 28 114, 32 94, 42 78 Z" fill="#E09A6C"/>
+    <path d="M 60 56 C 28 68, 12 108, 22 148 C 28 168, 48 168, 58 148 C 64 134, 66 106, 62 78" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right folded wing -->
+    <path d="M 180 56 C 212 68, 228 108, 218 148 C 212 168, 192 168, 182 148 C 174 130, 172 92, 180 56 Z" fill="#C87D4B"/>
+    <path d="M 220 128 C 216 162, 194 168, 182 148 C 194 154, 210 148, 220 128 Z" fill="#5C3422"/>
+    <path d="M 210 78 C 218 96, 220 116, 216 132 C 212 114, 208 94, 198 78 Z" fill="#E09A6C"/>
+    <path d="M 180 56 C 212 68, 228 108, 218 148 C 212 168, 192 168, 182 148 C 176 134, 174 106, 178 78" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Short golden-amber talon feet at bottom -->
+  <g>
+    <!-- Left talon foot -->
+    <path d="M 56 198 C 56 184, 72 182, 84 184 C 96 182, 110 184, 110 198 C 110 208, 96 210, 84 208 C 72 210, 56 208, 56 198 Z" fill="#FFCA3A"/>
+    <path d="M 58 200 C 66 208, 98 208, 108 200 C 96 204, 70 204, 58 200 Z" fill="#E8A317"/>
+    <ellipse cx="84" cy="191" rx="14" ry="5" fill="#FFD166"/>
+    <path d="M 56 198 C 56 184, 72 182, 84 184 C 96 182, 110 184, 110 198 C 110 208, 96 210, 84 208 C 72 210, 56 208, 56 198 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 74 192 L 72 206 M 94 192 L 96 206" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- Right talon foot -->
+    <path d="M 130 198 C 130 184, 144 182, 156 184 C 168 182, 184 184, 184 198 C 184 208, 168 210, 156 208 C 144 210, 130 208, 130 198 Z" fill="#FFCA3A"/>
+    <path d="M 132 200 C 142 208, 174 208, 182 200 C 170 204, 144 204, 132 200 Z" fill="#E8A317"/>
+    <ellipse cx="156" cy="191" rx="14" ry="5" fill="#FFD166"/>
+    <path d="M 130 198 C 130 184, 144 182, 156 184 C 168 182, 184 184, 184 198 C 184 208, 168 210, 156 208 C 144 210, 130 208, 130 198 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 146 192 L 144 206 M 166 192 L 168 206" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+</svg>

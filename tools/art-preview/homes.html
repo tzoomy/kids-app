@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who Lives Here? — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FFF6E8; color: #3B2A22; font-family: system-ui, -apple-system, sans-serif; padding: 20px 24px 32px; }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 1280px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .card { background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 24px; overflow: hidden; box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06); }
+    .label { font-size: 15px; font-weight: 800; padding: 10px 14px 6px; }
+    .note { font-size: 12px; color: #5C4338; padding: 0 14px 8px; }
+    .stage { position: relative; width: 100%; height: 300px; overflow: hidden; background: #B8E6FF; }
+    .stage.hero { height: 420px; }
+    .stage img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+    .home { position: absolute; bottom: 10px; }
+    .home img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+    .home .back { z-index: 1; }
+    .home .front { z-index: 4; }
+    .animal { position: absolute; left: 50%; width: 110px; height: 132px; transform: translateX(-50%); z-index: 3; transform-origin: 50% 100%; }
+    .animal img { position: absolute; left: 0; width: 100%; object-fit: contain; }
+    .animal img.body { bottom: 0; height: 58%; z-index: 1; }
+    .animal img.face { bottom: 28%; height: 72%; z-index: 2; }
+    .animal.settled { bottom: 28px; transform: translateX(-50%) scale(0.86); }
+    .animal.walking { bottom: 20px; left: 18%; animation: walkHome 1.8s ease-in-out infinite; }
+    .state-walk .animal.walking { animation: walkHome 1.8s ease-in-out infinite; }
+    @keyframes walkHome {
+      0% { left: 12%; bottom: 20px; transform: translateX(-50%) scaleX(-1); }
+      55% { left: 50%; bottom: 36px; transform: translateX(-50%) scaleX(-1); }
+      100% { left: 50%; bottom: 28px; transform: translateX(-50%) scale(0.86) scaleX(-1); }
+    }
+    .card-stack { position: relative; width: 140px; height: 180px; }
+    .card-stack img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .card-stack .icon { left: 22%; top: 12%; width: 56%; height: 44%; object-fit: contain; }
+    .icons { display: flex; flex-wrap: wrap; gap: 14px; padding: 8px 14px 16px; align-items: flex-end; }
+    .icon-wrap { text-align: center; }
+    .chip { font-size: 11px; font-weight: 700; color: #5C4338; margin-top: 4px; }
+    @media (prefers-reduced-motion: reduce) { .animal.walking { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <h1>Who Lives Here? — Nature Lab art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Dog and rabbit reuse existing restaurant rigs; bird, frog, bee, and owl are new habitat animals.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Habitat clearing — six homes</div>
+      <div class="note">Large, distinct homes for a 2-year-old: nest, burrow, pond, hive, kennel, and tree hollow.</div>
+      <div class="stage hero" id="scene-all"></div>
+    </div>
+    <div class="row" id="home-row"></div>
+    <div class="card">
+      <div class="label">Riddle / clue card</div>
+      <div class="note">Layered card with an upper icon panel and a lower empty panel reserved for later text (no letters in the SVG).</div>
+      <div class="icons" id="clue-row"></div>
+    </div>
+  </div>
+
+  <script>
+    const ART = '../../public/art';
+    const HOMES = [
+      { id: 'nest', kind: 'bird', label: 'Nest — bird (new)', w: 180, h: 140, walk: true, settlePct: 0.22 },
+      { id: 'burrow', kind: 'rabbit', label: 'Burrow — rabbit (reused)', w: 200, h: 140, settlePct: 0.28 },
+      { id: 'pond', kind: 'frog', label: 'Pond — frog (new)', w: 210, h: 140, settlePct: 0.24 },
+      { id: 'hive', kind: 'bee', label: 'Hive — bee (new)', w: 140, h: 180, settlePct: 0.32 },
+      { id: 'kennel', kind: 'dog', label: 'Kennel — dog (reused)', w: 180, h: 160, settlePct: 0.16, animalH: 0.72 },
+      { id: 'tree-hollow', kind: 'owl', label: 'Tree hollow — owl (new)', w: 150, h: 188, settlePct: 0.38 },
+    ];
+    const ICONS = [
+      ['feather', 'bird'], ['paw', 'burrow'], ['water', 'pond'],
+      ['honeycomb', 'hive'], ['bone', 'kennel'], ['leaf', 'tree'],
+    ];
+
+    function animalEl(kind, cls) {
+      const el = document.createElement('div');
+      el.className = 'animal ' + (cls || '');
+      const body = document.createElement('img');
+      body.className = 'body';
+      body.src = `${ART}/animals/${kind}/body.svg`;
+      body.alt = '';
+      const head = document.createElement('img');
+      head.className = 'face';
+      head.src = `${ART}/animals/${kind}/head.svg`;
+      head.alt = kind;
+      el.appendChild(body);
+      el.appendChild(head);
+      return el;
+    }
+
+    function homeEl(spec, mode) {
+      const el = document.createElement('div');
+      el.className = 'home';
+      el.style.width = spec.w + 'px';
+      el.style.height = spec.h + 'px';
+      const back = document.createElement('img');
+      back.className = 'back';
+      back.src = `${ART}/homes/${spec.id}-back.svg`;
+      back.alt = spec.id;
+      const front = document.createElement('img');
+      front.className = 'front';
+      front.src = `${ART}/homes/${spec.id}-front.svg`;
+      front.alt = '';
+      el.appendChild(back);
+      if (mode === 'walk' && spec.walk) el.appendChild(animalEl(spec.kind, 'walking'));
+      else if (mode === 'settled' || mode === 'all') {
+        const a = animalEl(spec.kind, 'settled');
+        if (spec.settlePct != null) a.style.bottom = (spec.settlePct * 100) + '%';
+        if (spec.animalH) {
+          a.style.height = (spec.animalH * 132) + 'px';
+          a.style.width = (spec.animalH * 110) + 'px';
+        }
+        el.appendChild(a);
+      }
+      el.appendChild(front);
+      return el;
+    }
+
+    function fillHero() {
+      const stage = document.getElementById('scene-all');
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/habitats/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+      const places = [
+        ['8%', '8%'], ['24%', '6%'], ['40%', '8%'], ['56%', '4%'], ['70%', '8%'], ['84%', '2%'],
+      ];
+      HOMES.forEach((spec, i) => {
+        const h = homeEl({ ...spec, w: spec.w * 0.7, h: spec.h * 0.7 }, 'all');
+        h.style.left = places[i][0];
+        h.style.bottom = places[i][1];
+        // scale animals down in the hero
+        const a = h.querySelector('.animal');
+        if (a) { a.style.width = '72px'; a.style.height = '86px'; }
+        stage.appendChild(h);
+      });
+    }
+
+    function fillRow() {
+      const row = document.getElementById('home-row');
+      HOMES.forEach((spec) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = spec.label;
+        const note = document.createElement('div');
+        note.className = 'note';
+        note.textContent = spec.walk ? 'Walk-home, then settle-in.' : 'Settled inside the home, between the back and front layers.';
+        const stage = document.createElement('div');
+        stage.className = 'stage' + (spec.walk ? ' state-walk' : '');
+        const bg = document.createElement('img');
+        bg.className = 'bg';
+        bg.src = `${ART}/scenes/habitats/bg-landscape.svg`;
+        bg.alt = '';
+        stage.appendChild(bg);
+        const h = homeEl(spec, spec.walk ? 'walk' : 'settled');
+        h.style.left = '50%';
+        h.style.transform = 'translateX(-50%)';
+        h.style.bottom = '8px';
+        stage.appendChild(h);
+        card.appendChild(label);
+        card.appendChild(note);
+        card.appendChild(stage);
+        row.appendChild(card);
+      });
+    }
+
+    function fillClues() {
+      const row = document.getElementById('clue-row');
+      ICONS.forEach(([icon, name]) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'icon-wrap';
+        const stack = document.createElement('div');
+        stack.className = 'card-stack';
+        const back = document.createElement('img');
+        back.src = `${ART}/props/clue-card-back.svg`;
+        back.alt = 'clue card';
+        const frame = document.createElement('img');
+        frame.src = `${ART}/props/clue-card-frame.svg`;
+        frame.alt = '';
+        const ic = document.createElement('img');
+        ic.className = 'icon';
+        ic.src = `${ART}/props/clue-icon-${icon}.svg`;
+        ic.alt = icon;
+        stack.appendChild(back);
+        stack.appendChild(frame);
+        stack.appendChild(ic);
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = name;
+        wrap.appendChild(stack);
+        wrap.appendChild(chip);
+        row.appendChild(wrap);
+      });
+    }
+
+    fillHero();
+    fillRow();
+    fillClues();
+
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -51,6 +51,19 @@ export const ANIM_PROFILE = {
     glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
+
+  /** Who Lives Here? walk-home and settle-in. */
+  homes: {
+    walk: { duration: 700, bob: 10, ease: 'Sine.easeInOut' },
+    settle: { duration: 420, scale: 0.86, ease: 'Back.easeOut' },
+  },
+
+  /** Picnic Train chug, arrive, and hand-out. */
+  train: {
+    chug: { bob: 8, duration: 180, ease: 'Sine.easeInOut' },
+    arrive: { duration: 800, ease: 'Sine.easeOut' },
+    handOut: { duration: 520, arcHeight: 110, endScale: 0.7, ease: 'Sine.easeIn' },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

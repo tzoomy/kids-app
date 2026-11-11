@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Picnic Train — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FFF6E8; color: #3B2A22; font-family: system-ui, -apple-system, sans-serif; padding: 20px 24px 32px; }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 1280px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card { background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 24px; overflow: hidden; box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06); }
+    .label { font-size: 15px; font-weight: 800; padding: 10px 14px 6px; }
+    .note { font-size: 12px; color: #5C4338; padding: 0 14px 8px; }
+    .stage { position: relative; width: 100%; height: 360px; overflow: hidden; background: #B8E6FF; }
+    .stage.tall { height: 400px; }
+    .stage img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 72%; }
+    .train { position: absolute; left: 6%; bottom: 8%; display: flex; align-items: flex-end; z-index: 3; transform-origin: 50% 100%; }
+    .state-chug .train { animation: chug 0.36s ease-in-out infinite; }
+    .state-arrive .train { animation: arrive 1.8s ease-out infinite; }
+    @keyframes chug { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes arrive { 0% { transform: translateX(70%); } 100% { transform: translateX(0); } }
+    .piece { position: relative; display: block; height: 130px; }
+    .piece.engine { width: 180px; }
+    .piece.car { width: 160px; }
+    .piece.single { width: 100px; }
+    .piece img.carimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+    .seat { position: absolute; top: 18%; width: 42%; height: 55%; }
+    .car .seat.a { left: 10%; }
+    .car .seat.b { left: 50%; }
+    .single .seat { left: 28%; width: 52%; }
+    .seat .passenger { position: absolute; left: 50%; bottom: 18%; width: 86%; height: 90%; transform: translateX(-50%); z-index: 2; }
+    .seat .passenger img { position: absolute; left: 0; width: 100%; object-fit: contain; }
+    .seat .passenger img.body { bottom: 0; height: 58%; }
+    .seat .passenger img.face { bottom: 28%; height: 72%; }
+    .seat .food { position: absolute; left: 50%; bottom: 8%; width: 40%; transform: translateX(-50%); z-index: 3; }
+    .seat .outline { position: absolute; left: 50%; bottom: 10%; width: 70%; transform: translateX(-50%); opacity: 0.85; z-index: 1; }
+    .basket { position: absolute; left: 6%; bottom: 10%; width: 100px; z-index: 5; }
+    .hand-item { position: absolute; width: 64px; z-index: 6; animation: handOut 1.8s ease-in-out infinite; }
+    @keyframes handOut {
+      0% { left: 8%; bottom: 18%; transform: scale(1) rotate(-8deg); }
+      70% { left: 48%; bottom: 28%; transform: scale(0.7) rotate(0); }
+      100% { left: 48%; bottom: 22%; transform: scale(0.7); }
+    }
+    .strip { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 14px 16px; align-items: flex-end; background: #FFF6E8; }
+    .swatch { text-align: center; width: 100px; }
+    .swatch img { width: 96px; height: 80px; object-fit: contain; display: block; margin: 0 auto; }
+    .chip { font-size: 11px; font-weight: 700; color: #5C4338; margin-top: 4px; }
+    @media (prefers-reduced-motion: reduce) { .train, .hand-item { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <h1>Picnic Train — Number Garden art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Engine + modular 2-seat and 1-seat cars compose 2–10 seats. Passengers reuse existing animal rigs; picnic items reuse restaurant foods.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Five seats — passengers, hand-out, missing outline</div>
+      <div class="note">Two 2-seat cars plus a 1-seat car. One seat shows a “how many missing?” outline; an apple is being handed out.</div>
+      <div class="stage tall state-chug" id="scene-five"></div>
+    </div>
+    <div class="row">
+      <div class="card">
+        <div class="label">Two seats (age 2)</div>
+        <div class="note">Engine + one 2-seat car. The train arrives from the right.</div>
+        <div class="stage state-arrive" id="scene-two"></div>
+      </div>
+      <div class="card">
+        <div class="label">Ten seats (composed)</div>
+        <div class="note">Engine + four 2-seat cars + one 1-seat car. Outlines mark empty seats.</div>
+        <div class="stage" id="scene-ten"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Modular pieces and helper outlines</div>
+      <div class="note">Same wheel baseline so cars line up. Picnic basket is a hand-out source; foods are existing restaurant art.</div>
+      <div class="strip" id="piece-strip"></div>
+    </div>
+  </div>
+
+  <script>
+    const ART = '../../public/art';
+    const KINDS = ['bear', 'rabbit', 'cat', 'dog', 'panda', 'lion'];
+    const FOODS = ['apple', 'banana', 'carrot', 'cookie', 'grapes', 'cheese'];
+
+    function passenger(kind) {
+      const el = document.createElement('div');
+      el.className = 'passenger';
+      const body = document.createElement('img');
+      body.className = 'body';
+      body.src = `${ART}/animals/${kind}/body.svg`;
+      body.alt = '';
+      const head = document.createElement('img');
+      head.className = 'face';
+      head.src = `${ART}/animals/${kind}/head.svg`;
+      head.alt = kind;
+      el.appendChild(body);
+      el.appendChild(head);
+      return el;
+    }
+
+    function seatFill(seat, opts) {
+      if (opts.outline) {
+        const o = document.createElement('img');
+        o.className = 'outline';
+        o.src = `${ART}/train/seat-outline.svg`;
+        o.alt = 'empty seat';
+        seat.appendChild(o);
+      }
+      if (opts.kind) seat.appendChild(passenger(opts.kind));
+      if (opts.food) {
+        const f = document.createElement('img');
+        f.className = 'food';
+        f.src = `${ART}/foods/${opts.food}.svg`;
+        f.alt = opts.food;
+        seat.appendChild(f);
+      }
+      if (opts.itemOutline) {
+        const io = document.createElement('img');
+        io.className = 'food';
+        io.src = `${ART}/train/item-outline.svg`;
+        io.alt = 'missing item';
+        seat.appendChild(io);
+      }
+    }
+
+    function addCar(train, type, seats) {
+      const el = document.createElement('div');
+      el.className = 'piece ' + (type === 'engine' ? 'engine' : type === 'single' ? 'single' : 'car');
+      const img = document.createElement('img');
+      img.className = 'carimg';
+      img.src = type === 'engine' ? `${ART}/train/engine.svg`
+        : type === 'single' ? `${ART}/train/car-single.svg`
+        : `${ART}/train/car.svg`;
+      img.alt = type;
+      el.appendChild(img);
+      if (type === 'car' || type === 'single') {
+        const slots = type === 'single' ? [''] : ['a', 'b'];
+        slots.forEach((cls, i) => {
+          const seat = document.createElement('div');
+          seat.className = 'seat' + (cls ? ' ' + cls : '');
+          const conf = (seats && seats[i]) || {};
+          seatFill(seat, conf);
+          el.appendChild(seat);
+        });
+      }
+      train.appendChild(el);
+      return el;
+    }
+
+    function fillScene(stage, plan) {
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/picnic-train/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+
+      if (plan.basket) {
+        const b = document.createElement('img');
+        b.className = 'basket';
+        b.src = `${ART}/props/picnic-basket.svg`;
+        b.alt = 'picnic basket';
+        stage.appendChild(b);
+      }
+      if (plan.handOut) {
+        const item = document.createElement('img');
+        item.className = 'hand-item';
+        item.src = `${ART}/foods/${plan.handOut}.svg`;
+        item.alt = plan.handOut;
+        stage.appendChild(item);
+      }
+
+      const train = document.createElement('div');
+      train.className = 'train';
+      addCar(train, 'engine');
+      plan.cars.forEach((car) => addCar(train, car.type, car.seats));
+      if (plan.compact) train.style.transform = 'scale(0.62)';
+      if (plan.compact) train.style.transformOrigin = 'left bottom';
+      if (plan.left) train.style.left = plan.left;
+      stage.appendChild(train);
+    }
+
+    fillScene(document.getElementById('scene-five'), {
+      basket: true,
+      handOut: 'apple',
+      left: '18%',
+      cars: [
+        { type: 'car', seats: [{ kind: 'bear', food: 'banana' }, { kind: 'rabbit' }] },
+        { type: 'car', seats: [{ kind: 'cat', food: 'cookie' }, { outline: true, itemOutline: true }] },
+        { type: 'single', seats: [{ kind: 'dog' }] },
+      ],
+    });
+    fillScene(document.getElementById('scene-two'), {
+      cars: [
+        { type: 'car', seats: [{ kind: 'panda', food: 'grapes' }, { kind: 'lion', food: 'carrot' }] },
+      ],
+    });
+    fillScene(document.getElementById('scene-ten'), {
+      compact: true,
+      left: '2%',
+      cars: [
+        { type: 'car', seats: [{ kind: 'bear' }, { kind: 'rabbit' }] },
+        { type: 'car', seats: [{ kind: 'cat' }, { kind: 'dog' }] },
+        { type: 'car', seats: [{ outline: true }, { outline: true }] },
+        { type: 'car', seats: [{ outline: true }, { outline: true }] },
+        { type: 'single', seats: [{ outline: true }] },
+      ],
+    });
+
+    const strip = document.getElementById('piece-strip');
+    const pieces = [
+      ['train/engine.svg', 'engine'],
+      ['train/car.svg', '2-seat car'],
+      ['train/car-single.svg', '1-seat car'],
+      ['train/seat-outline.svg', 'seat outline'],
+      ['train/item-outline.svg', 'item outline'],
+      ['props/picnic-basket.svg', 'picnic basket'],
+      ['foods/apple.svg', 'apple (reused)'],
+    ];
+    for (const [src, label] of pieces) {
+      const wrap = document.createElement('div');
+      wrap.className = 'swatch';
+      const img = document.createElement('img');
+      img.src = `${ART}/${src}`;
+      img.alt = label;
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = label;
+      wrap.appendChild(img);
+      wrap.appendChild(chip);
+      strip.appendChild(wrap);
+    }
+
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>

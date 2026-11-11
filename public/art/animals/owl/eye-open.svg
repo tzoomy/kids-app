@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Cute outer lash flick -->
+  <path d="M 9 19 Q 3 15 4 10" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Big rounded owl white sclera -->
+  <ellipse cx="27" cy="29" rx="20" ry="21.5" fill="#FFFDF9" stroke="#3B2A22" stroke-width="4.5"/>
+  <!-- Big round dark pupil -->
+  <ellipse cx="27" cy="29" rx="15.5" ry="17" fill="#261710"/>
+  <!-- Warm brown lower iris crescent -->
+  <path d="M 14 33 C 17 43, 37 43, 40 33 C 35 39, 19 39, 14 33 Z" fill="#6E422C"/>
+  <!-- Big bright upper catchlight -->
+  <ellipse cx="32" cy="20" rx="7" ry="7.5" fill="#FFFDF9"/>
+  <!-- Small lower catchlight -->
+  <circle cx="20" cy="36" r="3.2" fill="#FFFDF9"/>
+</svg>

@@ -5,8 +5,10 @@ import {
   fxArtKey,
   getAnimalRig,
   getArtManifest,
+  homeArtKey,
   keyForUrl,
   propArtKey,
+  trainArtKey,
   registerAnimalRigs,
   registerArtManifest,
   resetArtRegistry,
@@ -131,5 +133,18 @@ describe('assetUrl', () => {
     expect(assetUrl('/kids-app/', 'art/foods/apple.svg')).toBe('/kids-app/art/foods/apple.svg');
     expect(assetUrl('/kids-app', './art/x.svg')).toBe('/kids-app/art/x.svg');
     expect(assetUrl('/', 'art/x.svg')).toBe('/art/x.svg');
+  });
+});
+
+describe('home and train lookups', () => {
+  it('resolves homes and train parts by path', () => {
+    registerArtManifest([
+      { key: 'home-nest-back', url: 'art/homes/nest-back.svg', width: 360, height: 280 },
+      { key: 'train-engine', url: 'art/train/engine.svg', width: 360, height: 260 },
+      { key: 'prop-clue', url: 'art/props/clue-card-back.svg', width: 280, height: 360 },
+    ]);
+    expect(homeArtKey('nest-back')).toBe('home-nest-back');
+    expect(trainArtKey('engine')).toBe('train-engine');
+    expect(propArtKey('clue-card-back')).toBe('prop-clue');
   });
 });

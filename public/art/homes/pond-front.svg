@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 280" width="420" height="280">
+  <!-- Near-side bank, pebbles, and low grass tufts only; water area stays completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Front grassy bank lip curving along the bottom edge of the pond -->
+    <path d="M 38 194 C 66 220 132 230 210 230 C 288 230 354 220 382 194 C 392 204 388 220 368 232 C 328 248 272 254 210 254 C 148 254 92 248 52 232 C 32 220 28 204 38 194 Z" fill="#57C457" />
+    <!-- Highlight on upper edge of front bank -->
+    <path d="M 52 204 C 88 226 146 234 210 234 C 274 234 332 226 368 204 C 338 230 278 242 210 242 C 142 242 82 230 52 204 Z" fill="#8AE07E" stroke="none" />
+    <!-- Shadow along very bottom of front bank -->
+    <path d="M 56 230 C 102 246 154 250 210 250 C 266 250 318 246 364 230 C 332 248 274 252 210 252 C 146 252 88 248 56 230 Z" fill="#3CA33C" stroke="none" />
+
+    <!-- Smooth front bank pebbles -->
+    <ellipse cx="104" cy="226" rx="22" ry="12" fill="#F0DEC2" />
+    <path d="M 90 222 Q 104 216 118 222" fill="none" stroke="#FFFDF9" stroke-width="4" />
+    <ellipse cx="132" cy="234" rx="14" ry="9" fill="#E8AA6B" />
+
+    <!-- Low front grass tufts on right bank -->
+    <path d="M 304 236 C 296 216 310 206 322 218 C 324 198 342 198 344 216 C 356 204 370 214 358 234 Z" fill="#57C457" />
+    <path d="M 326 220 C 328 208 338 208 340 218 Z" fill="#8AE07E" stroke="none" />
+  </g>
+</svg>

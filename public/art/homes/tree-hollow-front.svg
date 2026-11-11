@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400">
+  <!-- Front lower bark rim of the hollow, upper leaf overlap, and base grass only; hollow interior stays completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Small front leaf cluster at very top of trunk (well above the hollow) -->
+    <path d="M 114 118 C 136 132 184 132 206 118 C 194 136 126 136 114 118 Z" fill="#3CA33C" />
+
+    <!-- Front lower bark ledge/rim of the hollow (below y=276 so the hollow center is completely transparent) -->
+    <path d="M 98 274 C 114 294 136 302 160 302 C 184 302 206 294 222 274 C 228 282 224 296 210 306 C 194 316 178 320 160 320 C 142 320 126 316 110 306 C 96 296 92 282 98 274 Z" fill="#D9A06B" />
+    <!-- Highlight on upper perch edge -->
+    <path d="M 108 284 C 124 298 142 304 160 304 C 178 304 196 298 212 284 C 198 302 180 310 160 310 C 140 310 122 302 108 284 Z" fill="#FFF6E8" stroke="none" />
+    <!-- Bark shadow under ledge -->
+    <path d="M 112 304 C 130 314 146 318 160 318 C 174 318 190 314 208 304 C 192 316 176 320 160 320 C 144 320 128 316 112 304 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Front grass tufts at the base -->
+    <path d="M 28 372 C 18 352 32 340 46 354 C 52 336 70 338 70 356 C 84 344 96 354 86 372 Z" fill="#57C457" />
+    <path d="M 48 358 C 52 344 64 344 66 358 Z" fill="#8AE07E" stroke="none" />
+
+    <path d="M 234 372 C 224 354 236 344 250 356 C 250 338 268 336 274 354 C 288 340 302 352 292 372 Z" fill="#57C457" />
+    <path d="M 254 358 C 256 344 268 344 272 358 Z" fill="#8AE07E" stroke="none" />
+  </g>
+</svg>

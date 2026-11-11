@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Thoughtful wide frog mouth line (never a frown) -->
+  <path d="M 14 21 C 23 17, 33 24, 43 19 C 48 17, 52 15, 56 16" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cute cheek dimple on lifted right corner -->
+  <path d="M 58 13 Q 61 16 58 20" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

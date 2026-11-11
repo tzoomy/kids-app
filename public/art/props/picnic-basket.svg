@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Soft ground shadow -->
+  <ellipse cx="128" cy="226" rx="86" ry="14" fill="#F0DEC2"/>
+
+  <!-- Arching wicker handle -->
+  <path d="M74 114 C74 34 182 34 182 114" fill="none" stroke="#3B2A22" stroke-width="20"/>
+  <path d="M74 114 C74 34 182 34 182 114" fill="none" stroke="#B87D56" stroke-width="8"/>
+  <path d="M88 72 C108 46 148 46 168 72" fill="none" stroke="#CC926B" stroke-width="4"/>
+
+  <!-- Slightly open dark interior gap -->
+  <ellipse cx="128" cy="116" rx="82" ry="18" fill="#5C4338" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Main tapered wicker basket body -->
+  <path d="M42 120 L58 206 Q62 222 80 222 H176 Q194 222 198 206 L214 120 Z" fill="#B87D56" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Basket highlight (left) and shadow (right/bottom) -->
+  <path d="M52 126 L66 204 Q70 212 82 212 H96 L86 126 Z" fill="#CC926B"/>
+  <path d="M168 126 L158 214 H174 Q188 214 192 202 L204 126 Z" fill="#9E6540"/>
+
+  <!-- Simple woven wicker texture lines -->
+  <g stroke="#3B2A22" stroke-width="5">
+    <line x1="49" y1="154" x2="207" y2="154"/>
+    <line x1="54" y1="186" x2="202" y2="186"/>
+    <line x1="88" y1="128" x2="96" y2="220"/>
+    <line x1="128" y1="128" x2="128" y2="220"/>
+    <line x1="168" y1="128" x2="160" y2="220"/>
+  </g>
+
+  <!-- Cream picnic cloth peeking out from the slightly open lid -->
+  <path d="M44 116 Q64 138 86 124 Q108 144 132 124 Q158 142 180 122 Q198 136 212 116 L204 104 H52 Z" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M62 118 Q84 130 104 118 Q128 132 152 118 Q176 130 196 116" fill="none" stroke="#F0DEC2" stroke-width="5"/>
+
+  <!-- Slightly lifted hinged basket lids on left and right -->
+  <path d="M34 106 L124 96 L124 114 L38 122 Q30 122 30 114 Q30 106 34 106 Z" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M222 106 L132 96 L132 114 L218 122 Q226 122 226 114 Q226 106 222 106 Z" fill="#B87D56" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Center handle clasp / band -->
+  <rect x="114" y="92" width="28" height="32" rx="8" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <circle cx="128" cy="108" r="4" fill="#3B2A22"/>
+</svg>
