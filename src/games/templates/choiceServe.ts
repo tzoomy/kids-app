@@ -1,9 +1,16 @@
 // Generic "choice/serve" game template logic: pick a round, decide correctness.
 // No Phaser dependency — pure and unit-testable. Rendering lives in the game scene
 // that uses this template (e.g. src/games/restaurant/RestaurantScene.ts).
-import type { RestaurantItem, AgeTrackConfig } from '../../content/schema';
+import type { RestaurantItem } from '../../content/schema';
 
 export type Lang = 'en' | 'fr';
+
+/** The levers choice-serve reads from a content level descriptor. */
+export interface ChoiceServeLevel {
+  choiceCount: number;
+  counts: readonly number[];
+  distractor?: string;
+}
 
 export interface ChoiceOption {
   item: RestaurantItem;
@@ -47,7 +54,7 @@ function supportedCounts(item: RestaurantItem, lang: Lang, candidates: readonly 
  */
 export function buildRound(
   items: readonly RestaurantItem[],
-  ageConfig: AgeTrackConfig,
+  ageConfig: ChoiceServeLevel,
   language: Lang,
   random: () => number = Math.random,
 ): RoundSpec {

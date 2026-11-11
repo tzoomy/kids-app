@@ -6,8 +6,18 @@
   "languages": ["en", "fr"],
   "earnsLeisure": true,
   "ageTracks": {
-    "age2": { "choiceCount": 2, "counts": [1], "hintMode": "demonstrate", "hintDelayMs": 6000 },
-    "age5": { "choiceCount": 3, "counts": [1, 2, 3], "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "adaptive": {
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 5 }, "age5": { "start": 4, "min": 1, "max": 5 } },
+    "levels": [
+      { "choiceCount": 2, "counts": [1], "distractor": "far", "request": "noun" },
+      { "choiceCount": 3, "counts": [1], "distractor": "far", "request": "noun" },
+      { "choiceCount": 3, "counts": [1], "distractor": "near", "request": "noun" },
+      { "choiceCount": 3, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" },
+      { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" }
+    ]
   },
   "thanks": {
     "en": ["Yummy! Thank you!", "Great job!", "Delicious!"],

@@ -32,14 +32,67 @@ export const RestaurantItemSchema = z.object({
   }),
 });
 
+export const LevelDescriptorSchema = z
+  .object({
+    choiceCount: z.number().int().min(1).max(8).optional(),
+    counts: z.array(z.number().int().min(1).max(10)).min(1).optional(),
+    setSize: z.number().int().min(1).max(10).optional(),
+    distractor: z.enum(['far', 'near', 'same-category', 'same-item-variant']).optional(),
+    request: z
+      .enum(['noun', 'quantity', 'attribute', 'two-step', 'negation', 'sequence', 'riddle', 'rule-switch'])
+      .optional(),
+    sequenceLength: z.number().int().min(1).max(6).optional(),
+    support: z.enum(['picture-audio', 'partial-reveal', 'audio-first', 'audio-only', 'clue']).optional(),
+    scaffold: z.enum(['outline', 'symbol', 'none']).optional(),
+    speed: z.number().positive().optional(),
+    extra: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+  })
+  .strict();
+
+export const TrackLevelsSchema = z.object({
+  start: z.number().int().min(1),
+  min: z.number().int().min(1).default(1),
+  max: z.number().int().min(1),
+});
+
+export const AdaptiveRulesSchema = z
+  .object({
+    upCleanStreak: z.number().int().min(1),
+    downMisses: z.number().int().min(1),
+    downWindow: z.number().int().min(1),
+    trialsPerRound: z.number().int().min(1),
+    maxChangesPerRound: z.number().int().min(1),
+    retryAfterTrials: z.number().int().min(1),
+    masteredBox: z.number().int().min(2).max(5),
+  })
+  .partial();
+
+export const GameAdaptiveSchema = z
+  .object({
+    tracks: z.object({ age2: TrackLevelsSchema, age5: TrackLevelsSchema }),
+    rules: AdaptiveRulesSchema.optional(),
+    levels: z.array(LevelDescriptorSchema).min(1),
+  })
+  .superRefine((value, ctx) => {
+    for (const track of ['age2', 'age5'] as const) {
+      const t = value.tracks[track];
+      if (!(1 <= t.min && t.min <= t.start && t.start <= t.max && t.max <= value.levels.length)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['tracks', track],
+          message: `track bounds must satisfy 1 <= min <= start <= max <= levels.length (${value.levels.length})`,
+        });
+      }
+    }
+  });
+
 export const AgeTrackConfigSchema = z.object({
-  choiceCount: z.number().int().min(2),
-  counts: z.array(z.union([z.literal(1), z.literal(2), z.literal(3)])).min(1),
   hintMode: z.enum(['demonstrate', 'repeat-then-demonstrate']),
   hintDelayMs: z.number().int().positive(),
 });
 
-export const AnimalRestaurantContentSchema = z.object({
+export const AnimalRestaurantContentSchema = z
+  .object({
   id: z.literal('animal-restaurant'),
   world: z.string().min(1),
   template: z.literal('choice-serve'),
@@ -56,8 +109,24 @@ export const AnimalRestaurantContentSchema = z.object({
   }),
   helpTextHe: z.string().min(1),
   items: z.array(RestaurantItemSchema).min(1),
-});
+  adaptive: GameAdaptiveSchema,
+})
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      if (level.choiceCount === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'restaurant levels require choiceCount' });
+      } else if (level.choiceCount > value.items.length) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'choiceCount exceeds the number of items' });
+      }
+      if (level.counts === undefined || level.counts.some((c) => c > 3)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'restaurant levels require counts within 1..3' });
+      }
+    });
+  });
 
 export type RestaurantItem = z.infer<typeof RestaurantItemSchema>;
-export type AgeTrackConfig = z.infer<typeof AgeTrackConfigSchema>;
+export type LevelDescriptor = z.infer<typeof LevelDescriptorSchema>;
+export type GameAdaptive = z.infer<typeof GameAdaptiveSchema>;
+export type AgeTrackConfig= z.infer<typeof AgeTrackConfigSchema>;
 export type AnimalRestaurantContent = z.infer<typeof AnimalRestaurantContentSchema>;

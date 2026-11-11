@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { buildRound, isCorrectChoice, pickLanguage, shuffle } from '@/games/templates/choiceServe';
+import { buildRound, isCorrectChoice, pickLanguage, shuffle, type ChoiceServeLevel } from '@/games/templates/choiceServe';
 import { loadAnimalRestaurant } from '@/content/loadContent';
 
-const content = loadAnimalRestaurant();
+const restaurant = loadAnimalRestaurant();
+// Start levels per track, read from the adaptive block (age 2 -> L1, age 5 -> L4).
+const content = {
+  items: restaurant.items,
+  ageTracks: {
+    age2: restaurant.adaptive.levels[restaurant.adaptive.tracks.age2.start - 1] as ChoiceServeLevel,
+    age5: restaurant.adaptive.levels[restaurant.adaptive.tracks.age5.start - 1] as ChoiceServeLevel,
+  },
+};
 
 function seededRandom(seed: number): () => number {
   let s = seed;

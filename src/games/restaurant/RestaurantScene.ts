@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
-import { buildRound, isCorrectChoice, pickLanguage, type RoundSpec } from '../templates/choiceServe';
+import { buildRound, isCorrectChoice, pickLanguage, type ChoiceServeLevel, type RoundSpec } from '../templates/choiceServe';
 import type { LearningSession } from '../../core/leisure';
 import type { AgeTrackConfig } from '../../content/schema';
 import { Character } from '../../anim/Character';
@@ -55,6 +55,7 @@ export class RestaurantScene extends Phaser.Scene {
   private context!: AppContext;
   private session!: LearningSession;
   private ageConfig!: AgeTrackConfig;
+  private level!: ChoiceServeLevel;
   private layout!: RestaurantLayout;
   private round: ActiveRound | null = null;
   private character?: Character;
@@ -88,7 +89,11 @@ export class RestaurantScene extends Phaser.Scene {
     const profile = this.context.store
       .getState()
       .profiles.find((p) => p.id === this.context.requireProfileId());
-    this.ageConfig = this.context.content.restaurant.ageTracks[profile?.ageTrack ?? 'age5'];
+    const track = profile?.ageTrack ?? 'age5';
+    const adaptive = this.context.content.restaurant.adaptive;
+    this.ageConfig = this.context.content.restaurant.ageTracks[track];
+    // Phase 1: the scene plays the track's start level; adaptive wiring comes in phase 2.
+    this.level = adaptive.levels[adaptive.tracks[track].start - 1] as ChoiceServeLevel;
     this.round = null;
     this.character = undefined;
     this.plates = [];
@@ -122,7 +127,7 @@ export class RestaurantScene extends Phaser.Scene {
       },
     });
 
-    this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.ageConfig.choiceCount);
+    this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.level.choiceCount);
     paintBackground(this, this.layout);
     addCounterFront(this, this.layout);
     this.createAnimalHitArea();
@@ -244,7 +249,7 @@ export class RestaurantScene extends Phaser.Scene {
     const content = this.context.content.restaurant;
     const settings = this.context.store.getState().settings;
     const language = pickLanguage(settings.languages);
-    const spec = buildRound(content.items, this.ageConfig, language);
+    const spec = buildRound(content.items, this.level, language);
     this.round = { ...spec, done: false, tries: 0 };
 
     const a = this.layout.animal;

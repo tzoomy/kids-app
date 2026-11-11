@@ -19,12 +19,42 @@ describe('content schema validation', () => {
     }
   });
 
-  it('age2 track uses 2 choices and count 1 only; age5 allows up to 3 counts', () => {
-    const content = loadAnimalRestaurant();
-    expect(content.ageTracks.age2.choiceCount).toBe(2);
-    expect(content.ageTracks.age2.counts).toEqual([1]);
-    expect(content.ageTracks.age5.choiceCount).toBeGreaterThanOrEqual(3);
-    expect(content.ageTracks.age5.counts).toContain(2);
+  it('the adaptive block: age2 starts at L1 (2 plates, count 1) with no ceiling; age5 starts at L4', () => {
+    const { adaptive } = loadAnimalRestaurant();
+    const start2 = adaptive.levels[adaptive.tracks.age2.start - 1];
+    expect(adaptive.tracks.age2.start).toBe(1);
+    expect(start2.choiceCount).toBe(2);
+    expect(start2.counts).toEqual([1]);
+    expect(adaptive.tracks.age2.max).toBe(adaptive.levels.length);
+    expect(adaptive.tracks.age5.start).toBe(4);
+    const start5 = adaptive.levels[adaptive.tracks.age5.start - 1];
+    expect(start5.choiceCount).toBe(3);
+    expect(start5.counts).toContain(2);
+  });
+
+  it('rejects bad track bounds and levels without choiceCount', () => {
+    const valid = JSON.parse(JSON.stringify(loadAnimalRestaurant())) as Record<string, any>;
+    expect(AnimalRestaurantContentSchema.safeParse(valid).success).toBe(true);
+
+    const badBounds = JSON.parse(JSON.stringify(valid));
+    badBounds.adaptive.tracks.age5.start = 9;
+    expect(AnimalRestaurantContentSchema.safeParse(badBounds).success).toBe(false);
+
+    const unordered = JSON.parse(JSON.stringify(valid));
+    unordered.adaptive.tracks.age2 = { start: 2, min: 3, max: 4 };
+    expect(AnimalRestaurantContentSchema.safeParse(unordered).success).toBe(false);
+
+    const noChoiceCount = JSON.parse(JSON.stringify(valid));
+    delete noChoiceCount.adaptive.levels[0].choiceCount;
+    expect(AnimalRestaurantContentSchema.safeParse(noChoiceCount).success).toBe(false);
+
+    const tooManyPlates = JSON.parse(JSON.stringify(valid));
+    tooManyPlates.adaptive.levels[0].choiceCount = valid.items.length + 1;
+    expect(AnimalRestaurantContentSchema.safeParse(tooManyPlates).success).toBe(false);
+
+    const unknownLever = JSON.parse(JSON.stringify(valid));
+    unknownLever.adaptive.levels[0].bogus = 1;
+    expect(AnimalRestaurantContentSchema.safeParse(unknownLever).success).toBe(false);
   });
 
   it('rejects content missing a required count "1" prompt', () => {
@@ -36,8 +66,8 @@ describe('content schema validation', () => {
       languages: ['en'],
       earnsLeisure: true,
       ageTracks: {
-        age2: { choiceCount: 2, counts: [1], hintMode: 'demonstrate', hintDelayMs: 1000 },
-        age5: { choiceCount: 3, counts: [1, 2], hintMode: 'repeat-then-demonstrate', hintDelayMs: 1000 },
+        age2: { hintMode: 'demonstrate', hintDelayMs: 1000 },
+        age5: { hintMode: 'repeat-then-demonstrate', hintDelayMs: 1000 },
       },
       thanks: { en: ['Thanks!'], fr: ['Merci!'] },
       helpTextHe: 'עזרה',
