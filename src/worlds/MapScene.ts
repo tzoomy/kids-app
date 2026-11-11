@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { AppContext } from '../game/appContext';
 import { drawWorldBuilding, paintMapBackdrop } from '../assets/vectorArt';
 import type { MapPin } from '../ui/hud';
+import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 
@@ -26,6 +27,8 @@ export class MapScene extends Phaser.Scene {
     const startY = cy - ((rows - 1) * spacingY) / 2 + (portrait ? this.scale.height * 0.04 : 0);
 
     const pins: MapPin[] = [];
+    // Set once the child has tapped anything, so the "where to go" line never talks over a tap.
+    let touched = false;
 
     worlds.forEach((world, i) => {
       const col = i % cols;
@@ -45,9 +48,12 @@ export class MapScene extends Phaser.Scene {
       building.setInteractive({ useHandCursor: true });
       building.on('pointerdown', () => {
         context.sfx.tap();
+        touched = true;
+        context.audio.stopAll();
         void pressSquash(this, building);
         if (world.status === 'locked') {
           context.shell.showToast(`${context.content.he.worldMap.comingSoon} 🌱`);
+          void context.audio.play(heLine('map.comingSoon'));
           return;
         }
         if (world.status === 'leisure') {
@@ -102,6 +108,12 @@ export class MapScene extends Phaser.Scene {
       this.scale.off('resize', paintChrome);
       window.removeEventListener('resize', paintChrome);
     });
+
+    // One gentle "where shall we go" line per visit, after a short pause.
+    this.time.delayedCall(1200, () => {
+      if (!touched) void context.audio.play(heLine('map.choose'));
+    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => context.audio.stopAll());
 
     window.__GAME_READY__ = true;
   }
