@@ -19,6 +19,18 @@ Branch: `feat/difficulty-engine` (from `main` at 7284b0e). Issue: https://github
 
 Both model names were accepted by the CLI (v2.1.322).
 
+## Owner decisions (Maor, 2026-11-11), to apply before implementing
+1. Age 5 starts at level 4, which keeps today's game.
+2. No level ceiling for age 2: she can climb through all levels (age2 max = levels.length).
+3. Drop after 2 misses in the last 3 trials (window 3).
+4. The language stays fixed per round of 3 animals.
+5. Tapping the animal to replay the request is not a hint.
+
+`docs/adaptive-engine.md` still shows the earlier defaults (age-5 start L3, age-2 max L3). Update it first.
+
+## Status log
+- 23:16 (Asia/Jerusalem): a one-call check still returned "You've hit your 5-hour limit · resets 12:10am (Asia/Jerusalem)". Stopped with no retries.
+
 ## Next steps to resume
 1. After the limit resets, resume session B1 (`claude -p "<continue prompt>" --resume 2b1cc766-5cd3-4eaa-9104-7f8595c3dcbe --model claude-sonnet-5-5 --output-format json --permission-mode acceptEdits` with Read/Glob/Grep/Write/Edit and `npm test` / `npx tsc` / `npx vitest` allowed). Phase 1: `src/core/adaptive/*`, `src/core/storage/adaptiveSchema.ts` + `adaptiveStore.ts`, content schema changes, the engine unit tests from design section 8, and `npm test` green.
 2. Phase 2, same session: migrate the restaurant (`choiceServe.ts`, `RestaurantScene.ts`, `animal-restaurant.json`, `appContext.ts`) and update the existing unit tests. Run `npm test`, `npm run build`, and `npm run test:e2e`, all green.
