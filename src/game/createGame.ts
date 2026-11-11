@@ -57,7 +57,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
 
   game.registry.set('appContext', context);
 
-  window.__testHooks__ = {
+  // Test/recording hooks exist only with ?e2e=1 (they expose the correct answer).
+  if (isE2e()) window.__testHooks__ = {
     goToScreen(screen) {
       window.__GAME_READY__ = false;
       const sceneKey = screen === 'map' ? 'MapScene' : screen === 'restaurant' ? 'RestaurantScene' : 'BubblesScene';

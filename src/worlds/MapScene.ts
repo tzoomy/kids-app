@@ -6,6 +6,9 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 
+/** Module scope = once per page load / app session. */
+let mapGuidancePlayed = false;
+
 export class MapScene extends Phaser.Scene {
   constructor() {
     super('MapScene');
@@ -109,10 +112,14 @@ export class MapScene extends Phaser.Scene {
       window.removeEventListener('resize', paintChrome);
     });
 
-    // One gentle "where shall we go" line per visit, after a short pause.
-    this.time.delayedCall(1200, () => {
-      if (!touched) void context.audio.play(heLine('map.choose'));
-    });
+    // One gentle "where shall we go" line per app session (not every visit), after a short pause.
+    if (!mapGuidancePlayed) {
+      this.time.delayedCall(1200, () => {
+        if (touched) return;
+        mapGuidancePlayed = true;
+        void context.audio.play(heLine('map.choose'));
+      });
+    }
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => context.audio.stopAll());
 
     window.__GAME_READY__ = true;

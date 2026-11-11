@@ -22,10 +22,16 @@ export interface RoundInfo {
   choiceCenters: Array<{ x: number; y: number }>;
   /** Tap point on the animal (repeats the food request). */
   animalCenter: { x: number; y: number };
+  /** Animal tap zone in game coordinates. */
+  animalHit: { left: number; top: number; right: number; bottom: number };
   language: string;
   promptText: string;
   tries: number;
   correctCount: number;
+  /** Animal state machine state ('enter', 'idle', 'talking', ...). */
+  characterState: string;
+  /** True once the animal has finished hopping in and every plate has popped in. */
+  ready: boolean;
 }
 
 interface ActiveRound extends RoundSpec {
@@ -33,6 +39,8 @@ interface ActiveRound extends RoundSpec {
   tries: number;
 }
 
+/** Plate taps are ignored this long after a wrong tap, so a double tap counts as one try. */
+const WRONG_TAP_LOCK_MS = 400;
 /** Pause after a wrong tap so the gentle "hmm" reads before the hint/retry speech. */
 const HINT_AFTER_HMM_MS = 450;
 /** Never wait longer than this for the thanks line before the next animal. */
@@ -52,6 +60,9 @@ export class RestaurantScene extends Phaser.Scene {
   private animalHit?: Phaser.GameObjects.Zone;
   private plates: PlateView[] = [];
   private hintTimer?: Phaser.Time.TimerEvent;
+  /** The single pending retry/hint after a wrong tap; only the last wrong tap speaks. */
+  private retryTimer?: Phaser.Time.TimerEvent;
+  private inputLockedUntil = 0;
   private visibilityHandler?: () => void;
   /** Incremented per round and on shutdown; async flows bail when it changes. */
   private roundToken = 0;
@@ -85,11 +96,18 @@ export class RestaurantScene extends Phaser.Scene {
     this.correctCount = 0;
     this.earnedPending = false;
     this.speakSeq = 0;
+    this.inputLockedUntil = 0;
+    this.retryTimer = undefined;
+    this.hintTimer = undefined;
 
     this.session = this.context.createLearningSession();
     this.session.start();
 
-    this.visibilityHandler = () => this.session.setHidden(document.hidden);
+    this.visibilityHandler = () => {
+      this.session.setHidden(document.hidden);
+      // Phaser's clock pauses while hidden; do not leave the narrator talking to a locked screen.
+      if (document.hidden) this.context.audio.stopAll();
+    };
     document.addEventListener('visibilitychange', this.visibilityHandler);
 
     this.time.addEvent({
@@ -171,10 +189,12 @@ export class RestaurantScene extends Phaser.Scene {
     this.session.reportInteraction();
     this.helpOpen = true;
     // The help line replaces whatever is playing; older flows see the new seq and stop.
-    this.speakSeq++;
+    const seq = ++this.speakSeq;
     this.introPlaying = false;
     this.session.reportListening(true);
-    void this.context.audio.play(heLine('restaurant.help')).finally(() => this.session.reportListening(false));
+    void this.context.audio.play(heLine('restaurant.help')).finally(() => {
+      if (seq === this.speakSeq) this.session.reportListening(false);
+    });
     this.context.shell.showHelp(this.context.content.restaurant.helpTextHe, () => {
       this.helpOpen = false;
       this.session.reportInteraction();
@@ -185,14 +205,15 @@ export class RestaurantScene extends Phaser.Scene {
 
   /** Tapping the animal repeats the request. Static zone over the visible animal. */
   private createAnimalHitArea(): void {
-    const a = this.layout.animal;
-    const visible = this.layout.counter.top - a.hitTop;
+    const h = this.layout.animal.hit;
     this.animalHit = this.add
-      .zone(a.x, a.hitTop + visible / 2, a.displayHeight * 0.75, visible)
+      .zone((h.left + h.right) / 2, (h.top + h.bottom) / 2, h.right - h.left, h.bottom - h.top)
       .setDepth(DEPTH.animalHit)
       .setInteractive({ useHandCursor: true });
     this.animalHit.on('pointerdown', () => {
       if (!this.round || this.round.done) return;
+      // Ignore taps while the animal is still hopping in; the intro/request starts by itself.
+      if (this.character?.state === 'enter') return;
       this.session.reportInteraction();
       this.character?.poke();
       void this.speakPrompt();
@@ -214,6 +235,9 @@ export class RestaurantScene extends Phaser.Scene {
     this.plates = [];
     this.character?.destroy();
     this.hintTimer?.remove();
+    this.retryTimer?.remove();
+    this.retryTimer = undefined;
+    this.inputLockedUntil = 0;
 
     const content = this.context.content.restaurant;
     const settings = this.context.store.getState().settings;
@@ -238,13 +262,12 @@ export class RestaurantScene extends Phaser.Scene {
       void this.speakPrompt(intro);
     });
 
-    const { xs, y, spacing } = this.layout.plates;
+    const { xs, y, spacing, hits } = this.layout.plates;
     spec.choices.forEach((choice, i) => {
-      const view = buildPlate(this, choice, spacing);
-      view.root.setPosition(xs[i], y);
-      view.root.setInteractive({ useHandCursor: true });
+      const view = buildPlate(this, choice, spacing, hits[i], xs[i], y);
+      if (view.root.input) view.root.input.cursor = 'pointer';
       view.root.on('pointerdown', () => this.choose(view));
-      const delay = 220 + i * ANIM_PROFILE.popIn.stagger;
+      const delay = 120 + i * ANIM_PROFILE.popIn.stagger;
       void popIn(this, view.body, delay).then(() => {
         if (token === this.roundToken && view.body.scene) view.invite = invitePulse(this, view.body, i * 180);
       });
@@ -264,7 +287,8 @@ export class RestaurantScene extends Phaser.Scene {
    * A newer call (tap on the animal, hint, help) supersedes an older one.
    */
   private async speakPrompt(before?: SpeechRequest): Promise<void> {
-    if (!this.round) return;
+    // While the help card is open only the help line may talk; closing it repeats the request.
+    if (!this.round || this.helpOpen) return;
     const seq = ++this.speakSeq;
     const round = this.round;
     this.session.reportListening(true);
@@ -286,7 +310,8 @@ export class RestaurantScene extends Phaser.Scene {
     try {
       await speech;
     } finally {
-      this.session.reportListening(false);
+      // A newer voice flow owns the flag now; clearing it here would mark the child as idle.
+      if (seq === this.speakSeq) this.session.reportListening(false);
     }
   }
 
@@ -294,15 +319,20 @@ export class RestaurantScene extends Phaser.Scene {
   getRoundInfo(): RoundInfo | null {
     if (!this.round || this.round.done) return null;
     const round = this.round;
+    const hit = this.layout.animal.hit;
+    const characterState = this.character?.state ?? 'none';
     return {
       correctIndex: this.plates.findIndex((p) => isCorrectChoice(p.choice, round.target)),
       choiceCount: this.plates.length,
       choiceCenters: this.plates.map((p) => ({ x: p.root.x, y: p.root.y })),
-      animalCenter: { x: this.layout.animal.x, y: (this.layout.animal.hitTop + this.layout.counter.top) / 2 },
+      animalHit: hit,
+      animalCenter: { x: (hit.left + hit.right) / 2, y: (hit.top + hit.bottom) / 2 },
       language: round.language,
       promptText: round.promptText,
       tries: round.tries,
       correctCount: this.correctCount,
+      characterState,
+      ready: characterState !== 'enter' && this.plates.every((p) => Math.abs(p.body.scaleX - 1) < 0.1 && p.body.scaleX > 0.9),
     };
   }
 
@@ -331,25 +361,30 @@ export class RestaurantScene extends Phaser.Scene {
 
   private choose(view: PlateView): void {
     if (!this.round || this.round.done) return;
+    if (this.time.now < this.inputLockedUntil) return;
     this.session.reportInteraction();
     void pressSquash(this, view.root);
 
     if (isCorrectChoice(view.choice, this.round.target)) {
       this.round.done = true;
       this.hintTimer?.remove();
+      this.retryTimer?.remove();
       void this.onCorrect(view);
       return;
     }
 
     this.round.tries++;
+    this.inputLockedUntil = this.time.now + WRONG_TAP_LOCK_MS;
     void wobble(this, view.body);
     void this.character?.hmm();
     const token = this.roundToken;
     const retry = shouldSayRetry(this.round.tries) ? heVariant('retry') : undefined;
-    const later = (fn: () => void) =>
-      this.time.delayedCall(HINT_AFTER_HMM_MS, () => {
+    const later = (fn: () => void) => {
+      this.retryTimer?.remove();
+      this.retryTimer = this.time.delayedCall(HINT_AFTER_HMM_MS, () => {
         if (token === this.roundToken && this.round && !this.round.done) fn();
       });
+    };
     if (this.ageConfig.hintMode === 'demonstrate') {
       this.context.sfx.tap();
       later(() => this.giveHint(retry));
@@ -437,10 +472,10 @@ export class RestaurantScene extends Phaser.Scene {
    */
   private async afterThanks(thanks: Promise<unknown>, alive: () => boolean): Promise<void> {
     const praise = shouldPraise(this.correctCount);
-    if (!praise && !this.earnedPending) return;
+    if ((!praise && !this.earnedPending) || this.helpOpen) return;
     // Let the thanks line finish first (bounded), so the follow-up never cuts it off.
     await Promise.race([thanks, wait(this, THANKS_BEFORE_PRAISE_MAX_MS)]);
-    if (!alive()) return;
+    if (!alive() || this.helpOpen) return;
     const line = praise ? heVariant('praise') : heLine('leisure.earned');
     if (!praise) this.earnedPending = false;
     await Promise.race([this.context.audio.play(line), wait(this, NARRATOR_MAX_WAIT_MS)]);

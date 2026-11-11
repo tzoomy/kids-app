@@ -9,11 +9,24 @@ export function assetUrl(base: string, url: string): string {
   return `${b}${url.replace(/^\.?\//, '')}`;
 }
 
-/** Returns how many files were queued (already-loaded keys are skipped). */
-export function queueArtManifest(scene: Phaser.Scene, entries: readonly ArtManifestEntry[], base: string): number {
+/** True for a full-screen background of the orientation that is not in use (e.g. `*-bg-portrait` on a landscape canvas). */
+export function isInactiveOrientationKey(key: string, landscape: boolean): boolean {
+  return landscape ? key.endsWith('-bg-portrait') : key.endsWith('-bg-landscape');
+}
+
+/**
+ * Returns how many files were queued (already-loaded keys are skipped). The canvas size is
+ * fixed at boot, so backgrounds for the other orientation are never loaded.
+ */
+export function queueArtManifest(
+  scene: Phaser.Scene,
+  entries: readonly ArtManifestEntry[],
+  base: string,
+  landscape: boolean = scene.scale.width >= scene.scale.height,
+): number {
   let queued = 0;
   for (const e of entries) {
-    if (scene.textures.exists(e.key)) continue;
+    if (scene.textures.exists(e.key) || isInactiveOrientationKey(e.key, landscape)) continue;
     scene.load.svg(e.key, assetUrl(base, e.url), { width: e.width, height: e.height });
     queued++;
   }

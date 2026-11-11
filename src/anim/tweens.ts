@@ -116,8 +116,17 @@ export function bounce(scene: Phaser.Scene, target: Target, height: number = P.b
   });
 }
 
-/** Soft decaying rotation wobble ("not this one"), never harsh. */
+const activeWobbles = new WeakMap<object, Phaser.Tweens.TweenChain>();
+const activeHintPulses = new WeakMap<object, Phaser.Tweens.Tween>();
+
+/**
+ * Soft decaying rotation wobble ("not this one"), never harsh. A new wobble on the same
+ * target replaces the previous one (chains are invisible to killTweensOfProps, so the
+ * running chain is tracked here) and starts from rest.
+ */
 export function wobble(scene: Phaser.Scene, target: Target): Promise<void> {
+  activeWobbles.get(target)?.stop();
+  target.setAngle(0);
   const a = amp(P.wobble.angle);
   const steps: ChainStep[] = [];
   let sign = 1;
@@ -127,7 +136,9 @@ export function wobble(scene: Phaser.Scene, target: Target): Promise<void> {
     sign = -sign;
   }
   steps.push({ targets: target, angle: 0, duration: P.wobble.duration, ease: P.wobble.ease });
-  return chainAsync(scene, { tweens: steps });
+  const c = chain(scene, { tweens: steps });
+  activeWobbles.set(target, c);
+  return done(c);
 }
 
 /** Gentle horizontal shake around the current x. */
@@ -173,7 +184,10 @@ export function invitePulse(scene: Phaser.Scene, target: Target, delay = 0): Pha
 
 /** A few friendly scale pulses to point at the right answer. */
 export function hintPulse(scene: Phaser.Scene, target: Target, restScale = 1): Promise<void> {
-  return tweenAsync(scene, {
+  // Replace a pulse that is still running so repeated hints never stack scale tweens.
+  activeHintPulses.get(target)?.stop();
+  target.setScale(restScale);
+  const tween = scene.tweens.add({
     targets: target,
     scale: restScale * Math.max(1.04, ampScale(P.hint.scale)),
     duration: P.hint.duration,
@@ -182,6 +196,8 @@ export function hintPulse(scene: Phaser.Scene, target: Target, restScale = 1): P
     ease: P.hint.ease,
     onComplete: () => target.setScale(restScale),
   });
+  activeHintPulses.set(target, tween);
+  return done(tween);
 }
 
 export interface FlyArcOptions {

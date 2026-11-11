@@ -32,7 +32,10 @@ export class BubblesScene extends Phaser.Scene {
     this.alive = true;
     this.voiceChain = Promise.resolve();
 
-    this.visibilityHandler = () => this.session.setHidden(document.hidden);
+    this.visibilityHandler = () => {
+      this.session.setHidden(document.hidden);
+      if (document.hidden) this.context.audio.stopAll();
+    };
     document.addEventListener('visibilitychange', this.visibilityHandler);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 

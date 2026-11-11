@@ -177,7 +177,12 @@ export class Character {
   private begin(state: CharacterState): number {
     if (this.destroyed) return -1;
     if (!this.sm.canEnter(state)) return -1;
+    const previous = this.sm.state;
     this.stopActions();
+    // A head tilt left over from an interrupted hmm/talk must not stick through munch/happy.
+    if (this.head && state !== 'talking' && state !== 'hmm' && (previous === 'hmm' || previous === 'talking')) {
+      this.trackTween(this.scene.tweens.add({ targets: this.head, angle: 0, duration: 80, ease: 'Sine.easeOut' }));
+    }
     return this.sm.request(state);
   }
 
@@ -199,10 +204,12 @@ export class Character {
   }
 
   /** Eases the action layer back to rest (used when settling or switching states). */
-  private relax(duration = 160): void {
+  private relax(duration = 160, headAngle = true): void {
     this.trackTween(this.scene.tweens.add({ targets: this.motion, y: 0, angle: 0, scaleX: 1, scaleY: 1, duration, ease: 'Sine.easeOut' }));
     if (this.head) {
-      this.trackTween(this.scene.tweens.add({ targets: this.head, angle: 0, scaleX: 1, scaleY: 1, duration, ease: 'Sine.easeOut' }));
+      // `headAngle: false` leaves the angle alone so a nod tween started right after does not fight it.
+      const props = headAngle ? { angle: 0, scaleX: 1, scaleY: 1 } : { scaleX: 1, scaleY: 1 };
+      this.trackTween(this.scene.tweens.add({ targets: this.head, ...props, duration, ease: 'Sine.easeOut' }));
     }
   }
 
@@ -359,7 +366,7 @@ export class Character {
       await settled;
       return;
     }
-    this.relax(120);
+    this.relax(120, false);
     let open = false;
     this.trackTimer(
       this.scene.time.addEvent({
@@ -484,14 +491,16 @@ export class Character {
   poke(): void {
     if (this.destroyed || this.sm.isBusy() || this.sm.state === 'hmm') return;
     const P = ANIM_PROFILE.character.poke;
-    this.scene.tweens.add({
-      targets: this.motion,
-      scaleX: ampScale(P.scaleX),
-      scaleY: ampScale(P.scaleY),
-      duration: P.duration,
-      yoyo: true,
-      ease: 'Quad.easeOut',
-    });
+    this.trackTween(
+      this.scene.tweens.add({
+        targets: this.motion,
+        scaleX: ampScale(P.scaleX),
+        scaleY: ampScale(P.scaleY),
+        duration: P.duration,
+        yoyo: true,
+        ease: 'Quad.easeOut',
+      }),
+    );
   }
 
   /** Waves (a happy rock), then hops off toward `toX`. Ends in state `gone`. */
