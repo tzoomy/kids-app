@@ -20,7 +20,64 @@ async function goToScreen(page: Page, screen: Screen): Promise<void> {
   await waitForGameReady(page);
 }
 
+type RoundInfo = {
+  correctIndex: number;
+  choiceCount: number;
+  choiceCenters: Array<{ x: number; y: number }>;
+  animalCenter: { x: number; y: number };
+  promptText: string;
+};
+
+async function getRoundInfo(page: Page): Promise<RoundInfo> {
+  await page.waitForFunction(
+    () => (window as unknown as { __testHooks__: { getRoundInfo: () => unknown } }).__testHooks__.getRoundInfo() !== null,
+  );
+  return page.evaluate(
+    () => (window as unknown as { __testHooks__: { getRoundInfo: () => RoundInfo } }).__testHooks__.getRoundInfo(),
+  );
+}
+
+/** Click a point given in game coordinates. */
+async function clickGame(page: Page, x: number, y: number): Promise<void> {
+  const size = await page.evaluate(() =>
+    (window as unknown as { __testHooks__: { getGameSize: () => { width: number; height: number } } }).__testHooks__.getGameSize(),
+  );
+  const box = await page.locator('canvas').boundingBox();
+  if (!box) throw new Error('no canvas');
+  await page.mouse.click(box.x + (x / size.width) * box.width, box.y + (y / size.height) * box.height);
+}
+
 test.describe('kids-app journey', () => {
+  test('restaurant requests voice clips, keeps the prompt bubble across HUD ticks and updates stars on arrival', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.locator('[data-testid="profile-a"]').click();
+    await waitForGameReady(page);
+    await goToScreen(page, 'restaurant');
+
+    const info = await getRoundInfo(page);
+    expect(info.choiceCenters).toHaveLength(info.choiceCount);
+    expect(info.correctIndex).toBeGreaterThanOrEqual(0);
+
+    // Tapping the animal repeats the food request, which asks for a static en/fr clip.
+    // (The first clip is the Hebrew intro; the tap supersedes it so this is not timing dependent.)
+    const clip = page.waitForRequest(/\/audio\/(en|fr)\/.*\.mp3/, { timeout: 10000 });
+    await page.waitForTimeout(1200); // let the animal finish entering
+    await clickGame(page, info.animalCenter.x, info.animalCenter.y);
+    await clip;
+
+    // The HUD ticks every second without destroying the prompt bubble.
+    const bubble = page.locator('.shell-prompt-bubble');
+    await expect(bubble).toBeVisible();
+    await bubble.evaluate((n) => ((n as HTMLElement).dataset.marker = 'kept'));
+    await page.waitForTimeout(2200);
+    await expect(page.locator('.shell-prompt-bubble[data-marker="kept"]')).toBeVisible();
+
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 0/);
+    const c = info.choiceCenters[info.correctIndex];
+    await clickGame(page, c.x, c.y);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
+  });
+
   test('profile select -> map -> restaurant -> bubbles -> parent gate', async ({ page }, testInfo) => {
     const sizeTag = `${testInfo.project.use.viewport?.width}x${testInfo.project.use.viewport?.height}`;
 

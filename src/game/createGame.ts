@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
-import { RestaurantScene } from '../games/restaurant/RestaurantScene';
+import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import type { AppContext } from './appContext';
 import { PreloadScene } from '../anim/PreloadScene';
@@ -12,6 +12,12 @@ declare global {
     __testHooks__?: {
       goToScreen: (screen: 'map' | 'restaurant' | 'bubbles') => void;
       seedBalanceSec: (sec: number) => void;
+      /** Current restaurant round (null when none is active); centers are in game coordinates. */
+      getRoundInfo: () => RoundInfo | null;
+      /** Names of the currently active scenes. */
+      getActiveScenes: () => string[];
+      /** Game canvas size in game coordinates. */
+      getGameSize: () => { width: number; height: number };
     };
   }
 }
@@ -65,6 +71,16 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       const state = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
       state.balanceSec = sec;
       context.store.persist();
+    },
+    getRoundInfo() {
+      const scene = game.scene.getScene('RestaurantScene') as RestaurantScene | null;
+      return scene && game.scene.isActive('RestaurantScene') ? scene.getRoundInfo() : null;
+    },
+    getActiveScenes() {
+      return game.scene.getScenes(true).map((s) => s.scene.key);
+    },
+    getGameSize() {
+      return { width: game.scale.width, height: game.scale.height };
     },
   };
 
