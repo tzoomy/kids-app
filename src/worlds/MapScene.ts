@@ -5,6 +5,7 @@ import type { MapPin } from '../ui/hud';
 import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
+import { setAppScreen } from '../pwa';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -15,6 +16,7 @@ export class MapScene extends Phaser.Scene {
   }
 
   create(): void {
+    setAppScreen('map');
     const context = this.game.registry.get('appContext') as AppContext;
     const { worlds } = context.content.worlds;
     paintMapBackdrop(this);

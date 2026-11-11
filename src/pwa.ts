@@ -1,22 +1,38 @@
 import { registerSW } from 'virtual:pwa-register';
+import { PwaAutoUpdate } from './pwa/autoUpdate';
+import type { AppScreen } from './pwa/updatePolicy';
 
-let needsRefresh = false;
-let updateFn: ((reloadPage?: boolean) => Promise<void>) | null = null;
+export type { AppScreen } from './pwa/updatePolicy';
 
-/** Register the service worker and remember when a new version is waiting (no mid-game skipWaiting). */
+const controller = new PwaAutoUpdate({
+  registerSW,
+  storage: sessionStorage,
+  document,
+  setInterval: (handler, timeout) => window.setInterval(handler, timeout),
+  clearInterval: (id) => window.clearInterval(id as number),
+  now: () => Date.now(),
+});
+
+/** Register a persist hook so balances and progress are flushed before a reload. */
+export function setPersistBeforePwaUpdate(fn: () => void): void {
+  controller.setPersist(fn);
+}
+
+/** Register the service worker and start auto-update checks. */
 export function initPwa(): void {
-  updateFn = registerSW({
-    immediate: true,
-    onNeedRefresh() {
-      needsRefresh = true;
-    },
-  });
+  controller.init();
+}
+
+/** Tell the update controller which screen is visible so it can apply or defer. */
+export function setAppScreen(screen: AppScreen): void {
+  controller.setScreen(screen);
 }
 
 export function pwaNeedsRefresh(): boolean {
-  return needsRefresh;
+  return controller.needsRefresh();
 }
 
+/** Parent-area fallback: apply a waiting update immediately, even from the parent screen. */
 export async function applyPwaUpdate(): Promise<void> {
-  await updateFn?.(true);
+  await controller.applyUpdate();
 }

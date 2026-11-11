@@ -5,6 +5,7 @@ import type { LeisureSession } from '../../core/leisure';
 import { heLine } from '../../content/voiceLines';
 import type { SpeechRequest } from '../../core/audio/types';
 import { transitionTo } from '../../anim/transitions';
+import { setAppScreen } from '../../pwa';
 
 const LOW_BALANCE_WARNING_SEC = 30;
 
@@ -25,6 +26,7 @@ export class BubblesScene extends Phaser.Scene {
   }
 
   create(): void {
+    setAppScreen('bubbles');
     this.context = this.game.registry.get('appContext') as AppContext;
     this.session = this.context.createLeisureSession();
     this.ended = false;
