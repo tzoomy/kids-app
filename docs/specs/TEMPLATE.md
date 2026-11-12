@@ -1,6 +1,6 @@
 # Spec template
 
-Copy this file to `docs/specs/<game-id>.md` (the content id, for example `animal-restaurant.md`). Write in English and fill every section. Mark anything Maor has not decided as **Open decision for the owner:**. No implementation until Maor has approved the spec. The process is in `docs/PROCESS.md`.
+Copy this file to `docs/specs/<game-id>.md` (the content id, for example `animal-restaurant.md`). Write in English and fill every section. Mark anything Maor has not decided as **Open decision for the owner:**. When Maor resolves one, change that label in place to **Decided by the owner (YYYY-MM-DD):** with the decision date, keep the text, and add a Changelog line. No implementation until Maor has approved the spec. The process is in `docs/PROCESS.md`.
 
 ---
 
@@ -105,6 +105,7 @@ What this change will not include (deferred levels, parent tools, extra language
 ## Open decisions for the owner
 
 - **Open decision for the owner:** …
+- **Decided by the owner (YYYY-MM-DD):** … (a resolved item: the open label changed in place, the text kept, and a Changelog line added)
 
 ## Changelog
 

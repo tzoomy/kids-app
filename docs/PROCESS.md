@@ -13,6 +13,10 @@ Two labels mark something Maor has not approved; use only these in new and edite
 
 Older direction documents (`docs/ARCHITECTURE.md`, `docs/WORLDS.md`) still say **proposal — pending owner approval**; treat that like an open decision. Do not treat any of these as approved.
 
+One label marks an item Maor has resolved:
+
+- `**Decided by the owner (YYYY-MM-DD):**` on a single resolved item. When Maor decides an open item, change `**Open decision for the owner:**` in place to this label with the decision date, keep the item's text (reworded only to state the decision), and add a line under the spec's `## Changelog`.
+
 ## 1. Team, roles, and branches
 
 Approved by Maor on 2026-11-11.
