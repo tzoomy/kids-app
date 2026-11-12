@@ -1,0 +1,91 @@
+{
+  "id": "who-is-hiding",
+  "world": "nature-lab",
+  "template": "choice-serve",
+  "skill": "find-the-hiding-animal",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "promptFrames": {
+    "name-sound": { "en": "Where is {name}? {sound}", "fr": "Où est {name} ? {sound}" },
+    "name": { "en": "Where is {name}?", "fr": "Où est {name} ?" },
+    "sound": { "en": "{sound}", "fr": "{sound}" }
+  },
+  "found": {
+    "en": ["Peekaboo!", "Surprise!", "You found me!"],
+    "fr": ["Coucou !", "Surprise !", "Tu m'as trouvé !"]
+  },
+  "helpTextHe": "מישהו מתחבא בשיחים! הקשיבי למי שמחפשים ולחצי על השיח שבו החיה מתחבאת. אפשר ללחוץ על הרמקול כדי לשמוע שוב.",
+  "adaptive": {
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 8 } },
+    "levels": [
+      { "choiceCount": 2, "distractor": "far", "support": "partial-reveal", "extra": { "reveal": 0.9, "speak": "name-sound" } },
+      { "choiceCount": 3, "distractor": "far", "support": "partial-reveal", "extra": { "reveal": 0.8, "speak": "name-sound" } },
+      { "choiceCount": 3, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.6, "speak": "name-sound" } },
+      { "choiceCount": 4, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.5, "speak": "name-sound" } },
+      { "choiceCount": 4, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.3, "speak": "name" } },
+      { "choiceCount": 5, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.3, "speak": "name" } },
+      { "choiceCount": 5, "distractor": "same-category", "support": "audio-only", "extra": { "reveal": 0.3, "speak": "sound" } },
+      { "choiceCount": 6, "distractor": "same-category", "support": "audio-only", "extra": { "reveal": 0.3, "speak": "sound", "soundMs": 800 } }
+    ]
+  },
+  "animals": [
+    {
+      "id": "cat",
+      "kind": "cat",
+      "group": "big-cats",
+      "name": { "en": "the cat", "fr": "le chat" },
+      "sound": { "en": "Meow, meow!", "fr": "Miaou, miaou !" },
+      "soundShort": { "en": "Meow!", "fr": "Miaou !" },
+      "clue": { "en": "It is small, has whiskers and purrs.", "fr": "Il est petit, il a des moustaches et il ronronne." }
+    },
+    {
+      "id": "lion",
+      "kind": "lion",
+      "group": "big-cats",
+      "name": { "en": "the lion", "fr": "le lion" },
+      "sound": { "en": "Roar, roar!", "fr": "Rrrah, rrrah !" },
+      "soundShort": { "en": "Roar!", "fr": "Rrrah !" },
+      "clue": { "en": "It is big and has a mane.", "fr": "Il est grand et il a une crinière." }
+    },
+    {
+      "id": "bear",
+      "kind": "bear",
+      "group": "bears",
+      "name": { "en": "the bear", "fr": "l'ours" },
+      "sound": { "en": "Growl, growl!", "fr": "Grrr, grrr !" },
+      "soundShort": { "en": "Growl!", "fr": "Grrr !" },
+      "clue": { "en": "It is big, brown and furry.", "fr": "Il est grand, brun et poilu." }
+    },
+    {
+      "id": "panda",
+      "kind": "panda",
+      "group": "bears",
+      "name": { "en": "the panda", "fr": "le panda" },
+      "sound": { "en": "Munch, munch!", "fr": "Miam, miam !" },
+      "soundShort": { "en": "Munch!", "fr": "Miam !" },
+      "clue": { "en": "It is black and white and eats bamboo.", "fr": "Il est noir et blanc et il mange du bambou." }
+    },
+    {
+      "id": "dog",
+      "kind": "dog",
+      "group": "pets",
+      "name": { "en": "the dog", "fr": "le chien" },
+      "sound": { "en": "Woof, woof!", "fr": "Ouaf, ouaf !" },
+      "soundShort": { "en": "Woof!", "fr": "Ouaf !" },
+      "clue": { "en": "It wags its tail and loves to play.", "fr": "Il remue la queue et il adore jouer." }
+    },
+    {
+      "id": "rabbit",
+      "kind": "rabbit",
+      "group": "pets",
+      "name": { "en": "the rabbit", "fr": "le lapin" },
+      "sound": { "en": "Thump, thump!", "fr": "Toc, toc !" },
+      "soundShort": { "en": "Thump!", "fr": "Toc !" },
+      "clue": { "en": "It has long ears and hops.", "fr": "Il a de longues oreilles et il saute." }
+    }
+  ]
+}

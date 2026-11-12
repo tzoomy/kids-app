@@ -16,8 +16,9 @@
     {
       "id": "nature-lab",
       "nameHe": "מעבדת הטבע",
-      "status": "locked",
-      "earnsLeisure": true
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "who-is-hiding"
     },
     {
       "id": "art-studio",
