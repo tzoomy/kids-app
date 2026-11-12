@@ -19,7 +19,22 @@ Status: **implementation complete, PR open for review** (not merged).
 
 No session needed `/compact`.
 
+## Curve shift (2026-11-12, owner-approved playtesting follow-up)
+- The restaurant now has 9 levels: age 2 starts at L4 (today's game), age 5 starts at L5, both tracks have min 1 and max 9. L6 adds a colour word, L7 asks for two foods, L8 uses negation, and L9 is voice-only.
+- Levels 6–9 are fully playable. New EN/FR lines use the device TTS.
+- The e2e tests were updated for the L4 start, with new L7 and L9 cases.
+- The other 7 games' level lists in the design doc were raised.
+- Verified: 272 unit tests pass (26 files), tsc is clean, the build succeeds, and e2e passes 18/18 (run twice).
+
+| Session | Model | Session id | Peak context |
+|---|---|---|---|
+| D curve shift | claude-sonnet-5-5 | ff0c6012-e1ee-4617-bc39-876fc87d3503 | ~173k |
+| R2 review (read-only) | claude-opus-5-5 | 16592357-d9f3-4318-b095-bccb01ea70f4 | ~115k |
+| E review fixes | claude-sonnet-5-5 | bdfc30a8-cca1-4c46-8a3a-bf9b12e9f5db | ~132k |
+
 ## Open (needs owner input)
+- L9 hides only the text bubble, which removes little for children who can't read yet. A drop from L9 lands on L8 (negation), which is harder. Options are in design section 10.
+- L6–L8 lines play in the device TTS voice, which differs from the recorded clips.
 - Start the idle auto-hint on the age-5 track. Today age 5 has no idle hint, so it never records an "assisted" outcome.
 - Decide how strict to be with an unknown `targetId`, and whether to make storage read-only when a migration is missing.
 - Visual QA of the 4-plate level (L5) in both orientations on the tablet.
