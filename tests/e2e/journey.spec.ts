@@ -292,10 +292,13 @@ test.describe('kids-app journey', () => {
     expect(await recordedTrials(page)).toBe(1);
   });
 
-  test('L9 is voice-only: no prompt bubble, and tapping the animal replays without selecting a plate', async ({ page }) => {
+  test('L9 is negation + voice-only: no prompt bubble, and tapping the animal replays without selecting a plate', async ({ page }) => {
     const info = await startRestaurantAtLevel(page, 9);
     expect(info.level).toBe(9);
+    expect(info.request).toBe('negation');
     expect(info.visualCue).toBe(false);
+    expect(info.choiceCount).toBe(4);
+    expect(info.correctIndices).toHaveLength(1);
     await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
 
     await clickGame(page, info.animalCenter.x, info.animalHit.bottom - 3);

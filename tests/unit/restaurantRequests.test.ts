@@ -34,10 +34,12 @@ describe('the 9-level restaurant curve', () => {
     expect(levels).toHaveLength(9);
     expect(levels.map((l) => l.choiceCount)).toEqual([2, 3, 3, 3, 4, 4, 4, 4, 4]);
     expect(levels.map((l) => l.request)).toEqual([
-      'noun', 'noun', 'noun', 'quantity', 'quantity', 'attribute', 'two-step', 'negation', 'quantity',
+      'noun', 'noun', 'noun', 'quantity', 'quantity', 'attribute', 'two-step', 'negation', 'negation',
     ]);
     expect(levels.map((l) => l.distractor)).toEqual(['far', 'far', 'near', 'near', 'near', 'near', 'near', 'near', 'near']);
     expect(levels[8].support).toBe('audio-only');
+    // L9 has the same levers as L8; only the voice-only support differs.
+    expect({ ...levels[8], support: undefined }).toEqual({ ...levels[7], support: undefined });
     expect(levels.slice(0, 8).every((l) => l.support === undefined)).toBe(true);
   });
 
@@ -163,13 +165,49 @@ describe('L8: negation ("an apple, but not the red one")', () => {
   });
 });
 
-describe('L9: voice-only request', () => {
-  it('flags the round as audio-only, keeps the quantity request and 4 plates', () => {
+describe('L9: negation + voice-only', () => {
+  it('only targets items with colour variants, like L8', () => {
+    expect(eligibleTargetIds(items, L9)).toEqual(VARIANT_IDS);
+  });
+
+  it('has exactly one correct plate (the other colour); the excluded colour is a wrong plate', () => {
+    for (const id of VARIANT_IDS) {
+      const item = items.find((i) => i.id === id)!;
+      for (const lang of ['en', 'fr'] as const) {
+        for (let seed = 1; seed <= 12; seed++) {
+          const round = buildRound(items, L9, lang, seededRandom(seed), id, frames);
+          expect(round.request).toBe('negation');
+          expect(round.choices).toHaveLength(4);
+          const excluded = item.variants!.find((v) => v[lang].not === round.promptText)!;
+          expect(excluded).toBeTruthy();
+          expect(round.target.color).not.toBe(excluded.color);
+          const wrongVariant = round.choices.find((c) => c.item.id === id && c.color === excluded.color)!;
+          expect(isRequestedChoice(wrongVariant, round.targets)).toBe(false);
+          expect(round.choices.filter((c) => isRequestedChoice(c, round.targets))).toHaveLength(1);
+          expect(round.lineId).toBe(`not.${id}.${excluded.color}.${lang}`);
+        }
+      }
+    }
+  });
+
+  it('is the same round as L8 for the same seed, except for the no-visual-cue flag', () => {
+    for (const id of VARIANT_IDS) {
+      const a = buildRound(items, L8, 'en', seededRandom(5), id, frames);
+      const b = buildRound(items, L9, 'en', seededRandom(5), id, frames);
+      expect({ ...b, audioOnly: false }).toEqual(a);
+    }
+  });
+
+  it('has no visual cue, but the request is still spoken', () => {
     const round = buildRound(items, L9, 'en', seededRandom(2), 'apple', frames);
     expect(round.audioOnly).toBe(true);
-    expect(round.choices).toHaveLength(4);
-    expect(round.promptText).toBeTruthy(); // still spoken
+    expect(round.promptText).toBeTruthy();
     expect(showsPromptBubble(round.audioOnly)).toBe(false);
+  });
+
+  it('L8 keeps its visual cues, and so does every level below L9', () => {
+    expect(buildRound(items, L8, 'en', seededRandom(2), 'apple', frames).audioOnly).toBe(false);
+    expect(showsPromptBubble(false)).toBe(true);
   });
 
   it('every level below L9 shows the prompt bubble', () => {

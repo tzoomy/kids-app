@@ -24,7 +24,7 @@
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "attribute" },
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "two-step" },
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation" },
-      { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity", "support": "audio-only" }
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation", "support": "audio-only" }
     ]
   },
   "thanks": {
