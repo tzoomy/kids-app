@@ -1,6 +1,8 @@
 # Development team and way of working
 
-Status: most of the workflow is a **proposal — pending owner approval**. The tools themselves (Claude Code and Antigravity/Gemini on the work machine, `gh` connected to the `tzoomy/kids-app` repository) are already available. Maor approves direction, tests with the girls, and merges meaningful changes.
+Status: most of the workflow below is a **proposal — pending owner approval**. The tools themselves (Claude Code and Antigravity/Gemini on the work machine, `gh` connected to the `tzoomy/kids-app` repository) are already available. Maor approves direction, tests with the girls, and merges meaningful changes.
+
+The spec-driven and test-driven cycle for new games and features is **approved**. Follow `docs/PROCESS.md`. Each game has a spec in `docs/specs/` (template: `docs/specs/TEMPLATE.md`). Maor approves the spec before any code, and approves the merge to `main`.
 
 The repository is public. Do not upload secrets, keys, the girls' real names, or usage data.
 
@@ -59,9 +61,11 @@ Both tools work without a UI, and GitHub authentication is the same `gh` login. 
 
 ## Convention files at the repository root
 
-- `AGENTS.md` — working rules for every agent: live site, privacy, branches, language.
-- `CLAUDE.md` — notes for Claude as lead developer.
-- `GEMINI.md` — notes for Gemini as reviewer.
+- `AGENTS.md` — working rules for every agent: live site, privacy, branches, language, and the approved development process.
+- `CLAUDE.md` — notes for Claude as lead developer (tests-first work and UI e2e).
+- `GEMINI.md` — notes for Gemini as reviewer and as owner of art, animation, voice, and visual code.
+- `docs/PROCESS.md` — the approved spec-driven and test-driven cycle.
+- `docs/specs/TEMPLATE.md` — template for each game spec; filled specs live in `docs/specs/<game-id>.md`.
 
 If a rule appears in `AGENTS.md`, there is no need to repeat it at length; the dedicated files only add the role.
 
@@ -70,7 +74,8 @@ If a rule appears in `AGENTS.md`, there is no need to repeat it at length; the d
 ## What is expected in every meaningful PR
 
 - A change in one clear place, with no free-ranging refactor outside the scope.
+- For a new game or feature: an approved spec in `docs/specs/`, tests written first from its acceptance criteria, and a review against that spec (see `docs/PROCESS.md`).
 - New or updated tests when there is logic (especially the leisure engine).
-- CI screenshots when there is a visual change.
+- CI screenshots when there is a visual change (both orientations for a game that must pass the ready-for-tablet gate).
 - A Gemini review stored in `docs/reviews/` or linked from the PR.
 - A short English description for Maor: what changed, how to test on the tablet, and what remains open.
