@@ -10,6 +10,8 @@ export const WORLD_SCENE: Record<string, string> = {
   'language-house': 'RestaurantScene',
   'art-studio': 'OrchestraScene',
   'leisure-corner': 'BubblesScene',
+  // Who's Hiding? (PR #29, feat/game-hiding). HidingScene is not on main yet, so no test enters nature-lab until that PR lands.
+  'nature-lab': 'HidingScene',
 };
 
 export interface PageRect {
@@ -135,6 +137,10 @@ export async function enterWorldByTap(page: Page, profile: ProfileTestId, worldI
   // Re-read right before the click: the idle float moves the building a few pixels.
   const fresh = (await getBuildingHit(page, worldId)) ?? hit;
   await page.mouse.click(fresh.x + fresh.width / 2, fresh.y + fresh.height / 2);
+  // TODO(game picker): Language House will open a game picker before entering a game (approved by the owner).
+  // When the picker lands, tap the matching `game-picker-<gameId>` here after the building tap
+  // (testids `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, close: `game-picker-close`),
+  // and take the game id as a parameter instead of deriving the scene from the world alone.
   await waitForScene(page, targetScene);
 }
 
