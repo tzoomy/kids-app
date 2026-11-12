@@ -1,4 +1,8 @@
-import { Store } from '../core/storage/store';
+import { Store, type StorageDriver } from '../core/storage/store';
+import { AdaptiveStore } from '../core/storage/adaptiveStore';
+import { localDayKey } from '../core/storage/dayKey';
+import type { AgeTrack } from '../core/storage/schema';
+import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
 import type { AppShell } from '../ui/shell';
@@ -22,6 +26,9 @@ export class AppContext {
   /** Set by main.ts; lets Phaser scenes return to the profile-select screen. */
   onExitToProfileSelect: (() => void) | null = null;
 
+  /** Adaptive-difficulty state, on its own storage key (never mixed with the leisure state). */
+  readonly adaptive: AdaptiveStore;
+
   constructor(
     public readonly store: Store,
     public readonly audio: AudioManager,
@@ -29,7 +36,30 @@ export class AppContext {
     public readonly content: ContentBundle,
     public readonly shell: AppShell,
     public readonly nowMs: () => number = () => Date.now(),
-  ) {}
+    adaptiveDriver?: StorageDriver | null,
+  ) {
+    // `undefined` keeps the browser default; tests may pass an in-memory driver.
+    this.adaptive = adaptiveDriver === undefined ? new AdaptiveStore() : new AdaptiveStore(adaptiveDriver);
+  }
+
+  /** Age track of the current profile (defaults to age5 like the rest of the app). */
+  currentAgeTrack(): AgeTrack {
+    const id = this.requireProfileId();
+    return this.store.getState().profiles.find((p) => p.id === id)?.ageTrack ?? 'age5';
+  }
+
+  /** Skill session for one game, bound to the current profile, its age track and the app clock. */
+  createSkillSession(world: string, gameId: string, meta: GameLevelsMeta): SkillSession {
+    return new SkillSession({
+      store: this.adaptive,
+      profileId: this.requireProfileId(),
+      track: this.currentAgeTrack(),
+      world,
+      gameId,
+      meta,
+      today: () => localDayKey(new Date(this.nowMs())),
+    });
+  }
 
   requireProfileId(): string {
     if (!this.currentProfileId) throw new Error('No profile selected');

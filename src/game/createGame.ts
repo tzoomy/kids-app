@@ -5,6 +5,8 @@ import { BubblesScene } from '../games/bubbles/BubblesScene';
 import type { AppContext } from './appContext';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
+import { skillKey } from '../core/adaptive';
+import { localDayKey } from '../core/storage/dayKey';
 
 declare global {
   interface Window {
@@ -12,6 +14,8 @@ declare global {
     __testHooks__?: {
       goToScreen: (screen: 'map' | 'restaurant' | 'bubbles') => void;
       seedBalanceSec: (sec: number) => void;
+      /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
+      seedRestaurantLevel: (level: number) => void;
       /** Current restaurant round (null when none is active); centers are in game coordinates. */
       getRoundInfo: () => RoundInfo | null;
       /** Names of the currently active scenes. */
@@ -72,6 +76,21 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       const state = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
       state.balanceSec = sec;
       context.store.persist();
+    },
+    seedRestaurantLevel(level) {
+      const profileId = context.requireProfileId();
+      const { world, id, languages } = context.content.restaurant;
+      for (const lang of languages) {
+        const key = skillKey(world, id, lang);
+        const stored = context.adaptive.getSkill(profileId, key);
+        context.adaptive.setSkill(profileId, key, {
+          ...(stored ?? { cleanStreak: 0, recent: [], afterDrop: false, lastPlayedDay: localDayKey(new Date(context.nowMs())), items: {} }),
+          level,
+          cleanStreak: 0,
+          recent: [],
+        });
+      }
+      context.adaptive.persist(profileId);
     },
     getRoundInfo() {
       const scene = game.scene.getScene('RestaurantScene') as RestaurantScene | null;

@@ -22,12 +22,16 @@ async function goToScreen(page: Page, screen: Screen): Promise<void> {
 
 type RoundInfo = {
   correctIndex: number;
+  correctIndices: number[];
   choiceCount: number;
   choiceCenters: Array<{ x: number; y: number }>;
   animalCenter: { x: number; y: number };
   animalHit: { left: number; top: number; right: number; bottom: number };
   promptText: string;
   tries: number;
+  level: number;
+  request: string;
+  visualCue: boolean;
   correctCount: number;
   characterState: string;
   ready: boolean;
@@ -85,6 +89,11 @@ test.describe('kids-app journey', () => {
     const info = await getRoundInfo(page);
     expect(info.choiceCenters).toHaveLength(info.choiceCount);
     expect(info.correctIndex).toBeGreaterThanOrEqual(0);
+    // A fresh age-2 profile starts at L4 of the 9-level curve: 3 plates and a quantity request.
+    expect(info.level).toBe(4);
+    expect(info.choiceCount).toBe(3);
+    expect(info.request).toBe('quantity');
+    expect(info.visualCue).toBe(true);
 
     // Tapping the animal repeats the food request, which asks for a static en/fr clip.
     // (The first clip is the Hebrew intro; the tap supersedes it so this is not timing dependent.)
@@ -155,21 +164,19 @@ test.describe('kids-app journey', () => {
       (window as unknown as { __testHooks__: { seedBalanceSec: (s: number) => void } }).__testHooks__.seedBalanceSec(sec);
     }, 42);
     await goToScreen(page, 'restaurant');
-    await waitForRoundReady(page);
+    const info = await waitForRoundReady(page);
 
     const before = await page.locator('[data-testid="leisure-balance"]').innerText();
     expect(before).toMatch(/0:4[2-9]|0:5\d/); // 0:42 or a second or two of earning
 
-    const canvas = page.locator('canvas');
-    const box = await canvas.boundingBox();
-    expect(box).not.toBeNull();
-    // Tap near the left plate — a miss must never reduce the balance.
-    if (box) {
-      for (let i = 0; i < 3; i++) {
-        await page.mouse.click(box.x + box.width * 0.28, box.y + box.height * 0.64);
-        await page.waitForTimeout(450); // longer than the wrong-tap input lock (visual pacing only)
-      }
+    // Tap a plate that is not the requested one (from the exposed round info) — a miss must never reduce the balance.
+    const wrong = info.choiceCenters[info.choiceCenters.findIndex((_, i) => i !== info.correctIndex)];
+    for (let i = 0; i < 3; i++) {
+      await clickGame(page, wrong.x, wrong.y);
+      await page.waitForTimeout(450); // longer than the wrong-tap input lock (visual pacing only)
     }
+    // Taps are 450 ms apart and the wrong-tap lock is 400 ms, so each of the three taps counts.
+    expect((await getRoundInfo(page)).tries).toBe(3);
 
     const after = await page.locator('[data-testid="leisure-balance"]').innerText();
     const parse = (s: string) => {
@@ -225,6 +232,82 @@ test.describe('kids-app journey', () => {
     const after = await getRoundInfo(page);
     expect(after.tries).toBe(0);
     expect(after.correctCount).toBe(0);
+  });
+
+  /** Starts a restaurant visit at a seeded adaptive level (the hook writes it before the scene starts). */
+  async function startRestaurantAtLevel(page: Page, level: number): Promise<RoundInfo> {
+    await page.goto('/?e2e=1');
+    await page.locator('[data-testid="profile-a"]').click();
+    await waitForGameReady(page);
+    await page.evaluate((l) => {
+      (window as unknown as { __testHooks__: { seedRestaurantLevel: (l: number) => void } }).__testHooks__.seedRestaurantLevel(l);
+    }, level);
+    await goToScreen(page, 'restaurant');
+    return waitForRoundReady(page);
+  }
+
+  /** Total number of recorded trials across all stored adaptive skills of every profile. */
+  async function recordedTrials(page: Page): Promise<number> {
+    return page.evaluate(() => {
+      let total = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith('kids-app-adaptive:')) continue;
+        const profile = JSON.parse(localStorage.getItem(key) ?? '{}') as {
+          skills?: Record<string, { items: Record<string, { seen: number }> }>;
+        };
+        for (const skill of Object.values(profile.skills ?? {})) {
+          for (const item of Object.values(skill.items)) total += item.seen;
+        }
+      }
+      return total;
+    });
+  }
+
+  test('L7 two-item request: serving a plate twice has no effect, the second plate completes one trial', async ({ page }) => {
+    const info = await startRestaurantAtLevel(page, 7);
+    expect(info.level).toBe(7);
+    expect(info.request).toBe('two-step');
+    expect(info.correctIndices).toHaveLength(2);
+    const [a, b] = info.correctIndices;
+    const pointA = await gameClientPoint(page, info.choiceCenters[a].x, info.choiceCenters[a].y);
+
+    await page.mouse.click(pointA.cx, pointA.cy);
+    await page.waitForFunction(() => {
+      const i = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getRoundInfo();
+      return i !== null && i.correctIndices.length === 1;
+    });
+    // The served plate is gone: tapping its spot again is not an answer.
+    await page.mouse.click(pointA.cx, pointA.cy);
+    await page.waitForTimeout(600);
+    const mid = await getRoundInfo(page);
+    expect(mid.tries).toBe(0);
+    expect(mid.correctIndices).toEqual([b]);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 0/);
+    expect(await recordedTrials(page)).toBe(0);
+
+    const pointB = await gameClientPoint(page, mid.choiceCenters[b].x, mid.choiceCenters[b].y);
+    await page.mouse.click(pointB.cx, pointB.cy);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
+    expect(await recordedTrials(page)).toBe(1);
+  });
+
+  test('L9 is negation + voice-only: no prompt bubble, and tapping the animal replays without selecting a plate', async ({ page }) => {
+    const info = await startRestaurantAtLevel(page, 9);
+    expect(info.level).toBe(9);
+    expect(info.request).toBe('negation');
+    expect(info.visualCue).toBe(false);
+    expect(info.choiceCount).toBe(4);
+    expect(info.correctIndices).toHaveLength(1);
+    await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
+
+    await clickGame(page, info.animalCenter.x, info.animalHit.bottom - 3);
+    await clickGame(page, info.animalCenter.x, info.animalCenter.y);
+    await page.waitForTimeout(600);
+    const after = await getRoundInfo(page);
+    expect(after.tries).toBe(0);
+    expect(after.correctCount).toBe(0);
+    await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
   });
 
   test('parent multiplication gate is shown when e2e bypass is off', async ({ page }) => {
