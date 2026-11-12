@@ -73,6 +73,9 @@ export class MapScene extends Phaser.Scene {
         if (world.entryGameId === 'animal-restaurant') {
           transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
         }
+        if (world.entryGameId === 'kitchen-orchestra') {
+          transitionTo(this, 'OrchestraScene', { style: 'iris', originX: x, originY: y });
+        }
       });
 
       const labels: Record<string, string> = {

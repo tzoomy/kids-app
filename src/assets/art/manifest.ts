@@ -107,4 +107,22 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'restaurant-bg-landscape', url: 'art/scenes/restaurant/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'restaurant-bg-portrait', url: 'art/scenes/restaurant/bg-portrait.svg', width: 800, height: 1280 },
   { key: 'restaurant-counter', url: 'art/scenes/restaurant/counter.svg', width: 1280, height: 260 },
+
+  // Kitchen Orchestra (Creative Studio) — chef, instruments, kitchen scenes
+  { key: 'character-chef-body', url: 'art/characters/chef/body.svg', width: 240, height: 240 },
+  { key: 'character-chef-head', url: 'art/characters/chef/head.svg', width: 236, height: 196 },
+  { key: 'character-chef-hat', url: 'art/characters/chef/hat.svg', width: 260, height: 180 },
+  { key: 'character-chef-eye-open', url: 'art/characters/chef/eye-open.svg', width: 52, height: 58 },
+  { key: 'character-chef-eye-closed', url: 'art/characters/chef/eye-closed.svg', width: 52, height: 58 },
+  { key: 'character-chef-mouth-smile', url: 'art/characters/chef/mouth-smile.svg', width: 68, height: 48 },
+  { key: 'character-chef-mouth-open', url: 'art/characters/chef/mouth-open.svg', width: 68, height: 48 },
+  { key: 'character-chef-mouth-hmm', url: 'art/characters/chef/mouth-hmm.svg', width: 68, height: 48 },
+  { key: 'instrument-pot', url: 'art/instruments/pot.svg', width: 256, height: 256 },
+  { key: 'instrument-pan', url: 'art/instruments/pan.svg', width: 256, height: 256 },
+  { key: 'instrument-glass-low', url: 'art/instruments/glass-low.svg', width: 256, height: 256 },
+  { key: 'instrument-glass-mid', url: 'art/instruments/glass-mid.svg', width: 256, height: 256 },
+  { key: 'instrument-glass-high', url: 'art/instruments/glass-high.svg', width: 256, height: 256 },
+  { key: 'fx-instrument-glow', url: 'art/fx/instrument-glow.svg', width: 256, height: 256 },
+  { key: 'kitchen-bg-landscape', url: 'art/scenes/kitchen/bg-landscape.svg', width: 1280, height: 800 },
+  { key: 'kitchen-bg-portrait', url: 'art/scenes/kitchen/bg-portrait.svg', width: 800, height: 1280 },
 ];

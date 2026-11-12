@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left Round Loop Handle -->
+    <g>
+      <path d="M56 112 C20 108 12 158 48 166 L58 150 C34 146 38 124 58 126 Z" fill="#B04816" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M30 120 C24 128 24 140 30 148" fill="none" stroke="#EB8149" stroke-width="4"/>
+    </g>
+
+    <!-- Right Round Loop Handle -->
+    <g>
+      <path d="M200 112 C236 108 244 158 208 166 L198 150 C222 146 218 124 198 126 Z" fill="#B04816" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M226 120 C232 128 232 140 226 148" fill="none" stroke="#EB8149" stroke-width="4"/>
+    </g>
+
+    <!-- Main Copper Pot Body (Planted at bottom y=236) -->
+    <g>
+      <path d="M48 96 C44 148 48 198 68 222 C84 236 172 236 188 222 C208 198 212 148 208 96 Z" fill="#D4622A"/>
+      <!-- Pot Body Shadow (Right and Bottom Curve) -->
+      <path d="M168 96 C172 150 164 198 136 216 C112 228 84 224 64 216 C78 234 174 236 188 222 C208 198 212 148 208 96 Z" fill="#B04816"/>
+      <!-- Pot Body Highlight (Left Belly) -->
+      <path d="M64 114 C62 146 66 182 78 202 C84 210 94 206 90 196 C82 178 78 146 80 114 C80 106 66 106 64 114 Z" fill="#EB8149"/>
+      <ellipse cx="74" cy="134" rx="5" ry="12" fill="#FFFDF9"/>
+      <!-- Pot Body Outline -->
+      <path d="M48 96 C44 148 48 198 68 222 C84 236 172 236 188 222 C208 198 212 148 208 96 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Pot Upper Rim / Interior Peek -->
+    <g>
+      <ellipse cx="128" cy="94" rx="84" ry="22" fill="#B04816" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="128" cy="94" rx="72" ry="15" fill="#5C4338"/>
+    </g>
+
+    <!-- Slightly Ajar Copper Lid -->
+    <g>
+      <!-- Lid Dome -->
+      <path d="M46 88 C52 50 96 38 136 42 C176 46 212 66 212 100 C176 116 82 110 46 88 Z" fill="#D4622A"/>
+      <!-- Lid Highlight -->
+      <path d="M64 82 C72 58 102 48 134 50 C112 56 86 68 76 86 C70 90 62 86 64 82 Z" fill="#EB8149"/>
+      <!-- Lid Shadow -->
+      <path d="M136 42 C176 46 212 66 212 100 C186 112 138 112 96 104 C144 104 184 94 190 78 C194 64 168 50 136 42 Z" fill="#B04816"/>
+      <!-- Lid Rim Lip -->
+      <path d="M42 88 C82 114 176 120 216 100 C218 106 212 112 204 114 C166 128 80 122 42 98 C38 94 38 88 42 88 Z" fill="#EB8149" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Lid Dome Outline -->
+      <path d="M46 88 C52 50 96 38 136 42 C176 46 212 66 212 100" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Round Top Knob -->
+      <ellipse cx="134" cy="34" rx="22" ry="14" fill="#D4622A"/>
+      <path d="M116 30 C122 22 138 22 146 28" fill="none" stroke="#EB8149" stroke-width="5"/>
+      <ellipse cx="134" cy="34" rx="22" ry="14" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

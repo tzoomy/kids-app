@@ -4,8 +4,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
-import { ANIMAL_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey } from '../../src/anim/artRegistry';
+import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -16,6 +16,7 @@ beforeEach(() => {
   resetArtRegistry();
   registerArtManifest(ART_MANIFEST);
   registerAnimalRigs(ANIMAL_RIGS);
+  registerAnimalRigs(CHARACTER_RIGS);
 });
 
 describe('real art manifest', () => {
@@ -50,6 +51,12 @@ describe('real art manifest', () => {
     for (const name of ['bg-landscape', 'bg-portrait', 'counter']) expect(sceneArtKey('restaurant', name)).toBeDefined();
     expect(foodArtKey('apple')).toBeDefined();
   });
+
+  it('registers Kitchen Orchestra chef, instruments, glow, and kitchen scenes', () => {
+    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
+    expect(fxArtKey('instrument-glow')).toBeDefined();
+    for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
 });
 
 describe('real animal rigs', () => {
@@ -70,6 +77,26 @@ describe('real animal rigs', () => {
         expect(entry, `${rig.kind}/${part.key}`).toBeDefined();
         expect([entry?.width, entry?.height], `${rig.kind}/${part.key} size`).toEqual([part.width, part.height]);
       }
+    }
+  });
+});
+
+describe('chef rig', () => {
+  it('is registered as a character, not a restaurant animal', () => {
+    expect(ANIMAL_RIGS.chef).toBeUndefined();
+    const rig = CHARACTER_RIGS.chef;
+    expect(rig, 'chef rig').toBeDefined();
+    expect(rig.kind).toBe('chef');
+    for (const id of ['body', 'head', 'hat']) expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    expect(rigTextureKeys(rig), 'chef textures are all in the manifest').toBeDefined();
+  });
+
+  it('matches every chef part size to its manifest entry', () => {
+    const rig = CHARACTER_RIGS.chef;
+    for (const part of Object.values(rig.parts)) {
+      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/chef/${part.key}.svg`);
+      expect(entry, `chef/${part.key}`).toBeDefined();
+      expect([entry?.width, entry?.height], `chef/${part.key} size`).toEqual([part.width, part.height]);
     }
   });
 });

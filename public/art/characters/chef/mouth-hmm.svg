@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Soft lower lip shadow -->
+  <path d="M 28 26 C 33 28, 39 27, 43 24" fill="none" stroke="#E5BF98" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Gentle thoughtful "hmm" mouth curve, never sad -->
+  <path d="M 22 20 C 29 22, 39 21, 50 15" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cute curious cheek dimple on the lifted right side -->
+  <path d="M 53 12 Q 56 15 53 19" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

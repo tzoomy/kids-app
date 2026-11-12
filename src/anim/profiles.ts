@@ -45,6 +45,12 @@ export const ANIM_PROFILE = {
   },
 
   transition: { duration: 320, color: 0xfde9d9 },
+
+  /** Kitchen Orchestra instrument tap / glow. Chef idle/react reuse character + press/happy/hmm. */
+  orchestra: {
+    glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
+    glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

@@ -22,8 +22,9 @@
     {
       "id": "art-studio",
       "nameHe": "סטודיו האמנות",
-      "status": "locked",
-      "earnsLeisure": false
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "kitchen-orchestra"
     },
     {
       "id": "leisure-corner",

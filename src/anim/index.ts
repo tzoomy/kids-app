@@ -14,3 +14,4 @@ export { Character, type CharacterOptions } from './Character';
 export { PreloadScene } from './PreloadScene';
 export { registerProjectArt } from './registerArt';
 export * from './transitionTiming';
+export * from './worldMotion';

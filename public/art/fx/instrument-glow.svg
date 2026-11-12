@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stacked Concentric Soft Gold & Cream Halo Rings (No filters, no gradients) -->
+    <circle cx="128" cy="128" r="112" fill="#FFF3B0" fill-opacity="0.32"/>
+    <circle cx="128" cy="128" r="94" fill="#FFD166" fill-opacity="0.35"/>
+    <circle cx="128" cy="128" r="76" fill="#FFF6E8" fill-opacity="0.55"/>
+    <circle cx="128" cy="128" r="56" fill="#FFFDF9" fill-opacity="0.65"/>
+
+    <!-- Crisp Concentric Ring Accents -->
+    <circle cx="128" cy="128" r="102" fill="none" stroke="#FFD166" stroke-width="5" stroke-opacity="0.75"/>
+    <circle cx="128" cy="128" r="84" fill="none" stroke="#FFF3B0" stroke-width="6" stroke-opacity="0.85"/>
+
+    <!-- Warm #FFD166 Sparkle Ticks Around Halo -->
+    <g stroke="#FFD166" stroke-width="6">
+      <line x1="128" y1="8" x2="128" y2="24"/>
+      <line x1="128" y1="232" x2="128" y2="248"/>
+      <line x1="8" y1="128" x2="24" y2="128"/>
+      <line x1="232" y1="128" x2="248" y2="128"/>
+      <line x1="42" y1="42" x2="54" y2="54"/>
+      <line x1="214" y1="42" x2="202" y2="54"/>
+      <line x1="42" y1="214" x2="54" y2="202"/>
+      <line x1="214" y1="214" x2="202" y2="202"/>
+    </g>
+
+    <!-- Four-Point Star Sparkles -->
+    <g fill="#FFD166">
+      <path d="M68 20 L72 30 L82 34 L72 38 L68 48 L64 38 L54 34 L64 30 Z"/>
+      <path d="M192 22 L195 30 L203 33 L195 36 L192 44 L189 36 L181 33 L189 30 Z"/>
+      <path d="M30 184 L34 194 L44 198 L34 202 L30 212 L26 202 L16 198 L26 194 Z"/>
+      <path d="M224 182 L227 190 L235 193 L227 196 L224 204 L221 196 L213 193 L221 190 Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kitchen Orchestra — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FFF6E8; color: #3B2A22; font-family: system-ui, -apple-system, sans-serif; padding: 20px 24px 32px; }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .scene {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto 22px;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      overflow: hidden;
+      height: 520px;
+      background: #FFF3E0;
+    }
+    .scene > .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+    .chef-slot { position: absolute; left: 280px; bottom: 70px; width: 220px; height: 264px; }
+    .chef-slot .stage { width: 400px; height: 480px; transform: scale(0.55); transform-origin: 0 100%; position: absolute; left: 0; bottom: 0; }
+    .part-img { position: absolute; display: block; pointer-events: none; }
+    .head-group { position: absolute; }
+    .row { max-width: 1280px; margin: 0 auto 18px; background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 24px; padding: 14px 18px 18px; }
+    .row-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+    .poses, .instruments { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .pose-card, .inst-card {
+      background: #FFF6E8; border: 2px dashed #E5BE94; border-radius: 18px; padding: 8px;
+      display: flex; flex-direction: column; align-items: center; width: 230px;
+    }
+    .pose-card .stage-wrap { width: 200px; height: 240px; position: relative; overflow: hidden; }
+    .pose-card .stage { width: 400px; height: 480px; position: absolute; top: 0; left: 50%; margin-left: -200px; transform: scale(0.5); transform-origin: top center; }
+    .inst-stage { position: relative; width: 200px; height: 200px; }
+    .inst-stage img.item { position: absolute; inset: 16px; width: 168px; height: 168px; }
+    .inst-stage img.glow { position: absolute; inset: 0; width: 200px; height: 200px; opacity: 0; }
+    .inst-card.glow img.glow { opacity: 1; }
+    .inst-card.tap img.item { transform: scale(1.12, 0.78); transform-origin: 50% 100%; }
+    .pose-label { font-size: 13px; font-weight: 700; color: #5C4338; margin-top: 4px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Kitchen Orchestra — Art Studio art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Chef idle / react and instrument idle / glow / tap states.</p>
+  <div class="scene" id="kitchen-scene">
+    <img class="bg" src="../../public/art/scenes/kitchen/bg-landscape.svg" alt="Kitchen studio backdrop" />
+    <div class="chef-slot" id="scene-chef"></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Chef poses</div>
+    <div class="poses" id="chef-poses"></div>
+  </div>
+  <div class="row">
+    <div class="row-title">Instruments — idle, light-up, tap</div>
+    <div class="instruments" id="instruments"></div>
+  </div>
+  <script src="./chef-rigs-data.js"></script>
+  <script>
+    const ART = '../../public/art';
+    const POSES = [
+      { label: 'Idle smile', mouth: 'smile', eyesClosed: false, headDeg: 0 },
+      { label: 'Blink', mouth: 'smile', eyesClosed: true, headDeg: 0 },
+      { label: 'Talk / react', mouth: 'open', eyesClosed: false, headDeg: 6 },
+      { label: 'Hmm', mouth: 'hmm', eyesClosed: false, headDeg: -8 },
+    ];
+    const INSTRUMENTS = [
+      { id: 'pot', label: 'Pot — idle', state: 'idle' },
+      { id: 'pan', label: 'Pan — light-up', state: 'glow' },
+      { id: 'glass-low', label: 'Glass (low) — tap', state: 'tap' },
+      { id: 'glass-mid', label: 'Glass (mid) — light-up', state: 'glow' },
+      { id: 'glass-high', label: 'Glass (high) — idle', state: 'idle' },
+    ];
+
+    function createPartImg(fileKey, part, refX, refY, extraDeg = 0) {
+      const img = document.createElement('img');
+      img.className = 'part-img';
+      img.src = `${ART}/characters/chef/${fileKey}.svg`;
+      img.width = part.width;
+      img.height = part.height;
+      img.style.width = `${part.width}px`;
+      img.style.height = `${part.height}px`;
+      img.style.left = `${refX + part.x - part.originX * part.width}px`;
+      img.style.top = `${refY + part.y - part.originY * part.height}px`;
+      img.style.zIndex = String(part.depth);
+      img.style.transformOrigin = `${part.originX * 100}% ${part.originY * 100}%`;
+      const transforms = [];
+      if (extraDeg) transforms.push(`rotate(${extraDeg}deg)`);
+      if (part.flipX) transforms.push('scaleX(-1)');
+      if (transforms.length) img.style.transform = transforms.join(' ');
+      return img;
+    }
+
+    function buildChefStage(rig, pose) {
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+      const feetX = 200, feetY = 470;
+      const parts = rig.parts;
+      const headPart = parts.head;
+      for (const [id, part] of Object.entries(parts)) {
+        if (id === 'head' || part.parent === 'head') continue;
+        stage.appendChild(createPartImg(part.key, part, feetX, feetY));
+      }
+      if (headPart) {
+        const headGroup = document.createElement('div');
+        headGroup.className = 'head-group';
+        headGroup.style.left = `${feetX + headPart.x}px`;
+        headGroup.style.top = `${feetY + headPart.y}px`;
+        headGroup.style.zIndex = String(headPart.depth);
+        if (pose.headDeg) headGroup.style.transform = `rotate(${pose.headDeg}deg)`;
+        const children = Object.entries(parts).filter(([id, part]) => id === 'head' || part.parent === 'head');
+        children.sort((a, b) => a[1].depth - b[1].depth);
+        for (const [id, part] of children) {
+          let fileKey = part.key;
+          if ((id === 'eyeL' || id === 'eyeR') && pose.eyesClosed) fileKey = rig.eyeClosedKey;
+          else if (id === 'mouth') fileKey = rig.mouthKeys[pose.mouth];
+          headGroup.appendChild(createPartImg(fileKey, part, -headPart.x, -headPart.y));
+        }
+        stage.appendChild(headGroup);
+      }
+      return stage;
+    }
+
+    function render() {
+      const data = window.__CHEF_RIGS_DATA__;
+      const rig = data.CHARACTER_RIGS.chef;
+      const sceneChef = document.getElementById('scene-chef');
+      sceneChef.appendChild(buildChefStage(rig, POSES[0]));
+
+      const poses = document.getElementById('chef-poses');
+      for (const pose of POSES) {
+        const card = document.createElement('div');
+        card.className = 'pose-card';
+        const wrap = document.createElement('div');
+        wrap.className = 'stage-wrap';
+        wrap.appendChild(buildChefStage(rig, pose));
+        card.appendChild(wrap);
+        const label = document.createElement('div');
+        label.className = 'pose-label';
+        label.textContent = pose.label;
+        card.appendChild(label);
+        poses.appendChild(card);
+      }
+
+      const insts = document.getElementById('instruments');
+      for (const inst of INSTRUMENTS) {
+        const card = document.createElement('div');
+        card.className = 'inst-card ' + inst.state;
+        const stage = document.createElement('div');
+        stage.className = 'inst-stage';
+        const glow = document.createElement('img');
+        glow.className = 'glow';
+        glow.src = `${ART}/fx/instrument-glow.svg`;
+        glow.alt = '';
+        const item = document.createElement('img');
+        item.className = 'item';
+        item.src = `${ART}/instruments/${inst.id}.svg`;
+        item.alt = inst.id;
+        stage.appendChild(glow);
+        stage.appendChild(item);
+        card.appendChild(stage);
+        const label = document.createElement('div');
+        label.className = 'pose-label';
+        label.textContent = inst.label;
+        card.appendChild(label);
+        insts.appendChild(card);
+      }
+    }
+
+    render();
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>
