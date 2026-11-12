@@ -12,7 +12,8 @@ Actions" in the repository settings. Until that switch happens, the `deploy`
 job in `.github/workflows/ci.yml` is prepared but has no visible effect.
 
 See `docs/ARCHITECTURE.md`, `docs/WORLDS.md`, and `docs/TEAM.md` for the
-product and technical direction, and `AGENTS.md` / `CLAUDE.md` for the rules
+product and technical direction, `docs/PROCESS.md` for the approved
+spec-driven and test-driven cycle, and `AGENTS.md` / `CLAUDE.md` for the rules
 every agent working in this repository follows.
 
 ## Getting started

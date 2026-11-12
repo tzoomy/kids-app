@@ -12,7 +12,8 @@ You are the lead developer. Implement an issue on a dedicated branch, write test
 
 ## How to work
 
-- Read the issue and `docs/ARCHITECTURE.md` / `docs/WORLDS.md` before writing code.
+- Read the approved spec in `docs/specs/`, `docs/PROCESS.md`, and `docs/ARCHITECTURE.md` / `docs/WORLDS.md` before writing code. If there is no approved spec, help write or update it and wait for Maor's approval; do not start implementation.
+- You own tests-first work and the UI e2e: write failing unit tests and Playwright journey tests from the spec's acceptance criteria, then implement until they pass. A journey test uses real taps (profile, the actual world building on the map, then the game) and must not call `__testHooks__.goToScreen`. Seed and inspect hooks under `?e2e=1` are allowed for setup and assertions. Add `data-testid` and other stable test handles where the tests need them.
 - Prefer an existing game template and JSON content over a new game from scratch.
 - The leisure engine, storage, and audio live in `src/core` (or the structure that was approved), without unnecessary Phaser dependence.
 - Do not change prototype files at the repository root, and do not touch the live site, unless the task is explicitly an approved migration.
