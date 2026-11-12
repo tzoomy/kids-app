@@ -45,7 +45,7 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 
 **Hints:**
 
-- **Idle auto-hint, age 2 only:** `hintDelayMs` 6000 ms after the request becomes ready, if the request is still open, `giveHint()` runs once (it is not repeated). It marks the trial hinted only if no tap was made yet. If the help card is open it is postponed by another `hintDelayMs`. Age 5 has no idle auto-hint (the timer is scheduled only for `hintMode === 'demonstrate'`), the same as in the restaurant.
+- **Idle auto-hint, age 2 only:** `hintDelayMs` 6000 ms after the request becomes ready, if the request is still open, `giveHint()` runs once (it is not repeated). It marks the trial hinted only if no tap was made yet. If the help card is open it is postponed by another `hintDelayMs`. Age 5 has no idle auto-hint (the timer is scheduled only for `hintMode === 'demonstrate'`), the same as in the restaurant. **Decided by the owner (2026-11-12):** this is intended behaviour: on age 5 a hint comes only after a mistake, and any age-5 `hintDelayMs` is unused by design.
 - **Hint on a level with a visual cue (L1–L6):** the correct bush's front rustles and pulses, a sparkle bursts at its top, the animal rises to at least 0.9 of its height (`HINT_MIN_REVEAL`, never lower than the level's reveal), the `hint` SFX plays, and the request is spoken again (`hintLineId` `hiding.<id>.hint.<speak>.<lang>`).
 - **Hint on an audio-only level (L7–L8):** nothing visual changes; the `hint` SFX plays and the request is spoken followed by the animal's descriptive clue (`hintFor`, line id `hiding.<id>.hint.clue.<lang>`).
 - **A second hint can follow a wrong tap:** the idle timer is not cancelled by a wrong tap, so on age 2 a child who taps wrong early can get the wrong-tap hint and then the idle hint at 6 s. This is the same as the restaurant. See the open decisions.
@@ -72,7 +72,7 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 | 8 | 6 | same-category | audio-only | 0.3 (ears) | sound, `soundMs` 800 → short sound word | no |
 
   - **Neighbours** (`pickBushNeighbours`): `far` prefers animals from groups other than the target's and from each other; `same-category` takes the target's look-alike group first. Too few matches are filled from the rest. Groups are content: `big-cats` (cat, lion), `bears` (bear, panda), `pets` (dog, rabbit). With only 2 animals per group, every `same-category` request has exactly one look-alike next to the target; L8 uses all six animals.
-  - **Audio-only** (L7–L8) means no visual cue for the **request** (no text bubble, no written name). The animals keep the 0.3 ear-level peek, because every bush hides a different animal and an empty bush row would make the level a pure guess (`docs/adaptive-engine.md` on `3fd6d7e`). The schema requires an audio-only level to speak only the sound.
+  - **Audio-only** (L7–L8) means no visual cue for the **request** (no text bubble, no written name). The animals keep the 0.3 ear-level peek (**Decided by the owner (2026-11-12):** keep it), because every bush hides a different animal and an empty bush row would make the level a pure guess (`docs/adaptive-engine.md` on `3fd6d7e`). The schema requires an audio-only level to speak only the sound.
   - **Short sound** (L8): device TTS cannot be timed, so `extra.soundMs` (any positive number) only switches to the animal's `soundShort` word ("Meow!" instead of "Meow, meow!"); the value 800 is not used as a duration (`hidingLevel().shortSound`).
 - **Age-2 start level:** L2 (3 bushes, far, 0.8 reveal, name + sound, bubble).
 - **Age-5 start level:** L5 (4 bushes, same-category, ears only, name alone, bubble). Harder than age 2 in four ways: more bushes, look-alike neighbours, a smaller visible part, and no sound in the request.
@@ -111,15 +111,17 @@ Wiring (all on `3fd6d7e`):
 
 Handles that exist today:
 
-- **Map building hit target:** **not available.** `getBuildingHit('nature-lab')` does not exist. The current e2e test taps 88 game units above the `.shell-map-pin[data-world-id="nature-lab"]` label (`openFromMap` in `tests/e2e/hiding.spec.ts`), which depends on the map layout. Needed work: add `getBuildingHit(<world-id>)` under `?e2e=1` and switch the journey to it.
-- **`data-testid`s used:** `profile-a` (the age-2 profile; `profile-b` is age 5), `leisure-balance`, `star-count`. CSS hooks used by tests: `.shell-prompt-bubble`, `.shell-map-pin[data-world-id="nature-lab"]`. **Missing** (needed work): `data-testid`s on the HUD back button, the help button, and the help card close control (none have one today; `src/ui/hud.ts`, `src/ui/shell.ts`).
+- **Map building hit target:** `__testHooks__.getBuildingHit(worldId)` returns `{ x, y, width, height } | null` in **page CSS pixels** (top-left; accounts for canvas scaling and letterboxing; `null` when the map is not active or the world has no building). It is **added in draft PR #37 (branch `test/e2e-infra-v2`, not on `main` yet)**. Today (without PR #37) the e2e test taps 88 game units above the `.shell-map-pin[data-world-id="nature-lab"]` label (`openFromMap` in `tests/e2e/hiding.spec.ts`), which depends on the map layout; it switches to `getBuildingHit('nature-lab')` or the shared helper once PR #37 lands.
+- **Shared Playwright helper:** `enterWorldByTap(page, profile, worldId)` in `tests/e2e/helpers/journey.ts` (added in draft PR #37, not on `main` yet): opens `/?e2e=1`, taps the profile, waits for the map, taps the building centre from `getBuildingHit`, and waits for the world's game scene. Its `WORLD_SCENE` table in PR #37 does not list `nature-lab` yet; the game's journey adds `'nature-lab': 'HidingScene'` there.
+- **`data-testid`s** (final shared names; the new ones are added in draft PR #37, not on `main` yet): `profile-a` (the age-2 profile; `profile-b` is age 5), `leisure-balance`, `star-count`, `parent-gate-btn` (existing); `hud-back` (back pill), `hud-help` (help pill), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the whole help overlay: tapping anywhere closes it; there is no separate close button). Today the tests use the CSS hooks `.shell-prompt-bubble` and `.shell-map-pin[data-world-id="nature-lab"]`; they switch to the testids once PR #37 lands.
 - **Seed and read hooks under `?e2e=1`** (`window.__testHooks__`, `src/game/createGame.ts`):
   - `seedBalanceSec(sec)` — seed (existing).
   - `seedHidingLevel(level)` — seed: sets the stored level for every content language and resets the streak and recent window (new on PR #29).
   - `getRoundInfo()` — read: returns `HidingRoundInfo` (`request: 'hiding'`, `correctIndex`, `choiceIds`, `targetId`, `choiceCenters`, `replayCenter`, `choiceCount`, `language`, `promptText`, `visualCue`, `reveal`, `speak`, `tries`, `hinted`, `level`, `skillKey`, `correctCount`, `ready`) while `HidingScene` is active.
   - `getActiveScenes()`, `getGameSize()` — read (existing).
   - `goToScreen('hiding')` — navigation; **not allowed** in AC tests (`docs/PROCESS.md` §4). It is used today by the L7 test and must be replaced by a map-entry journey.
-  - **Missing** (needed work): `getBuildingHit(<world-id>)`; a speech spy for voice criteria (no test uses one for this game today).
+  - `getBuildingHit(worldId)` — read, page CSS pixels (see above; draft PR #37).
+  - `getSpokenLines(sinceIndex?)` — read: returns `Array<{ index, lineId, lang, source: 'clip' | 'tts', text?, at }>`; `getSpokenLineCount()` — read: returns a number. The speech spy for voice criteria; read-only, `?e2e=1` only; added in draft PR #37 (not on `main` yet). No test uses it for this game today.
 
 ## Acceptance criteria
 
@@ -127,8 +129,8 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 
 | ID | Criterion | Pass | Verified by | Orientation | Hooks used |
 |---|---|---|---|---|---|
-| AC-01 | Full real-tap journey: profile → Nature Lab building → Who's Hiding? → one request answered → back button → map; the game opens only from the Nature Lab building | 1 | e2e | both | `getBuildingHit`, `getRoundInfo`, `getActiveScenes` |
-| AC-02 | A correct bush tap: the animal pops out, a "found" line in the request's language is spoken, the star count rises by one, and the next request starts | 1 | e2e | @single-orientation | `getRoundInfo` |
+| AC-01 | Full real-tap journey: profile → Nature Lab building → Who's Hiding? → one request answered → back button → map; the game opens only from the Nature Lab building | 1 | e2e | both | `getBuildingHit`, `getRoundInfo`, `getActiveScenes`; testid `hud-back` |
+| AC-02 | A correct bush tap: the animal pops out, a "found" line in the request's language is spoken, the star count rises by one, and the next request starts | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testid `star-count` |
 | AC-03 | A wrong bush tap wobbles that bush, gives the age's retry or hint flow (Mechanic step 6), and never reduces the leisure balance | 1 | e2e | @single-orientation | `getRoundInfo`, `seedBalanceSec` |
 | AC-04 | Level rises after 3 clean answers and drops when 2 of the last 3 trials are misses, with at most one change per engine round; age 2 changes only between engine rounds, age 5 after the trial | 1 | unit | @single-orientation | |
 | AC-05 | One real-tap level change at a low level (for example a seeded age-2 profile at L2 rises to L3 after three clean answers and the next engine round shows 3 bushes with same-category neighbours) | 1 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
@@ -136,7 +138,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-07 | A new age-2 profile starts at L2 and a new age-5 profile at L5; both tracks have min 1 and max 8 (no age-2 ceiling) | 1 | unit | @single-orientation | |
 | AC-08 | Leisure accrues through `LearningSession` as specified (interaction, listening, celebrating; not while hidden; not while only the help card is open), never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
 | AC-09 | Content and language: every animal has EN/FR name, sound, short sound and clue; the request language follows the parent's language setting | 1 | unit | @single-orientation | |
-| AC-10 | Each voice line requests the right line id, language and text (request, hint, found line, Hebrew retry/praise/leisure-earned) through a speech spy | 1 | e2e | @single-orientation | `getRoundInfo` |
+| AC-10 | Each voice line requests the right line id, language and text (request, hint, found line, Hebrew retry/praise/leisure-earned) through a speech spy | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`, `getSpokenLineCount` |
 | AC-11 | Smoke: a request can be answered at `1280x800` and `800x1280` with all bushes on screen | 1 | e2e | both | `getRoundInfo`, `getBuildingHit` |
 | AC-12 | The game works offline (Nature Lab art and content load from the PWA cache) | 1 | e2e | @single-orientation | `getBuildingHit` |
 | AC-13 | The parent area stays gated (test runs without `?e2e=1`) | 1 | e2e | @single-orientation | |
@@ -146,13 +148,13 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-17 | Neighbours: `far` levels take other groups first; `same-category` levels always place the target's look-alike; too few matches are filled from other groups (L8 uses all six) | 1 | unit | @single-orientation | |
 | AC-18 | Visible part: each animal shows exactly its level's `reveal` fraction above the foliage (whole/body/head/ears); audio-only levels keep the 0.3 ear-level peek and show no text bubble | 1 | unit | @single-orientation | |
 | AC-19 | Spoken request per level: name + sound (L1–L4), name (L5–L6), sound (L7), short sound (L8), in EN and FR, with distinct line ids per animal, mode and language | 1 | unit | @single-orientation | |
-| AC-20 | Tapping the speaker button or the request bubble replays the request: no try, not hinted, nothing recorded | 1 | e2e | @single-orientation | `getRoundInfo` |
+| AC-20 | Tapping the speaker button or the request bubble replays the request: no try, not hinted, nothing recorded | 1 | e2e | @single-orientation | `getRoundInfo`; testid `prompt-bubble` |
 | AC-21 | Age 2 only: 6 s after the request is ready and with no correct tap, the idle auto-hint rustles the correct bush and lifts its animal to at least 0.9, and marks the trial hinted only before the first tap; age 5 gets no idle auto-hint | 1 | e2e | @single-orientation | `getRoundInfo` |
 | AC-22 | On audio-only levels the hint changes nothing visually and speaks the request followed by the animal's clue; on other levels the hint speaks the request again | 1 | unit | @single-orientation | |
 | AC-23 | A trial is recorded exactly once, on the first accepted bush tap; a double tap within 400 ms counts as one try; a hint after a recorded miss changes nothing | 1 | e2e | @single-orientation | `getRoundInfo` |
 | AC-24 | After a level drop the next target is a known animal; the same animal is not asked twice in a row | 1 | unit | @single-orientation | |
 | AC-25 | The request language stays fixed for the 3 trials of an engine round and is re-picked at the boundary (or early if the parent disables it) | 1 | unit | @single-orientation | |
-| AC-26 | Help card: opening it stops audio, does not count as listening, blocks replays and postpones the idle hint; closing it repeats the open request | 1 | e2e | @single-orientation | `getRoundInfo` |
+| AC-26 | Help card: opening it stops audio, does not count as listening, blocks replays and postpones the idle hint; closing it repeats the open request | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testids `hud-help`, `help-card`, `help-card-close` |
 | AC-27 | Input is tap-only on both tracks: an age-5 profile answers by tapping a bush (no drag) | 1 | e2e | @single-orientation | `getRoundInfo`, `getBuildingHit` |
 | AC-28 | Layout: 2–6 bushes fit in both orientations with non-overlapping hit areas inside the screen and below the speaker button | 1 | unit | @single-orientation | |
 | AC-29 | The `hiding` screen is unsafe for a mid-game PWA update; profile and map stay safe | 1 | unit | @single-orientation | |
@@ -165,8 +167,8 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 
 | AC | Existing tests (file — exact test title) | Gap |
 |---|---|---|
-| AC-01 | `tests/e2e/hiding.spec.ts` — `profile select -> map -> Nature Lab opens a ready round at the age-2 start level` | Enters through the pin label offset, not `getBuildingHit`; does not answer a request or exit to the map; does not check that only this building opens the game |
-| AC-02 | `tests/e2e/hiding.spec.ts` — `a clean correct tap completes the trial and starts the next round`; `tests/e2e/hiding.spec.ts` — `a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial`; `tests/unit/hidingRound.test.ts` — `only the bush that hides the requested animal is correct` | No assertion on the pop-out or the "found" line |
+| AC-01 | `tests/e2e/hiding.spec.ts` — `profile select -> map -> Nature Lab opens a ready round at the age-2 start level` | Enters through the pin label offset, not `getBuildingHit` / `enterWorldByTap` (draft PR #37); does not answer a request or exit to the map; does not check that only this building opens the game |
+| AC-02 | `tests/e2e/hiding.spec.ts` — `a clean correct tap completes the trial and starts the next round`; `tests/e2e/hiding.spec.ts` — `a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial`; `tests/unit/hidingRound.test.ts` — `only the bush that hides the requested animal is correct` | No assertion on the pop-out or the "found" line (`getSpokenLines`, draft PR #37) |
 | AC-03 | `tests/e2e/hiding.spec.ts` — `a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial` | The retry/hint flow per age is not asserted (only `tries` and the balance) |
 | AC-04 | `tests/unit/hidingRound.test.ts` — `records once on the first accepted tap: a wrong tap is the miss, later taps record nothing`; `tests/unit/hidingRound.test.ts` — `a clean first tap is recorded once` | Only the trial inputs are tested; no level-change test with this game's metadata |
 | AC-05 | — | No test |
@@ -174,7 +176,7 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 | AC-07 | `tests/unit/hidingContent.test.ts` — `has 8 levels; age 2 starts at L2 and age 5 at L5, both with min 1 and max = levels.length (no age-2 ceiling)`; `tests/unit/hidingContent.test.ts` — `the age-5 start is meaningfully harder than the age-2 start`; `tests/e2e/hiding.spec.ts` — `profile select -> map -> Nature Lab opens a ready round at the age-2 start level` | Content values only; no test that a new age-5 profile starts at L5 |
 | AC-08 | `tests/e2e/hiding.spec.ts` — `a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial` | Only "never reduced"; no accrual, help-card, or profile-isolation test for this game |
 | AC-09 | `tests/unit/hidingContent.test.ts` — `validates and every animal has EN/FR name, sound, short sound and clue`; `tests/unit/hidingRound.test.ts` — `every animal composes a non-empty prompt in every language at every level` | No test that the language setting (en / fr / both) selects the request language in this game |
-| AC-10 | — | No speech spy test |
+| AC-10 | — | No speech spy test (`getSpokenLines` / `getSpokenLineCount` come with draft PR #37) |
 | AC-11 | `tests/e2e/hiding.spec.ts` — `profile select -> map -> Nature Lab opens a ready round at the age-2 start level` (runs in both projects, no `@single-orientation` tag) | Does not answer a request; no L8 (6 bushes) check |
 | AC-12 | — | No test |
 | AC-13 | — | No test for this game |
@@ -202,9 +204,9 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 Needed before `Pass in progress` can move to `1`:
 
 - **Rename and retag:** move the tests to files that belong to the game (for example `tests/unit/who-is-hiding.content.test.ts`, `tests/unit/who-is-hiding.round.test.ts`, `tests/e2e/who-is-hiding.spec.ts`) and prefix every mapped title with its `[AC-xx]` tags; tag orientation-independent e2e titles `@single-orientation`.
-- **Replace legacy navigation:** the L7 test uses `goToScreen('hiding')`; enter from the map building instead. Replace the pin-label offset in `openFromMap` with `getBuildingHit('nature-lab')` once the hook exists.
-- **AC-01:** answer one request and exit to the map with the back button (needs a back-button `data-testid`); check that no other building opens `HidingScene`.
-- **AC-02:** assert the "found" line (speech spy) and the next request.
+- **Replace legacy navigation:** the L7 test uses `goToScreen('hiding')`; enter from the map building instead. Replace the pin-label offset in `openFromMap` with `enterWorldByTap(page, profile, 'nature-lab')` (or `getBuildingHit('nature-lab')`), available once draft PR #37 lands (add `'nature-lab': 'HidingScene'` to its `WORLD_SCENE` table).
+- **AC-01:** answer one request and exit to the map with the back button (tap `hud-back`, added in draft PR #37); check that no other building opens `HidingScene`.
+- **AC-02:** assert the "found" line (`getSpokenLines`) and the next request.
 - **AC-03:** assert the per-age wrong-tap flow (age 2 hint with the Hebrew retry first; age 5 retry plus request, then hint on the second wrong tap).
 - **AC-04:** a unit test that records trials through `SkillSession` with this game's metadata on both tracks.
 - **AC-05:** a seeded real-tap level change at a low level.
@@ -212,7 +214,7 @@ Needed before `Pass in progress` can move to `1`:
 - **AC-07:** a fresh age-5 profile (`profile-b`) starts at L5.
 - **AC-08:** a game-level leisure test (accrual, help card not listening, profile isolation).
 - **AC-09:** language selection from the parent setting (`en`, `fr`, `both`).
-- **AC-10:** a speech spy test for request, hint, found, and Hebrew lines.
+- **AC-10:** a speech spy test (`getSpokenLines` / `getSpokenLineCount`) for request, hint, found, and Hebrew lines.
 - **AC-11:** answer a request in both viewports, including a 6-bush layout.
 - **AC-12:** an offline test.
 - **AC-13:** a parent-gate test without `?e2e=1` for this game's build.
@@ -220,7 +222,7 @@ Needed before `Pass in progress` can move to `1`:
 - **AC-22:** a check that nothing visual changes on an audio-only hint.
 - **AC-24:** a unit test that a drop serves a known animal and the same animal is not repeated.
 - **AC-25:** a scene-level check that the language is constant across an engine round.
-- **AC-26:** a help-card test (stops audio, not listening, closing repeats the request).
+- **AC-26:** a help-card test (open with `hud-help`, close by tapping `help-card-close`; stops audio, not listening, closing repeats the request).
 - **AC-27:** an age-5 tap test.
 - **AC-29:** add `hiding` to the PWA update-policy test.
 - **AC-15:** Pass 2 only.
@@ -241,7 +243,7 @@ Needed before `Pass in progress` can move to `1`:
   - Procedural fallbacks keep the game playable without art: green ellipses for bushes and a sky/grass fill for the background (`bushImage`, `paintBackground`).
 - **SVG contract:** the bush and scene SVGs come from PR #18 and are covered by `tests/unit/artAssets.test.ts` on `3fd6d7e` (size and content rules).
 - **Rigs:** no new rig; animals reuse the existing animal rigs. Bush art is anchored bottom-centre; the front foliage's top is at `BUSH_ART.topFrac` (round 0.54, tall 0.52) and the animal's visible part is measured from there (`hidingLayout.ts`).
-- **Layout** (`computeHidingLayout`): bushes in one or two rows below a top band of `max(190, 20% of height)`; columns: up to 3 in one row, landscape up to 5 in one row (6 → 3 × 2), portrait `ceil(n/2)` per row; bush width capped at 300 game units; hit rectangles span the column minus a 10-unit gap and extend from 0.6 animal heights above the foliage to the bush bottom; speaker button at `(width − 72, 15.5% of height)`, radius 44. Tap targets: **Open decision for the owner:** minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px). The speaker button is 88 game units across, which is smaller in CSS px on a tablet under Phaser FIT scaling; bush hit areas are large but not measured against either value. If items do not fit at that size, pan or show fewer; never shrink them.
+- **Layout** (`computeHidingLayout`): bushes in one or two rows below a top band of `max(190, 20% of height)`; columns: up to 3 in one row, landscape up to 5 in one row (6 → 3 × 2), portrait `ceil(n/2)` per row; bush width capped at 300 game units; hit rectangles span the column minus a 10-unit gap and extend from 0.6 animal heights above the foliage to the bush bottom; speaker button at `(width − 72, 15.5% of height)`, radius 44. Tap targets: **Decided by the owner (2026-11-12):** the minimum tap-target size is 64 px. The speaker button is 88 game units across, which is smaller in CSS px on a tablet under Phaser FIT scaling; it and the bush hit areas have not been measured against 64 px on the tablet yet. If items do not fit at that size, pan or show fewer; never shrink them.
 - **RTL:** the game reuses the restaurant HUD (`shell.setRestaurantChrome`: back button, progress bar, star pill, balance, help button labelled with `restaurant.helpButton`). Hebrew chrome is RTL; the request bubble uses `ltr-isolate` for the EN/FR text.
 - **Animation:** `ANIM_PROFILE.hiding` knobs `rustle`, `peek`, `reveal`, `hide` (`src/anim/profiles.ts`); helpers `rustleBush`, `revealFromBush` used by the scene, and `peekFromBush`, `hideInBush` added but unused (`src/anim/worldMotion.ts`). Also reused: `popIn`, `pressSquash`, `wobble`, `hintPulse`, `flyArc`, `Juice` bursts, `Character.happy/hmm/talk`, iris `transitionTo`. The scene checks `isReducedMotion()` itself only for the star-pill bump; the shared helpers apply their own motion scaling (for example `amp` in `worldMotion.ts`).
 - **Voice table** (all EN/FR lines use device TTS through `AudioManager.play({ lineId, lang, text })`; none has an entry in `audio-manifest.json`. Hebrew lines are the existing shared clips.)
@@ -278,16 +280,16 @@ Needed before `Pass in progress` can move to `1`:
 
 ## Open decisions for the owner
 
-- **Open decision for the owner:** L7–L8 keep an ear-level peek (`reveal` 0.3) instead of a fully invisible animal; "audio-only" means only that the request has no text bubble. Fully hidden animals would make the level a pure guess with one animal per bush.
+- **Decided by the owner (2026-11-12):** L7–L8 keep the ear-level peek (`reveal` 0.3) instead of a fully invisible animal; "audio-only" means only that the request has no text bubble. Fully hidden animals would make the level a pure guess with one animal per bush.
 - **Open decision for the owner:** L8 "short sound" is a shorter sound word (`soundShort`, for example "Meow!"), not an 800 ms sound, because device TTS cannot be timed. Revisit with recorded clips in Pass 2.
 - **Open decision for the owner:** limited look-alike pairs: only six animals have art, giving three pairs (cat/lion, bear/panda, dog/rabbit). Each `same-category` request has exactly one look-alike; dog/rabbit are grouped as "pets" and do not look alike much.
 - **Open decision for the owner:** no Hebrew intro and no Hebrew help audio; the help card is text only (unlike the restaurant, which plays `restaurant.help`).
 - **Open decision for the owner:** a second hint can follow a wrong tap (age 2: the wrong-tap hint and then the 6 s idle hint), the same as the restaurant. Keep, or cancel the idle timer after a wrong tap.
-- **Open decision for the owner:** age 5 gets no idle auto-hint (same as the restaurant); only wrong taps lead to a hint.
+- **Decided by the owner (2026-11-12):** age 5 gets no idle auto-hint (same as the restaurant); a hint comes only after a mistake. This is intended behaviour.
 - **Open decision for the owner:** no age-2 ceiling: an age-2 profile can climb to the audio-only levels L7–L8.
 - **Open decision for the owner:** no tablet check yet (AC-14 has not run).
 - **Open decision for the owner:** merge order with PR #18: the art branch `feat/art-hiding-orchestra` (PR #18) was merged into PR #29 (`d479c07`). PR #29 is based on `924114e`, before Kitchen Orchestra (#28) landed on `main`; `main` already has the orchestra and chef art and its own `src/anim/worldMotion.ts`, `profiles.ts`, `manifest.ts`, `createGame.ts`, `MapScene.ts`, `main.ts` and `updatePolicy.ts` (`AppScreen` with `'orchestra'`) changes. PR #29 needs a rebase onto `main` with additive merges of these shared registries, and PR #18 should be closed or merged first so the art lands once.
-- **Open decision for the owner:** minimum tap-target size (about 64 px in `docs/ARCHITECTURE.md` vs 112 CSS px proposed in the art reviews), and whether the 88-unit speaker button meets it on the tablet.
+- **Decided by the owner (2026-11-12):** the minimum tap-target size is 64 px. Whether the 88-unit speaker button meets it on the tablet is part of the tablet check (AC-14).
 - **Open decision for the owner:** Who's Hiding? as the Nature Lab entry game rather than "Who Lives Here?", and a Who's Hiding? section in `docs/WORLDS.md`.
 - **Open decision for the owner:** the scene art folder is named after the world (`scenes/nature-lab/`) rather than the game.
 - **Open decision for the owner:** the research ladder's clue-only and two-clue requests are not implemented (clues appear only in audio-only hints); add them as levels later or leave out of scope.
@@ -296,3 +298,5 @@ Needed before `Pass in progress` can move to `1`:
 ## Changelog
 
 - `2026-11-12` — created (retroactive spec of the existing game) — substantive
+- `2026-11-12` — applied owner decisions: minimum tap target 64 px; age 5 has no idle auto-hint, a hint comes only after a mistake (intended behaviour); L7–L8 keep the ear-level peek — minor
+- `2026-11-12` — aligned test handles with the shared names in draft PR #37 (`hud-back`, `hud-help`, `prompt-bubble`, `help-card`, `help-card-close`, `getBuildingHit` in page CSS pixels, `getSpokenLines` / `getSpokenLineCount`, `enterWorldByTap`) — minor
