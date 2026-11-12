@@ -32,8 +32,13 @@ No session needed `/compact`.
 | R2 review (read-only) | claude-opus-5-5 | 16592357-d9f3-4318-b095-bccb01ea70f4 | ~115k |
 | E review fixes | claude-sonnet-5-5 | bdfc30a8-cca1-4c46-8a3a-bf9b12e9f5db | ~132k |
 
+## L9 negation (2026-11-12, owner-approved)
+- L9 is now the L8 negation request (one correct plate: the other colour) with every visual cue hidden: no bubble, 🔊 button, pointing, pulse or sparkle. Tapping the animal still replays the request and is not a hint.
+- L9 is now strictly harder than L8, so a drop from 9 to 8 is a real easement. This resolves the earlier open question about L9.
+- Verified: 276 unit tests pass (26 files), tsc is clean, the build succeeds, and e2e passes 18/18.
+- Session: F (resumed E), claude-sonnet-5-5, bdfc30a8-cca1-4c46-8a3a-bf9b12e9f5db, peak ~156k.
+
 ## Open (needs owner input)
-- L9 hides only the text bubble, which removes little for children who can't read yet. A drop from L9 lands on L8 (negation), which is harder. Options are in design section 10.
 - L6–L8 lines play in the device TTS voice, which differs from the recorded clips.
 - Start the idle auto-hint on the age-5 track. Today age 5 has no idle hint, so it never records an "assisted" outcome.
 - Decide how strict to be with an unknown `targetId`, and whether to make storage read-only when a migration is missing.
