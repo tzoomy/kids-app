@@ -266,7 +266,7 @@ export class OrchestraScene extends Phaser.Scene {
       x: chefPos.x,
       y: chefPos.feetY,
       displayHeight: chefPos.displayHeight,
-      depth: 4,
+      depth: chefPos.depth,
     });
 
     const glowKey = fxArtKey('instrument-glow');
