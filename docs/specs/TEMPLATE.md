@@ -1,12 +1,13 @@
 # Spec template
 
-Copy this file to `docs/specs/<game-id>.md` (use the content id, for example `animal-restaurant.md`). Write the spec in English. Fill every section. Mark anything Maor has not decided as **Open decision for the owner**. Do not start implementation until Maor has approved the spec.
+Copy this file to `docs/specs/<game-id>.md` (the content id, for example `animal-restaurant.md`). Write in English and fill every section. Mark anything Maor has not decided as **Open decision for the owner:**. No implementation until Maor has approved the spec. The process is in `docs/PROCESS.md`.
 
 ---
 
 # `<game-id>` — `<display name>`
 
 Status: **draft — pending owner approval** / **approved** (keep one).
+Pass in progress: **none** (`none` until implementation starts, then `1`, then `2`; read by `npm run check:ac`).
 
 ## Summary
 
@@ -20,64 +21,93 @@ One short paragraph: what the child does, what she learns, and which world the g
 ## World and why
 
 - **World** (Language House, Number Garden, Nature Lab, Art Studio, or Leisure Corner):
-- **Why this game belongs there:**
-- Link to the relevant section of `docs/WORLDS.md` if one exists.
+- **Why this game belongs there:** (link the section of `docs/WORLDS.md` if there is one)
 
 ## Mechanic
 
-How a round works: the child's action, feedback on a correct answer, feedback on a wrong answer (hint or retry), how a round ends, and how she leaves the game. Note the input mode (tap, drag) per age track if they differ.
+How a round works: the child's action, feedback on a correct answer, feedback on a wrong answer (hint or retry), how a round ends, and how she leaves the game.
+
+- **Input mode per age** (tap or drag): state the real mode. Do not assume the engine's age-5 `policy.interaction` value applies if the game stays tap-only.
 
 ## Difficulty curve
 
-- **Levels:** a table or list of levels and the levers that change (choice count, request type, scaffolding, and so on). Follow the adaptive-engine contract in `docs/adaptive-engine.md` unless this spec documents a justified exception.
+- **Levels:** levels and the levers that change (choice count, request type, scaffolding, …), following `docs/adaptive-engine.md` unless a justified exception is written here.
 - **Age-2 start level:**
-- **Age-5 start level:**
+- **Age-5 start level:** (meaningfully harder than age 2)
 - **Min / max** (including whether age 2 has a ceiling):
 - **Adaptive rules** (defaults or overrides: `upCleanStreak`, `downMisses`, `downWindow`, `trialsPerRound`, `maxChangesPerRound`, when the level may change):
 
+## Leisure
+
+How play earns leisure time under the leisure policy. Mistakes never reduce the balance; balances never mix across profiles.
+
 ## Player journey from the map
 
-Step by step, with the real UI the child uses: choose a profile → tap this world building on the map → enter the game → play a round → exit back to the map. Name the test handles (`data-testid` or equivalent) the journey will use, including the map building.
+Profile → tap this world building on the map → enter the game → play a round → exit to the map. Name every handle the tests use (frozen at approval):
+
+- Map building hit target: `getBuildingHit('<world-id>')`
+- `data-testid`s (DOM / HUD):
+- Seed and read hooks under `?e2e=1` (seed persisted state or read state only; no game actions, no scene navigation):
 
 ## Acceptance criteria
 
-Numbered, each one testable, each one mapped to a unit or e2e test name that will exist before implementation. Add game-specific criteria as needed. Keep at least:
+Ids are stable: never renumber or reuse them; strike through a removed one (`~~AC-07~~`). Test titles start with the id, e.g. `test('[AC-04] level rises after 3 clean answers', …)`, in `tests/**/<game-id>*` files. Verified by: `unit`, `e2e`, `e2e+seed`, or `device` (device criteria are checked by Maor on the tablet and are exempt from the CI coverage check). Orientation: `both`, or `@single-orientation` if the criterion does not depend on it. Keep at least these rows and add game-specific ones.
 
-1. The game opens only from the correct world building on the map. — e2e: `<test-name>`
-2. A correct answer gives the specified feedback and advances the game. — e2e: `<test-name>`
-3. A wrong answer gives the specified hint or retry, and never reduces the leisure balance. — e2e and/or unit: `<test-name>`
-4. Difficulty rises after successes and drops after misses, using the rules in this spec. — unit: `<test-name>` (e2e if a journey can show a level change)
-5. A new age-2 profile starts at the age-2 start level; a new age-5 profile starts at the age-5 start level. — unit and e2e: `<test-name>`
-6. Leisure time accrues as defined in this spec and in the leisure policy. — unit and/or e2e: `<test-name>`
-7. Exit returns the child to the map. — e2e: `<test-name>`
-8. Voice and on-screen text use the correct language for the round. — e2e: `<test-name>`
-9. The game is playable in landscape (`1280x800`) and portrait (`800x1280`). — e2e: `<test-name>`
-10. The game works offline. — e2e: `<test-name>`
-11. The parent area stays gated. — e2e: `<test-name>`
+| ID | Criterion | Pass | Verified by | Orientation | Hooks used |
+|---|---|---|---|---|---|
+| AC-01 | Full real-tap journey: profile → world building → game → one round → exit to the map; the game opens only from this world's building | 1 | e2e | both | `getBuildingHit` |
+| AC-02 | A correct answer gives the specified feedback and advances the game | 1 | e2e | @single-orientation | |
+| AC-03 | A wrong answer gives the specified hint or retry and never reduces the leisure balance | 1 | e2e | @single-orientation | |
+| AC-04 | Difficulty rises after successes and drops after misses, per this spec's rules | 1 | unit | @single-orientation | |
+| AC-05 | One real-tap level change at a low level | 1 | e2e+seed | @single-orientation | |
+| AC-06 | High levels play correctly | 1 | e2e+seed | @single-orientation | |
+| AC-07 | A new age-2 profile starts at the age-2 start level; a new age-5 profile at the age-5 start level | 1 | unit | @single-orientation | |
+| AC-08 | Leisure accrues as specified, never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
+| AC-09 | Content and language are selected as specified | 1 | unit | @single-orientation | |
+| AC-10 | Each voice line requests the right line id and language (speech spy) | 1 | e2e | @single-orientation | |
+| AC-11 | Smoke: the game is playable at `1280x800` and `800x1280` | 1 | e2e | both | |
+| AC-12 | The game works offline | 1 | e2e | @single-orientation | |
+| AC-13 | The parent area stays gated (test runs without `?e2e=1`) | 1 | e2e | @single-orientation | |
+| AC-14 | Device check: touch, rotation mid-game, audible voice, visuals | 1 | device | both | |
+| AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
 
-## Test plan
+## Art, animation, and audio
 
-List the tests that will be written first (TDD). Journey tests use real taps: profile, the world building on the map, then the game. Do not use `__testHooks__.goToScreen` in a journey test. Seed and inspect hooks under `?e2e=1` are allowed for setup and assertions. Implementers add `data-testid` and other stable handles where needed.
+Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start immediately (`docs/PROCESS.md` §2). Style and rig details: `docs/ANIMATION.md`.
 
-### Unit (Vitest)
+### Pass 1 — working game
 
-- `<file and test name>` — what it asserts
+- **Asset paths and manifest keys:** under `public/art/` (`characters/`, `animals/`, `props/`, `foods/`, `instruments/`, `fx/`, `scenes/<scene-or-game-name>/`), keyed in `src/assets/art/manifest.ts`. Scene folders are named per scene or game, never the world id (two games can share a world).
+- **SVG contract:** warm palette; dark-brown outline `#3B2A22` about 6 px; no heavy gradients or filters, no `<text>`, no external references, no rasters; each file under 15 KB (enforced by `tests/unit/artAssets.test.ts`); original assets only.
+- **Rigs:** origin at the feet centre on the 400 × 480 reference; heads without eyes and mouth (separate swappable parts). Say which rig map is used: `CHARACTER_RIGS` for new characters, not the restaurant `ANIMAL_KINDS` picker. Previews composite every layer.
+- **Layout:** landscape and portrait backgrounds. Tap targets: **Open decision for the owner:** minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px). If items do not fit at that size, pan or show fewer; never shrink them.
+- **RTL:** Hebrew UI chrome is RTL; English and French learning tokens stay LTR. Say whether the game reuses the existing HUD.
+- **Animation:** `ANIM_PROFILE` knobs (`src/anim/profiles.ts`) and motion helpers (`src/anim/worldMotion.ts`) to add or reuse. Unit tests import pure modules only, never Phaser.
+- **Voice table** (device TTS through `AudioManager.play({ lineId, lang, text })`):
 
-### UI e2e (Playwright)
+| lineId | lang (`en` / `fr` / `he`) | Text | Trigger |
+|---|---|---|---|
+| | | | |
 
-- `<test name>` — what it asserts, and whether it runs in both orientations
+- **World and PWA wiring:** the world's `entryGameId`, `earnsLeisure`, and the game's new `AppScreen` marked unsafe for mid-game updates in `src/pwa/updatePolicy.ts`.
 
-## Art and audio needs
+### Pass 2 — polish
 
-- Art (characters, props, scene layers, FX), and which orientation backgrounds are required.
-- Audio: device TTS is enough for the first playable version unless this spec says otherwise; list line ids and any later recorded-voice or animation polish.
+- Richer art and animation (list what changes).
+- Recorded Gemini TTS clips (voice Leda) for the voice table, rendered with `scripts/tts/generate_voice.py`; device TTS stays the fallback. Do not add `voice-lines-he.json` entries or `audio-manifest.json` rows without the clip and its text hash.
+
+Put anything Maor has not approved for this change under Out of scope.
 
 ## Out of scope
 
-What this change will not include (deferred levels, parent tools, extra languages, polish passes, and so on).
+What this change will not include (deferred levels, parent tools, extra languages, Pass 2 if not approved yet, …).
 
 ## Open decisions for the owner
 
-List every question that still needs Maor's decision. Mark each item clearly:
-
 - **Open decision for the owner:** …
+
+## Changelog
+
+One line per edit: date, what changed, `substantive` or `minor`. A substantive edit (learning goals, world, mechanic, difficulty curve or start levels, leisure rules, acceptance criteria added, removed, or changed in meaning, or scope) sets Status back to **draft — pending owner approval**.
+
+- `YYYY-MM-DD` — created — substantive
