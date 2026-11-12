@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180">
+  <!-- Puffy three-lobed chef toque crown -->
+  <path d="M 52 134 C 20 120, 14 68, 46 46 C 60 36, 76 38, 86 46 C 94 18, 120 10, 138 12 C 158 14, 170 26, 174 46 C 186 38, 204 38, 216 48 C 246 70, 240 120, 208 134 Z" fill="#FFFDF9"/>
+
+  <!-- Soft cream folds and lower crown shadow -->
+  <path d="M 30 98 C 36 122, 54 134, 84 136 L 176 136 C 206 134, 224 122, 230 98 C 212 118, 186 124, 130 124 C 74 124, 48 118, 30 98 Z" fill="#F0DEC2"/>
+  <path d="M 92 68 C 90 92, 96 114, 102 132 C 106 112, 102 88, 92 68 Z" fill="#F0DEC2"/>
+  <path d="M 168 68 C 170 92, 164 114, 158 132 C 154 112, 158 88, 168 68 Z" fill="#F0DEC2"/>
+
+  <!-- Puffy crown outline and soft inner pleat lines -->
+  <path d="M 52 134 C 20 120, 14 68, 46 46 C 60 36, 76 38, 86 46 C 94 18, 120 10, 138 12 C 158 14, 170 26, 174 46 C 186 38, 204 38, 216 48 C 246 70, 240 120, 208 134" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 94 76 C 94 96, 98 114, 102 128" fill="none" stroke="#5C4338" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 166 76 C 166 96, 162 114, 158 128" fill="none" stroke="#5C4338" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Snug brim along the bottom of the viewBox -->
+  <path d="M 48 132 C 88 122, 172 122, 212 132 L 206 168 C 168 176, 92 176, 54 168 Z" fill="#FFFDF9"/>
+  <path d="M 52 154 C 92 164, 168 164, 208 154 L 206 168 C 168 176, 92 176, 54 168 Z" fill="#F0DEC2"/>
+  <path d="M 48 132 C 88 122, 172 122, 212 132 L 206 168 C 168 176, 92 176, 54 168 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

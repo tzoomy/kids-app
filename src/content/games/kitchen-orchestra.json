@@ -1,0 +1,50 @@
+{
+  "id": "kitchen-orchestra",
+  "world": "art-studio",
+  "template": "ordered-steps",
+  "skill": "listen-and-echo",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "thanks": {
+    "en": ["Great job!", "What a song!", "Beautiful!"],
+    "fr": ["Bravo !", "Quelle chanson !", "C'est joli !"]
+  },
+  "listenPrompt": {
+    "en": "Listen!",
+    "fr": "Écoute !"
+  },
+  "yourTurnPrompt": {
+    "en": "Your turn!",
+    "fr": "À toi !"
+  },
+  "retryPrompt": {
+    "en": "Let's try again!",
+    "fr": "On réessaie !"
+  },
+  "helpTextHe": "השף מנגן דוגמה. הקשיבי, ואז הקשי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.",
+  "instruments": [
+    { "id": "pot", "he": "סיר", "name": { "en": "pot", "fr": "casserole" }, "prompts": { "en": "Play the pot!", "fr": "Joue sur la casserole !" } },
+    { "id": "pan", "he": "מחבת", "name": { "en": "pan", "fr": "tambour" }, "prompts": { "en": "Play the pan!", "fr": "Joue du tambour !" } },
+    { "id": "glass-low", "he": "כוס נמוכה", "name": { "en": "low glass", "fr": "verre grave" }, "prompts": { "en": "Play the low glass!", "fr": "Joue le verre grave !" } },
+    { "id": "glass-mid", "he": "כוס", "name": { "en": "glass", "fr": "verre" }, "prompts": { "en": "Play the glass!", "fr": "Joue le verre !" } },
+    { "id": "glass-high", "he": "כוס גבוהה", "name": { "en": "high glass", "fr": "verre aigu" }, "prompts": { "en": "Play the high glass!", "fr": "Joue le verre aigu !" } }
+  ],
+  "adaptive": {
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 8 }, "age5": { "start": 4, "min": 1, "max": 8 } },
+    "rules": { "upCleanStreak": 2, "downMisses": 2, "downWindow": 2, "trialsPerRound": 3 },
+    "levels": [
+      { "sequenceLength": 1, "choiceCount": 3, "speed": 0.8, "support": "lit", "request": "sequence" },
+      { "sequenceLength": 2, "choiceCount": 3, "speed": 0.8, "support": "lit", "request": "sequence" },
+      { "sequenceLength": 2, "choiceCount": 4, "speed": 1, "support": "lit", "request": "sequence" },
+      { "sequenceLength": 3, "choiceCount": 4, "speed": 1, "support": "lit", "request": "sequence" },
+      { "sequenceLength": 3, "choiceCount": 4, "speed": 1, "support": "flash", "request": "sequence" },
+      { "sequenceLength": 4, "choiceCount": 4, "speed": 1.2, "support": "flash", "request": "sequence" },
+      { "sequenceLength": 4, "choiceCount": 5, "speed": 1.2, "support": "audio-only", "request": "sequence" },
+      { "sequenceLength": 5, "choiceCount": 5, "speed": 1.2, "support": "audio-only", "request": "sequence" }
+    ]
+  }
+}

@@ -65,7 +65,7 @@ export const LevelDescriptorSchema = z
       .enum(['noun', 'quantity', 'attribute', 'two-step', 'negation', 'sequence', 'riddle', 'rule-switch'])
       .optional(),
     sequenceLength: z.number().int().min(1).max(6).optional(),
-    support: z.enum(['picture-audio', 'partial-reveal', 'audio-first', 'audio-only', 'clue']).optional(),
+    support: z.enum(['picture-audio', 'partial-reveal', 'audio-first', 'audio-only', 'clue', 'lit', 'flash']).optional(),
     scaffold: z.enum(['outline', 'symbol', 'none']).optional(),
     speed: z.number().positive().optional(),
     extra: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
@@ -191,3 +191,71 @@ export type LevelDescriptor = z.infer<typeof LevelDescriptorSchema>;
 export type GameAdaptive = z.infer<typeof GameAdaptiveSchema>;
 export type AgeTrackConfig = z.infer<typeof AgeTrackConfigSchema>;
 export type AnimalRestaurantContent = z.infer<typeof AnimalRestaurantContentSchema>;
+
+export const ORCHESTRA_INSTRUMENT_IDS = ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high'] as const;
+export type OrchestraInstrumentId = (typeof ORCHESTRA_INSTRUMENT_IDS)[number];
+export const ORCHESTRA_SUPPORTS = ['lit', 'flash', 'audio-only'] as const;
+export type OrchestraSupport = (typeof ORCHESTRA_SUPPORTS)[number];
+
+export const OrchestraInstrumentSchema = z.object({
+  id: z.enum(ORCHESTRA_INSTRUMENT_IDS),
+  he: z.string().min(1),
+  name: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+  prompts: z.object({
+    en: z.string().min(1),
+    fr: z.string().min(1),
+  }),
+});
+
+export const KitchenOrchestraContentSchema = z
+  .object({
+    id: z.literal('kitchen-orchestra'),
+    world: z.literal('art-studio'),
+    template: z.literal('ordered-steps'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({
+      age2: AgeTrackConfigSchema,
+      age5: AgeTrackConfigSchema,
+    }),
+    thanks: z.object({
+      en: z.array(z.string().min(1)).min(1),
+      fr: z.array(z.string().min(1)).min(1),
+    }),
+    listenPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    yourTurnPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    retryPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    helpTextHe: z.string().min(1),
+    instruments: z.array(OrchestraInstrumentSchema).min(3),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const ids = value.instruments.map((i) => i.id);
+    if (new Set(ids).size !== ids.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['instruments'], message: 'instrument ids must be unique' });
+    }
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      if (level.sequenceLength == null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'orchestra levels need sequenceLength' });
+      }
+      if (level.choiceCount == null) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'orchestra levels need choiceCount' });
+      } else if (level.choiceCount > value.instruments.length) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'choiceCount cannot exceed the instrument list' });
+      } else if (level.choiceCount < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'choiceCount must be at least 2' });
+      }
+      if (level.speed == null || level.speed <= 0) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'orchestra levels need a positive speed' });
+      }
+      if (level.support !== undefined && !ORCHESTRA_SUPPORTS.includes(level.support as OrchestraSupport)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'orchestra support must be lit, flash, or audio-only' });
+      }
+    });
+  });
+
+export type OrchestraInstrument = z.infer<typeof OrchestraInstrumentSchema>;
+export type KitchenOrchestraContent = z.infer<typeof KitchenOrchestraContentSchema>;
+

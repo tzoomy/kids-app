@@ -1,8 +1,9 @@
 import worldsJson from './worlds.json';
 import animalRestaurantJson from './games/animal-restaurant.json';
+import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
-import { WorldsFileSchema, AnimalRestaurantContentSchema, type WorldsFile, type AnimalRestaurantContent } from './schema';
+import { WorldsFileSchema, AnimalRestaurantContentSchema, KitchenOrchestraContentSchema, type WorldsFile, type AnimalRestaurantContent, type KitchenOrchestraContent } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
 /** Validates content once at module load. A broken content file fails fast, not at runtime on a tablet. */
@@ -16,6 +17,10 @@ export function loadAnimalRestaurant(): AnimalRestaurantContent {
 
 export function loadHeStrings(): typeof heJson {
   return heJson;
+}
+
+export function loadKitchenOrchestra(): KitchenOrchestraContent {
+  return KitchenOrchestraContentSchema.parse(kitchenOrchestraJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

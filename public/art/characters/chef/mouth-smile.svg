@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Soft lower lip shadow -->
+  <path d="M 24 28 C 30 33, 38 33, 44 28" fill="none" stroke="#E5BF98" stroke-width="5" stroke-linecap="round"/>
+  <!-- Warm gentle smile curve -->
+  <path d="M 14 15 C 22 29, 46 29, 54 15" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cheek dimple ticks -->
+  <path d="M 10 16 Q 13 11 17 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 58 16 Q 55 11 51 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -53,14 +53,14 @@ export function keyForUrl(url: string): string | undefined {
 
 /** Part keys are file names ("ear-left") and repeat across kinds, so resolve by path. */
 export function animalPartKey(kind: string, partKey: string): string | undefined {
-  return keyForUrl(`art/animals/${kind}/${partKey}.svg`);
+  return keyForUrl(`art/animals/${kind}/${partKey}.svg`) ?? keyForUrl(`art/characters/${kind}/${partKey}.svg`);
 }
 
 export function foodArtKey(foodId: string): string | undefined {
   return keyForUrl(`art/foods/${foodId}.svg`);
 }
 
-export function propArtKey(name: 'plate' | 'plate-shadow'): string | undefined {
+export function propArtKey(name: string): string | undefined {
   return keyForUrl(`art/props/${name}.svg`);
 }
 
@@ -68,9 +68,14 @@ export function sceneArtKey(scene: string, name: string): string | undefined {
   return keyForUrl(`art/scenes/${scene}/${name}.svg`);
 }
 
-export function fxArtKey(name: 'star' | 'sparkle' | 'heart' | 'crumb'): string | undefined {
+export function fxArtKey(name: string): string | undefined {
   return keyForUrl(`art/fx/${name}.svg`);
 }
+
+export function instrumentArtKey(name: string): string | undefined {
+  return keyForUrl(`art/instruments/${name}.svg`);
+}
+
 
 /**
  * Lists every texture key a rig needs (parts plus the eye-closed and mouth variants),

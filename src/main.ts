@@ -10,7 +10,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import type { AgeTrack } from './core/storage/schema';
 
@@ -25,6 +25,7 @@ const shell = new AppShell(shellRoot);
 const context = new AppContext(store, audioManager, sfx, {
   worlds: loadWorlds(),
   restaurant: loadAnimalRestaurant(),
+  orchestra: loadKitchenOrchestra(),
   he: loadHeStrings(),
 }, shell);
 

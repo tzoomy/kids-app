@@ -42,6 +42,7 @@ describe('isSafeToApplyUpdate', () => {
     ['map', true],
     ['restaurant', false],
     ['bubbles', false],
+    ['orchestra', false],
     ['parent', false],
     ['loading', false],
   ];
@@ -60,6 +61,7 @@ describe('decidePwaUpdate', () => {
   it('defers while inside a game, the parent area, or loading', () => {
     expect(decidePwaUpdate({ ...base, screen: 'restaurant' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'bubbles' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'orchestra' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');
   });
