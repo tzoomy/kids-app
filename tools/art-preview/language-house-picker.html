@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Language House game picker — design preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #3B2A22;
+      color: #3B2A22;
+      font-family: "Noto Sans Hebrew", "Arial Hebrew", Tahoma, system-ui, sans-serif;
+    }
+
+    /* Full-viewport in-game overlay. Existing restaurant scene is the Language House backdrop. */
+    .backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+    }
+    .scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(59, 42, 34, 0.42);
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 36px;
+    }
+
+    .panel {
+      position: relative;
+      width: min(1180px, 100%);
+      height: min(740px, 100%);
+      background: #FFF6E8;
+      border: 6px solid #3B2A22;
+      border-radius: 36px;
+      box-shadow: 0 18px 0 rgba(59, 42, 34, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 28px 24px;
+    }
+
+    .header {
+      position: relative;
+      width: 100%;
+      flex: 0 0 auto;
+      min-height: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .world-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #3B2A22;
+      line-height: 1.2;
+      margin: 0 140px; /* keep the title clear of the 120px close button */
+      text-align: center;
+    }
+
+    /* Close is a picture-led control: a big X, no required reading. Sits in the header, not on a card. */
+    .close {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 120px;
+      height: 120px;
+      min-width: 120px;
+      min-height: 120px;
+      border: 6px solid #3B2A22;
+      border-radius: 50%;
+      background: #FFFDF9;
+      color: #3B2A22;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 0 rgba(59, 42, 34, 0.16);
+    }
+    .close:focus-visible { outline: 4px solid #E5BE94; outline-offset: 4px; }
+
+    .picker {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: center;
+      gap: 28px;
+      min-height: 0;
+    }
+
+    .game-card {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 6px solid #3B2A22;
+      border-radius: 28px;
+      background: #FFFDF9;
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-width: 360px;
+      min-height: 400px;
+      box-shadow: 0 8px 0 rgba(59, 42, 34, 0.14);
+      text-align: center;
+      color: inherit;
+    }
+    .game-card:focus-visible { outline: 4px solid #C9842A; outline-offset: 6px; }
+
+    .card-art {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 280px;
+      overflow: hidden;
+      background: #FFF3E0;
+    }
+    .card-art .card-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 35%;
+      pointer-events: none;
+    }
+
+    .character-slot {
+      position: absolute;
+      pointer-events: none;
+    }
+    .character-slot .stage {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 400px;
+      height: 480px;
+      transform-origin: 0 100%;
+    }
+    .part-img { position: absolute; display: block; pointer-events: none; }
+    .head-group { position: absolute; }
+
+    .props {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .props img {
+      position: absolute;
+      display: block;
+    }
+
+    .card-label {
+      flex: 0 0 auto;
+      background: #FFF6E8;
+      border-top: 4px solid #3B2A22;
+      padding: 12px 16px 14px;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #3B2A22;
+    }
+
+    @media (orientation: portrait) {
+      .shell { padding: 20px 16px; }
+      .panel {
+        height: 100%;
+        padding: 24px 18px 22px;
+      }
+      .world-title { font-size: 26px; margin: 0 132px; }
+      .header { min-height: 128px; margin-bottom: 6px; }
+      .close { top: 0; left: 0; }
+      .picker {
+        flex-direction: column;
+        gap: 20px;
+        padding-top: 0;
+      }
+      .game-card {
+        min-width: 0;
+        width: 100%;
+        min-height: 280px;
+        height: 0; /* share leftover height equally */
+      }
+      .card-label { font-size: 24px; padding: 10px 12px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <img class="backdrop" src="../../public/art/scenes/restaurant/bg-landscape.svg" alt="" />
+  <div class="scrim"></div>
+  <div class="shell">
+    <div class="panel" role="dialog" aria-labelledby="world-title">
+      <div class="header">
+        <button type="button" class="close" data-testid="game-picker-close" aria-label="Close">×</button>
+        <h1 id="world-title" class="world-title">בית השפות</h1>
+      </div>
+      <div class="picker">
+        <button type="button" class="game-card" data-testid="game-picker-animal-restaurant" aria-label="מסעדת החיות">
+          <div class="card-art" id="art-restaurant">
+            <img class="card-bg" src="../../public/art/scenes/restaurant/bg-landscape.svg" alt="" />
+            <div class="props" id="props-restaurant"></div>
+            <div class="character-slot" id="slot-panda"></div>
+          </div>
+          <span class="card-label">מסעדת החיות</span>
+        </button>
+        <button type="button" class="game-card" data-testid="game-picker-kitchen-orchestra" aria-label="תזמורת המטבח">
+          <div class="card-art" id="art-kitchen">
+            <img class="card-bg" src="../../public/art/scenes/kitchen/bg-landscape.svg" alt="" />
+            <div class="props" id="props-kitchen"></div>
+            <div class="character-slot" id="slot-chef"></div>
+          </div>
+          <span class="card-label">תזמורת המטבח</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./rigs-data.js"></script>
+  <script src="./chef-rigs-data.js"></script>
+  <script>
+    const ART = '../../public/art';
+
+    function createPartImg(baseDir, fileKey, part, refX, refY, extraDeg = 0) {
+      const img = document.createElement('img');
+      img.className = 'part-img';
+      img.src = `${baseDir}/${fileKey}.svg`;
+      img.alt = '';
+      img.width = part.width;
+      img.height = part.height;
+      img.style.width = `${part.width}px`;
+      img.style.height = `${part.height}px`;
+      img.style.left = `${refX + part.x - part.originX * part.width}px`;
+      img.style.top = `${refY + part.y - part.originY * part.height}px`;
+      img.style.zIndex = String(part.depth);
+      img.style.transformOrigin = `${part.originX * 100}% ${part.originY * 100}%`;
+      const transforms = [];
+      if (extraDeg) transforms.push(`rotate(${extraDeg}deg)`);
+      if (part.flipX) transforms.push('scaleX(-1)');
+      if (transforms.length) img.style.transform = transforms.join(' ');
+      return img;
+    }
+
+    function buildCharacterStage(rig, baseDir, pose = { mouth: 'smile', eyesClosed: false, headDeg: 0 }) {
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+      const feetX = 200;
+      const feetY = 470;
+      const parts = rig.parts;
+      const headPart = parts.head;
+      for (const [id, part] of Object.entries(parts)) {
+        if (id === 'head' || part.parent === 'head') continue;
+        stage.appendChild(createPartImg(baseDir, part.key, part, feetX, feetY));
+      }
+      if (headPart) {
+        const headGroup = document.createElement('div');
+        headGroup.className = 'head-group';
+        headGroup.style.left = `${feetX + headPart.x}px`;
+        headGroup.style.top = `${feetY + headPart.y}px`;
+        headGroup.style.zIndex = String(headPart.depth);
+        if (pose.headDeg) headGroup.style.transform = `rotate(${pose.headDeg}deg)`;
+        const children = Object.entries(parts).filter(([id, part]) => id === 'head' || part.parent === 'head');
+        children.sort((a, b) => a[1].depth - b[1].depth);
+        for (const [id, part] of children) {
+          let fileKey = part.key;
+          if ((id === 'eyeL' || id === 'eyeR') && pose.eyesClosed) fileKey = rig.eyeClosedKey;
+          else if (id === 'mouth') fileKey = rig.mouthKeys[pose.mouth] || part.key;
+          headGroup.appendChild(createPartImg(baseDir, fileKey, part, -headPart.x, -headPart.y));
+        }
+        stage.appendChild(headGroup);
+      }
+      return stage;
+    }
+
+    function placeCharacter(slot, rig, baseDir, { leftPct, bottomPct, scale }) {
+      const wrap = buildCharacterStage(rig, baseDir);
+      wrap.style.transform = `scale(${scale})`;
+      slot.style.left = leftPct;
+      slot.style.bottom = bottomPct;
+      slot.style.width = `${400 * scale}px`;
+      slot.style.height = `${480 * scale}px`;
+      slot.appendChild(wrap);
+    }
+
+    function addProp(parent, src, style) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      Object.assign(img.style, style);
+      parent.appendChild(img);
+    }
+
+    function render() {
+      const panda = window.__RIGS_DATA__.ANIMAL_RIGS.panda;
+      const chef = window.__CHEF_RIGS_DATA__.CHARACTER_RIGS.chef;
+
+      placeCharacter(document.getElementById('slot-panda'), panda, `${ART}/animals/panda`, {
+        leftPct: '18%',
+        bottomPct: '4%',
+        scale: 0.62,
+      });
+      const restaurantProps = document.getElementById('props-restaurant');
+      addProp(restaurantProps, `${ART}/foods/apple.svg`, { width: '110px', height: '110px', right: '8%', bottom: '6%', zIndex: '6' });
+      addProp(restaurantProps, `${ART}/foods/cookie.svg`, { width: '96px', height: '96px', right: '22%', bottom: '4%', zIndex: '5' });
+
+      placeCharacter(document.getElementById('slot-chef'), chef, `${ART}/characters/chef`, {
+        leftPct: '10%',
+        bottomPct: '6%',
+        scale: 0.58,
+      });
+      const kitchenProps = document.getElementById('props-kitchen');
+      addProp(kitchenProps, `${ART}/fx/instrument-glow.svg`, { width: '150px', height: '150px', right: '16%', bottom: '2%', zIndex: '4', opacity: '0.9' });
+      addProp(kitchenProps, `${ART}/instruments/pot.svg`, { width: '120px', height: '120px', right: '28%', bottom: '5%', zIndex: '5' });
+      addProp(kitchenProps, `${ART}/instruments/pan.svg`, { width: '130px', height: '130px', right: '8%', bottom: '4%', zIndex: '6' });
+    }
+
+    render();
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => (img.complete ? Promise.resolve() : img.decode().catch(() => {})))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>
