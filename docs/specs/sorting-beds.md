@@ -10,7 +10,7 @@ In Sorting Beds (`ערוגות המיון`), composited garden flowers have tumb
 ## Learning goals
 
 - **Age 2:** Sort flowers into 2–3 garden beds by one obvious visual attribute (colour, shape, or size) with picture labels and ghost-slot outline scaffolding, using tap-to-place interaction and Montessori control-of-error feedback (a wrong bed shakes and indicates the matching bed).
-- **Age 5:** Sort flowers across 3–4 garden beds with reduced visual scaffolding (`symbol` then `none`), classify by two attributes (`extra.attributes: 2`), and adapt flexibly when the sorting rule changes mid-round (`request: 'rule-switch'` at Level 8), with optional English and French colour and size vocabulary reinforcement (`red` / `rouge`, `yellow` / `jaune`, `blue` / `bleu`, `big` / `grand`, `small` / `petit`).
+- **Age 5:** Sort flowers across 3–4 garden beds with reduced visual scaffolding (`symbol` then `none`), classify by two attributes (`extra.attributes: 2`), and adapt flexibly when the sorting rule changes mid-round (`request: 'rule-switch'` at Level 8), with English and French colour and size vocabulary in Pass 1 (`red` / `rouge`, `yellow` / `jaune`, `blue` / `bleu`, `big` / `grand`, `small` / `petit`).
 
 ## World and why
 
@@ -23,18 +23,18 @@ At the start of a round, 2–4 garden beds (`choiceCount` from the current level
 
 - **Child's action:** The child places a flower from the path into one of the garden beds.
   - **Gap for the team lead:** Confirm the exact tap-to-place interaction flow for a single placement (whether one highlighted "current" flower on the path flies into the tapped bed with a single tap on the bed, or whether the child taps a flower on the path to select it and then taps a target bed) and confirm how many flower placements constitute one adaptive trial vs. one full bed/round (`trialsPerRound: 3`).
-- **Feedback on a correct answer:** The flower arcs from the path into the chosen bed (`dropIntoBed` using `ANIM_PROFILE.sorting.drop`) and settles into the soil between `garden-bed-back` and `garden-bed-front` with a squash-and-stretch bounce (`settleScale` using `ANIM_PROFILE.sorting.settle`). A positive voice line plays (and optionally speaks the colour or size token in EN/FR if enabled). A first-try correct placement records a `clean` outcome. **Gap for the team lead:** this draft does not give Sorting Beds an idle auto-hint timer (unlike Animal Restaurant and Kitchen Orchestra on the age-2 track). Confirm whether age 2 should get a demonstrate hint after idle, and if so at what delay and whether that records `assisted`.
+- **Feedback on a correct answer:** The flower arcs from the path into the chosen bed (`dropIntoBed` using `ANIM_PROFILE.sorting.drop`) and settles into the soil between `garden-bed-back` and `garden-bed-front` with a squash-and-stretch bounce (`settleScale` using `ANIM_PROFILE.sorting.settle`). A positive voice line plays, and the colour or size token is spoken in English or French (Pass 1, decided 2026-11-12). A first-try correct placement records a `clean` outcome. Decided (2026-11-12): age 5 has no automatic idle hint; a hint is given only after a mistake (the wrong-bed shake, highlight, and hint line). **Gap for the team lead:** whether age 2 should get a demonstrate hint after idle (and at what delay, and whether that records `assisted`), as Animal Restaurant and Kitchen Orchestra do on the age-2 track.
 - **Feedback on a wrong answer (hint or retry):** Tapping or dropping onto a bed whose rule does not match the flower triggers Montessori control-of-error feedback: the wrong bed "shakes its head" horizontally, the matching target bed is highlighted/indicated, and a gentle hint voice line plays. The flower remains on the path so the child can place it into the right bed. A wrong first attempt on a trial is recorded as a single `miss`; the child can then place the flower in the right bed without recording additional misses for that item. **Gap for the team lead:** confirm this one-miss-per-item rule, and that a rapid double tap is treated as one try. Mistakes never reduce the leisure balance or star count.
 - **Mid-round rule switch (Level 8):** At Level 8 (`request: 'rule-switch'`), halfway through the round's flowers, the rule signs animate (`switchRule` using `ANIM_PROFILE.sorting.ruleSwitch`) and a voice prompt announces that the sorting attribute has changed (for example, from colour to size or shape) for the remaining flowers.
 - **How a round ends:** When the beds reach capacity / all trials in the round (`trialsPerRound: 3`) are completed, each full bed plays a bloom celebration, `state.stars` increments by 1, `LearningSession.complete()` marks the celebration, and `endRound` runs (applying any pending between-rounds level change on the age-2 track) before the next round starts.
 - **How she leaves the game:** Tapping the HUD back button (`[data-testid="hud-back"]`) at any time ends the visit the same way other learning games do: stop audio, persist store and adaptive state (`SkillSession.endVisit()`), call `LearningSession.exit()`, and return to the world map.
 - **Input mode per age:**
   - **Age 2:** Tap-to-place (`tap`). Required by `docs/WORLDS.md` and enforced by `trackPolicy('age2').interaction === 'tap'`.
-  - **Age 5:** **Open decision for the owner:** Whether the age-5 track stays tap-to-place in Pass 1 (matching Animal Restaurant's v1 behaviour) or uses drag-and-drop (`trackPolicy('age5').interaction === 'drag'`) with tap-to-place also accepted. Do not assume age 5 must drag solely because `trackPolicy('age5').interaction` returns `'drag'`.
+  - **Age 5:** Decided (2026-11-12): tap-to-place in Pass 1; drag-and-drop in Pass 2. Do not assume Pass 1 must drag solely because `trackPolicy('age5').interaction` returns `'drag'`.
 
 ## Difficulty curve
 
-- **Levels:** Draft 8-level curve from `docs/adaptive-engine.md` §2.2 (**Open decision for the owner:** approve this 8-level curve and start levels with the spec):
+- **Levels:** Decided (2026-11-12): the 8-level curve from `docs/adaptive-engine.md` §2.2, with age 2 starting at L2 and age 5 starting at L5, `min: 1`, `max: 8`, and no age-2 ceiling:
 
 | L | `choiceCount` (beds) | `extra.attributes` | `request` | `scaffold` / bed labels | What changes |
 |---|---|---|---|---|---|
@@ -59,7 +59,7 @@ At the start of a round, 2–4 garden beds (`choiceCount` from the current level
     - `trialsPerRound: 3`, `maxChangesPerRound: 1`, `retryAfterTrials: 2`, `masteredBox: 3`.
     - When the level may change: `between-rounds` on `age2` (decisions are evaluated after every trial across round boundaries and applied at `endRound`); `after-trial` on `age5` (applied immediately after the trial, capped at `maxChangesPerRound: 1`, with any cap-blocked drop carried in `pendingChange` to `endRound`).
     - Speed scoring: `useResponseTime: false` on both `age2` (hard-coded engine policy) and `age5` (`false` in v1).
-  - **Open decision for the owner:** Whether to keep the adaptive-engine v1 defaults (`upCleanStreak: 3`, `downMisses: 2` in `downWindow: 3`, drop by 1 level, `useResponseTime: false`) or override them with the `games-per-world.md` §4.2 research sketch values (`upCleanStreak: 4`, strict consecutive `downMisses: 2` / `downWindow: 2`, dropping straight back to a 1-attribute level, or an age-5 `< 3.5 s` per-item response-time rule in a future engine pass). This spec drafts the engine v1 defaults and does not enable response-time scoring.
+  - This remains an open decision (see Open decisions below): whether to keep the adaptive-engine v1 defaults (`upCleanStreak: 3`, `downMisses: 2` in `downWindow: 3`, drop by 1 level, `useResponseTime: false`) or override them with the `games-per-world.md` §4.2 research sketch values (`upCleanStreak: 4`, strict consecutive `downMisses: 2` / `downWindow: 2`, dropping straight back to a 1-attribute level, or an age-5 `< 3.5 s` per-item response-time rule in a future engine pass). This spec drafts the engine v1 defaults and does not enable response-time scoring.
 
 ## Leisure
 
@@ -75,16 +75,18 @@ Sorting Beds uses the shared `LearningSession` (`src/core/leisure/learningSessio
 
 ## Player journey from the map
 
-Profile → tap the Number Garden building on the map → enter Sorting Beds → play a round of sorting flowers into beds → exit to the map via the HUD back button. Frozen test handles:
+Select profile (`profile-a` or `profile-b`) → real-tap the Number Garden building with `enterWorldByTap(page, profile, 'number-garden')` (from [PR #37](https://github.com/tzoomy/kids-app/pull/37), pending merge; uses `getBuildingHit('number-garden')`) → Sorting Beds opens → play a round of sorting flowers into beds → exit to the map via `hud-back`.
 
-- Map building hit target: `getBuildingHit('number-garden')`
-- `data-testid`s (DOM / HUD):
-  - Existing handles: `profile-a`, `profile-b`, `parent-gate-btn`, `parent-exit-btn`, `switch-profile-btn`, `star-count`, `leisure-balance`
-  - New HUD handles to add in `src/ui/hud.ts` (`RestaurantHud`): `hud-back` (top-bar back button `⬅️`), `hud-help` (top-bar help button `❓`)
-- Seed and read hooks under `?e2e=1` (seed persisted state or read state only; no game actions, no scene navigation; `goToScreen` is for screenshot scripts only):
-  - `seedSortingLevel(level: number): void` — seeds the active profile's persisted adaptive level for `sorting-beds` before entering the game through `getBuildingHit('number-garden')`.
-  - `seedBalanceSec(sec: number): void` — seeds the active profile's leisure balance in seconds.
-  - `getSortingInfo(): SortingRoundInfo | null` — returns a read-only snapshot of the active round so Playwright tests can read the current level, rule, attributes, language, flower canvas positions, and bed target rectangles:
+Frozen test handles (shared names from [PR #37](https://github.com/tzoomy/kids-app/pull/37), pending merge — game scenes use these same HUD/prompt/help ids, not game-specific names):
+
+- **Playwright helper:** `enterWorldByTap(page, profile, worldId)` in `tests/e2e/helpers/journey.ts` — real-tap journey: profile → map → click the centre of the building hit rect → game. Use it in this game's journeys.
+- **Map building hit target:** `getBuildingHit('number-garden')` under `?e2e=1`. Signature (PR #37): `getBuildingHit(worldId) -> { x, y, width, height } | null` in page CSS px, top-left, accounting for canvas scaling and letterbox; `null` if the map is inactive or the building is missing.
+- **`data-testid`s (DOM / HUD), from PR #37 unless noted:**
+  - Unchanged existing: `profile-a`, `profile-b`, `leisure-balance`, `star-count`, `parent-gate-btn`, `switch-profile-btn`, `parent-exit-btn`
+  - Shared chrome (PR #37; game scenes put these on their DOM chrome): `hud-back` (back button), `hud-help` (help button), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the whole help overlay; tapping anywhere closes it)
+- **Seed and read hooks under `?e2e=1`** (seed persisted state or read state only; no game actions, no scene navigation; `goToScreen` is for screenshot scripts only and forbidden in journey/AC tests):
+  - Shared spoken-line hooks from PR #37 (pending merge). Voice assertions use `getSpokenLines` `lineId`s: `getSpokenLines(sinceIndex?) -> [{ index, lineId, lang, source: 'clip' | 'tts', text?, at }]` (`source` is the provider *requested*, not whether it was heard); `getSpokenLineCount() -> number`.
+  - Game-specific hooks to add: `seedSortingLevel(level: number)` — seeds the active profile's persisted adaptive level for `sorting-beds` before entering through `enterWorldByTap` / `getBuildingHit('number-garden')`. `seedBalanceSec(sec: number)` — seeds the active profile's leisure balance in seconds. `getSortingInfo(): SortingRoundInfo | null` — read-only snapshot of the active round:
     ```ts
     interface SortingRoundInfo {
       level: number;
@@ -128,7 +130,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 
 | ID | Criterion | Pass | Verified by | Orientation | Hooks used |
 |---|---|---|---|---|---|
-| AC-01 | Full real-tap journey: profile → world building → game → one round → exit to the map; the game opens only from this world's building | 1 | e2e | both | `getBuildingHit`, `getSortingInfo` |
+| AC-01 | Full real-tap journey via `enterWorldByTap(page, profile, 'number-garden')`: profile → Number Garden building → Sorting Beds → one round → exit via `hud-back` to the map; the game opens only from this world's building | 1 | e2e | both | `getBuildingHit`, `getSortingInfo` |
 | AC-02 | A correct answer gives the specified feedback and advances the game | 1 | e2e | @single-orientation | `getBuildingHit`, `getSortingInfo` |
 | AC-03 | A wrong answer gives the specified hint or retry and never reduces the leisure balance | 1 | e2e | @single-orientation | `getBuildingHit`, `seedBalanceSec`, `getSortingInfo` |
 | AC-04 | Difficulty rises after successes and drops after misses, per this spec's rules | 1 | unit | @single-orientation | |
@@ -137,7 +139,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-07 | A new age-2 profile starts at the age-2 start level; a new age-5 profile at the age-5 start level | 1 | unit | @single-orientation | |
 | AC-08 | Leisure accrues as specified, never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
 | AC-09 | Content and language are selected as specified | 1 | unit | @single-orientation | |
-| AC-10 | Each voice line requests the right line id and language (speech spy) | 1 | e2e | @single-orientation | `getBuildingHit`, `getSortingInfo` |
+| AC-10 | Each voice line requests the right line id and language, asserted via `getSpokenLines` | 1 | e2e | @single-orientation | `getBuildingHit`, `getSortingInfo`, `getSpokenLines` |
 | AC-11 | Smoke: the game is playable at `1280x800` and `800x1280` | 1 | e2e | both | `getBuildingHit`, `getSortingInfo` |
 | AC-12 | The game works offline | 1 | e2e | @single-orientation | `getBuildingHit`, `getSortingInfo` |
 | AC-13 | The parent area stays gated (test runs without `?e2e=1`) | 1 | e2e | @single-orientation | |
@@ -187,7 +189,7 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
   - **Scene-folder note:** Process v2 requires scene folders under `public/art/scenes/<scene-or-game-name>/` to be named per scene or game, never the world id. Because PR #20 already created `public/art/scenes/number-garden/bg-{landscape,portrait}.svg`, this spec freezes that existing path for Sorting Beds. **Gap for the team lead:** Picnic Train (and any other Number Garden game) will need its own per-game scene folder (`public/art/scenes/picnic-train/`) later so the two games do not collide.
 - **SVG contract:** warm palette; dark-brown outline `#3B2A22` about 6 px; no heavy gradients or filters, no `<text>`, no external references, no rasters; each file under 15 KB (enforced by `tests/unit/artAssets.test.ts`); original assets only.
 - **Rigs:** Pass 1 uses composited flower (`flower-stem-{small,large}` + `flower-bloom-{shape}-{color}`), garden bed (`garden-bed-back` + `garden-bed-front`), and rule sign (`rule-sign-post` + `rule-sign-plaque` + `rule-icon-*`) layers only. No character rig is added in Pass 1, and nothing is added to the restaurant `ANIMAL_KINDS` picker. If a garden character is ever approved in a later pass, it must use `CHARACTER_RIGS` (400 × 480 reference, origin at feet centre, head without eyes and mouth as separate swappable parts). Previews composite every layer.
-- **Layout:** Landscape (`1280×800`, `number-garden-bg-landscape`) and portrait (`800×1280`, `number-garden-bg-portrait`) layouts supporting 2, 3, and 4 garden beds and the foreground flower path. Tap targets: **Open decision for the owner:** minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px). If items do not fit at that size, pan or show fewer; never shrink them.
+- **Layout:** Landscape (`1280×800`, `number-garden-bg-landscape`) and portrait (`800×1280`, `number-garden-bg-portrait`) layouts supporting 2, 3, and 4 garden beds and the foreground flower path. Tap targets: decided (2026-11-12) minimum **64 CSS px**. If items do not fit at that size, pan or show fewer; never shrink them.
 - **RTL:** Hebrew UI chrome is RTL; any English and French learning tokens stay LTR (`ltr-isolate`). Sorting Beds reuses `RestaurantHud` (`src/ui/hud.ts`) for top-bar chrome (adding `data-testid="hud-back"` and `data-testid="hud-help"`), `renderPromptBubble`, and `showHelpOverlay`.
 - **Animation:** Reuses the sorting profile knobs and pure motion helpers from `feat/art-sorting-suitcase` (PR #20):
   - `src/anim/profiles.ts`:
@@ -201,8 +203,7 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
   - `src/anim/sortPackMotion.ts`: `dropIntoBed` and `switchRule` are scene helpers that import Phaser, so unit tests must not import that file. `settleScale()` is a thin wrapper around `ANIM_PROFILE.sorting.settle.squash`. `packIntoSuitcase` in the same file is for Travel Suitcase, not this game.
   - Unit tests import `ANIM_PROFILE.sorting` from `src/anim/profiles.ts` only (that module does not import Phaser).
 - **Voice table** (Pass 1 uses device TTS through `AudioManager.play({ lineId, lang, text })`; Pass 2 renders Leda clips with `scripts/tts/generate_voice.py` under the repo's existing audio tree and registers them in `voice-lines-he.json` and `audio-manifest.json` with matching text hashes):
-  - **Gap for the team lead:** Confirm or replace all drafted spoken strings and `lineId` names below before implementation.
-  - **Open decision for the owner:** Whether optional English and French colour and size vocabulary lines (`sorting.word.*` rows below) are included in Pass 1, deferred to Pass 2, or omitted so Number Garden stays Hebrew-only.
+  - English and French colour and size vocabulary lines (`sorting.word.*`) are in Pass 1 (decided 2026-11-12). Voice assertions use `getSpokenLines` `lineId`s (PR #37). **Gap for the team lead:** confirm or replace drafted spoken strings and `lineId` names below before implementation.
 
 | lineId | lang (`en` / `fr` / `he`) | Text | Trigger |
 |---|---|---|---|
@@ -217,16 +218,16 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
 | `sorting.wrong.hint.he` | `he` | לא בערוגה הזאת — נסו את הערוגה המסומנת! (draft) | Wrong bed tapped; wrong bed shakes and matching bed is highlighted |
 | `sorting.bed-full.he` | `he` | הערוגה מלאה ופורחת! כל הכבוד! (draft) | A garden bed reaches capacity and blooms |
 | `sorting.help.he` | `he` | שימו כל פרח בערוגה שמתאימה לו לפי השלט. (draft) | Tapping the HUD help button (`[data-testid="hud-help"]`) |
-| `sorting.word.red.en` | `en` | red (draft — optional) | Optional EN colour reinforcement on placing a red flower |
-| `sorting.word.yellow.en` | `en` | yellow (draft — optional) | Optional EN colour reinforcement on placing a yellow flower |
-| `sorting.word.blue.en` | `en` | blue (draft — optional) | Optional EN colour reinforcement on placing a blue flower |
-| `sorting.word.big.en` | `en` | big (draft — optional) | Optional EN size reinforcement on placing a large flower |
-| `sorting.word.small.en` | `en` | small (draft — optional) | Optional EN size reinforcement on placing a small flower |
-| `sorting.word.red.fr` | `fr` | rouge (draft — optional) | Optional FR colour reinforcement on placing a red flower |
-| `sorting.word.yellow.fr` | `fr` | jaune (draft — optional) | Optional FR colour reinforcement on placing a yellow flower |
-| `sorting.word.blue.fr` | `fr` | bleu (draft — optional) | Optional FR colour reinforcement on placing a blue flower |
-| `sorting.word.big.fr` | `fr` | grand (draft — optional) | Optional FR size reinforcement on placing a large flower |
-| `sorting.word.small.fr` | `fr` | petit (draft — optional) | Optional FR size reinforcement on placing a small flower |
+| `sorting.word.red.en` | `en` | red (draft, Pass 1) | Pass 1 EN colour word on placing a red flower |
+| `sorting.word.yellow.en` | `en` | yellow (draft, Pass 1) | Pass 1 EN colour word on placing a yellow flower |
+| `sorting.word.blue.en` | `en` | blue (draft, Pass 1) | Pass 1 EN colour word on placing a blue flower |
+| `sorting.word.big.en` | `en` | big (draft, Pass 1) | Pass 1 EN size word on placing a large flower |
+| `sorting.word.small.en` | `en` | small (draft, Pass 1) | Pass 1 EN size word on placing a small flower |
+| `sorting.word.red.fr` | `fr` | rouge (draft, Pass 1) | Pass 1 FR colour word on placing a red flower |
+| `sorting.word.yellow.fr` | `fr` | jaune (draft, Pass 1) | Pass 1 FR colour word on placing a yellow flower |
+| `sorting.word.blue.fr` | `fr` | bleu (draft, Pass 1) | Pass 1 FR colour word on placing a blue flower |
+| `sorting.word.big.fr` | `fr` | grand (draft, Pass 1) | Pass 1 FR size word on placing a large flower |
+| `sorting.word.small.fr` | `fr` | petit (draft, Pass 1) | Pass 1 FR size word on placing a small flower |
 
 - **World and PWA wiring:**
   - `src/content/worlds.json`: change `number-garden` from `"status": "locked"` to `"status": "open"`, keep `"earnsLeisure": true`, and set `"entryGameId": "sorting-beds"`.
@@ -240,7 +241,7 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
 
 ## Out of scope
 
-- Pass 2 polish items (recorded Leda voice clips, richer bloom particle/animation polish) during Pass 1.
+- Pass 2 polish items (recorded Leda voice clips, richer bloom particle/animation polish, and age-5 drag-and-drop) during Pass 1. Age 5 uses tap-to-place in Pass 1; drag is Pass 2.
 - Extra item types mentioned in `docs/WORLDS.md` or the research doc (leaves, vegetables, fruit) and the mole character ("Now the mole wants them by SIZE!") — Pass 1 strictly scopes items to the composited flowers from PR #20.
 - `packIntoSuitcase` in `src/anim/sortPackMotion.ts` (used by Travel Suitcase, not Sorting Beds).
 - Response-time scoring / skip-ahead (`useResponseTime` is `false` on both tracks in v1), 14-day skill decay, window-percentage rules, frustration guard, and parent level overrides (`docs/adaptive-engine.md` §1).
@@ -248,22 +249,19 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
 
 ## Open decisions for the owner
 
-- **Open decision for the owner:** Approve the 8-level difficulty curve (`docs/adaptive-engine.md` §2.2), with age 2 starting at L2, age 5 starting at L5, `min: 1`, `max: 8`, and no age-2 ceiling.
-- **Open decision for the owner:** Whether the age-5 track uses tap-to-place in Pass 1 (like Animal Restaurant) or drag-and-drop (`trackPolicy('age5').interaction === 'drag'`).
-- **Open decision for the owner:** Whether to keep the adaptive engine v1 default rules (`upCleanStreak: 3`, `downMisses: 2` within `downWindow: 3`, drop by 1 level, `useResponseTime: false`) or adopt any of the research sketch alternatives (`upCleanStreak: 4`, consecutive `downMisses: 2` / `downWindow: 2`, resetting straight to 1 attribute on a drop, or an age-5 `< 3.5 s` response-time rule in a later engine version).
-- **Open decision for the owner:** Whether optional English and French colour and size words (`red` / `rouge`, `yellow` / `jaune`, `blue` / `bleu`, `big` / `grand`, `small` / `petit`) are included in Pass 1, deferred to Pass 2, or omitted so Number Garden stays Hebrew-only.
-- **Open decision for the owner:** Minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px).
+- **Open decision for the owner:** Whether to keep the adaptive engine v1 default rules (`upCleanStreak: 3`, `downMisses: 2` within `downWindow: 3`, drop by 1 level, `useResponseTime: false`) or adopt any of the research sketch alternatives (`upCleanStreak: 4`, consecutive `downMisses: 2` / `downWindow: 2`, resetting straight to 1 attribute on a drop, or an age-5 `< 3.5 s` response-time rule in a later engine version). This spec drafts the engine v1 defaults and does not enable response-time scoring.
 
 ### Gaps for the team lead to complete before approval
 
 - **Gap for the team lead:** Confirm the exact tap-to-place choreography (one-tap on a target bed for the active flower vs. tap flower then tap bed) and whether one adaptive trial equals one flower placement or one completed bed.
 - **Gap for the team lead:** Define what `extra.attributes: 2` (L5–L7) and `choiceCount: 4` (4 beds at L6–L8) mean operationally — specifically whether L5–L7 cycle one attribute rule per round (`colour, then size, one rule per round` as in `docs/adaptive-engine.md` §2.2) or define each bed by a two-attribute conjunction (`"small red"` as in `games-per-world.md` §4.2), and how 4 beds are populated when a single attribute has only 2 values (`size`) or 3 values (`color`, `shape`).
 - **Gap for the team lead:** Specify how L1 ("picture labels on the beds") vs. L2–L3 (`scaffold: 'outline'`, picture labels + ghost slots) vs. L4–L6 (`scaffold: 'symbol'`) map onto `LevelDescriptorSchema` and the frozen `rule-icon-*` and flower assets.
-- **Gap for the team lead:** Confirm or replace all drafted Hebrew and optional EN/FR voice strings and `lineId` keys in the voice table.
+- **Gap for the team lead:** Confirm or replace drafted Hebrew and Pass 1 English/French colour and size voice strings and `lineId` keys in the voice table.
 - **Gap for the team lead:** Confirm the `AppScreen` id `'sorting'` in `src/pwa/updatePolicy.ts` and the exact fields of `getSortingInfo()`.
-- **Gap for the team lead:** Confirm whether age 2 gets an idle demonstrate hint (and at what delay), and confirm the one-miss-per-item / debounce rule for wrong-bed taps.
+- **Gap for the team lead:** Whether age 2 should get an idle demonstrate hint (and at what delay, and whether that records `assisted`). Age 5 is decided: no automatic idle hint; hint only after a mistake. Also confirm the one-miss-per-item / debounce rule for wrong-bed taps.
 - **Gap for the team lead:** Picnic Train will need its own scene folder (`public/art/scenes/picnic-train/`) later so it does not collide with `public/art/scenes/number-garden/` frozen here from PR #20.
 
 ## Changelog
 
 - 2026-11-12 — created — substantive
+- 2026-11-12 — Owner decisions: 8-level curve approved (age-2 start L2, age-5 start L5); age 5 taps in Pass 1 and drags in Pass 2; EN/FR colour and size words in Pass 1; tap target 64 CSS px; age 5 has no idle hint (hint only after a mistake). Shared e2e handles and `enterWorldByTap` from PR #37 (pending merge). — substantive
