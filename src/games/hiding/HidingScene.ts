@@ -234,6 +234,9 @@ export class HidingScene extends Phaser.Scene {
     this.helpOpen = true;
     this.speakSeq++;
     this.context.audio.stopAll();
+    // The superseded request no longer clears the flag (its seq is stale) and this game has no Hebrew
+    // help clip, so nothing is audibly playing: an open card must not count as listening.
+    this.session.reportListening(false);
     this.context.shell.showHelp(this.context.content.hiding.helpTextHe, () => {
       this.helpOpen = false;
       this.session.reportInteraction();
