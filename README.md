@@ -13,7 +13,7 @@ job in `.github/workflows/ci.yml` is prepared but has no visible effect.
 
 See `docs/ARCHITECTURE.md`, `docs/WORLDS.md`, and `docs/TEAM.md` for the
 product and technical direction, `docs/PROCESS.md` for the approved
-spec-driven and test-driven cycle, and `AGENTS.md` / `CLAUDE.md` for the rules
+spec-driven and test-driven cycle, and `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` for the rules
 every agent working in this repository follows.
 
 ## Getting started
@@ -25,6 +25,7 @@ npm run build     # type-check + production build to ./dist
 npm run preview   # serve the production build locally
 npm test          # Vitest unit tests
 npm run test:e2e  # Playwright tablet-size journey + screenshots
+npm run check:ac  # every automated spec acceptance criterion has an [AC-xx] test
 ```
 
 Playwright needs a browser the first time: `npx playwright install chromium`

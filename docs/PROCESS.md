@@ -1,79 +1,111 @@
 # Development process
 
-Status: **approved**. Every agent follows this cycle for a new game or a meaningful feature. The spec is the source of truth.
+Status: **approved** (v2, with the owner's decisions of 2026-11-12). Every agent follows this cycle for every new game or feature and for every fix to a game. The spec is the source of truth.
 
-Direction for worlds, architecture, and roles stays in `docs/WORLDS.md`, `docs/ARCHITECTURE.md`, and `docs/TEAM.md`. The game spec template is `docs/specs/TEMPLATE.md`.
+Direction for worlds and architecture stays in `docs/WORLDS.md` and `docs/ARCHITECTURE.md`; tools and how to run the agents are in `docs/TEAM.md`. The game spec template is `docs/specs/TEMPLATE.md`.
 
-## 1. Spec first
+## Approval labels
 
-Every new game or feature starts with a spec at `docs/specs/<game-id>.md`, written by the team lead (Grok Bot), with Claude or Gemini as needed. Maor approves the spec **before any code**.
+Two labels mark something Maor has not approved; use only these in new and edited text:
 
-If requirements change — including feedback from tablet use at home — update the spec first, then change the code in a fix PR. Do not patch behaviour that contradicts the written spec.
+- `Status: **draft — pending owner approval**` on a spec (or other document) that is not approved yet.
+- `**Open decision for the owner:**` on a single undecided item.
 
-## 2. Plan and tasks
+Older direction documents (`docs/ARCHITECTURE.md`, `docs/WORLDS.md`) still say **proposal — pending owner approval**; treat that like an open decision. Do not treat any of these as approved.
 
-After the spec is approved, the team lead derives a plan and a task split from it:
+## 1. Team, roles, and branches
 
-- **Claude** owns logic, wiring, tests, and review of the implementation.
-- **Gemini** owns art, animation, voice, and visual code, and works to the approved spec.
+Approved by Maor on 2026-11-11.
 
-One branch per task, as in `docs/TEAM.md`. Two agents must not write the same files on the same branch without coordination.
+| Who | Role |
+|---|---|
+| Grok Bot | Team lead: writes specs with Claude or Gemini, derives plans and tasks, opens PRs and issues, summarizes reviews for Maor. Never merges without Maor's approval. |
+| Claude (`claude`) | Logic, wiring, test handles and hooks, and tests-first work (Vitest and Playwright). Reviews Gemini's PRs for test handles, hooks, and shared registries. |
+| Gemini (`agy`) | Art, SVG, animation, voice line design, and visual code. Reviews Claude's PRs and the screenshots against the spec and the visual bar in `GEMINI.md`. |
+| GitHub Actions | Unit tests, AC coverage check, build, Playwright journeys, screenshots as an artifact. |
+| Maor | Approves specs and every merge, runs the functional tablet check, and reports feedback from use at home. |
 
-## 3. Tests first (TDD)
+Branch rules:
 
-Claude writes failing tests from the spec's acceptance criteria, then implementation makes them pass.
+- One branch per task (`docs/…`, `feat/…`, `fix/…`, `chore/…`); never work on `main` and never rewrite `main` history.
+- Two agents must not write the same files on the same branch without coordination.
+- Force-push only with `--force-with-lease`, only on your own task branch, only to rebase it onto `origin/main`. Never force-push `main` or a branch another agent is using.
+- Shared registries are merged **additively**: keep every game's entries, knobs, helpers, and tests. This covers `src/assets/art/manifest.ts`, `src/assets/art/rigs.ts`, `src/anim/profiles.ts`, `src/anim/artRegistry.ts`, `src/anim/registerArt.ts`, `src/anim/index.ts`, `src/anim/worldMotion.ts`, `tests/unit/artAssets.test.ts`, `src/content/schema.ts`, `src/content/loadContent.ts`, `src/content/worlds.json`, and `src/pwa/updatePolicy.ts`.
+- The author of a PR is never its sole reviewer.
+- No change of any size is merged to `main` without Maor's explicit approval.
 
-- **Unit tests** (Vitest) for pure logic: game rules, adaptive difficulty, leisure, and state.
-- **UI e2e tests** (Playwright) that simulate a child playing through the actual screens with real taps. They verify everything the spec requires, not only map routing.
+## 2. Spec first
 
-### Journey and UI e2e rules
+Every new game or feature starts with `docs/specs/<game-id>.md` (copied from the template), written by the team lead with Claude or Gemini as needed. Maor approves it **before any code**.
 
-A journey test must:
+**Existing games** (Animal Restaurant, Kitchen Orchestra, Who's Hiding? from PR #29) get a retroactive spec, approved by Maor, before their next fix or feature PR.
 
-1. Pick a profile with a real tap.
-2. Tap the actual world building on the map (add a `data-testid` or other stable handle on the building if one is missing).
-3. Enter the game from that building.
-4. Play and assert the acceptance criteria on the real screens.
+**Spec changes.** Feedback and new requirements update the spec first, then the code in a fix PR. Every edit adds a line under the spec's `## Changelog`.
 
-Do **not** use `__testHooks__.goToScreen` (or any other shortcut around the map) in a journey test. Seed and inspect hooks under `?e2e=1` are allowed for setup and assertions (for example seeding a level or reading round info).
+- A **substantive** change sets `Status` back to **draft — pending owner approval** and needs Maor's re-approval before code: learning goals, world, mechanic, difficulty curve or start levels, leisure rules, acceptance criteria added, removed, or changed in meaning, or scope (including what moves between Pass 1, Pass 2, and out of scope).
+- A **minor** change (wording, clarification, a typo, a test name, a new hook listed for an existing criterion) does not need re-approval.
 
-Implementers must add `data-testid` attributes and other stable test handles where the tests need them, including map buildings, and must not remove handles that existing tests rely on.
+**Frozen at approval** so Claude and Gemini can work in parallel: asset paths and manifest keys, test ids and hooks (including `getBuildingHit(<id>)`), the art contract, and voice line ids. Changing any of these later is a spec change.
 
-Cover at least these cases, each mapped to a named test in the spec:
+## 3. Two passes
 
-- The game opens from the correct world.
-- A correct answer gives feedback and advances the game.
-- A wrong answer gives the hint or retry defined in the spec.
-- Difficulty rises after successes and drops after misses, using the adaptive rules in the spec.
-- A new age-2 profile starts at the age-2 start level; a new age-5 profile starts at the age-5 start level.
-- Leisure time accrues as defined (mistakes never reduce the balance; balances do not mix across profiles).
-- Exit back to the map works.
-- Voice and on-screen text use the correct language.
-- The game works in both landscape and portrait (Playwright projects `landscape-1280x800` and `portrait-800x1280`).
-- The game works offline.
-- The parent area stays gated.
+Each spec is split into:
 
-## 4. Parallel implementation
+- **Pass 1 — working game:** the mechanic, adaptive difficulty, leisure, clean SVGs, basic animation, and device TTS.
+- **Pass 2 — polish:** richer art and animation and recorded Gemini TTS voice (Leda, device TTS stays the fallback).
 
-Claude and Gemini implement in parallel to the approved spec. Prefer an existing game template and JSON content over a new game from scratch. Keep the leisure engine, storage, and audio in `src/core` without unnecessary Phaser dependence.
+Each acceptance criterion names its pass. Each pass is gated only against its own criteria. The spec's `Pass in progress` line (`none`, `1`, or `2`) tells the AC coverage check which criteria must already have tests.
 
-## 5. Ready-for-tablet gate
+## 4. Plan, tests first, and parallel work
 
-No game goes to the tablet until all of the following are true:
+After approval the team lead splits tasks. Then, in parallel:
 
-- CI is green.
-- Every test named in the spec passes.
-- The change has been reviewed against the spec.
-- Screenshots exist in both landscape and portrait.
+- **Claude** writes failing tests from the acceptance criteria, then implements logic until they pass, in vertical slices (one or a few ACs per commit).
+- **Gemini** starts art, animation, and voice work right away, to the frozen paths, ids, and contract in the spec. Gemini does not wait for Claude's tests.
 
-## 6. Merge and tablet use
+Prefer an existing game template and JSON content. Keep the leisure engine, storage, and audio in `src/core` without unnecessary Phaser dependence.
 
-Merge to `main` only with Maor's explicit approval. After merge, the family uses the build on the tablet at home.
+### Acceptance criteria and test mapping
 
-## 7. Feedback
+- Every criterion has a stable id `AC-01`, `AC-02`, … that is never renumbered or reused. A removed criterion stays in the table, struck through (`~~AC-07~~`).
+- The spec's table states for each criterion: Pass, Verified by (`unit`, `e2e`, `e2e+seed`, or `device`), Orientation, and Hooks used.
+- Test titles start with the id: `test('[AC-04] level rises after 3 clean answers', …)`. One test may cover several ids.
+- Tests for a game live in files named after the game id (`tests/e2e/<game-id>.spec.ts`, `tests/unit/<game-id>.<topic>.test.ts`) or in a `<game-id>/` folder, because AC ids repeat across specs.
+- CI runs `npm run check:ac` (`scripts/check-ac-coverage.mjs`). It fails if a criterion of a pass at or below `Pass in progress`, verified by `unit`, `e2e`, or `e2e+seed`, has no non-skipped test titled with its tag in that game's test files. `device` criteria are exempt.
 
-There are no enjoyment metrics and no observational playtest steps in this process. Fixes come from real usage feedback, recorded on the go by updating the spec first, then landing the code in a fix PR.
+Default split of verification:
 
-## Fast build, then polish
+| Verified by | Use for |
+|---|---|
+| `unit` | Adaptive rules, start levels, leisure accrual and no penalty, content and language selection |
+| `e2e` | Map entry, correct and wrong feedback, exit, voice (speech spy), a smoke test at both viewports, offline, the parent gate |
+| `e2e+seed` | High levels, plus one real-tap level change at a low level |
+| `device` | Touch, rotation, audible voice, visuals (Maor's tablet check, §7) |
 
-Keep the existing strategy: ship a playable version with device TTS and basic animation first, then polish art, animation, and recorded voice in a later pass, still against the same spec (or an updated spec Maor has approved).
+### UI e2e rules
+
+- **Real tap** means a pointer click on an on-screen element or a canvas hit target. Map buildings are Phaser canvas objects, so tests tap the centre of the rectangle returned by a `getBuildingHit(<id>)` hook under `?e2e=1` (implementers add it); DOM elements use a `data-testid`.
+- **Hooks** under `?e2e=1` may only seed persisted state (level, balance) and read state. They never perform a game action or navigate between scenes. Every hook a criterion uses is listed in the spec.
+- **One full journey per game** by real taps from the profile screen: profile → world building → game → play → exit to the map. Other criteria may seed state, but still enter the game through the map building.
+- `__testHooks__.goToScreen` is not allowed in journey or AC tests. Screenshot and preview scripts may use it. Existing `goToScreen` tests are legacy: a PR that touches a game replaces that game's ones with map-entry journeys.
+- **Parent-gate** tests run without `?e2e=1`, because `?e2e=1` bypasses the gate.
+- **Voice:** assert through a speech spy that the correct line id and language were requested. Whether it is audible is checked on the device.
+- **Orientation:** the game must be playable in both Playwright projects (`landscape-1280x800`, `portrait-800x1280`). Orientation-independent criteria may run in one project only; tag the title `@single-orientation`. Mid-game rotation is a device check.
+- Implementers add `data-testid`s and hooks the tests need and never remove ones that tests rely on.
+
+## 5. Ready-for-merge gate
+
+A merge to `main` publishes to GitHub Pages, so this gate comes before merge. For the pass in progress:
+
+- CI is green, including the Playwright journeys named in the spec and the AC coverage check.
+- In-game screenshots (not only art-preview boards) at native `1280×800` and `800×1280`, each taken in a fresh page at that size (resizing a Phaser FIT canvas letterboxes): age-2 start, age-5 start if it looks different, one correct-feedback frame, and one hint or retry frame. Playwright writes them to `docs/screenshots/` and CI uploads them as the `screenshots` artifact; preview scripts write to `tools/art-preview/shots/`.
+- A named reviewer has actually inspected the screenshots for contrast, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, and tap-target size. A file existing is not a review.
+- The change has been reviewed against the spec by a named reviewer who is not its sole author. The review is saved in `docs/reviews/` or linked from the PR.
+
+## 6. Merge
+
+Only with Maor's explicit approval.
+
+## 7. Functional tablet check and feedback
+
+After merge, Maor runs a short functional check on the tablet: touch, rotation, audible voice, and visuals. There are no enjoyment metrics and no observational playtests. A failed check or feedback from use at home becomes a spec update first (§2), then a fix PR.

@@ -25,6 +25,9 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Acceptance-criteria coverage (docs/specs vs test titles)
+        run: npm run check:ac
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
