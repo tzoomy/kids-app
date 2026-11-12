@@ -142,6 +142,9 @@ export const ART_PALETTE = {
   starShadow: '#F59F00',
   heartPink: '#FF5C77',
   heartShadow: '#E03E5B',
+
+  // Who's Hiding? / Kitchen Orchestra (reused names for the new worlds)
+  bushBerry: '#E03E5B',
 } as const;
 
 export type ArtPaletteKey = keyof typeof ART_PALETTE;

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 196" width="236" height="196">
+  <!-- Rounded side ears -->
+  <g>
+    <circle cx="22" cy="108" r="18" fill="#FAD9B8"/>
+    <circle cx="22" cy="108" r="9" fill="#E5BF98"/>
+    <circle cx="22" cy="108" r="18" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="214" cy="108" r="18" fill="#FAD9B8"/>
+    <circle cx="214" cy="108" r="9" fill="#E5BF98"/>
+    <circle cx="214" cy="108" r="18" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Big friendly round head base -->
+  <path d="M 118 14 C 60 14, 24 46, 20 96 C 16 146, 44 184, 118 184 C 192 184, 220 146, 216 96 C 212 46, 176 14, 118 14 Z" fill="#FAD9B8"/>
+
+  <!-- Soft lower cheek and chin shadow -->
+  <path d="M 21 116 C 24 158, 52 184, 118 184 C 184 184, 212 158, 215 116 C 202 152, 172 170, 118 170 C 64 170, 34 152, 21 116 Z" fill="#E5BF98"/>
+
+  <!-- Soft forehead highlight -->
+  <path d="M 58 46 C 80 34, 156 34, 178 46 C 152 40, 84 40, 58 46 Z" fill="#FFF6E8"/>
+
+  <!-- Short rounded hair cap (tucked neatly at crown for hat zone) -->
+  <path d="M 20 88 C 22 44, 58 14, 118 14 C 178 14, 214 44, 216 88 C 208 86, 202 74, 198 56 C 176 34, 148 30, 118 32 C 88 30, 60 34, 38 56 C 34 74, 28 86, 20 88 Z" fill="#5C4338" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Rosy blush cheeks -->
+  <ellipse cx="48" cy="126" rx="19" ry="12" transform="rotate(6 48 126)" fill="#FF8FA3"/>
+  <ellipse cx="44" cy="123" rx="7" ry="4" transform="rotate(6 44 123)" fill="#FFC2CE"/>
+  <ellipse cx="188" cy="126" rx="19" ry="12" transform="rotate(-6 188 126)" fill="#FF8FA3"/>
+  <ellipse cx="184" cy="123" rx="7" ry="4" transform="rotate(-6 184 123)" fill="#FFC2CE"/>
+
+  <!-- Small rounded nose (not a mouth — eyes and mouth are separate parts) -->
+  <ellipse cx="118" cy="118" rx="10" ry="8" fill="#E5BF98"/>
+  <ellipse cx="118" cy="118" rx="7" ry="5.5" fill="#3B2A22"/>
+  <ellipse cx="115" cy="116" rx="3" ry="2" fill="#FFFDF9"/>
+
+  <!-- Brows omitted: eye parts carry the expression -->
+
+  <!-- Main head outline -->
+  <path d="M 118 14 C 60 14, 24 46, 20 96 C 16 146, 44 184, 118 184 C 192 184, 220 146, 216 96 C 212 46, 176 14, 118 14 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

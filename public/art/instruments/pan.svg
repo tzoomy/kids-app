@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Long Skillet Handle (Extending top-right) -->
+    <g>
+      <path d="M158 110 L214 34 C222 24 242 36 234 50 L176 128 Z" fill="#3D3532"/>
+      <!-- Handle Underside Shadow -->
+      <path d="M168 120 L226 42 C232 36 238 42 234 50 L176 128 Z" fill="#282220"/>
+      <!-- Handle Top Highlight -->
+      <path d="M166 106 L214 40" fill="none" stroke="#594E4A" stroke-width="5"/>
+      <!-- Warm Brass Collar & Hanging Hole -->
+      <path d="M156 108 L178 126 L186 116 L164 98 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M158 110 L214 34 C222 24 242 36 234 50 L176 128 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <circle cx="218" cy="48" r="6" fill="#FFF6E8" stroke="#3B2A22" stroke-width="4"/>
+    </g>
+
+    <!-- Skillet Lower Outer Wall (3/4 Depth) -->
+    <g>
+      <path d="M22 146 C22 204 60 232 108 232 C156 232 194 204 194 146 Z" fill="#3D3532"/>
+      <path d="M96 231 C148 232 192 204 194 146 L170 156 C166 196 138 218 96 231 Z" fill="#282220"/>
+      <path d="M38 176 C48 198 68 212 90 216" fill="none" stroke="#594E4A" stroke-width="6"/>
+      <path d="M22 146 C22 204 60 232 108 232 C156 232 194 204 194 146 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Skillet Top Rim & Cooking Well -->
+    <g>
+      <!-- Outer Rim Oval -->
+      <ellipse cx="108" cy="144" rx="88" ry="58" fill="#594E4A" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Inner Cooking Well -->
+      <ellipse cx="108" cy="146" rx="72" ry="44" fill="#3D3532" stroke="#3B2A22" stroke-width="5"/>
+      <!-- Inner Top Wall Depth Shadow -->
+      <path d="M38 138 A72 44 0 0 1 178 138 A74 38 0 0 0 38 138 Z" fill="#282220"/>
+      <!-- Friendly Warm Rim Highlight (#FFD166) -->
+      <path d="M34 118 C48 98 76 88 108 88" fill="none" stroke="#FFD166" stroke-width="6"/>
+      <circle cx="30" cy="130" r="4" fill="#FFD166"/>
+      <!-- Soft Well Gloss -->
+      <ellipse cx="86" cy="154" rx="22" ry="11" fill="#594E4A"/>
+      <ellipse cx="78" cy="152" rx="8" ry="4" fill="#FFD166"/>
+    </g>
+  </g>
+</svg>
