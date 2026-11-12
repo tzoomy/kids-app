@@ -69,6 +69,8 @@ export interface PlateView {
 }
 
 function buildFood(scene: Phaser.Scene, choice: ChoiceOption, iconSize: number): Phaser.GameObjects.Container {
+  // A colour variant must show its own colour, so it skips the single-colour registered art.
+  if (choice.color) return drawFoodIcon(scene, choice.item.shape, choice.color, iconSize);
   const key = foodArtKey(choice.item.id);
   if (loaded(scene, key)) {
     const img = scene.make.image({ key, x: 0, y: 0, add: false }).setDisplaySize(iconSize * 1.05, iconSize * 1.05);

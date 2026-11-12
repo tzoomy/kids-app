@@ -28,6 +28,9 @@ type RoundInfo = {
   animalHit: { left: number; top: number; right: number; bottom: number };
   promptText: string;
   tries: number;
+  level: number;
+  request: string;
+  visualCue: boolean;
   correctCount: number;
   characterState: string;
   ready: boolean;
@@ -85,6 +88,11 @@ test.describe('kids-app journey', () => {
     const info = await getRoundInfo(page);
     expect(info.choiceCenters).toHaveLength(info.choiceCount);
     expect(info.correctIndex).toBeGreaterThanOrEqual(0);
+    // A fresh age-2 profile starts at L4 of the 9-level curve: 3 plates and a quantity request.
+    expect(info.level).toBe(4);
+    expect(info.choiceCount).toBe(3);
+    expect(info.request).toBe('quantity');
+    expect(info.visualCue).toBe(true);
 
     // Tapping the animal repeats the food request, which asks for a static en/fr clip.
     // (The first clip is the Hebrew intro; the tap supersedes it so this is not timing dependent.)
@@ -155,21 +163,18 @@ test.describe('kids-app journey', () => {
       (window as unknown as { __testHooks__: { seedBalanceSec: (s: number) => void } }).__testHooks__.seedBalanceSec(sec);
     }, 42);
     await goToScreen(page, 'restaurant');
-    await waitForRoundReady(page);
+    const info = await waitForRoundReady(page);
 
     const before = await page.locator('[data-testid="leisure-balance"]').innerText();
     expect(before).toMatch(/0:4[2-9]|0:5\d/); // 0:42 or a second or two of earning
 
-    const canvas = page.locator('canvas');
-    const box = await canvas.boundingBox();
-    expect(box).not.toBeNull();
-    // Tap near the left plate — a miss must never reduce the balance.
-    if (box) {
-      for (let i = 0; i < 3; i++) {
-        await page.mouse.click(box.x + box.width * 0.28, box.y + box.height * 0.64);
-        await page.waitForTimeout(450); // longer than the wrong-tap input lock (visual pacing only)
-      }
+    // Tap a plate that is not the requested one (from the exposed round info) — a miss must never reduce the balance.
+    const wrong = info.choiceCenters[info.choiceCenters.findIndex((_, i) => i !== info.correctIndex)];
+    for (let i = 0; i < 3; i++) {
+      await clickGame(page, wrong.x, wrong.y);
+      await page.waitForTimeout(450); // longer than the wrong-tap input lock (visual pacing only)
     }
+    expect((await getRoundInfo(page)).tries).toBeGreaterThanOrEqual(2);
 
     const after = await page.locator('[data-testid="leisure-balance"]').innerText();
     const parse = (s: string) => {

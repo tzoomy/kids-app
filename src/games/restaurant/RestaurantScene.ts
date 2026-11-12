@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
-import { buildRound, isCorrectChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
+import { buildRound, eligibleTargetIds, isRequestedChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
 import { TrialTracker, nextRoundLanguage } from './trialTracker';
 import { buildMeta, type SkillSession } from '../../core/adaptive';
 import type { LearningSession } from '../../core/leisure';
@@ -15,12 +15,19 @@ import { flyArc, hintPulse, invitePulse, popIn, popOut, pressSquash, wait, wobbl
 import { computeRestaurantLayout, type RestaurantLayout } from './restaurantLayout';
 import { heLine, heVariant } from '../../content/voiceLines';
 import type { SpeechRequest } from '../../core/audio/types';
-import { crossedWholeMinute, shouldPraise, shouldSayRetry } from './voiceRules';
+import { crossedWholeMinute, shouldPraise, shouldSayRetry, showsPromptBubble } from './voiceRules';
 import { DEPTH, addCounterFront, buildPlate, detachFood, paintBackground, type PlateView } from './restaurantArt';
 import { setAppScreen } from '../../pwa';
 
 export interface RoundInfo {
+  /** First requested plate that is not served yet (-1 if none). */
   correctIndex: number;
+  /** Every requested plate not served yet (two for a two-item request until one is served). */
+  correctIndices: number[];
+  /** Request type: noun, quantity, attribute, two-step or negation. */
+  request: string;
+  /** False on a voice-only level: the request has no text bubble. */
+  visualCue: boolean;
   choiceCount: number;
   choiceCenters: Array<{ x: number; y: number }>;
   /** Tap point on the animal (repeats the food request). */
@@ -43,6 +50,8 @@ export interface RoundInfo {
 interface ActiveRound extends RoundSpec {
   done: boolean;
   tries: number;
+  /** Requested plates already served (a two-item request needs both). */
+  served: PlateView[];
   /** Decides what the engine records for this trial (once; hint only from the idle auto-hint). */
   tracker: TrialTracker;
   level: number;
@@ -281,15 +290,14 @@ export class RestaurantScene extends Phaser.Scene {
     if (this.level.choiceCount !== this.layout.plates.xs.length) {
       this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.level.choiceCount);
     }
-    const targetId = this.skills.selectNextItem(
-      language,
-      content.items.map((i) => i.id),
-    );
-    const spec = buildRound(content.items, this.level, language, Math.random, targetId);
+    // Attribute and negation requests need an item with colour variants.
+    const targetId = this.skills.selectNextItem(language, eligibleTargetIds(content.items, this.level));
+    const spec = buildRound(content.items, this.level, language, Math.random, targetId, content.twoStepFrames);
     this.round = {
       ...spec,
       done: false,
       tries: 0,
+      served: [],
       tracker: new TrialTracker(spec.target.item.id, language),
       level: levelNumber,
       skillKey: this.skills.key(language),
@@ -324,7 +332,9 @@ export class RestaurantScene extends Phaser.Scene {
       this.plates.push(view);
     });
 
-    this.context.shell.setPromptBubble(spec.promptText, () => this.speakPrompt());
+    // Voice-only levels give no visual cue: the request is only heard (the animal can be tapped to repeat it).
+    if (showsPromptBubble(spec.audioOnly)) this.context.shell.setPromptBubble(spec.promptText, () => this.speakPrompt());
+    else this.context.shell.clearPromptBubble();
 
     if (this.ageConfig.hintMode === 'demonstrate') {
       this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint());
@@ -354,8 +364,8 @@ export class RestaurantScene extends Phaser.Scene {
         return;
       }
     }
-    const lineId = `food.${this.round.target.item.id}.${this.round.target.count}.${this.round.language}`;
-    const speech = this.context.audio.play({ lineId, lang: this.round.language, text: this.round.promptText });
+    // Lines without a static clip (colour, two-item and negation requests) fall back to device TTS in the audio layer.
+    const speech = this.context.audio.play({ lineId: this.round.lineId, lang: this.round.language, text: this.round.promptText });
     void this.character?.talk(speech);
     try {
       await speech;
@@ -371,8 +381,12 @@ export class RestaurantScene extends Phaser.Scene {
     const round = this.round;
     const hit = this.layout.animal.hit;
     const characterState = this.character?.state ?? 'none';
+    const correctIndices = this.plates.flatMap((p, i) => (this.isPending(p) ? [i] : []));
     return {
-      correctIndex: this.plates.findIndex((p) => isCorrectChoice(p.choice, round.target)),
+      correctIndex: correctIndices.length > 0 ? correctIndices[0] : -1,
+      correctIndices,
+      request: round.request,
+      visualCue: !round.audioOnly,
       choiceCount: this.plates.length,
       choiceCenters: this.plates.map((p) => ({ x: p.root.x, y: p.root.y })),
       animalHit: hit,
@@ -388,10 +402,14 @@ export class RestaurantScene extends Phaser.Scene {
     };
   }
 
-  private correctPlate(): PlateView | undefined {
+  /** A requested plate that has not been served yet. */
+  private isPending(view: PlateView): boolean {
     const round = this.round;
-    if (!round) return undefined;
-    return this.plates.find((p) => isCorrectChoice(p.choice, round.target));
+    return Boolean(round) && !round!.served.includes(view) && isRequestedChoice(view.choice, round!.targets);
+  }
+
+  private correctPlate(): PlateView | undefined {
+    return this.plates.find((p) => this.isPending(p));
   }
 
   private giveHint(before?: SpeechRequest): void {
@@ -416,14 +434,21 @@ export class RestaurantScene extends Phaser.Scene {
   private choose(view: PlateView): void {
     if (!this.round || this.round.done) return;
     if (this.time.now < this.inputLockedUntil) return;
+    // A plate that was already served for a two-item request is gone; tapping it is not an answer.
+    if (this.round.served.includes(view)) return;
     this.session.reportInteraction();
     void pressSquash(this, view.root);
 
-    const correct = isCorrectChoice(view.choice, this.round.target);
-    // Exactly once per trial: the first accepted plate tap. Later taps yield null.
-    const result = this.round.tracker.onPlateTap(correct);
+    const correct = this.isPending(view);
+    const remaining = this.round.targets.length - this.round.served.length - 1;
+    // Once per trial: a wrong tap is the miss; a correct tap counts only when it completes the request.
+    const result = this.round.tracker.onPlateTap(correct, correct ? remaining : 0);
     if (result) this.skills.record(this.round.language, result);
 
+    if (correct && remaining > 0) {
+      this.serveFirstOfTwo(view);
+      return;
+    }
     if (correct) {
       this.round.done = true;
       this.hintTimer?.remove();
@@ -454,6 +479,27 @@ export class RestaurantScene extends Phaser.Scene {
     }
   }
 
+  /** First plate of a two-item request: its food flies to the animal, the other plates stay tappable. */
+  private serveFirstOfTwo(view: PlateView): void {
+    const round = this.round!;
+    round.served.push(view);
+    view.invite?.stop();
+    view.invite = undefined;
+    view.root.disableInteractive();
+    this.context.sfx.tap();
+    Juice.for(this).burst('sparkle', view.root.x, view.root.y);
+    const mouth = this.character
+      ? this.character.mouthPoint()
+      : new Phaser.Math.Vector2(this.layout.animal.x, this.layout.animal.hitTop);
+    for (const [i, food] of view.foods.entries()) {
+      detachFood(this, food);
+      void flyArc(this, food, mouth.x, mouth.y, { delay: 120 + i * ANIM_PROFILE.flyArc.stagger, spin: 25 }).then(() => {
+        if (food.scene) food.destroy();
+      });
+    }
+    void popOut(this, view.root, 200);
+  }
+
   private async onCorrect(view: PlateView): Promise<void> {
     const token = this.roundToken;
     const alive = () => token === this.roundToken;
@@ -476,7 +522,7 @@ export class RestaurantScene extends Phaser.Scene {
     view.invite = undefined;
     juice.burst('sparkle', view.root.x, view.root.y);
     this.plates.forEach((p, i) => {
-      if (p === view) return;
+      if (p === view || round.served.includes(p)) return;
       p.invite?.stop();
       p.root.disableInteractive();
       void popOut(this, p.root, 80 + i * 60);

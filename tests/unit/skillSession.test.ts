@@ -42,10 +42,13 @@ function make(driver: StorageDriver, track: AgeTrack, profileId = 'a') {
 }
 
 describe('SkillSession', () => {
-  it('starts at the track start level: age2 -> L1, age5 -> L4', () => {
+  it('starts at the track start level: age2 -> L4, age5 -> L5 (9 levels)', () => {
     const { driver } = memoryDriver();
-    expect(make(driver, 'age2').session.level('en')).toBe(1);
-    expect(make(driver, 'age5').session.level('en')).toBe(4);
+    expect(meta.levelCount).toBe(9);
+    expect(make(driver, 'age2').session.level('en')).toBe(4);
+    expect(make(driver, 'age5').session.level('en')).toBe(5);
+    expect(meta.tracks.age2.min).toBe(1);
+    expect(meta.tracks.age5.min).toBe(1);
   });
 
   it('age2 has no ceiling: max equals the level count', () => {
@@ -69,8 +72,8 @@ describe('SkillSession', () => {
     const { driver } = memoryDriver();
     const { session } = make(driver, 'age5');
     for (let i = 0; i < 3; i++) session.record('fr', { itemId: IDS[i], firstTryCorrect: true, hinted: false });
-    expect(session.level('fr')).toBe(5);
-    expect(session.level('en')).toBe(4);
+    expect(session.level('fr')).toBe(6);
+    expect(session.level('en')).toBe(5);
   });
 
   it('endVisit closes a partial round (age2 change lands at round end) and persists', () => {
@@ -94,15 +97,15 @@ describe('SkillSession', () => {
     const after = JSON.stringify(store.getProfile('a'));
     session.endVisit();
     expect(JSON.stringify(store.getProfile('a'))).toBe(after);
-    expect(session.level('en')).toBe(1);
+    expect(session.level('en')).toBe(4);
   });
 
   it('age2 climbs after a clean round of 3 and the level survives a reload', () => {
     const { driver } = memoryDriver();
     const first = make(driver, 'age2');
     for (let i = 0; i < 3; i++) first.session.record('en', { itemId: IDS[i], firstTryCorrect: true, hinted: false });
-    expect(first.session.level('en')).toBe(2);
-    expect(make(driver, 'age2').session.level('en')).toBe(2);
+    expect(first.session.level('en')).toBe(5);
+    expect(make(driver, 'age2').session.level('en')).toBe(5);
   });
 
   it('selectNextItem returns one of the candidates and consumes afterDrop', () => {

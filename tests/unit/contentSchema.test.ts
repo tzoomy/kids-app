@@ -19,17 +19,22 @@ describe('content schema validation', () => {
     }
   });
 
-  it('the adaptive block: age2 starts at L1 (2 plates, count 1) with no ceiling; age5 starts at L4', () => {
+  it('the adaptive block: age2 starts at L4 (3 plates, quantities) with no ceiling; age5 starts at L5 (4 plates)', () => {
     const { adaptive } = loadAnimalRestaurant();
+    expect(adaptive.levels).toHaveLength(9);
     const start2 = adaptive.levels[adaptive.tracks.age2.start - 1];
-    expect(adaptive.tracks.age2.start).toBe(1);
-    expect(start2.choiceCount).toBe(2);
-    expect(start2.counts).toEqual([1]);
+    expect(adaptive.tracks.age2.start).toBe(4);
+    expect(start2.choiceCount).toBe(3);
+    expect(start2.counts).toEqual([1, 2, 3]);
+    expect(start2.request).toBe('quantity');
+    expect(adaptive.tracks.age2.min).toBe(1);
     expect(adaptive.tracks.age2.max).toBe(adaptive.levels.length);
-    expect(adaptive.tracks.age5.start).toBe(4);
+    expect(adaptive.tracks.age5.start).toBe(5);
     const start5 = adaptive.levels[adaptive.tracks.age5.start - 1];
-    expect(start5.choiceCount).toBe(3);
+    expect(start5.choiceCount).toBe(4);
+    expect(start5.distractor).toBe('near');
     expect(start5.counts).toContain(2);
+    expect(adaptive.tracks.age5.min).toBe(1);
   });
 
   it('rejects bad track bounds and levels without choiceCount', () => {
@@ -37,7 +42,7 @@ describe('content schema validation', () => {
     expect(AnimalRestaurantContentSchema.safeParse(valid).success).toBe(true);
 
     const badBounds = JSON.parse(JSON.stringify(valid));
-    badBounds.adaptive.tracks.age5.start = 9;
+    badBounds.adaptive.tracks.age5.start = 10;
     expect(AnimalRestaurantContentSchema.safeParse(badBounds).success).toBe(false);
 
     const unordered = JSON.parse(JSON.stringify(valid));

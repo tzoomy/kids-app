@@ -14,7 +14,7 @@ Status: **approved for implementation**. The owner approved the feature in issue
 - A generic `adaptive` block in game content JSON (`levels[]` with lever values), validated with zod.
 - The Animal Restaurant migrated onto the engine.
 
-**Deferred (v2+)**: parent level view and override, the parent's "start French higher" option, the 14-day decay (`lastPlayedDay` is stored now, so no migration will be needed), window-percentage rules (≥85% / <60% over the last 8), response-time skip-ahead for age 5, the frustration guard / confidence round, sharing a word's item state across games, parent export, real drag on the age-5 track (the restaurant is tap-only today), and restaurant levels that need new content or audio (attribute, two-item order, audio-first).
+**Deferred (v2+)**: parent level view and override, the parent's "start French higher" option, the 14-day decay (`lastPlayedDay` is stored now, so no migration will be needed), window-percentage rules (≥85% / <60% over the last 8), response-time skip-ahead for age 5, the frustration guard / confidence round, sharing a word's item state across games, parent export, real drag on the age-5 track (the restaurant is tap-only today), and pre-generated (Gemini) audio for the new restaurant request lines of L6–L9, which use device TTS in v1.
 
 ## 2. Types
 
@@ -55,7 +55,7 @@ export const GameAdaptiveSchema = z.object({
 }).superRefine(/* 1 <= min <= start <= max <= levels.length for each track */);
 ```
 
-`AnimalRestaurantContentSchema` gains `adaptive: GameAdaptiveSchema`. A restaurant-specific refinement checks that `choiceCount` is set on every level and is between 2 and `items.length` (a 1-plate level would make every answer a free clean). `AgeTrackConfigSchema` drops `choiceCount` and `counts`, which move into the levels. It keeps `hintMode` and `hintDelayMs`, because those are age policy, not difficulty.
+`AnimalRestaurantContentSchema` gains `adaptive: GameAdaptiveSchema`. A restaurant-specific refinement checks that `choiceCount` is set on every level and is between 2 and `items.length` (a 1-plate level would make every answer a free clean). It also restricts `request` to noun/quantity/attribute/two-step/negation and `support` to `audio-only`, requires items with exactly two distinct colour `variants` for attribute and negation levels, requires `choiceCount >= 3` for a two-item level, and validates `twoStepFrames` (`{a}`, `{b}`) and each item's `phrase`. `AgeTrackConfigSchema` drops `choiceCount` and `counts`, which move into the levels. It keeps `hintMode` and `hintDelayMs`, because those are age policy, not difficulty.
 
 How the 8 research games map onto the levers (§4 of the research doc):
 
@@ -69,6 +69,103 @@ How the 8 research games map onto the levers (§4 of the research doc):
 | Who Lives Here? | choiceCount (homes), distractor, support (picture→name→riddle) |
 | Who's Hiding? | support (partial-reveal → audio-only), choiceCount (bushes), distractor, extra.reveal |
 | Kitchen Orchestra | sequenceLength, speed, support (lit→flash→audio-only), choiceCount |
+
+### 2.3 Level lists for the other seven games (design only, not implemented)
+
+Same convention as the restaurant: the age-5 start level is at least two steps above the age-2 start and introduces a harder kind of demand (a new request type, less scaffolding, or a longer sequence), not just one more option. Levels below the age-2 start are the drop floor (`min = 1` on both tracks), so a drop always lands on easier, known material. Age 2 has no ceiling (`max = levels.length`); age 5 has the same `max`. Lever names are the generic ones from §2.1; `extra.*` is the game-specific escape hatch. These lists are proposals that each game's own issue may refine, and they need the owner's approval when that game is built.
+
+**Travel Suitcase** (age 2 starts L3, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | choiceCount 3 (shelf), setSize 1, distractor far, request noun |
+| 2 | choiceCount 4, setSize 1, distractor near, request noun |
+| 3 | choiceCount 4, setSize 2 (two items per request), distractor far, request noun |
+| 4 | choiceCount 5, setSize 2, distractor near, request noun |
+| 5 | choiceCount 6, setSize 2, distractor near, request attribute (colour) |
+| 6 | choiceCount 6, setSize 3, distractor near, request attribute |
+| 7 | choiceCount 6, setSize 3, request negation ("not the red one") |
+| 8 | choiceCount 8, setSize 3, request negation, support audio-only (no picture list) |
+
+**Puppet Says** (age 2 starts L3, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | choiceCount 2 (spots), request noun ("touch the hat"), sequenceLength 1, speed 0.8 |
+| 2 | choiceCount 3, request noun, sequenceLength 1, speed 0.8 |
+| 3 | choiceCount 3, request noun + extra.verb (action words: "jump"), sequenceLength 1, speed 1 |
+| 4 | choiceCount 4, extra.verb, sequenceLength 1, speed 1 |
+| 5 | choiceCount 4, request two-step (noun + verb), sequenceLength 2, speed 1 |
+| 6 | choiceCount 4, request two-step, sequenceLength 2, speed 1.2 |
+| 7 | choiceCount 5, request sequence, sequenceLength 3, speed 1.2 |
+| 8 | choiceCount 5, request sequence, sequenceLength 3, speed 1.4, support audio-only |
+
+**Picnic Train** (age 2 starts L2, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | setSize 2, scaffold outline, extra.layout rows, request match |
+| 2 | setSize 3, scaffold outline, extra.layout rows, request match |
+| 3 | setSize 3, scaffold symbol, extra.layout rows, request match |
+| 4 | setSize 4, scaffold symbol, extra.layout rows, request quantity (count the passengers) |
+| 5 | setSize 4, scaffold none, extra.layout scattered, request quantity |
+| 6 | setSize 5, scaffold none, extra.layout scattered, request quantity |
+| 7 | setSize 5, scaffold none, scattered, request two-step (missing addend, sums up to 5) |
+| 8 | setSize 6, scaffold none, scattered, request two-step (missing addend, sums up to 6) |
+
+**Sorting Beds** (age 2 starts L2, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | choiceCount 2 (beds), extra.attributes 1, picture labels on the beds |
+| 2 | choiceCount 2, extra.attributes 1, picture labels, scaffold outline (ghost slots) |
+| 3 | choiceCount 3, extra.attributes 1, picture labels, scaffold outline |
+| 4 | choiceCount 3, extra.attributes 1, scaffold symbol |
+| 5 | choiceCount 3, extra.attributes 2 (colour, then size, one rule per round), scaffold symbol |
+| 6 | choiceCount 4, extra.attributes 2, scaffold symbol |
+| 7 | choiceCount 4, extra.attributes 2, scaffold none |
+| 8 | choiceCount 4, request rule-switch (the rule changes mid-round), scaffold none |
+
+**Who Lives Here?** (age 2 starts L2, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | choiceCount 2 (homes), distractor far, support picture-audio |
+| 2 | choiceCount 3, distractor far, support picture-audio |
+| 3 | choiceCount 3, distractor same-category, support picture-audio |
+| 4 | choiceCount 4, distractor same-category, support picture-audio |
+| 5 | choiceCount 4, distractor same-category, support audio-first (the name is spoken, no picture of the animal) |
+| 6 | choiceCount 5, distractor same-category, support audio-first |
+| 7 | choiceCount 5, request riddle ("who lives in the water?"), support clue |
+| 8 | choiceCount 6, request riddle, support clue |
+
+**Who's Hiding?** (age 2 starts L2, age 5 starts L5)
+
+| L | Levers |
+|---|---|
+| 1 | choiceCount 2 (bushes), distractor far, support partial-reveal, extra.reveal 0.9 |
+| 2 | choiceCount 3, distractor far, partial-reveal, extra.reveal 0.8 |
+| 3 | choiceCount 3, distractor same-category, partial-reveal, extra.reveal 0.6 |
+| 4 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.5 |
+| 5 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.3 (ears or tail only) |
+| 6 | choiceCount 5, distractor same-category, partial-reveal, extra.reveal 0.3 |
+| 7 | choiceCount 5, distractor same-category, support audio-only (the animal's sound only) |
+| 8 | choiceCount 6, distractor same-category, support audio-only, extra.soundMs 800 (shorter sound) |
+
+**Kitchen Orchestra** (age 2 starts L1, age 5 starts L4)
+
+| L | Levers |
+|---|---|
+| 1 | sequenceLength 1, choiceCount 3 (instruments), speed 0.8, support lit |
+| 2 | sequenceLength 2, choiceCount 3, speed 0.8, support lit |
+| 3 | sequenceLength 2, choiceCount 4, speed 1, support lit |
+| 4 | sequenceLength 3, choiceCount 4, speed 1, support lit |
+| 5 | sequenceLength 3, choiceCount 4, speed 1, support flash |
+| 6 | sequenceLength 4, choiceCount 4, speed 1.2, support flash |
+| 7 | sequenceLength 4, choiceCount 5, speed 1.2, support audio-only |
+| 8 | sequenceLength 5, choiceCount 5, speed 1.2, support audio-only |
+
+Kitchen Orchestra is the exception to "age 2 starts above L1": copying even a two-note sequence is already demanding for a 2-year-old, so age 2 stays on the first level and the age-5 start (L4, three notes) is the meaningful jump.
 
 ### 2.2 Engine types (`src/core/adaptive/types.ts`)
 
@@ -169,7 +266,7 @@ All functions are pure. They return new objects and never mutate their inputs. T
 | `interaction` | `tap` (tap-to-send; forced) | `drag` where the template supports it, otherwise `tap` |
 | `useResponseTime` | `false` (hard-coded; content cannot enable it) | `false` in v1 (skip-ahead deferred) |
 | `levelChange` | `between-rounds` | `after-trial` (takes effect from the next trial, at most `maxChangesPerRound`) |
-| Restaurant levels (owner decided) | start L1, max L5 (no ceiling: `max = levels.length`) | start L4, max L5 |
+| Restaurant levels (owner decided) | start L4, min L1, max L9 (no ceiling: `max = levels.length`) | start L5, min L1, max L9 |
 
 The policy is code, not content, so no game JSON can put speed scoring or drag on the age-2 track. `rtMs` may be recorded on `TrialResult`, but in v1 no function reads it. A test asserts this.
 
@@ -190,20 +287,48 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
 
 ```json
 "adaptive": {
-  "tracks": { "age2": { "start": 1, "min": 1, "max": 5 }, "age5": { "start": 4, "min": 1, "max": 5 } },
+  "tracks": { "age2": { "start": 4, "min": 1, "max": 9 }, "age5": { "start": 5, "min": 1, "max": 9 } },
   "levels": [
     { "choiceCount": 2, "counts": [1],       "distractor": "far",  "request": "noun" },
     { "choiceCount": 3, "counts": [1],       "distractor": "far",  "request": "noun" },
     { "choiceCount": 3, "counts": [1],       "distractor": "near", "request": "noun" },
     { "choiceCount": 3, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" },
-    { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" }
+    { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" },
+    { "choiceCount": 4, "counts": [1],       "distractor": "near", "request": "attribute" },
+    { "choiceCount": 4, "counts": [1],       "distractor": "near", "request": "two-step" },
+    { "choiceCount": 4, "counts": [1],       "distractor": "near", "request": "negation" },
+    { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity", "support": "audio-only" }
   ]
 }
 ```
 
-L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner decision), so today's age-5 experience is unchanged on first play. This deviates from research §6 ("age 5 → L3"). Age 2 has no ceiling and can climb through all levels. L5 needs a 4-plate layout. `computeRestaurantLayout` already handles `n > 3` generically, but 4 plates need visual QA on both orientations.
+**The 9-level restaurant curve (owner-approved after playtesting).**
 
-**`choiceServe.ts`.** `buildRound(items, level: ChoiceServeLevel, language, random, targetId?: string)`, where `ChoiceServeLevel = { choiceCount; counts; distractor? }` is read from the level descriptor.
+| L | Plates | Request | What changes |
+|---|---|---|---|
+| 1 | 2 | noun | very different foods (far distractors). Drop floor |
+| 2 | 3 | noun | far distractors. Drop floor |
+| 3 | 3 | noun | look-alikes (near distractors). Drop floor |
+| 4 | 3 | quantity | quantities 1–3 (today's game). **Age-2 start** |
+| 5 | 4 | quantity | four plates, quantities and look-alikes. **Age-5 start** |
+| 6 | 4 | attribute | the colour is in the request ("the red apple"); both colours of that food are on the table |
+| 7 | 4 | two-step | two foods in one request ("an apple and a banana") |
+| 8 | 4 | negation | "an apple, but not the red one" |
+| 9 | 4 | quantity + `support: audio-only` | the request is only heard: no text bubble |
+
+**Deviation from research §6** (age 2 → L1, age 5 → L3). Playtesting showed that the old L1–L3 were too easy for both girls, so age 2 now starts at today's game (L4) and age 5 one step higher (L5). L1–L3 stay as the drop floor (`min = 1` on both tracks), so a drop from the new start levels still lands on easier material with a known item served first. Age 2 has no ceiling (`max = 9`).
+
+**Request types for L6–L9** (all in content; no grammar in code)
+- **Attribute (L6).** Items with colour `variants` (apple red/green, pear green/yellow, banana yellow/green, grapes purple/green). Each variant carries its own EN/FR line (`pick`). The round puts both colour versions of the item on the table, so the colour word decides the answer; the two other plates are distractors from other foods. The variant plates are drawn procedurally in their own colour. Only items with variants are eligible targets at L6 and L8 (`eligibleTargetIds`).
+- **Two-step (L7).** Two different foods, composed from `twoStepFrames` (`"I want {a} and {b}, please!"`) and each item's `phrase` (`"an apple"`, `"une pomme"`). Interaction: tap the two requested plates in any order. The first correct plate is served (its food flies to the animal and the plate leaves); the trial completes on the second. A wrong tap is a miss for the trial (it is recorded at once, 400 ms double-tap lock unchanged, a hint or a replay may follow as for any miss) and the trial stays open until both are served. A first try is clean only if both taps are correct and no wrong tap happens in between. The engine records the item the scheduler picked (the first food). The two-item plate set has 4 plates, so there are 2 wrong plates.
+- **Negation (L8).** One answer by design: the animal names a food and excludes a colour ("I want an apple, but not the red one"), so the correct plate is the other colour of the same food. The excluded colour is on the table and is a wrong answer, as are the unrelated foods. This avoids the "any non-matching plate is right" shape, where 3 of 4 plates would be correct and a negation would be answered by chance. Each variant carries its own EN/FR `not` line.
+- **Voice-only (L9).** The quantity request of L5 with `support: audio-only`. The prompt bubble is not shown, so the request has no visual cue; the animal's spoken request is the only source. Tapping the animal still replays it (not a hint). The age-2 idle auto-hint still pulses the right plate after `hintDelayMs`.
+
+**Audio for L6–L9.** Line ids are `attr.{item}.{color}.{lang}`, `not.{item}.{color}.{lang}` and `pair.{itemA}.{itemB}.{lang}`. None has a static clip in `audio-manifest.json`, so `StaticFileProvider` resolves false and `AudioManager` falls through to the device TTS provider with the round text; a test pins this. L9 reuses the existing `food.*` clips. Pre-generated audio for the new lines is a later pass.
+
+**Layout.** `computeRestaurantLayout` handles 4 plates in both orientations. They need visual QA on a real device.
+
+**`choiceServe.ts`.** `buildRound(items, level: ChoiceServeLevel, language, random, targetId?: string, frames?: TwoStepFrames)`, where `ChoiceServeLevel = { choiceCount; counts; distractor?; request?; support? }` is read from the level descriptor. The returned `RoundSpec` has `request`, `targets` (one plate, or two for a two-item request), `lineId`, `audioOnly` and `promptText`. `isCorrectChoice` also compares the variant colour; `isRequestedChoice(choice, targets)` checks against all targets. Without the `frames` argument a two-item level degrades to a plain round, and an item without variants does the same at L6/L8.
 - If `targetId` is given, it is the target item. The template picks the distractors:
   - `far` prefers items whose `color` differs from the target and from each other.
   - `near` prefers at least one item with the target's `color` (apple/strawberry, banana/cheese, carrot/orange, pear/broccoli), and falls back to random.
@@ -224,17 +349,18 @@ L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner 
   - Call `buildRound(..., targetId)`.
   - Create a `TrialTracker(itemId, language)` for the round (`src/games/restaurant/trialTracker.ts`, pure and unit-tested). `nextRoundLanguage` keeps the language for the round and re-picks early if the parent disabled it.
 - `giveHint()`: calls `tracker.onHint()`, which sets hinted only before the first plate tap. Replays (animal or bubble tap) never call it.
-- `choose()`: after the existing lock check, calls `tracker.onPlateTap(correct)`. It returns a `TrialResult` for the first accepted tap only (then `null`), and the scene passes it to `session.record`. The session persists. Wrong-tap feedback, hints, stars and leisure calls are unchanged.
+- `choose()`: after the existing lock check, calls `tracker.onPlateTap(correct, remaining)`. A wrong tap returns the miss at once; a correct tap returns a clean result only when it completes the request (`remaining = 0`); a correct first plate of a two-item request returns `null` and the plate is served. The scene passes a non-null result to `session.record`, once per trial. The session persists. Wrong-tap feedback, hints, stars and leisure calls are unchanged.
+- Level 9 (`audio-only`): the scene clears the prompt bubble instead of setting it. `RoundInfo` exposes `visualCue` (false at L9), `request` and `correctIndices` for tests.
 - `cleanup()`: call `session.endVisit()` (round boundary plus persist).
 - `RoundInfo` gains `level` and `skillKey`. These are additive; e2e reads only the fields it declares.
 
 **Why the e2e tests in `tests/e2e/journey.spec.ts` stay green**
-- Every test uses `profile-a` (age 2) in a fresh browser context, so storage is empty and the level is L1: 2 plates, count 1, the same `computeRestaurantLayout(w, h, 2)` as today.
-  - `choiceCenters.length === choiceCount` holds, and so does the click at 28% width / 64% height on the left plate.
+- Every test uses `profile-a` (age 2) in a fresh browser context, so storage is empty and the level is the age-2 start, L4: 3 plates and a quantity request (`computeRestaurantLayout(w, h, 3)`, the same layout as the game before the adaptive engine).
+  - The first test now also asserts level 4, 3 plates, the `quantity` request and a visible cue. The "wrong choices never reduce the balance" test taps a plate that the exposed round info says is wrong, instead of a fixed coordinate that may now be the right plate.
   - `tries` semantics and the 400 ms double-tap lock are untouched, so `tries === 1` still holds.
   - The animal tap still leaves `tries === 0` and `correctCount === 0`.
   - Stars and leisure flow are unchanged.
-- No test plays 3 rounds, and age 2 changes level only at round ends, so no test sees a level change.
+- No test plays 3 rounds, and age 2 changes level only at round ends, so no test sees a level change. Levels 5–9 are covered by unit tests only.
 - Screenshots may show different foods, as they already do today, because the food choice is random.
 
 ## 8. Unit test plan (vitest)
@@ -256,11 +382,12 @@ L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner 
 - `adaptiveStore.test.ts`:
   - Defaults when the key is empty; round-trip; corrupt JSON gives defaults; a future `schemaVersion` gives defaults and is never written.
   - Malformed skill entries are dropped; per-profile keys are isolated; the migration chain is invoked for older versions (stub v0 fixture).
-- `skillSession.test.ts`: record persists after each trial; `endVisit` closes the round; `initialSkill` uses the track start (age2 → L1, age5 → L4); age2 max equals the level count.
+- `skillSession.test.ts`: record persists after each trial; `endVisit` closes the round; `initialSkill` uses the track start (age2 → L4, age5 → L5, 9 levels, min 1); age2 max equals the level count.
+- `restaurantRequests.test.ts`: the 9-level table, round building and answer checking for L6 (both colours on the table), L7 (two targets, any order), L8 (one answer, excluded colour is wrong), the L9 `audioOnly` flag and bubble rule, `TrialTracker` with a two-item request, schema validation of the new levers, and the device-TTS fallback for lines with no static clip.
 - `adaptiveLeisureIsolation.test.ts`: the three checks in §6.
 - Updates to existing tests:
   - `choiceServe.test.ts`: level-based `buildRound`, `targetId` honoured, `far`/`near` distractors, count variant only at quantity levels.
-  - `contentSchema.test.ts`: the `adaptive` block validates; bad track bounds and a missing `choiceCount` are rejected; the age-2 start level has 2 plates and count 1.
+  - `contentSchema.test.ts`: the `adaptive` block validates; bad track bounds and a missing `choiceCount` are rejected; the age-2 start level (L4) has 3 plates and quantities, the age-5 start (L5) has 4 plates.
   - `restaurantLayout.test.ts`: add the 4-plate case in both orientations.
 
 ## 9. Implementation file list
@@ -279,11 +406,13 @@ L4 is today's age-5 behaviour (3 plates, quantities). Age 5 starts at L4 (owner 
 - `src/core/storage/store.ts` (export `browserStorage` only)
 - `tests/unit/{choiceServe,contentSchema,restaurantLayout}.test.ts`
 
-**Unchanged:** everything in `src/core/leisure`, `tests/e2e/*`, `main.ts`, `createGame.ts`, root prototype files, `package.json`, the vite/tsconfig/vitest/playwright configs and CI. No new dependencies.
+**Curve shift (9 levels) also changes:** `src/games/restaurant/{trialTracker,voiceRules,restaurantArt}.ts`, `tests/e2e/journey.spec.ts` (assertions on the new start level; a wrong plate chosen from the round info) and the new `tests/unit/restaurantRequests.test.ts`.
+
+**Unchanged:** everything in `src/core/leisure`, `main.ts`, `createGame.ts`, root prototype files, `package.json`, the vite/tsconfig/vitest/playwright configs and CI. No new dependencies.
 
 **Owner decisions (Maor, 2026-11-11, final):**
-1. Age 5 starts at L4 (today's behaviour).
-2. Age 2 has no level ceiling (`max = levels.length`); she can climb through all levels.
+1. Age 5 starts at L4 (today's behaviour). **Superseded after playtesting:** the restaurant curve now has 9 levels; age 2 starts at L4 (today's game) and age 5 at L5 (§7).
+2. Age 2 has no level ceiling (`max = levels.length`, now 9); she can climb through all levels.
 3. Down rule: 2 misses in the last 3 trials (`downMisses: 2`, `downWindow: 3`).
 4. The language stays fixed per round of 3 animals.
 5. Tapping to replay the request is not a hint.

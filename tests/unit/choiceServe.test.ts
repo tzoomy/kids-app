@@ -3,7 +3,7 @@ import { buildRound, isCorrectChoice, pickDistractors, pickLanguage, shuffle, ty
 import { loadAnimalRestaurant } from '@/content/loadContent';
 
 const restaurant = loadAnimalRestaurant();
-// Start levels per track, read from the adaptive block (age 2 -> L1, age 5 -> L4).
+// Start levels per track, read from the adaptive block (age 2 -> L4, age 5 -> L5).
 const content = {
   items: restaurant.items,
   ageTracks: {
@@ -35,25 +35,26 @@ describe('pickLanguage', () => {
 describe('buildRound — age2 track', () => {
   const ageConfig = content.ageTracks.age2;
 
-  it('offers exactly 2 choices, all at count 1', () => {
+  it('starts at L4: exactly 3 choices, quantity levers', () => {
     const round = buildRound(content.items, ageConfig, 'en', seededRandom(1));
-    expect(round.choices).toHaveLength(2);
-    expect(round.choices.every((c) => c.count === 1)).toBe(true);
+    expect(round.choices).toHaveLength(3);
+    expect(round.request).toBe('quantity');
   });
 
   it('the target is one of the offered choices, and the prompt matches the target', () => {
     const round = buildRound(content.items, ageConfig, 'en', seededRandom(7));
     expect(round.choices.some((c) => isCorrectChoice(c, round.target))).toBe(true);
-    expect(round.promptText).toBe(round.target.item.prompts.en['1']);
+    expect(round.promptText).toBe(round.target.item.prompts.en[String(round.target.count) as '1' | '2' | '3']);
+    expect(round.lineId).toBe(`food.${round.target.item.id}.${round.target.count}.en`);
   });
 });
 
 describe('buildRound — age5 track', () => {
   const ageConfig = content.ageTracks.age5;
 
-  it('offers at least 3 choices', () => {
+  it('starts at L5: 4 choices', () => {
     const round = buildRound(content.items, ageConfig, 'en', seededRandom(3));
-    expect(round.choices.length).toBeGreaterThanOrEqual(3);
+    expect(round.choices).toHaveLength(4);
   });
 
   it('every choice count used is one the item actually has a complete sentence for', () => {
@@ -92,7 +93,7 @@ describe('buildRound target position', () => {
       const round = buildRound(items, config, 'en', random);
       slots.add(round.choices.findIndex((c) => isCorrectChoice(c, round.target)));
     }
-    expect([...slots].sort()).toEqual([0, 1, 2]);
+    expect([...slots].sort()).toEqual([0, 1, 2, 3]);
   });
 });
 
@@ -115,7 +116,7 @@ describe('buildRound with targetId', () => {
     for (const level of levels) {
       const round = buildRound(restaurant.items, level, 'en', seededRandom(4), 'apple');
       expect(round.choices).toHaveLength(level.choiceCount);
-      const keys = round.choices.map((c) => `${c.item.id}:${c.count}`);
+      const keys = round.choices.map((c) => `${c.item.id}:${c.count}:${c.color ?? ''}`);
       expect(new Set(keys).size).toBe(keys.length);
     }
   });

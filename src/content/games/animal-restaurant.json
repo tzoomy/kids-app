@@ -9,14 +9,22 @@
     "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
     "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
   },
+  "twoStepFrames": {
+    "en": "I want {a} and {b}, please!",
+    "fr": "Je voudrais {a} et {b}, s'il te plaît !"
+  },
   "adaptive": {
-    "tracks": { "age2": { "start": 1, "min": 1, "max": 5 }, "age5": { "start": 4, "min": 1, "max": 5 } },
+    "tracks": { "age2": { "start": 4, "min": 1, "max": 9 }, "age5": { "start": 5, "min": 1, "max": 9 } },
     "levels": [
       { "choiceCount": 2, "counts": [1], "distractor": "far", "request": "noun" },
       { "choiceCount": 3, "counts": [1], "distractor": "far", "request": "noun" },
       { "choiceCount": 3, "counts": [1], "distractor": "near", "request": "noun" },
       { "choiceCount": 3, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" },
-      { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" }
+      { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity" },
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "attribute" },
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "two-step" },
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation" },
+      { "choiceCount": 4, "counts": [1, 2, 3], "distractor": "near", "request": "quantity", "support": "audio-only" }
     ]
   },
   "thanks": {
@@ -30,6 +38,11 @@
       "he": "תפוח",
       "color": "red",
       "shape": "apple",
+      "phrase": { "en": "an apple", "fr": "une pomme" },
+      "variants": [
+        { "color": "red", "en": { "pick": "I want the red apple, please!", "not": "I want an apple, but not the red one!" }, "fr": { "pick": "Je voudrais la pomme rouge, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la rouge !" } },
+        { "color": "green", "en": { "pick": "I want the green apple, please!", "not": "I want an apple, but not the green one!" }, "fr": { "pick": "Je voudrais la pomme verte, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la verte !" } }
+      ],
       "prompts": {
         "en": { "1": "I want an apple, please!", "2": "I want two apples, please!", "3": "I want three apples, please!" },
         "fr": { "1": "Je voudrais une pomme, s'il te plaît !", "2": "Je voudrais deux pommes, s'il te plaît !", "3": "Je voudrais trois pommes, s'il te plaît !" }
@@ -40,6 +53,11 @@
       "he": "בננה",
       "color": "yellow",
       "shape": "banana",
+      "phrase": { "en": "a banana", "fr": "une banane" },
+      "variants": [
+        { "color": "yellow", "en": { "pick": "I want the yellow banana, please!", "not": "I want a banana, but not the yellow one!" }, "fr": { "pick": "Je voudrais la banane jaune, s'il te plaît !", "not": "Je voudrais une banane, mais pas la jaune !" } },
+        { "color": "green", "en": { "pick": "I want the green banana, please!", "not": "I want a banana, but not the green one!" }, "fr": { "pick": "Je voudrais la banane verte, s'il te plaît !", "not": "Je voudrais une banane, mais pas la verte !" } }
+      ],
       "prompts": {
         "en": { "1": "I want a banana, please!", "2": "I want two bananas, please!", "3": "I want three bananas, please!" },
         "fr": { "1": "Je voudrais une banane, s'il te plaît !", "2": "Je voudrais deux bananes, s'il te plaît !", "3": "Je voudrais trois bananes, s'il te plaît !" }
@@ -50,6 +68,7 @@
       "he": "גזר",
       "color": "orange",
       "shape": "carrot",
+      "phrase": { "en": "a carrot", "fr": "une carotte" },
       "prompts": {
         "en": { "1": "I want a carrot, please!", "2": "I want two carrots, please!", "3": "I want three carrots, please!" },
         "fr": { "1": "Je voudrais une carotte, s'il te plaît !", "2": "Je voudrais deux carottes, s'il te plaît !", "3": "Je voudrais trois carottes, s'il te plaît !" }
@@ -60,6 +79,11 @@
       "he": "ענבים",
       "color": "purple",
       "shape": "grapes",
+      "phrase": { "en": "some grapes", "fr": "du raisin" },
+      "variants": [
+        { "color": "purple", "en": { "pick": "I want the purple grapes, please!", "not": "I want some grapes, but not the purple ones!" }, "fr": { "pick": "Je voudrais le raisin violet, s'il te plaît !", "not": "Je voudrais du raisin, mais pas le violet !" } },
+        { "color": "green", "en": { "pick": "I want the green grapes, please!", "not": "I want some grapes, but not the green ones!" }, "fr": { "pick": "Je voudrais le raisin vert, s'il te plaît !", "not": "Je voudrais du raisin, mais pas le vert !" } }
+      ],
       "prompts": {
         "en": { "1": "I want some grapes, please!" },
         "fr": { "1": "Je voudrais du raisin, s'il te plaît !" }
@@ -70,6 +94,7 @@
       "he": "גבינה",
       "color": "yellow",
       "shape": "cheese",
+      "phrase": { "en": "some cheese", "fr": "du fromage" },
       "prompts": {
         "en": { "1": "I want some cheese, please!" },
         "fr": { "1": "Je voudrais du fromage, s'il te plaît !" }
@@ -80,6 +105,7 @@
       "he": "תות",
       "color": "red",
       "shape": "strawberry",
+      "phrase": { "en": "a strawberry", "fr": "une fraise" },
       "prompts": {
         "en": { "1": "I want a strawberry, please!", "2": "I want two strawberries, please!", "3": "I want three strawberries, please!" },
         "fr": { "1": "Je voudrais une fraise, s'il te plaît !", "2": "Je voudrais deux fraises, s'il te plaît !", "3": "Je voudrais trois fraises, s'il te plaît !" }
@@ -90,6 +116,7 @@
       "he": "ברוקולי",
       "color": "green",
       "shape": "broccoli",
+      "phrase": { "en": "some broccoli", "fr": "du brocoli" },
       "prompts": {
         "en": { "1": "I want some broccoli, please!" },
         "fr": { "1": "Je voudrais du brocoli, s'il te plaît !" }
@@ -100,6 +127,7 @@
       "he": "עוגייה",
       "color": "brown",
       "shape": "cookie",
+      "phrase": { "en": "a cookie", "fr": "un biscuit" },
       "prompts": {
         "en": { "1": "I want a cookie, please!", "2": "I want two cookies, please!", "3": "I want three cookies, please!" },
         "fr": { "1": "Je voudrais un biscuit, s'il te plaît !", "2": "Je voudrais deux biscuits, s'il te plaît !", "3": "Je voudrais trois biscuits, s'il te plaît !" }
@@ -110,6 +138,7 @@
       "he": "ביצה",
       "color": "white",
       "shape": "egg",
+      "phrase": { "en": "an egg", "fr": "un œuf" },
       "prompts": {
         "en": { "1": "I want an egg, please!", "2": "I want two eggs, please!", "3": "I want three eggs, please!" },
         "fr": { "1": "Je voudrais un œuf, s'il te plaît !", "2": "Je voudrais deux œufs, s'il te plaît !", "3": "Je voudrais trois œufs, s'il te plaît !" }
@@ -120,6 +149,11 @@
       "he": "אגס",
       "color": "green",
       "shape": "pear",
+      "phrase": { "en": "a pear", "fr": "une poire" },
+      "variants": [
+        { "color": "green", "en": { "pick": "I want the green pear, please!", "not": "I want a pear, but not the green one!" }, "fr": { "pick": "Je voudrais la poire verte, s'il te plaît !", "not": "Je voudrais une poire, mais pas la verte !" } },
+        { "color": "yellow", "en": { "pick": "I want the yellow pear, please!", "not": "I want a pear, but not the yellow one!" }, "fr": { "pick": "Je voudrais la poire jaune, s'il te plaît !", "not": "Je voudrais une poire, mais pas la jaune !" } }
+      ],
       "prompts": {
         "en": { "1": "I want a pear, please!", "2": "I want two pears, please!", "3": "I want three pears, please!" },
         "fr": { "1": "Je voudrais une poire, s'il te plaît !", "2": "Je voudrais deux poires, s'il te plaît !", "3": "Je voudrais trois poires, s'il te plaît !" }
@@ -130,6 +164,7 @@
       "he": "תפוז",
       "color": "orange",
       "shape": "orange",
+      "phrase": { "en": "an orange", "fr": "une orange" },
       "prompts": {
         "en": { "1": "I want an orange, please!", "2": "I want two oranges, please!", "3": "I want three oranges, please!" },
         "fr": { "1": "Je voudrais une orange, s'il te plaît !", "2": "Je voudrais deux oranges, s'il te plaît !", "3": "Je voudrais trois oranges, s'il te plaît !" }
@@ -140,6 +175,7 @@
       "he": "דג",
       "color": "blue",
       "shape": "fish",
+      "phrase": { "en": "some fish", "fr": "du poisson" },
       "prompts": {
         "en": { "1": "I want some fish, please!" },
         "fr": { "1": "Je voudrais du poisson, s'il te plaît !" }
