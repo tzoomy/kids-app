@@ -191,3 +191,95 @@ export type LevelDescriptor = z.infer<typeof LevelDescriptorSchema>;
 export type GameAdaptive = z.infer<typeof GameAdaptiveSchema>;
 export type AgeTrackConfig = z.infer<typeof AgeTrackConfigSchema>;
 export type AnimalRestaurantContent = z.infer<typeof AnimalRestaurantContentSchema>;
+
+// ---------------------------------------------------------------------------
+// Who's Hiding? (Nature Lab). Same choice/serve family as the restaurant: the child picks one of
+// several bushes instead of a plate. Shares the generic level descriptor and adaptive block.
+// ---------------------------------------------------------------------------
+
+const LangPairSchema = z.object({ en: z.string().min(1), fr: z.string().min(1) });
+
+/** What the spoken request contains: the name and the animal's sound, the name alone, or the sound alone. */
+export const HIDING_SPEAK_MODES = ['name-sound', 'name', 'sound'] as const;
+export type HidingSpeakMode = (typeof HIDING_SPEAK_MODES)[number];
+
+export const HidingAnimalSchema = z.object({
+  id: z.string().min(1),
+  /** Registered animal rig / art kind (public/art/animals/<kind>). */
+  kind: z.string().min(1),
+  /** Look-alike group: `same-category` distractors come from the target's group first. */
+  group: z.string().min(1),
+  /** Noun phrase with its article ("the cat", "le chat"), spoken in the request. */
+  name: LangPairSchema,
+  /** Spoken sound word(s); device TTS reads them. */
+  sound: LangPairSchema,
+  /** Shorter sound used by levels with `extra.soundMs` (the last, hardest level). */
+  soundShort: LangPairSchema,
+  /** Descriptive clue, spoken as part of an audio-only hint. */
+  clue: LangPairSchema,
+});
+
+export const WhosHidingContentSchema = z
+  .object({
+    id: z.literal('who-is-hiding'),
+    world: z.string().min(1),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Request frames per speak mode; `{name}` and `{sound}` are replaced from the animal. */
+    promptFrames: z.object({ 'name-sound': LangPairSchema, name: LangPairSchema, sound: LangPairSchema }),
+    /** "Peekaboo!" lines spoken when the animal pops out. */
+    found: z.object({ en: z.array(z.string().min(1)).min(1), fr: z.array(z.string().min(1)).min(1) }),
+    helpTextHe: z.string().min(1),
+    animals: z.array(HidingAnimalSchema).min(2),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const frames = value.promptFrames;
+    for (const lang of ['en', 'fr'] as const) {
+      if (!frames['name-sound'][lang].includes('{name}') || !frames['name-sound'][lang].includes('{sound}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', 'name-sound', lang], message: 'frame needs {name} and {sound}' });
+      }
+      if (!frames.name[lang].includes('{name}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', 'name', lang], message: 'frame needs {name}' });
+      }
+      if (!frames.sound[lang].includes('{sound}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', 'sound', lang], message: 'frame needs {sound}' });
+      }
+    }
+    const ids = new Set<string>();
+    value.animals.forEach((a, i) => {
+      if (ids.has(a.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'id'], message: `duplicate animal id "${a.id}"` });
+      ids.add(a.id);
+    });
+    const groupSizes = new Map<string, number>();
+    for (const a of value.animals) groupSizes.set(a.group, (groupSizes.get(a.group) ?? 0) + 1);
+    const hasPair = [...groupSizes.values()].some((n) => n >= 2);
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2) issue('levels require choiceCount of at least 2');
+      else if (level.choiceCount > value.animals.length) issue('choiceCount exceeds the number of animals');
+      if (level.distractor !== undefined && level.distractor !== 'far' && level.distractor !== 'same-category') {
+        issue('who-is-hiding supports distractor "far" or "same-category"');
+      }
+      if (level.distractor === 'same-category' && !hasPair) issue('same-category needs a group with at least two animals');
+      if (level.support !== 'partial-reveal' && level.support !== 'audio-only') {
+        issue('who-is-hiding supports support "partial-reveal" or "audio-only"');
+      }
+      const reveal = level.extra?.reveal;
+      if (typeof reveal !== 'number' || !(reveal > 0 && reveal <= 1)) issue('levels require extra.reveal in (0, 1]');
+      const speak = level.extra?.speak;
+      if (typeof speak !== 'string' || !(HIDING_SPEAK_MODES as readonly string[]).includes(speak)) {
+        issue(`levels require extra.speak, one of ${HIDING_SPEAK_MODES.join(', ')}`);
+      }
+      if (level.support === 'audio-only' && speak !== 'sound') issue('an audio-only level speaks only the sound');
+      const soundMs = level.extra?.soundMs;
+      if (soundMs !== undefined && (typeof soundMs !== 'number' || soundMs <= 0)) issue('extra.soundMs must be a positive number');
+    });
+  });
+
+export type HidingAnimal = z.infer<typeof HidingAnimalSchema>;
+export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;

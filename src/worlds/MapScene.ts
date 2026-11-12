@@ -72,6 +72,8 @@ export class MapScene extends Phaser.Scene {
         }
         if (world.entryGameId === 'animal-restaurant') {
           transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
+        } else if (world.entryGameId === 'who-is-hiding') {
+          transitionTo(this, 'HidingScene', { style: 'iris', originX: x, originY: y });
         }
       });
 

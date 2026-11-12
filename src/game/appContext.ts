@@ -6,12 +6,13 @@ import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
 import type { AppShell } from '../ui/shell';
-import type { WorldsFile, AnimalRestaurantContent } from '../content/schema';
+import type { WorldsFile, AnimalRestaurantContent, WhosHidingContent } from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
 export interface ContentBundle {
   worlds: WorldsFile;
   restaurant: AnimalRestaurantContent;
+  hiding: WhosHidingContent;
   he: typeof heStrings;
 }
 

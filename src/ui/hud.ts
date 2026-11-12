@@ -49,6 +49,7 @@ export function renderMapPins(root: HTMLElement, opts: Pick<MapChromeOptions, 'p
   const rootRect = root.getBoundingClientRect();
   for (const pin of opts.pins) {
     const node = el('div', `shell-map-pin${pin.locked ? ' is-locked' : ''}`);
+    node.dataset.worldId = pin.id;
     node.appendChild(el('span', 'shell-map-pin-label', pin.label));
     if (pin.comingSoon) node.appendChild(el('span', 'shell-map-pin-soon', pin.comingSoon));
     const left = canvasRect.left - rootRect.left + (pin.gameX / opts.gameWidth) * canvasRect.width;

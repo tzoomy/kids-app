@@ -1,8 +1,16 @@
 import worldsJson from './worlds.json';
 import animalRestaurantJson from './games/animal-restaurant.json';
+import whosHidingJson from './games/who-is-hiding.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
-import { WorldsFileSchema, AnimalRestaurantContentSchema, type WorldsFile, type AnimalRestaurantContent } from './schema';
+import {
+  WorldsFileSchema,
+  AnimalRestaurantContentSchema,
+  WhosHidingContentSchema,
+  type WorldsFile,
+  type AnimalRestaurantContent,
+  type WhosHidingContent,
+} from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
 /** Validates content once at module load. A broken content file fails fast, not at runtime on a tablet. */
@@ -12,6 +20,10 @@ export function loadWorlds(): WorldsFile {
 
 export function loadAnimalRestaurant(): AnimalRestaurantContent {
   return AnimalRestaurantContentSchema.parse(animalRestaurantJson);
+}
+
+export function loadWhosHiding(): WhosHidingContent {
+  return WhosHidingContentSchema.parse(whosHidingJson);
 }
 
 export function loadHeStrings(): typeof heJson {
