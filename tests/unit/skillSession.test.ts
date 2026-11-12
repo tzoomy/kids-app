@@ -51,6 +51,30 @@ describe('SkillSession', () => {
     expect(meta.tracks.age5.min).toBe(1);
   });
 
+  it('familiarItemIds: seen items, or only the mastered ones right after a drop', () => {
+    const { driver } = memoryDriver();
+    const { store, session } = make(driver, 'age2');
+    const key = skillKey('language-house', 'animal-restaurant', 'en');
+    expect(session.familiarItemIds('en')).toEqual([]);
+    const base = {
+      level: 7,
+      cleanStreak: 0,
+      recent: [],
+      afterDrop: false,
+      lastPlayedDay: '2026-11-12',
+      items: {
+        apple: { box: 1 as const, seen: 1, clean: 0, lastSeenDay: '2026-11-12' },
+        pear: { box: 5 as const, seen: 5, clean: 5, lastSeenDay: '2026-11-12' },
+      },
+    };
+    store.setSkill('a', key, base);
+    expect(session.familiarItemIds('en').sort()).toEqual(['apple', 'pear']);
+    store.setSkill('a', key, { ...base, afterDrop: true });
+    expect(session.familiarItemIds('en')).toEqual(['pear']);
+    store.setSkill('a', key, { ...base, afterDrop: true, items: { apple: base.items.apple } });
+    expect(session.familiarItemIds('en')).toEqual(['apple']);
+  });
+
   it('age2 has no ceiling: max equals the level count', () => {
     expect(meta.tracks.age2.max).toBe(meta.levelCount);
     expect(meta.tracks.age5.max).toBe(meta.levelCount);

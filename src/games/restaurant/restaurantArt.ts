@@ -70,6 +70,9 @@ export interface PlateView {
 
 function buildFood(scene: Phaser.Scene, choice: ChoiceOption, iconSize: number): Phaser.GameObjects.Container {
   // A colour variant must show its own colour, so it skips the single-colour registered art.
+  // TODO: once real food art is registered, the two variant plates (drawn in code) will look
+  // different from the other plates and hint that the answer is one of them. Register per-colour
+  // art for variant items, or draw every plate procedurally in attribute/negation rounds.
   if (choice.color) return drawFoodIcon(scene, choice.item.shape, choice.color, iconSize);
   const key = foodArtKey(choice.item.id);
   if (loaded(scene, key)) {

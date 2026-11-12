@@ -62,6 +62,8 @@ interface ActiveRound extends RoundSpec {
 const WRONG_TAP_LOCK_MS = 400;
 /** Pause after a wrong tap so the gentle "hmm" reads before the hint/retry speech. */
 const HINT_AFTER_HMM_MS = 450;
+/** After the first plate of a two-item request, the request is repeated this long afterwards. */
+const SECOND_PLATE_REPLAY_MS = 700;
 /** Never wait longer than this for the thanks line before the next animal. */
 const THANKS_MAX_WAIT_MS = 2600;
 /** When a praise line follows, give the thanks line this long to finish so they never overlap. */
@@ -291,8 +293,10 @@ export class RestaurantScene extends Phaser.Scene {
       this.layout = computeRestaurantLayout(this.scale.width, this.scale.height, this.level.choiceCount);
     }
     // Attribute and negation requests need an item with colour variants.
+    // Read the familiar foods first: selecting the next item consumes the after-drop flag.
+    const familiarIds = this.skills.familiarItemIds(language);
     const targetId = this.skills.selectNextItem(language, eligibleTargetIds(content.items, this.level));
-    const spec = buildRound(content.items, this.level, language, Math.random, targetId, content.twoStepFrames);
+    const spec = buildRound(content.items, this.level, language, Math.random, targetId, content.twoStepFrames, familiarIds);
     this.round = {
       ...spec,
       done: false,
@@ -422,7 +426,9 @@ export class RestaurantScene extends Phaser.Scene {
     }
     // Only the idle auto-hint before the first tap counts as a hint (later ones follow a recorded miss).
     this.round.tracker.onHint();
-    const view = this.correctPlate();
+    // A voice-only level shows nothing of the request: the hint is the spoken request again, with
+    // no pulse or sparkle on the answer plate.
+    const view = this.round.audioOnly ? undefined : this.correctPlate();
     if (view) {
       void hintPulse(this, view.root);
       Juice.for(this).burst('sparkle', view.root.x, view.root.y);
@@ -498,6 +504,12 @@ export class RestaurantScene extends Phaser.Scene {
       });
     }
     void popOut(this, view.root, 200);
+    // Say the request again so the child knows the second food is still wanted. This is not a
+    // hint (it never touches the tracker) and it is the only prompt on the idle-hint-free age-5 track.
+    const token = this.roundToken;
+    this.time.delayedCall(SECOND_PLATE_REPLAY_MS, () => {
+      if (token === this.roundToken && this.round && !this.round.done) void this.speakPrompt();
+    });
   }
 
   private async onCorrect(view: PlateView): Promise<void> {

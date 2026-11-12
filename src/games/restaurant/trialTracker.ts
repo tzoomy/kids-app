@@ -6,7 +6,6 @@ import { pickLanguage, type Lang } from '../templates/choiceServe';
 export class TrialTracker {
   private hinted = false;
   private recorded = false;
-  private tapped = false;
 
   constructor(
     readonly itemId: string,
@@ -14,11 +13,12 @@ export class TrialTracker {
   ) {}
 
   /**
-   * The idle auto-hint fired. It only counts before the first plate tap; later hints follow a
-   * recorded miss. A voluntary replay (tap on the animal or prompt bubble) must NOT call this.
+   * The idle auto-hint fired. It counts until the trial is recorded, so a hint shown between the
+   * two plates of a two-item request marks the trial hinted. A voluntary replay (tap on the animal
+   * or prompt bubble) and the automatic replay after the first plate must NOT call this.
    */
   onHint(): void {
-    if (!this.tapped) this.hinted = true;
+    if (!this.recorded) this.hinted = true;
   }
 
   /**
@@ -31,7 +31,6 @@ export class TrialTracker {
    */
   onPlateTap(correct: boolean, remaining = 0): TrialResult | null {
     if (this.recorded) return null;
-    this.tapped = true;
     if (correct && remaining > 0) return null;
     this.recorded = true;
     return { itemId: this.itemId, firstTryCorrect: correct, hinted: this.hinted };

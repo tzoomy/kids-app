@@ -70,9 +70,9 @@ How the 8 research games map onto the levers (§4 of the research doc):
 | Who's Hiding? | support (partial-reveal → audio-only), choiceCount (bushes), distractor, extra.reveal |
 | Kitchen Orchestra | sequenceLength, speed, support (lit→flash→audio-only), choiceCount |
 
-### 2.3 Level lists for the other seven games (design only, not implemented)
+### 2.2 Level lists for the other seven games (design only, not implemented)
 
-Same convention as the restaurant: the age-5 start level is at least two steps above the age-2 start and introduces a harder kind of demand (a new request type, less scaffolding, or a longer sequence), not just one more option. Levels below the age-2 start are the drop floor (`min = 1` on both tracks), so a drop always lands on easier, known material. Age 2 has no ceiling (`max = levels.length`); age 5 has the same `max`. Lever names are the generic ones from §2.1; `extra.*` is the game-specific escape hatch. These lists are proposals that each game's own issue may refine, and they need the owner's approval when that game is built.
+Convention for these seven games (a design proposal, not a rule the engine enforces): the age-5 start level is at least two steps above the age-2 start and introduces a harder kind of demand (a new request type, less scaffolding, or a longer sequence), not just one more option. Levels below the age-2 start are the drop floor (`min = 1` on both tracks), so a drop always lands on easier, known material; for that reason age 2 starts above L1 in every game except Kitchen Orchestra (see below). The Animal Restaurant deliberately does not follow the two-step gap: its age-5 start is one level above the age-2 start (L4 → L5, which adds a 4th plate and look-alike distractors). That is the owner's explicit decision after playtesting (see §7), and it applies to the restaurant only. Age 2 has no ceiling (`max = levels.length`); age 5 has the same `max`. Lever names are the generic ones from §2.1; `extra.*` is the game-specific escape hatch. These lists are proposals that each game's own issue may refine, and they need the owner's approval when that game is built.
 
 **Travel Suitcase** (age 2 starts L3, age 5 starts L5)
 
@@ -165,9 +165,9 @@ Same convention as the restaurant: the age-5 start level is at least two steps a
 | 7 | sequenceLength 4, choiceCount 5, speed 1.2, support audio-only |
 | 8 | sequenceLength 5, choiceCount 5, speed 1.2, support audio-only |
 
-Kitchen Orchestra is the exception to "age 2 starts above L1": copying even a two-note sequence is already demanding for a 2-year-old, so age 2 stays on the first level and the age-5 start (L4, three notes) is the meaningful jump.
+Kitchen Orchestra is the one exception to "age 2 starts above L1" (stated at the top of this section): copying even a two-note sequence is already demanding for a 2-year-old, so age 2 stays on the first level and the age-5 start (L4, three notes) is the meaningful jump.
 
-### 2.2 Engine types (`src/core/adaptive/types.ts`)
+### 2.3 Engine types (`src/core/adaptive/types.ts`)
 
 ```ts
 type AgeTrack = 'age2' | 'age5';                // re-exported from core/storage/schema
@@ -256,6 +256,7 @@ All functions are pure. They return new objects and never mutate their inputs. T
   - `schemaVersion > 1` (written by a newer build, then the app was downgraded): use in-memory defaults and **never write**, so newer data is not clobbered.
   - A hand-written shape guard drops malformed skill entries one by one. This follows `store.ts`, so `src/core` gets no zod dependency.
   - The prototype's `ar_state` has no level data, so there is nothing to migrate from it.
+  - **No migration for the 9-level curve.** The earlier (5-level) version of this PR was never merged or deployed, so no device holds adaptive data written by it, and `schemaVersion` stays 1. If a development build did leave data on a test device, clear that browser's site data.
 - **When written:** after every `recordTrial` (about 1 KB; a child can quit mid-round at any moment) and on scene exit. Never on the 1 s leisure tick.
 - The parent "reset balance" action does not touch this key. Profile deletion does not exist yet. When it is added, it must also remove this key.
 
@@ -320,9 +321,11 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
 
 **Request types for L6–L9** (all in content; no grammar in code)
 - **Attribute (L6).** Items with colour `variants` (apple red/green, pear green/yellow, banana yellow/green, grapes purple/green). Each variant carries its own EN/FR line (`pick`). The round puts both colour versions of the item on the table, so the colour word decides the answer; the two other plates are distractors from other foods. The variant plates are drawn procedurally in their own colour. Only items with variants are eligible targets at L6 and L8 (`eligibleTargetIds`).
-- **Two-step (L7).** Two different foods, composed from `twoStepFrames` (`"I want {a} and {b}, please!"`) and each item's `phrase` (`"an apple"`, `"une pomme"`). Interaction: tap the two requested plates in any order. The first correct plate is served (its food flies to the animal and the plate leaves); the trial completes on the second. A wrong tap is a miss for the trial (it is recorded at once, 400 ms double-tap lock unchanged, a hint or a replay may follow as for any miss) and the trial stays open until both are served. A first try is clean only if both taps are correct and no wrong tap happens in between. The engine records the item the scheduler picked (the first food). The two-item plate set has 4 plates, so there are 2 wrong plates.
+- **Two-step (L7).** Two different foods, composed from `twoStepFrames` (`"I want {a} and {b}, please!"`) and each item's `phrase` (`"an apple"`, `"une pomme"`). Interaction: tap the two requested plates in any order. The first correct plate is served (its food flies to the animal and the plate leaves); the trial completes on the second. A wrong tap is a miss for the trial (it is recorded at once, 400 ms double-tap lock unchanged, a hint or a replay may follow as for any miss) and the trial stays open until both are served. A first try is clean only if both taps are correct, no wrong tap happens in between, and no idle auto-hint fired before the trial was recorded (a hint shown between the two plates marks the trial hinted, so it is `assisted`). After the first plate the scene repeats the request after 700 ms so the child knows the second food is still wanted; this replay is not a hint. The second food is taken from foods the child already knows when possible (the mastered items right after a level drop, otherwise any seen item), so a drop to L7 does not introduce an unseen food in the second slot. The engine records the item the scheduler picked (the first food). The two-item plate set has 4 plates, so there are 2 wrong plates.
 - **Negation (L8).** One answer by design: the animal names a food and excludes a colour ("I want an apple, but not the red one"), so the correct plate is the other colour of the same food. The excluded colour is on the table and is a wrong answer, as are the unrelated foods. This avoids the "any non-matching plate is right" shape, where 3 of 4 plates would be correct and a negation would be answered by chance. Each variant carries its own EN/FR `not` line.
-- **Voice-only (L9).** The quantity request of L5 with `support: audio-only`. The prompt bubble is not shown, so the request has no visual cue; the animal's spoken request is the only source. Tapping the animal still replays it (not a hint). The age-2 idle auto-hint still pulses the right plate after `hintDelayMs`.
+- **Voice-only (L9).** The quantity request of L5 with `support: audio-only`. There is no visual cue of the requested food: no prompt bubble (and so no 🔊 button), no food icon, and no pointing. The animal's spoken request is the only source. Tapping the animal still replays it (not a hint). On the age-2 track the idle auto-hint (and the hint after a wrong tap) on this level only repeats the spoken request, with no pulse or sparkle on the answer plate; it still counts as a hint for the engine. See the open questions in §10 about how much this level really removes.
+
+**Voice of the new lines.** The L6–L8 lines (attribute, two-item, negation) have no recorded clip, so they are spoken by the device TTS voice, which sounds different from the recorded clips used for every other line. The girls will hear a different voice on these levels; this is expected until pre-generated audio is added.
 
 **Audio for L6–L9.** Line ids are `attr.{item}.{color}.{lang}`, `not.{item}.{color}.{lang}` and `pair.{itemA}.{itemB}.{lang}`. None has a static clip in `audio-manifest.json`, so `StaticFileProvider` resolves false and `AudioManager` falls through to the device TTS provider with the round text; a test pins this. L9 reuses the existing `food.*` clips. Pre-generated audio for the new lines is a later pass.
 
@@ -348,8 +351,9 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
   - `targetId = session.selectNextItem(eligibleIds)`, where eligible means all items. At quantity levels, items without count prompts still work at count 1.
   - Call `buildRound(..., targetId)`.
   - Create a `TrialTracker(itemId, language)` for the round (`src/games/restaurant/trialTracker.ts`, pure and unit-tested). `nextRoundLanguage` keeps the language for the round and re-picks early if the parent disabled it.
-- `giveHint()`: calls `tracker.onHint()`, which sets hinted only before the first plate tap. Replays (animal or bubble tap) never call it.
+- `giveHint()`: calls `tracker.onHint()`, which marks the trial hinted until the trial is recorded (so also between the two plates of a two-item request). Replays (animal or bubble tap, and the automatic replay after the first plate) never call it. On a voice-only level the hint plays the spoken request only, without pulsing the answer plate.
 - `choose()`: after the existing lock check, calls `tracker.onPlateTap(correct, remaining)`. A wrong tap returns the miss at once; a correct tap returns a clean result only when it completes the request (`remaining = 0`); a correct first plate of a two-item request returns `null` and the plate is served. The scene passes a non-null result to `session.record`, once per trial. The session persists. Wrong-tap feedback, hints, stars and leisure calls are unchanged.
+- `startRound()` reads `session.familiarItemIds(lang)` before `selectNextItem` (selecting consumes the after-drop flag) and passes it to `buildRound` as `familiarIds`.
 - Level 9 (`audio-only`): the scene clears the prompt bubble instead of setting it. `RoundInfo` exposes `visualCue` (false at L9), `request` and `correctIndices` for tests.
 - `cleanup()`: call `session.endVisit()` (round boundary plus persist).
 - `RoundInfo` gains `level` and `skillKey`. These are additive; e2e reads only the fields it declares.
@@ -360,7 +364,7 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
   - `tries` semantics and the 400 ms double-tap lock are untouched, so `tries === 1` still holds.
   - The animal tap still leaves `tries === 0` and `correctCount === 0`.
   - Stars and leisure flow are unchanged.
-- No test plays 3 rounds, and age 2 changes level only at round ends, so no test sees a level change. Levels 5–9 are covered by unit tests only.
+- No test plays 3 rounds, and age 2 changes level only at round ends, so no test sees a level change. The `seedRestaurantLevel(level)` test hook (installed only with `?e2e=1`, like the other hooks) seeds the stored level before the scene starts. Two e2e cases use it: L7 (tap plate A, tap A again with no effect, tap plate B: one star and one recorded trial) and L9 (no prompt bubble; tapping the animal leaves `tries` at 0). Levels 5, 6 and 8 are covered by unit tests only.
 - Screenshots may show different foods, as they already do today, because the food choice is random.
 
 ## 8. Unit test plan (vitest)
@@ -408,11 +412,25 @@ The existing e2e tests ("wrong choices never reduce the leisure balance", double
 
 **Curve shift (9 levels) also changes:** `src/games/restaurant/{trialTracker,voiceRules,restaurantArt}.ts`, `tests/e2e/journey.spec.ts` (assertions on the new start level; a wrong plate chosen from the round info) and the new `tests/unit/restaurantRequests.test.ts`.
 
-**Unchanged:** everything in `src/core/leisure`, `main.ts`, `createGame.ts`, root prototype files, `package.json`, the vite/tsconfig/vitest/playwright configs and CI. No new dependencies.
+**Also changed by the review fixes:** `src/game/createGame.ts` (the e2e-only `seedRestaurantLevel` hook) and `src/core/adaptive/skillSession.ts` (`familiarItemIds`).
+
+**Unchanged:** everything in `src/core/leisure`, `main.ts`, root prototype files, `package.json`, the vite/tsconfig/vitest/playwright configs and CI. No new dependencies.
 
 **Owner decisions (Maor, 2026-11-11, final):**
-1. Age 5 starts at L4 (today's behaviour). **Superseded after playtesting:** the restaurant curve now has 9 levels; age 2 starts at L4 (today's game) and age 5 at L5 (§7).
+1. Age 5 starts at L4 (today's behaviour). **Superseded on 2026-11-12 (owner's playtesting follow-up in issue #16):** the restaurant curve now has 9 levels; age 2 starts at L4 (today's game) and age 5 at L5 (§7). The level order and the start levels are the owner's explicit decision.
 2. Age 2 has no level ceiling (`max = levels.length`, now 9); she can climb through all levels.
 3. Down rule: 2 misses in the last 3 trials (`downMisses: 2`, `downWindow: 3`).
 4. The language stays fixed per round of 3 animals.
 5. Tapping to replay the request is not a hint.
+
+## 10. Open questions for the owner
+
+**L9 (voice-only) removes little for pre-readers, and a drop from L9 lands on harder material.** The level order is the owner's explicit decision and is not changed here. Two consequences are worth a decision:
+- The prompt bubble is text only, and neither girl reads English or French yet. Hiding it therefore takes away almost nothing for a pre-reader, so L9 plays close to L5 (the same quantity request with 4 plates). L9 is made genuinely voice-only (no bubble, no 🔊 button, no pulse on the answer plate), but the girls were not using the text anyway.
+- A level drop from L9 lands on L8 (negation), which is harder than L9 for a child who cannot read. This breaks the idea that a drop always lands on easier material, for that one step.
+
+Options, none implemented:
+1. Make L9 an audio-only version of a harder request, for example the two-item request or the attribute request without the bubble. The curve keeps its order, and L9 becomes harder in practice.
+2. Swap L8 and L9, so voice-only quantity sits before negation. This changes the order the owner decided, so it needs explicit approval.
+3. Keep as is. Treat L9 as the "reader-ready" level that matters once the girls can read, and accept that for now L8 → L9 is mostly a no-op.
+4. Give the drop rule a special case: a drop from L9 goes to L7 or L5 instead of L8. This adds a rule to the engine, which is otherwise level-order agnostic.

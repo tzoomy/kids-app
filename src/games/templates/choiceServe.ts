@@ -1,12 +1,12 @@
 // Generic "choice/serve" game template logic: pick a round, decide correctness.
 // No Phaser dependency — pure and unit-testable. Rendering lives in the game scene
 // that uses this template (e.g. src/games/restaurant/RestaurantScene.ts).
-import type { RestaurantItem } from '../../content/schema';
+import { RESTAURANT_REQUESTS, type RestaurantItem, type RestaurantRequest } from '../../content/schema';
 
 export type Lang = 'en' | 'fr';
 
 /** What the animal asks for. `noun` and `quantity` are decided by the level's `counts`. */
-export type RequestKind = 'noun' | 'quantity' | 'attribute' | 'two-step' | 'negation';
+export type RequestKind = RestaurantRequest;
 
 /** The levers choice-serve reads from a content level descriptor. */
 export interface ChoiceServeLevel {
@@ -43,7 +43,8 @@ export interface RoundSpec {
   audioOnly: boolean;
 }
 
-const NEW_REQUESTS: readonly string[] = ['attribute', 'two-step', 'negation'];
+/** Requests that need a special round builder (everything but the plain noun / quantity rounds). */
+const NEW_REQUESTS: readonly string[] = RESTAURANT_REQUESTS.filter((r) => r !== 'noun' && r !== 'quantity');
 
 export function shuffle<T>(arr: readonly T[], random: () => number = Math.random): T[] {
   const copy = [...arr];
@@ -196,11 +197,12 @@ function buildTwoStepRound(
   language: Lang,
   frames: TwoStepFrames,
   random: () => number,
+  familiarIds: readonly string[],
 ): RoundSpec {
-  const second = shuffle(
-    items.filter((i) => i.id !== first.id),
-    random,
-  )[0];
+  // Prefer a food the child already knows for the second slot (no unseen food right after a drop).
+  const candidates = items.filter((i) => i.id !== first.id);
+  const familiar = candidates.filter((i) => familiarIds.includes(i.id));
+  const second = shuffle(familiar.length > 0 ? familiar : candidates, random)[0];
   const pool = items.filter((i) => i.id !== second.id);
   const others = pickDistractors(first, pool, Math.max(0, level.choiceCount - 2), level.distractor, random);
   const targets: ChoiceOption[] = [
@@ -227,6 +229,8 @@ function buildTwoStepRound(
  *
  * With `targetId` the caller (the adaptive engine) fixes the target item and the level's
  * `distractor` lever shapes the other plates. Without it the target is random.
+ * `familiarIds` are foods the child has already seen; a two-item request takes its second food
+ * from them when possible.
  */
 export function buildRound(
   items: readonly RestaurantItem[],
@@ -235,6 +239,7 @@ export function buildRound(
   random: () => number = Math.random,
   targetId?: string,
   frames?: TwoStepFrames,
+  familiarIds: readonly string[] = [],
 ): RoundSpec {
   const n = level.choiceCount;
   let fixed = targetId === undefined ? undefined : items.find((i) => i.id === targetId);
@@ -249,7 +254,7 @@ export function buildRound(
       const special =
         level.request === 'two-step'
           ? frames && items.length >= 3
-            ? buildTwoStepRound(items, fixed, level, language, frames, random)
+            ? buildTwoStepRound(items, fixed, level, language, frames, random, familiarIds)
             : null
           : buildVariantRound(items, fixed, level, language, level.request as 'attribute' | 'negation', random);
       // A target the request cannot use (no variants, no frames) falls back to a plain round.

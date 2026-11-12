@@ -215,7 +215,7 @@ describe('TrialTracker with a two-item request', () => {
     expect(t.onPlateTap(true, 0)).toBeNull();
   });
 
-  it('a hint before the first tap counts; a hint between the two plates does not', () => {
+  it('a hint before the first tap and a hint between the two plates both mark the trial hinted', () => {
     const early = new TrialTracker('apple', 'en');
     early.onHint();
     early.onPlateTap(true, 1);
@@ -224,7 +224,12 @@ describe('TrialTracker with a two-item request', () => {
     const late = new TrialTracker('apple', 'en');
     late.onPlateTap(true, 1);
     late.onHint();
-    expect(late.onPlateTap(true, 0)?.hinted).toBe(false);
+    expect(late.onPlateTap(true, 0)?.hinted).toBe(true);
+
+    const afterRecord = new TrialTracker('apple', 'en');
+    afterRecord.onPlateTap(false);
+    afterRecord.onHint();
+    expect(afterRecord.onPlateTap(true, 0)).toBeNull();
   });
 });
 
@@ -260,6 +265,15 @@ describe('content validation for the new levers', () => {
     expect(ok(same)).toBe(false);
   });
 
+  it('variant colours must be keys of the shared palette', () => {
+    const typo = clone();
+    typo.items.find((i: any) => i.id === 'apple').variants[0].color = 'rde';
+    expect(ok(typo)).toBe(false);
+    const reserved = clone();
+    reserved.items.find((i: any) => i.id === 'apple').variants[0].color = 'outline';
+    expect(ok(reserved)).toBe(false);
+  });
+
   it('a two-item level needs at least 3 plates; frames need {a} and {b}', () => {
     const c = clone();
     c.adaptive.levels[6].choiceCount = 2;
@@ -276,6 +290,26 @@ describe('content validation for the new levers', () => {
     const c = clone();
     c.adaptive.tracks.age2.max = 10;
     expect(ok(c)).toBe(false);
+  });
+});
+
+describe('L7 second food after a drop', () => {
+  it('takes the second food from the familiar items when there are any', () => {
+    const familiar = ['pear', 'carrot'];
+    for (let seed = 1; seed <= 30; seed++) {
+      const round = buildRound(items, L7, 'en', seededRandom(seed), 'apple', frames, familiar);
+      expect(familiar).toContain(round.targets[1].item.id);
+      expect(round.targets[0].item.id).toBe('apple');
+    }
+  });
+
+  it('never picks the first food as the second, and falls back to any food when none is familiar', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const only = buildRound(items, L7, 'en', seededRandom(seed), 'apple', frames, ['apple']);
+      expect(only.targets[1].item.id).not.toBe('apple');
+      const none = buildRound(items, L7, 'en', seededRandom(seed), 'apple', frames, []);
+      expect(none.targets[1].item.id).not.toBe('apple');
+    }
   });
 });
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PALETTE } from '../assets/colors';
 
 export const WorldStatusSchema = z.enum(['open', 'locked', 'leisure']);
 
@@ -51,7 +52,8 @@ export const RestaurantItemSchema = z.object({
 });
 
 /** Request types the restaurant knows how to build and check. */
-export const RESTAURANT_REQUESTS: readonly string[] = ['noun', 'quantity', 'attribute', 'two-step', 'negation'];
+export const RESTAURANT_REQUESTS = ['noun', 'quantity', 'attribute', 'two-step', 'negation'] as const;
+export type RestaurantRequest = (typeof RESTAURANT_REQUESTS)[number];
 
 export const LevelDescriptorSchema = z
   .object({
@@ -114,26 +116,26 @@ export const AgeTrackConfigSchema = z.object({
 
 export const AnimalRestaurantContentSchema = z
   .object({
-  id: z.literal('animal-restaurant'),
-  world: z.string().min(1),
-  template: z.literal('choice-serve'),
-  skill: z.string().min(1),
-  languages: z.array(z.enum(['en', 'fr'])).min(1),
-  earnsLeisure: z.boolean(),
-  ageTracks: z.object({
-    age2: AgeTrackConfigSchema,
-    age5: AgeTrackConfigSchema,
-  }),
-  thanks: z.object({
-    en: z.array(z.string().min(1)).min(1),
-    fr: z.array(z.string().min(1)).min(1),
-  }),
-  helpTextHe: z.string().min(1),
-  /** Frames for two-item requests; `{a}` and `{b}` are replaced by the items' noun phrases. */
-  twoStepFrames: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
-  items: z.array(RestaurantItemSchema).min(1),
-  adaptive: GameAdaptiveSchema,
-})
+    id: z.literal('animal-restaurant'),
+    world: z.string().min(1),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({
+      age2: AgeTrackConfigSchema,
+      age5: AgeTrackConfigSchema,
+    }),
+    thanks: z.object({
+      en: z.array(z.string().min(1)).min(1),
+      fr: z.array(z.string().min(1)).min(1),
+    }),
+    helpTextHe: z.string().min(1),
+    /** Frames for two-item requests; `{a}` and `{b}` are replaced by the items' noun phrases. */
+    twoStepFrames: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    items: z.array(RestaurantItemSchema).min(1),
+    adaptive: GameAdaptiveSchema,
+  })
   .superRefine((value, ctx) => {
     for (const lang of ['en', 'fr'] as const) {
       const frame = value.twoStepFrames[lang];
@@ -145,11 +147,20 @@ export const AnimalRestaurantContentSchema = z
       if (item.variants && item.variants.length === 2 && item.variants[0].color === item.variants[1].color) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['items', i, 'variants'], message: 'variant colours must differ' });
       }
+      item.variants?.forEach((variant, v) => {
+        if (!(variant.color in PALETTE) || variant.color === 'outline') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['items', i, 'variants', v, 'color'],
+            message: `variant colour "${variant.color}" is not in the shared palette`,
+          });
+        }
+      });
     });
     const variantItems = value.items.filter((i) => i.variants).length;
     value.adaptive.levels.forEach((level, i) => {
       const path = ['adaptive', 'levels', i];
-      if (level.request !== undefined && !RESTAURANT_REQUESTS.includes(level.request)) {
+      if (level.request !== undefined && !(RESTAURANT_REQUESTS as readonly string[]).includes(level.request)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: `restaurant does not support request "${level.request}"` });
       }
       if (level.support !== undefined && level.support !== 'audio-only') {
@@ -175,8 +186,8 @@ export const AnimalRestaurantContentSchema = z
   });
 
 export type ItemVariant = z.infer<typeof ItemVariantSchema>;
-export type RestaurantItem =z.infer<typeof RestaurantItemSchema>;
+export type RestaurantItem = z.infer<typeof RestaurantItemSchema>;
 export type LevelDescriptor = z.infer<typeof LevelDescriptorSchema>;
 export type GameAdaptive = z.infer<typeof GameAdaptiveSchema>;
-export type AgeTrackConfig= z.infer<typeof AgeTrackConfigSchema>;
+export type AgeTrackConfig = z.infer<typeof AgeTrackConfigSchema>;
 export type AnimalRestaurantContent = z.infer<typeof AnimalRestaurantContentSchema>;

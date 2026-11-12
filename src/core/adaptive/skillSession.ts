@@ -54,6 +54,19 @@ export class SkillSession {
     return this.session(lang).trialsInRound === 0;
   }
 
+  /**
+   * Foods the child already knows, for secondary slots of a round (e.g. the second food of a
+   * two-item request). Call it BEFORE `selectNextItem`: right after a level drop it returns the
+   * mastered items (or, if none, every seen item); otherwise every seen item.
+   */
+  familiarItemIds(lang: string): string[] {
+    const skill = this.skill(lang);
+    const seen = Object.keys(skill.items);
+    if (!skill.afterDrop) return seen;
+    const known = seen.filter((id) => skill.items[id].box >= this.opts.meta.rules.masteredBox);
+    return known.length > 0 ? known : seen;
+  }
+
   selectNextItem(lang: string, candidates: readonly string[]): string {
     const skill = this.skill(lang);
     const sel = selectNextItem(skill, this.session(lang), candidates, this.opts.meta, this.today(), this.random);
