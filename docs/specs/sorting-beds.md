@@ -1,7 +1,7 @@
 # sorting-beds — Sorting Beds
 
 Status: **approved**
-Pass in progress: **none**
+Pass in progress: **1**
 
 ## Summary
 
@@ -410,3 +410,4 @@ All open decisions were resolved by the owner on 2026-11-13.
 - 2026-11-12 — team-lead proposals added (choreography, attribute rule per round, L1 picture labels and scaffold mapping, sorting AppScreen and hooks, age-2 idle hint and one miss per item, Picnic Train scene folder out of scope), voice strings reviewed, AC table completed; engine rules left as the single open owner decision — substantive
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (engine v1 rules incl. `trialsPerRound: 3` kept, choreography, one rule per round, combined beds from L6, 2 beds on L5 size rounds, one example flower per bed at L7–L8, flower-basket prop, scaffold/support mapping, sorting AppScreen and hooks, age-2 idle hint and one miss per item, Picnic Train scene folder out of scope, dependency on art PR #20); 0 ACs added — substantive
 - 2026-11-13 — **Team-lead decision (2026-11-13)** (minor clarification; status stays approved, no owner re-approval): after the L8 switch to size × shape, Pass 1 speaks only the size token for the remaining flowers (shape is carried by the example flower; shape words stay Pass 2); `extra.vary: 2` (shape varies) applies at L8 as well. AC-09, AC-31, and AC-32 updated to match. — clarifying
+- 2026-11-13 — Pass in progress set to 1 in the Pass 1 implementation PR (#44); `npm run check:ac` now enforces every Pass-1 criterion — process
