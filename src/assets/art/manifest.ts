@@ -125,4 +125,14 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'fx-instrument-glow', url: 'art/fx/instrument-glow.svg', width: 256, height: 256 },
   { key: 'kitchen-bg-landscape', url: 'art/scenes/kitchen/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'kitchen-bg-portrait', url: 'art/scenes/kitchen/bg-portrait.svg', width: 800, height: 1280 },
+
+  // Food colour variants (256x256)
+  { key: 'food-apple-red', url: 'art/foods/apple-red.svg', width: 256, height: 256 },
+  { key: 'food-apple-green', url: 'art/foods/apple-green.svg', width: 256, height: 256 },
+  { key: 'food-banana-yellow', url: 'art/foods/banana-yellow.svg', width: 256, height: 256 },
+  { key: 'food-banana-green', url: 'art/foods/banana-green.svg', width: 256, height: 256 },
+  { key: 'food-grapes-purple', url: 'art/foods/grapes-purple.svg', width: 256, height: 256 },
+  { key: 'food-grapes-green', url: 'art/foods/grapes-green.svg', width: 256, height: 256 },
+  { key: 'food-pear-green', url: 'art/foods/pear-green.svg', width: 256, height: 256 },
+  { key: 'food-pear-yellow', url: 'art/foods/pear-yellow.svg', width: 256, height: 256 },
 ];

@@ -57,6 +57,28 @@ describe('real art manifest', () => {
     expect(fxArtKey('instrument-glow')).toBeDefined();
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
   });
+
+  it('registers all eight food colour variants and resolves foodArtKey with optional colour', () => {
+    const expectedVariants: Array<[string, string, string]> = [
+      ['apple', 'red', 'food-apple-red'],
+      ['apple', 'green', 'food-apple-green'],
+      ['banana', 'yellow', 'food-banana-yellow'],
+      ['banana', 'green', 'food-banana-green'],
+      ['grapes', 'purple', 'food-grapes-purple'],
+      ['grapes', 'green', 'food-grapes-green'],
+      ['pear', 'green', 'food-pear-green'],
+      ['pear', 'yellow', 'food-pear-yellow'],
+    ];
+    const manifestKeys = new Set(ART_MANIFEST.map((e) => e.key));
+    for (const [foodId, color, expectedKey] of expectedVariants) {
+      expect(manifestKeys.has(expectedKey), `${expectedKey} in manifest`).toBe(true);
+      expect(foodArtKey(foodId, color)).toBe(expectedKey);
+    }
+    expect(foodArtKey('apple')).toBe('food-apple');
+    expect(foodArtKey('banana')).toBe('food-banana');
+    expect(foodArtKey('grapes')).toBe('food-grapes');
+    expect(foodArtKey('pear')).toBe('food-pear');
+  });
 });
 
 describe('real animal rigs', () => {
