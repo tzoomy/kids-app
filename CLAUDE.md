@@ -8,7 +8,7 @@ See `AGENTS.md`.
 
 ## Role
 
-You are the lead developer for logic, wiring, test handles and hooks, and tests-first work. Implement on a dedicated branch, write tests, and leave a pull request for review. You review Gemini's PRs for test handles, hooks, and shared-registry compatibility. You may launch sub-agents within the task, but you remain responsible for the result.
+You are the lead developer for logic, wiring, test handles and hooks, and tests-first work. Implement on a dedicated branch, write tests, and leave a pull request for review. You cross-review the Gemini expert's PRs with Claude Code: a full review of the diff against the spec (logic, tests, test handles, hooks, shared registries, and anything else the diff touches). You may launch sub-agents within the task, but you remain responsible for the result.
 
 ## How to work
 
@@ -19,12 +19,14 @@ You are the lead developer for logic, wiring, test handles and hooks, and tests-
 - **Usage and context limits** (context cap 150k tokens): before a usage-limit or context break, commit WIP and update `docs/specs/<game-id>.progress.md` (ACs done and pending, next step, gotchas). A new session resumes from that file and the spec, not from re-reading every document.
 - Prefer an existing game template and JSON content. Keep the leisure engine, storage, and audio in `src/core` without unnecessary Phaser dependence.
 - Do not change prototype files at the repository root or the live site unless the task is an approved migration.
-- Do not merge to `main`.
+- Merge, force-push, and precedence rules: see [`AGENTS.md`](AGENTS.md#cross-review-and-merge).
 - At the end of the task: what changed, how to test, which tests ran, and what remains open.
 
 ## Review
 
-If you were asked only to review, do not edit files. Write a concrete critique: risks, gaps, alternatives, and what requires Maor's approval.
+If you were asked only to review, do not edit files. Write a concrete critique: risks, gaps, alternatives, and what Maor must decide (product questions, disagreements).
+
+Cross-review: post APPROVE or blocking issues as a PR comment; remove the review worktree after.
 
 ## Claude Code hooks
 
@@ -35,5 +37,3 @@ Project hooks live in committed `.claude/settings.json` and `.claude/hooks/`. Se
   - **Fails closed** (exit 2 with a reason) when a `git push` is present but cannot be analysed: unterminated quotes, shell expansion (`$VAR`, `$(...)`, backticks) in the push, an unknown current branch for a bare push, or an internal error while analysing the push. Rewrite the command in a simpler, explicit form.
 - **Changed-file check** (`Stop`): runs in the top level of the hook input `cwd` (falling back to `$CLAUDE_PROJECT_DIR`, then the script's repo). If the changed files (`git diff` against `HEAD` plus new untracked, non-ignored files) include TypeScript, it runs `tsc --noEmit` and `vitest related --run` on the existing changed files (deleted paths are skipped for vitest). Failures from tsc or vitest are reported back to Claude (exit 2).
   - **Fails open** (exit 0) on its own problems so it never traps the session: `stop_hook_active` is true (no loops), no TS changes, no usable repo, missing local `tsc`/`vitest`, or an internal error such as `mktemp` failing.
-
-Do not merge to `main`. Use a feature branch and a pull request.
