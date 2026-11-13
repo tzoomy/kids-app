@@ -6,13 +6,14 @@ import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
 import type { AppShell } from '../ui/shell';
-import type { WorldsFile, AnimalRestaurantContent, KitchenOrchestraContent } from '../content/schema';
+import type { WorldsFile, AnimalRestaurantContent, KitchenOrchestraContent, WhosHidingContent } from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
 export interface ContentBundle {
   worlds: WorldsFile;
   restaurant: AnimalRestaurantContent;
   orchestra: KitchenOrchestraContent;
+  hiding: WhosHidingContent;
   he: typeof heStrings;
 }
 
@@ -67,9 +68,18 @@ export class AppContext {
     return this.currentProfileId;
   }
 
+  private activeLearningSession: LearningSession | null = null;
+
   createLearningSession(): LearningSession {
     const state = this.store.getProfileState(this.requireProfileId(), new Date(this.nowMs()));
-    return new LearningSession(state, this.store.getState().settings, this.nowMs);
+    const session = new LearningSession(state, this.store.getState().settings, this.nowMs);
+    this.activeLearningSession = session;
+    return session;
+  }
+
+  /** Read-only listening flag of the current learning session, if any. */
+  isListening(): boolean {
+    return this.activeLearningSession?.isListening() ?? false;
   }
 
   createLeisureSession(): LeisureSession {

@@ -14,6 +14,12 @@
     "leisureCorner": "פינת הכיף",
     "comingSoon": "בקרוב"
   },
+  "gamePicker": {
+    "title": "בית השפות",
+    "animalRestaurant": "מסעדת החיות",
+    "kitchenOrchestra": "תזמורת המטבח",
+    "close": "סגירה"
+  },
   "restaurant": {
     "helpButton": "עזרה",
     "hearAgain": "שמעי שוב",

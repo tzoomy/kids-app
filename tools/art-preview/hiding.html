@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who's Hiding? — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px 24px 32px;
+    }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 1280px; margin: 0 auto; }
+    .card {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06);
+    }
+    .label {
+      font-size: 15px; font-weight: 800; padding: 10px 14px 6px;
+    }
+    .note { font-size: 12px; color: #5C4338; padding: 0 14px 8px; }
+    .stage {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      overflow: hidden;
+      background: #B8E6FF;
+    }
+    .stage img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+    .stack { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: 280px; height: 300px; }
+    .stack.tall { width: 220px; height: 320px; }
+    .layer { position: absolute; left: 0; right: 0; bottom: 0; display: block; }
+    .animal {
+      position: absolute;
+      left: 50%;
+      width: 160px;
+      height: 192px;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+    .animal img { position: absolute; left: 0; width: 100%; object-fit: contain; }
+    .animal img.body { bottom: 0; height: 58%; z-index: 1; }
+    .animal img.face { bottom: 28%; height: 72%; z-index: 2; }
+    .state-peek .animal img.body { display: none; }
+    .state-peek .animal img.face { bottom: 0; height: 100%; }
+    .state-hidden .animal img.body { display: none; }
+
+    .bush-back { z-index: 1; width: 100%; }
+    .bush-front { z-index: 3; width: 100%; }
+    /* Reveal levels (bottom of animal relative to the stack) */
+    .state-hidden .animal { display: none; }
+    .state-peek .animal { bottom: 70px; }
+    .state-half .animal { bottom: 110px; }
+    .state-revealed .animal { bottom: 24px; z-index: 4; }
+    .state-hidden .bush-front, .state-peek .bush-front, .state-half .bush-front { animation: rustle 0.7s ease-in-out infinite; }
+    @keyframes rustle {
+      0%, 100% { transform: rotate(0deg); transform-origin: 50% 100%; }
+      30% { transform: rotate(-6deg); transform-origin: 50% 100%; }
+      60% { transform: rotate(5deg); transform-origin: 50% 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bush-front { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Who's Hiding? — Nature Lab art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Animals reuse the existing restaurant rigs.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="label">Sound only (hidden)</div>
+      <div class="note">The animal is fully behind the bush. The bush rustles.</div>
+      <div class="stage state-hidden" data-kind="rabbit" data-bush="round"></div>
+    </div>
+    <div class="card">
+      <div class="label">Peek</div>
+      <div class="note">Ears or the top of the head show above the front foliage.</div>
+      <div class="stage state-peek" data-kind="cat" data-bush="round"></div>
+    </div>
+    <div class="card">
+      <div class="label">Half visible</div>
+      <div class="note">The animal is clearly there, still partly covered.</div>
+      <div class="stage state-half" data-kind="bear" data-bush="tall"></div>
+    </div>
+    <div class="card">
+      <div class="label">Revealed</div>
+      <div class="note">The animal has popped out in front of the bush.</div>
+      <div class="stage state-revealed" data-kind="panda" data-bush="tall"></div>
+    </div>
+  </div>
+  <script>
+    const ART = '../../public/art';
+    function fillStage(stage) {
+      const kind = stage.dataset.kind;
+      const bush = stage.dataset.bush;
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/hiding/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+
+      const stack = document.createElement('div');
+      stack.className = 'stack' + (bush === 'tall' ? ' tall' : '');
+
+      const back = document.createElement('img');
+      back.className = 'layer bush-back';
+      back.src = `${ART}/props/bush-${bush}-back.svg`;
+      back.alt = `${bush} bush, back`;
+
+      const animal = document.createElement('div');
+      animal.className = 'animal';
+      const body = document.createElement('img');
+      body.className = 'body';
+      body.src = `${ART}/animals/${kind}/body.svg`;
+      body.alt = '';
+      const head = document.createElement('img');
+      head.className = 'face';
+      head.src = `${ART}/animals/${kind}/head.svg`;
+      head.alt = kind;
+      animal.appendChild(body);
+      animal.appendChild(head);
+
+      const front = document.createElement('img');
+      front.className = 'layer bush-front';
+      front.src = `${ART}/props/bush-${bush}-front.svg`;
+      front.alt = `${bush} bush, front`;
+
+      stack.appendChild(back);
+      stack.appendChild(animal);
+      stack.appendChild(front);
+      stage.appendChild(stack);
+    }
+    document.querySelectorAll('.stage').forEach(fillStage);
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>
