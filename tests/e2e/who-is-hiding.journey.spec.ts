@@ -17,6 +17,8 @@ import {
 
 /** Device-TTS mock duration (ms). Kept short enough to poll, long enough not to miss isListening. */
 const E2E_TTS_MS = 1000;
+/** Longest spoken line: the recorded Hebrew intro/help clips (#39, on main) last about 10-12 s; device TTS is mocked at E2E_TTS_MS. */
+const SPOKEN_LINE_MAX_MS = 14_000;
 /** Age-2 idle auto-hint delay from who-is-hiding.json. */
 const HINT_DELAY_MS = 6000;
 const SPEAKER_RADIUS_GAME = 44;
@@ -247,14 +249,14 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     await waitForRoundReady(page);
     await waitForRequest(page);
     // Wait until the first request has finished so listening is idle before help.
-    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+    await expect.poll(async () => isListening(page), { timeout: SPOKEN_LINE_MAX_MS }).toBe(false);
 
     await page.locator('[data-testid="hud-help"]').click();
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     await waitForSpokenLine(page, isHelp, 10_000);
     await expect.poll(async () => isListening(page), { timeout: 2000 }).toBe(true);
 
-    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+    await expect.poll(async () => isListening(page), { timeout: SPOKEN_LINE_MAX_MS }).toBe(false);
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     expect(await isListening(page)).toBe(false);
   });
@@ -296,7 +298,7 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     await waitForSpokenLine(page, isIntro, 15_000);
 
     // During the intro the idle hint must stay off.
-    const introDeadline = Date.now() + E2E_TTS_MS + 500;
+    const introDeadline = Date.now() + SPOKEN_LINE_MAX_MS;
     while (Date.now() < introDeadline && !(await getSpokenLines(page)).some(isRequest)) {
       expect(await hinted(page)).toBe(false);
       await page.waitForTimeout(100);
@@ -318,13 +320,13 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     await enterNatureLabFromMap(page);
     await waitForRoundReady(page);
     await waitForRequest(page);
-    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+    await expect.poll(async () => isListening(page), { timeout: SPOKEN_LINE_MAX_MS }).toBe(false);
     expect(await hinted(page)).toBe(false);
 
     await page.locator('[data-testid="hud-help"]').click();
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     await waitForSpokenLine(page, isHelp, 10_000);
-    const helpWatchUntil = Date.now() + E2E_TTS_MS + 500;
+    const helpWatchUntil = Date.now() + SPOKEN_LINE_MAX_MS;
     while (Date.now() < helpWatchUntil) {
       expect(await hinted(page)).toBe(false);
       if (!(await isListening(page))) break;
