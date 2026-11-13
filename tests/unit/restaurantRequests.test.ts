@@ -352,14 +352,17 @@ describe('L7 second food after a drop', () => {
 });
 
 describe('audio for the new request lines', () => {
-  it('none of the new line ids has a static clip, so they use device TTS', () => {
+  it('attr and not lines have recorded clips; pair lines still use device TTS', () => {
     const manifest = loadAudioManifest();
     const rounds = [L6, L7, L8].flatMap((level) =>
       ['en', 'fr'].flatMap((lang) =>
         VARIANT_IDS.map((id) => buildRound(items, level, lang as 'en' | 'fr', seededRandom(3), id, frames)),
       ),
     );
-    for (const r of rounds) expect(manifest[r.lineId]).toBeUndefined();
+    for (const r of rounds) {
+      if (r.lineId.startsWith('pair.')) expect(manifest[r.lineId], r.lineId).toBeUndefined();
+      else expect(manifest[r.lineId], r.lineId).toBeDefined();
+    }
   });
 
   it('a missing static clip falls through to the device TTS provider with the round text', async () => {

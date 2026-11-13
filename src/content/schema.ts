@@ -210,7 +210,7 @@ export const OrchestraInstrumentSchema = z.object({
 export const KitchenOrchestraContentSchema = z
   .object({
     id: z.literal('kitchen-orchestra'),
-    world: z.literal('art-studio'),
+    world: z.literal('language-house'),
     template: z.literal('ordered-steps'),
     skill: z.string().min(1),
     languages: z.array(z.enum(['en', 'fr'])).min(1),

@@ -42,7 +42,7 @@ async function enter(
   profile: ProfileTestId,
   seed: { level?: number; balanceSec?: number; lang?: 'en' | 'fr' | 'both' } = {},
 ): Promise<void> {
-  await enterWorldByTap(page, profile, 'number-garden', {
+  await enterWorldByTap(page, profile, 'number-garden', undefined, {
     beforeEnter: async (mapPage) => {
       if (seed.lang !== undefined) await seedLanguageSetting(mapPage, seed.lang);
       if (seed.level !== undefined) await seedSortingLevel(mapPage, seed.level);
@@ -84,7 +84,7 @@ async function wrongTapAndSettle(page: Page, info: ReadySortingInfo, expectedTri
 test.describe('sorting beds: map journey', () => {
   test('[AC-01] real-tap journey: profile -> Number Garden building -> Sorting Beds -> one round -> back to the map', async ({ page }) => {
     test.setTimeout(60_000);
-    await enterWorldByTap(page, 'profile-a', 'number-garden', {
+    await enterWorldByTap(page, 'profile-a', 'number-garden', undefined, {
       beforeEnter: async (mapPage) => {
         // Still on the map: the game only starts from this world's building.
         expect(await getActiveScenes(mapPage)).toContain('MapScene');

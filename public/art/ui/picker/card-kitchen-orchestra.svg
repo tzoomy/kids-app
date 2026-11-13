@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" width="640" height="800">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Card Base Fill -->
+    <rect x="8" y="8" width="624" height="784" rx="36" fill="#FFF3E0"/>
+
+    <!-- Kitchen Wallpaper Stripes -->
+    <path d="M44 12h32v508H44zM116 12h32v508h-32zM188 12h32v508h-32zM260 12h32v508h-32zM332 12h32v508h-32zM404 12h32v508h-32zM476 12h32v508h-32zM548 12h32v508h-32z" fill="#F7DEC0" fill-opacity="0.45"/>
+
+    <!-- Kitchen Tile Backsplash Band -->
+    <rect x="12" y="424" width="616" height="96" fill="#F7DEC0"/>
+    <line x1="12" y1="424" x2="628" y2="424" stroke="#E5BE94" stroke-width="8"/>
+    <line x1="12" y1="420" x2="628" y2="420" stroke="#7A5C48" stroke-width="4"/>
+    <g fill="#FFF3E0" fill-opacity="0.6" stroke="#E5BE94" stroke-width="3.5">
+      <rect x="32" y="440" width="128" height="48" rx="8"/>
+      <rect x="180" y="440" width="128" height="48" rx="8"/>
+      <rect x="328" y="440" width="128" height="48" rx="8"/>
+      <rect x="476" y="440" width="128" height="48" rx="8"/>
+    </g>
+
+    <!-- Kitchen Window (Left) -->
+    <g>
+      <rect x="44" y="156" width="144" height="176" rx="18" fill="#B8E6FF" stroke="#7A5C48" stroke-width="5"/>
+      <circle cx="84" cy="196" r="16" fill="#FFF3B0"/>
+      <path d="M 46 286 Q 112 256 186 288 L 186 330 L 46 330 Z" fill="#98D886"/>
+      <line x1="116" y1="158" x2="116" y2="330" stroke="#FFF8EE" stroke-width="6"/>
+      <line x1="46" y1="244" x2="186" y2="244" stroke="#FFF8EE" stroke-width="6"/>
+      <rect x="44" y="156" width="144" height="176" rx="18" fill="none" stroke="#7A5C48" stroke-width="5"/>
+      <rect x="36" y="328" width="160" height="16" rx="6" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+    </g>
+
+    <!-- Kitchen Shelf & Jars (Right) -->
+    <g stroke="#7A5C48" stroke-width="4">
+      <rect x="462" y="218" width="42" height="52" rx="10" fill="#FFF6E8"/>
+      <rect x="468" y="208" width="30" height="10" rx="4" fill="#E5BE94"/>
+      <rect x="520" y="226" width="40" height="44" rx="10" fill="#FFD166"/>
+      <rect x="526" y="216" width="28" height="10" rx="4" fill="#F4A261"/>
+      <rect x="442" y="270" width="144" height="14" rx="7" fill="#E5BE94"/>
+      <path d="M 460 284 L 460 298 M 568 284 L 568 298" stroke-width="5"/>
+    </g>
+
+    <!-- Warm Kitchen Pendant Lamp -->
+    <g>
+      <circle cx="514" cy="128" r="48" fill="#FFF3B0" fill-opacity="0.5"/>
+      <line x1="514" y1="12" x2="514" y2="90" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 494 126 A 20 16 0 0 0 534 126 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 470 126 C 470 96, 490 84, 514 84 C 538 84, 558 96, 558 126 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 486 110 C 494 98, 504 94, 518 94" fill="none" stroke="#FFF3B0" stroke-width="5"/>
+    </g>
+
+    <!-- House-Style Friendly Chef Behind the Counter -->
+    <g>
+      <!-- Chef Coat & Sleeves -->
+      <circle cx="198" cy="482" r="20" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 244 396 C 210 406, 184 440, 188 472 C 200 482, 222 480, 234 464 C 244 448, 248 424, 244 396 Z" fill="#FFFDF9" stroke="#3B2A22" stroke-width="6"/>
+
+      <circle cx="442" cy="482" r="20" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 396 396 C 430 406, 456 440, 452 472 C 440 482, 418 480, 406 464 C 396 448, 392 424, 396 396 Z" fill="#FFFDF9" stroke="#3B2A22" stroke-width="6"/>
+
+      <path d="M 256 376 C 228 406, 218 464, 224 520 L 416 520 C 422 464, 412 406, 384 376 C 364 360, 276 360, 256 376 Z" fill="#FFFDF9"/>
+      <path d="M 256 376 C 276 360, 364 360, 384 376 C 368 398, 272 398, 256 376 Z" fill="#F0DEC2"/>
+      <path d="M 342 406 C 346 446, 346 484, 342 518" fill="none" stroke="#5C4338" stroke-width="5"/>
+      <circle cx="298" cy="446" r="7" fill="#5C4338"/>
+      <circle cx="326" cy="446" r="7" fill="#5C4338"/>
+      <circle cx="298" cy="486" r="7" fill="#5C4338"/>
+      <circle cx="326" cy="486" r="7" fill="#5C4338"/>
+      <path d="M 256 376 C 228 406, 218 464, 224 520 L 416 520 C 422 464, 412 406, 384 376 C 364 360, 276 360, 256 376 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Orange Neckerchief -->
+      <path d="M 252 378 C 272 404, 368 404, 388 378 C 374 364, 266 364, 252 378 Z" fill="#F4A261"/>
+      <path d="M 258 382 C 278 404, 362 404, 382 382 C 364 394, 276 394, 258 382 Z" fill="#D4622A"/>
+      <path d="M 252 378 C 272 404, 368 404, 388 378 C 374 364, 266 364, 252 378 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 310 396 L 292 426 C 300 432, 312 428, 320 414 C 328 428, 340 432, 348 426 L 330 396 Z" fill="#F4A261" stroke="#3B2A22" stroke-width="5.5"/>
+      <ellipse cx="320" cy="396" rx="14" ry="10" fill="#F4A261" stroke="#3B2A22" stroke-width="5.5"/>
+
+      <!-- Chef Side Ears & Friendly Round Face -->
+      <circle cx="204" cy="296" r="22" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+      <circle cx="204" cy="296" r="10" fill="#E5BF98"/>
+      <circle cx="436" cy="296" r="22" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+      <circle cx="436" cy="296" r="10" fill="#E5BF98"/>
+
+      <path d="M 320 184 C 250 184, 206 222, 202 282 C 198 342, 232 388, 320 388 C 408 388, 442 342, 438 282 C 434 222, 390 184, 320 184 Z" fill="#FAD9B8"/>
+      <path d="M 204 306 C 208 356, 242 388, 320 388 C 398 388, 432 356, 436 306 C 420 348, 384 370, 320 370 C 256 370, 220 348, 204 306 Z" fill="#E5BF98"/>
+      <path d="M 248 222 C 274 208, 366 208, 392 222 C 360 214, 280 214, 248 222 Z" fill="#FFF6E8"/>
+
+      <!-- Warm Brown Side Hair Tucked Under Hat -->
+      <path d="M 202 272 C 204 220, 248 184, 320 184 C 392 184, 436 220, 438 272 C 428 270, 420 256, 416 234 C 390 208, 356 204, 320 206 C 284 204, 250 208, 224 234 C 220 256, 212 270, 202 272 Z" fill="#5C4338" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Rosy Cheeks, Nose, Eyes & Smile -->
+      <ellipse cx="236" cy="318" rx="22" ry="14" transform="rotate(6 236 318)" fill="#FF8FA3"/>
+      <ellipse cx="232" cy="314" rx="8" ry="4.5" transform="rotate(6 232 314)" fill="#FFC2CE"/>
+      <ellipse cx="404" cy="318" rx="22" ry="14" transform="rotate(-6 404 318)" fill="#FF8FA3"/>
+      <ellipse cx="400" cy="314" rx="8" ry="4.5" transform="rotate(-6 400 314)" fill="#FFC2CE"/>
+
+      <ellipse cx="320" cy="308" rx="12" ry="9" fill="#E5BF98"/>
+      <ellipse cx="320" cy="308" rx="8.5" ry="6.5" fill="#3B2A22"/>
+      <ellipse cx="316" cy="306" rx="3.5" ry="2.2" fill="#FFFDF9"/>
+
+      <g>
+        <path d="M 244 268 Q 236 264 236 258" fill="none" stroke="#3B2A22" stroke-width="4.5"/>
+        <ellipse cx="264" cy="278" rx="20" ry="24" fill="#261710" stroke="#3B2A22" stroke-width="4"/>
+        <path d="M 248 283 C 252 296, 276 296, 280 283 C 274 290, 254 290, 248 283 Z" fill="#6E422C"/>
+        <ellipse cx="269" cy="268" rx="8" ry="9.5" fill="#FFFDF9"/>
+        <circle cx="256" cy="286" r="3.8" fill="#FFFDF9"/>
+
+        <path d="M 396 268 Q 404 264 404 258" fill="none" stroke="#3B2A22" stroke-width="4.5"/>
+        <ellipse cx="376" cy="278" rx="20" ry="24" fill="#261710" stroke="#3B2A22" stroke-width="4"/>
+        <path d="M 360 283 C 364 296, 388 296, 392 283 C 386 290, 366 290, 360 283 Z" fill="#6E422C"/>
+        <ellipse cx="371" cy="268" rx="8" ry="9.5" fill="#FFFDF9"/>
+        <circle cx="384" cy="286" r="3.8" fill="#FFFDF9"/>
+      </g>
+
+      <path d="M 306 346 C 314 352, 326 352, 334 346" fill="none" stroke="#E5BF98" stroke-width="5"/>
+      <path d="M 294 330 C 304 348, 336 348, 346 330" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 288 332 Q 292 326 297 328" fill="none" stroke="#3B2A22" stroke-width="4.5"/>
+      <path d="M 352 332 Q 348 326 343 328" fill="none" stroke="#3B2A22" stroke-width="4.5"/>
+
+      <path d="M 320 184 C 250 184, 206 222, 202 282 C 198 342, 232 388, 320 388 C 408 388, 442 342, 438 282 C 434 222, 390 184, 320 184 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Puffy White Chef Toque Hat -->
+      <path d="M 226 184 C 188 168, 180 106, 218 80 C 234 68, 254 70, 266 80 C 276 46, 306 36, 328 38 C 352 40, 366 56, 372 80 C 386 70, 408 70, 422 82 C 458 108, 450 168, 412 184 Z" fill="#FFFDF9"/>
+      <path d="M 200 142 C 208 170, 228 184, 264 186 L 376 186 C 412 184, 432 170, 440 142 C 418 166, 386 172, 320 172 C 254 172, 222 166, 200 142 Z" fill="#F0DEC2"/>
+      <path d="M 226 184 C 188 168, 180 106, 218 80 C 234 68, 254 70, 266 80 C 276 46, 306 36, 328 38 C 352 40, 366 56, 372 80 C 386 70, 408 70, 422 82 C 458 108, 450 168, 412 184" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 276 116 C 276 140, 280 160, 286 178" fill="none" stroke="#5C4338" stroke-width="5"/>
+      <path d="M 364 116 C 364 140, 360 160, 354 178" fill="none" stroke="#5C4338" stroke-width="5"/>
+      <path d="M 222 182 C 270 170, 370 170, 418 182 L 410 222 C 366 232, 274 232, 230 222 Z" fill="#FFFDF9"/>
+      <path d="M 226 206 C 274 218, 366 218, 414 206 L 410 222 C 366 232, 274 232, 230 222 Z" fill="#F0DEC2"/>
+      <path d="M 222 182 C 270 170, 370 170, 418 182 L 410 222 C 366 232, 274 232, 230 222 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Kitchen Counter (Lower Section) -->
+    <g>
+      <path d="M 8 516 L 632 516 L 632 756 A 36 36 0 0 1 596 792 L 44 792 A 36 36 0 0 1 8 756 Z" fill="#B87D56"/>
+      <rect x="10" y="592" width="620" height="24" fill="#9E6540"/>
+      <rect x="44" y="628" width="256" height="128" rx="16" fill="#D9A06B" stroke="#5C4338" stroke-width="5"/>
+      <rect x="340" y="628" width="256" height="128" rx="16" fill="#D9A06B" stroke="#5C4338" stroke-width="5"/>
+      <rect x="8" y="496" width="624" height="84" fill="#FFF6E6"/>
+      <rect x="8" y="496" width="624" height="12" fill="#EAD7B8"/>
+      <rect x="8" y="574" width="624" height="22" fill="#E5BE94"/>
+      <line x1="48" y1="516" x2="260" y2="516" stroke="#FFFDF9" stroke-width="6"/>
+      <line x1="380" y1="516" x2="592" y2="516" stroke="#FFFDF9" stroke-width="6"/>
+      <line x1="8" y1="496" x2="632" y2="496" stroke="#3B2A22" stroke-width="6"/>
+      <line x1="8" y1="574" x2="632" y2="574" stroke="#5C4338" stroke-width="4"/>
+      <line x1="8" y1="596" x2="632" y2="596" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Instrument Glow Rings Behind Pot & Pan -->
+    <g>
+      <circle cx="190" cy="496" r="96" fill="#FFF3B0" fill-opacity="0.4"/>
+      <circle cx="190" cy="496" r="76" fill="none" stroke="#FFD166" stroke-width="5" stroke-opacity="0.8"/>
+      <circle cx="462" cy="504" r="96" fill="#FFF3B0" fill-opacity="0.4"/>
+      <circle cx="462" cy="504" r="76" fill="none" stroke="#FFD166" stroke-width="5" stroke-opacity="0.8"/>
+    </g>
+
+    <!-- Left Instrument: Copper Pot -->
+    <g>
+      <ellipse cx="190" cy="568" rx="94" ry="20" fill="#D9C3A5"/>
+      <!-- Loop Handles -->
+      <path d="M 122 478 C 90 474, 84 518, 116 526 L 124 512 C 104 508, 108 488, 124 490 Z" fill="#B04816" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 258 478 C 290 474, 296 518, 264 526 L 256 512 C 276 508, 272 488, 256 490 Z" fill="#B04816" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Copper Pot Body -->
+      <path d="M 116 464 C 112 508, 116 548, 134 568 C 148 580, 232 580, 246 568 C 264 548, 268 508, 264 464 Z" fill="#D4622A"/>
+      <path d="M 226 464 C 230 510, 222 548, 198 564 C 176 574, 148 570, 130 564 C 144 578, 232 580, 246 568 C 264 548, 268 508, 264 464 Z" fill="#B04816"/>
+      <path d="M 130 480 C 128 506, 132 536, 142 552 C 148 558, 156 554, 152 546 C 146 530, 142 506, 144 480 C 144 472, 132 472, 130 480 Z" fill="#EB8149"/>
+      <ellipse cx="138" cy="496" rx="4.5" ry="10" fill="#FFFDF9"/>
+      <path d="M 116 464 C 112 508, 116 548, 134 568 C 148 580, 232 580, 246 568 C 264 548, 268 508, 264 464 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Slightly Ajar Copper Lid -->
+      <path d="M 114 456 C 120 422, 158 412, 194 416 C 230 420, 264 436, 264 466 C 230 480, 146 474, 114 456 Z" fill="#D4622A"/>
+      <path d="M 130 450 C 138 430, 164 422, 192 424 C 172 428, 150 438, 140 454 Z" fill="#EB8149"/>
+      <path d="M 110 456 C 146 478, 230 484, 268 466 C 270 472, 264 478, 256 480 C 222 492, 144 486, 110 464 Z" fill="#EB8149" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 114 456 C 120 422, 158 412, 194 416 C 230 420, 264 436, 264 466" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="192" cy="408" rx="20" ry="12" fill="#D4622A" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Right Instrument: Cast-Iron Skillet Pan -->
+    <g>
+      <ellipse cx="446" cy="568" rx="94" ry="20" fill="#D9C3A5"/>
+      <!-- Skillet Handle -->
+      <path d="M 494 476 L 548 404 C 556 394, 574 406, 566 418 L 512 492 Z" fill="#3D3532"/>
+      <path d="M 492 474 L 514 490 L 522 480 L 500 464 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 494 476 L 548 404 C 556 394, 574 406, 566 418 L 512 492 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <circle cx="552" cy="416" r="5" fill="#FFF6E8" stroke="#3B2A22" stroke-width="4"/>
+      <!-- Skillet Wall & Cooking Well -->
+      <path d="M 366 510 C 366 562, 400 586, 446 586 C 492 586, 526 562, 526 510 Z" fill="#3D3532"/>
+      <path d="M 436 585 C 484 586, 524 562, 526 510 L 504 518 C 500 554, 474 574, 436 585 Z" fill="#282220"/>
+      <path d="M 366 510 C 366 562, 400 586, 446 586 C 492 586, 526 562, 526 510 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="446" cy="508" rx="82" ry="52" fill="#594E4A" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="446" cy="510" rx="66" ry="40" fill="#3D3532" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 382 502 A 66 40 0 0 1 510 502 A 68 34 0 0 0 382 502 Z" fill="#282220"/>
+      <path d="M 378 484 C 392 466, 416 458, 446 458" fill="none" stroke="#FFD166" stroke-width="6"/>
+      <ellipse cx="426" cy="518" rx="20" ry="10" fill="#594E4A"/>
+      <ellipse cx="418" cy="516" rx="8" ry="4" fill="#FFD166"/>
+    </g>
+
+    <!-- Cheerful Musical Sparkle Stars -->
+    <g fill="#FFD166" stroke="#3B2A22" stroke-width="4">
+      <path d="M 96 382 L 102 396 L 116 402 L 102 408 L 96 422 L 90 408 L 76 402 L 90 396 Z"/>
+      <path d="M 320 434 L 325 446 L 337 451 L 325 456 L 320 468 L 315 456 L 303 451 L 315 446 Z"/>
+      <path d="M 564 456 L 569 468 L 581 473 L 569 478 L 564 490 L 559 478 L 547 473 L 559 468 Z"/>
+    </g>
+
+    <!-- Card Inner Highlight Bevel & 6px #3B2A22 Outer Frame -->
+    <path d="M 44 16 L 596 16 A 28 28 0 0 1 624 44" fill="none" stroke="#FFFDF9" stroke-width="6"/>
+    <rect x="8" y="8" width="624" height="784" rx="36" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

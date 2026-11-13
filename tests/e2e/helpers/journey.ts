@@ -8,15 +8,27 @@ export type { SortingInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
-/** Scene that each world's building starts (see src/worlds/MapScene.ts). */
-export const WORLD_SCENE: Record<string, string> = {
-  'language-house': 'RestaurantScene',
-  'art-studio': 'OrchestraScene',
-  'leisure-corner': 'BubblesScene',
+/** Game scenes by game id (see src/games and src/worlds/MapScene.ts). */
+export const GAME_SCENE: Record<string, string> = {
+  'animal-restaurant': 'RestaurantScene',
+  'kitchen-orchestra': 'OrchestraScene',
+  bubbles: 'BubblesScene',
   // Who's Hiding? (PR #29, feat/game-hiding). HidingScene is not on main yet, so no test enters nature-lab until that PR lands.
-  'nature-lab': 'HidingScene',
+  hiding: 'HidingScene',
+  'sorting-beds': 'SortingScene',
+};
+
+/** Entry game of each single-game world. Art Studio is locked until its own game exists. */
+export const WORLD_ENTRY_GAME: Record<string, string> = {
+  'leisure-corner': 'bubbles',
+  'nature-lab': 'hiding',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
-  'number-garden': 'SortingScene',
+  'number-garden': 'sorting-beds',
+};
+
+/** Worlds whose building opens the game picker; the value is the default game to pick. */
+export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
+  'language-house': 'animal-restaurant',
 };
 
 export interface PageRect {
@@ -53,7 +65,19 @@ export interface RoundInfo {
   ready: boolean;
 }
 
+export interface OrchestraInfo {
+  sequence: string[];
+  expectedIndex: number;
+  instrumentCenters: Array<{ x: number; y: number; id: string }>;
+  level: number;
+  support: string;
+  language: string;
+  ready: boolean;
+  phase: 'listen' | 'echo' | 'celebrate';
+}
+
 type Hooks = {
+  getOrchestraInfo: () => OrchestraInfo | null;
   getActiveScenes: () => string[];
   getBuildingHit: (worldId: string) => PageRect | null;
   getSpokenLines: (since?: number) => SpokenLine[];
@@ -120,21 +144,19 @@ export async function waitForSpokenLine(
 
 /**
  * Opens the app with ?e2e=1, taps the profile with a real click, waits for the map, then taps the
- * world's building (real pointer click at the centre of its hit rectangle) and returns when the
- * world's game scene is active.
+ * world's building (real pointer click at the centre of its hit rectangle). Returns right after the tap.
  */
-export async function enterWorldByTap(
+export interface JourneyOptions {
+  /** Runs on the map (profile selected, building not tapped yet): the place to SEED persisted state with a hook. */
+  beforeEnter?: (page: Page) => Promise<void>;
+}
+
+export async function tapWorldBuilding(
   page: Page,
   profile: ProfileTestId,
   worldId: string,
-  options: {
-    /** Runs on the map (profile selected, building not tapped yet): the place to SEED persisted state with a hook. */
-    beforeEnter?: (page: Page) => Promise<void>;
-  } = {},
+  options: JourneyOptions = {},
 ): Promise<void> {
-  const targetScene = WORLD_SCENE[worldId];
-  if (!targetScene) throw new Error(`enterWorldByTap: no game scene known for world "${worldId}"`);
-
   // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
   await page.goto('./?e2e=1');
   await page.locator(`[data-testid="${profile}"]`).click();
@@ -147,7 +169,8 @@ export async function enterWorldByTap(
   await expectPoll(async () => {
     const current = await getBuildingHit(page, worldId);
     // Width 0 means the pop-in has not started yet (scale 0): never treat that as settled.
-    const settled = current !== null && current.width > 0 && previous !== null && Math.abs(current.width - previous.width) < 0.5;
+    const settled =
+      current !== null && previous !== null && current.width > 0 && Math.abs(current.width - previous.width) < 0.5;
     previous = current;
     rect = current;
     return settled;
@@ -158,10 +181,60 @@ export async function enterWorldByTap(
   // Re-read right before the click: the idle float moves the building a few pixels.
   const fresh = (await getBuildingHit(page, worldId)) ?? hit;
   await page.mouse.click(fresh.x + fresh.width / 2, fresh.y + fresh.height / 2);
-  // TODO(game picker): Language House will open a game picker before entering a game (approved by the owner).
-  // When the picker lands, tap the matching `game-picker-<gameId>` here after the building tap
-  // (testids `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, close: `game-picker-close`),
-  // and take the game id as a parameter instead of deriving the scene from the world alone.
+}
+
+/** Bounding box (page CSS px) of a DOM element by testid, once it is visible and has stopped moving. */
+export async function getStableBox(page: Page, testId: string, timeout = 10_000): Promise<PageRect> {
+  const locator = page.locator(`[data-testid="${testId}"]`);
+  await locator.waitFor({ state: 'visible', timeout });
+  let previous: PageRect | null = null;
+  let box: PageRect | null = null;
+  await expectPoll(
+    async () => {
+      box = await locator.boundingBox();
+      const settled =
+        box !== null &&
+        previous !== null &&
+        Math.abs(box.x - previous.x) < 0.5 &&
+        Math.abs(box.y - previous.y) < 0.5 &&
+        Math.abs(box.width - previous.width) < 0.5;
+      previous = box;
+      return settled;
+    },
+    `element "${testId}" never became stable`,
+    timeout,
+  );
+  return box as unknown as PageRect;
+}
+
+/** Real pointer click at the centre of a DOM element found by testid. */
+export async function tapTestId(page: Page, testId: string): Promise<void> {
+  const box = await getStableBox(page, testId);
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+}
+
+/**
+ * Taps the world's building and returns when the world's game scene is active.
+ * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
+ * Single-game worlds take their entry game; passing another game id for them is an error.
+ */
+export async function enterWorldByTap(
+  page: Page,
+  profile: ProfileTestId,
+  worldId: string,
+  gameId?: string,
+  options: JourneyOptions = {},
+): Promise<void> {
+  const pickerDefault = PICKER_WORLD_DEFAULT_GAME[worldId];
+  const game = gameId ?? pickerDefault ?? WORLD_ENTRY_GAME[worldId];
+  const targetScene = game ? GAME_SCENE[game] : undefined;
+  if (!game || !targetScene) throw new Error(`enterWorldByTap: no game scene known for world "${worldId}"`);
+  if (!pickerDefault && WORLD_ENTRY_GAME[worldId] !== game) {
+    throw new Error(`enterWorldByTap: world "${worldId}" has no game "${game}"`);
+  }
+
+  await tapWorldBuilding(page, profile, worldId, options);
+  if (pickerDefault) await tapTestId(page, `game-picker-${game}`);
   await waitForScene(page, targetScene);
 }
 
@@ -202,6 +275,25 @@ export async function clickGame(page: Page, x: number, y: number): Promise<void>
   await page.mouse.click(cx, cy);
 }
 
+export function getOrchestraInfo(page: Page): Promise<OrchestraInfo | null> {
+  return callHook<OrchestraInfo | null>(page, 'getOrchestraInfo');
+}
+
+/** Waits until the chef has finished the pattern and the child may echo it from the first note. */
+export async function waitForOrchestraEcho(page: Page): Promise<OrchestraInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getOrchestraInfo();
+      return info !== null && info.ready && info.phase === 'echo' && info.expectedIndex === 0;
+    },
+    undefined,
+    { timeout: 30_000 },
+  );
+  const info = await getOrchestraInfo(page);
+  if (!info) throw new Error('no active orchestra trial');
+  return info;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Sorting Beds (docs/specs/sorting-beds.md, docs/contracts/sorting-beds.md)
 // Hit rectangles from getSortingInfo are already in page CSS px: tap them with page.mouse.click (not clickGame).
@@ -213,12 +305,12 @@ export function getSpokenLineCount(page: Page): Promise<number> {
   return callHook<number>(page, 'getSpokenLineCount');
 }
 
-/** Seeds the active profile's persisted Sorting Beds level. Call from `enterWorldByTap(..., { beforeEnter })`. */
+/** Seeds the active profile's persisted Sorting Beds level. Call from `enterWorldByTap(page, profile, worldId, undefined, { beforeEnter })`. */
 export async function seedSortingLevel(page: Page, level: number): Promise<void> {
   await callHook<void>(page, 'seedSortingLevel', [level]);
 }
 
-/** Seeds the active profile's leisure balance in seconds. Call from `enterWorldByTap(..., { beforeEnter })`. */
+/** Seeds the active profile's leisure balance in seconds. Call from `enterWorldByTap(page, profile, worldId, undefined, { beforeEnter })`. */
 export async function seedBalanceSec(page: Page, sec: number): Promise<void> {
   await callHook<void>(page, 'seedBalanceSec', [sec]);
 }
