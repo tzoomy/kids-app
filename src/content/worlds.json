@@ -4,8 +4,7 @@
       "id": "language-house",
       "nameHe": "בית השפות",
       "status": "open",
-      "earnsLeisure": true,
-      "entryGameId": "animal-restaurant"
+      "earnsLeisure": true
     },
     {
       "id": "number-garden",
