@@ -156,7 +156,7 @@ test.describe('leisure-colouring journeys', () => {
   test('[AC-10] @single-orientation intro, help, 30s warning, and end lines request the right ids; fills and tools request no speech', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);
-    await enterColouring(page, 'profile-a', { balanceSec: 32 });
+    await enterColouring(page, 'profile-a', { balanceSec: 2 });
     await waitForColouringReady(page);
     const intro = (await getSpokenLines(page)).filter((l) => l.lineId === 'colouring.intro.he');
     expect(intro.length).toBeGreaterThanOrEqual(1);
