@@ -40,6 +40,7 @@ export interface ParentSettingsCallbacks {
   onExit: () => void;
   onResetBalance: (profileId: string) => void;
   onPlusFive: (profileId: string) => void;
+  onOpenCredits: () => void;
 }
 
 export function renderParentSettings(root: HTMLElement, state: AppState, callbacks: ParentSettingsCallbacks): void {
@@ -136,6 +137,11 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
     body.appendChild(refresh);
   }
 
+
+  const creditsBtn = el('button', 'shell-btn', t.creditsOpen);
+  creditsBtn.dataset.testid = 'parent-credits-btn';
+  creditsBtn.addEventListener('click', callbacks.onOpenCredits);
+  body.appendChild(creditsBtn);
 
   const buttonRow = el('div', 'shell-row shell-card-actions');
   const saveBtn = el('button', 'shell-btn', t.save);

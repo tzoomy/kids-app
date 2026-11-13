@@ -1,5 +1,7 @@
 import { el } from './dom';
 import { renderProfileSelect, type ProfileSelectEntry } from './profileSelect';
+import { renderCredits } from './credits';
+import type { CreditItem } from '../content/credits';
 import { renderParentGate, renderParentSettings, type ParentSettingsCallbacks } from './parent';
 import {
   renderMapChrome,
@@ -69,6 +71,11 @@ export class AppShell {
   showParentGate(onSuccess: () => void, onCancel: () => void): void {
     this.clearChrome();
     renderParentGate(this.overlayRoot, onSuccess, onCancel);
+  }
+
+  showCredits(items: readonly CreditItem[], onBack: () => void): void {
+    this.clearChrome();
+    renderCredits(this.overlayRoot, items, onBack);
   }
 
   showParentSettings(state: AppState, callbacks: ParentSettingsCallbacks): void {
