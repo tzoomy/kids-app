@@ -5,7 +5,7 @@ Pass in progress: **none**
 
 ## Summary
 
-Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in a warm kitchen with a friendly chef. The chef plays a short pattern on kitchen utensils (`pot`, `pan`, and up to three pitched water glasses: `glass-low`, `glass-mid`, `glass-high`) while naming or prompting in English or French; the child echoes the pattern by tapping the utensils in the same order. Free play during listening always makes sound and never counts as a mistake, and wrong taps during echo trigger a supportive slower lit replay without reducing leisure balance. The game belongs in Language House (`language-house`) and is reached through a two-game picker (Animal Restaurant or Kitchen Orchestra), as decided on 2026-11-12 and previewed in [PR #36](https://github.com/tzoomy/kids-app/pull/36). On `main` today it is still wired to `art-studio` (Creative Studio); the move, picker, Art Studio lock, and skill-key migration land in a later implementation PR.
+Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in a warm kitchen with a friendly chef. The chef plays a short pattern on kitchen utensils (`pot`, `pan`, and up to three pitched water glasses: `glass-low`, `glass-mid`, `glass-high`) while naming or prompting in English or French; the child echoes the pattern by tapping the utensils in the same order. Free play during listening always makes sound and never counts as a mistake, and wrong taps during echo trigger a supportive slower lit replay without reducing leisure balance. The game belongs in Language House (`language-house`) and is reached through a two-game picker (Animal Restaurant or Kitchen Orchestra), as decided on 2026-11-12 and previewed in [PR #36](https://github.com/tzoomy/kids-app/pull/36). The move, picker, Art Studio lock, and skill-key migration have landed on `main` (`3ee504a`).
 
 ## Learning goals
 
@@ -15,12 +15,12 @@ Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in
 ## World and why
 
 - **World** (Language House, Number Garden, Nature Lab, Art Studio, or Leisure Corner): Language House (`language-house`).
-- **Why this game belongs there:** In `docs/WORLDS.md` ([Language House](docs/WORLDS.md#L40-L74)), the goal of Language House is to "understand a request or a word in the learning language and act in the world." Kitchen Orchestra takes place in a kitchen with a chef, teaches English and French kitchen utensil nouns and action requests (`Play the pot!`, `Listen!`, `Your turn!`), and runs per-language adaptive skills (`en` and `fr`). `docs/WORLDS.md` ([Art Studio](docs/WORLDS.md#L163-L171)) originally filed the game under Art Studio; Maor decided on 2026-11-12 that Language House is the correct world.
+- **Why this game belongs there:** In `docs/WORLDS.md` ([Language House](../WORLDS.md#language-house)), the goal of Language House is to "understand a request or a word in the learning language and act in the world." Kitchen Orchestra takes place in a kitchen with a chef, teaches English and French kitchen utensil nouns and action requests (`Play the pot!`, `Listen!`, `Your turn!`), and runs per-language adaptive skills (`en` and `fr`). `docs/WORLDS.md` ([Art Studio](../WORLDS.md#art-studio)) originally filed the game under Art Studio; Maor decided on 2026-11-12 that Language House is the correct world.
 - **Decided (2026-11-12) — world move, Art Studio lock, skill-key migration, and picker:**
-  1. Move `kitchen-orchestra` from `art-studio` to `language-house`. On `main` today, `src/content/games/kitchen-orchestra.json` still has `"world": "art-studio"` and `art-studio.entryGameId` is `"kitchen-orchestra"`; the content and map change lands in a later implementation PR.
+  1. Move `kitchen-orchestra` from `art-studio` to `language-house`. Done on `main` (`3ee504a`): `src/content/games/kitchen-orchestra.json` has `"world": "language-house"`.
   2. Set `art-studio` in `src/content/worlds.json` back to `"status": "locked"` and clear `"entryGameId": "kitchen-orchestra"`, until a dedicated Art Studio game (for example Color the World) is built.
   3. Migrate adaptive skill keys from `art-studio.kitchen-orchestra.<lang>` to `language-house.kitchen-orchestra.<lang>` (`${world}.${gameId}.${lang}`).
-  4. When the child taps the Language House building, a two-game picker opens (Animal Restaurant or Kitchen Orchestra), as designed in [PR #36](https://github.com/tzoomy/kids-app/pull/36). Test ids: `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, `game-picker-close`. This changes today's Language House journey, which currently opens `RestaurantScene` directly.
+  4. When the child taps the Language House building, a two-game picker opens (Animal Restaurant or Kitchen Orchestra), as designed in [PR #36](https://github.com/tzoomy/kids-app/pull/36). Test ids: `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, `game-picker-close`. Done on `main`: tapping the Language House building opens the picker (`src/worlds/MapScene.ts`, `src/ui/picker/pickerModel.ts`).
 
 ## Mechanic
 
@@ -127,20 +127,20 @@ Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in
 
 ## Player journey from the map
 
-Select profile (`profile-a` or `profile-b`) → real-tap the Language House building with `enterWorldByTap(page, profile, 'language-house')` (from [PR #37](https://github.com/tzoomy/kids-app/pull/37), pending merge; uses `getBuildingHit('language-house')`) → the Language House picker opens → tap `game-picker-kitchen-orchestra` → `OrchestraScene` opens → play a 3-trial round → tap `hud-back` → return to `MapScene`. Tapping `game-picker-animal-restaurant` opens Animal Restaurant instead; tapping `game-picker-close` returns to the map without opening a game.
+Select profile (`profile-a` or `profile-b`) → real-tap the Language House building with `enterWorldByTap(page, profile, 'language-house')` (from [PR #37](https://github.com/tzoomy/kids-app/pull/37), on `main`; uses `getBuildingHit('language-house')`) → the Language House picker opens → tap `game-picker-kitchen-orchestra` → `OrchestraScene` opens → play a 3-trial round → tap `hud-back` → return to `MapScene`. Tapping `game-picker-animal-restaurant` opens Animal Restaurant instead; tapping `game-picker-close` returns to the map without opening a game.
 
-On `main` today, before the implementation PR, tapping Art Studio still opens Kitchen Orchestra directly. The journey above is the decided target.
+This journey is on `main` (`3ee504a`); Art Studio is locked and does not open Kitchen Orchestra.
 
-Frozen test handles (shared names from [PR #37](https://github.com/tzoomy/kids-app/pull/37), pending merge — game scenes use these same HUD/prompt/help ids, not game-specific names):
+Frozen test handles (shared names from [PR #37](https://github.com/tzoomy/kids-app/pull/37), on `main` — game scenes use these same HUD/prompt/help ids, not game-specific names):
 
 - **Playwright helper:** `enterWorldByTap(page, profile, worldId)` in `tests/e2e/helpers/journey.ts` — real-tap journey: profile → map → click the centre of the building hit rect → game (or, for Language House, the picker). Use it in this game's journeys, including the picker cases.
-- **Map building hit target:** `getBuildingHit('language-house')` under `?e2e=1`. Signature (PR #37): `getBuildingHit(worldId) -> { x, y, width, height } | null` in page CSS px, top-left, accounting for canvas scaling and letterbox; `null` if the map is inactive or the building is missing. (`getBuildingHit` is not on `main` yet.)
+- **Map building hit target:** `getBuildingHit('language-house')` under `?e2e=1`. Signature (PR #37): `getBuildingHit(worldId) -> { x, y, width, height } | null` in page CSS px, top-left, accounting for canvas scaling and letterbox; `null` if the map is inactive or the building is missing. (On `main`: `src/game/createGame.ts:234`, helper `getBuildingHit` in `tests/e2e/helpers/journey.ts`.)
 - **`data-testid`s (DOM / HUD), from PR #37 unless noted:**
   - Unchanged existing: `profile-a`, `profile-b`, `leisure-balance`, `star-count`, `parent-gate-btn`, `switch-profile-btn`, `parent-exit-btn`
   - Shared chrome (PR #37; game scenes put these on their DOM chrome): `hud-back` (back button), `hud-help` (help button), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the whole help overlay; tapping anywhere closes it)
-  - Language House picker (frozen for the decided picker; not on `main` yet; visual proposal in PR #36): `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, `game-picker-close`
+  - Language House picker (frozen; on `main` in `src/ui/picker/pickerModel.ts`; visual design from PR #36): `game-picker-animal-restaurant`, `game-picker-kitchen-orchestra`, `game-picker-close`
 - **Seed and read hooks under `?e2e=1`** (seed persisted state or read state only; no game actions, no scene navigation; `goToScreen` is for screenshot scripts only and forbidden in journey/AC tests):
-  - Shared spoken-line hooks from PR #37 (pending merge). Voice assertions use `getSpokenLines` `lineId`s: `getSpokenLines(sinceIndex?) -> [{ index, lineId, lang, source: 'clip' | 'tts', text?, at }]` (`source` is the provider *requested*, not whether it was heard); `getSpokenLineCount() -> number`.
+  - Shared spoken-line hooks from PR #37 (on `main`: `src/game/createGame.ts:246`). Voice assertions use `getSpokenLines` `lineId`s: `getSpokenLines(sinceIndex?) -> [{ index, lineId, lang, source: 'clip' | 'tts', text?, at }]` (`source` is the provider *requested*, not whether it was heard); `getSpokenLineCount() -> number`.
   - Game-specific hooks already on `main`: `seedOrchestraLevel(level: number)`, `getOrchestraInfo() -> OrchestraRoundInfo | null` (`sequence`, `expectedIndex`, `instrumentCenters`, `level`, `support`, `language`, `ready`, `phase`), `seedBalanceSec(sec: number)`.
 
 ## Acceptance criteria
@@ -205,7 +205,7 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
   - Motion helpers in `src/anim/worldMotion.ts`: `tapInstrument(scene, instrument)` (delegates to `pressSquash`), `glowInstrument(scene, glow, on)`, and `pulseInstrumentGlow(scene, glow)` (looping yoyo tween between `alpha: 1` and `0.45`).
   - Reuses shared `Character` animations (`breath`, `sway`, `blink`, `happy`, `hmm`), `popIn`, `Juice.burst('sparkle', ...)`, and `transitionTo(..., { style: 'iris' })`.
   - Utensil notes are synthesized with Web Audio oscillators in `src/games/orchestra/orchestraSounds.ts` (`OrchestraSounds`, `INSTRUMENT_PITCH_HZ`), not TTS. Unit tests import pure modules only (`orchestraGame.ts`, `orchestraLayout.ts`, `orchestraSounds.ts`), never Phaser.
-- **Voice table** (device TTS in Pass 1 through `AudioManager.play({ lineId, lang, text })`). Strings match `src/content/games/kitchen-orchestra.json` except the French pan name, decided 2026-11-12: target `pan.name.fr` is `poêle` and `orchestra.play.pan.fr` is `Joue sur la poêle !` (same `Joue sur la … !` pattern as `Joue sur la casserole !`). On `main` today the JSON still has `tambour` / `Joue du tambour !`; that content change lands in a later implementation PR. Voice assertions use `getSpokenLines` `lineId`s (PR #37).
+- **Voice table** (device TTS in Pass 1 through `AudioManager.play({ lineId, lang, text })`). Strings match `src/content/games/kitchen-orchestra.json` except the French pan name, decided 2026-11-12: target `pan.name.fr` is `poêle` and `orchestra.play.pan.fr` is `Joue sur la poêle !` (same `Joue sur la … !` pattern as `Joue sur la casserole !`). Done on `main` (`6791ea9`): the JSON has `poêle` / `Joue sur la poêle !`. Voice assertions use `getSpokenLines` `lineId`s (PR #37).
 
 | lineId | lang (`en` / `fr` / `he`) | Text | Trigger |
 |---|---|---|---|
@@ -218,7 +218,7 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
 | `orchestra.play.pot.en` | `en` | `Play the pot!` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `pot` is next |
 | `orchestra.play.pot.fr` | `fr` | `Joue sur la casserole !` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `pot` is next |
 | `orchestra.play.pan.en` | `en` | `Play the pan!` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `pan` is next |
-| `orchestra.play.pan.fr` | `fr` | `Joue sur la poêle !` (target; JSON on `main` still has `Joue du tambour !` until an implementation PR) | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `pan` is next |
+| `orchestra.play.pan.fr` | `fr` | `Joue sur la poêle !` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `pan` is next |
 | `orchestra.play.glass-low.en` | `en` | `Play the low glass!` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `glass-low` is next |
 | `orchestra.play.glass-low.fr` | `fr` | `Joue le verre grave !` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `glass-low` is next |
 | `orchestra.play.glass-mid.en` | `en` | `Play the glass!` | Single-note intro (`sequenceLength === 1`) or `age2` idle auto-hint (`giveHint`) when `glass-mid` is next |
@@ -234,7 +234,7 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
 | `orchestra.help.he` | `he` | `השף מנגן דוגמה. הקשיבי, ואז הקשי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.` | Tapping the `❓` HUD help button (`showHelp`) |
 
 - **World and PWA wiring:**
-  - Decided target (2026-11-12): `kitchen-orchestra` has `"world": "language-house"` and `"earnsLeisure": true`; `language-house` stays `"status": "open"` and `"earnsLeisure": true` and no longer uses a single `entryGameId` to jump straight into one game — tapping the building opens the picker. `art-studio` is `"status": "locked"` with `kitchen-orchestra` removed as `entryGameId`. On `main` today the game is still under `art-studio`; the wiring change lands in a later implementation PR.
+  - Decided (2026-11-12) and on `main`: `kitchen-orchestra` has `"world": "language-house"` and `"earnsLeisure": true`; `language-house` stays `"status": "open"` and `"earnsLeisure": true` and no longer uses a single `entryGameId` to jump straight into one game — tapping the building opens the picker. `art-studio` is `"status": "locked"` with `kitchen-orchestra` removed as `entryGameId`. Done on `main` (`3ee504a`): `src/content/games/kitchen-orchestra.json` has `"world": "language-house"` and `src/content/worlds.json` has `art-studio` locked with no `entryGameId`.
   - `src/pwa/updatePolicy.ts` includes `'orchestra'` in `AppScreen`, and `isSafeToApplyUpdate` returns `false` for `'orchestra'`, so mid-game service-worker reloads are deferred until the child returns to `'map'` or `'profile'`.
 
 ### Pass 2 — polish
