@@ -29,6 +29,8 @@ declare global {
       seedOrchestraLevel: (level: number) => void;
       /** Seeds the active profile's persisted Sorting Beds level (level, cleanStreak 0, recent []) for every language. Call before entering. */
       seedSortingLevel: (level: number) => void;
+      /** Seeds the stored language setting (settings.languages) and persists. Seed only: no navigation, no game action. */
+      seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
       /** Names of the currently active scenes. */
@@ -140,6 +142,10 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         level,
         localDayKey(new Date(context.nowMs())),
       );
+    },
+    seedLanguageSetting(lang) {
+      context.store.getState().settings.languages = lang;
+      context.store.persist();
     },
     getSortingInfo() {
       const scene = game.scene.getScene('SortingScene') as SortingScene | null;

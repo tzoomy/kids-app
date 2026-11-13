@@ -37,6 +37,7 @@ Status: the scene is a stub. The AC tests under `tests/` fail on purpose until t
 
 ```ts
 seedSortingLevel(level: number): void        // persists level (cleanStreak 0, recent []) for every content language; implemented
+seedLanguageSetting(lang: 'en' | 'fr' | 'both'): void  // writes settings.languages and persists; seed only (added for AC-05, minor spec change)
 getSortingInfo(): SortingInfo | null         // scene.getSortingInfo() while SortingScene is active, else null
 ```
 
