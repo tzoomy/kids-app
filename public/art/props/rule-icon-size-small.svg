@@ -1,31 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
-  <!-- Shared ground line -->
-  <line x1="20" y1="140" x2="140" y2="140" stroke="#7A5C48" stroke-width="5" stroke-linecap="round"/>
+  <!-- Small centred 5-petal rounded bloom (~42.6% of viewBox) -->
+  <path d="M71.2 68.4 C63.7 57.5 68.0 45.9 80.0 45.9 C92.0 45.9 96.3 57.5 88.8 68.4 C96.9 57.9 109.2 58.4 112.9 69.8 C116.6 81.2 107.0 88.9 94.2 85.1 C106.7 89.5 110.0 101.4 100.3 108.5 C90.6 115.5 80.3 108.7 80.0 95.5 C79.7 108.7 69.4 115.5 59.7 108.5 C50.0 101.4 53.3 89.5 65.8 85.1 C53.0 88.9 43.4 81.2 47.1 69.8 C50.8 58.4 63.1 57.9 71.2 68.4 Z" fill="#F24C4C"/>
 
-  <!-- Faint larger ghost flower on the right for size comparison -->
-  <g fill="#F0DEC2" stroke="#7A5C48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 7">
-    <path d="M108 66 L108 138"/>
-    <path d="M108 108 C124 102 134 110 126 122 C120 128 112 122 108 114 Z"/>
-    <circle cx="108" cy="48" r="28"/>
+  <!-- Lower petal shadows and inner cup shadow -->
+  <path d="M82.0 95.4 C84.8 105.9 92.5 110.7 100.2 106.4 C105.9 103.1 107.8 96.3 105.0 89.6 C104.0 96.3 100.2 101.1 95.4 103.1 C89.6 105.0 84.8 101.1 82.0 95.4 Z" fill="#CC3333"/>
+  <path d="M78.0 95.4 C75.2 105.9 67.5 110.7 59.8 106.4 C54.1 103.1 52.2 96.3 55.0 89.6 C56.0 96.3 59.8 101.1 64.6 103.1 C70.4 105.0 75.2 101.1 78.0 95.4 Z" fill="#CC3333"/>
+  <circle cx="80" cy="81.5" r="13.2" fill="#CC3333"/>
+
+  <!-- Upper petal highlights -->
+  <path d="M70.4 58.9 C72.3 51.2 78.1 49.3 85.8 51.2 C80.0 52.2 75.2 55.1 72.3 60.8 Z" fill="#FF8585"/>
+  <path d="M52.2 73.3 C50.2 65.6 55.0 60.8 62.7 61.8 C57.9 63.7 55.0 67.5 54.1 74.3 Z" fill="#FF8585"/>
+  <path d="M97.3 61.8 C105.0 60.8 109.8 65.6 107.8 73.3 C105.0 67.5 102.1 63.7 97.3 61.8 Z" fill="#FF8585"/>
+
+  <!-- Outer bloom outline and petal cleft creases -->
+  <g fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M71.2 68.4 C63.7 57.5 68.0 45.9 80.0 45.9 C92.0 45.9 96.3 57.5 88.8 68.4 C96.9 57.9 109.2 58.4 112.9 69.8 C116.6 81.2 107.0 88.9 94.2 85.1 C106.7 89.5 110.0 101.4 100.3 108.5 C90.6 115.5 80.3 108.7 80.0 95.5 C79.7 108.7 69.4 115.5 59.7 108.5 C50.0 101.4 53.3 89.5 65.8 85.1 C53.0 88.9 43.4 81.2 47.1 69.8 C50.8 58.4 63.1 57.9 71.2 68.4 Z"/>
+    <path d="M71.2 68.4 L73.8 71.9 M88.8 68.4 L86.2 71.9 M94.2 85.1 L90.1 83.8 M80.0 95.5 L80.0 91.1 M65.8 85.1 L69.9 83.8"/>
   </g>
 
-  <!-- Clear, bright small flower on the left -->
-  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Short sturdy stem -->
-    <path d="M54 96 L54 138" stroke="#57C457" stroke-width="10"/>
-    <path d="M54 96 L54 138" fill="none"/>
-    <!-- One small leaf -->
-    <path d="M54 122 C68 114 78 120 72 130 C68 136 58 132 54 124 Z" fill="#57C457"/>
-    <!-- Small flower petals -->
-    <circle cx="54" cy="74" r="11" fill="#F24C4C"/>
-    <circle cx="54" cy="102" r="11" fill="#F24C4C"/>
-    <circle cx="40" cy="88" r="11" fill="#F24C4C"/>
-    <circle cx="68" cy="88" r="11" fill="#F24C4C"/>
-    <circle cx="44" cy="78" r="11" fill="#F24C4C"/>
-    <circle cx="64" cy="78" r="11" fill="#F24C4C"/>
-    <circle cx="44" cy="98" r="11" fill="#F24C4C"/>
-    <circle cx="64" cy="98" r="11" fill="#F24C4C"/>
-    <!-- Small flower gold center -->
-    <circle cx="54" cy="88" r="11" fill="#FFD43B"/>
-  </g>
+  <!-- Gold flower centre -->
+  <circle cx="80" cy="80.5" r="10.6" fill="#FFD43B"/>
+  <path d="M70.9 83.4 C72.8 88.7 76.2 90.6 80.0 90.6 C83.8 90.6 87.2 88.7 89.1 83.4 C86.7 86.7 83.4 87.7 80.0 87.7 C76.6 87.7 73.3 86.7 70.9 83.4 Z" fill="#EAA814"/>
+  <path d="M73.3 76.2 C75.2 72.3 79.0 71.4 83.8 72.8 C79.5 73.3 76.2 74.7 74.2 77.6 Z" fill="#FFF2A6"/>
+  <circle cx="80" cy="80.5" r="10.6" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
