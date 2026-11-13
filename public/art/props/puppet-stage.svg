@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Ground shadow under stage -->
+    <ellipse cx="260" cy="186" rx="236" ry="10" fill="#F0DEC2"/>
+
+    <!-- Wooden support feet at left and right -->
+    <rect x="52" y="156" width="56" height="30" rx="10" ry="10" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="58" y="172" width="44" height="10" rx="4" ry="4" fill="#5C3422"/>
+
+    <rect x="412" y="156" width="56" height="30" rx="10" ry="10" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <rect x="418" y="172" width="44" height="10" rx="4" ry="4" fill="#5C3422"/>
+
+    <!-- Main wooden stage apron (front board) -->
+    <rect x="34" y="96" width="452" height="68" rx="14" ry="14" fill="#B87D56" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Lower shadow on apron -->
+    <path d="M 40 142 L 480 142 L 480 154 Q 480 161 472 161 L 48 161 Q 40 161 40 154 Z" fill="#9E6540"/>
+    <!-- Upper highlight on apron -->
+    <rect x="44" y="102" width="432" height="10" rx="5" ry="5" fill="#CC926B"/>
+    <!-- Simple vertical board seams -->
+    <line x1="146" y1="99" x2="146" y2="161" stroke="#5C4338" stroke-width="4"/>
+    <line x1="260" y1="99" x2="260" y2="161" stroke="#5C4338" stroke-width="4"/>
+    <line x1="374" y1="99" x2="374" y2="161" stroke="#5C4338" stroke-width="4"/>
+
+    <!-- Stage top platform where the puppet stands -->
+    <path d="M 56 54 L 464 54 Q 482 54 492 78 L 496 88 Q 500 100 484 100 L 36 100 Q 20 100 24 88 L 28 78 Q 38 54 56 54 Z" fill="#CC926B" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Top platform highlight -->
+    <path d="M 60 62 L 460 62 Q 470 62 476 74 L 44 74 Q 50 62 60 62 Z" fill="#F0DEC2"/>
+    <!-- Top platform front lip shadow -->
+    <rect x="30" y="88" width="460" height="9" rx="4" ry="4" fill="#B87D56"/>
+
+    <!-- Small low side curtain drapes at back-left and back-right corners (leaving center open) -->
+    <!-- Left corner drape -->
+    <path d="M 38 46 L 106 46 Q 112 72 96 96 Q 82 114 64 108 Q 44 114 32 94 Q 26 70 38 46 Z" fill="#EE6C62" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 68 50 L 100 50 Q 104 72 92 92 Q 80 106 68 102 Z" fill="#CC554C"/>
+    <path d="M 44 52 L 62 52 Q 56 76 46 92 Q 38 80 44 52 Z" fill="#FFD166"/>
+
+    <!-- Right corner drape -->
+    <path d="M 414 46 L 482 46 Q 494 70 488 94 Q 476 114 456 108 Q 438 114 424 96 Q 408 72 414 46 Z" fill="#EE6C62" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M 452 50 L 478 50 Q 486 72 478 92 Q 466 106 452 102 Z" fill="#CC554C"/>
+    <path d="M 422 52 L 440 52 Q 434 76 426 92 Q 418 80 422 52 Z" fill="#FFD166"/>
+  </g>
+</svg>

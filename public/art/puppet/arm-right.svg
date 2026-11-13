@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Right shirt sleeve from shoulder (near y=230) down toward right hand -->
+    <path d="M 242 228 Q 268 230 298 276 Q 308 292 294 304 Q 280 314 266 298 L 238 264 Q 228 242 242 228 Z" fill="#4D96FF" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Upper sleeve highlight -->
+    <path d="M 248 234 Q 270 238 292 276 L 284 282 Q 264 248 244 242 Z" fill="#8CC0FF"/>
+    <!-- Lower sleeve shadow -->
+    <path d="M 286 302 Q 276 306 266 294 L 240 262 Q 236 252 240 244 L 272 286 Q 282 298 286 302 Z" fill="#2B6FD6"/>
+    <!-- Sleeve cuff trim before the hand -->
+    <path d="M 300 278 Q 282 292 268 298 Q 276 310 294 304 Q 306 294 300 278 Z" fill="#8CC0FF" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

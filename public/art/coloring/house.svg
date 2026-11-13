@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+  <g id="fills" stroke="none">
+    <path id="house-chimney" fill="#FFFDF9" d="M 410 172 L 410 108 Q 410 100 418 100 L 457 100 Q 465 100 465 108 L 465 216 Z" />
+    <path id="house-roof" fill="#FFFDF9" d="M 110 268 L 312 106 Q 320 100 328 106 L 530 268 Z" />
+    <path id="house-wall" fill="#FFFDF9" d="M 150 268 L 490 268 L 490 490 L 290 490 L 290 356 Q 290 340 274 340 L 216 340 Q 200 340 200 356 L 200 490 L 150 490 Z M 357 330 Q 345 330 345 342 L 345 403 Q 345 415 357 415 L 423 415 Q 435 415 435 403 L 435 342 Q 435 330 423 330 Z" />
+    <path id="house-door" fill="#FFFDF9" d="M 200 490 L 200 356 Q 200 340 216 340 L 274 340 Q 290 340 290 356 L 290 490 Z" />
+    <path id="house-window" fill="#FFFDF9" d="M 357 330 L 423 330 Q 435 330 435 342 L 435 403 Q 435 415 423 415 L 357 415 Q 345 415 345 403 L 345 342 Q 345 330 357 330 Z" />
+    <path id="house-path" fill="#FFFDF9" d="M 200 490 L 290 490 C 296 525 320 550 332 580 L 168 580 C 180 550 194 525 200 490 Z" />
+  </g>
+  <g id="outlines" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 410 172 L 410 108 Q 410 100 418 100 L 457 100 Q 465 100 465 108 L 465 216" />
+    <path d="M 110 268 L 312 106 Q 320 100 328 106 L 530 268 Z" />
+    <path d="M 150 268 L 490 268 L 490 490 L 150 490 Z" />
+    <path d="M 200 490 L 200 356 Q 200 340 216 340 L 274 340 Q 290 340 290 356 L 290 490" />
+    <path d="M 357 330 L 423 330 Q 435 330 435 342 L 435 403 Q 435 415 423 415 L 357 415 Q 345 415 345 403 L 345 342 Q 345 330 357 330 Z" />
+    <path d="M 200 490 C 194 525 180 550 168 580 L 332 580 C 320 550 296 525 290 490" />
+    <circle cx="270" cy="418" r="5" stroke-width="4" />
+    <path d="M 390 330 L 390 415 M 345 372 L 435 372" stroke-width="4" />
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft under-lip shadow -->
+    <path d="M 164 196 Q 180 205 196 196" fill="none" stroke="#E5BF98" stroke-width="5"/>
+    <!-- Happy friendly smile curve around (180, 190) -->
+    <path d="M 156 184 Q 180 204 204 184" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Gentle cheek dimple ends -->
+    <path d="M 152 187 Q 156 181 161 183" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    <path d="M 208 187 Q 204 181 199 183" fill="none" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

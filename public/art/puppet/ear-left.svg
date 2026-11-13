@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left felt ear around x = 90, top near y = 70 -->
+    <path d="M 98 76 Q 64 66 62 98 Q 60 126 94 124 Q 104 122 102 100 Q 102 82 98 76 Z" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Top highlight -->
+    <path d="M 92 80 Q 72 76 68 92 Q 76 84 92 84 Z" fill="#FFE7CF"/>
+    <!-- Inner ear shadow -->
+    <ellipse cx="84" cy="102" rx="10" ry="13" fill="#E5BF98"/>
+    <path d="M 88 92 Q 76 96 78 108" fill="none" stroke="#5C4338" stroke-width="4"/>
+  </g>
+</svg>

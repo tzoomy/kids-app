@@ -83,6 +83,18 @@ export function instrumentArtKey(name: string): string | undefined {
   return keyForUrl(`art/instruments/${name}.svg`);
 }
 
+export function puppetArtKey(name: string): string | undefined {
+  return keyForUrl(`art/puppet/${name}.svg`);
+}
+
+export function coloringArtKey(name: string): string | undefined {
+  return keyForUrl(`art/coloring/${name}.svg`);
+}
+
+export function paletteArtKey(name: string): string | undefined {
+  return keyForUrl(`art/palette/${name}.svg`);
+}
+
 export function homeArtKey(name: string): string | undefined {
   return keyForUrl(`art/homes/${name}.svg`);
 }

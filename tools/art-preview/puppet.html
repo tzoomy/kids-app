@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puppet Says — Language House art preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FFF6E8; color: #3B2A22; font-family: system-ui, sans-serif; padding: 20px 24px 40px; }
+    h1 { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .sub { text-align: center; font-size: 13px; color: #5C4338; margin-bottom: 18px; }
+    .card { background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 22px; padding: 12px 16px 16px; margin: 0 auto 16px; max-width: 1280px; box-shadow: 0 6px 18px rgba(59,42,34,0.06); }
+    .label { font-weight: 800; font-size: 15px; }
+    .note { font-size: 12px; color: #5C4338; margin: 2px 0 8px; }
+    .stage { position: relative; height: 420px; border-radius: 16px; overflow: hidden; background: #F7DEC0; }
+    .stage img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+    .stage-img { position: relative; width: 100%; }
+    .puppet-wrap { position: absolute; left: 50%; bottom: 54px; width: 180px; height: 240px; transform: translateX(-50%); transform-origin: 50% 100%; z-index: 3; }
+    .puppet { position: relative; width: 100%; height: 100%; }
+    .puppet img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+    .stage-prop { position: absolute; left: 50%; bottom: 18px; width: 280px; height: 108px; transform: translateX(-50%); z-index: 2; object-fit: contain; }
+    .hotspot { position: absolute; border: 2px dashed #EE6C62; border-radius: 10px; z-index: 5; pointer-events: none; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-width: 1280px; margin: 0 auto 16px; }
+    .pose-card { background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 18px; padding: 10px; text-align: center; }
+    .pose-stage { position: relative; height: 260px; background: #FFF3E0; border-radius: 12px; overflow: hidden; }
+    .pose-stage .puppet-wrap { bottom: 12px; width: 140px; height: 186px; }
+    .pose-jump .puppet-wrap { transform: translateX(-50%) translateY(-28px) scaleX(0.95) scaleY(1.08); }
+    .pose-clap .hand-left { transform-origin: 80% 40%; transform: translate(42px, -6px); }
+    .pose-clap .hand-right { transform-origin: 20% 40%; transform: translate(-42px, -6px); }
+    .pose-wave .hand-right, .pose-wave .arm-right { transform-origin: 20% 20%; }
+    .pose-wave .arm-right { transform: rotate(-18deg) translate(4px, -10px); }
+    .pose-wave .hand-right { transform: rotate(-28deg) translate(6px, -22px); }
+    .pose-sleep .head, .pose-sleep .ear-left, .pose-sleep .ear-right,
+    .pose-sleep .eye-open, .pose-sleep .eye-closed, .pose-sleep .nose,
+    .pose-sleep .mouth-smile, .pose-sleep .mouth-open, .pose-sleep .mouth-sleep {
+      transform-origin: 50% 80%; transform: rotate(8deg);
+    }
+    .layers { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 6px 0 0; }
+    .layer { width: 72px; text-align: center; }
+    .layer img { width: 72px; height: 96px; object-fit: contain; background: #FFF6E8; border-radius: 10px; border: 1px solid #E5BE94; }
+    .layer span { display: block; font-size: 11px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Puppet Says — Language House art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Poseable layers, tap hotspots, and verb poses (jump, clap, wave, sleep).</p>
+
+  <div class="card">
+    <div class="label">Rest pose on the stage, with tap hotspots</div>
+    <div class="note">Hotspots are the dashed boxes from PUPPET_HOTSPOTS (360×480 canvas). Parts: nose, ears, eyes, mouth, hands, feet, head, tummy.</div>
+    <div class="stage" id="scene-rest"></div>
+  </div>
+
+  <div class="grid" id="poses"></div>
+
+  <div class="card">
+    <div class="label">Layered parts (shared 360×480 canvas)</div>
+    <div class="note">Each file is a separate layer so verbs can move hands, feet, and the head independently.</div>
+    <div class="layers" id="layers"></div>
+  </div>
+
+  <script type="module">
+    const ART = '../../public/art';
+    const CANVAS = { width: 360, height: 480 };
+    const LAYERS = [
+      'foot-left','foot-right','leg-left','leg-right','body','arm-left','arm-right',
+      'tummy','hand-left','hand-right','ear-left','ear-right','head','eye-open','nose','mouth-smile',
+    ];
+    const POSES = [
+      { id: 'rest', label: 'Rest', eyes: 'eye-open', mouth: 'mouth-smile' },
+      { id: 'jump', label: 'Jump', eyes: 'eye-open', mouth: 'mouth-open' },
+      { id: 'clap', label: 'Clap', eyes: 'eye-open', mouth: 'mouth-open' },
+      { id: 'wave', label: 'Wave', eyes: 'eye-open', mouth: 'mouth-smile' },
+      { id: 'sleep', label: 'Sleep', eyes: 'eye-closed', mouth: 'mouth-sleep' },
+    ];
+    const HOTSPOTS = {
+      'ear-left': { x: 62, y: 52, width: 70, height: 86 },
+      'ear-right': { x: 228, y: 52, width: 70, height: 86 },
+      head: { x: 86, y: 44, width: 188, height: 172 },
+      eyes: { x: 112, y: 104, width: 136, height: 52 },
+      nose: { x: 156, y: 142, width: 48, height: 40 },
+      mouth: { x: 140, y: 172, width: 80, height: 44 },
+      tummy: { x: 118, y: 262, width: 124, height: 110 },
+      'hand-left': { x: 10, y: 268, width: 88, height: 88 },
+      'hand-right': { x: 262, y: 268, width: 88, height: 88 },
+      'foot-left': { x: 78, y: 412, width: 96, height: 68 },
+      'foot-right': { x: 186, y: 412, width: 96, height: 68 },
+    };
+
+    function layerSrc(name) { return `${ART}/puppet/${name}.svg`; }
+
+    function puppetEl(pose) {
+      const wrap = document.createElement('div');
+      wrap.className = 'puppet-wrap';
+      const puppet = document.createElement('div');
+      puppet.className = 'puppet';
+      const names = LAYERS.map((n) => {
+        if (n === 'eye-open') return pose.eyes;
+        if (n === 'mouth-smile') return pose.mouth;
+        return n;
+      });
+      for (const name of names) {
+        const img = document.createElement('img');
+        img.src = layerSrc(name);
+        img.alt = '';
+        img.className = name;
+        puppet.appendChild(img);
+      }
+      wrap.appendChild(puppet);
+      return wrap;
+    }
+
+    function mountScene(stage, pose, withHotspots) {
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/puppet-stage/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+      const prop = document.createElement('img');
+      prop.className = 'stage-prop';
+      prop.src = `${ART}/props/puppet-stage.svg`;
+      prop.alt = 'stage';
+      stage.appendChild(prop);
+      const wrap = puppetEl(pose);
+      stage.appendChild(wrap);
+      if (withHotspots) {
+        for (const [id, box] of Object.entries(HOTSPOTS)) {
+          const h = document.createElement('div');
+          h.className = 'hotspot';
+          h.title = id;
+          h.style.left = (box.x / CANVAS.width * 100) + '%';
+          h.style.top = (box.y / CANVAS.height * 100) + '%';
+          h.style.width = (box.width / CANVAS.width * 100) + '%';
+          h.style.height = (box.height / CANVAS.height * 100) + '%';
+          wrap.querySelector('.puppet').appendChild(h);
+        }
+      }
+    }
+
+    mountScene(document.getElementById('scene-rest'), POSES[0], true);
+
+    const poses = document.getElementById('poses');
+    for (const pose of POSES) {
+      const card = document.createElement('div');
+      card.className = 'pose-card';
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = pose.label;
+      const stage = document.createElement('div');
+      stage.className = 'pose-stage pose-' + pose.id;
+      const wrap = puppetEl(pose);
+      stage.appendChild(wrap);
+      card.appendChild(label);
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.textContent = pose.id === 'rest' ? 'Idle smile' : 'Verb pose';
+      card.appendChild(note);
+      card.appendChild(stage);
+      poses.appendChild(card);
+    }
+
+    const layers = document.getElementById('layers');
+    const all = [...LAYERS, 'eye-closed', 'mouth-open', 'mouth-sleep'];
+    for (const name of all) {
+      const el = document.createElement('div');
+      el.className = 'layer';
+      const img = document.createElement('img');
+      img.src = layerSrc(name);
+      img.alt = name;
+      const cap = document.createElement('span');
+      cap.textContent = name;
+      el.appendChild(img);
+      el.appendChild(cap);
+      layers.appendChild(el);
+    }
+
+    window.__PREVIEW_READY__ = true;
+  </script>
+</body>
+</html>

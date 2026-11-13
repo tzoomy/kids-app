@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Rounded felt head -->
+    <rect x="86" y="60" width="188" height="152" rx="74" ry="74" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Soft highlight on upper left forehead -->
+    <path d="M 110 104 Q 124 72 166 70 Q 136 82 122 114 Q 112 114 110 104 Z" fill="#FFE7CF"/>
+
+    <!-- Soft shadow along lower chin curve -->
+    <path d="M 98 164 Q 180 212 262 164 Q 246 206 180 206 Q 114 206 98 164 Z" fill="#E5BF98"/>
+
+    <!-- Soft rosy cheek blush circles -->
+    <ellipse cx="116" cy="166" rx="18" ry="11" fill="#FFC2CE"/>
+    <ellipse cx="116" cy="166" rx="12" ry="7" fill="#FF8FA3"/>
+    <ellipse cx="244" cy="166" rx="18" ry="11" fill="#FFC2CE"/>
+    <ellipse cx="244" cy="166" rx="12" ry="7" fill="#FF8FA3"/>
+
+    <!-- Re-stroke head outline cleanly -->
+    <rect x="86" y="60" width="188" height="152" rx="74" ry="74" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Friendly yarn hair tuft at crown -->
+    <path d="M 140 72 Q 130 48 152 44 Q 162 42 168 54 Q 174 34 190 36 Q 206 38 202 56 Q 216 46 226 56 Q 234 66 218 76 Q 180 86 140 72 Z" fill="#EE6C62" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Yarn tuft shadow -->
+    <path d="M 146 70 Q 180 82 216 72 Q 182 76 146 70 Z" fill="#CC554C"/>
+    <!-- Yarn tuft highlight -->
+    <path d="M 176 44 Q 186 40 194 46 Q 186 48 176 44 Z" fill="#FFD166"/>
+    <path d="M 140 72 Q 130 48 152 44 Q 162 42 168 54 Q 174 34 190 36 Q 206 38 202 56 Q 216 46 226 56 Q 234 66 218 76 Q 180 86 140 72 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>
