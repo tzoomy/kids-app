@@ -437,3 +437,129 @@ export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
 export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+
+const nonBlankString = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+/** Letter Monster (docs/specs/letter-monster.md): no-fail color & initial-letter game in Language House. */
+export const LETTER_MONSTER_COLOR_IDS = ['red', 'yellow', 'orange', 'purple', 'green', 'brown', 'white', 'blue'] as const;
+export type LetterMonsterColorId = (typeof LETTER_MONSTER_COLOR_IDS)[number];
+
+/** Normalizes the first letter of a word (strips accents, treats the œ ligature as O). */
+export function normalizeInitialLetter(word: string): string {
+  const trimmed = word.trim();
+  if (!trimmed) return '';
+  const first = trimmed[0];
+  if (first === 'œ' || first === 'Œ') return 'O';
+  return first
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+}
+
+export const LetterMonsterColorEntrySchema = z.object({
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+export const LetterMonsterFoodSchema = z.object({
+  id: nonBlankString,
+  he: nonBlankString,
+  color: z.enum(LETTER_MONSTER_COLOR_IDS),
+  word: z.object({ en: nonBlankString, fr: nonBlankString }),
+  phrase: z.object({ en: nonBlankString, fr: nonBlankString }),
+  initial: z.object({
+    en: z.string().regex(/^[A-Z]$/),
+    fr: z.string().regex(/^[A-Z]$/),
+  }),
+});
+
+export const LetterMonsterContentSchema = z
+  .object({
+    id: z.literal('letter-monster'),
+    world: z.literal('language-house'),
+    template: z.literal('choice-serve'),
+    skill: nonBlankString,
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    colors: z.object({
+      red: LetterMonsterColorEntrySchema,
+      yellow: LetterMonsterColorEntrySchema,
+      orange: LetterMonsterColorEntrySchema,
+      purple: LetterMonsterColorEntrySchema,
+      green: LetterMonsterColorEntrySchema,
+      brown: LetterMonsterColorEntrySchema,
+      white: LetterMonsterColorEntrySchema,
+      blue: LetterMonsterColorEntrySchema,
+    }),
+    foods: z.array(LetterMonsterFoodSchema).min(4),
+    linesHe: z.object({
+      intro: nonBlankString,
+      askColorFrame: nonBlankString,
+      askLetter: nonBlankString,
+      notThis: nonBlankString,
+    }),
+    letterFrames: z.object({ en: nonBlankString, fr: nonBlankString }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.linesHe.askColorFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'askColorFrame'],
+        message: 'askColorFrame must include {color}',
+      });
+    }
+    for (const lang of ['en', 'fr'] as const) {
+      const frame = value.letterFrames[lang];
+      if (!frame.includes('{letter}') || !frame.includes('{word}')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['letterFrames', lang],
+          message: 'letterFrames must include {letter} and {word}',
+        });
+      }
+    }
+    const ids = new Set<string>();
+    value.foods.forEach((food, i) => {
+      if (ids.has(food.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['foods', i, 'id'], message: `duplicate food id "${food.id}"` });
+      }
+      ids.add(food.id);
+      for (const lang of ['en', 'fr'] as const) {
+        const expected = normalizeInitialLetter(food.word[lang]);
+        if (expected !== food.initial[lang]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['foods', i, 'initial', lang],
+            message: `${lang} word "${food.word[lang]}" starts with "${expected}", expected "${food.initial[lang]}"`,
+          });
+        }
+      }
+    });
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const req = level.extra?.request;
+      if (req !== 'color' && req !== 'letter') {
+        issue('extra.request must be "color" or "letter"');
+      }
+      const choices = level.extra?.choices;
+      if (choices !== 2 && choices !== 3) {
+        issue('extra.choices must be 2 or 3');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('letter-monster supports support "picture-audio" or "audio-only"');
+      }
+    });
+  });
+
+export type LetterMonsterColorEntry = z.infer<typeof LetterMonsterColorEntrySchema>;
+export type LetterMonsterFood = z.infer<typeof LetterMonsterFoodSchema>;
+export type LetterMonsterContent = z.infer<typeof LetterMonsterContentSchema>;

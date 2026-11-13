@@ -105,6 +105,14 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('letter-monster changes select the letter-monster journey spec', () => {
+    const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/letter-monster.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/monster-closed.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/letter-monster.machine.test.ts'])).toEqual(expected);
+  });
+
   it('credits content and UI select the credits spec', () => {
     expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
     expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);

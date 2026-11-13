@@ -338,6 +338,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'flower-basket', url: 'art/props/flower-basket.svg', width: 520, height: 400 },
   { key: 'flower-basket-back', url: 'art/props/flower-basket-back.svg', width: 520, height: 400 },
   { key: 'flower-basket-front', url: 'art/props/flower-basket-front.svg', width: 520, height: 400 },
+  // Letter Monster (Language House)
+  { key: 'prop-monster-closed', url: 'art/props/monster-closed.svg', width: 300, height: 300 },
+  { key: 'prop-monster-open', url: 'art/props/monster-open.svg', width: 300, height: 300 },
   // Language House Game Picker
   { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },

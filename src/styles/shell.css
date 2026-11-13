@@ -501,6 +501,10 @@ body {
   color: inherit;
   font: inherit;
 }
+/* When a third card is present (Language House), fit three 4:5 cards side by side. */
+.picker-cards:has(.picker-card:nth-child(3)) > .picker-card {
+  width: min(calc((100cqw - 60px) / 3), 80cqh);
+}
 .picker-card:focus-visible {
   outline: 4px solid #c9842a;
   outline-offset: 6px;
@@ -568,6 +572,9 @@ body {
   .picker-card {
     /* Stacked: each card gets half the height, and never more than the full width. */
     width: min(100cqw, calc((100cqh - 20px) / 2 * 0.8));
+  }
+  .picker-cards:has(.picker-card:nth-child(3)) > .picker-card {
+    width: min(100cqw, calc((100cqh - 44px) / 3 * 0.8));
   }
   .picker-card-label {
     font-size: 24px;
