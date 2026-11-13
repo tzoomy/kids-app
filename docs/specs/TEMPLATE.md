@@ -71,7 +71,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-14 | Device check: touch, rotation mid-game, audible voice, visuals | 1 | device | both | |
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
 
-Pass-1 criteria must not require polished animation or new recorded clips (`docs/PROCESS.md` §3, decided by the owner 2026-11-13): Pass 1 is a working game with basic animation and basic voice (device TTS or clips that already exist). Criteria about polished animation or new recordings belong to Pass 2, which starts only after Maor approves the finished Pass 1.
+By default, Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3, decided by the owner 2026-11-13; an explicit owner decision recorded in the spec can override this for an item): Pass 1 is a working game with basic animation and basic voice (device TTS or clips that already exist). Criteria about polished animation or new recordings belong to Pass 2, which starts only after Maor approves the finished Pass 1.
 
 ## Art, animation, and audio
 
