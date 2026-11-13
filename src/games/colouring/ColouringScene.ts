@@ -11,7 +11,6 @@ import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { queueArtManifest, assetUrl } from '../../anim/assetLoader';
 import { COLOURING_ART_MANIFEST } from '../../assets/art/colouringManifest';
-import { heLine } from '../../content/voiceLines';
 import { transitionTo } from '../../anim/transitions';
 import { isReducedMotion } from '../../anim/motion';
 import { gameRectToPageRect } from '../../testing/pageRect';
@@ -444,7 +443,7 @@ export class ColouringScene extends Phaser.Scene {
     this.refreshChrome();
     if (!this.warnedLow && this.isLow() && !result.endedNow) {
       this.warnedLow = true;
-      void this.say(heLine('bubbles.lowWarning'));
+      void this.say(COLOURING_VOICE.lowWarning);
     }
     if (result.endedNow) this.endSession();
   }
