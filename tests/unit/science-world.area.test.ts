@@ -74,6 +74,19 @@ describe('game picker empty state', () => {
     expect(root.querySelectorAll('.picker-card')).toHaveLength(0);
   });
 
+  it('keeps presses on the picker from reaching window listeners (the Phaser map underneath)', () => {
+    const root = renderGamePicker({ games: [], emptyText: 'x', onPick: () => {}, onClose: () => {} });
+    document.body.appendChild(root);
+    const seen: string[] = [];
+    const spy = (e: Event) => seen.push(e.type);
+    for (const t of ['pointerdown', 'mousedown', 'touchstart']) window.addEventListener(t, spy);
+    const empty = root.querySelector(`[data-testid="${PICKER_EMPTY_TEST_ID}"]`)!;
+    for (const t of ['pointerdown', 'mousedown', 'touchstart']) empty.dispatchEvent(new Event(t, { bubbles: true }));
+    for (const t of ['pointerdown', 'mousedown', 'touchstart']) window.removeEventListener(t, spy);
+    root.remove();
+    expect(seen).toEqual([]);
+  });
+
   it('does not render the empty card when games exist', () => {
     const root = renderGamePicker({ onPick: () => {}, onClose: () => {} });
     expect(root.querySelector(`[data-testid="${PICKER_EMPTY_TEST_ID}"]`)).toBeNull();

@@ -41,6 +41,12 @@ test.describe('science world map area', () => {
     await expect(page.locator('[data-testid^="game-picker-"].picker-card')).toHaveCount(0);
     await waitForSpokenLine(page, (l) => l.lineId === 'he.map.comingSoon');
 
+    // Regression: a press on the card must not reach a map building underneath (Number Garden in portrait).
+    await tapTestId(page, 'game-picker-empty');
+    await page.waitForTimeout(600);
+    expect(await getActiveScenes(page)).toEqual(['MapScene']);
+    await expect(empty).toBeVisible();
+
     const close = await getStableBox(page, 'game-picker-close');
     expect(close.width).toBeGreaterThanOrEqual(MIN_TAP);
     expect(close.height).toBeGreaterThanOrEqual(MIN_TAP);
