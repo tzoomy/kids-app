@@ -129,16 +129,18 @@ describe('leisure-colouring page art', () => {
     }
   });
 
-  it('[AC-26] registers every page and background in the art manifest at its size', () => {
+  it('[AC-26] every page and background sits at the lazy colouring paths and stays out of the boot manifest (AC-34)', () => {
+    // Paths and keys mirror src/assets/art/colouringManifest.ts on PR #51 (loaded only when
+    // ColouringScene opens). Boot ART_MANIFEST / PreloadScene must not list them.
+    const bootKeys = new Set(ART_MANIFEST.map((m) => m.key));
     for (const p of PAGES) {
-      const e = ART_MANIFEST.find((m) => m.key === `colouring-page-${p.id}`);
-      expect(e, p.id).toBeDefined();
-      expect(e).toMatchObject({ url: `art/colouring/pages/${p.id}.svg`, width: 800, height: 800 });
+      expect(fs.existsSync(path.join(PAGE_DIR, `${p.id}.svg`)), `art/colouring/pages/${p.id}.svg`).toBe(true);
+      expect(bootKeys.has(`colouring-page-${p.id}`), `colouring-page-${p.id} not in boot manifest`).toBe(false);
     }
-    expect(ART_MANIFEST.find((m) => m.key === 'leisure-colouring-bg-landscape'))
-      .toMatchObject({ url: 'art/scenes/leisure-colouring/bg-landscape.svg', width: 1280, height: 800 });
-    expect(ART_MANIFEST.find((m) => m.key === 'leisure-colouring-bg-portrait'))
-      .toMatchObject({ url: 'art/scenes/leisure-colouring/bg-portrait.svg', width: 800, height: 1280 });
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(fs.existsSync(path.join(BG_DIR, `${name}.svg`)), `art/scenes/leisure-colouring/${name}.svg`).toBe(true);
+      expect(bootKeys.has(`leisure-colouring-${name}`), `leisure-colouring-${name} not in boot manifest`).toBe(false);
+    }
   });
 
   for (const page of PAGES) {
