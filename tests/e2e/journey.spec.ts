@@ -1,10 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { seedTimeEarningEnabled } from './helpers/journey';
-
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const screenshotsDir = path.resolve(dirname, '../../docs/screenshots');
 
 async function waitForGameReady(page: Page): Promise<void> {
   await page.waitForFunction(() => (window as unknown as { __GAME_READY__?: boolean }).__GAME_READY__ === true, {
@@ -120,42 +115,26 @@ test.describe('kids-app journey', () => {
     await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
   });
 
-  test('profile select -> map -> restaurant -> bubbles -> parent gate', async ({ page }, testInfo) => {
-    const sizeTag = `${testInfo.project.use.viewport?.width}x${testInfo.project.use.viewport?.height}`;
-
+  test('profile select -> map -> restaurant -> bubbles -> parent gate', async ({ page }) => {
     await page.goto('/?e2e=1');
     await seedTimeEarningEnabled(page, true);
 
     await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
-    if (sizeTag === '1280x800' || sizeTag === '800x1280') {
-      await page.screenshot({ path: path.join(screenshotsDir, `profiles-${sizeTag}.png`) });
-    }
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
 
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))); // a settled frame
-    await page.screenshot({ path: path.join(screenshotsDir, `map-${sizeTag}.png`) });
-
     await goToScreen(page, 'restaurant');
     await waitForRoundReady(page); // the animal hopped in and the plates popped in
-    await page.screenshot({ path: path.join(screenshotsDir, `restaurant-${sizeTag}.png`) });
 
     await page.evaluate((sec) => {
       (window as unknown as { __testHooks__: { seedBalanceSec: (s: number) => void } }).__testHooks__.seedBalanceSec(sec);
     }, 120);
     await goToScreen(page, 'bubbles');
     await page.waitForFunction(() => (window as unknown as { __testHooks__: { getActiveScenes: () => string[] } }).__testHooks__.getActiveScenes().includes('BubblesScene'));
-    await page.waitForTimeout(2500); // let a few bubbles rise into view for a representative screenshot (visual only)
-    if (sizeTag === '1280x800') {
-      await page.screenshot({ path: path.join(screenshotsDir, `bubbles-${sizeTag}.png`) });
-    }
 
     await goToScreen(page, 'map');
     await page.locator('[data-testid="parent-gate-btn"]').click();
     await expect(page.locator('[data-testid="parent-exit-btn"]')).toBeVisible();
-    if (sizeTag === '1280x800') {
-      await page.screenshot({ path: path.join(screenshotsDir, `parent-${sizeTag}.png`) });
-    }
   });
 
   test('wrong choices in the restaurant never reduce the leisure balance', async ({ page }) => {

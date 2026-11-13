@@ -24,7 +24,7 @@ npm run dev       # Vite dev server, http://localhost:5173/kids-app/
 npm run build     # type-check + production build to ./dist
 npm run preview   # serve the production build locally
 npm test          # Vitest unit tests
-npm run test:e2e  # Playwright tablet-size journey + screenshots
+npm run test:e2e  # Playwright tablet-size journey
 npm run check:ac  # every automated spec acceptance criterion has an [AC-xx] test
 ```
 
@@ -43,8 +43,8 @@ src/                    TypeScript application
   game/, worlds/, games/, ui/   Phaser scenes + the Hebrew RTL DOM shell
 public/                PWA manifest, icons, .nojekyll
 tests/unit             Vitest
-tests/e2e              Playwright (tablet-size journey + screenshots)
-docs/screenshots/      Playwright screenshot output
+tests/e2e              Playwright (tablet-size journey)
+docs/screenshots/      in-game screenshots (via tools/art-preview/shoot-in-game.mjs, not specs)
 ```
 
 The prototype files at the repository root (`index.html`, `app.js`,
