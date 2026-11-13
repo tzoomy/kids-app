@@ -1,3 +1,5 @@
+import creditsJson from './content/credits.json';
+import { creditsFileSchema } from './content/credits';
 import '@fontsource/noto-sans-hebrew/hebrew-400.css';
 import '@fontsource/noto-sans-hebrew/hebrew-700.css';
 import '@fontsource/noto-sans/latin-400.css';
@@ -76,6 +78,7 @@ function openParentSettings(onDone: () => void): void {
       onDone();
     },
     onExit: onDone,
+    onOpenCredits: () => shell.showCredits(creditsFileSchema.parse(creditsJson).items, () => openParentSettings(onDone)),
     onResetBalance: (profileId) => {
       const s = store.getProfileState(profileId, new Date());
       s.balanceSec = 0;

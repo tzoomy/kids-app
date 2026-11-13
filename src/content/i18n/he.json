@@ -61,7 +61,11 @@
     "earnedToday": "נצבר היום",
     "balance": "יתרה",
     "participationTotal": "סה״כ למידה",
-    "refreshApp": "רענון האפליקציה"
+    "refreshApp": "רענון האפליקציה",
+    "creditsOpen": "קרדיטים",
+    "creditsTitle": "קרדיטים",
+    "creditsEmpty": "עדיין אין תכנים של צד שלישי",
+    "creditsBack": "חזרה"
   },
   "switchProfile": "החלפה"
 }
