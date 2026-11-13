@@ -18,6 +18,7 @@ All code, comments, documentation, commit messages, issue and pull request title
 - Do not merge any change to `main` without Maor's explicit approval. A merge to `main` publishes to GitHub Pages.
 - Do not upload secrets, API keys, the girls' real names, or usage data. The repository is public.
 - Do not add paid services, external analytics, ads, or AI at the child's runtime, unless Maor asked for that.
+- Licence policy for dependencies, art, sound, and credits: `docs/ASSETS.md`.
 - Original assets only; do not copy characters, art, or audio from inspiration apps (Tiger eAcademy, Lingokids, Sago Mini, Khan Academy Kids, and others).
 - One branch per task. Do not work directly on `main` and do not rewrite `main` history. Force-push only with `--force-with-lease` on your own task branch when rebasing it onto `origin/main`; never on `main` or on a branch another agent uses.
 - The leisure engine is a shared, tested module, with no penalty for mistakes and no mixing of balances across profiles.
