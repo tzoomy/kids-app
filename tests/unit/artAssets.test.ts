@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
-import { COLOURING_PAGES } from '../shared/leisureColouringPages';
+import { COLOURING_ART_MANIFEST } from '../../src/assets/art/colouringManifest';
 import { ANIMAL_RIGS, ANIMAL_ART_KINDS, CHARACTER_RIGS, HABITAT_ANIMAL_RIGS, HABITAT_ANIMAL_KINDS } from '../../src/assets/art/rigs';
 import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey, homeArtKey, trainArtKey, puppetArtKey, coloringArtKey, paletteArtKey } from '../../src/anim/artRegistry';
 import { PUPPET_LAYER_ORDER, COLORING_PAGES, CRAYON_IDS, POT_IDS, MIX_RECIPES } from '../../src/assets/art/puppetColor';
@@ -39,13 +39,8 @@ describe('real art manifest', () => {
   });
 
   it('has no SVG under public/art that the manifest does not list', () => {
-    // Colouring Time art is lazy-loaded (never in the boot ART_MANIFEST, AC-34); its paths match
-    // src/assets/art/colouringManifest.ts on PR #51. Swap this for COLOURING_ART_MANIFEST once #51 lands.
-    const lazyColouring = [
-      ...COLOURING_PAGES.map((p) => `art/colouring/pages/${p.id}.svg`),
-      'art/scenes/leisure-colouring/bg-landscape.svg',
-      'art/scenes/leisure-colouring/bg-portrait.svg',
-    ];
+    // Colouring Time art is lazy-loaded (never in the boot ART_MANIFEST, AC-34).
+    const lazyColouring = COLOURING_ART_MANIFEST.map((e) => e.url);
     const listed = new Set([...ART_MANIFEST.map((e) => e.url), ...lazyColouring]);
     const walk = (dir: string): string[] =>
       fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));

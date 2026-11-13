@@ -4,6 +4,10 @@ import { PICKER_CLOSE_TEST_ID, PICKER_GAMES, type PickerGame } from './pickerMod
 import { resolvePickerAsset } from './pickerAssets';
 
 export interface GamePickerOptions {
+  /** Cards to show; defaults to the Language House games. */
+  games?: readonly PickerGame[];
+  /** Picker title; defaults to the Language House title. */
+  title?: string;
   onPick: (game: PickerGame) => void;
   onClose: () => void;
 }
@@ -61,13 +65,13 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   else close.appendChild(el('span', 'picker-close-x', '×'));
   close.addEventListener('click', () => opts.onClose());
   header.appendChild(close);
-  const title = el('h1', 'picker-title', t.title);
+  const title = el('h1', 'picker-title', opts.title ?? t.title);
   title.id = 'game-picker-title';
   header.appendChild(title);
   panel.appendChild(header);
 
   const cards = el('div', 'picker-cards');
-  for (const game of PICKER_GAMES) {
+  for (const game of opts.games ?? PICKER_GAMES) {
     const label = t[game.labelKey];
     const card = el('button', 'picker-card');
     card.type = 'button';

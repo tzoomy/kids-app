@@ -6,6 +6,7 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
+import { LEISURE_PICKER_GAMES } from '../ui/picker/pickerModel';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -78,7 +79,19 @@ export class MapScene extends Phaser.Scene {
         if (world.status === 'leisure') {
           const profileState = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
           if (profileState.balanceSec > 0) {
-            transitionTo(this, 'BubblesScene', { style: 'iris', originX: x, originY: y });
+            context.shell.showGamePicker({
+              games: LEISURE_PICKER_GAMES,
+              title: context.content.he.gamePicker.leisureTitle,
+              onPick: (game) => {
+                context.shell.hideGamePicker();
+                context.sfx.tap();
+                transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+              },
+              onClose: () => {
+                context.shell.hideGamePicker();
+                context.sfx.tap();
+              },
+            });
           } else {
             context.shell.showToast(`⏳ 0:00`);
           }

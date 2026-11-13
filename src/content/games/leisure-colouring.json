@@ -1,0 +1,624 @@
+{
+  "id": "leisure-colouring",
+  "world": "leisure-corner",
+  "earnsLeisure": false,
+  "defaultColor": "red",
+  "pages": [
+    {
+      "id": "cat",
+      "regions": [
+        {
+          "id": "cat-body",
+          "age2": true
+        },
+        {
+          "id": "cat-head",
+          "age2": true
+        },
+        {
+          "id": "cat-ear-left",
+          "age2": true
+        },
+        {
+          "id": "cat-ear-right",
+          "age2": true
+        },
+        {
+          "id": "cat-tail",
+          "age2": true
+        },
+        {
+          "id": "cat-paw-left",
+          "age2": true
+        },
+        {
+          "id": "cat-paw-right",
+          "age2": true
+        },
+        {
+          "id": "cat-cushion",
+          "age2": true
+        },
+        {
+          "id": "cat-ear-inner-left",
+          "age2": false,
+          "parent": "cat-ear-left"
+        },
+        {
+          "id": "cat-ear-inner-right",
+          "age2": false,
+          "parent": "cat-ear-right"
+        },
+        {
+          "id": "cat-muzzle",
+          "age2": false,
+          "parent": "cat-head"
+        },
+        {
+          "id": "cat-belly",
+          "age2": false,
+          "parent": "cat-body"
+        },
+        {
+          "id": "cat-stripe-back",
+          "age2": false,
+          "parent": "cat-body"
+        },
+        {
+          "id": "cat-bow",
+          "age2": false,
+          "parent": "cat-body"
+        }
+      ]
+    },
+    {
+      "id": "dog",
+      "regions": [
+        {
+          "id": "dog-body",
+          "age2": true
+        },
+        {
+          "id": "dog-head",
+          "age2": true
+        },
+        {
+          "id": "dog-ear-left",
+          "age2": true
+        },
+        {
+          "id": "dog-ear-right",
+          "age2": true
+        },
+        {
+          "id": "dog-tail",
+          "age2": true
+        },
+        {
+          "id": "dog-paw-left",
+          "age2": true
+        },
+        {
+          "id": "dog-paw-right",
+          "age2": true
+        },
+        {
+          "id": "dog-bone",
+          "age2": true
+        },
+        {
+          "id": "dog-muzzle",
+          "age2": false,
+          "parent": "dog-head"
+        },
+        {
+          "id": "dog-eye-patch",
+          "age2": false,
+          "parent": "dog-head"
+        },
+        {
+          "id": "dog-collar",
+          "age2": false,
+          "parent": "dog-body"
+        },
+        {
+          "id": "dog-belly",
+          "age2": false,
+          "parent": "dog-body"
+        },
+        {
+          "id": "dog-spot-back",
+          "age2": false,
+          "parent": "dog-body"
+        }
+      ]
+    },
+    {
+      "id": "rabbit",
+      "regions": [
+        {
+          "id": "rabbit-body",
+          "age2": true
+        },
+        {
+          "id": "rabbit-head",
+          "age2": true
+        },
+        {
+          "id": "rabbit-ear-left",
+          "age2": true
+        },
+        {
+          "id": "rabbit-ear-right",
+          "age2": true
+        },
+        {
+          "id": "rabbit-tail",
+          "age2": true
+        },
+        {
+          "id": "rabbit-paw-left",
+          "age2": true
+        },
+        {
+          "id": "rabbit-paw-right",
+          "age2": true
+        },
+        {
+          "id": "rabbit-carrot",
+          "age2": true
+        },
+        {
+          "id": "rabbit-ear-inner-left",
+          "age2": false,
+          "parent": "rabbit-ear-left"
+        },
+        {
+          "id": "rabbit-ear-inner-right",
+          "age2": false,
+          "parent": "rabbit-ear-right"
+        },
+        {
+          "id": "rabbit-muzzle",
+          "age2": false,
+          "parent": "rabbit-head"
+        },
+        {
+          "id": "rabbit-belly",
+          "age2": false,
+          "parent": "rabbit-body"
+        },
+        {
+          "id": "rabbit-carrot-leaves",
+          "age2": false,
+          "parent": "rabbit-carrot"
+        }
+      ]
+    },
+    {
+      "id": "bear",
+      "regions": [
+        {
+          "id": "bear-body",
+          "age2": true
+        },
+        {
+          "id": "bear-head",
+          "age2": true
+        },
+        {
+          "id": "bear-ear-left",
+          "age2": true
+        },
+        {
+          "id": "bear-ear-right",
+          "age2": true
+        },
+        {
+          "id": "bear-arm-left",
+          "age2": true
+        },
+        {
+          "id": "bear-arm-right",
+          "age2": true
+        },
+        {
+          "id": "bear-foot-left",
+          "age2": true
+        },
+        {
+          "id": "bear-foot-right",
+          "age2": true
+        },
+        {
+          "id": "bear-honey-pot",
+          "age2": true
+        },
+        {
+          "id": "bear-ear-inner-left",
+          "age2": false,
+          "parent": "bear-ear-left"
+        },
+        {
+          "id": "bear-ear-inner-right",
+          "age2": false,
+          "parent": "bear-ear-right"
+        },
+        {
+          "id": "bear-muzzle",
+          "age2": false,
+          "parent": "bear-head"
+        },
+        {
+          "id": "bear-belly",
+          "age2": false,
+          "parent": "bear-body"
+        },
+        {
+          "id": "bear-honey-label",
+          "age2": false,
+          "parent": "bear-honey-pot"
+        }
+      ]
+    },
+    {
+      "id": "panda",
+      "regions": [
+        {
+          "id": "panda-body",
+          "age2": true
+        },
+        {
+          "id": "panda-head",
+          "age2": true
+        },
+        {
+          "id": "panda-ear-left",
+          "age2": true
+        },
+        {
+          "id": "panda-ear-right",
+          "age2": true
+        },
+        {
+          "id": "panda-arm-left",
+          "age2": true
+        },
+        {
+          "id": "panda-arm-right",
+          "age2": true
+        },
+        {
+          "id": "panda-foot-left",
+          "age2": true
+        },
+        {
+          "id": "panda-foot-right",
+          "age2": true
+        },
+        {
+          "id": "panda-bamboo",
+          "age2": true
+        },
+        {
+          "id": "panda-eye-patch-left",
+          "age2": false,
+          "parent": "panda-head"
+        },
+        {
+          "id": "panda-eye-patch-right",
+          "age2": false,
+          "parent": "panda-head"
+        },
+        {
+          "id": "panda-muzzle",
+          "age2": false,
+          "parent": "panda-head"
+        },
+        {
+          "id": "panda-belly",
+          "age2": false,
+          "parent": "panda-body"
+        },
+        {
+          "id": "panda-bamboo-leaf",
+          "age2": false,
+          "parent": "panda-bamboo"
+        }
+      ]
+    },
+    {
+      "id": "lion",
+      "regions": [
+        {
+          "id": "lion-mane",
+          "age2": true
+        },
+        {
+          "id": "lion-head",
+          "age2": true
+        },
+        {
+          "id": "lion-body",
+          "age2": true
+        },
+        {
+          "id": "lion-ear-left",
+          "age2": true
+        },
+        {
+          "id": "lion-ear-right",
+          "age2": true
+        },
+        {
+          "id": "lion-tail",
+          "age2": true
+        },
+        {
+          "id": "lion-paw-left",
+          "age2": true
+        },
+        {
+          "id": "lion-paw-right",
+          "age2": true
+        },
+        {
+          "id": "lion-muzzle",
+          "age2": false,
+          "parent": "lion-head"
+        },
+        {
+          "id": "lion-ear-inner-left",
+          "age2": false,
+          "parent": "lion-ear-left"
+        },
+        {
+          "id": "lion-ear-inner-right",
+          "age2": false,
+          "parent": "lion-ear-right"
+        },
+        {
+          "id": "lion-tail-tuft",
+          "age2": false,
+          "parent": "lion-tail"
+        },
+        {
+          "id": "lion-belly",
+          "age2": false,
+          "parent": "lion-body"
+        }
+      ]
+    },
+    {
+      "id": "butterfly",
+      "regions": [
+        {
+          "id": "butterfly-body",
+          "age2": true
+        },
+        {
+          "id": "butterfly-head",
+          "age2": true
+        },
+        {
+          "id": "butterfly-wing-upper-left",
+          "age2": true
+        },
+        {
+          "id": "butterfly-wing-upper-right",
+          "age2": true
+        },
+        {
+          "id": "butterfly-wing-lower-left",
+          "age2": true
+        },
+        {
+          "id": "butterfly-wing-lower-right",
+          "age2": true
+        },
+        {
+          "id": "butterfly-flower",
+          "age2": true
+        },
+        {
+          "id": "butterfly-leaf",
+          "age2": true
+        },
+        {
+          "id": "butterfly-spot-upper-left",
+          "age2": false,
+          "parent": "butterfly-wing-upper-left"
+        },
+        {
+          "id": "butterfly-spot-upper-right",
+          "age2": false,
+          "parent": "butterfly-wing-upper-right"
+        },
+        {
+          "id": "butterfly-spot-lower-left",
+          "age2": false,
+          "parent": "butterfly-wing-lower-left"
+        },
+        {
+          "id": "butterfly-spot-lower-right",
+          "age2": false,
+          "parent": "butterfly-wing-lower-right"
+        },
+        {
+          "id": "butterfly-band-upper-left",
+          "age2": false,
+          "parent": "butterfly-wing-upper-left"
+        },
+        {
+          "id": "butterfly-band-upper-right",
+          "age2": false,
+          "parent": "butterfly-wing-upper-right"
+        },
+        {
+          "id": "butterfly-flower-centre",
+          "age2": false,
+          "parent": "butterfly-flower"
+        }
+      ]
+    },
+    {
+      "id": "chef",
+      "regions": [
+        {
+          "id": "chef-hat",
+          "age2": true
+        },
+        {
+          "id": "chef-head",
+          "age2": true
+        },
+        {
+          "id": "chef-jacket",
+          "age2": true
+        },
+        {
+          "id": "chef-arm-left",
+          "age2": true
+        },
+        {
+          "id": "chef-arm-right",
+          "age2": true
+        },
+        {
+          "id": "chef-trousers",
+          "age2": true
+        },
+        {
+          "id": "chef-shoe-left",
+          "age2": true
+        },
+        {
+          "id": "chef-shoe-right",
+          "age2": true
+        },
+        {
+          "id": "chef-pot",
+          "age2": true
+        },
+        {
+          "id": "chef-hat-band",
+          "age2": false,
+          "parent": "chef-hat"
+        },
+        {
+          "id": "chef-apron",
+          "age2": false,
+          "parent": "chef-jacket"
+        },
+        {
+          "id": "chef-scarf",
+          "age2": false,
+          "parent": "chef-jacket"
+        },
+        {
+          "id": "chef-pot-lid",
+          "age2": false,
+          "parent": "chef-pot"
+        }
+      ]
+    }
+  ],
+  "palette": [
+    {
+      "id": "red",
+      "hex": "#E2554F",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "orange",
+      "hex": "#FF9F43",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "yellow",
+      "hex": "#FFD93D",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "green",
+      "hex": "#6BCB77",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "blue",
+      "hex": "#4D96FF",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "purple",
+      "hex": "#9B5DE5",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "pink",
+      "hex": "#FF6FB5",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "charcoal",
+      "hex": "#6B6662",
+      "age2": true,
+      "age5": true
+    },
+    {
+      "id": "brown",
+      "hex": "#A97155",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "red-light",
+      "hex": "#F4908C",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "red-dark",
+      "hex": "#A93A36",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "blue-light",
+      "hex": "#9CC3FF",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "blue-dark",
+      "hex": "#2F67C2",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "green-light",
+      "hex": "#A8E6AE",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "grey",
+      "hex": "#A7A39F",
+      "age2": false,
+      "age5": true
+    },
+    {
+      "id": "peach",
+      "hex": "#F6C59B",
+      "age2": false,
+      "age5": true
+    }
+  ]
+}

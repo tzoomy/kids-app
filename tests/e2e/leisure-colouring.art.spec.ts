@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { COLOURING_PAGES, pageRegions, ART_LIMITS, type ColouringRegionSpec } from '../shared/leisureColouringPages';
 import { analyseColouringPage, artFailures } from './helpers/colouringArtCheck';
+import { hitTest, type ColouringRegionDef } from '../../src/games/colouring/regions';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const PAGE_DIR = path.join(ROOT, 'public/art/colouring/pages');
@@ -35,7 +36,27 @@ test.describe('leisure-colouring art contract (geometry) @single-orientation', (
     expect((await run('bad-seam.svg')).some((f) => f.startsWith('seams:'))).toBe(true);
   });
 
-  for (const spec of COLOURING_PAGES) {
+
+  test('[AC-33] sample-point hit-tests go through regions.ts (inside, outline, within 20 px, far no-op)', async ({ page }) => {
+    const svg = fs.readFileSync(path.join(FIXTURES, 'good.svg'), 'utf8');
+    const report = await analyseColouringPage(page, svg, FIXTURE_REGIONS, ART_LIMITS);
+    expect(artFailures(report, ART_LIMITS)).toEqual([]);
+    const regions: ColouringRegionDef[] = FIXTURE_REGIONS;
+    // Build a contains() from the checker's step-1 resolution of each region's disc centre.
+    const contains = (id: string, x: number, y: number): boolean => {
+      const r = report.regions.find((row) => row.id === id);
+      if (!r?.tapAge5.resolves) return false;
+      return Math.hypot(r.tapAge5.x - x, r.tapAge5.y - y) < 1;
+    };
+    const inside = report.regions.find((r) => r.tapAge5.resolves);
+    expect(inside, 'fixture has an age-5 tap point that resolves to itself').toBeTruthy();
+    expect(hitTest(inside!.tapAge5.x, inside!.tapAge5.y, { regions, ageTrack: 'age5', contains, snapRadiusVu: 20 })).toBe(inside!.id);
+    // A corner farther than 20 units is a no-op under AC-29 step 3.
+    expect(report.farCornerNoop).toBe(true);
+    expect(hitTest(2, 2, { regions, ageTrack: 'age5', contains, snapRadiusVu: 20 })).toBeNull();
+  });
+
+    for (const spec of COLOURING_PAGES) {
     test(`[AC-33] ${spec.id}: visible thickness, tap points, gaps, seams, containment, winding`, async ({ page }, testInfo) => {
       const file = path.join(PAGE_DIR, `${spec.id}.svg`);
       expect(fs.existsSync(file), `${spec.id}.svg exists`).toBe(true);

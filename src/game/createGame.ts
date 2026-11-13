@@ -7,6 +7,9 @@ import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/Orch
 import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
+import { ColouringScene } from '../games/colouring/ColouringScene';
+import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
+import { writeColouringSeed } from '../core/colouring/seed';
 import type { AppContext } from './appContext';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
@@ -19,7 +22,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -34,6 +37,10 @@ declare global {
       seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
+      /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
+      seedColouringState: (seed: ColouringSeed) => void;
+      /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
+      getColouringInfo: () => ColouringInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
@@ -86,6 +93,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
+  game.scene.add('ColouringScene', ColouringScene, false);
 
   game.registry.set('appContext', context);
 
@@ -101,6 +109,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'hiding' ? 'HidingScene'
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
+        : screen === 'colouring' ? 'ColouringScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
@@ -109,6 +118,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
       game.scene.stop('SortingScene');
+      game.scene.stop('ColouringScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -162,6 +172,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getSortingInfo() {
       const scene = game.scene.getScene('SortingScene') as SortingScene | null;
       return scene && game.scene.isActive('SortingScene') ? scene.getSortingInfo() : null;
+    },
+    seedColouringState(seed) {
+      writeColouringSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getColouringInfo() {
+      const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
+      return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
     },
     seedHidingLevel(level) {
       const profileId = context.requireProfileId();

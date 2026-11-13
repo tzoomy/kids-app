@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -36,3 +36,21 @@ export const PICKER_GAMES: readonly PickerGame[] = [
 ];
 
 export const PICKER_CLOSE_TEST_ID = 'game-picker-close';
+
+/** Leisure Corner picker: two cards (Bubbles first, then Colouring Time). Opened only with a balance above 0. */
+export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'bubbles',
+    testId: 'game-picker-bubbles',
+    sceneKey: 'BubblesScene',
+    assetKey: 'picker-card-bubbles',
+    labelKey: 'bubbles',
+  },
+  {
+    gameId: 'leisure-colouring',
+    testId: 'game-picker-leisure-colouring',
+    sceneKey: 'ColouringScene',
+    assetKey: 'picker-card-colouring',
+    labelKey: 'colouring',
+  },
+];

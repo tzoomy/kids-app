@@ -18,7 +18,10 @@
     "title": "בית השפות",
     "animalRestaurant": "מסעדת החיות",
     "kitchenOrchestra": "תזמורת המטבח",
-    "close": "סגירה"
+    "close": "סגירה",
+    "leisureTitle": "פינת הכיף",
+    "bubbles": "בועות וחלומות",
+    "colouring": "זמן צביעה"
   },
   "restaurant": {
     "helpButton": "עזרה",
@@ -63,5 +66,16 @@
     "participationTotal": "סה״כ למידה",
     "refreshApp": "רענון האפליקציה"
   },
-  "switchProfile": "החלפה"
+  "switchProfile": "החלפה",
+  "colouring": {
+    "title": "זמן צביעה",
+    "undo": "ביטול",
+    "clear": "ניקוי",
+    "prev": "הדף הקודם",
+    "next": "הדף הבא",
+    "endTitle": "זמן הצביעה נגמר",
+    "endMessage": "הציור שלך שמור. נתראה בפעם הבאה!",
+    "goHome": "בית",
+    "helpText": "בחרי צבע, ואז לחצי על חלק בציור כדי לצבוע אותו. אפשר לבטל, לנקות ולעבור לדף הבא. הציור נשמר."
+  }
 }

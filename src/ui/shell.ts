@@ -16,6 +16,7 @@ import {
   type BubblesChromeOptions,
   type RestaurantHudValues,
 } from './hud';
+import { ColouringHud, renderColouringEndScreen, type ColouringChromeOptions } from './colouringChrome';
 import { renderGamePicker, type GamePickerOptions } from './picker/gamePicker';
 import type { AppState } from '../core/storage/schema';
 
@@ -29,6 +30,7 @@ export class AppShell {
   private readonly pickerRoot: HTMLElement;
   private restaurantHud?: RestaurantHud;
   private bubblesHud?: BubblesHud;
+  private colouringHud?: ColouringHud;
 
   constructor(private readonly root: HTMLElement) {
     this.overlayRoot = el('div', 'shell-overlay');
@@ -55,6 +57,7 @@ export class AppShell {
     this.hideGamePicker();
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
+    this.colouringHud = undefined;
     this.chromeRoot.replaceChildren();
   }
 
@@ -76,6 +79,7 @@ export class AppShell {
   setMapChrome(opts: MapChromeOptions): void {
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
+    this.colouringHud = undefined;
     this.clearOverlay();
     renderMapChrome(this.chromeRoot, opts);
   }
@@ -130,6 +134,25 @@ export class AppShell {
 
   showBubblesEndScreen(onRestaurant: () => void, onHome: () => void): void {
     renderBubblesEndScreen(this.overlayRoot, onRestaurant, onHome);
+  }
+
+  /** Colouring Time chrome (top bar, tools, palette, page overlay). Replaces any other chrome. */
+  setColouringChrome(opts: ColouringChromeOptions): ColouringHud {
+    this.clearOverlay();
+    this.restaurantHud = undefined;
+    this.bubblesHud = undefined;
+    this.colouringHud = new ColouringHud(this.chromeRoot, opts);
+    return this.colouringHud;
+  }
+
+  /** Removes the colouring chrome so only the time-out screen stays interactive. */
+  clearColouringChrome(): void {
+    this.colouringHud?.destroy();
+    this.colouringHud = undefined;
+  }
+
+  showColouringEndScreen(onHome: () => void): void {
+    renderColouringEndScreen(this.overlayRoot, onHome);
   }
 
   showToast(text: string): void {

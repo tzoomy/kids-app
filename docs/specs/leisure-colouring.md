@@ -1,7 +1,7 @@
 # `leisure-colouring` — Colouring Time (`זמן צביעה`)
 
 Status: **approved**
-Pass in progress: **none**
+Pass in progress: **1**
 
 **Basic-first rule (applies to this spec).** By default, Pass 1 is a working game with basic animation and device TTS or existing recorded clips only; polish and new recordings come in Pass 2 after the owner approves the finished Pass 1. An explicit owner decision in this spec can override the default for a specific item. (`docs/PROCESS.md` §3, decided by the owner on 2026-11-13.) No item in this spec needs an override.
 
@@ -180,6 +180,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-31 | Layout: at `1280x800` the palette is a vertical side column on the reading-start side (right in RTL; 1 column at age 2, 2 columns of 8 at age 5) and `pageSide` is about 704 CSS px and ≥ 680; at `800x1280` the palette is a bottom bar (1–2 rows) and `pageSide` is ≥ 680; swatches and tools stay ≥ 64 CSS px; a rotation re-layout keeps the fills | 1 | e2e | both | `getBuildingHit`, `getColouringInfo` |
 | AC-32 | Art checker, structure (M6 unit): every frozen region id is present in the page SVG as a closed `<path>` in the `fills` group, in manifest order, with the specified `data-age2` / `data-parent`; the root is `viewBox="0 0 800 800"` and its only children are `g#fills` then `g#outlines`; no `transform` on `fills` or above; each `d` closes every subpath; no `<text>`, `<image>`, `<use>`, `<style>`, `<filter>`, gradient, `<pattern>`, `href`, or `url(`; each file is under 15 KB | 1 | unit | @single-orientation | |
 | AC-33 | Art checker, geometry (M6 browser, `tests/e2e/leisure-colouring.art.spec.ts`): each page is rendered at 800×800 (1 CSS px = 1 viewBox unit) and checked for (1) an inscribed disc of diameter ≥ 76 units in every coarse region's visible area on the age-2 track, and ≥ 48 units in every region's visible area on the age-5 track; (2) sample-point hit-tests under the AC-29 rule (inside a path, on an outline, within 20 px, and far no-op); (3) no gaps (after painting fills and outlines, a flood fill from the border leaves no unreached pixel that is not fill or outline), seams (a region-id change has an outline pixel within 3 px), fine-inside-parent containment, and matching `nonzero` / `evenodd` pixel counts. Writes an id-map PNG per page and track as a test artifact (not committed) | 1 | e2e | @single-orientation | |
+| AC-34 | Lazy load: the 8 colouring pages and 2 backgrounds load when Colouring Time opens, never at boot in `PreloadScene`; the boot art manifest (`ART_MANIFEST` in `src/assets/art/manifest.ts`, queued by `PreloadScene`) excludes the colouring keys (`colouring-page-*`, `leisure-colouring-bg-*`); no request for a colouring page or background is made before the game is entered | 1 | unit, e2e | @single-orientation | |
 
 ## Art, animation, and audio
 
@@ -194,6 +195,8 @@ Paths, keys, ids, and line ids below are frozen at approval so Gemini can start 
 | 8 colouring pages | `public/art/colouring/pages/<pageId>.svg` | `colouring-page-<pageId>` |
 | Landscape background (1280×800) | `public/art/scenes/leisure-colouring/bg-landscape.svg` | `leisure-colouring-bg-landscape` |
 | Portrait background (800×1280) | `public/art/scenes/leisure-colouring/bg-portrait.svg` | `leisure-colouring-bg-portrait` |
+
+**Team-lead decision (2026-11-13):** the colouring pages (the eight 800×800 SVGs plus the two backgrounds) load when Colouring Time opens, never at boot in `PreloadScene`. The keys above are listed in a colouring-only art manifest that `ColouringScene` (or its loader) queues on entry; they must **not** be added to the boot `ART_MANIFEST` in `src/assets/art/manifest.ts`. (The table header names that file only as the existing key registry pattern; the boot list stays free of colouring assets.) Unit: the boot manifest excludes the colouring keys (AC-34). E2E: no colouring page or background request is made before the game is entered (AC-34).
 
 **Team-lead decision (2026-11-13):** from Gemini's spec review (B3). The colouring **page** is a square 800×800 SVG. It is drawn inside the 1280×800 (landscape) and 800×1280 (portrait) **scene** backgrounds. The backgrounds are a simple, calm desk or paper table, original only, with an empty centre where the page sits. They do not use viewBox `0 0 800 800` or the `fills`/`outlines` groups; AC-26 is scoped accordingly. The page itself carries a paper rectangle (`#FFFDF9`) when letterboxed. Palette dots and tool buttons are procedural or DOM in Pass 1 (no crayon SVGs). Crayon art and fill-burst polish are Pass 2.
 
@@ -373,3 +376,5 @@ The owner decisions above stand. The team-lead decisions of 2026-11-13 from Gemi
 - 2026-11-13 — **Team-lead decision (2026-11-13):** from Gemini's spec review (M3). Replace `white` and `cream` with `charcoal` and `grey`; the age-2 set of 8 includes `charcoal`; add `peach` to the age-5 16. Counts stay 8 and 16 (AC-06). — non-substantive (status stays **approved**)
 - 2026-11-13 — **Team-lead decision (2026-11-13):** from Gemini's spec review (M5). Drop the chef's button regions. Gemini may thicken or merge thin regions wherever the checker fails, and updates the ids in this spec when it does. — non-substantive (status stays **approved**)
 - 2026-11-13 — **Team-lead decision (2026-11-13):** from Gemini's spec review (M6). An automatic art checker: unit test for ids, closed paths, and structure (AC-32); browser check for inscribed-circle thickness and sample-point hit-tests (AC-33). — non-substantive (status stays **approved**)
+- 2026-11-13 — **Team-lead decision (2026-11-13):** the colouring pages (8 at 800×800 plus 2 backgrounds) load when the colouring game opens, never at boot in `PreloadScene` (AC-34). — non-substantive (status stays **approved**)
+- 2026-11-13 — Pass in progress set to 1 with the failing Pass 1 unit and real-tap e2e tests (branch test/leisure-colouring-pass1). — non-substantive (status stays **approved**)

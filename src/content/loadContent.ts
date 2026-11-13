@@ -3,6 +3,7 @@ import animalRestaurantJson from './games/animal-restaurant.json';
 import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
+import leisureColouringJson from './games/leisure-colouring.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -11,11 +12,13 @@ import {
   KitchenOrchestraContentSchema,
   SortingBedsContentSchema,
   WhosHidingContentSchema,
+  LeisureColouringContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
+  type LeisureColouringContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -42,6 +45,10 @@ export function loadKitchenOrchestra(): KitchenOrchestraContent {
 
 export function loadSortingBeds(): SortingBedsContent {
   return SortingBedsContentSchema.parse(sortingBedsJson);
+}
+
+export function loadLeisureColouring(): LeisureColouringContent {
+  return LeisureColouringContentSchema.parse(leisureColouringJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

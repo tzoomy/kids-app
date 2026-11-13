@@ -96,6 +96,11 @@ export const ANIM_PROFILE = {
     ruleSwitch: { duration: 480, ease: 'Sine.easeInOut' },
   },
 
+  /** Colouring Time fill flash. Clipped to the region; never scale (AC-24). */
+  colouring: {
+    fill: { durationMs: 280, flashFrom: 0.7 },
+  },
+
   /** Travel Suitcase pack-into-case and landing bounce. */
   suitcase: {
     pack: { duration: 560, arcHeight: 140, endScale: 0.88, ease: 'Sine.easeIn' },
