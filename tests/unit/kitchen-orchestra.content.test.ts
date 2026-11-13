@@ -9,11 +9,12 @@ describe('Kitchen Orchestra moves to Language House', () => {
     expect(loadAnimalRestaurant().world).toBe('language-house');
   });
 
-  it('keeps Language House open and earning leisure, with Animal Restaurant as the legacy entry game', () => {
+  it('keeps Language House open and earning leisure, with no single entry game (the picker opens instead)', () => {
     const house = loadWorlds().worlds.find((w) => w.id === 'language-house');
     expect(house?.status).toBe('open');
     expect(house?.earnsLeisure).toBe(true);
-    expect(house?.entryGameId).toBe('animal-restaurant');
+    expect(house?.entryGameId).toBeUndefined();
+    expect(house).not.toHaveProperty('entryGameId');
   });
 
   it('locks Art Studio again, with no entry game, until it has its own game', () => {
