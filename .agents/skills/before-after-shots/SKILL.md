@@ -9,9 +9,10 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 
 ## Servers and ports
 
-- Serve previews over HTTP (not `file://`), on a **private port** bound to `127.0.0.1`. Prefer `listen(0)` or a port you confirm is free.
-- Never reuse another worktree's preview server. Playwright is configured with `reuseExistingServer: !process.env.CI` and `baseURL` `http://localhost:4173/kids-app/`. A leftover server on 4173 (or any shared preview port) will serve stale code. Do not use 4173 unless you started that process yourself in this worktree and then stopped it.
-- Stop the server when the shots are done.
+- Serve previews over HTTP (not `file://`). When a Vite preview or Playwright server is needed, always start your own server on a **private port** bound to `127.0.0.1`, using an **uncommitted** local Playwright or Vite config. Prefer `listen(0)` or a port you confirm is free. Never commit that config, and do not edit the committed `playwright.config.ts`.
+- Never use port 4173. There is no exception for a server you started yourself. A leftover 4173 process is common, and the committed Playwright config has `reuseExistingServer: !process.env.CI` with `baseURL` `http://localhost:4173/kids-app/`, which will serve stale code from another worktree. In the uncommitted local config, leave `reuseExistingServer` off.
+- Never reuse another worktree's preview server.
+- Stop only servers you started yourself, and only when the shots are done. Never kill 4173, another worktree's preview, or any other process you did not start.
 
 ## Shots
 

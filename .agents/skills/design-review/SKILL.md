@@ -11,7 +11,7 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. You a
 
 - Read the diff, the approved spec (`docs/specs/`), and the screenshots. A visual change with no inspected screenshot is a blocker.
 - Serve the build over HTTP (not `file://`). Open a fresh page for each orientation at native `1280×800` and `800×1280` (do not resize a Phaser FIT canvas in place).
-- If you need to take the shots, follow `before-after-shots` (private port; never reuse another worktree's preview server).
+- If you need to take the shots, follow `before-after-shots`: start your own preview on a private port with an uncommitted local config; never use port 4173; never reuse another worktree's server; stop only servers you started.
 
 ## Check
 
