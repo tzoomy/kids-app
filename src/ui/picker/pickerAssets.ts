@@ -46,11 +46,20 @@ const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = 
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
 };
 
+/**
+ * Station cards of one-game worlds that become trails once a second game arrives (additive; existing art only).
+ * Replace with real card art through the manifest, which wins over this block.
+ */
+const STATION_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
+  'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
+};
+
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
-  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key];
+  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? STATION_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }

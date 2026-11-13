@@ -68,6 +68,15 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'station-trail',
+    match: [
+      /^src\/ui\/picker\//,
+      /^src\/worlds\/worldTrail\.ts$/,
+      /^tests\/unit\/station-trail[^/]*$/,
+    ],
+    specs: ['tests/e2e/station-trail.spec.ts'],
+  },
+  {
     id: 'leisure-colouring',
     match: [
       /^src\/games\/colouring\//,

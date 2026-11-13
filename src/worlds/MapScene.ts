@@ -6,7 +6,9 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES, WORLD_GAMES } from '../ui/picker/pickerModel';
+import { worldEntry } from '../ui/picker/trailModel';
+import { stationsForActiveProfile } from './worldTrail';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -97,9 +99,14 @@ export class MapScene extends Phaser.Scene {
           }
           return;
         }
-        if (world.id === 'language-house') {
-          // Language House hosts two games: the child picks one (or closes the picker and stays on the map).
+        // Registry-driven entry (docs/specs/station-trail.md): 2+ games open the station trail picker, exactly one
+        // game is entered directly, and a world with no registered game falls back to its `entryGameId`.
+        const entry = worldEntry(stationsForActiveProfile(context, world.id));
+        if (entry.kind === 'picker') {
+          // The child picks a station (or closes the picker and stays on the map). No station is ever locked.
           context.shell.showGamePicker({
+            stations: entry.stations,
+            title: world.nameHe,
             onPick: (game) => {
               context.shell.hideGamePicker();
               context.sfx.tap();
@@ -112,17 +119,8 @@ export class MapScene extends Phaser.Scene {
           });
           return;
         }
-        if (world.entryGameId === 'animal-restaurant') {
-          transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
-        } else if (world.entryGameId === 'who-is-hiding') {
-          transitionTo(this, 'HidingScene', { style: 'iris', originX: x, originY: y });
-        }
-        if (world.entryGameId === 'kitchen-orchestra') {
-          transitionTo(this, 'OrchestraScene', { style: 'iris', originX: x, originY: y });
-        }
-        if (world.entryGameId === 'sorting-beds') {
-          transitionTo(this, 'SortingScene', { style: 'iris', originX: x, originY: y });
-        }
+        const target = entry.kind === 'direct' ? entry.game : WORLD_GAMES.find((g) => g.gameId === world.entryGameId);
+        if (target) transitionTo(this, target.sceneKey, { style: 'iris', originX: x, originY: y });
       });
 
       const labels: Record<string, string> = {

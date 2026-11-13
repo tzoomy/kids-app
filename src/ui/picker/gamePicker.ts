@@ -1,11 +1,21 @@
 import { el } from '../dom';
 import heStrings from '../../content/i18n/he.json';
-import { PICKER_CLOSE_TEST_ID, PICKER_GAMES, type PickerGame } from './pickerModel';
+import {
+  PICKER_CLOSE_TEST_ID,
+  PICKER_GAMES,
+  STATION_TRAIL_TEST_ID,
+  stationPulseTestId,
+  stationStarTestId,
+  type PickerGame,
+} from './pickerModel';
 import { resolvePickerAsset } from './pickerAssets';
+import type { Station } from './trailModel';
 
 export interface GamePickerOptions {
-  /** Cards to show; defaults to the Language House games. */
+  /** Cards to show; defaults to the Language House games. Ignored when `stations` is given. */
   games?: readonly PickerGame[];
+  /** Station trail of a world (docs/specs/station-trail.md): cards with a star and a pulse. Replaces `games`. */
+  stations?: readonly Station[];
   /** Picker title; defaults to the Language House title. */
   title?: string;
   onPick: (game: PickerGame) => void;
@@ -71,16 +81,44 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   panel.appendChild(header);
 
   const cards = el('div', 'picker-cards');
-  for (const game of opts.games ?? PICKER_GAMES) {
+  const entries: readonly { game: PickerGame; station?: Station }[] = opts.stations
+    ? opts.stations.map((station) => ({ game: station.game, station }))
+    : (opts.games ?? PICKER_GAMES).map((game) => ({ game }));
+  if (opts.stations) {
+    cards.dataset.testid = STATION_TRAIL_TEST_ID;
+    cards.classList.add('station-trail');
+    cards.style.setProperty('--picker-count', String(Math.max(1, entries.length)));
+  }
+  for (const { game, station } of entries) {
     const label = t[game.labelKey];
     const card = el('button', 'picker-card');
     card.type = 'button';
     card.dataset.testid = game.testId;
-    card.setAttribute('aria-label', label);
+    const spoken = [label];
+    if (station?.completed) spoken.push(t.stationDone);
+    if (station?.suggested) spoken.push(t.stationSuggested);
+    card.setAttribute('aria-label', spoken.join(', '));
+    if (station) {
+      card.classList.add('picker-station');
+      card.dataset.completed = String(station.completed);
+      card.dataset.suggested = String(station.suggested);
+    }
     const art = el('div', 'picker-card-art');
     applyArt(art, game.assetKey);
     card.appendChild(art);
     card.appendChild(el('span', 'picker-card-label', label));
+    if (station?.completed) {
+      const star = el('span', 'station-star', '★');
+      star.dataset.testid = stationStarTestId(game.gameId);
+      star.setAttribute('aria-hidden', 'true');
+      card.appendChild(star);
+    }
+    if (station?.suggested) {
+      const pulse = el('span', 'station-pulse');
+      pulse.dataset.testid = stationPulseTestId(game.gameId);
+      pulse.setAttribute('aria-hidden', 'true');
+      card.appendChild(pulse);
+    }
     card.addEventListener('click', () => opts.onPick(game));
     cards.appendChild(card);
   }

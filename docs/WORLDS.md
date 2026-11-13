@@ -355,6 +355,7 @@ Goal: supporting features, not learning games.
 - **Learning goal:** Not a learning game; shows progress and gently guides the next choice.
 - **Inspiration pattern:** Tiger eAcademy (clear, visible progress); Khan Academy Kids (a path by domain).
 - **Age 2 and 5:** Same for both ages; the suggestion follows each girl's own adaptive level.
+- **Spec:** `docs/specs/station-trail.md` (draft, pending owner review of the details).
 
 ---
 
