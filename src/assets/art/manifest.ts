@@ -192,6 +192,15 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'language-house-bg-landscape', url: 'art/scenes/language-house/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'language-house-bg-portrait', url: 'art/scenes/language-house/bg-portrait.svg', width: 800, height: 1280 },
 
+  // Food colour variants (256x256)
+  { key: 'food-apple-red', url: 'art/foods/apple-red.svg', width: 256, height: 256 },
+  { key: 'food-apple-green', url: 'art/foods/apple-green.svg', width: 256, height: 256 },
+  { key: 'food-banana-yellow', url: 'art/foods/banana-yellow.svg', width: 256, height: 256 },
+  { key: 'food-banana-green', url: 'art/foods/banana-green.svg', width: 256, height: 256 },
+  { key: 'food-grapes-purple', url: 'art/foods/grapes-purple.svg', width: 256, height: 256 },
+  { key: 'food-grapes-green', url: 'art/foods/grapes-green.svg', width: 256, height: 256 },
+  { key: 'food-pear-green', url: 'art/foods/pear-green.svg', width: 256, height: 256 },
+  { key: 'food-pear-yellow', url: 'art/foods/pear-yellow.svg', width: 256, height: 256 },
   // Sorting Beds — flower basket prop (single-sprite fallback + layered back/front for sitting flowers)
   { key: 'flower-basket', url: 'art/props/flower-basket.svg', width: 520, height: 400 },
   { key: 'flower-basket-back', url: 'art/props/flower-basket-back.svg', width: 520, height: 400 },
