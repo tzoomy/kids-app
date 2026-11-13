@@ -1,7 +1,7 @@
 # sorting-beds — Sorting Beds
 
 Status: **approved**
-Pass in progress: **none**
+Pass in progress: **1**
 
 ## Summary
 
@@ -137,7 +137,7 @@ Frozen test handles (shared names from [PR #37](https://github.com/tzoomy/kids-a
   - Shared chrome (PR #37; game scenes put these on their DOM chrome): `hud-back` (back button), `hud-help` (help button), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the whole help overlay; tapping anywhere closes it)
 - **Seed and read hooks under `?e2e=1`** (seed persisted state or read state only; no game actions, no scene navigation; `goToScreen` is for screenshot scripts only and forbidden in journey/AC tests):
   - Shared spoken-line hooks from PR #37 (pending merge). Voice assertions use `getSpokenLines` `lineId`s: `getSpokenLines(sinceIndex?) -> [{ index, lineId, lang, source: 'clip' | 'tts', text?, at }]` (`source` is the provider *requested*, not whether it was heard); `getSpokenLineCount() -> number`.
-  - Game-specific hooks to add: `seedSortingLevel(level: number)` — seeds the active profile's persisted adaptive level for `sorting-beds` before entering through `enterWorldByTap` / `getBuildingHit('number-garden')`. `seedBalanceSec(sec: number)` — seeds the active profile's leisure balance in seconds. `getSortingInfo(): SortingRoundInfo | null` — read-only snapshot of the active round:
+  - Game-specific hooks to add: `seedSortingLevel(level: number)` — seeds the active profile's persisted adaptive level for `sorting-beds` before entering through `enterWorldByTap` / `getBuildingHit('number-garden')`. `seedBalanceSec(sec: number)` — seeds the active profile's leisure balance in seconds. `seedLanguageSetting(lang: 'en' | 'fr' | 'both')` — seeds the stored `settings.languages` and persists (so a test knows which language a round uses; no navigation, no game action). `getSortingInfo(): SortingRoundInfo | null` — read-only snapshot of the active round:
     ```ts
     interface SortingRoundInfo {
       level: number;
@@ -218,6 +218,7 @@ Frozen test handles (shared names from [PR #37](https://github.com/tzoomy/kids-a
     ready: boolean;                                  // the current flower is in the basket and bed taps are accepted
   }
   ```
+- **Seed hook `seedLanguageSetting(lang: 'en' | 'fr' | 'both')`** under `?e2e=1`: writes `settings.languages` of the app state and persists. Seed only, used by AC-05 so the language played is known.
 - **Seed hook `seedSortingLevel(level: number)`** under `?e2e=1`. Seeds persisted state only: it writes `level` (with `cleanStreak: 0`, `recent: []`) to the active profile's adaptive skill for `sorting-beds` for every content language, exactly like `seedRestaurantLevel` / `seedOrchestraLevel` on PR #37, and persists. No game action and no navigation; the test then enters through `enterWorldByTap`. `seedBalanceSec` is the shared PR #37 hook.
 - **Language.** The token language is picked per round with the restaurant's `nextRoundLanguage` from the parent's `settings.languages`, fixed for the round's 3 flowers, and each round feeds that language's skill (`number-garden.sorting-beds.<lang>`), as the restaurant and orchestra do. Shape rounds speak no token (Pass 1 has no shape words); conjunction rounds speak the size token, then the colour token, as two separate line requests.
 
@@ -233,7 +234,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-02 | A correct answer gives the specified feedback and advances the game | 1 | e2e | @single-orientation | `getBuildingHit`, `getSortingInfo` |
 | AC-03 | A wrong answer gives the specified hint or retry and never reduces the leisure balance | 1 | e2e | @single-orientation | `getBuildingHit`, `seedBalanceSec`, `getSortingInfo` |
 | AC-04 | Difficulty rises after successes and drops after misses, per this spec's rules | 1 | unit | @single-orientation | |
-| AC-05 | One real-tap level change at a low level | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedSortingLevel`, `getSortingInfo` |
+| AC-05 | One real-tap level change at a low level | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedSortingLevel`, `seedLanguageSetting`, `getSortingInfo` |
 | AC-06 | High levels play correctly | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedSortingLevel`, `getSortingInfo` |
 | AC-07 | A new age-2 profile starts at the age-2 start level; a new age-5 profile at the age-5 start level | 1 | unit | @single-orientation | |
 | AC-08 | Leisure accrues as specified, never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
@@ -410,3 +411,5 @@ All open decisions were resolved by the owner on 2026-11-13.
 - 2026-11-12 — team-lead proposals added (choreography, attribute rule per round, L1 picture labels and scaffold mapping, sorting AppScreen and hooks, age-2 idle hint and one miss per item, Picnic Train scene folder out of scope), voice strings reviewed, AC table completed; engine rules left as the single open owner decision — substantive
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (engine v1 rules incl. `trialsPerRound: 3` kept, choreography, one rule per round, combined beds from L6, 2 beds on L5 size rounds, one example flower per bed at L7–L8, flower-basket prop, scaffold/support mapping, sorting AppScreen and hooks, age-2 idle hint and one miss per item, Picnic Train scene folder out of scope, dependency on art PR #20); 0 ACs added — substantive
 - 2026-11-13 — **Team-lead decision (2026-11-13)** (minor clarification; status stays approved, no owner re-approval): after the L8 switch to size × shape, Pass 1 speaks only the size token for the remaining flowers (shape is carried by the example flower; shape words stay Pass 2); `extra.vary: 2` (shape varies) applies at L8 as well. AC-09, AC-31, and AC-32 updated to match. — clarifying
+- 2026-11-13 — Pass in progress set to 1 in the Pass 1 implementation PR (#44); `npm run check:ac` now enforces every Pass-1 criterion — process
+- 2026-11-13 — minor: hook `seedLanguageSetting(lang)` added (seed only, `?e2e=1`) so AC-05 can pin the language of the played round (hook added for test pinning); AC-05 handles list updated — minor
