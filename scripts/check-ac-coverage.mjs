@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Acceptance-criteria coverage check (see docs/PROCESS.md, "Acceptance criteria and test mapping").
 //
-// For every game spec docs/specs/<game-id>.md (not TEMPLATE.md, not *.progress.md, not *.assets.md), each
+// For every game spec docs/specs/<game-id>.md (not TEMPLATE.md, not *.progress.md), each
 // acceptance criterion in the "Acceptance criteria" table that is
 //   - not struck through (~~AC-07~~),
 //   - verified by unit, e2e, or e2e+seed (device-only criteria are exempt), and
@@ -177,7 +177,7 @@ export function loadRepo(root) {
   const specsDir = path.join(root, 'docs', 'specs');
   const specs = listFiles(specsDir)
     .filter((f) => path.dirname(f) === specsDir && f.endsWith('.md'))
-    .filter((f) => path.basename(f) !== 'TEMPLATE.md' && !f.endsWith('.progress.md') && !f.endsWith('.assets.md'))
+    .filter((f) => path.basename(f) !== 'TEMPLATE.md' && !f.endsWith('.progress.md'))
     .map((f) => ({ gameId: path.basename(f, '.md'), markdown: fs.readFileSync(f, 'utf8') }));
   const testFiles = listFiles(path.join(root, 'tests'))
     .filter((f) => TEST_FILE_RE.test(f))
