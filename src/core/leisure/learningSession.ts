@@ -36,6 +36,11 @@ export class LearningSession {
     if (active) this.lastInteractionAt = this.nowMs();
   }
 
+  /** Read-only: whether the session is currently reporting listening. */
+  isListening(): boolean {
+    return this.listening;
+  }
+
   /** Call while a success celebration/animation is playing. Watching counts as participation. */
   reportCelebrating(active: boolean): void {
     this.celebrating = active;

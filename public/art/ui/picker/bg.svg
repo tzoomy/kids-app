@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Calm Warm Cream/Peach Language House Wall -->
+    <rect x="0" y="0" width="1280" height="500" fill="#FFF3E0"/>
+
+    <!-- Subtle Vertical Wallpaper Stripes -->
+    <path d="M48 88h36v412H48zM136 88h36v412h-36zM224 88h36v412h-36zM312 88h36v412h-36zM400 88h36v412h-36zM488 88h36v412h-36zM576 88h36v412h-36zM664 88h36v412h-36zM752 88h36v412h-36zM840 88h36v412h-36zM928 88h36v412h-36zM1016 88h36v412h-36zM1104 88h36v412h-36zM1192 88h36v412h-36z" fill="#F7DEC0" fill-opacity="0.45"/>
+
+    <!-- Upper Crown Molding Band -->
+    <rect x="0" y="0" width="1280" height="80" fill="#FFF6E8"/>
+    <rect x="0" y="78" width="1280" height="12" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+
+    <!-- Lower Wainscot Wall -->
+    <rect x="0" y="492" width="1280" height="148" fill="#F7DEC0"/>
+    <rect x="0" y="486" width="1280" height="14" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+    <g fill="#FFF3E0" fill-opacity="0.55" stroke="#E5BE94" stroke-width="4">
+      <rect x="56" y="516" width="200" height="96" rx="12"/>
+      <rect x="296" y="516" width="200" height="96" rx="12"/>
+      <rect x="536" y="516" width="208" height="96" rx="12"/>
+      <rect x="784" y="516" width="200" height="96" rx="12"/>
+      <rect x="1024" y="516" width="200" height="96" rx="12"/>
+    </g>
+
+    <!-- Warm Wooden Floor -->
+    <rect x="0" y="636" width="1280" height="164" fill="#D9A06B"/>
+    <rect x="0" y="756" width="1280" height="44" fill="#C48B56"/>
+    <rect x="0" y="630" width="1280" height="14" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+    <g stroke="#B87D56" stroke-width="4">
+      <line x1="0" y1="696" x2="1280" y2="696"/>
+      <line x1="0" y1="756" x2="1280" y2="756"/>
+      <line x1="260" y1="644" x2="220" y2="696"/>
+      <line x1="640" y1="644" x2="640" y2="696"/>
+      <line x1="1020" y1="644" x2="1060" y2="696"/>
+      <line x1="420" y1="696" x2="390" y2="756"/>
+      <line x1="860" y1="696" x2="890" y2="756"/>
+    </g>
+
+    <!-- Left Arched House Window (Calm, Low-Contrast) -->
+    <g>
+      <path d="M 104 252 A 112 108 0 0 1 328 252 L 328 424 L 104 424 Z" fill="#B8E6FF" stroke="#7A5C48" stroke-width="5"/>
+      <circle cx="164" cy="222" r="24" fill="#FFF3B0"/>
+      <path d="M 212 244 C 212 230, 228 224, 240 230 C 248 220, 268 220, 276 232 C 288 232, 294 242, 290 252 L 214 252 Z" fill="#FFFDF9"/>
+      <path d="M 106 356 Q 182 312 262 346 Q 300 362 326 348 L 326 422 L 106 422 Z" fill="#98D886"/>
+      <path d="M 178 374 Q 256 334 326 362 L 326 422 L 178 422 Z" fill="#8AE07E"/>
+      <line x1="216" y1="146" x2="216" y2="422" stroke="#FFF8EE" stroke-width="8"/>
+      <line x1="106" y1="304" x2="326" y2="304" stroke="#FFF8EE" stroke-width="8"/>
+      <path d="M 104 252 A 112 108 0 0 1 328 252 L 328 424 L 104 424 Z" fill="none" stroke="#7A5C48" stroke-width="6"/>
+      <rect x="88" y="420" width="256" height="20" rx="8" fill="#E5BE94" stroke="#7A5C48" stroke-width="5"/>
+    </g>
+
+    <!-- Right Cozy Wooden Shelf -->
+    <g stroke="#7A5C48" stroke-width="4.5">
+      <rect x="968" y="224" width="48" height="62" rx="12" fill="#FFD166"/>
+      <rect x="976" y="212" width="32" height="12" rx="5" fill="#F4A261"/>
+      <rect x="1034" y="236" width="44" height="50" rx="10" fill="#B8E6FF"/>
+      <rect x="1040" y="226" width="32" height="10" rx="4" fill="#FFF8EE"/>
+      <path d="M 1102 240 L 1144 240 L 1136 286 L 1110 286 Z" fill="#F4A261"/>
+      <path d="M 1123 240 C 1108 218, 1090 224, 1100 238" fill="#8AE07E"/>
+      <path d="M 1123 240 C 1138 216, 1156 224, 1146 238" fill="#57C457"/>
+      <rect x="940" y="286" width="236" height="16" rx="8" fill="#E5BE94"/>
+      <path d="M 964 302 L 964 320 M 1152 302 L 1152 320" stroke-width="5"/>
+    </g>
+
+    <!-- Soft Warm Ceiling Lamps -->
+    <g>
+      <circle cx="460" cy="180" r="56" fill="#FFF3B0" fill-opacity="0.4"/>
+      <line x1="460" y1="90" x2="460" y2="144" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 440 176 A 20 16 0 0 0 480 176 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 416 176 C 416 146, 438 136, 460 136 C 482 136, 504 146, 504 176 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 432 160 C 440 148, 452 144, 464 144" fill="none" stroke="#FFF3B0" stroke-width="5"/>
+
+      <circle cx="820" cy="180" r="56" fill="#FFF3B0" fill-opacity="0.4"/>
+      <line x1="820" y1="90" x2="820" y2="144" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 800 176 A 20 16 0 0 0 840 176 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 776 176 C 776 146, 798 136, 820 136 C 842 136, 864 146, 864 176 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 792 160 C 800 148, 812 144, 824 144" fill="none" stroke="#FFF3B0" stroke-width="5"/>
+    </g>
+  </g>
+</svg>
