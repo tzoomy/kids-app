@@ -29,9 +29,9 @@ Thirteen ideas were approved by the owner as vision-stage entries. Build order a
 - **Word Train** (Language House) — load named objects, or drag letters to spell short English words.
 - **Shadow Match** (Nature Lab) — identify an animal by its silhouette and its sound.
 - **Seed to Flower** (Nature Lab) — water and sun make the plant grow, with no failure.
-- **Potion Lab** (Science World) — mix two colors and hear the new color's name.
-- **Sink or Float** (Science World) — drop an object, or predict first, and watch.
-- **Magic Magnet** (Science World) — drag a magnet and see what sticks.
+- **Potion Lab** (Science World; placement pending: default separate map area, **pending Maor decision**) — mix two colors and hear the new color's name.
+- **Sink or Float** (Science World; placement pending: default separate map area, **pending Maor decision**) — drop an object, or predict first, and watch.
+- **Magic Magnet** (Science World; placement pending: default separate map area, **pending Maor decision**) — drag a magnet and see what sticks.
 - **Wardrobe** (Rewards and creation) — hats and accessories earned through progress, to dress the existing world characters.
 - **Sticker Board and Finger Drawing** (Art Studio) — stickers and finger drawing on backgrounds.
 - **Parent gate by 3-second long-press** (Infrastructure) — a simple gate for the parent area.
