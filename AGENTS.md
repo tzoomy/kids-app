@@ -23,7 +23,7 @@ All code, comments, documentation, commit messages, issue and pull request title
 - No connecting or changing external accounts, tools, or settings, no publishing, and no spending without Maor.
 - Licence policy for dependencies, art, sound, and credits: `docs/ASSETS.md`.
 - **Reuse first.** Prefer free ready-made assets and libraries: CC0 or CC-BY art and sound, credited in `src/content/credits.json` (no NC or SA licences); MIT, Apache, or BSD code, bundled locally. Main characters stay our own approved designs.
-- No copying from inspiration apps: do not copy characters, art, or audio from inspiration apps (Tiger eAcademy, Lingokids, Sago Mini, Khan Academy Kids, and others).
+- Do not copy characters, art, or audio from inspiration apps (Tiger eAcademy, Lingokids, Sago Mini, Khan Academy Kids, and others).
 - One branch per task. Do not work directly on `main` and do not rewrite `main` history.
 - Remove your git worktree and local branch right after your PR is merged or closed; remove review worktrees right after the review.
 - When drawing an approved character, attach its approved design image (`public/art/characters/<name>/` or `public/art/animals/<name>/`) as a reference.
