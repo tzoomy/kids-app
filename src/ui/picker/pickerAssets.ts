@@ -40,11 +40,17 @@ const PLACEHOLDERS: Record<PickerAssetKey, { url: string } | { css: string }> = 
   'picker-close': { css: 'background:#FFFDF9;border-radius:50%' },
 };
 
+/** Leisure Corner picker cards (additive; not part of PICKER_ASSET_KEYS, which pins the Language House art). */
+const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-bubbles': { css: 'background:linear-gradient(180deg,#a1c4fd,#c2e9fb)' },
+  'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
+};
+
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
-  const placeholder = PLACEHOLDERS[key as PickerAssetKey];
+  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }
