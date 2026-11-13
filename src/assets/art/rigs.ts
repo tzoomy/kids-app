@@ -345,10 +345,12 @@ export const ANIMAL_RIGS: Record<string, AnimalRig> = {
         height: 214,
         depth: 1,
       },
+      // Ears sit high (y -340, was -298) so the tips clear the Who's Hiding? L5 reveal line
+      // (0.3 => y -336); floppy ears hanging fully below it left no dog clue at that level.
       earL: {
         key: 'ear-left',
         x: -86,
-        y: -298,
+        y: -340,
         originX: 0.72,
         originY: 0.22,
         width: 88,
@@ -359,7 +361,7 @@ export const ANIMAL_RIGS: Record<string, AnimalRig> = {
       earR: {
         key: 'ear-right',
         x: 86,
-        y: -298,
+        y: -340,
         originX: 0.28,
         originY: 0.22,
         width: 88,
@@ -632,3 +634,86 @@ export const ANIMAL_ART_KINDS: string[] = [
   'panda',
   'lion',
 ];
+
+/** Chef and other non-restaurant characters. Not listed in ANIMAL_ART_KINDS. */
+export const CHARACTER_RIGS: Record<string, AnimalRig> = {
+  chef: {
+    kind: 'chef',
+    height: 480,
+    eyeClosedKey: 'eye-closed',
+    mouthKeys: {
+      smile: 'mouth-smile',
+      open: 'mouth-open',
+      hmm: 'mouth-hmm',
+    },
+    parts: {
+      body: {
+        key: 'body',
+        x: 0,
+        y: 0,
+        originX: 0.5,
+        originY: 0.96,
+        width: 240,
+        height: 240,
+        depth: 1,
+      },
+      hat: {
+        key: 'hat',
+        x: 0,
+        y: -346,
+        originX: 0.5,
+        originY: 0.92,
+        width: 260,
+        height: 180,
+        depth: 2,
+        parent: 'head',
+      },
+      head: {
+        key: 'head',
+        x: 0,
+        y: -198,
+        originX: 0.5,
+        originY: 0.94,
+        width: 236,
+        height: 196,
+        depth: 3,
+      },
+      eyeL: {
+        key: 'eye-open',
+        x: -46,
+        y: -286,
+        originX: 0.5,
+        originY: 0.5,
+        width: 52,
+        height: 58,
+        depth: 4,
+        parent: 'head',
+      },
+      eyeR: {
+        key: 'eye-open',
+        x: 46,
+        y: -286,
+        originX: 0.5,
+        originY: 0.5,
+        width: 52,
+        height: 58,
+        depth: 4,
+        parent: 'head',
+        flipX: true,
+      },
+      mouth: {
+        key: 'mouth-smile',
+        x: 0,
+        y: -240,
+        originX: 0.5,
+        originY: 0.35,
+        width: 68,
+        height: 48,
+        depth: 5,
+        parent: 'head',
+      },
+    },
+  },
+};
+
+export const CHARACTER_ART_KINDS: string[] = ['chef'];

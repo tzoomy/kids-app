@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:ac": "node scripts/check-ac-coverage.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans": "^5.3.0",

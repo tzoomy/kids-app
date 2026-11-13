@@ -45,6 +45,27 @@ export const ANIM_PROFILE = {
   },
 
   transition: { duration: 320, color: 0xfde9d9 },
+
+  /** Who's Hiding? peek / rustle / reveal. Used by worldMotion helpers and the art preview. */
+  hiding: {
+    rustle: { angle: 8, duration: 90, repeats: 3, ease: 'Sine.easeInOut' },
+    peek: { rise: 52, duration: 420, ease: 'Back.easeOut' },
+    reveal: { rise: 130, duration: 480, ease: 'Back.easeOut' },
+    hide: { duration: 280, ease: 'Sine.easeIn' },
+  },
+
+  /** Kitchen Orchestra instrument tap / glow. Chef idle/react reuse character + press/happy/hmm. */
+  orchestra: {
+    glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
+    glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
+  },
+
+  /** Sorting Beds (docs/specs/sorting-beds.md): flower drop into a bed, soil settle, rule-sign flip on the L8 switch. */
+  sorting: {
+    drop: { duration: 520, arcHeight: 120, endScale: 0.92, ease: 'Sine.easeIn' },
+    settle: { duration: 280, squash: 0.9, ease: 'Back.easeOut' },
+    ruleSwitch: { duration: 480, ease: 'Sine.easeInOut' },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

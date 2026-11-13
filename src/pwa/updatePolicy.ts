@@ -4,7 +4,7 @@
  */
 
 /** Screens the child (or parent) can be on. */
-export type AppScreen = 'profile' | 'map' | 'restaurant' | 'bubbles' | 'parent' | 'loading';
+export type AppScreen = 'profile' | 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'parent' | 'loading';
 
 /** sessionStorage key written just before a PWA-driven reload, to prevent a reload loop. */
 export const PWA_RELOAD_GUARD_KEY = 'kids-app-pwa-reloaded';

@@ -8,7 +8,7 @@ export interface StorageDriver {
   setItem(key: string, value: string): void;
 }
 
-function browserStorage(): StorageDriver | null {
+export function browserStorage(): StorageDriver | null {
   try {
     return typeof localStorage !== 'undefined' ? localStorage : null;
   } catch {

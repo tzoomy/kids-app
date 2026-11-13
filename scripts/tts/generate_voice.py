@@ -4,22 +4,31 @@
 Usage (from the repo root, with GEMINI_API_KEY in the environment):
     python scripts/tts/generate_voice.py [--dry-run] [--max-requests N] [--resplit-only]
 
-- Line list comes from src/content/games/animal-restaurant.json (food prompts and
-  thanks lines, en + fr) and src/content/voice-lines-he.json (Hebrew guidance).
-- Lines are batched (one API request per batch, free tier is ~3 RPM / ~10 RPD),
-  separated by pause tags, then split locally on the n-1 longest silences.
-- Each clip is trimmed, loudness-normalized and encoded as mono 24 kHz 48 kbps MP3
-  into public/audio/{lang}/. src/content/audio-manifest.json is rewritten to list only
-  clips that exist, so missing lines fall back to device TTS.
+- Line list comes from src/content/games/animal-restaurant.json (food prompts,
+  thanks, and attr.* / not.* colour lines, en + fr), src/content/voice-lines-he.json
+  (Hebrew guidance), and the decided Kitchen Orchestra French pan line
+  (orchestra.play.pan.fr = "Joue sur la poêle !").
+- Lines that still need a clip are requested in priority order (pan line, then
+  Who's Hiding Hebrew, then restaurant attr/not, then anything else), one API
+  request per batch. The free tier is treated as ~3 RPM / ~10 RPD; this script
+  waits SLEEP_BETWEEN_S seconds between requests and stops immediately on 429.
+- Batches are separated by pause tags, then split locally on the n-1 longest
+  silences (a single-line batch is just trimmed).
+- Each clip is trimmed, loudness-normalized and encoded as mono 24 kHz 48 kbps
+  MP3 into public/audio/{lang}/. src/content/audio-manifest.json is rewritten to
+  list only clips that exist, so missing lines fall back to device TTS.
 - Raw API takes are cached outside the repo (VOICE_RAW_DIR, default
   ../voice-p1/raw) so a re-split never needs another request.
 - src/content/audio-text-hashes.json records the text each clip was rendered from;
   editing a sentence makes its batch re-render on the next run (and fails CI until then).
-- Requires Python 3.9+ and the google-genai package; never prints the API key.
+- Requires Python 3.9+ and ffmpeg (already used for existing clips). Talks to the
+  Gemini API over HTTPS with urllib; never prints the API key; no extra Python
+  packages.
 """
 from __future__ import annotations
 
 import argparse
+import array
 import hashlib
 import json
 import os
@@ -27,7 +36,10 @@ import re
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 import wave
+from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,6 +59,22 @@ PAUSE_TAG = "<long pause>"
 BATCH_MAX = {"en": 16, "fr": 16, "he": 15}
 SLEEP_BETWEEN_S = 25
 SAMPLE_RATE = 24000
+API_URL = "https://generativelanguage.googleapis.com/v1beta/interactions"
+
+# Decided 2026-11-12: French pan name is poêle. The game JSON on main still says
+# tambour; this clip is recorded to the decided text. Do not read the stale JSON
+# string or the clip will be wrong.
+POELE_LINE = {
+    "id": "orchestra.play.pan.fr",
+    "lang": "fr",
+    "text": "Joue sur la poêle !",
+    "path": "audio/fr/orchestra-play-pan.mp3",
+}
+
+MIN_DURATION_S = 0.5
+MAX_DURATION_S = 18.0
+MIN_RMS = 200.0
+MIN_PEAK = 1000
 
 
 def log(msg: str) -> None:
@@ -77,6 +105,20 @@ def collect_lines() -> list[dict]:
                     "text": text,
                     "path": f"audio/{lang}/{food_slug(item['id'], count)}.mp3",
                 })
+            for variant in item.get("variants") or []:
+                color = variant["color"]
+                lines.append({
+                    "id": f"attr.{item['id']}.{color}.{lang}",
+                    "lang": lang,
+                    "text": variant[lang]["pick"],
+                    "path": f"audio/{lang}/attr-{item['id']}-{color}.mp3",
+                })
+                lines.append({
+                    "id": f"not.{item['id']}.{color}.{lang}",
+                    "lang": lang,
+                    "text": variant[lang]["not"],
+                    "path": f"audio/{lang}/not-{item['id']}-{color}.mp3",
+                })
         for i, text in enumerate(content["thanks"][lang]):
             lines.append({"id": f"thanks.{lang}.{i}", "lang": lang, "text": text, "path": f"audio/{lang}/thanks-{i}.mp3"})
     he = json.loads(HE_LINES.read_text(encoding="utf-8"))
@@ -85,6 +127,7 @@ def collect_lines() -> list[dict]:
             continue
         slug = re.sub(r"([a-z])([A-Z])", r"\1-\2", key).replace(".", "-").lower()
         lines.append({"id": f"he.{key}", "lang": "he", "text": text, "path": f"audio/he/{slug}.mp3"})
+    lines.append(dict(POELE_LINE))
     return lines
 
 
@@ -101,6 +144,17 @@ def clip_is_current(line: dict, hashes: dict) -> bool:
     return (ROOT / "public" / line["path"]).exists() and hashes.get(line["id"]) == text_hash(line["text"])
 
 
+def line_priority(line: dict) -> int:
+    lid = line["id"]
+    if lid == POELE_LINE["id"]:
+        return 0
+    if lid.startswith("he.hiding."):
+        return 1
+    if lid.startswith("attr.") or lid.startswith("not."):
+        return 2
+    return 3
+
+
 def make_batches(lines: list[dict]) -> list[list[dict]]:
     batches = []
     for lang in ("en", "fr", "he"):
@@ -113,6 +167,20 @@ def make_batches(lines: list[dict]) -> list[list[dict]]:
     return [b for b in batches if b]
 
 
+def make_stale_batches(stale: list[dict]) -> list[list[dict]]:
+    """Batch only lines that still need a clip, in the agreed priority order."""
+    groups: dict[tuple[int, str], list[dict]] = defaultdict(list)
+    for line in stale:
+        groups[(line_priority(line), line["lang"])].append(line)
+    batches: list[list[dict]] = []
+    for key in sorted(groups):
+        group = groups[key]
+        size = BATCH_MAX[group[0]["lang"]]
+        for i in range(0, len(group), size):
+            batches.append(group[i : i + size])
+    return batches
+
+
 def batch_key(batch: list[dict]) -> str:
     h = hashlib.sha1(json.dumps([MODEL_ID, VOICE, STYLE, [l["text"] for l in batch]], ensure_ascii=False).encode()).hexdigest()[:10]
     return f"{batch[0]['lang']}-{h}"
@@ -121,22 +189,42 @@ def batch_key(batch: list[dict]) -> str:
 # ---------------------------------------------------------------- API
 
 def request_audio(batch: list[dict]) -> bytes:
-    from google import genai
-    from google.genai import types
-
-    client = genai.Client(http_options=types.HttpOptions(api_version="v1beta"))
+    key = os.environ.get("GEMINI_API_KEY") or ""
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY is not set")
     content = []
     for i, line in enumerate(batch):
         text = line["text"] if i == len(batch) - 1 else f"{line['text']} {PAUSE_TAG}"
-        content.append({"type": "text", "text": text, "annotations": [{"type": "speech_metadata", "style": STYLE}]})
-    interaction = client.interactions.create(
-        model=MODEL_ID,
-        api_version="v1beta",
-        input=[{"type": "user_input", "content": content}],
-        response_format={"type": "audio", "mime_type": "audio/wav", "sample_rate": SAMPLE_RATE},
-        generation_config={"speech_config": [{"voice": VOICE, "language": LANG_CODES[batch[0]["lang"]]}]},
+        content.append({
+            "type": "text",
+            "text": text,
+            "annotations": [{"type": "speech_metadata", "style": STYLE}],
+        })
+    body = {
+        "model": MODEL_ID,
+        "input": [{"type": "user_input", "content": content}],
+        "response_format": {"type": "audio", "mime_type": "audio/wav", "sample_rate": SAMPLE_RATE},
+        "generation_config": {"speech_config": [{"voice": VOICE, "language": LANG_CODES[batch[0]["lang"]]}]},
+    }
+    request = urllib.request.Request(
+        API_URL,
+        data=json.dumps(body).encode("utf-8"),
+        method="POST",
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-goog-api-key": key,
+        },
     )
-    return extract_audio(interaction)
+    try:
+        with urllib.request.urlopen(request, timeout=180) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        err_body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"HTTP {exc.code}: {redact(err_body)[:800]}") from None
+    except urllib.error.URLError as exc:
+        raise RuntimeError(redact(str(exc.reason))) from None
+    return extract_audio(payload)
 
 
 def extract_audio(obj) -> bytes:
@@ -153,7 +241,7 @@ def extract_audio(obj) -> bytes:
             except Exception:
                 return None
         if isinstance(o, dict):
-            for k in ("data", "audio", "inline_data", "outputs", "output", "content", "parts"):
+            for k in ("data", "audio", "inline_data", "inlineData", "outputs", "output", "content", "parts"):
                 if k in o:
                     r = walk(o[k], depth + 1)
                     if r:
@@ -287,10 +375,46 @@ def encode_clip(src: Path, start: float, end: float, dest: Path) -> None:
             "-ac", "1", "-ar", "24000", "-codec:a", "libmp3lame", "-b:a", "48k", str(dest)])
 
 
+def clip_stats(path: Path) -> dict:
+    """Duration, RMS and peak of an MP3, decoded to 24 kHz 16-bit mono PCM."""
+    p = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-nostats", "-i", str(path),
+         "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "1", "-ar", str(SAMPLE_RATE), "-"],
+        capture_output=True,
+    )
+    if p.returncode != 0:
+        raise RuntimeError(redact(p.stderr.decode("utf-8", "replace")))
+    samples = array.array("h")
+    samples.frombytes(p.stdout)
+    if not samples:
+        return {"duration": 0.0, "rms": 0.0, "peak": 0, "bytes": path.stat().st_size}
+    acc = 0
+    peak = 0
+    for s in samples:
+        acc += s * s
+        a = s if s >= 0 else -s
+        if a > peak:
+            peak = a
+    return {
+        "duration": len(samples) / SAMPLE_RATE,
+        "rms": (acc / len(samples)) ** 0.5,
+        "peak": peak,
+        "bytes": path.stat().st_size,
+    }
+
+
+def clip_is_plausible(stats: dict) -> bool:
+    return (
+        MIN_DURATION_S <= stats["duration"] <= MAX_DURATION_S
+        and stats["rms"] >= MIN_RMS
+        and stats["peak"] >= MIN_PEAK
+    )
+
+
 # ---------------------------------------------------------------- main
 
 def write_manifest(lines: list[dict]) -> int:
-    manifest = {"_comment": "lineId -> path under public/ (generated by scripts/tts/generate_voice.py; Gemini TTS gemini-3.8-flash-tts, voice Leda). Only clips that exist are listed; anything missing falls back to device TTS. lineId formats: food.{id}.{count}.{lang}, thanks.{lang}.{index}, he.{key}."}
+    manifest = {"_comment": "lineId -> path under public/ (generated by scripts/tts/generate_voice.py; Gemini TTS gemini-3.8-flash-tts, voice Leda). Only clips that exist are listed; anything missing falls back to device TTS. lineId formats: food.{id}.{count}.{lang}, attr.{id}.{color}.{lang}, not.{id}.{color}.{lang}, thanks.{lang}.{index}, he.{key}, orchestra.play.pan.fr."}
     n = 0
     for l in lines:
         if (ROOT / "public" / l["path"]).exists():
@@ -304,21 +428,36 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--resplit-only", action="store_true")
+    ap.add_argument("--verify-only", action="store_true", help="check duration and RMS of existing clips, do not call the API")
     ap.add_argument("--bootstrap-hashes", action="store_true", help="record hashes for existing clips without re-rendering")
     ap.add_argument("--max-requests", type=int, default=8)
     ap.add_argument("--min-conf", type=float, default=0.0)
     args = ap.parse_args()
 
     lines = collect_lines()
-    batches = make_batches(lines)
-    report = json.loads(REPORT.read_text()) if REPORT.exists() else {"requests": []}
-    log(f"{len(lines)} lines in {len(batches)} batches")
+    hashes = load_hashes()
+    stale = [l for l in lines if not clip_is_current(l, hashes)]
+    request_batches = make_stale_batches(stale)
+    log(f"{len(lines)} lines, {len(stale)} need a clip, {len(request_batches)} request batches")
     if args.dry_run:
-        for b in batches:
-            log(f"  {batch_key(b)}: {len(b)} lines, first={b[0]['id']}")
+        for b in request_batches:
+            log(f"  {batch_key(b)}: {len(b)} lines, first={b[0]['id']}, ids={[x['id'] for x in b]}")
         return 0
 
-    hashes = load_hashes()
+    if args.verify_only:
+        failed = []
+        for l in lines:
+            path = ROOT / "public" / l["path"]
+            if not path.exists():
+                continue
+            stats = clip_stats(path)
+            ok = clip_is_plausible(stats)
+            log(f"{'ok' if ok else 'BAD'} {l['id']}: dur={stats['duration']:.2f}s rms={stats['rms']:.0f} peak={stats['peak']} bytes={stats['bytes']}")
+            if not ok:
+                failed.append(l["id"])
+        log(f"verify failed: {failed or 'none'}")
+        return 1 if failed else 0
+
     if args.bootstrap_hashes:
         for l in lines:
             if (ROOT / "public" / l["path"]).exists():
@@ -326,7 +465,11 @@ def main() -> int:
         HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         log(f"bootstrapped {len(hashes)} hashes")
         return 0
+
+    report = json.loads(REPORT.read_text()) if REPORT.exists() else {"requests": []}
     used = 0
+    stopped_for_quota = False
+    batches = request_batches if not args.resplit_only else make_batches(lines)
     for b in batches:
         key = batch_key(b)
         raw = RAW_DIR / f"{key}.wav"
@@ -342,9 +485,9 @@ def main() -> int:
                 continue
             if used:
                 time.sleep(SLEEP_BETWEEN_S)
-            log(f"request {used + 1}: {key} ({len(b)} lines)")
+            log(f"request {used + 1}: {key} ({len(b)} lines) ids={[l['id'] for l in b]}")
             used += 1
-            entry = {"batch": key, "lines": len(b), "at": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+            entry = {"batch": key, "lines": len(b), "ids": [l["id"] for l in b], "at": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
             try:
                 save_wav(request_audio(b), raw)
                 entry["ok"] = True
@@ -352,13 +495,16 @@ def main() -> int:
                 msg = redact(str(exc))
                 entry.update(ok=False, error=msg[:500])
                 report["requests"].append(entry)
+                RAW_DIR.mkdir(parents=True, exist_ok=True)
                 REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=False))
                 log(f"ERROR {key}: {msg[:400]}")
                 if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
                     log("quota reached, stopping requests")
+                    stopped_for_quota = True
                     break
                 continue
             report["requests"].append(entry)
+            RAW_DIR.mkdir(parents=True, exist_ok=True)
             REPORT.write_text(json.dumps(report, indent=2, ensure_ascii=False))
 
         intervals, conf = split_points(raw, len(b), [text_weight(l['text']) for l in b])
@@ -375,11 +521,21 @@ def main() -> int:
             log(f"SPLIT UNSURE {key}: conf={conf:.2f} bad={[b[i]['id'] for i in bad]} — not publishing this batch")
             continue
         for l, (s, e) in zip(b, intervals):
-            encode_clip(raw, s, e, ROOT / "public" / l["path"])
+            dest = ROOT / "public" / l["path"]
+            encode_clip(raw, s, e, dest)
+            stats = clip_stats(dest)
+            log(f"  {l['id']}: dur={stats['duration']:.2f}s rms={stats['rms']:.0f} peak={stats['peak']} bytes={stats['bytes']}")
+            if not clip_is_plausible(stats):
+                log(f"  REJECT {l['id']}: duration or RMS not plausible")
+                dest.unlink(missing_ok=True)
+                continue
             hashes[l["id"]] = text_hash(l["text"])
     HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     n = write_manifest(lines)
-    log(f"requests used this run: {used}; clips in manifest: {n}/{len(lines)}")
+    remaining = [l["id"] for l in lines if not clip_is_current(l, hashes)]
+    log(f"requests used this run: {used}; clips in manifest: {n}/{len(lines)}; remaining: {remaining or 'none'}")
+    if stopped_for_quota:
+        log("stopped because of a quota / 429 error; keep the clips already written")
     return 0
 
 

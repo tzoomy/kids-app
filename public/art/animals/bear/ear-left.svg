@@ -5,9 +5,8 @@
   <path d="M 38 88 C 20 74, 12 52, 16 34 C 18 54, 32 72, 54 84 Z" fill="#A96032"/>
   <!-- Outer ear highlight -->
   <path d="M 28 24 C 42 12, 62 14, 72 26 C 60 18, 42 18, 28 24 Z" fill="#E09A6C"/>
-  <!-- Cream inner ear -->
-  <ellipse cx="50" cy="48" rx="20" ry="20" fill="#FAD9B8"/>
-  <path d="M 34 40 C 38 28, 56 26, 66 36 C 56 32, 42 34, 34 40 Z" fill="#E5BF98"/>
+  <!-- Soft cream inner ear tucked into the lower part (y >= 63), hidden at the L5 peek -->
+  <ellipse cx="50" cy="72" rx="15" ry="9" fill="#FAD9B8"/>
   <!-- Outline -->
   <path d="M 38 88 C 14 72, 6 42, 22 22 C 38 4, 68 8, 82 28 C 92 44, 88 70, 74 90 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

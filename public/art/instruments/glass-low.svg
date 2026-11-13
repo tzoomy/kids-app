@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Short Wide Glass Outer Body -->
+    <path d="M52 96 L64 214 C64 226 92 234 128 234 C164 234 192 226 192 214 L204 96 Z" fill="#FFFDF9"/>
+
+    <!-- Thick Toy-like Glass Base Cushion -->
+    <path d="M62 198 L64 214 C64 226 92 234 128 234 C164 234 192 226 192 214 L194 198 C176 210 80 210 62 198 Z" fill="#FFF6E8"/>
+
+    <!-- Low Water Fill (#B8E6FF) -->
+    <path d="M58 162 L62 200 C64 212 92 220 128 220 C164 220 192 212 194 200 L198 162 Z" fill="#B8E6FF"/>
+    <!-- Water Surface Meniscus -->
+    <ellipse cx="128" cy="162" rx="70" ry="16" fill="#B8E6FF" stroke="#3B2A22" stroke-width="5"/>
+    <ellipse cx="128" cy="161" rx="52" ry="10" fill="#FFFDF9"/>
+
+    <!-- Right-side Subtle Glass Shading -->
+    <path d="M174 102 L166 216 C180 214 190 208 192 200 L200 100 Z" fill="#FFF6E8" fill-opacity="0.7"/>
+
+    <!-- Toy-like Vertical Front Gloss Highlight -->
+    <path d="M74 118 L80 204" fill="none" stroke="#FFFDF9" stroke-width="8"/>
+    <circle cx="82" cy="218" r="4" fill="#FFFDF9"/>
+
+    <!-- Thick Base Rim Line -->
+    <path d="M63 202 C82 214 174 214 193 202" fill="none" stroke="#3B2A22" stroke-width="5"/>
+
+    <!-- Glass Outer Silhouette Outline -->
+    <path d="M52 96 L64 214 C64 226 92 234 128 234 C164 234 192 226 192 214 L204 96" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Top Rim Opening -->
+    <ellipse cx="128" cy="96" rx="76" ry="18" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6"/>
+    <ellipse cx="128" cy="96" rx="64" ry="12" fill="#FFFDF9"/>
+  </g>
+</svg>

@@ -16,8 +16,8 @@ const SIZES: [number, number][] = [
   [1280, 800],
   [800, 1280],
 ];
-/** Plate counts of the two age tracks. */
-const COUNTS = [2, 3];
+/** Plate counts used by the adaptive levels (2 and 3 early, 4 at the top level). */
+const COUNTS = [2, 3, 4];
 
 describe('restaurant layout', () => {
   for (const [w, h] of SIZES) {
@@ -89,6 +89,24 @@ describe('restaurant layout', () => {
     expect(l3.plates.xs.map(Math.round)).toEqual([224, 640, 1056]);
     const l2 = computeRestaurantLayout(1280, 800, 2);
     expect(l2.plates.xs[1] - l2.plates.xs[0]).toBeGreaterThanOrEqual(400);
+  });
+
+  it('spreads four plates evenly in both orientations with room for a three-piece plate', () => {
+    for (const [w, h] of SIZES) {
+      const l = computeRestaurantLayout(w, h, 4);
+      const gaps = l.plates.xs.slice(1).map((x, i) => x - l.plates.xs[i]);
+      gaps.forEach((g) => expect(g).toBeCloseTo(gaps[0]));
+      expect(l.plates.xs[0] + l.plates.xs[3]).toBeCloseTo(w); // symmetric around the centre
+      expect(plateWidthFor(iconSizeFor(l.plates.spacing, 3), 3)).toBeLessThanOrEqual(l.plates.spacing);
+      expect(iconSizeFor(l.plates.spacing, 1)).toBeGreaterThanOrEqual(40);
+    }
+  });
+
+  it('keeps the animal geometry independent of the plate count', () => {
+    for (const [w, h] of SIZES) {
+      expect(computeRestaurantLayout(w, h, 4).animal).toEqual(computeRestaurantLayout(w, h, 2).animal);
+      expect(computeRestaurantLayout(w, h, 4).counter).toEqual(computeRestaurantLayout(w, h, 3).counter);
+    }
   });
 
   it('gives a toddler big single foods', () => {

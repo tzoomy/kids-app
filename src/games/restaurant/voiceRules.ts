@@ -17,3 +17,8 @@ export function shouldSayRetry(wrongTriesInRound: number): boolean {
 export function crossedWholeMinute(prevBalanceSec: number, balanceSec: number): boolean {
   return Math.floor(balanceSec / 60) > Math.floor(prevBalanceSec / 60);
 }
+
+/** The text bubble repeats the request visually; a voice-only level (`audio-only`) shows none. */
+export function showsPromptBubble(audioOnly: boolean): boolean {
+  return !audioOnly;
+}
