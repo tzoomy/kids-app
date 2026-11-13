@@ -11,8 +11,20 @@ import { setAppScreen } from '../pwa';
 let mapGuidancePlayed = false;
 
 export class MapScene extends Phaser.Scene {
+  /** Building objects by world id (read-only access for the e2e hit-rectangle hook). */
+  private readonly buildings = new Map<string, Phaser.GameObjects.Container>();
+
   constructor() {
     super('MapScene');
+  }
+
+  /** Current tap rectangle of a world's building in game coordinates (follows the idle float), or null. */
+  getBuildingRect(worldId: string): { x: number; y: number; width: number; height: number } | null {
+    const b = this.buildings.get(worldId);
+    if (!b || !b.scene) return null;
+    const width = b.width * Math.abs(b.scaleX);
+    const height = b.height * Math.abs(b.scaleY);
+    return { x: b.x - width / 2, y: b.y - height / 2, width, height };
   }
 
   create(): void {
@@ -31,6 +43,7 @@ export class MapScene extends Phaser.Scene {
     const startX = cx - ((cols - 1) * spacingX) / 2;
     const startY = cy - ((rows - 1) * spacingY) / 2 + (portrait ? this.scale.height * 0.04 : 0);
 
+    this.buildings.clear();
     const pins: MapPin[] = [];
     // Set once the child has tapped anything, so the "where to go" line never talks over a tap.
     let touched = false;
@@ -43,6 +56,7 @@ export class MapScene extends Phaser.Scene {
       const locked = world.status === 'locked';
       const building = drawWorldBuilding(this, world.id, locked, 180);
       building.setPosition(x, y);
+      this.buildings.set(world.id, building);
       building.setAlpha(locked ? 0.72 : 1);
 
       // Staggered pop-in, then a gentle idle float.

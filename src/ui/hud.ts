@@ -85,6 +85,7 @@ export class RestaurantHud {
     clear(root);
     const bar = el('div', 'shell-top-bar');
     const backBtn = el('button', 'shell-pill', '⬅️');
+    backBtn.dataset.testid = 'hud-back';
     backBtn.addEventListener('click', opts.onBack);
     bar.appendChild(backBtn);
 
@@ -102,6 +103,7 @@ export class RestaurantHud {
     this.balance.dataset.testid = 'leisure-balance';
     right.appendChild(this.balance);
     const helpBtn = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
+    helpBtn.dataset.testid = 'hud-help';
     helpBtn.addEventListener('click', opts.onHelp);
     right.appendChild(helpBtn);
     bar.appendChild(right);
@@ -123,6 +125,7 @@ export function renderPromptBubble(root: HTMLElement, text: string, onTap: () =>
   let bubble = root.querySelector<HTMLDivElement>('.shell-prompt-bubble');
   if (!bubble) {
     bubble = el('div', 'shell-prompt-bubble ltr-isolate');
+    bubble.dataset.testid = 'prompt-bubble';
     root.appendChild(bubble);
   }
   bubble.textContent = `${text} 🔊`;
@@ -146,7 +149,10 @@ export function showToast(root: HTMLElement, text: string): void {
 
 export function showHelpOverlay(root: HTMLElement, text: string, onClose: () => void): void {
   const overlay = el('div', 'shell-help-overlay');
+  // The whole overlay is the close target (tap anywhere), so it carries the close test id.
+  overlay.dataset.testid = 'help-card-close';
   const card = el('div', 'shell-card', text);
+  card.dataset.testid = 'help-card';
   overlay.appendChild(card);
   overlay.addEventListener('click', () => {
     overlay.remove();
@@ -169,6 +175,7 @@ export class BubblesHud {
     clear(root);
     const bar = el('div', 'shell-top-bar');
     const backBtn = el('button', 'shell-pill', '⬅️');
+    backBtn.dataset.testid = 'hud-back';
     backBtn.addEventListener('click', opts.onBack);
     bar.appendChild(backBtn);
     this.countdown = el('span', 'shell-countdown');
