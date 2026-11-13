@@ -345,7 +345,8 @@ body {
 }
 
 .shell-prompt-bubble {
-  top: 7.4vmin;
+  /* Below the 64 CSS px HUD pills: top bar offset + pill height + a small gap. */
+  top: calc(max(1.5vmin, env(safe-area-inset-top)) + 64px + 1.2vmin);
   padding: 0.8vmin 2.6vmin;
   font-size: clamp(18px, 3.6vmin, 30px);
   /* left: 50% would otherwise shrink-wrap the text to half the screen and force two lines. */
@@ -355,7 +356,6 @@ body {
 
 @media (min-aspect-ratio: 1/1) {
   .shell-prompt-bubble {
-    top: 7.4vmin;
     max-width: min(70vw, 640px);
   }
 }
