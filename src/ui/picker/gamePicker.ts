@@ -39,6 +39,11 @@ function applyArt(node: HTMLElement, key: string): void {
 export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   const t = heStrings.gamePicker;
   const root = el('div', 'shell-game-picker');
+  // Phaser also listens for presses on window: keep picker presses from reaching the map
+  // underneath (a card over a building would otherwise tap that building too).
+  for (const type of ['pointerdown', 'mousedown', 'touchstart'] as const) {
+    root.addEventListener(type, (event) => event.stopPropagation());
+  }
   root.dir = 'rtl';
   root.lang = 'he';
 
