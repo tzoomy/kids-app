@@ -134,7 +134,8 @@ export async function enterWorldByTap(
   const targetScene = WORLD_SCENE[worldId];
   if (!targetScene) throw new Error(`enterWorldByTap: no game scene known for world "${worldId}"`);
 
-  await page.goto('/?e2e=1');
+  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
+  await page.goto('./?e2e=1');
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
   if (options.beforeEnter) await options.beforeEnter(page);
