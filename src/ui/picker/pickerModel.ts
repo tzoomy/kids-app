@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'who-is-hiding' | 'shadow-match';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'whoIsHiding' | 'shadowMatch';
 }
 
 /**
@@ -52,5 +52,26 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'ColouringScene',
     assetKey: 'picker-card-colouring',
     labelKey: 'colouring',
+  },
+];
+
+/**
+ * Nature Lab picker (docs/specs/shadow-match.md): Who's Hiding? (the entry game) first, then Shadow Match.
+ * Append later Nature Lab games here (additive registry).
+ */
+export const NATURE_LAB_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'who-is-hiding',
+    testId: 'game-picker-who-is-hiding',
+    sceneKey: 'HidingScene',
+    assetKey: 'picker-card-who-is-hiding',
+    labelKey: 'whoIsHiding',
+  },
+  {
+    gameId: 'shadow-match',
+    testId: 'game-picker-shadow-match',
+    sceneKey: 'ShadowScene',
+    assetKey: 'picker-card-shadow-match',
+    labelKey: 'shadowMatch',
   },
 ];

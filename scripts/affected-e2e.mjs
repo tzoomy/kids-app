@@ -57,6 +57,18 @@ export const GAME_RULES = [
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
   },
   {
+    // Shadow Match is the silhouette variant of Who's Hiding? (same folder, so hiding changes select both).
+    id: 'shadow-match',
+    match: [
+      /^src\/games\/hiding\//,
+      /^src\/anim\/silhouette\.ts$/,
+      /^src\/content\/games\/(shadow-match|who-is-hiding)\.json$/,
+      /^src\/ui\/picker\//,
+      /^tests\/unit\/shadow-match[^/]*$/,
+    ],
+    specs: ['tests/e2e/shadow-match.journey.spec.ts'],
+  },
+  {
     id: 'kitchen-orchestra',
     match: [
       /^src\/games\/orchestra\//,

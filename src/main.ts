@@ -12,7 +12,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadShadowMatch, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
 
@@ -32,6 +32,7 @@ const context = new AppContext(store, audioManager, sfx, {
   sorting: loadSortingBeds(),
   hiding: loadWhosHiding(),
   colouring: loadLeisureColouring(),
+  shadow: loadShadowMatch(),
   he: loadHeStrings(),
 }, shell);
 
@@ -153,6 +154,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('SortingScene');
   game?.scene.stop('ColouringScene');
   game?.scene.stop('BubblesScene');
+  game?.scene.stop('ShadowScene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
   shell.clearChrome();
@@ -179,6 +181,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('SortingScene');
     game.scene.stop('ColouringScene');
     game.scene.stop('BubblesScene');
+    game.scene.stop('ShadowScene');
     game.scene.start('MapScene');
   }
 }

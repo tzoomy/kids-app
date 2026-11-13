@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { ShadowInfo } from '../../../src/games/hiding/shadowTypes';
 
-export type { SortingInfo };
+export type { SortingInfo, ShadowInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -13,8 +14,9 @@ export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
   bubbles: 'BubblesScene',
-  // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
+  // Nature Lab opens a picker: Who's Hiding? or Shadow Match.
   'who-is-hiding': 'HidingScene',
+  'shadow-match': 'ShadowScene',
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
@@ -23,13 +25,13 @@ export const GAME_SCENE: Record<string, string> = {
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
-  'nature-lab': 'who-is-hiding',
   'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'nature-lab': 'who-is-hiding',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -135,6 +137,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  getShadowInfo: () => ShadowInfo | null;
+  seedShadowLevel: (level: number) => void;
 };
 
 type HookName = keyof Hooks;
@@ -279,7 +283,8 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
 
 /**
  * Taps the world's building and returns when the world's game scene is active.
- * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
+ * Language House and Nature Lab open a game picker first: then `game-picker-<gameId>` is tapped
+ * (defaults: animal-restaurant, who-is-hiding).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
 export async function enterWorldByTap(
@@ -529,5 +534,68 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
       return parsed.skills?.[skill] ?? null;
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
+  );
+}
+
+// ---------------------------------------------------------------------------------------------
+// Shadow Match (docs/specs/shadow-match.md). Hit rectangles from getShadowInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's persisted Shadow Match level for every language. Call from `beforeEnter` (on the map). */
+export async function seedShadowLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedShadowLevel', [level]);
+}
+
+export function getShadowInfo(page: Page): Promise<ShadowInfo | null> {
+  return callHook<ShadowInfo | null>(page, 'getShadowInfo');
+}
+
+/** Waits until every silhouette has popped in and taps are accepted. */
+export async function waitForShadowReady(page: Page, timeout = 12_000): Promise<ShadowInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getShadowInfo();
+      return info !== null && info.ready && !info.done;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getShadowInfo(page);
+  if (!info) throw new Error('no active Shadow Match trial');
+  return info;
+}
+
+/** Real tap on the silhouette of `animalId`, using a fresh read of its hit rectangle. */
+export async function tapShadow(page: Page, animalId: string): Promise<void> {
+  const info = await getShadowInfo(page);
+  const shadow = info?.shadows.find((s) => s.animalId === animalId);
+  if (!shadow) throw new Error(`no silhouette "${animalId}" in the active trial`);
+  await page.mouse.click(shadow.hit.x + shadow.hit.width / 2, shadow.hit.y + shadow.hit.height / 2);
+}
+
+/** Waits for a ready trial, taps the requested silhouette for real, and waits until the next trial is ready. Returns the info read before the tap. */
+export async function matchCorrectShadow(page: Page, timeout = 20_000): Promise<ShadowInfo> {
+  const before = await waitForShadowReady(page, timeout);
+  await tapShadow(page, before.targetId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getShadowInfo(page);
+    if (info && info.ready && !info.done && info.correctCount > before.correctCount) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the requested silhouette did not start the next trial');
+    await page.waitForTimeout(50);
+  }
+}
+
+/** The persisted Shadow Match skill of a profile (read-only localStorage read). */
+export async function readShadowSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `nature-lab.shadow-match.${lang}`] as const,
   );
 }

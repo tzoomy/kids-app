@@ -4,6 +4,7 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import shadowMatchJson from './games/shadow-match.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -13,12 +14,14 @@ import {
   SortingBedsContentSchema,
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
+  ShadowMatchContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
   type LeisureColouringContent,
+  type ShadowMatchContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -49,6 +52,19 @@ export function loadSortingBeds(): SortingBedsContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+/** Shadow Match content. Its animals come from Who's Hiding? (`animalsFrom`); every animal needs a Hebrew name. */
+export function loadShadowMatch(): ShadowMatchContent {
+  const content = ShadowMatchContentSchema.parse(shadowMatchJson);
+  const animals = loadWhosHiding().animals;
+  for (const a of animals) {
+    if (!content.namesHe[a.id]) throw new Error(`shadow-match: missing Hebrew name for "${a.id}"`);
+  }
+  for (const level of content.adaptive.levels) {
+    if ((level.choiceCount ?? 0) > animals.length) throw new Error('shadow-match: choiceCount exceeds the number of animals');
+  }
+  return content;
 }
 
 export function loadAudioManifest(): AudioManifest {
