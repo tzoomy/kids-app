@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "status": "pending Maor decision / pending Claude alignment",
+  "note": "pivot is the point of the item (0..1 of its width/height) placed on the slot anchor. Unlock rules are not part of this file (owner decision pending; Claude owns Wardrobe logic).",
+  "items": [
+    {
+      "id": "party-hat",
+      "slot": "head",
+      "url": "art/wardrobe/party-hat.svg",
+      "width": 160,
+      "height": 180,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.92
+      }
+    },
+    {
+      "id": "sun-hat",
+      "slot": "head",
+      "url": "art/wardrobe/sun-hat.svg",
+      "width": 260,
+      "height": 140,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.85
+      }
+    },
+    {
+      "id": "crown",
+      "slot": "head",
+      "url": "art/wardrobe/crown.svg",
+      "width": 180,
+      "height": 120,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.92
+      }
+    },
+    {
+      "id": "beanie",
+      "slot": "head",
+      "url": "art/wardrobe/beanie.svg",
+      "width": 200,
+      "height": 140,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.88
+      }
+    },
+    {
+      "id": "glasses",
+      "slot": "eyes",
+      "url": "art/wardrobe/glasses.svg",
+      "width": 220,
+      "height": 80,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.55
+      }
+    },
+    {
+      "id": "scarf",
+      "slot": "neck",
+      "url": "art/wardrobe/scarf.svg",
+      "width": 240,
+      "height": 140,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.22
+      }
+    },
+    {
+      "id": "hair-bow",
+      "slot": "headSide",
+      "url": "art/wardrobe/hair-bow.svg",
+      "width": 120,
+      "height": 90,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "id": "flower-clip",
+      "slot": "headSide",
+      "url": "art/wardrobe/flower-clip.svg",
+      "width": 110,
+      "height": 110,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  ]
+}

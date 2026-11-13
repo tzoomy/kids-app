@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180" width="160" height="180">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Party hat cone body -->
+    <path d="M 20 156 L 74 34 Q 80 28 86 34 L 140 156 Q 80 174 20 156 Z" fill="#FF758F"/>
+    <!-- Flat shadow on right side of cone -->
+    <path d="M 86 34 L 140 156 Q 114 166 86 166 C 94 126 92 78 86 34 Z" fill="#D94865" stroke="none"/>
+    <!-- Flat highlight on left side of cone -->
+    <path d="M 38 144 L 74 52 C 70 76 56 116 48 146 Z" fill="#FFA6B8" stroke="none"/>
+
+    <!-- Festive polka dots -->
+    <circle cx="80" cy="76" r="9" fill="#FFD166" stroke="none"/>
+    <circle cx="56" cy="112" r="10" fill="#FFD166" stroke="none"/>
+    <circle cx="104" cy="112" r="10" fill="#FFD166" stroke="none"/>
+    <circle cx="42" cy="144" r="9" fill="#FFF6E8" stroke="none"/>
+    <circle cx="80" cy="144" r="10" fill="#FFF6E8" stroke="none"/>
+    <circle cx="118" cy="144" r="9" fill="#FFF6E8" stroke="none"/>
+
+    <!-- Re-stroke cone outline -->
+    <path d="M 20 156 L 74 34 Q 80 28 86 34 L 140 156 Q 80 174 20 156 Z" fill="none"/>
+
+    <!-- Fluffy pom-pom on top -->
+    <circle cx="80" cy="26" r="18" fill="#FFF6E8"/>
+    <path d="M 84 10 A 18 18 0 0 1 80 44 A 18 18 0 0 1 66 36 C 78 38 90 26 84 10 Z" fill="#F0DEC2" stroke="none"/>
+    <circle cx="74" cy="20" r="5" fill="#FFFFFF" stroke="none"/>
+    <circle cx="80" cy="26" r="18" fill="none"/>
+  </g>
+</svg>
