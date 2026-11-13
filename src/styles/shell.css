@@ -115,9 +115,11 @@ body {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 1vmin 2vmin;
-  min-height: 48px;
+  min-height: 64px; /* owner minimum tap target */
+  min-width: 64px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   border: none;
   font: inherit;
