@@ -18,10 +18,13 @@ export class MapScene extends Phaser.Scene {
     super('MapScene');
   }
 
-  /** Current tap rectangle of a world's building in game coordinates (follows the idle float), or null. */
+  /** Buildings whose pop-in has finished (before that the hit rectangle is still growing from scale 0). */
+  private readonly settledBuildings = new Set<string>();
+
+  /** Current tap rectangle of a world's building in game coordinates (follows the idle float), or null until it has popped in. */
   getBuildingRect(worldId: string): { x: number; y: number; width: number; height: number } | null {
     const b = this.buildings.get(worldId);
-    if (!b || !b.scene) return null;
+    if (!b || !b.scene || !this.settledBuildings.has(worldId)) return null;
     const width = b.width * Math.abs(b.scaleX);
     const height = b.height * Math.abs(b.scaleY);
     return { x: b.x - width / 2, y: b.y - height / 2, width, height };
@@ -44,6 +47,7 @@ export class MapScene extends Phaser.Scene {
     const startY = cy - ((rows - 1) * spacingY) / 2 + (portrait ? this.scale.height * 0.04 : 0);
 
     this.buildings.clear();
+    this.settledBuildings.clear();
     const pins: MapPin[] = [];
     // Set once the child has tapped anything, so the "where to go" line never talks over a tap.
     let touched = false;
@@ -61,6 +65,7 @@ export class MapScene extends Phaser.Scene {
 
       // Staggered pop-in, then a gentle idle float.
       void popIn(this, building, 80 + i * 70).then(() => {
+        if (building.scene) this.settledBuildings.add(world.id);
         if (building.scene) floatIdle(this, building, 8, 1800 + i * 140);
       });
 
