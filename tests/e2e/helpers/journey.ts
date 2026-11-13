@@ -63,6 +63,7 @@ type Hooks = {
   getSpokenLineCount: () => number;
   seedSortingLevel: (level: number) => void;
   seedBalanceSec: (sec: number) => void;
+  seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
 };
 
 type HookName = keyof Hooks;
@@ -220,6 +221,11 @@ export async function seedSortingLevel(page: Page, level: number): Promise<void>
 /** Seeds the active profile's leisure balance in seconds. Call from `enterWorldByTap(..., { beforeEnter })`. */
 export async function seedBalanceSec(page: Page, sec: number): Promise<void> {
   await callHook<void>(page, 'seedBalanceSec', [sec]);
+}
+
+/** Seeds the app's language setting (stored settings.languages) so a test knows which language a round uses. Call from `beforeEnter`. */
+export async function seedLanguageSetting(page: Page, lang: 'en' | 'fr' | 'both'): Promise<void> {
+  await callHook<void>(page, 'seedLanguageSetting', [lang]);
 }
 
 export function getSortingInfo(page: Page): Promise<SortingInfo | null> {

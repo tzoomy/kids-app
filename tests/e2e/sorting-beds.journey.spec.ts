@@ -16,6 +16,7 @@ import {
   readStarCount,
   readStoredSkill,
   seedBalanceSec,
+  seedLanguageSetting,
   seedSortingLevel,
   tapBed,
   tapRect,
@@ -36,9 +37,14 @@ function landscapeOnly(testInfo: TestInfo): void {
   if (testInfo.project.name !== LANDSCAPE) test.skip();
 }
 
-async function enter(page: Page, profile: ProfileTestId, seed: { level?: number; balanceSec?: number } = {}): Promise<void> {
+async function enter(
+  page: Page,
+  profile: ProfileTestId,
+  seed: { level?: number; balanceSec?: number; lang?: 'en' | 'fr' | 'both' } = {},
+): Promise<void> {
   await enterWorldByTap(page, profile, 'number-garden', {
     beforeEnter: async (mapPage) => {
+      if (seed.lang !== undefined) await seedLanguageSetting(mapPage, seed.lang);
       if (seed.level !== undefined) await seedSortingLevel(mapPage, seed.level);
       if (seed.balanceSec !== undefined) await seedBalanceSec(mapPage, seed.balanceSec);
     },
@@ -295,9 +301,11 @@ test.describe('sorting beds: levels', () => {
   test('[AC-05] @single-orientation e2e+seed one real-tap level change: 3 clean placements at L1 lift the next round to L2', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(90_000);
-    await enter(page, 'profile-a', { level: 1 });
+    // Pin the language: only the skill of the language that was played rises, and 'both' picks the next round's language at random.
+    await enter(page, 'profile-a', { level: 1, lang: 'en' });
     const first = await waitForSortingReady(page);
     expect(first.level).toBe(1);
+    expect(first.lang).toBe('en');
 
     await placeCurrentCorrectly(page);
     await placeCurrentCorrectly(page);
@@ -305,6 +313,7 @@ test.describe('sorting beds: levels', () => {
     await placeCurrentCorrectly(page);
 
     await expect.poll(async () => (await getSortingInfo(page))?.level, { timeout: 20_000 }).toBe(2);
+    expect((await readStoredSkill(page, 'profile-a', 'en'))?.level).toBe(2);
   });
 
   test('[AC-06] @single-orientation e2e+seed L6 plays with 4 size x colour conjunction beds and symbol plaques', async ({ page }, testInfo) => {
