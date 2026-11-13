@@ -1,7 +1,8 @@
 // Pure Sorting Beds logic (no Phaser, no DOM). Spec: docs/specs/sorting-beds.md. Contract: docs/contracts/sorting-beds.md.
 //
 // TDD step 2: every exported algorithm is real; the signatures are unchanged from the step-1 stub.
-// Two owner decisions (2026-11-13) are isolated in L8_SWITCHED_WORDS and L8_POST_SWITCH_COLOR_VARIES below.
+// L8 spec decisions (team lead, 2026-11-13): only the size token after the switch (L8_SWITCHED_WORDS) and
+// `extra.vary: 2` means shape varies. L8_POST_SWITCH_COLOR_VARIES is our implementation choice, not an owner decision.
 import type { LevelDescriptor } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
 import type { Lang } from '../templates/choiceServe';
@@ -323,6 +324,29 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
     if (other !== undefined) specs[last] = { ...specs[last], [attr]: other } as FlowerSpec;
   }
 
+  // L8: shape varies (vary 2), so every round shows at least 2 shapes. Flowers after the switch take their bed's shape,
+  // so when all shapes match, first change flower 0's free shape (its rule is size x colour), unless it is the
+  // engine's preferred flower; otherwise move one post-switch flower to the same-size bed of the other colour, whose
+  // shape differs by construction, keeping at least 2 target beds.
+  if (switchAfter !== null && switchShapes && specs.length >= 2 && new Set(specs.map((s) => s.shape)).size < 2) {
+    const shape = specs[0].shape;
+    const otherShape = ATTRIBUTE_VALUES.shape.find((v) => v !== shape) as FlowerShape;
+    const firstIsFree = !preferred && specs.length > switchAfter;
+    if (firstIsFree) {
+      specs[0] = { ...specs[0], shape: otherShape };
+    } else {
+      // conjunctionBeds order: [small c1, large c1, small c2, large c2]; the sibling of bed i is (i + 2) % 4.
+      for (let k = specs.length - 1; k >= switchAfter; k--) {
+        const sibling = (targetOrder[k] + 2) % beds.length;
+        const nextTargets = targetOrder.map((t, i) => (i === k ? sibling : t));
+        if (new Set(nextTargets).size < Math.min(2, specs.length)) continue;
+        targetOrder[k] = sibling;
+        specs[k] = { ...specs[k], shape: switchShapes[sibling] };
+        break;
+      }
+    }
+  }
+
   const flowers: RoundFlowerPlan[] = specs.map((spec, index) => ({
     ...spec,
     id: flowerId(spec),
@@ -384,8 +408,9 @@ export function flowerMatches(accepts: BedAccepts, flower: FlowerSpec): boolean 
 }
 
 /**
- * Owner decision (2026-11-13, ambiguity 2): `extra.vary: 2` also applies at L8. Before the switch only shape is left,
- * so shape varies; after the switch only colour is left, so colour varies too (drawn from the round's two colours).
+ * Implementation choice (not an owner or spec decision): colour also varies after the L8 switch, drawn from the
+ * round's two colours. The spec decision (team lead, 2026-11-13) is only that `extra.vary: 2` applies at L8, where
+ * shape is the attribute left before the switch, so SHAPE varies; buildRound guarantees at least 2 shapes per L8 round.
  * Flip to false to hold colour constant after the switch.
  */
 export const L8_POST_SWITCH_COLOR_VARIES = true;
@@ -457,7 +482,7 @@ export function switchLine(newRule: SortRule): LineRequest {
 }
 
 /**
- * Owner decision (2026-11-13, ambiguity 1): after the L8 switch to size x shape, Pass 1 speaks only the size token.
+ * Spec decision (team lead, 2026-11-13): after the L8 switch to size x shape, Pass 1 speaks only the size token.
  * The shape is shown only visually (the example flower in each bed); Pass 1 has no shape words.
  */
 export const L8_SWITCHED_WORDS: readonly SortAttribute[] = ['size'];
