@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <!-- Sky background -->
+  <rect width="1280" height="800" fill="#B8E6FF"/>
+
+  <!-- Soft warm sun glow in upper right -->
+  <circle cx="1060" cy="130" r="78" fill="#FFF2A6"/>
+  <circle cx="1060" cy="130" r="56" fill="#FFD166" stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Calm clouds -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M140 170 C112 170 92 152 96 126 C100 102 124 90 148 96 C162 72 198 66 222 84 C244 74 274 86 280 110 C302 114 316 132 312 152 C308 166 292 170 272 170 Z" fill="#FFFDF9"/>
+    <path d="M108 158 C130 166 260 166 298 154 C294 166 282 170 272 170 L140 170 C122 170 112 165 108 158 Z" fill="#FFF6E8" stroke="none"/>
+    <path d="M140 170 C112 170 92 152 96 126 C100 102 124 90 148 96 C162 72 198 66 222 84 C244 74 274 86 280 110 C302 114 316 132 312 152 C308 166 292 170 272 170 Z" fill="none"/>
+
+    <path d="M580 132 C558 132 542 118 546 98 C550 80 570 70 590 76 C604 56 634 54 654 70 C676 66 698 80 698 102 C714 108 720 122 710 130 C702 132 690 132 678 132 Z" fill="#FFFDF9"/>
+    <path d="M558 122 C580 128 674 128 702 120 C698 129 688 132 678 132 L580 132 C568 132 562 128 558 122 Z" fill="#FFF6E8" stroke="none"/>
+    <path d="M580 132 C558 132 542 118 546 98 C550 80 570 70 590 76 C604 56 634 54 654 70 C676 66 698 80 698 102 C714 108 720 122 710 130 C702 132 690 132 678 132 Z" fill="none"/>
+  </g>
+
+  <!-- Distant rolling hills -->
+  <path d="M-20 360 C180 260 440 250 680 320 C900 250 1120 260 1300 330 L1300 520 L-20 520 Z" fill="#8AE07E" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M-20 340 C200 255 430 255 660 320 C440 280 200 285 -20 365 Z" fill="#FFF6E8" opacity="0.35"/>
+
+  <!-- Distant rounded garden trees & bushes on back hills -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left tree -->
+    <rect x="136" y="250" width="24" height="70" rx="8" fill="#B87D56"/>
+    <path d="M96 264 C74 264 62 242 74 220 C68 194 92 172 120 178 C134 158 168 158 182 178 C208 174 228 196 220 222 C232 242 220 264 196 264 Z" fill="#57C457"/>
+    <path d="M88 214 C102 184 146 168 178 184 C146 180 112 194 94 222 Z" fill="#8AE07E" stroke="none"/>
+    <path d="M80 252 C116 262 182 262 214 248 C210 258 202 264 196 264 L96 264 C86 264 82 258 80 252 Z" fill="#3CA33C" stroke="none"/>
+    <path d="M96 264 C74 264 62 242 74 220 C68 194 92 172 120 178 C134 158 168 158 182 178 C208 174 228 196 220 222 C232 242 220 264 196 264 Z" fill="none"/>
+
+    <!-- Right-side bushes -->
+    <path d="M980 318 C958 318 946 298 958 280 C956 258 978 242 1002 248 C1018 230 1052 232 1066 252 C1090 250 1108 268 1102 290 C1110 306 1098 318 1078 318 Z" fill="#57C457"/>
+    <path d="M972 274 C988 250 1034 240 1060 254 C1030 252 996 260 978 280 Z" fill="#8AE07E" stroke="none"/>
+    <path d="M980 318 C958 318 946 298 958 280 C956 258 978 242 1002 248 C1018 230 1052 232 1066 252 C1090 250 1108 268 1102 290 C1110 306 1098 318 1078 318 Z" fill="none"/>
+  </g>
+
+  <!-- Low distant wooden garden fence -->
+  <g fill="#F7DEC0" stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="280" y="302" width="720" height="14" rx="6" fill="#E5BE94"/>
+    <rect x="280" y="330" width="720" height="14" rx="6" fill="#E5BE94"/>
+    <rect x="300" y="280" width="22" height="82" rx="8"/>
+    <rect x="410" y="280" width="22" height="82" rx="8"/>
+    <rect x="520" y="280" width="22" height="82" rx="8"/>
+    <rect x="630" y="280" width="22" height="82" rx="8"/>
+    <rect x="740" y="280" width="22" height="82" rx="8"/>
+    <rect x="850" y="280" width="22" height="82" rx="8"/>
+    <rect x="960" y="280" width="22" height="82" rx="8"/>
+  </g>
+
+  <!-- Midground gentle green meadow -->
+  <path d="M-20 380 C300 320 620 330 920 365 C1080 380 1200 365 1300 355 L1300 820 L-20 820 Z" fill="#98D886" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M-20 392 C300 332 620 342 920 377 C1080 392 1200 377 1300 367 L1300 410 C1190 420 1070 430 910 412 C620 378 300 368 -20 425 Z" fill="#8AE07E"/>
+
+  <!-- Wide soft dirt/sand path across the lower half/third for flower beds -->
+  <path d="M-20 500 C280 468 560 462 780 478 C1020 494 1160 484 1300 472 L1300 760 C1060 778 820 784 540 772 C260 760 80 768 -20 776 Z" fill="#F0DEC2" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Path upper highlight rim -->
+  <path d="M-20 510 C280 478 560 472 780 488 C1020 504 1160 494 1300 482 L1300 512 C1160 524 1020 534 780 518 C560 502 280 508 -20 540 Z" fill="#FFF6E8"/>
+  <!-- Path lower subtle warm shadow rim -->
+  <path d="M-20 742 C100 734 260 726 540 738 C820 750 1060 744 1300 726 L1300 757 C1060 775 820 781 540 769 C260 757 80 765 -20 773 Z" fill="#E5BE94"/>
+
+  <!-- Soft flat pebbles on the path -->
+  <ellipse cx="160" cy="610" rx="28" ry="11" fill="#E5BE94"/>
+  <ellipse cx="640" cy="560" rx="34" ry="12" fill="#E5BE94"/>
+  <ellipse cx="1110" cy="630" rx="30" ry="11" fill="#E5BE94"/>
+  <ellipse cx="420" cy="700" rx="26" ry="10" fill="#E5BE94"/>
+  <ellipse cx="890" cy="690" rx="32" ry="12" fill="#E5BE94"/>
+</svg>

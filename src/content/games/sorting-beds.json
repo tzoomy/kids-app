@@ -1,0 +1,22 @@
+{
+  "id": "sorting-beds",
+  "world": "number-garden",
+  "languages": ["en", "fr"],
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "adaptive": {
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 8 } },
+    "levels": [
+      { "choiceCount": 2, "support": "picture-audio", "extra": { "attributes": 1, "vary": 0 } },
+      { "choiceCount": 2, "support": "picture-audio", "scaffold": "outline", "extra": { "attributes": 1, "vary": 1 } },
+      { "choiceCount": 3, "support": "picture-audio", "scaffold": "outline", "extra": { "attributes": 1, "vary": 2 } },
+      { "choiceCount": 3, "scaffold": "symbol", "extra": { "attributes": 1, "vary": 2 } },
+      { "choiceCount": 3, "scaffold": "symbol", "extra": { "attributes": 2, "vary": 2 } },
+      { "choiceCount": 4, "scaffold": "symbol", "extra": { "attributes": 2, "vary": 2 } },
+      { "choiceCount": 4, "scaffold": "none", "extra": { "attributes": 2, "vary": 2 } },
+      { "choiceCount": 4, "scaffold": "none", "request": "rule-switch", "extra": { "attributes": 2, "vary": 2 } }
+    ]
+  }
+}

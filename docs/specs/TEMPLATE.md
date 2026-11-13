@@ -1,6 +1,6 @@
 # Spec template
 
-Copy this file to `docs/specs/<game-id>.md` (the content id, for example `animal-restaurant.md`). Write in English and fill every section. Mark anything Maor has not decided as **Open decision for the owner:**. No implementation until Maor has approved the spec. The process is in `docs/PROCESS.md`.
+Copy this file to `docs/specs/<game-id>.md` (the content id, for example `animal-restaurant.md`). Write in English and fill every section. Mark anything Maor has not decided as **Open decision for the owner:**. When Maor resolves one, change that label in place to **Decided by the owner (YYYY-MM-DD):** with the decision date, keep the text, and add a Changelog line. No implementation until Maor has approved the spec. The process is in `docs/PROCESS.md`.
 
 ---
 
@@ -71,16 +71,20 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-14 | Device check: touch, rotation mid-game, audible voice, visuals | 1 | device | both | |
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
 
+By default, Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3, decided by the owner 2026-11-13; an explicit owner decision recorded in the spec can override this for an item): Pass 1 is a working game with basic animation and basic voice (device TTS or clips that already exist). Criteria about polished animation or new recordings belong to Pass 2, which starts only after Maor approves the finished Pass 1.
+
 ## Art, animation, and audio
 
 Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start immediately (`docs/PROCESS.md` §2). Style and rig details: `docs/ANIMATION.md`.
 
 ### Pass 1 — working game
 
+Basic animation and basic voice only: device TTS or recorded clips that already exist; no new recordings and no polish. Request new art or audio from Gemini only when it is strictly needed for the game to function; otherwise use placeholders (existing art, simple shapes, procedural fallbacks).
+
 - **Asset paths and manifest keys:** under `public/art/` (`characters/`, `animals/`, `props/`, `foods/`, `instruments/`, `fx/`, `scenes/<scene-or-game-name>/`), keyed in `src/assets/art/manifest.ts`. Scene folders are named per scene or game, never the world id (two games can share a world).
 - **SVG contract:** warm palette; dark-brown outline `#3B2A22` about 6 px; no heavy gradients or filters, no `<text>`, no external references, no rasters; each file under 15 KB (enforced by `tests/unit/artAssets.test.ts`); original assets only.
 - **Rigs:** origin at the feet centre on the 400 × 480 reference; heads without eyes and mouth (separate swappable parts). Say which rig map is used: `CHARACTER_RIGS` for new characters, not the restaurant `ANIMAL_KINDS` picker. Previews composite every layer.
-- **Layout:** landscape and portrait backgrounds. Tap targets: **Open decision for the owner:** minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px). If items do not fit at that size, pan or show fewer; never shrink them.
+- **Layout:** landscape and portrait backgrounds. Tap targets: **Decided by the owner (2026-11-13):** minimum 64 CSS px. If items do not fit at that size, pan or show fewer; never shrink them.
 - **RTL:** Hebrew UI chrome is RTL; English and French learning tokens stay LTR. Say whether the game reuses the existing HUD.
 - **Animation:** `ANIM_PROFILE` knobs (`src/anim/profiles.ts`) and motion helpers (`src/anim/worldMotion.ts`) to add or reuse. Unit tests import pure modules only, never Phaser.
 - **Voice table** (device TTS through `AudioManager.play({ lineId, lang, text })`):
@@ -93,7 +97,10 @@ Paths, keys, rigs, and line ids below are frozen at approval so Gemini can start
 
 ### Pass 2 — polish
 
-- Richer art and animation (list what changes).
+Only after Maor approves the finished Pass 1.
+
+
+- Polished art and animation (list what changes).
 - Recorded Gemini TTS clips (voice Leda) for the voice table, rendered with `scripts/tts/generate_voice.py`; device TTS stays the fallback. Do not add `voice-lines-he.json` entries or `audio-manifest.json` rows without the clip and its text hash.
 
 Put anything Maor has not approved for this change under Out of scope.
@@ -105,6 +112,7 @@ What this change will not include (deferred levels, parent tools, extra language
 ## Open decisions for the owner
 
 - **Open decision for the owner:** …
+- **Decided by the owner (YYYY-MM-DD):** … (a resolved item: the open label changed in place, the text kept, and a Changelog line added)
 
 ## Changelog
 

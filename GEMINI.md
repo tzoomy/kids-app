@@ -2,9 +2,9 @@
 
 Guidelines for Gemini (Antigravity CLI, `agy`) in this repository. `AGENTS.md` and `docs/PROCESS.md` also apply.
 
-## Language
+## Language and in-session token rules
 
-All documentation, review output, commit messages, issue and pull request titles and descriptions, and all prompts you write or receive must be in English only. Kid-facing app UI strings stay in Hebrew (learning content may also include English and French). Do not write Hebrew in the repository or in communication with other agents.
+See `AGENTS.md`.
 
 ## Role
 
@@ -29,4 +29,4 @@ You implement art, SVG, animation, voice line design, and visual code to the app
 
 ## Design and graphics
 
-Open and actually look at the in-game screenshots: contrast and readability at tablet distance, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, tap-target size, and visual clutter for toddlers. Serve previews over HTTP (not `file://`) and shoot each orientation in a fresh page at native size. A missing or uninspected screenshot of a visual change is a review blocker.
+Open and actually look at the in-game screenshots: contrast and readability at tablet distance, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, tap-target size (at least 64 CSS px), and visual clutter for toddlers. Serve previews over HTTP (not `file://`) and shoot each orientation in a fresh page at native size. A missing or uninspected screenshot of a visual change is a review blocker. Base any new image or pose of an approved character on its existing art in `public/art/characters/<name>/` or `public/art/animals/<name>/`.

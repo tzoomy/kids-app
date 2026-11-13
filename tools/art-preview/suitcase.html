@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Suitcase — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px 24px 32px;
+    }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 1280px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06);
+    }
+    .label { font-size: 15px; font-weight: 800; padding: 10px 14px 6px; }
+    .note { font-size: 12px; color: #5C4338; padding: 0 14px 8px; }
+    .stage {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+      background: #FFF3E0;
+    }
+    .stage.short { height: 400px; }
+    .stage img.bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 30%;
+    }
+    .shelf {
+      position: absolute;
+      left: 50%;
+      top: 4%;
+      width: 58%;
+      height: auto;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+    .shelf > img { width: 100%; height: auto; display: block; }
+    .shelf .item { top: 0; bottom: auto; }
+    .case {
+      position: absolute;
+      left: 38%;
+      bottom: 6%;
+      width: 340px;
+      height: 234px;
+      z-index: 4;
+    }
+    .case img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .case .back { z-index: 1; }
+    .case .front { z-index: 5; }
+    .item {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      z-index: 4;
+    }
+    .item img { width: 100%; height: 100%; display: block; object-fit: contain; }
+    .on-shelf { z-index: 6; }
+    .packed { z-index: 3; width: 64px; height: 64px; }
+    .packing { animation: packBounce 1.8s ease-in-out infinite; z-index: 6; }
+    @keyframes packBounce {
+      0% { transform: translate(-160px, -180px) scale(1) rotate(-12deg); }
+      55% { transform: translate(0, 0) scale(0.88) rotate(0deg); }
+      70% { transform: translate(0, -18px) scale(0.88); }
+      100% { transform: translate(0, 0) scale(0.88); }
+    }
+    .animal {
+      position: absolute;
+      left: 10%;
+      bottom: 8%;
+      width: 150px;
+      height: 180px;
+      z-index: 6;
+    }
+    .animal img { position: absolute; left: 0; width: 100%; object-fit: contain; }
+    .animal img.body { bottom: 0; height: 58%; z-index: 1; }
+    .animal img.face { bottom: 28%; height: 72%; z-index: 2; }
+    .strip, .colors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 8px 14px 16px;
+      align-items: flex-end;
+      background: #FFF6E8;
+    }
+    .swatch { text-align: center; width: 88px; }
+    .swatch img { width: 80px; height: 80px; display: block; margin: 0 auto; }
+    .chip { font-size: 11px; font-weight: 700; color: #5C4338; margin-top: 4px; }
+    @media (prefers-reduced-motion: reduce) {
+      .packing { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Travel Suitcase — Language House art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. The requesting character reuses the existing bear rig. Items drop between the suitcase back and front layers.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Travel room — shelf, open suitcase, requesting character</div>
+      <div class="note">Age-2 layout: a few large shelf items, one open pack target, the bear is asking for the hat.</div>
+      <div class="stage" id="scene-ready"></div>
+    </div>
+    <div class="row">
+      <div class="card">
+        <div class="label">Pack and bounce</div>
+        <div class="note">The hat flies from the shelf into the open suitcase and bounces as it settles.</div>
+        <div class="stage short state-pack" id="scene-pack"></div>
+      </div>
+      <div class="card">
+        <div class="label">Packed inside</div>
+        <div class="note">Items sit in the lining, behind the front rim, so they look packed.</div>
+        <div class="stage short" id="scene-packed"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Everyday travel items</div>
+      <div class="note">Twelve base items. Recolorable pieces use CSS variables with hex fallbacks.</div>
+      <div class="strip" id="item-strip"></div>
+    </div>
+    <div class="card">
+      <div class="label">Color variants — hat, shoes, ball, coat, shirt</div>
+      <div class="note">Same geometry, red / yellow / blue fills, for later “the blue hat” requests.</div>
+      <div class="colors" id="color-strip"></div>
+    </div>
+  </div>
+
+  <script>
+    const ART = '../../public/art';
+    const BASES = ['hat', 'shoes', 'sunglasses', 'ball', 'book', 'coat', 'shirt', 'socks', 'bottle', 'toothbrush', 'teddy', 'umbrella'];
+    const VARIANTS = {
+      hat: ['hat', 'hat-yellow', 'hat-blue'],
+      shoes: ['shoes-red', 'shoes', 'shoes-yellow'],
+      ball: ['ball-red', 'ball', 'ball-blue'],
+      coat: ['coat-red', 'coat', 'coat-blue'],
+      shirt: ['shirt', 'shirt-yellow', 'shirt-blue'],
+    };
+
+    function itemEl(name, extraClass) {
+      const el = document.createElement('div');
+      el.className = 'item ' + (extraClass || '');
+      const img = document.createElement('img');
+      img.src = `${ART}/items/${name}.svg`;
+      img.alt = name.replace(/-/g, ' ');
+      el.appendChild(img);
+      return el;
+    }
+
+    function character(kind) {
+      const el = document.createElement('div');
+      el.className = 'animal';
+      const body = document.createElement('img');
+      body.className = 'body';
+      body.src = `${ART}/animals/${kind}/body.svg`;
+      body.alt = '';
+      const head = document.createElement('img');
+      head.className = 'face';
+      head.src = `${ART}/animals/${kind}/head.svg`;
+      head.alt = kind;
+      el.appendChild(body);
+      el.appendChild(head);
+      return el;
+    }
+
+    function fillScene(stage, mode) {
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/language-house/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+
+      const shelf = document.createElement('div');
+      shelf.className = 'shelf';
+      const shelfImg = document.createElement('img');
+      shelfImg.src = `${ART}/props/shelf.svg`;
+      shelfImg.alt = 'shelf';
+      shelf.appendChild(shelfImg);
+      stage.appendChild(shelf);
+
+      function placeOnShelf(name, leftPct) {
+        const el = itemEl(name, 'on-shelf');
+        el.style.left = leftPct;
+        el.style.top = 'auto';
+        el.style.bottom = '52%';
+        shelf.appendChild(el);
+        return el;
+      }
+
+      const kase = document.createElement('div');
+      kase.className = 'case';
+      const back = document.createElement('img');
+      back.className = 'back';
+      back.src = `${ART}/props/suitcase-back.svg`;
+      back.alt = 'open suitcase';
+      const front = document.createElement('img');
+      front.className = 'front';
+      front.src = `${ART}/props/suitcase-front.svg`;
+      front.alt = '';
+      kase.appendChild(back);
+      kase.appendChild(front);
+      stage.appendChild(kase);
+
+      stage.appendChild(character('bear'));
+
+      const shelfItems = mode === 'ready'
+        ? [['hat', '6%'], ['ball', '28%'], ['book', '50%'], ['shoes', '72%']]
+        : [['ball', '16%'], ['book', '42%'], ['shoes', '68%']];
+      for (const [name, left] of shelfItems) {
+        placeOnShelf(name, left);
+      }
+
+      if (mode === 'pack') {
+        const hat = itemEl('hat', 'packing packed');
+        hat.style.left = '52%';
+        hat.style.bottom = '22%';
+        // insert before front rim: append to case behind front
+        kase.insertBefore(hat, front);
+        hat.style.position = 'absolute';
+        hat.style.left = '28%';
+        hat.style.top = '48%';
+        hat.style.bottom = 'auto';
+      }
+
+      if (mode === 'packed' || mode === 'ready') {
+        const packed = mode === 'packed'
+          ? [['hat', '22%', '50%'], ['teddy', '40%', '52%'], ['shirt', '56%', '48%']]
+          : [];
+        for (const [name, left, top] of packed) {
+          const el = itemEl(name, 'packed');
+          el.style.left = left;
+          el.style.top = top;
+          kase.insertBefore(el, front);
+        }
+      }
+    }
+
+    fillScene(document.getElementById('scene-ready'), 'ready');
+    fillScene(document.getElementById('scene-pack'), 'pack');
+    fillScene(document.getElementById('scene-packed'), 'packed');
+
+    const strip = document.getElementById('item-strip');
+    for (const name of BASES) {
+      const wrap = document.createElement('div');
+      wrap.className = 'swatch';
+      const img = document.createElement('img');
+      img.src = `${ART}/items/${name}.svg`;
+      img.alt = name;
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = name;
+      wrap.appendChild(img);
+      wrap.appendChild(chip);
+      strip.appendChild(wrap);
+    }
+
+    const colors = document.getElementById('color-strip');
+    for (const [group, files] of Object.entries(VARIANTS)) {
+      for (const name of files) {
+        const wrap = document.createElement('div');
+        wrap.className = 'swatch';
+        const img = document.createElement('img');
+        img.src = `${ART}/items/${name}.svg`;
+        img.alt = name;
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = name;
+        wrap.appendChild(img);
+        wrap.appendChild(chip);
+        colors.appendChild(wrap);
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Slightly tilted kid umbrella -->
+    <g transform="rotate(14 128 128)">
+      <!-- Top wooden ferrule tip -->
+      <path d="M122 28 L124 14 C125 10 131 10 132 14 L134 28 Z" fill="#B87D56"/>
+
+      <!-- Metal center shaft and runner -->
+      <line x1="128" y1="120" x2="128" y2="196" stroke="#C08552" stroke-width="10"/>
+      <line x1="128" y1="120" x2="128" y2="196" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Classic J-curved brown wooden handle -->
+      <path d="M120 186 L136 186 L136 212 C136 232 122 244 104 244 C86 244 74 232 74 214 C74 208 78 204 82 204 C86 204 90 208 90 214 C90 222 96 228 104 228 C112 228 120 222 120 212 Z" fill="#B87D56"/>
+      <path d="M128 188 L134 188 L134 212 C134 230 120 241 104 241 L104 234 C118 234 128 224 128 212 Z" fill="#9E6540" stroke="none"/>
+      <path d="M120 186 L136 186 L136 212 C136 232 122 244 104 244 C86 244 74 232 74 214 C74 208 78 204 82 204 C86 204 90 208 90 214 C90 222 96 228 104 228 C112 228 120 222 120 212 Z" fill="none"/>
+
+      <!-- Scalloped dome canopy -->
+      <path d="M22 132 C22 66 68 26 128 26 C188 26 234 66 234 132 Q208 114 180 132 Q154 114 128 132 Q102 114 76 132 Q48 114 22 132 Z" fill="var(--item-fill, #F24C4C)"/>
+
+      <!-- Right canopy panel shadow -->
+      <path d="M128 26 C188 26 234 66 234 132 Q208 114 180 132 C178 78 156 42 128 26 Z" fill="var(--item-shadow, #CC3333)" stroke="none"/>
+
+      <!-- Left canopy panel highlight -->
+      <path d="M128 26 C88 38 56 72 46 122 Q62 118 76 132 C80 78 102 42 128 26 Z" fill="var(--item-highlight, #FF8585)" stroke="none"/>
+
+      <!-- Re-stroke canopy contour and panel ribs -->
+      <path d="M22 132 C22 66 68 26 128 26 C188 26 234 66 234 132 Q208 114 180 132 Q154 114 128 132 Q102 114 76 132 Q48 114 22 132 Z" fill="none"/>
+      <path d="M128 26 C98 46 78 82 76 132" fill="none" stroke-width="5"/>
+      <path d="M128 26 L128 132" fill="none" stroke-width="5"/>
+      <path d="M128 26 C158 46 178 82 180 132" fill="none" stroke-width="5"/>
+
+      <!-- Top cap collar -->
+      <ellipse cx="128" cy="28" rx="14" ry="6" fill="#FFD166" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

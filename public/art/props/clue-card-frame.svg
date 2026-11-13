@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <!-- Decorative wooden border aligned to clue-card-back; both inner panels are 100% transparent via fill-rule="evenodd" -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main frame with upper icon cutout (x=60..220, y=36..196) and lower text cutout (x=38..242, y=218..318) -->
+    <path fill-rule="evenodd" d="
+      M 44 14 H 236 A 28 28 0 0 1 264 42 V 310 A 28 28 0 0 1 236 338 H 44 A 28 28 0 0 1 16 310 V 42 A 28 28 0 0 1 44 14 Z
+      M 80 36 H 200 A 20 20 0 0 1 220 56 V 176 A 20 20 0 0 1 200 196 H 80 A 20 20 0 0 1 60 176 V 56 A 20 20 0 0 1 80 36 Z
+      M 56 218 H 224 A 18 18 0 0 1 242 236 V 300 A 18 18 0 0 1 224 318 H 56 A 18 18 0 0 1 38 300 V 236 A 18 18 0 0 1 56 218 Z
+    " fill="#D9A06B" />
+
+    <!-- Top frame highlight -->
+    <path d="M 44 20 H 236 C 248 20 256 28 256 40 C 248 30 240 28 232 28 H 48 C 40 28 32 30 24 40 C 24 28 32 20 44 20 Z" fill="#FFF6E8" stroke="none" />
+
+    <!-- Divider bar highlight between upper and lower panels -->
+    <path d="M 64 204 H 216 C 220 204 220 210 216 210 H 64 C 60 210 60 204 64 204 Z" fill="#CC926B" stroke="none" />
+
+    <!-- Bottom frame shadow -->
+    <path d="M 44 332 H 236 C 248 332 256 324 256 312 C 248 322 240 324 232 324 H 48 C 40 324 32 322 24 312 C 24 324 32 332 44 332 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Recessed gold bezel around the 160x160 upper icon window (interior stays transparent) -->
+    <path fill-rule="evenodd" d="
+      M 78 32 H 202 A 22 22 0 0 1 224 54 V 178 A 22 22 0 0 1 202 200 H 78 A 22 22 0 0 1 56 178 V 54 A 22 22 0 0 1 78 32 Z
+      M 80 38 H 200 A 18 18 0 0 1 218 56 V 176 A 18 18 0 0 1 200 194 H 80 A 18 18 0 0 1 62 176 V 56 A 18 18 0 0 1 80 38 Z
+    " fill="#FFD166" stroke-width="5" />
+
+    <!-- Friendly rounded gold rivets in the four outer corners -->
+    <circle cx="38" cy="36" r="7" fill="#FFD166" stroke-width="4" />
+    <circle cx="242" cy="36" r="7" fill="#FFD166" stroke-width="4" />
+    <circle cx="38" cy="316" r="7" fill="#FFD166" stroke-width="4" />
+    <circle cx="242" cy="316" r="7" fill="#FFD166" stroke-width="4" />
+  </g>
+</svg>

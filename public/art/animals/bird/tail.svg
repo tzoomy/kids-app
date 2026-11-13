@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100" height="120">
+  <!-- Short three-plume fan tail -->
+  <path d="M 42 104 C 24 88, 10 62, 14 38 C 16 24, 30 22, 38 34 C 40 16, 56 10, 66 22 C 72 30, 70 42, 66 50 C 78 44, 90 52, 88 66 C 86 84, 66 100, 42 104 Z" fill="#F24C4C"/>
+
+  <!-- Base and lower plume shadow -->
+  <path d="M 42 104 C 28 92, 18 74, 16 56 C 24 74, 36 86, 50 90 C 66 86, 78 76, 86 60 C 86 80, 66 98, 42 104 Z" fill="#CC3333"/>
+
+  <!-- Plume tip highlights -->
+  <path d="M 20 42 C 20 30, 28 28, 34 36 C 28 34, 22 36, 20 42 Z" fill="#EE6C62"/>
+  <path d="M 44 30 C 46 18, 56 16, 62 26 C 56 22, 48 24, 44 30 Z" fill="#EE6C62"/>
+
+  <!-- Outline and inner feather dividers -->
+  <path d="M 42 104 C 24 88, 10 62, 14 38 C 16 24, 30 22, 38 34 C 40 16, 56 10, 66 22 C 72 30, 70 42, 66 50 C 78 44, 90 52, 88 66 C 86 84, 66 100, 42 104 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 38 34 C 40 50, 42 66, 44 80" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 66 50 C 60 64, 54 76, 48 86" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

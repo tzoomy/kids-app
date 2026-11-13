@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   animalPartKey,
+  flowerArtKey,
   foodArtKey,
   fxArtKey,
+  instrumentArtKey,
   getAnimalRig,
   getArtManifest,
+  homeArtKey,
+  itemArtKey,
   keyForUrl,
   propArtKey,
+  trainArtKey,
   registerAnimalRigs,
   registerArtManifest,
   resetArtRegistry,
@@ -80,6 +85,15 @@ describe('art registry fallbacks', () => {
     expect(animalPartKey('cat', 'ear-left')).toBeUndefined();
   });
 
+  it('resolves character parts and instruments by path', () => {
+    registerArtManifest([
+      { key: 'character.chef.head', url: 'art/characters/chef/head.svg', width: 236, height: 196 },
+      { key: 'instrument-pot', url: 'art/instruments/pot.svg', width: 256, height: 256 },
+    ]);
+    expect(animalPartKey('chef', 'head')).toBe('character.chef.head');
+    expect(instrumentArtKey('pot')).toBe('instrument-pot');
+  });
+
   it('rigTextureKeys needs every part plus eye-closed and mouth variants', () => {
     registerArtManifest(bearManifest().filter((e) => !e.url.endsWith('mouth-hmm.svg')));
     expect(rigTextureKeys(BEAR)).toBeUndefined();
@@ -131,5 +145,31 @@ describe('assetUrl', () => {
     expect(assetUrl('/kids-app/', 'art/foods/apple.svg')).toBe('/kids-app/art/foods/apple.svg');
     expect(assetUrl('/kids-app', './art/x.svg')).toBe('/kids-app/art/x.svg');
     expect(assetUrl('/', 'art/x.svg')).toBe('/art/x.svg');
+  });
+});
+
+describe('home and train lookups', () => {
+  it('resolves homes and train parts by path', () => {
+    registerArtManifest([
+      { key: 'home-nest-back', url: 'art/homes/nest-back.svg', width: 360, height: 280 },
+      { key: 'train-engine', url: 'art/train/engine.svg', width: 360, height: 260 },
+      { key: 'prop-clue', url: 'art/props/clue-card-back.svg', width: 280, height: 360 },
+    ]);
+    expect(homeArtKey('nest-back')).toBe('home-nest-back');
+    expect(trainArtKey('engine')).toBe('train-engine');
+    expect(propArtKey('clue-card-back')).toBe('prop-clue');
+  });
+});
+
+describe('flower and item lookups', () => {
+  it('resolves flowers and travel items by path', () => {
+    registerArtManifest([
+      { key: 'flower-bloom-tulip-red', url: 'art/flowers/bloom-tulip-red.svg', width: 256, height: 256 },
+      { key: 'item-hat', url: 'art/items/hat.svg', width: 256, height: 256 },
+      { key: 'prop-bed', url: 'art/props/garden-bed-back.svg', width: 520, height: 260 },
+    ]);
+    expect(flowerArtKey('bloom-tulip-red')).toBe('flower-bloom-tulip-red');
+    expect(itemArtKey('hat')).toBe('item-hat');
+    expect(propArtKey('garden-bed-back')).toBe('prop-bed');
   });
 });

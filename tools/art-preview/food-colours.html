@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animal Restaurant — Food Colour Variants Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 20px 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #3B2A22;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #6E5244;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      max-width: 1232px;
+      margin: 0 auto;
+    }
+    @media (max-width: 960px) {
+      body {
+        padding: 10px 14px 12px;
+      }
+      header {
+        margin-bottom: 8px;
+      }
+      h1 { font-size: 22px; }
+      .board {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .food-group {
+        padding: 8px 12px;
+        gap: 6px;
+      }
+      .variant-card {
+        padding: 6px;
+      }
+      .art-frame {
+        width: 108px;
+        height: 108px;
+        margin-bottom: 4px;
+      }
+      .art-frame img {
+        width: 96px;
+        height: 96px;
+      }
+    }
+    .food-group {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: 0 5px 14px rgba(59, 42, 34, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .group-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 2px dashed #F0D9BC;
+      padding-bottom: 6px;
+    }
+    .group-title {
+      font-size: 19px;
+      font-weight: 800;
+      text-transform: capitalize;
+      color: #3B2A22;
+    }
+    .group-meta {
+      font-size: 12px;
+      font-weight: 700;
+      color: #7A5C4D;
+    }
+    .variants {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .variant-card {
+      background: #FFF6E8;
+      border: 2px solid #EED2B3;
+      border-radius: 16px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .art-frame {
+      width: 144px;
+      height: 144px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, #FFFFFF 55%, #F9EBD7 100%);
+      border-radius: 14px;
+      border: 2px dashed #E5BE94;
+      margin-bottom: 8px;
+    }
+    .art-frame img {
+      width: 128px;
+      height: 128px;
+      display: block;
+      user-select: none;
+    }
+    .variant-role {
+      font-size: 13px;
+      font-weight: 800;
+      color: #3B2A22;
+      margin-bottom: 2px;
+    }
+    .variant-key {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #5C4338;
+      background: #F4E2C9;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+    }
+    .variant-file {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      color: #7A5C4D;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Animal Restaurant — Food Colour Variants</h1>
+    <div class="subtitle">Default SVG + both colour variants side by side (256×256 viewBox, #3B2A22 6px outline)</div>
+  </header>
+
+  <main id="board" class="board"></main>
+
+  <script>
+    const FOODS = [
+      {
+        id: 'apple',
+        title: 'Apple',
+        note: 'Default: Red • Variants: Red, Green',
+        items: [
+          { role: 'Default', key: 'food-apple', file: 'apple.svg' },
+          { role: 'Variant: red', key: 'food-apple-red', file: 'apple-red.svg' },
+          { role: 'Variant: green', key: 'food-apple-green', file: 'apple-green.svg' },
+        ],
+      },
+      {
+        id: 'banana',
+        title: 'Banana',
+        note: 'Default: Yellow • Variants: Yellow, Green',
+        items: [
+          { role: 'Default', key: 'food-banana', file: 'banana.svg' },
+          { role: 'Variant: yellow', key: 'food-banana-yellow', file: 'banana-yellow.svg' },
+          { role: 'Variant: green', key: 'food-banana-green', file: 'banana-green.svg' },
+        ],
+      },
+      {
+        id: 'grapes',
+        title: 'Grapes',
+        note: 'Default: Purple • Variants: Purple, Green',
+        items: [
+          { role: 'Default', key: 'food-grapes', file: 'grapes.svg' },
+          { role: 'Variant: purple', key: 'food-grapes-purple', file: 'grapes-purple.svg' },
+          { role: 'Variant: green', key: 'food-grapes-green', file: 'grapes-green.svg' },
+        ],
+      },
+      {
+        id: 'pear',
+        title: 'Pear',
+        note: 'Default: Green • Variants: Green, Yellow',
+        items: [
+          { role: 'Default', key: 'food-pear', file: 'pear.svg' },
+          { role: 'Variant: green', key: 'food-pear-green', file: 'pear-green.svg' },
+          { role: 'Variant: yellow', key: 'food-pear-yellow', file: 'pear-yellow.svg' },
+        ],
+      },
+    ];
+
+    async function render() {
+      const board = document.getElementById('board');
+      const images = [];
+
+      for (const group of FOODS) {
+        const section = document.createElement('section');
+        section.className = 'food-group';
+        section.dataset.food = group.id;
+
+        const header = document.createElement('div');
+        header.className = 'group-header';
+
+        const title = document.createElement('div');
+        title.className = 'group-title';
+        title.textContent = group.title;
+
+        const meta = document.createElement('div');
+        meta.className = 'group-meta';
+        meta.textContent = group.note;
+
+        header.appendChild(title);
+        header.appendChild(meta);
+        section.appendChild(header);
+
+        const variants = document.createElement('div');
+        variants.className = 'variants';
+
+        for (const item of group.items) {
+          const card = document.createElement('div');
+          card.className = 'variant-card';
+
+          const frame = document.createElement('div');
+          frame.className = 'art-frame';
+
+          const img = document.createElement('img');
+          img.src = `../../public/art/foods/${item.file}`;
+          img.alt = `${group.title} (${item.role})`;
+          img.width = 128;
+          img.height = 128;
+          images.push(img);
+          frame.appendChild(img);
+
+          const role = document.createElement('div');
+          role.className = 'variant-role';
+          role.textContent = item.role;
+
+          const key = document.createElement('div');
+          key.className = 'variant-key';
+          key.textContent = item.key;
+
+          const file = document.createElement('div');
+          file.className = 'variant-file';
+          file.textContent = `art/foods/${item.file}`;
+
+          card.appendChild(frame);
+          card.appendChild(role);
+          card.appendChild(key);
+          card.appendChild(file);
+          variants.appendChild(card);
+        }
+
+        section.appendChild(variants);
+        board.appendChild(section);
+      }
+
+      await Promise.all(
+        images.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete && img.naturalWidth > 0) {
+                resolve();
+                return;
+              }
+              img.addEventListener('load', () => resolve(), { once: true });
+              img.addEventListener('error', () => resolve(), { once: true });
+            })
+        )
+      );
+
+      window.__PREVIEW_READY__ = true;
+    }
+
+    render();
+  </script>
+</body>
+</html>

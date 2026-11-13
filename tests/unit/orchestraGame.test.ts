@@ -14,16 +14,18 @@ import {
 } from '../../src/games/orchestra/orchestraGame';
 
 describe('Kitchen Orchestra content and levels', () => {
-  it('validates and opens Creative Studio with this entry game', () => {
+  it('validates and belongs to Language House (reached through the game picker); Art Studio is locked again', () => {
     const content = loadKitchenOrchestra();
     expect(content.id).toBe('kitchen-orchestra');
-    expect(content.world).toBe('art-studio');
+    expect(content.world).toBe('language-house');
     expect(content.instruments.length).toBe(5);
     const worlds = loadWorlds();
+    const house = worlds.worlds.find((w) => w.id === 'language-house');
+    expect(house?.status).toBe('open');
+    expect(house?.earnsLeisure).toBe(true);
     const studio = worlds.worlds.find((w) => w.id === 'art-studio');
-    expect(studio?.status).toBe('open');
-    expect(studio?.entryGameId).toBe('kitchen-orchestra');
-    expect(studio?.earnsLeisure).toBe(true);
+    expect(studio?.status).toBe('locked');
+    expect(studio?.entryGameId).toBeUndefined();
   });
 
   it('starts age 2 at a comfortable L1 and age 5 at a meaningfully harder L4', () => {

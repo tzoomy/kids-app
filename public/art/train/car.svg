@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 260" width="320" height="260" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Left and Right coupler stubs at exact engine coupler height -->
+  <rect x="3" y="196" width="20" height="18" rx="6" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="297" y="196" width="20" height="18" rx="6" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Interior back rim of the open car -->
+  <rect x="24" y="132" width="272" height="24" rx="8" fill="#9E6540" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Seat 1 (Left / Front bench facing left, high back for small animal) -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- High backrest -->
+    <rect x="118" y="76" width="30" height="76" rx="12" fill="#CC926B"/>
+    <path d="M126 86 V138" stroke="#FFF6E8" stroke-width="5" stroke-opacity="0.6"/>
+    <!-- Seat cushion -->
+    <rect x="46" y="122" width="98" height="28" rx="10" fill="#B87D56"/>
+    <path d="M56 130 H132" stroke="#CC926B" stroke-width="5"/>
+    <!-- Armrest side support -->
+    <rect x="54" y="112" width="72" height="16" rx="8" fill="#FFD166" stroke-width="5"/>
+  </g>
+
+  <!-- Seat 2 (Right / Rear bench facing left, high back for small animal) -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- High backrest -->
+    <rect x="246" y="76" width="30" height="76" rx="12" fill="#CC926B"/>
+    <path d="M254 86 V138" stroke="#FFF6E8" stroke-width="5" stroke-opacity="0.6"/>
+    <!-- Seat cushion -->
+    <rect x="174" y="122" width="98" height="28" rx="10" fill="#B87D56"/>
+    <path d="M184 130 H260" stroke="#CC926B" stroke-width="5"/>
+    <!-- Armrest side support -->
+    <rect x="182" y="112" width="72" height="16" rx="8" fill="#FFD166" stroke-width="5"/>
+  </g>
+
+  <!-- Low open passenger car body side wall -->
+  <rect x="18" y="140" width="284" height="56" rx="14" fill="#4D96FF" stroke="#3B2A22" stroke-width="6"/>
+  <!-- Side wall highlight and shadow -->
+  <path d="M32 152 H288" stroke="#8CC0FF" stroke-width="7"/>
+  <rect x="22" y="176" width="276" height="16" rx="6" fill="#2B6FD6"/>
+
+  <!-- Decorative side panels (three panels so it never reads as eyes/face) -->
+  <g fill="#FFF8EE" stroke="#3B2A22" stroke-width="5">
+    <rect x="38" y="154" width="68" height="26" rx="8"/>
+    <rect x="126" y="154" width="68" height="26" rx="8"/>
+    <rect x="214" y="154" width="68" height="26" rx="8"/>
+  </g>
+
+  <!-- Warm gold top rail trim on the car body -->
+  <rect x="14" y="132" width="292" height="14" rx="7" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Chassis base beam (matches engine.svg y=192..216) -->
+  <rect x="16" y="192" width="288" height="24" rx="10" fill="#FFF8EE" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="24" y="204" width="272" height="9" rx="4" fill="#F0DEC2"/>
+
+  <!-- Two chunky wheels with bottom edge at y=260 (cy=225, r=32, stroke=6) -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- Left wheel -->
+    <circle cx="84" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="84" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="84" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+
+    <!-- Right wheel -->
+    <circle cx="236" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="236" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="236" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <!-- Front lower rim of entrance hole and bottom hive tier only; entrance interior stays completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bottom cap tier (Tier 5) -->
+    <rect x="80" y="264" width="120" height="46" rx="23" fill="#FFCA3A" />
+    <path d="M 96 274 C 122 270 156 270 182 274 C 156 276 122 276 96 274 Z" fill="#FFE073" stroke="none" />
+    <path d="M 88 294 C 120 304 160 304 192 294 C 182 306 98 306 88 294 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Front lower cradle lip of the entrance rim (below y=236 so hole center is wide open) -->
+    <path d="M 94 238 C 106 254 122 260 140 260 C 158 260 174 254 186 238 C 192 244 190 256 178 264 C 166 272 154 274 140 274 C 126 274 114 272 102 264 C 90 256 88 244 94 238 Z" fill="#FFCA3A" />
+    <!-- Highlight on front entrance sill -->
+    <path d="M 102 246 C 116 258 128 262 140 262 C 152 262 164 258 178 246 C 166 262 152 268 140 268 C 128 268 114 262 102 246 Z" fill="#FFE073" stroke="none" />
+
+    <!-- Sweet golden honey drip on the front rim -->
+    <path d="M 152 256 C 158 256 164 260 164 270 C 164 280 158 286 152 286 C 146 286 142 280 144 270 C 146 262 148 256 152 256 Z" fill="#FFD43B" stroke-width="5" />
+  </g>
+</svg>

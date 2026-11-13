@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- BACK SNEAKER (shifted upper-left) -->
+    <g>
+      <!-- Collar interior -->
+      <ellipse cx="70" cy="70" rx="26" ry="11" fill="#F0DEC2"/>
+      <!-- Sneaker upper body -->
+      <path d="M36 74 C36 62 48 56 64 58 L94 62 C102 64 108 72 114 86 C126 102 150 110 176 112 C194 114 206 126 206 142 L206 150 L30 150 L30 110 C30 94 34 82 36 74 Z" fill="var(--item-fill, #4D96FF)"/>
+      <!-- Shadow on back sneaker -->
+      <path d="M30 124 L204 124 L206 150 L30 150 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+      <!-- Highlight on back sneaker -->
+      <path d="M44 76 C50 68 68 68 82 72 C74 80 62 92 54 108 C44 104 42 86 44 76 Z" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+      <!-- Re-stroke back upper -->
+      <path d="M36 74 C36 62 48 56 64 58 L94 62 C102 64 108 72 114 86 C126 102 150 110 176 112 C194 114 206 126 206 142 L206 150 L30 150 L30 110 C30 94 34 82 36 74 Z" fill="none"/>
+      <!-- Cream rubber toe cap -->
+      <path d="M164 112 C188 112 206 124 206 144 L206 150 L158 150 C156 134 158 120 164 112 Z" fill="#FFF6E8"/>
+      <!-- Cream velcro straps -->
+      <rect x="96" y="76" width="28" height="13" rx="6" transform="rotate(-18 96 76)" fill="#FFF6E8" stroke-width="5"/>
+      <rect x="112" y="92" width="28" height="13" rx="6" transform="rotate(-18 112 92)" fill="#FFF6E8" stroke-width="5"/>
+      <!-- Chunky rubber sole -->
+      <rect x="26" y="144" width="184" height="22" rx="11" fill="#FFF6E8"/>
+    </g>
+
+    <!-- FRONT SNEAKER (foreground, shifted lower-right) -->
+    <g>
+      <!-- Heel pull tab -->
+      <path d="M48 112 C40 104 40 92 50 90 L60 98 Z" fill="var(--item-shadow, #2B6FD6)"/>
+      <!-- Collar opening -->
+      <ellipse cx="86" cy="108" rx="30" ry="12" fill="#F0DEC2"/>
+      <!-- Sneaker upper body -->
+      <path d="M52 112 C52 98 66 94 84 96 L114 100 C124 102 132 112 140 128 C154 144 178 152 204 154 C222 156 234 168 234 186 L234 196 L46 196 L46 152 C46 134 50 120 52 112 Z" fill="var(--item-fill, #4D96FF)"/>
+      <!-- Lower and heel shadow -->
+      <path d="M46 168 C94 176 156 176 232 174 L234 196 L46 196 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+      <!-- Upper ankle highlight -->
+      <path d="M60 116 C66 106 86 106 102 112 C92 122 80 136 72 154 C60 148 56 130 60 116 Z" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+      <!-- Re-stroke front upper -->
+      <path d="M52 112 C52 98 66 94 84 96 L114 100 C124 102 132 112 140 128 C154 144 178 152 204 154 C222 156 234 168 234 186 L234 196 L46 196 L46 152 C46 134 50 120 52 112 Z" fill="none"/>
+      <!-- Cream rubber toe cap -->
+      <path d="M188 153 C214 154 234 166 234 188 L234 196 L180 196 C178 178 180 162 188 153 Z" fill="#FFF6E8"/>
+      <!-- Two chunky velcro straps -->
+      <rect x="116" y="116" width="32" height="14" rx="7" transform="rotate(-18 116 116)" fill="#FFF6E8" stroke-width="5"/>
+      <rect x="134" y="134" width="32" height="14" rx="7" transform="rotate(-18 134 134)" fill="#FFF6E8" stroke-width="5"/>
+      <!-- Chunky cream rubber sole -->
+      <rect x="42" y="188" width="196" height="26" rx="13" fill="#FFF6E8"/>
+      <path d="M50 206 L230 206 C228 211 222 213 214 213 L66 213 C58 213 52 211 50 206 Z" fill="#F0DEC2" stroke="none"/>
+      <rect x="42" y="188" width="196" height="26" rx="13" fill="none"/>
+      <line x1="56" y1="201" x2="224" y2="201" stroke="#3B2A22" stroke-width="4"/>
+    </g>
+  </g>
+</svg>

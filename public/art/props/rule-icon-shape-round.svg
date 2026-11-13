@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Plump circular pom-pom flower with tight scalloped puffs -->
+  <path d="M80 18 C92 18 102 24 106 32 C116 28 128 34 132 46 C140 52 144 64 140 76 C144 88 140 100 132 108 C128 120 118 128 106 128 C100 138 90 142 80 142 C70 142 60 138 54 128 C42 128 32 120 28 108 C20 100 16 88 20 76 C16 64 20 52 28 46 C32 34 44 28 54 32 C58 24 68 18 80 18 Z" fill="#F24C4C" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lower pom-pom shadow crescent -->
+  <path d="M26 98 C32 116 46 126 56 126 C62 134 70 138 80 138 C90 138 98 134 104 126 C114 126 128 116 134 98 C124 110 112 114 102 114 C96 122 88 126 80 126 C72 126 64 122 58 114 C48 114 36 110 26 98 Z" fill="#CC3333"/>
+
+  <!-- Upper pom-pom highlight puffs -->
+  <path d="M58 36 C64 26 74 22 86 24 C76 28 68 34 62 42 Z" fill="#FF8585"/>
+  <path d="M34 54 C38 42 46 36 56 38 C48 44 42 50 38 58 Z" fill="#FF8585"/>
+  <path d="M64 62 C72 52 88 52 96 62 C88 58 72 58 64 62 Z" fill="#FF8585"/>
+
+  <!-- Inner tight petal ruffle arcs (non-face asymmetrical rosette curves) -->
+  <g fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 58 C64 46 84 44 98 54 C110 64 112 82 100 94"/>
+    <path d="M104 72 C100 90 82 102 64 96 C48 90 44 74 52 60"/>
+    <path d="M68 74 C74 66 86 66 90 76 C92 84 84 90 74 86"/>
+  </g>
+</svg>

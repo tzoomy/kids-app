@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Sky background -->
+  <rect x="0" y="0" width="1280" height="800" fill="#B8E6FF"/>
+  <path d="M0 0 H1280 V220 Q960 260 640 230 Q320 200 0 240 Z" fill="#FFFDF9" fill-opacity="0.35"/>
+
+  <!-- Soft clouds -->
+  <g fill="#FFFDF9" stroke="#5C4338" stroke-width="5">
+    <path d="M140 130 Q140 95 178 95 Q198 68 238 72 Q275 74 285 104 Q318 106 318 134 Q318 158 286 158 H168 Q140 158 140 130 Z"/>
+    <path d="M820 110 Q820 80 855 80 Q875 54 915 58 Q950 62 962 90 Q992 92 992 118 Q992 142 960 142 H848 Q820 142 820 110 Z"/>
+  </g>
+  <path d="M158 146 H298" stroke="#F0DEC2" stroke-width="8"/>
+  <path d="M838 130 H974" stroke="#F0DEC2" stroke-width="8"/>
+
+  <!-- Far rolling hills -->
+  <path d="M-20 430 Q220 310 520 380 Q840 445 1080 340 Q1200 295 1300 350 V560 H-20 Z" fill="#98D886" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M40 395 Q240 330 470 378" fill="none" stroke="#8AE07E" stroke-width="10"/>
+  <path d="M880 385 Q1080 322 1250 348" fill="none" stroke="#8AE07E" stroke-width="10"/>
+
+  <!-- Distant garden trees and bushes -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- Left tree -->
+    <rect x="168" y="300" width="28" height="75" rx="8" fill="#7A4B2A"/>
+    <path d="M115 305 Q105 262 145 250 Q162 215 202 222 Q238 228 245 264 Q268 280 252 308 Q238 325 182 325 Q125 325 115 305 Z" fill="#57C457"/>
+    <path d="M142 256 Q175 230 215 242" fill="none" stroke="#8AE07E" stroke-width="8"/>
+
+    <!-- Right tree -->
+    <rect x="1056" y="282" width="28" height="80" rx="8" fill="#7A4B2A"/>
+    <path d="M1002 290 Q992 248 1032 236 Q1052 200 1090 206 Q1128 212 1134 248 Q1158 265 1140 294 Q1125 310 1070 310 Q1012 310 1002 290 Z" fill="#57C457"/>
+    <path d="M1030 242 Q1065 215 1105 228" fill="none" stroke="#8AE07E" stroke-width="8"/>
+  </g>
+
+  <!-- Midground meadow -->
+  <path d="M-20 445 Q360 400 720 438 Q1020 468 1300 425 V820 H-20 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M-20 465 Q360 420 720 458 Q1020 488 1300 445" fill="none" stroke="#8AE07E" stroke-width="10"/>
+
+  <!-- Wooden garden fence along the meadow -->
+  <g fill="#CC926B" stroke="#3B2A22" stroke-width="5">
+    <rect x="60" y="398" width="1160" height="14" rx="6" fill="#B87D56"/>
+    <rect x="60" y="424" width="1160" height="14" rx="6" fill="#B87D56"/>
+    <rect x="90" y="380" width="22" height="72" rx="8"/>
+    <rect x="230" y="380" width="22" height="72" rx="8"/>
+    <rect x="370" y="380" width="22" height="72" rx="8"/>
+    <rect x="510" y="380" width="22" height="72" rx="8"/>
+    <rect x="650" y="380" width="22" height="72" rx="8"/>
+    <rect x="790" y="380" width="22" height="72" rx="8"/>
+    <rect x="930" y="380" width="22" height="72" rx="8"/>
+    <rect x="1070" y="380" width="22" height="72" rx="8"/>
+    <rect x="1180" y="380" width="22" height="72" rx="8"/>
+  </g>
+
+  <!-- Soft bushes behind the track -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <path d="M30 520 Q30 482 68 482 Q92 458 130 468 Q164 475 168 520 Z" fill="#3CA33C"/>
+    <path d="M560 520 Q560 486 595 486 Q618 466 650 474 Q680 482 684 520 Z" fill="#3CA33C"/>
+    <path d="M1110 520 Q1110 480 1148 480 Q1175 456 1212 468 Q1246 476 1250 520 Z" fill="#3CA33C"/>
+  </g>
+
+  <!-- Horizontal gravel / dirt railway bed across the lower third -->
+  <rect x="-20" y="520" width="1320" height="150" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="-20" y="532" width="1320" height="18" fill="#FFF6E8"/>
+  <rect x="-20" y="646" width="1320" height="22" fill="#E8AA6B"/>
+
+  <!-- Wooden railway sleepers (ties) in perspective -->
+  <g fill="#B87D56" stroke="#3B2A22" stroke-width="5">
+    <rect x="36" y="556" width="44" height="80" rx="8"/>
+    <rect x="136" y="556" width="44" height="80" rx="8"/>
+    <rect x="236" y="556" width="44" height="80" rx="8"/>
+    <rect x="336" y="556" width="44" height="80" rx="8"/>
+    <rect x="436" y="556" width="44" height="80" rx="8"/>
+    <rect x="536" y="556" width="44" height="80" rx="8"/>
+    <rect x="636" y="556" width="44" height="80" rx="8"/>
+    <rect x="736" y="556" width="44" height="80" rx="8"/>
+    <rect x="836" y="556" width="44" height="80" rx="8"/>
+    <rect x="936" y="556" width="44" height="80" rx="8"/>
+    <rect x="1036" y="556" width="44" height="80" rx="8"/>
+    <rect x="1136" y="556" width="44" height="80" rx="8"/>
+    <rect x="1226" y="556" width="44" height="80" rx="8"/>
+  </g>
+
+  <!-- Horizontal rails -->
+  <rect x="-20" y="570" width="1320" height="14" fill="#C08552" stroke="#3B2A22" stroke-width="5"/>
+  <rect x="-20" y="608" width="1320" height="16" fill="#C08552" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Foreground grass strip at bottom -->
+  <path d="M-20 670 H1300 V820 H-20 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M-20 688 Q320 672 640 690 Q960 706 1300 684 V820 H-20 Z" fill="#57C457"/>
+
+  <!-- Small calm garden tufts and flowers -->
+  <g stroke="#3B2A22" stroke-width="5" fill="#FFD166">
+    <circle cx="190" cy="735" r="11"/>
+    <circle cx="485" cy="748" r="11"/>
+    <circle cx="870" cy="732" r="11"/>
+    <circle cx="1120" cy="750" r="11"/>
+  </g>
+</svg>

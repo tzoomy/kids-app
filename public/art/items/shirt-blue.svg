@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Short-sleeve tee body -->
+    <path d="M88 46 C104 62 152 62 168 46 L228 84 C236 90 236 100 230 108 L206 138 C200 146 190 146 182 140 L170 130 L174 206 C174 218 166 226 154 226 L102 226 C90 226 82 218 82 206 L86 130 L74 140 C66 146 56 146 50 138 L26 108 C20 100 20 90 28 84 Z" fill="var(--item-fill, #4D96FF)"/>
+
+    <!-- Right-side and bottom hem shading -->
+    <path d="M168 46 L228 84 C236 90 236 100 230 108 L206 138 C200 146 190 146 182 140 L170 130 L174 206 C174 218 166 226 154 226 L102 226 C90 226 82 218 82 206 L82 200 L152 200 C156 152 156 96 168 46 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+
+    <!-- Left shoulder and chest highlight -->
+    <path d="M84 62 L40 90 C36 94 40 104 48 100 L90 74 Z" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+
+    <!-- Cream chest stripe -->
+    <rect x="85" y="138" width="86" height="22" fill="#FFF6E8" stroke="none"/>
+    <rect x="148" y="138" width="23" height="22" fill="#F0DEC2" stroke="none"/>
+    <line x1="85" y1="138" x2="171" y2="138" stroke-width="5"/>
+    <line x1="84" y1="160" x2="172" y2="160" stroke-width="5"/>
+
+    <!-- Sleeve cuff bands -->
+    <line x1="36" y1="98" x2="66" y2="134" stroke="#FFF6E8" stroke-width="8"/>
+    <line x1="220" y1="98" x2="190" y2="134" stroke="#FFF6E8" stroke-width="8"/>
+
+    <!-- Re-stroke tee silhouette -->
+    <path d="M88 46 C104 62 152 62 168 46 L228 84 C236 90 236 100 230 108 L206 138 C200 146 190 146 182 140 L170 130 L174 206 C174 218 166 226 154 226 L102 226 C90 226 82 218 82 206 L86 130 L74 140 C66 146 56 146 50 138 L26 108 C20 100 20 90 28 84 Z" fill="none"/>
+
+    <!-- Ribbed crew-neck collar -->
+    <path d="M88 46 C104 62 152 62 168 46 C154 38 102 38 88 46 Z" fill="#F0DEC2"/>
+    <path d="M82 52 C102 76 154 76 174 52 L168 46 C152 62 104 62 88 46 Z" fill="#FFF6E8"/>
+
+    <!-- Cute chest pocket -->
+    <path d="M134 94 L158 94 L158 114 C158 120 152 124 146 124 C140 124 134 120 134 114 Z" fill="var(--item-highlight, #8CC0FF)" stroke-width="5"/>
+  </g>
+</svg>

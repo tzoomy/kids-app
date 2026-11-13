@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Even ring of 8 rounded daisy petals -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="80" cy="34" rx="18" ry="24" fill="#F24C4C"/>
+    <ellipse cx="80" cy="126" rx="18" ry="24" fill="#F24C4C"/>
+    <ellipse cx="34" cy="80" rx="24" ry="18" fill="#F24C4C"/>
+    <ellipse cx="126" cy="80" rx="24" ry="18" fill="#F24C4C"/>
+    <g transform="rotate(45 80 80)">
+      <ellipse cx="80" cy="34" rx="18" ry="24" fill="#F24C4C"/>
+      <ellipse cx="80" cy="126" rx="18" ry="24" fill="#F24C4C"/>
+      <ellipse cx="34" cy="80" rx="24" ry="18" fill="#F24C4C"/>
+      <ellipse cx="126" cy="80" rx="24" ry="18" fill="#F24C4C"/>
+    </g>
+  </g>
+
+  <!-- Petal highlights on upper petals and shadows on lower petals -->
+  <ellipse cx="80" cy="24" rx="8" ry="6" fill="#FF8585"/>
+  <ellipse cx="42" cy="42" rx="7" ry="5" transform="rotate(-45 42 42)" fill="#FF8585"/>
+  <ellipse cx="118" cy="42" rx="7" ry="5" transform="rotate(45 118 42)" fill="#FF8585"/>
+  <ellipse cx="80" cy="136" rx="9" ry="6" fill="#CC3333"/>
+  <ellipse cx="42" cy="118" rx="8" ry="5" transform="rotate(45 42 118)" fill="#CC3333"/>
+  <ellipse cx="118" cy="118" rx="8" ry="5" transform="rotate(-45 118 118)" fill="#CC3333"/>
+
+  <!-- Round golden daisy center -->
+  <circle cx="80" cy="80" r="28" fill="#FFD43B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 86 C60 98 70 104 80 104 C90 104 100 98 104 86 C98 94 90 98 80 98 C70 98 62 94 56 86 Z" fill="#EAA814"/>
+  <path d="M62 68 C66 60 74 56 84 58 C76 62 68 66 64 72 Z" fill="#FFF2A6"/>
+  <circle cx="80" cy="80" r="28" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

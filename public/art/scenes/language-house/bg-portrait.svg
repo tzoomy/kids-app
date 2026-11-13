@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Upper warm wall -->
+  <rect x="0" y="0" width="800" height="590" fill="#FFF3E0"/>
+
+  <!-- Subtle vertical wallpaper stripes (calm, low contrast) -->
+  <g fill="#F7DEC0" opacity="0.45">
+    <rect x="44" y="0" width="26" height="590"/>
+    <rect x="154" y="0" width="26" height="590"/>
+    <rect x="264" y="0" width="26" height="590"/>
+    <rect x="374" y="0" width="26" height="590"/>
+    <rect x="484" y="0" width="26" height="590"/>
+    <rect x="594" y="0" width="26" height="590"/>
+    <rect x="704" y="0" width="26" height="590"/>
+  </g>
+
+  <!-- Lower wainscoting wall -->
+  <rect x="0" y="590" width="800" height="120" fill="#F7DEC0"/>
+  <!-- Wainscot recessed panels -->
+  <g fill="#FFF3E0" stroke="#E5BE94" stroke-width="4" stroke-linejoin="round">
+    <rect x="36" y="616" width="154" height="64" rx="10"/>
+    <rect x="226" y="616" width="154" height="64" rx="10"/>
+    <rect x="416" y="616" width="154" height="64" rx="10"/>
+    <rect x="606" y="616" width="158" height="64" rx="10"/>
+  </g>
+
+  <!-- Chair rail and baseboard trim -->
+  <rect x="0" y="576" width="800" height="18" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+  <rect x="0" y="694" width="800" height="22" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+
+  <!-- Wooden floor in lower half -->
+  <rect x="0" y="716" width="800" height="564" fill="#D9A06B"/>
+  <rect x="0" y="718" width="800" height="16" fill="#C08552" opacity="0.45"/>
+
+  <!-- Floor plank lines -->
+  <g stroke="#C08552" stroke-width="4" stroke-linecap="round">
+    <line x1="0" y1="780" x2="800" y2="780"/>
+    <line x1="0" y1="856" x2="800" y2="856"/>
+    <line x1="0" y1="944" x2="800" y2="944"/>
+    <line x1="0" y1="1044" x2="800" y2="1044"/>
+    <line x1="0" y1="1156" x2="800" y2="1156"/>
+    <!-- Plank joints -->
+    <line x1="190" y1="716" x2="165" y2="780"/>
+    <line x1="580" y1="716" x2="600" y2="780"/>
+    <line x1="380" y1="780" x2="365" y2="856"/>
+    <line x1="140" y1="856" x2="110" y2="944"/>
+    <line x1="640" y1="856" x2="665" y2="944"/>
+    <line x1="310" y1="944" x2="290" y2="1044"/>
+    <line x1="540" y1="1044" x2="565" y2="1156"/>
+    <line x1="220" y1="1156" x2="195" y2="1280"/>
+  </g>
+
+  <!-- Cozy oval floor rug in the lower-middle floor area -->
+  <ellipse cx="400" cy="988" rx="310" ry="126" fill="#F0DEC2" stroke="#7A5C48" stroke-width="5"/>
+  <ellipse cx="400" cy="984" rx="280" ry="104" fill="#FFF6E8" stroke="#E5BE94" stroke-width="4"/>
+
+  <!-- High window on upper left wall -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="64" y="64" width="208" height="246" rx="26" fill="#E5BE94"/>
+    <rect x="58" y="56" width="208" height="246" rx="26" fill="#FFF6E8" stroke="#7A5C48" stroke-width="5"/>
+    <!-- Sky -->
+    <rect x="78" y="76" width="168" height="204" rx="14" fill="#B8E6FF" stroke="#7A5C48" stroke-width="4"/>
+    <!-- Soft cloud -->
+    <path d="M102 136 C102 122 114 116 128 120 C136 108 156 108 164 120 C176 118 186 126 184 138 C184 146 176 150 164 150 L114 150 C106 150 102 144 102 136 Z" fill="#FFFDF9"/>
+    <!-- Rolling green hills -->
+    <path d="M78 232 Q132 206 190 226 Q220 236 246 222 L246 280 L78 280 Z" fill="#8AE07E"/>
+    <path d="M78 248 Q152 226 246 246 L246 280 L78 280 Z" fill="#98D886"/>
+    <!-- Window muntin bars -->
+    <line x1="162" y1="76" x2="162" y2="280" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="78" y1="178" x2="246" y2="178" stroke="#FFF6E8" stroke-width="10"/>
+    <line x1="162" y1="76" x2="162" y2="280" stroke="#7A5C48" stroke-width="4"/>
+    <line x1="78" y1="178" x2="246" y2="178" stroke="#7A5C48" stroke-width="4"/>
+    <rect x="78" y="76" width="168" height="204" rx="14" fill="none" stroke="#7A5C48" stroke-width="4"/>
+    <!-- Window sill -->
+    <rect x="44" y="290" width="236" height="22" rx="10" fill="#FFF6E8" stroke="#7A5C48" stroke-width="5"/>
+    <path d="M52 304 L272 304" stroke="#F0DEC2" stroke-width="4"/>
+  </g>
+
+  <!-- Warm ceiling pendant lamp on top right -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="654" y1="0" x2="654" y2="86"/>
+    <ellipse cx="654" cy="128" rx="46" ry="22" fill="#FFF6E8"/>
+    <path d="M600 124 C600 86 708 86 708 124 Z" fill="#FFD166"/>
+    <path d="M618 116 C626 96 656 92 672 98" fill="none" stroke="#FFF6E8" stroke-width="5"/>
+  </g>
+</svg>

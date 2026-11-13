@@ -4,8 +4,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
-import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, puppetArtKey, coloringArtKey, paletteArtKey } from '../../src/anim/artRegistry';
+import { COLOURING_PAGES } from '../shared/leisureColouringPages';
+import { ANIMAL_RIGS, ANIMAL_ART_KINDS, CHARACTER_RIGS, HABITAT_ANIMAL_RIGS, HABITAT_ANIMAL_KINDS } from '../../src/assets/art/rigs';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey, homeArtKey, trainArtKey, puppetArtKey, coloringArtKey, paletteArtKey } from '../../src/anim/artRegistry';
 import { PUPPET_LAYER_ORDER, COLORING_PAGES, CRAYON_IDS, POT_IDS, MIX_RECIPES } from '../../src/assets/art/puppetColor';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
@@ -18,6 +19,7 @@ beforeEach(() => {
   registerArtManifest(ART_MANIFEST);
   registerAnimalRigs(ANIMAL_RIGS);
   registerAnimalRigs(CHARACTER_RIGS);
+  registerAnimalRigs(HABITAT_ANIMAL_RIGS);
 });
 
 describe('real art manifest', () => {
@@ -37,7 +39,14 @@ describe('real art manifest', () => {
   });
 
   it('has no SVG under public/art that the manifest does not list', () => {
-    const listed = new Set(ART_MANIFEST.map((e) => e.url));
+    // Colouring Time art is lazy-loaded (never in the boot ART_MANIFEST, AC-34); its paths match
+    // src/assets/art/colouringManifest.ts on PR #51. Swap this for COLOURING_ART_MANIFEST once #51 lands.
+    const lazyColouring = [
+      ...COLOURING_PAGES.map((p) => `art/colouring/pages/${p.id}.svg`),
+      'art/scenes/leisure-colouring/bg-landscape.svg',
+      'art/scenes/leisure-colouring/bg-portrait.svg',
+    ];
+    const listed = new Set([...ART_MANIFEST.map((e) => e.url), ...lazyColouring]);
     const walk = (dir: string): string[] =>
       fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));
     for (const f of walk(path.join(PUBLIC_DIR, 'art')).filter((f) => f.endsWith('.svg'))) {
@@ -53,10 +62,109 @@ describe('real art manifest', () => {
     expect(foodArtKey('apple')).toBeDefined();
   });
 
-  it('registers Kitchen Orchestra chef, instruments, glow, and kitchen scenes', () => {
-    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
+  it('registers Who\'s Hiding? and Kitchen Orchestra art', () => {
+    for (const name of ['bush-round-back', 'bush-round-front', 'bush-tall-back', 'bush-tall-front']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('hiding', name), `hiding/${name}`).toBeDefined();
+      expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+    }
+    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) {
+      expect(instrumentArtKey(name), name).toBeDefined();
+    }
     expect(fxArtKey('instrument-glow')).toBeDefined();
-    for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
+
+  it('registers Language House game-picker assets and ensures picker-close is at least 64x64', () => {
+    const registered = getArtManifest();
+    for (const key of [
+      'picker-card-animal-restaurant',
+      'picker-card-kitchen-orchestra',
+      'picker-close',
+      'picker-bg',
+    ]) {
+      expect(ART_MANIFEST.find((e) => e.key === key), `${key} in ART_MANIFEST`).toBeDefined();
+      expect(registered.find((e) => e.key === key), `${key} registered`).toBeDefined();
+    }
+    const closeEntry = ART_MANIFEST.find((e) => e.key === 'picker-close');
+    expect(closeEntry?.width).toBeGreaterThanOrEqual(64);
+    expect(closeEntry?.height).toBeGreaterThanOrEqual(64);
+  });
+
+  it('registers Sorting Beds and Travel Suitcase art', () => {
+    for (const name of ['garden-bed-back', 'garden-bed-front', 'rule-sign-post', 'rule-sign-plaque', 'shelf', 'suitcase-back', 'suitcase-front']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['rule-icon-color-red', 'rule-icon-color-yellow', 'rule-icon-color-blue', 'rule-icon-shape-tulip', 'rule-icon-shape-daisy', 'rule-icon-shape-round', 'rule-icon-size-small', 'rule-icon-size-large']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    expect(flowerArtKey('stem-small')).toBeDefined();
+    expect(flowerArtKey('stem-large')).toBeDefined();
+    for (const shape of ['tulip', 'daisy', 'round']) {
+      for (const color of ['red', 'yellow', 'blue']) {
+        expect(flowerArtKey(`bloom-${shape}-${color}`), `bloom-${shape}-${color}`).toBeDefined();
+      }
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('number-garden', name), `number-garden/${name}`).toBeDefined();
+      expect(sceneArtKey('language-house', name), `language-house/${name}`).toBeDefined();
+    }
+    for (const name of ['hat', 'hat-yellow', 'hat-blue', 'shoes', 'shoes-red', 'shoes-yellow', 'sunglasses', 'ball', 'ball-red', 'ball-blue', 'book', 'coat', 'coat-red', 'coat-blue', 'shirt', 'shirt-yellow', 'shirt-blue', 'socks', 'bottle', 'toothbrush', 'teddy', 'umbrella']) {
+      expect(itemArtKey(name), name).toBeDefined();
+    }
+  });
+
+  it('registers all eight food colour variants and resolves foodArtKey with optional colour', () => {
+    const expectedVariants: Array<[string, string, string]> = [
+      ['apple', 'red', 'food-apple-red'],
+      ['apple', 'green', 'food-apple-green'],
+      ['banana', 'yellow', 'food-banana-yellow'],
+      ['banana', 'green', 'food-banana-green'],
+      ['grapes', 'purple', 'food-grapes-purple'],
+      ['grapes', 'green', 'food-grapes-green'],
+      ['pear', 'green', 'food-pear-green'],
+      ['pear', 'yellow', 'food-pear-yellow'],
+    ];
+    const manifestKeys = new Set(ART_MANIFEST.map((e) => e.key));
+    for (const [foodId, color, expectedKey] of expectedVariants) {
+      expect(manifestKeys.has(expectedKey), `${expectedKey} in manifest`).toBe(true);
+      expect(foodArtKey(foodId, color)).toBe(expectedKey);
+    }
+    expect(foodArtKey('apple')).toBe('food-apple');
+    expect(foodArtKey('banana')).toBe('food-banana');
+    expect(foodArtKey('grapes')).toBe('food-grapes');
+    expect(foodArtKey('pear')).toBe('food-pear');
+  });
+
+  it('registers Sorting Beds flower-basket and layered back/front props with matching dimensions', () => {
+    const keys = ['flower-basket', 'flower-basket-back', 'flower-basket-front'] as const;
+    const entries = keys.map((key) => {
+      const entry = ART_MANIFEST.find((e) => e.key === key);
+      expect(entry, key).toBeDefined();
+      return entry!;
+    });
+    expect([entries[1].width, entries[1].height]).toEqual([entries[0].width, entries[0].height]);
+    expect([entries[2].width, entries[2].height]).toEqual([entries[0].width, entries[0].height]);
+    expect(propArtKey('flower-basket')).toBe('flower-basket');
+    expect(propArtKey('flower-basket-back')).toBe('flower-basket-back');
+    expect(propArtKey('flower-basket-front')).toBe('flower-basket-front');
+  });
+
+  it('registers Who Lives Here? and Picnic Train art', () => {
+    for (const name of ['nest-back', 'nest-front', 'burrow-back', 'burrow-front', 'pond-back', 'pond-front', 'hive-back', 'hive-front', 'kennel-back', 'kennel-front', 'tree-hollow-back', 'tree-hollow-front']) {
+      expect(homeArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['clue-card-back', 'clue-card-frame', 'clue-icon-feather', 'clue-icon-paw', 'clue-icon-water', 'clue-icon-honeycomb', 'clue-icon-bone', 'clue-icon-leaf', 'picnic-basket']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['engine', 'car', 'car-single', 'seat-outline', 'item-outline']) {
+      expect(trainArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('habitats', name), `habitats/${name}`).toBeDefined();
+      expect(sceneArtKey('picnic-train', name), `picnic-train/${name}`).toBeDefined();
+    }
   });
 
   it('registers Puppet Says layers, the stage, and puppet-stage scenes', () => {
@@ -113,24 +221,71 @@ describe('real animal rigs', () => {
       }
     }
   });
+
+  it('keeps every animal ear above the Who\'s Hiding? L5 reveal line (0.3), still overlapping the head', () => {
+    // L5 hides the animal so only the top 30% of its rig shows (feet at y=0, so the line is at
+    // -(1 - 0.3) * height). The ears are the only clue left there, so each ear's top must clear
+    // the line by a readable margin, and its bottom must still tuck under the head when fully shown.
+    const L5_REVEAL = 0.3;
+    const MIN_EAR_ABOVE_LINE = 24;
+    for (const kind of ANIMAL_KINDS) {
+      const rig = ANIMAL_RIGS[kind];
+      const line = -(1 - L5_REVEAL) * rig.height;
+      const head = rig.parts.head;
+      const headTop = head.y - head.originY * head.height;
+      for (const id of ['earL', 'earR']) {
+        const ear = rig.parts[id];
+        expect(ear, `${kind}.${id}`).toBeDefined();
+        const earTop = ear.y - ear.originY * ear.height;
+        const earBottom = earTop + ear.height;
+        expect(line - earTop, `${kind}.${id} top clears the L5 line`).toBeGreaterThanOrEqual(MIN_EAR_ABOVE_LINE);
+        expect(earBottom, `${kind}.${id} reaches below the head top`).toBeGreaterThan(headTop);
+      }
+    }
+  });
 });
 
 describe('chef rig', () => {
-  it('is registered as a character, not a restaurant animal', () => {
+  it('is complete, registered, and kept out of the restaurant animal list', () => {
     expect(ANIMAL_RIGS.chef).toBeUndefined();
     const rig = CHARACTER_RIGS.chef;
     expect(rig, 'chef rig').toBeDefined();
     expect(rig.kind).toBe('chef');
-    for (const id of ['body', 'head', 'hat']) expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    for (const id of ['body', 'head', 'hat', 'eyeL', 'eyeR', 'mouth']) {
+      expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    }
     expect(rigTextureKeys(rig), 'chef textures are all in the manifest').toBeDefined();
   });
 
   it('matches every chef part size to its manifest entry', () => {
     const rig = CHARACTER_RIGS.chef;
     for (const part of Object.values(rig.parts)) {
-      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/chef/${part.key}.svg`);
+      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/${rig.kind}/${part.key}.svg`);
       expect(entry, `chef/${part.key}`).toBeDefined();
       expect([entry?.width, entry?.height], `chef/${part.key} size`).toEqual([part.width, part.height]);
+    }
+  });
+});
+
+describe('habitat animal rigs', () => {
+  it('is complete, registered, and kept out of the restaurant animal list', () => {
+    for (const kind of HABITAT_ANIMAL_KINDS) {
+      expect(ANIMAL_ART_KINDS.includes(kind), `${kind} must not be a restaurant kind`).toBe(false);
+      const rig = HABITAT_ANIMAL_RIGS[kind];
+      expect(rig, `rig for ${kind}`).toBeDefined();
+      expect(rig.kind).toBe(kind);
+      for (const id of ['body', 'head']) expect(rig.parts[id], `${kind}.${id}`).toBeDefined();
+      expect(rigTextureKeys(rig), `${kind} textures are all in the manifest`).toBeDefined();
+    }
+  });
+
+  it('matches every habitat rig part size to its manifest entry', () => {
+    for (const rig of Object.values(HABITAT_ANIMAL_RIGS)) {
+      for (const part of Object.values(rig.parts)) {
+        const entry = ART_MANIFEST.find((e) => e.url === `art/animals/${rig.kind}/${part.key}.svg`);
+        expect(entry, `${rig.kind}/${part.key}`).toBeDefined();
+        expect([entry?.width, entry?.height], `${rig.kind}/${part.key} size`).toEqual([part.width, part.height]);
+      }
     }
   });
 });
