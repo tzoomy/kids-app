@@ -1,0 +1,172 @@
+import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import {
+  GAME_RULES,
+  SMOKE_SPECS,
+  parseChangedFiles,
+  selectAffectedE2e,
+} from '../../scripts/affected-e2e.mjs';
+
+const root = path.resolve(__dirname, '..', '..');
+const e2eDir = path.join(root, 'tests', 'e2e');
+const specsOnDisk = fs
+  .readdirSync(e2eDir)
+  .filter((f) => f.endsWith('.spec.ts'))
+  .map((f) => `tests/e2e/${f}`)
+  .sort();
+
+const SMOKE = ['tests/e2e/hud.spec.ts', 'tests/e2e/journey.spec.ts'];
+
+describe('affected e2e selection', () => {
+  it('approved smoke set is journey + hud', () => {
+    expect([...SMOKE_SPECS].sort()).toEqual(SMOKE);
+  });
+
+  it('empty input selects nothing', () => {
+    expect(selectAffectedE2e([])).toEqual([]);
+  });
+
+  it('docs-only and markdown-only changes select nothing', () => {
+    expect(selectAffectedE2e(['docs/PROCESS.md', 'README.md', 'docs/specs/sorting-beds.md', 'AGENTS.md'])).toEqual([]);
+  });
+
+  it('unrelated tooling (prototype files, unit-only tests) selects nothing', () => {
+    expect(selectAffectedE2e(['index.html', 'app.js', 'style.css', 'sw.js', 'tests/unit/storage.test.ts'])).toEqual([]);
+  });
+
+  it('a game-only change selects that game specs and not the whole suite', () => {
+    const picked = selectAffectedE2e(['src/games/sorting/sortingLogic.ts']);
+    expect(picked).toEqual(['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts']);
+  });
+
+  it('game content JSON selects that game specs', () => {
+    expect(selectAffectedE2e(['src/content/games/animal-restaurant.json'])).toEqual([
+      'tests/e2e/animal-restaurant.journey.spec.ts',
+    ]);
+  });
+
+  it('game unit tests select that game specs', () => {
+    expect(selectAffectedE2e(['tests/unit/who-is-hiding.audio.test.ts'])).toEqual([
+      'tests/e2e/hiding.spec.ts',
+      'tests/e2e/who-is-hiding.journey.spec.ts',
+    ]);
+    expect(selectAffectedE2e(['tests/unit/restaurantLayout.test.ts'])).toEqual([
+      'tests/e2e/animal-restaurant.journey.spec.ts',
+    ]);
+  });
+
+  it('colouring core and colouring game map to all three colouring specs', () => {
+    const expected = [
+      'tests/e2e/leisure-colouring.art.spec.ts',
+      'tests/e2e/leisure-colouring.journey.spec.ts',
+      'tests/e2e/leisure-colouring.platform.spec.ts',
+    ];
+    expect(selectAffectedE2e(['src/core/colouring/store.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/games/colouring/ColouringScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/shared/leisureColouringPages.ts'])).toEqual(expected);
+  });
+
+  it('orchestra game selects the orchestra picker spec', () => {
+    expect(selectAffectedE2e(['src/games/orchestra/orchestraGame.ts'])).toEqual([
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+    ]);
+  });
+
+  it('credits content and UI select the credits spec', () => {
+    expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
+    expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);
+    expect(selectAffectedE2e(['src/ui/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);
+  });
+
+  it('a shared-only change selects exactly the smoke set', () => {
+    expect(selectAffectedE2e(['src/core/audio/manager.ts'])).toEqual(SMOKE);
+    expect(selectAffectedE2e(['src/game/createGame.ts'])).toEqual(SMOKE);
+    expect(selectAffectedE2e(['src/main.ts'])).toEqual(SMOKE);
+    expect(selectAffectedE2e(['src/games/templates/choiceServe.ts'])).toEqual(SMOKE);
+    expect(selectAffectedE2e(['src/worlds/MapScene.ts'])).toEqual(SMOKE);
+  });
+
+  it('shared tooling and config select the smoke set only', () => {
+    for (const f of ['package.json', 'package-lock.json', 'vite.config.ts', 'vitest.config.ts', 'playwright.config.ts', 'tsconfig.json']) {
+      expect(selectAffectedE2e([f]), f).toEqual(SMOKE);
+    }
+  });
+
+  it('a game folder without dedicated e2e specs (bubbles) falls back to the smoke set', () => {
+    expect(selectAffectedE2e(['src/games/bubbles/BubblesScene.ts'])).toEqual(SMOKE);
+  });
+
+  it('shared e2e helpers select the smoke set, game helpers select their game', () => {
+    expect(selectAffectedE2e(['tests/e2e/helpers/journey.ts'])).toEqual(SMOKE);
+    expect(selectAffectedE2e(['tests/e2e/helpers/colouringArtCheck.ts'])).toEqual([
+      'tests/e2e/leisure-colouring.art.spec.ts',
+      'tests/e2e/leisure-colouring.journey.spec.ts',
+      'tests/e2e/leisure-colouring.platform.spec.ts',
+    ]);
+  });
+
+  it('mixed shared + game selects smoke plus the game specs, de-duplicated and sorted', () => {
+    expect(selectAffectedE2e(['src/core/audio/manager.ts', 'src/games/hiding/HidingScene.ts', 'src/games/hiding/hidingRound.ts'])).toEqual([
+      'tests/e2e/hiding.spec.ts',
+      'tests/e2e/hud.spec.ts',
+      'tests/e2e/journey.spec.ts',
+      'tests/e2e/who-is-hiding.journey.spec.ts',
+    ]);
+  });
+
+  it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {
+    expect(selectAffectedE2e(['src/ui/shell.ts'])).toEqual(['tests/e2e/help-card.shell.spec.ts', ...SMOKE]);
+  });
+
+  it('a changed spec file selects that spec only', () => {
+    expect(selectAffectedE2e(['tests/e2e/sorting-beds.platform.spec.ts'])).toEqual(['tests/e2e/sorting-beds.platform.spec.ts']);
+    expect(selectAffectedE2e(['tests/e2e/brand-new.spec.ts'])).toEqual(['tests/e2e/brand-new.spec.ts']);
+  });
+
+  it('never selects the full suite for shared + every game folder touched at once is bounded by the map', () => {
+    const picked = selectAffectedE2e(['package.json', 'src/core/audio/manager.ts']);
+    expect(picked.length).toBeLessThan(specsOnDisk.length);
+  });
+
+  it('only keeps selected specs that exist when an existing list is supplied (deleted specs)', () => {
+    expect(selectAffectedE2e(['tests/e2e/gone.spec.ts', 'src/ui/credits.ts'], specsOnDisk)).toEqual(['tests/e2e/credits.spec.ts']);
+  });
+
+  it('normalises Windows-style separators and blank lines in parsed input', () => {
+    expect(parseChangedFiles('src\\games\\sorting\\sortingLogic.ts\n\n  docs/PROCESS.md  \n')).toEqual([
+      'src/games/sorting/sortingLogic.ts',
+      'docs/PROCESS.md',
+    ]);
+  });
+});
+
+describe('affected e2e map coverage', () => {
+  const mapped = new Set<string>([...SMOKE_SPECS, ...GAME_RULES.flatMap((r: { specs: string[] }) => r.specs)]);
+
+  it('every tests/e2e/*.spec.ts is reachable by a mapping entry or the smoke set (no orphans)', () => {
+    const orphans = specsOnDisk.filter((s) => !mapped.has(s));
+    expect(orphans).toEqual([]);
+  });
+
+  it('every mapped spec exists on disk', () => {
+    const missing = [...mapped].filter((s) => !specsOnDisk.includes(s));
+    expect(missing).toEqual([]);
+  });
+
+  it('every existing spec selects at least itself', () => {
+    for (const spec of specsOnDisk) {
+      expect(selectAffectedE2e([spec]), spec).toContain(spec);
+    }
+  });
+
+  it('every src/games/<folder> is covered by a rule or deliberately falls back to smoke', () => {
+    const folders = fs
+      .readdirSync(path.join(root, 'src', 'games'), { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+    for (const folder of folders) {
+      expect(selectAffectedE2e([`src/games/${folder}/x.ts`]).length, folder).toBeGreaterThan(0);
+    }
+  });
+});

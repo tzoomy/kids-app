@@ -113,6 +113,22 @@ A merge to `main` publishes to GitHub Pages, so this gate comes before merge. Fo
 - A named reviewer has actually inspected the screenshots for contrast, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, and tap-target size. A file existing is not a review.
 - The change has been reviewed against the spec by a named reviewer who is not its sole author. The review is saved in `docs/reviews/` or linked from the PR.
 
+### CI: affected tests
+
+CI (`.github/workflows/ci.yml`) runs only what the change affects. PRs that touch only `*.md` or `docs/**` do not trigger it.
+
+- **Unit tests:** `vitest run --changed <base>` (Vitest's own import graph). `<base>` is the PR base SHA on `pull_request`, and `github.event.before` on push to `main` (falling back to `HEAD~1` for a new branch). Zero related tests is fine; it never falls back to the full unit suite. `npm run check:ac` and `npm run build` always run in `test-and-build`.
+- **E2E:** `scripts/affected-e2e.mjs` maps changed files to Playwright specs with an explicit table (`GAME_RULES`):
+  - a game's folder, content JSON, unit tests and e2e helpers select that game's specs;
+  - a changed spec selects itself;
+  - shared code (`src/core`, `src/ui`, `src/game`, `src/worlds`, `src/anim`, `src/main.ts`, `web/`, `public/`, `package*.json`, configs, shared e2e helpers, the workflow) selects the smoke set only: `journey.spec.ts` and `hud.spec.ts`;
+  - docs, markdown, prototype files and unit-only tests select nothing, and then Playwright is not installed or run.
+  - A unit test (`tests/unit/affectedE2e.test.ts`) fails if a `tests/e2e/*.spec.ts` is not reachable from the map, so add every new spec to `GAME_RULES` (or the smoke set).
+  - Try it locally: `node scripts/affected-e2e.mjs --base origin/main`, or `node scripts/affected-e2e.mjs --files src/games/sorting/sortingLogic.ts`.
+- **Push to `main`:** `test-and-build` (related unit tests, check:ac, build) gates `deploy`. The affected-e2e job is separate and does not block deploy.
+- **Playwright browsers** are cached (`~/.cache/ms-playwright`, keyed by OS and the installed `@playwright/test` version); on a cache hit only `playwright install-deps chromium` runs.
+- **Full suite:** Actions tab → CI → "Run workflow" (`workflow_dispatch`: all unit tests, all e2e, build, check:ac; never deploys), or locally `npm test` and `npm run test:e2e`. Run it before a ready-for-merge gate when a PR touches shared code.
+
 ## 6. Merge
 
 Only with Maor's explicit approval.

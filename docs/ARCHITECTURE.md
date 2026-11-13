@@ -243,7 +243,7 @@ Unit tests will cover conversion, caps, day rollover, idle vs. listening, grace 
 - Phaser screenshots in CI (Ubuntu, no GPU) may be unstable under WebGL/SwiftShader, or may be captured before loading finishes. **Proposal:** in test mode expose a flag such as `window.__GAME_READY__` after a stable frame, wait for fonts and textures, set a visual-regression tolerance threshold, and if needed run CI with Canvas 2D.
 - At least one e2e test for offline (shell + assets already in cache), because this is a core requirement.
 - Tests do not measure "whether the child learned", but that the game does not break, that earning is correct, and that a visual change is visible in review.
-- CI runs on every PR; publish to Pages only after merge to `main`.
+- CI runs on every code PR and runs only the tests affected by the change (details in `docs/PROCESS.md`, "CI: affected tests"); the full suite runs on demand. Publish to Pages only after merge to `main`.
 
 ---
 
