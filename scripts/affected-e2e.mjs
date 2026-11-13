@@ -68,6 +68,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'word-train',
+    match: [
+      /^src\/games\/wordTrain\//,
+      /^src\/content\/games\/word-train\.json$/,
+      /^public\/art\/word-train\//,
+      /^tests\/unit\/word-train[^/]*$/,
+    ],
+    specs: ['tests/e2e/word-train.journey.spec.ts'],
+  },
+  {
     id: 'leisure-colouring',
     match: [
       /^src\/games\/colouring\//,

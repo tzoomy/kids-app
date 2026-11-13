@@ -105,6 +105,14 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('word train selects its journey spec', () => {
+    const expected = ['tests/e2e/word-train.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/wordTrain/WordTrainScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/word-train.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/word-train/wagon.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/word-train.machine.test.ts'])).toEqual(expected);
+  });
+
   it('credits content and UI select the credits spec', () => {
     expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
     expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);

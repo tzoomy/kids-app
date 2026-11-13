@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Eight short rounded rays -->
+  <g fill="#FFD43B" stroke="#3B2A22" stroke-width="6">
+    <rect x="117" y="26" width="22" height="34" rx="11"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(45 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(90 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(135 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(180 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(225 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(270 128 128)"/>
+    <rect x="117" y="26" width="22" height="34" rx="11" transform="rotate(315 128 128)"/>
+  </g>
+
+  <!-- Central sun disc -->
+  <circle cx="128" cy="128" r="58" fill="#FFD43B"/>
+
+  <!-- One flat shadow shape (lower-right crescent) -->
+  <path d="M168 86 C180 108 175 139 155 159 C135 179 104 184 82 168 C102 189 138 192 163 169 C188 146 190 109 168 86 Z" fill="#EAA814"/>
+
+  <!-- One flat highlight shape (upper-left gloss) -->
+  <ellipse cx="104" cy="99" rx="19" ry="11" transform="rotate(-32 104 99)" fill="#FFF2A6"/>
+
+  <!-- Disc outline -->
+  <circle cx="128" cy="128" r="58" fill="none" stroke="#3B2A22" stroke-width="6"/>
+</svg>

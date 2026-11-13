@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'word-train' | 'bubbles' | 'leisure-colouring';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'wordTrain' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -32,6 +32,13 @@ export const PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'OrchestraScene',
     assetKey: 'picker-card-kitchen-orchestra',
     labelKey: 'kitchenOrchestra',
+  },
+  {
+    gameId: 'word-train',
+    testId: 'game-picker-word-train',
+    sceneKey: 'WordTrainScene',
+    assetKey: 'picker-card-word-train',
+    labelKey: 'wordTrain',
   },
 ];
 

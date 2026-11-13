@@ -1,0 +1,73 @@
+{
+  "id": "word-train",
+  "world": "language-house",
+  "template": "spell",
+  "skill": "english-words",
+  "languages": ["en"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "demonstrate", "hintDelayMs": 9000 }
+  },
+  "objects": [
+    { "id": "apple", "art": "food-apple", "en": "apple", "he": "תפוח" },
+    { "id": "banana", "art": "food-banana", "en": "banana", "he": "בננה" },
+    { "id": "carrot", "art": "food-carrot", "en": "carrot", "he": "גזר" },
+    { "id": "ball", "art": "item-ball", "en": "ball", "he": "כדור" },
+    { "id": "hat", "art": "item-hat", "en": "hat", "he": "כובע" },
+    { "id": "book", "art": "item-book", "en": "book", "he": "ספר" },
+    { "id": "egg", "art": "food-egg", "en": "egg", "he": "ביצה" },
+    { "id": "fish", "art": "food-fish", "en": "fish", "he": "דג" }
+  ],
+  "words": [
+    { "id": "hat", "word": "hat", "art": "item-hat", "he": "כובע" },
+    { "id": "egg", "word": "egg", "art": "food-egg", "he": "ביצה" },
+    { "id": "sun", "word": "sun", "art": "word-train-sun", "he": "שמש" },
+    { "id": "cup", "word": "cup", "art": "word-train-cup", "he": "כוס" },
+    { "id": "ball", "word": "ball", "art": "item-ball", "he": "כדור" },
+    { "id": "book", "word": "book", "art": "item-book", "he": "ספר" },
+    { "id": "fish", "word": "fish", "art": "food-fish", "he": "דג" },
+    { "id": "pear", "word": "pear", "art": "food-pear", "he": "אגס" }
+  ],
+  "distractorLetters": "bdmrtpklnoaei",
+  "linesEn": {
+    "loadFrame": "Load the {word}!",
+    "nameFrame": "{Word}!",
+    "otherFrame": "That's the {word}!",
+    "spellFrame": "Let's spell {word}!",
+    "wordFrame": "{letters}: {word}!"
+  },
+  "linesHe": {
+    "introLoad": "בואי נעמיס את הרכבת!",
+    "introSpell": "בואי נבנה מילה באנגלית!"
+  },
+  "helpTextHe": "שמעי את המילה באנגלית והעמיסי את החפץ לרכבת, ובגן של הגדולות נבנה מילים באותיות.",
+  "adaptive": {
+    "tracks": {
+      "age2": { "start": 1, "min": 1, "max": 2 },
+      "age5": { "start": 3, "min": 1, "max": 5 }
+    },
+    "levels": [
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "load", "choiceCount": 2, "loadsPerStar": 3 }
+      },
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "load", "choiceCount": 3, "loadsPerStar": 3 }
+      },
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "spell", "wordLength": 3, "ghost": true, "distractors": 0 }
+      },
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "spell", "wordLength": 3, "ghost": false, "distractors": 1 }
+      },
+      {
+        "support": "audio-only",
+        "extra": { "mode": "spell", "wordLength": 4, "ghost": false, "distractors": 1 }
+      }
+    ]
+  }
+}

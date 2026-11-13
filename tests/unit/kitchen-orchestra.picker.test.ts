@@ -4,25 +4,38 @@ import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { PICKER_ASSET_KEYS, resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
 import { PICKER_GAMES } from '../../src/ui/picker/pickerModel';
-import { loadAnimalRestaurant, loadKitchenOrchestra } from '../../src/content/loadContent';
+import { loadAnimalRestaurant, loadHeStrings, loadKitchenOrchestra, loadWordTrain } from '../../src/content/loadContent';
 
 const KEYS = ['picker-card-animal-restaurant', 'picker-card-kitchen-orchestra', 'picker-close', 'picker-bg'];
 
 describe('Language House picker data model', () => {
-  it('lists exactly two games, restaurant first (right in RTL landscape, top in portrait)', () => {
-    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra']);
+  it('lists three games: restaurant first, then orchestra, then word train', () => {
+    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra', 'word-train']);
   });
 
-  it('maps each card to its testid and game scene', () => {
-    expect(PICKER_GAMES.map((g) => g.testId)).toEqual(['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra']);
-    expect(PICKER_GAMES.map((g) => g.sceneKey)).toEqual(['RestaurantScene', 'OrchestraScene']);
-    expect(PICKER_GAMES.map((g) => g.assetKey)).toEqual(['picker-card-animal-restaurant', 'picker-card-kitchen-orchestra']);
+  it('maps each card to its testid, game scene, asset and Hebrew label', () => {
+    expect(PICKER_GAMES.map((g) => g.testId)).toEqual([
+      'game-picker-animal-restaurant',
+      'game-picker-kitchen-orchestra',
+      'game-picker-word-train',
+    ]);
+    expect(PICKER_GAMES.map((g) => g.sceneKey)).toEqual(['RestaurantScene', 'OrchestraScene', 'WordTrainScene']);
+    expect(PICKER_GAMES.map((g) => g.assetKey)).toEqual([
+      'picker-card-animal-restaurant',
+      'picker-card-kitchen-orchestra',
+      'picker-card-word-train',
+    ]);
+    const he = loadHeStrings();
+    expect(he.gamePicker.wordTrain).toBe('רכבת המילים');
+    const wtAsset = resolvePickerAsset('picker-card-word-train');
+    expect(wtAsset.key).toBe('picker-card-word-train');
   });
 
   it('only offers games whose content belongs to Language House', () => {
     const worlds = new Map([
       ['animal-restaurant', loadAnimalRestaurant().world],
       ['kitchen-orchestra', loadKitchenOrchestra().world],
+      ['word-train', loadWordTrain().world],
     ]);
     for (const g of PICKER_GAMES) expect(worlds.get(g.gameId)).toBe('language-house');
   });

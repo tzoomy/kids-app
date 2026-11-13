@@ -8,6 +8,9 @@ import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
 import { ColouringScene } from '../games/colouring/ColouringScene';
+import { WordTrainScene } from '../games/wordTrain/WordTrainScene';
+import type { WordTrainInfo } from '../games/wordTrain/wordTrainTypes';
+import { loadWordTrain } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
 import type { AppContext } from './appContext';
@@ -23,7 +26,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'word-train') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -46,6 +49,10 @@ declare global {
       getColouringInfo: () => ColouringInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
+      /** Seeds the persisted Word Train level (cleanStreak 0, recent []) for English. Call on the map, before entering. */
+      seedWordTrainLevel: (level: number) => void;
+      /** Current Word Train state (null when WordTrainScene is not active); rectangles are page CSS px. */
+      getWordTrainInfo: () => WordTrainInfo | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -111,6 +118,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('WordTrainScene', WordTrainScene, false);
 
   game.registry.set('appContext', context);
 
@@ -127,6 +135,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'word-train' ? 'WordTrainScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
@@ -136,6 +145,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('OrchestraScene');
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
+      game.scene.stop('WordTrainScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -215,6 +225,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedWordTrainLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadWordTrain(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getWordTrainInfo() {
+      const scene = game.scene.getScene('WordTrainScene') as WordTrainScene | null;
+      return scene && game.scene.isActive('WordTrainScene') ? scene.getWordTrainInfo() : null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;
