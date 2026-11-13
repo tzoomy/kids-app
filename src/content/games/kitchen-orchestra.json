@@ -28,7 +28,7 @@
   "helpTextHe": "השף מנגן דוגמה. הקשיבי, ואז הקשי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.",
   "instruments": [
     { "id": "pot", "he": "סיר", "name": { "en": "pot", "fr": "casserole" }, "prompts": { "en": "Play the pot!", "fr": "Joue sur la casserole !" } },
-    { "id": "pan", "he": "מחבת", "name": { "en": "pan", "fr": "tambour" }, "prompts": { "en": "Play the pan!", "fr": "Joue du tambour !" } },
+    { "id": "pan", "he": "מחבת", "name": { "en": "pan", "fr": "poêle" }, "prompts": { "en": "Play the pan!", "fr": "Joue sur la poêle !" } },
     { "id": "glass-low", "he": "כוס נמוכה", "name": { "en": "low glass", "fr": "verre grave" }, "prompts": { "en": "Play the low glass!", "fr": "Joue le verre grave !" } },
     { "id": "glass-mid", "he": "כוס", "name": { "en": "glass", "fr": "verre" }, "prompts": { "en": "Play the glass!", "fr": "Joue le verre !" } },
     { "id": "glass-high", "he": "כוס גבוהה", "name": { "en": "high glass", "fr": "verre aigu" }, "prompts": { "en": "Play the high glass!", "fr": "Joue le verre aigu !" } }
