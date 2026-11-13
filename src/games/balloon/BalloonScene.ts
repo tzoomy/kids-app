@@ -39,6 +39,8 @@ interface ActiveRound extends BalloonRoundSpec {
 
 /** Balloon taps are ignored this long after a wrong tap, so a double tap counts as one try. */
 const WRONG_TAP_LOCK_MS = 400;
+/** While the intro or help is speaking, a pending hint looks again after this delay. */
+const HINT_DEFER_POLL_MS = 300;
 /** Pause after a wrong tap so the wobble reads before the retry speech. */
 const HINT_AFTER_WOBBLE_MS = 450;
 const POPPED_MAX_WAIT_MS = 2200;
@@ -74,6 +76,8 @@ export class BalloonScene extends Phaser.Scene {
   private introPending = true;
   private introPlaying = false;
   private helpPlaying = false;
+  /** A trial was answered while the help card was open; the next one starts when it closes. */
+  private advancePending = false;
   private correctCount = 0;
   private lastBalanceSec = 0;
   private earnedPending = false;
@@ -104,6 +108,7 @@ export class BalloonScene extends Phaser.Scene {
     this.introPending = true;
     this.introPlaying = false;
     this.helpPlaying = false;
+    this.advancePending = false;
     this.correctCount = 0;
     this.earnedPending = false;
     this.speakSeq = 0;
@@ -239,6 +244,11 @@ export class BalloonScene extends Phaser.Scene {
         this.helpOpen = false;
         this.helpPlaying = false;
         this.session.reportInteraction();
+        if (this.advancePending) {
+          this.advancePending = false;
+          this.startRound();
+          return;
+        }
         this.scheduleIdleHint();
         if (this.round && !this.round.done && this.ready) void this.speakPrompt();
       },
@@ -465,7 +475,13 @@ export class BalloonScene extends Phaser.Scene {
   private giveHint(before?: SpeechRequest): void {
     const round = this.round;
     if (!round || round.done) return;
-    if (this.helpOpen || this.introPlaying || this.helpPlaying) return;
+    // Do not talk over the intro or the help; look again shortly, so a wrong tap during them still gets
+    // its retry line and hint. (retryTimer, not hintTimer: the intro's end restarts the idle clock.)
+    if (this.helpOpen || this.introPlaying || this.helpPlaying) {
+      this.retryTimer?.remove();
+      this.retryTimer = this.time.delayedCall(HINT_DEFER_POLL_MS, () => this.giveHint(before));
+      return;
+    }
     // One hint at a time: a hint after a wrong tap also cancels the pending idle hint.
     this.hintTimer?.remove();
     round.tracker.onHint();
@@ -476,7 +492,10 @@ export class BalloonScene extends Phaser.Scene {
       Juice.for(this).burst('sparkle', view.slot.x, view.slot.y - view.slot.ry);
     }
     this.context.sfx.hint();
-    void this.speakPrompt(before);
+    // After the hinted prompt, restart the age-2 idle clock so an idle child keeps getting hints.
+    void this.speakPrompt(before).then(() => {
+      if (this.round === round && !round.done) this.scheduleIdleHint();
+    });
   }
 
   private retryLine(): SpeechRequest {
@@ -570,6 +589,11 @@ export class BalloonScene extends Phaser.Scene {
     if (!alive()) return;
 
     this.session.reportCelebrating(false);
+    // Never start the next trial behind the help card: it starts when the card closes.
+    if (this.helpOpen) {
+      this.advancePending = true;
+      return;
+    }
     this.startRound();
   }
 

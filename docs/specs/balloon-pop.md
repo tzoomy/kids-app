@@ -84,6 +84,7 @@ Profile → tap the Number Garden building → tap the `game-picker-balloon-pop`
 | AC-14 | Device check: touch, rotation mid-game, audible EN/FR voice, visuals | 1 | device | both | |
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
 | AC-16 | The layout keeps every balloon inside the screen and under the HUD, with no overlap, for 2–6 balloons in both orientations | 1 | unit | @single-orientation | |
+| AC-17 | Hints and help: an age-2 wrong tap during the intro or help still gets its retry line and hint once they end; the age-2 idle hint repeats while the child stays idle; a correct pop never starts the next trial behind the help card (it starts when the card closes) | 1 | e2e | @single-orientation | `getBalloonInfo`, `getSpokenLines` |
 
 ## Art, animation, and audio
 
@@ -127,3 +128,4 @@ Counting balloons (quantities), numbers above 9, Hebrew number names, drag input
 ## Changelog
 
 - `2026-11-13` — created (Pass 1 built in the same PR under the continuous-development mode) — substantive
+- `2026-11-13` — review fixes (#64): deferred hints during intro/help, repeating idle hint, no next trial behind the help card (AC-17); AC-12 requires an active service worker; no screenshots from specs — minor
