@@ -57,7 +57,7 @@ const OUTLINE_COLOR = 0x3b2a22;
 const POT_SIZE = 176;
 const BOWL_W = 320;
 const BOWL_H = 240;
-/** Native prop-paint-pot SVG coordinates for the paint ellipse (cx 100, cy 61, rx 50, ry 11 on 200x200). */
+/** Procedural fallback pot: paint ellipse in a 200x200 frame (only used when the palette pot art is missing). */
 const POT_SVG_SIZE = 200;
 const POT_PAINT_CY = 61;
 const POT_PAINT_RX = 50;
@@ -329,16 +329,16 @@ export class PotionScene extends Phaser.Scene {
     const paintH = POT_PAINT_RY * 2 * scale;
     const hex = colorHex(content(), color);
 
-    const key = propArtKey('paint-pot');
-    if (key && this.textures.exists(key)) {
+    // The shared palette pots (public/art/palette/pot-<color>.svg) already carry their paint colour.
+    const key = `pot-${color}`;
+    if (this.textures.exists(key)) {
       container.add(this.add.image(0, 0, key).setDisplaySize(POT_SIZE, POT_SIZE));
     } else {
       const body = this.add.rectangle(0, 12 * scale, POT_SIZE * 0.62, POT_SIZE * 0.56, 0xf3e9d8).setStrokeStyle(6, OUTLINE_COLOR);
       const rim = this.add.ellipse(0, -42 * scale, POT_SIZE * 0.66, POT_SIZE * 0.22, 0xfffbf2).setStrokeStyle(6, OUTLINE_COLOR);
-      container.add([body, rim]);
+      // Paint surface ellipse drawn procedurally on top in the palette color.
+      container.add([body, rim, this.add.ellipse(0, paintY, paintW, paintH, hex)]);
     }
-    // Paint surface ellipse drawn procedurally on top in the palette color.
-    container.add(this.add.ellipse(0, paintY, paintW, paintH, hex));
 
     container.setSize(POT_SIZE, POT_SIZE);
     container.setInteractive({ useHandCursor: true });

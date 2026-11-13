@@ -95,7 +95,7 @@ Profile → tap the Science World building → Science World picker (Potion Lab 
 ### Pass 1 — working game
 
 - **Reused:** colouring palette hexes; HUD; Juice bursts; existing praise clip.
-- **New art** (small, own drawings, gemini-4-hydrogen-medium): `public/art/props/paint-pot.svg` (`prop-paint-pot`) and `public/art/props/mixing-bowl.svg` (`prop-mixing-bowl`). The paint and the liquid are drawn procedurally on top in the palette color, so one pot SVG serves every color. Procedural fallback for both. Same SVG contract as the other props (outline `#3B2A22` about 6 px, no gradients, filters, text or rasters, under 15 KB).
+- **Art:** the paint pots are the existing shared palette pots `public/art/palette/pot-{red,yellow,blue}.svg` (team-lead decision, 2026-11-14). **New art** (small, own drawing, gemini-4-hydrogen-medium): `public/art/props/mixing-bowl.svg` (`prop-mixing-bowl`); the liquid is drawn procedurally on top in the palette color. The palette `mix-*.svg` strips (two pots and a result) do not fit the bowl, so they are not used. Procedural fallback for both. Same SVG contract as the other props (outline `#3B2A22` about 6 px, no gradients, filters, text or rasters, under 15 KB).
 - **No characters.**
 - **Animation:** basic tweens only (`pressSquash`, a pour arc, a swirl rotation, `popIn`, Juice bursts).
 - **Voice** (device TTS via `AudioManager.play({ lineId, lang, text })`; no new recordings):

@@ -110,7 +110,8 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/potionLab\//,
       /^src\/content\/games\/potion-lab\.json$/,
-      /^public\/art\/props\/(paint-pot|mixing-bowl)\.svg$/,
+      /^public\/art\/props\/mixing-bowl\.svg$/,
+      /^public\/art\/palette\/pot-(red|yellow|blue)\.svg$/,
       /^tests\/unit\/potion-lab[^/]*$/,
     ],
     specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],

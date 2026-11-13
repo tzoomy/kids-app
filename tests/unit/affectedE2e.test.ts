@@ -109,7 +109,7 @@ describe('affected e2e selection', () => {
     const expected = ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
     expect(selectAffectedE2e(['src/games/potionLab/PotionScene.ts'])).toEqual(expected);
     expect(selectAffectedE2e(['src/content/games/potion-lab.json'])).toEqual(expected);
-    expect(selectAffectedE2e(['public/art/props/paint-pot.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/palette/pot-red.svg'])).toEqual(expected);
     expect(selectAffectedE2e(['public/art/props/mixing-bowl.svg'])).toEqual(expected);
     expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
   });
