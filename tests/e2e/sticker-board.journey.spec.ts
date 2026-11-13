@@ -5,12 +5,6 @@ import type { StickerBoardInfo, StickerBoardSeed } from '../../src/games/sticker
 
 const LANDSCAPE = 'landscape-1280x800';
 
-async function shot(page: Page, name: string): Promise<void> {
-  const size = page.viewportSize();
-  const o = size && size.width >= size.height ? 'landscape' : 'portrait';
-  await page.screenshot({ path: `docs/screenshots/sticker-board-${name}-${o}.png` });
-}
-
 function skipIfNotLandscape(testInfo: { project: { name: string } }): void {
   if (testInfo.project.name !== LANDSCAPE) test.skip();
 }
@@ -58,7 +52,6 @@ test.describe('sticker-board journeys', () => {
     expect(await getActiveScenes(page)).toContain('StickerBoardScene');
     const before = start.stickers.length;
     await expect(page.locator('[data-testid="sticker-request"]')).toBeVisible();
-    await shot(page, 'age5-start');
     await tapTestId(page, 'sticker-tray-rocket');
     const after = (await info(page)) as StickerBoardInfo;
     expect(after.stickers.length).toBe(before + 1);
@@ -203,20 +196,5 @@ test.describe('sticker-board journeys', () => {
       expect(b.rect.width, b.id).toBeGreaterThanOrEqual(63.5);
       expect(b.rect.height, b.id).toBeGreaterThanOrEqual(63.5);
     }
-    // In-game screenshots for the ready-for-merge gate.
-    await tapTestId(page, 'sticker-tray-rocket');
-    await tapTestId(page, 'sticker-tray-planet');
-    const r = now.boardRect;
-    await drag(page, { x: r.x + r.width * 0.15, y: r.y + r.height * 0.95 }, { x: r.x + r.width * 0.45, y: r.y + r.height * 0.93 });
-    await page.waitForTimeout(1800);
-    await shot(page, 'age5-play');
-    await tapTestId(page, 'sticker-save');
-    await tapTestId(page, 'sticker-album');
-    await expect(page.locator('[data-testid="sticker-album-view"]')).toBeVisible();
-    await shot(page, 'age5-album');
-    await enterBoard(page, 'profile-a');
-    await tapTestId(page, 'sticker-tray-palm-tree');
-    await tapTestId(page, 'sticker-tray-banana');
-    await shot(page, 'age2-play');
   });
 });
