@@ -42,6 +42,29 @@ test.describe('leisure-colouring platform', () => {
     expect(after?.fills).toEqual(filled);
   });
 
+  test('[AC-11] chrome buttons are >= 64 CSS px and no background decoration overlaps any of them', async ({ page }) => {
+    test.setTimeout(90_000);
+    await enterColouring(page);
+    const info = await waitForColouringReady(page);
+    const buttons = info.chromeButtons ?? [];
+    const decorations = info.decorations ?? [];
+    const required = ['hud-help', 'hud-back', 'colouring-undo', 'colouring-clear', 'colouring-prev', 'colouring-next'];
+    for (const id of required) expect(buttons.map((b) => b.id), `chrome button ${id} reported`).toContain(id);
+    expect(decorations.length, 'decorations reported').toBeGreaterThan(0);
+    for (const b of buttons) {
+      expect(b.rect.width, `${b.id} width`).toBeGreaterThanOrEqual(63.5);
+      expect(b.rect.height, `${b.id} height`).toBeGreaterThanOrEqual(63.5);
+    }
+    const eps = 0.5;
+    for (const d of decorations) {
+      for (const b of buttons) {
+        const w = Math.min(d.rect.x + d.rect.width, b.rect.x + b.rect.width) - Math.max(d.rect.x, b.rect.x);
+        const h = Math.min(d.rect.y + d.rect.height, b.rect.y + b.rect.height) - Math.max(d.rect.y, b.rect.y);
+        expect(w > eps && h > eps, `decoration ${d.id} overlaps ${b.id}`).toBe(false);
+      }
+    }
+  });
+
   test('[AC-12] @single-orientation after the first load, with the network off, the journey opens a page and fills a region', async ({ page, context }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);

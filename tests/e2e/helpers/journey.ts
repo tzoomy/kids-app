@@ -111,6 +111,10 @@ export interface ColouringInfo {
   pageRect: PageRect;
   pageSide: number;
   regions: Array<{ id: string; hit: PageRect; tapPoint: { x: number; y: number } }>;
+  /** Additive: background craft-prop groups (axis-aligned bbox, page CSS px). Desk planks and grain are excluded. */
+  decorations?: Array<{ id: string; rect: PageRect }>;
+  /** Additive: chrome/tool/swatch buttons (page CSS px). */
+  chromeButtons?: Array<{ id: string; rect: PageRect }>;
 }
 
 type Hooks = {
