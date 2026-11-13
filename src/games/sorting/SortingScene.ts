@@ -601,6 +601,10 @@ export class SortingScene extends Phaser.Scene {
     zone?.destroy();
     this.current = null;
     const flower = current.view;
+    // An idle-hint hop (or a wobble) may still be running: stop it so its hop-back never pulls the flower during the
+    // drop, and start the drop from the basket.
+    this.tweens.killTweensOf(flower);
+    flower.setPosition(this.layout.basket.x, this.layout.basket.flowerBaseY).setAngle(0);
     flower.setDepth(85);
     const slot = this.slotPosition(view, view.nextSlot);
     const toX = view.slot.x + slot.x;

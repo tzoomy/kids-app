@@ -431,6 +431,28 @@ test.describe('sorting beds: hints', () => {
     expect((await readStoredSkill(page, 'profile-a', ready.lang))?.recent).toEqual(['assisted']);
   });
 
+  test('[AC-26] @single-orientation a correct tap during the idle-hint hop still plants the flower and keeps the trial assisted', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await enter(page, 'profile-a');
+    const ready = await waitForSortingReady(page);
+    // Poll fast so the tap lands inside the 520 ms hop (hinted flips as the hop starts).
+    await expect.poll(async () => (await getSortingInfo(page))?.currentItem?.hinted, { timeout: 18_000, intervals: [25] }).toBe(true);
+    await tapBed(page, ready.currentItem.targetBedId);
+    await expect
+      .poll(async () => {
+        const info = await getSortingInfo(page);
+        return info ? placedCount(info) : -1;
+      }, { timeout: 8_000 })
+      .toBe(1);
+    const target = (await getSortingInfo(page))?.beds.find((b) => b.id === ready.currentItem.targetBedId);
+    expect(target?.count).toBe(1);
+    expect((await readStoredSkill(page, 'profile-a', ready.lang))?.recent).toEqual(['assisted']);
+    // The next flower comes up normally.
+    const next = await waitForSortingReady(page);
+    expect(next.currentItem.tries).toBe(0);
+  });
+
   test('[AC-28] @single-orientation age 5 gets no hint after 10 s idle, only after a wrong tap', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(60_000);
