@@ -345,4 +345,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
+  // Science World — Magic Magnet (docs/specs/magic-magnet.md)
+  { key: 'magnet-magnet', url: 'art/magnet/magnet.svg', width: 256, height: 256 },
+  { key: 'magnet-paperclip', url: 'art/magnet/paperclip.svg', width: 256, height: 256 },
+  { key: 'magnet-nail', url: 'art/magnet/nail.svg', width: 256, height: 256 },
+  { key: 'magnet-screw', url: 'art/magnet/screw.svg', width: 256, height: 256 },
+  { key: 'magnet-bottle-cap', url: 'art/magnet/bottle-cap.svg', width: 256, height: 256 },
 ];

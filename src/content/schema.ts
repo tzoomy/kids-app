@@ -437,3 +437,114 @@ export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
 export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+
+const magnetNonBlank = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+/** Magic Magnet (docs/specs/magic-magnet.md): no-fail magnetism cause-effect game in Science World. */
+export const MagnetObjectSchema = z.object({
+  id: magnetNonBlank,
+  metal: z.boolean(),
+  art: magnetNonBlank,
+  he: magnetNonBlank,
+  en: magnetNonBlank,
+  fr: magnetNonBlank,
+  reactHe: magnetNonBlank,
+  askHe: magnetNonBlank,
+});
+
+export const MagicMagnetContentSchema = z
+  .object({
+    id: z.literal('magic-magnet'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    objects: z.array(MagnetObjectSchema).min(4),
+    resultWords: z.object({
+      sticks: z.object({ en: magnetNonBlank, fr: magnetNonBlank }),
+      notSticks: z.object({ en: magnetNonBlank, fr: magnetNonBlank }),
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: magnetNonBlank,
+      introPredict: magnetNonBlank,
+      test: magnetNonBlank,
+      right: magnetNonBlank,
+      surprise: magnetNonBlank,
+      buttonSticks: magnetNonBlank,
+      buttonNotSticks: magnetNonBlank,
+    }),
+    helpTextHe: magnetNonBlank,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const ids = new Set<string>();
+    let metalCount = 0;
+    let nonMetalCount = 0;
+    value.objects.forEach((obj, i) => {
+      if (ids.has(obj.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects', i, 'id'],
+          message: `duplicate object id "${obj.id}"`,
+        });
+      }
+      ids.add(obj.id);
+      if (obj.metal) metalCount++;
+      else nonMetalCount++;
+    });
+    if (metalCount < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least 2 metal objects',
+      });
+    }
+    if (nonMetalCount < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least 2 non-metal objects',
+      });
+    }
+
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'predict') {
+        issue('extra.mode must be "free" or "predict"');
+      }
+      const objectCount = level.extra?.objectCount;
+      if (
+        typeof objectCount !== 'number' ||
+        !Number.isInteger(objectCount) ||
+        objectCount < 2 ||
+        objectCount > value.objects.length
+      ) {
+        issue(`extra.objectCount must be an integer between 2 and ${value.objects.length}`);
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('magic-magnet supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'predict') {
+        issue('audio-only magic-magnet levels must use extra.mode "predict"');
+      }
+    });
+  });
+
+export type MagnetObject = z.infer<typeof MagnetObjectSchema>;
+export type MagicMagnetContent = z.infer<typeof MagicMagnetContentSchema>;
