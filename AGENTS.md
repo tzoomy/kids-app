@@ -35,6 +35,12 @@ The full cycle is in `docs/PROCESS.md`. In short:
 - **Ready-for-merge gate.** CI green (including the spec's Playwright journeys and the AC coverage check), inspected in-game screenshots in both orientations, and a review against the spec by someone other than the sole author.
 - **After merge.** Maor runs a functional tablet check (touch, rotation, audible voice, visuals). Failures and feedback update the spec first, then a fix PR. No enjoyment metrics or observational playtests.
 
+## In-session token rules
+
+- Replies are at most 5 lines; put details in the PR.
+- Run only the tests affected by the change locally. The full suite runs in CI. Read failure summaries only.
+- Take screenshots only for visual changes.
+
 ## Reviews and saving output
 
 Raw reviews are stored in `docs/reviews/`. A code or architecture review is read-only unless the task also asks for a fix.
