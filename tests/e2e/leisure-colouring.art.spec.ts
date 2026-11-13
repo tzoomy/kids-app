@@ -1,4 +1,4 @@
-// [AC-26] Colouring Time art contract, geometry half (PR #49 review M6/B2). Renders each page at
+// [AC-33] Colouring Time art contract, geometry half (PR #49 review M6/B2, spec AC-33). Renders each page at
 // 800x800 in Chromium and checks visible-area thickness per age track, gaps, seams, fine-in-parent
 // containment and self-intersection. Art-only: no app server state is used (page.setContent).
 // Writes id-map PNGs per page and track to the test output folder (not committed).
@@ -24,7 +24,7 @@ test.describe('leisure-colouring art contract (geometry) @single-orientation', (
     test.skip(testInfo.project.name !== 'landscape-1280x800', 'art geometry is orientation-independent');
   });
 
-  test('[AC-26] the checker passes a good fixture and catches each kind of broken page', async ({ page }) => {
+  test('[AC-33] the checker passes a good fixture and catches each kind of broken page', async ({ page }) => {
     const run = async (name: string) =>
       artFailures(await analyseColouringPage(page, fs.readFileSync(path.join(FIXTURES, name), 'utf8'), FIXTURE_REGIONS, ART_LIMITS), ART_LIMITS);
     expect(await run('good.svg')).toEqual([]);
@@ -36,7 +36,7 @@ test.describe('leisure-colouring art contract (geometry) @single-orientation', (
   });
 
   for (const spec of COLOURING_PAGES) {
-    test(`[AC-26] ${spec.id}: visible thickness, gaps, seams, containment, winding`, async ({ page }, testInfo) => {
+    test(`[AC-33] ${spec.id}: visible thickness, tap points, gaps, seams, containment, winding`, async ({ page }, testInfo) => {
       const file = path.join(PAGE_DIR, `${spec.id}.svg`);
       expect(fs.existsSync(file), `${spec.id}.svg exists`).toBe(true);
       const report = await analyseColouringPage(page, fs.readFileSync(file, 'utf8'), pageRegions(spec), ART_LIMITS);

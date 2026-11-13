@@ -19,6 +19,9 @@ export interface RegionReport {
   discAge5: number;
   /** Fine regions only: pixels farther than seamTolerance outside the parent. */
   outsideParent: number;
+  /** Disc-centre tap point per track and whether the topmost-containing rule (AC-29 step 1) resolves it to this region. */
+  tapAge2: { x: number; y: number; resolves: boolean } | null;
+  tapAge5: { x: number; y: number; resolves: boolean };
 }
 
 export interface PageReport {
@@ -29,6 +32,11 @@ export interface PageReport {
   /** Region-boundary pixels with no outline pixel within seamTolerance. */
   seamMisses: number;
   seamSample: Array<[number, number]>;
+  /** Outline pixels farther than 20 units from every hit-testable region, per track (a tap there would be a dead no-op). */
+  orphanOutlineAge2: number;
+  orphanOutlineAge5: number;
+  /** A page corner farther than 20 units from every region resolves to nothing (AC-29 step 3). */
+  farCornerNoop: boolean;
   idMapAge2: string;
   idMapAge5: string;
 }
@@ -108,15 +116,24 @@ export async function analyseColouringPage(page: Page, svg: string, regions: Col
     };
     const map2 = idMap(true), map5 = idMap(false);
 
-    const disc = (map: Int16Array, i: number): number => {
+    const disc = (map: Int16Array, i: number): { d: number; x: number; y: number } => {
       const seed = new Uint8Array(N * N);
       let any = false;
       for (let p = 0; p < N * N; p++) { if (map[p] === i) any = true; else seed[p] = 1; }
-      if (!any) return 0;
+      if (!any) return { d: 0, x: -1, y: -1 };
       const dist = edt(seed);
-      let best = 0;
-      for (let p = 0; p < N * N; p++) if (map[p] === i && dist[p] > best) best = dist[p];
-      return Math.max(0, 2 * (Math.sqrt(best) - limits.outlineHalf));
+      let best = 0, at = 0;
+      for (let p = 0; p < N * N; p++) if (map[p] === i && dist[p] > best) { best = dist[p]; at = p; }
+      return { d: Math.max(0, 2 * (Math.sqrt(best) - limits.outlineHalf)), x: at % N + 0.5, y: Math.floor(at / N) + 0.5 };
+    };
+    // AC-29 step 1 with real geometry: topmost hit-testable path containing the point (nonzero).
+    const paths = regions.map((r) => new Path2D(dById.get(r.id) ?? ''));
+    const resolve = (x: number, y: number, age2Only: boolean): number => {
+      for (let k = regions.length - 1; k >= 0; k--) {
+        if (age2Only && !regions[k].age2) continue;
+        if (ctx.isPointInPath(paths[k], x, y, 'nonzero')) return k;
+      }
+      return -1;
     };
 
     const reports = regions.map((r, i) => {
@@ -129,9 +146,13 @@ export async function analyseColouringPage(page: Page, svg: string, regions: Col
           for (let p = 0; p < N * N; p++) if (masks[i][p] && dist[p] > t2) outsideParent++;
         }
       }
+      const d2 = r.age2 ? disc(map2, i) : null;
+      const d5 = disc(map5, i);
       return {
         id: r.id, age2: r.age2, parent: r.parent, area: count(masks[i]), windingDiff: windingDiff[i],
-        discAge2: r.age2 ? Math.round(disc(map2, i)) : null, discAge5: Math.round(disc(map5, i)), outsideParent,
+        discAge2: d2 ? Math.round(d2.d) : null, discAge5: Math.round(d5.d), outsideParent,
+        tapAge2: d2 ? { x: d2.x, y: d2.y, resolves: resolve(d2.x, d2.y, true) === i } : null,
+        tapAge5: { x: d5.x, y: d5.y, resolves: resolve(d5.x, d5.y, false) === i },
       };
     });
 
@@ -166,6 +187,19 @@ export async function analyseColouringPage(page: Page, svg: string, regions: Col
       }
     }
 
+    // Snap reach (AC-29 step 2): every outline pixel should be within 20 units of a hit-testable region.
+    const orphans = (map: Int16Array): { n: number; dist: Float32Array } => {
+      const seed = new Uint8Array(N * N);
+      for (let p = 0; p < N * N; p++) seed[p] = map[p] >= 0 ? 1 : 0;
+      const dist = edt(seed);
+      let n = 0;
+      for (let p = 0; p < N * N; p++) if (outline[p] && dist[p] > 400) n++;
+      return { n, dist };
+    };
+    const o2 = orphans(map2), o5 = orphans(map5);
+    const corners = [[2, 2], [797, 2], [2, 797], [797, 797]];
+    const farCornerNoop = corners.some(([x, y]) => o5.dist[y * N + x] > 400 && resolve(x + 0.5, y + 0.5, false) === -1);
+
     const png = (map: Int16Array): string => {
       const im = ctx.createImageData(N, N);
       for (let p = 0; p < N * N; p++) {
@@ -180,7 +214,7 @@ export async function analyseColouringPage(page: Page, svg: string, regions: Col
       return canvas.toDataURL('image/png');
     };
 
-    return { missing, regions: reports, gaps, seamMisses, seamSample, idMapAge2: png(map2), idMapAge5: png(map5) };
+    return { missing, regions: reports, gaps, seamMisses, seamSample, orphanOutlineAge2: o2.n, orphanOutlineAge5: o5.n, farCornerNoop, idMapAge2: png(map2), idMapAge5: png(map5) };
   }, { svg, regions, limits });
 }
 
@@ -192,9 +226,14 @@ export function artFailures(r: PageReport, limits: ArtLimits, tol = { seam: 12, 
     if (g.windingDiff > tol.winding) out.push(`${g.id}: self-intersection/hole (${g.windingDiff} px differ nonzero vs evenodd)`);
     if (g.discAge2 !== null && g.discAge2 < limits.coarseDiscMin) out.push(`${g.id}: age-2 visible disc ${g.discAge2} < ${limits.coarseDiscMin}`);
     if (g.discAge5 < limits.fineDiscMin) out.push(`${g.id}: age-5 visible disc ${g.discAge5} < ${limits.fineDiscMin}`);
+    if (g.tapAge2 && !g.tapAge2.resolves) out.push(`${g.id}: age-2 tap at (${g.tapAge2.x},${g.tapAge2.y}) does not resolve to it`);
+    if (!g.tapAge5.resolves) out.push(`${g.id}: age-5 tap at (${g.tapAge5.x},${g.tapAge5.y}) does not resolve to it`);
     if (g.outsideParent > tol.outside) out.push(`${g.id}: ${g.outsideParent} px outside parent ${g.parent}`);
   }
   for (const g of r.gaps) out.push(`gap: ${g.size} px enclosed, unpainted, unoutlined near (${g.x},${g.y})`);
+  if (r.orphanOutlineAge2 > tol.seam) out.push(`outline: ${r.orphanOutlineAge2} px more than 20 units from any age-2 region`);
+  if (r.orphanOutlineAge5 > tol.seam) out.push(`outline: ${r.orphanOutlineAge5} px more than 20 units from any region`);
+  if (!r.farCornerNoop) out.push('no page corner is a far no-op (leave a margin of more than 20 units somewhere)');
   if (r.seamMisses > tol.seam) out.push(`seams: ${r.seamMisses} boundary px without an outline within tolerance, e.g. ${JSON.stringify(r.seamSample)}`);
   return out;
 }

@@ -15,8 +15,6 @@ const BG_DIR = path.join(PUBLIC_DIR, 'art/scenes/leisure-colouring');
 const MAX_SVG_BYTES = 15 * 1024;
 const PAPER = '#FFFDF9';
 const OUTLINE = '#3B2A22';
-const MIN_COARSE = 80;
-const MIN_FINE = 48;
 
 
 // ---------- minimal SVG path flattening (M L H V C S Q T Z, absolute and relative) ----------
@@ -147,7 +145,7 @@ describe('leisure-colouring page art', () => {
     describe(page.id, () => {
       const file = path.join(PAGE_DIR, `${page.id}.svg`);
 
-      it('[AC-26] is a clean 800x800 SVG under 15 KB with fills under outlines', () => {
+      it('[AC-26] [AC-32] is a clean 800x800 SVG under 15 KB with fills under outlines', () => {
         expect(fs.existsSync(file), file).toBe(true);
         expect(fs.statSync(file).size).toBeLessThan(MAX_SVG_BYTES);
         const { text, doc } = readSvg(file);
@@ -176,7 +174,7 @@ describe('leisure-colouring page art', () => {
         }
       });
 
-      it('[AC-26] has exactly the frozen regions, in z-order, closed, flagged, and large enough', () => {
+      it('[AC-26] [AC-32] has exactly the manifest regions, in z-order, closed, and flagged', () => {
         const { doc } = readSvg(file);
         const fills = doc.getElementById('fills')!;
         const kids = Array.from(fills.children);
@@ -202,11 +200,9 @@ describe('leisure-colouring page art', () => {
             expect(k.getAttribute('data-age2'), id).toBe('false');
             expect(k.getAttribute('data-parent'), id).toBe(parent);
             expect(ids.indexOf(parent), `${id} after its parent`).toBeLessThan(ids.indexOf(id));
-            expect(Math.min(b.w, b.h), `${id} fine bbox ${b.w.toFixed(0)}x${b.h.toFixed(0)}`).toBeGreaterThanOrEqual(MIN_FINE);
           } else {
             expect(k.getAttribute('data-age2'), id).toBe('true');
             expect(k.hasAttribute('data-parent'), `${id} coarse has no parent`).toBe(false);
-            expect(Math.min(b.w, b.h), `${id} coarse bbox ${b.w.toFixed(0)}x${b.h.toFixed(0)}`).toBeGreaterThanOrEqual(MIN_COARSE);
           }
         }
       });
