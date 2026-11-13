@@ -62,10 +62,15 @@ export const SLOTS_PER_BED = 4;
 
 const MARGIN = 28;
 
-export function computeSortingLayout(width: number, height: number, bedCount: number): SortingLayout {
+export interface SortingLayoutOptions {
+  /** Plaques carry two icons (size + colour at L6): the sign is drawn larger and the planting slots move right. */
+  twoIconSigns?: boolean;
+}
+
+export function computeSortingLayout(width: number, height: number, bedCount: number, options: SortingLayoutOptions = {}): SortingLayout {
   const landscape = width >= height;
   const n = Math.max(1, Math.min(4, Math.floor(bedCount)));
-  const cols = !landscape && n === 4 ? 2 : n;
+  const cols = !landscape && n >= 3 ? 2 : n;
   const rows = Math.ceil(n / cols);
   const gapX = landscape ? 28 : 24;
   const gapY = 18;
@@ -96,18 +101,24 @@ export function computeSortingLayout(width: number, height: number, bedCount: nu
   for (let i = 0; i < n; i++) {
     const row = Math.floor(i / cols);
     const col = i % cols;
-    const colLeft = left0 + col * (bedW + gapX);
+    const inRow = Math.min(cols, n - row * cols);
+    const rowLeft = left0 + ((cols - inRow) * (bedW + gapX)) / 2;
+    const colLeft = rowLeft + col * (bedW + gapX);
     const top = firstTop + row * (columnH + gapY);
     const cx = colLeft + bedW / 2;
     const bedTop = top + bedW * ZONE_K;
     const bedCy = bedTop + bedH / 2;
     // Stem bases sit just below the front lip of the bed, so the front layer hides them.
     const soilY = bedCy + bedH * 0.04;
-    const slotXs = Array.from({ length: SLOTS_PER_BED }, (_, k) => colLeft + bedW * (0.42 + (0.44 * k) / (SLOTS_PER_BED - 1)));
+    const big = options.twoIconSigns === true;
+    const slotStart = big ? 0.6 : 0.5;
+    const slotXs = Array.from({ length: SLOTS_PER_BED }, (_, k) => colLeft + bedW * (slotStart + ((0.88 - slotStart) * k) / (SLOTS_PER_BED - 1)));
     // Sign (280x360 box, feet at 95% of its height) stands behind the back-left corner; the bed hides its feet.
-    const signH = bedW * 0.6;
-    const signW = (signH * 280) / 360;
+    // Two-icon plaques get a larger sign, as tall as the room above the column allows.
     const feetY = bedTop + bedH * 0.22;
+    const signRoomTop = row === 0 ? TOP_RESERVED + 6 : top;
+    const signH = big ? Math.max(bedW * 0.52, Math.min(bedW * 0.9, (feetY - signRoomTop) / 0.955)) : bedW * 0.52;
+    const signW = (signH * 280) / 360;
     const signCy = feetY - signH * 0.955 + signH / 2;
     beds.push({
       x: cx,
@@ -116,7 +127,7 @@ export function computeSortingLayout(width: number, height: number, bedCount: nu
       height: bedH,
       soilY,
       slotXs,
-      sign: { x: colLeft + bedW * 0.2, y: signCy, width: signW, height: signH },
+      sign: { x: colLeft + bedW * (big ? 0.28 : 0.19), y: signCy, width: signW, height: signH },
       flowerHeight: bedW * 0.52,
       hit: { x: colLeft, y: top, width: bedW, height: columnH },
     });

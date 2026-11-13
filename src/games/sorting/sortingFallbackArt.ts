@@ -332,65 +332,36 @@ export function drawRuleIconFallback(
       1,
     );
   } else {
-    // 'size': small flower on the left next to a large flower on the right, relevant one emphasised
-    const isSmallTarget = value === 'small';
-    const baseY = size * 0.36;
-    const smallX = -size * 0.23;
-    const largeX = size * 0.21;
-    const smallH = size * 0.38;
-    const largeH = size * 0.68;
-    const smallR = size * 0.14;
-    const largeR = size * 0.23;
-
-    // Soft emphasis halo behind the active size
-    g.fillStyle(0xffe57f, 0.75);
-    if (isSmallTarget) {
-      g.fillCircle(smallX, baseY - smallH, smallR * 1.45);
-    } else {
-      g.fillCircle(largeX, baseY - largeH, largeR * 1.35);
-    }
-
-    // Small flower
-    const smallAlpha = isSmallTarget ? 1 : 0.45;
-    const smallStroke = isSmallTarget ? 3.5 : 2;
-    const smallStemW = isSmallTarget ? 5 : 4;
-    g.fillStyle(isSmallTarget ? STEM_GREEN : MUTED_FLOWER, smallAlpha);
-    g.fillRoundedRect(smallX - smallStemW / 2, baseY - smallH, smallStemW, smallH, 2);
-    g.lineStyle(smallStroke, OUTLINE, smallAlpha);
-    g.strokeRoundedRect(smallX - smallStemW / 2, baseY - smallH, smallStemW, smallH, 2);
-    paintBloom(
-      g,
-      'round',
-      smallX,
-      baseY - smallH,
-      smallR,
-      isSmallTarget ? COLOR_PALETTE.yellow.main : MUTED_FLOWER,
-      isSmallTarget ? COLOR_PALETTE.yellow.light : MUTED_FLOWER,
-      PLAQUE_FACE,
-      smallStroke,
-      smallAlpha,
-    );
-
-    // Large flower
-    const largeAlpha = isSmallTarget ? 0.45 : 1;
-    const largeStroke = isSmallTarget ? 2 : 3.5;
-    const largeStemW = isSmallTarget ? 5 : 6;
-    g.fillStyle(isSmallTarget ? MUTED_FLOWER : STEM_GREEN, largeAlpha);
-    g.fillRoundedRect(largeX - largeStemW / 2, baseY - largeH, largeStemW, largeH, 3);
-    g.lineStyle(largeStroke, OUTLINE, largeAlpha);
-    g.strokeRoundedRect(largeX - largeStemW / 2, baseY - largeH, largeStemW, largeH, 3);
-    paintBloom(
-      g,
-      'round',
-      largeX,
-      baseY - largeH,
-      largeR,
-      isSmallTarget ? MUTED_FLOWER : COLOR_PALETTE.yellow.main,
-      isSmallTarget ? MUTED_FLOWER : COLOR_PALETTE.yellow.light,
-      PLAQUE_FACE,
-      largeStroke,
-      largeAlpha,
-    );
+    // 'size': one flower in a neutral silhouette colour (so size is the only cue), short for 'small' and tall for
+    // 'large', next to a faint outline of the other size for comparison.
+    const isSmall = value === 'small';
+    const baseY = size * 0.44;
+    const drawSilhouette = (x: number, h: number, bloomR: number, fill: number, alpha: number, lw: number) => {
+      const stemW = Math.max(3, size * 0.06);
+      g.fillStyle(fill, alpha);
+      g.fillRoundedRect(x - stemW / 2, baseY - h, stemW, h, stemW / 2);
+      g.lineStyle(lw, OUTLINE, alpha);
+      g.strokeRoundedRect(x - stemW / 2, baseY - h, stemW, h, stemW / 2);
+      g.fillStyle(fill, alpha);
+      g.fillCircle(x, baseY - h, bloomR);
+      g.lineStyle(lw, OUTLINE, alpha);
+      g.strokeCircle(x, baseY - h, bloomR);
+      g.fillStyle(PLAQUE_FACE, alpha);
+      g.fillCircle(x, baseY - h, bloomR * 0.38);
+    };
+    const smallH = size * 0.34;
+    const largeH = size * 0.66;
+    const activeX = isSmall ? -size * 0.14 : size * 0.12;
+    const ghostX = isSmall ? size * 0.22 : -size * 0.26;
+    // Faint comparison flower first, then the active one on top.
+    drawSilhouette(ghostX, isSmall ? largeH : smallH, size * (isSmall ? 0.13 : 0.08), MUTED_FLOWER, 0.35, 2);
+    drawSilhouette(activeX, isSmall ? smallH : largeH, size * (isSmall ? 0.1 : 0.17), SILHOUETTE_GREEN, 1, 3.5);
+    // Ground line.
+    g.lineStyle(3, OUTLINE, 1);
+    g.beginPath();
+    g.moveTo(-size * 0.4, baseY);
+    g.lineTo(size * 0.4, baseY);
+    g.strokePath();
   }
 
   const container = scene.add.container(0, 0, [g]);

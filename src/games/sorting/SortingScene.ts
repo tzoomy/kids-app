@@ -367,7 +367,8 @@ export class SortingScene extends Phaser.Scene {
     }
     const plan = this.plan!;
     const pres = this.presentation!;
-    this.layout = computeSortingLayout(this.scale.width, this.scale.height, plan.beds.length);
+    const twoIconSigns = pres.label !== 'none' && plan.beds.some((b) => Object.keys(b.accepts).length > 1);
+    this.layout = computeSortingLayout(this.scale.width, this.scale.height, plan.beds.length, { twoIconSigns });
 
     plan.beds.forEach((bedPlan, i) => {
       const slot = this.layout.beds[i];
@@ -386,8 +387,8 @@ export class SortingScene extends Phaser.Scene {
       root.add([highlight, bed.back, ghostLayer, plantLayer, bed.front]);
       if (pres.label === 'picture') {
         // Picture label: the rule icon repeated large on the front of the bed (inside the bed's tap target).
-        const icons = this.iconsFor(bedPlan.accepts, slot.height * 0.42);
-        const badgeY = slot.height * 0.3;
+        const icons = this.iconsFor(bedPlan.accepts, slot.height * 0.34);
+        const badgeY = slot.height * 0.2;
         icons.forEach((icon, k) => {
           icon.setPosition((k - (icons.length - 1) / 2) * slot.height * 0.46, badgeY);
           root.add(icon);
@@ -443,10 +444,10 @@ export class SortingScene extends Phaser.Scene {
     // The plaque panel is the 160x160 square at (60..220, 54..214) of the 280x360 sign box.
     const panel = (160 / 280) * slot.sign.width;
     const panelCy = ((134 - 180) / 360) * slot.sign.height;
-    const each = accepts.size && (accepts.color || accepts.shape) ? panel * 0.5 : panel * 0.92;
+    const each = accepts.size && (accepts.color || accepts.shape) ? panel * 0.54 : panel * 0.92;
     const icons = this.iconsFor(accepts, each);
     icons.forEach((icon, k) => {
-      icon.setPosition((k - (icons.length - 1) / 2) * each * 0.98, panelCy);
+      icon.setPosition((k - (icons.length - 1) / 2) * each * 0.9, panelCy);
       icon.setData('ruleIcon', true);
       sign.add(icon);
     });
