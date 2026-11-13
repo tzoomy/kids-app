@@ -111,6 +111,16 @@ Goal: understand a request or a word in the learning language and act in the wor
 - **Age 2:** Load a named object onto the train.
 - **Age 5:** Drag letters to spell a short English word (for example cat, sun).
 
+### 6. Kitchen Orchestra
+
+- **Stage:** Built (on `main`). Moved here from Art Studio by the owner's decision of 2026-11-12; reached through the Language House game picker (Animal Restaurant or Kitchen Orchestra). Full spec: [docs/specs/kitchen-orchestra.md](specs/kitchen-orchestra.md).
+
+- **Action:** A chef plays a short pattern on kitchen utensils (pot, pan, water glasses) and names them in the learning language; the girl echoes the pattern by tapping the utensils.
+- **Learning goal:** Kitchen utensil words and simple requests in English or French ("Play the pot!", "Listen!", "Your turn!"); listening to a pattern and imitating a short sequence.
+- **Inspiration pattern:** Sago Mini (free exploration); Tiger eAcademy (a short guided sequence, in the older-girl version).
+- **Age 2:** One lit note at a time with a demonstration hint after idle time; free playing while listening never counts as a mistake.
+- **Age 5:** Repeat a sequence of three or more sounds, moving from lit to flash to audio-only cues.
+
 ---
 
 ## Number Garden
@@ -286,17 +296,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 - **Age 2:** Fill by touch, a few large colors, "going outside the line" is not treated as a mistake.
 - **Age 5:** More areas, an optional request ("color the apple red"), saving the creation in a local album.
 
-### 2. Kitchen Orchestra / Sound Lab
-
-- **Stage:** Vision.
-
-- **Action:** Touching utensils or creatures plays sounds; a short pattern can be repeated.
-- **Learning goal:** Cause and effect, listening to a pattern, imitating a short sequence.
-- **Inspiration pattern:** Sago Mini (free exploration); Tiger eAcademy (a short guided sequence, in the older-girl version).
-- **Age 2:** Free playing with no failure.
-- **Age 5:** Repeat a sequence of two or three sounds, or choose an instrument by name in the learning language.
-
-### 3. Bubbles and Dreams (also as leisure)
+### 2. Bubbles and Dreams (also as leisure)
 
 - **Stage:** P0 as the leisure corner.
 
@@ -305,7 +305,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 - **Inspiration pattern:** Leisure inside the app, like a free-play corner and not like a lesson.
 - **Age 2 and 5:** The same activity, with different density and complexity. If this is a leisure corner — it does not earn new time.
 
-### 4. Sticker Board and Finger Drawing
+### 3. Sticker Board and Finger Drawing
 
 - **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
 
