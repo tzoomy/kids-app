@@ -114,9 +114,20 @@ Goal: a sense of quantity, one-to-one matching, sorting, and comparison. Instruc
 
 Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause and effect. Inspiration: exploration without failure from Sago Mini / Pok Pok; a varied path (a short book + an activity) from Khan Academy Kids; short voice-guided tasks from Tiger eAcademy.
 
-### 1. Who Lives Here?
+### 1. Who's Hiding? — the Nature Lab entry game
 
-- **Stage:** Vision (first candidate for the Nature Lab, after language and quantity learning are stable).
+- **Stage:** Pass 1 (working game).
+
+- **Action:** Several bushes stand in a meadow, a different animal hiding behind each one and peeking out. The girl hears a request in English or French and taps the bush that hides that animal; the animal pops out and a star flies to the counter.
+- **Learning goal:** Animal names and animal sounds in English and French; matching a sound or a name to a partly hidden animal.
+- **Inspiration pattern:** Tiger eAcademy (short voice-guided task, immediate feedback); Sago Mini (calm exploration, the world responds). The game reuses the choice/serve template (bushes instead of plates) and the existing animal art.
+- **Age 2:** Starts at Level 2: few bushes, a picture-and-audio request, a demonstration hint if she waits, large touch targets, can hear the request again.
+- **Age 5:** Starts at Level 5: more bushes, less visual support, a short sound word, a hint only after a mistake.
+- **World wiring:** Nature Lab is open on the map with `entryGameId` `who-is-hiding`. Tapping the building opens Who's Hiding? directly (no game picker in Pass 1).
+
+### 2. Who Lives Here?
+
+- **Stage:** Vision (a later Nature Lab game; Who's Hiding? is the entry game, decided 2026-11-13).
 
 - **Action:** The girl helps an animal go home (nest, cave, water, tree) according to a voice hint or a picture.
 - **Learning goal:** Matching a creature to a habitat, animal vocabulary.
@@ -124,7 +135,7 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 - **Age 2:** Two animals and two homes, an immediate warm reaction even on a second try.
 - **Age 5:** A descriptive hint ("I sleep in a cave" / "Je vis dans l'eau"), or several creatures in sequence.
 
-### 2. Weather in the Window
+### 3. Weather in the Window
 
 - **Stage:** Vision.
 
@@ -134,7 +145,7 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 - **Age 2:** One switch — touch and see what happens, with no "right answer".
 - **Age 5:** "What will happen if…", choosing suitable clothing, or two changes in sequence.
 
-### 3. Little Nature Book
+### 4. Little Nature Book
 
 - **Stage:** Vision.
 

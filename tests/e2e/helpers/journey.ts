@@ -10,14 +10,14 @@ export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
   bubbles: 'BubblesScene',
-  // Who's Hiding? (PR #29, feat/game-hiding). HidingScene is not on main yet, so no test enters nature-lab until that PR lands.
-  hiding: 'HidingScene',
+  // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
+  'who-is-hiding': 'HidingScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
-  'nature-lab': 'hiding',
+  'nature-lab': 'who-is-hiding',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
@@ -57,6 +57,15 @@ export interface RoundInfo {
   correctCount: number;
   characterState: string;
   ready: boolean;
+  /** Who's Hiding? speaker button centre, in game coordinates. */
+  replayCenter?: { x: number; y: number };
+  hinted?: boolean;
+  targetId?: string;
+  choiceIds?: string[];
+  correctFrontScale?: number;
+  correctPeek?: number;
+  shortSound?: boolean;
+  speak?: string;
 }
 
 export interface OrchestraInfo {
@@ -77,6 +86,9 @@ type Hooks = {
   getSpokenLines: (since?: number) => SpokenLine[];
   getRoundInfo: () => RoundInfo | null;
   getGameSize: () => { width: number; height: number };
+  /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
+  isListening: () => boolean;
+  seedHidingLevel: (level: number) => void;
 };
 
 type HookName = keyof Hooks;
@@ -112,6 +124,25 @@ export function getSpokenLines(page: Page, since?: number): Promise<SpokenLine[]
   return callHook<SpokenLine[]>(page, 'getSpokenLines', [since]);
 }
 
+/** Current LearningSession listening flag. Read-only; only present under ?e2e=1. */
+export function isListening(page: Page): Promise<boolean> {
+  return callHook<boolean>(page, 'isListening');
+}
+
+export function getGameSize(page: Page): Promise<{ width: number; height: number }> {
+  return callHook<{ width: number; height: number }>(page, 'getGameSize');
+}
+
+/** Seeds the Who's Hiding? adaptive level (seed-only hook; call it on the map, before the building tap). */
+export async function seedHidingLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedHidingLevel', [level]);
+}
+
+/** Optional steps for a journey: `beforeEnter` runs on the map (after the profile tap), before the building tap. */
+export interface JourneyOptions {
+  beforeEnter?: () => Promise<void>;
+}
+
 /** Resolves with the first recorded spoken line matching the predicate (polling the speech log). */
 export async function waitForSpokenLine(
   page: Page,
@@ -135,11 +166,17 @@ export async function waitForSpokenLine(
  * Opens the app with ?e2e=1, taps the profile with a real click, waits for the map, then taps the
  * world's building (real pointer click at the centre of its hit rectangle). Returns right after the tap.
  */
-export async function tapWorldBuilding(page: Page, profile: ProfileTestId, worldId: string): Promise<void> {
+export async function tapWorldBuilding(
+  page: Page,
+  profile: ProfileTestId,
+  worldId: string,
+  opts?: JourneyOptions,
+): Promise<void> {
   // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
   await page.goto('./?e2e=1');
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
+  if (opts?.beforeEnter) await opts.beforeEnter();
 
   // Wait for the building's pop-in to finish (its size stops changing), then tap its centre.
   let previous: PageRect | null = null;
@@ -196,7 +233,13 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
  * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
-export async function enterWorldByTap(page: Page, profile: ProfileTestId, worldId: string, gameId?: string): Promise<void> {
+export async function enterWorldByTap(
+  page: Page,
+  profile: ProfileTestId,
+  worldId: string,
+  gameId?: string,
+  opts?: JourneyOptions,
+): Promise<void> {
   const pickerDefault = PICKER_WORLD_DEFAULT_GAME[worldId];
   const game = gameId ?? pickerDefault ?? WORLD_ENTRY_GAME[worldId];
   const targetScene = game ? GAME_SCENE[game] : undefined;
@@ -205,7 +248,7 @@ export async function enterWorldByTap(page: Page, profile: ProfileTestId, worldI
     throw new Error(`enterWorldByTap: world "${worldId}" has no game "${game}"`);
   }
 
-  await tapWorldBuilding(page, profile, worldId);
+  await tapWorldBuilding(page, profile, worldId, opts);
   if (pickerDefault) await tapTestId(page, `game-picker-${game}`);
   await waitForScene(page, targetScene);
 }

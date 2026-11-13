@@ -430,7 +430,7 @@ export class RestaurantScene extends Phaser.Scene {
     // no pulse or sparkle on the answer plate.
     const view = this.round.audioOnly ? undefined : this.correctPlate();
     if (view) {
-      void hintPulse(this, view.root);
+      void hintPulse(this, view.root, view.root.scaleX);
       Juice.for(this).burst('sparkle', view.root.x, view.root.y);
     }
     this.context.sfx.hint();

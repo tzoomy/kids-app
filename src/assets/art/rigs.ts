@@ -633,6 +633,7 @@ export const ANIMAL_ART_KINDS: string[] = [
   'lion',
 ];
 
+/** Chef and other non-restaurant characters. Not listed in ANIMAL_ART_KINDS. */
 export const CHARACTER_RIGS: Record<string, AnimalRig> = {
   chef: {
     kind: 'chef',
