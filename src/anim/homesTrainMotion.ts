@@ -8,7 +8,7 @@ import { flyArc, tweenAsync, type FlyArcOptions } from './tweens';
 
 type Target = Phaser.GameObjects.Components.Transform & Phaser.GameObjects.GameObject;
 
-export type PackedArcOptions = Pick<FlyArcOptions, 'delay' | 'spin'>;
+type PackedArcOptions = Pick<FlyArcOptions, 'delay' | 'spin'>;
 
 /** Walk an animal horizontally toward a home, with a gentle bob. */
 export async function walkHome(

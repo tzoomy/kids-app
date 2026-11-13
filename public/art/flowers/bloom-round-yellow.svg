@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Plump circular pom-pom flower with tight scalloped puffs -->
+  <path d="M128 28 C146 28 162 36 170 50 C186 44 206 54 212 72 C226 82 232 102 224 122 C232 140 226 160 212 172 C206 192 188 204 170 204 C160 220 144 228 128 228 C112 228 96 220 86 204 C68 204 50 192 44 172 C30 160 24 140 32 122 C24 102 30 82 44 72 C50 54 70 44 86 50 C94 36 110 28 128 28 Z" fill="var(--bloom-fill, #FFD43B)" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lower pom-pom spherical shadow crescent -->
+  <path d="M40 156 C50 184 72 200 88 200 C98 214 112 222 128 222 C144 222 158 214 168 200 C184 200 206 184 216 156 C200 176 180 182 164 182 C154 194 142 202 128 202 C114 202 102 194 92 182 C76 182 56 176 40 156 Z" fill="var(--bloom-shadow, #EAA814)"/>
+
+  <!-- Inner rosette depth shadow -->
+  <path d="M78 134 C86 158 112 172 138 166 C160 160 176 142 178 120 C168 140 148 152 126 152 C104 152 88 144 78 134 Z" fill="var(--bloom-shadow, #EAA814)"/>
+
+  <!-- Upper fluffy highlight puffs -->
+  <path d="M94 56 C104 40 120 34 138 38 C122 44 108 52 100 66 Z" fill="var(--bloom-highlight, #FFF2A6)"/>
+  <path d="M54 84 C60 66 74 56 90 60 C76 68 66 78 60 92 Z" fill="var(--bloom-highlight, #FFF2A6)"/>
+  <path d="M164 60 C178 56 194 64 200 80 C190 70 178 64 164 66 Z" fill="var(--bloom-highlight, #FFF2A6)"/>
+  <path d="M98 92 C112 76 140 74 156 88 C138 84 114 86 98 96 Z" fill="var(--bloom-highlight, #FFF2A6)"/>
+
+  <!-- Asymmetrical spiral rosette petal folds (friendly pom-pom volume, not face-like) -->
+  <g fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M84 94 C100 72 134 68 158 84 C178 98 182 128 164 148"/>
+    <path d="M168 114 C162 144 132 164 102 154 C76 144 68 116 82 94"/>
+    <path d="M108 118 C118 104 138 104 146 120 C150 132 136 144 120 136"/>
+  </g>
+</svg>

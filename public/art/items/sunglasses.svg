@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Folded temple arms behind frames -->
+    <path d="M28 118 L76 68 C88 56 106 58 114 70 L102 82 C96 74 88 74 80 82 L42 122 Z" fill="var(--item-shadow, #5C4338)"/>
+    <path d="M228 118 L180 68 C168 56 150 58 142 70 L154 82 C160 74 168 74 176 82 L214 122 Z" fill="var(--item-shadow, #5C4338)"/>
+
+    <!-- Nose bridge -->
+    <path d="M106 126 C116 114 140 114 150 126 L150 142 C140 132 116 132 106 142 Z" fill="var(--item-fill, #7A4B2A)"/>
+
+    <!-- Left and right round outer frames -->
+    <circle cx="74" cy="144" r="52" fill="var(--item-fill, #7A4B2A)"/>
+    <circle cx="182" cy="144" r="52" fill="var(--item-fill, #7A4B2A)"/>
+
+    <!-- End pieces / hinges on outer sides -->
+    <rect x="14" y="124" width="18" height="20" rx="6" fill="var(--item-fill, #7A4B2A)"/>
+    <rect x="224" y="124" width="18" height="20" rx="6" fill="var(--item-fill, #7A4B2A)"/>
+
+    <!-- Frame upper highlights -->
+    <path d="M40 110 C52 98 72 96 90 102" fill="none" stroke="var(--item-highlight, #C9894B)" stroke-width="5"/>
+    <path d="M148 110 C160 98 180 96 198 102" fill="none" stroke="var(--item-highlight, #C9894B)" stroke-width="5"/>
+
+    <!-- Left tinted lens -->
+    <circle cx="74" cy="144" r="37" fill="#D6EAFF"/>
+    <path d="M42 162 C52 180 80 186 98 172 C106 164 110 152 109 140 C98 158 68 166 42 162 Z" fill="#8CC0FF" stroke="none"/>
+    <!-- Left lens shine -->
+    <path d="M52 126 L70 112" stroke="#FFFDF9" stroke-width="7"/>
+    <path d="M62 138 L84 120" stroke="#FFFDF9" stroke-width="5"/>
+    <circle cx="74" cy="144" r="37" fill="none"/>
+
+    <!-- Right tinted lens -->
+    <circle cx="182" cy="144" r="37" fill="#D6EAFF"/>
+    <path d="M150 162 C160 180 188 186 206 172 C214 164 218 152 217 140 C206 158 176 166 150 162 Z" fill="#8CC0FF" stroke="none"/>
+    <!-- Right lens shine -->
+    <path d="M160 126 L178 112" stroke="#FFFDF9" stroke-width="7"/>
+    <path d="M170 138 L192 120" stroke="#FFFDF9" stroke-width="5"/>
+    <circle cx="182" cy="144" r="37" fill="none"/>
+  </g>
+</svg>

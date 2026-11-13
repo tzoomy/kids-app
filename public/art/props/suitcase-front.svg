@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" width="640" height="440">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- NEAR-SIDE FRONT WALL ONLY (aligned to suitcase-back.svg) -->
+    <path d="M48 306 C48 296 58 292 68 298 C76 304 88 310 106 310 L534 310 C552 310 564 304 572 298 C582 292 592 296 592 306 L588 378 C584 392 570 400 550 400 L90 400 C70 400 56 392 52 378 Z" fill="#D4622A"/>
+    <!-- Front wall bottom shadow -->
+    <path d="M53 368 L587 368 L585 378 C581 391 568 397 550 397 L90 397 C72 397 59 391 55 378 Z" fill="#B04816" stroke="none"/>
+    <!-- Front rim top highlight lip -->
+    <path d="M56 306 C64 302 82 316 106 316 L534 316 C558 316 576 302 584 306 L580 322 C568 324 552 326 534 326 L106 326 C88 326 72 324 60 322 Z" fill="#EB8149" stroke="none"/>
+    <!-- Re-stroke front wall contour -->
+    <path d="M48 306 C48 296 58 292 68 298 C76 304 88 310 106 310 L534 310 C552 310 564 304 572 298 C582 292 592 296 592 306 L588 378 C584 392 570 400 550 400 L90 400 C70 400 56 392 52 378 Z" fill="none"/>
+
+    <!-- Front bottom corner bumpers -->
+    <path d="M50 356 L52 378 C56 392 70 400 90 400 L104 400 C84 392 70 378 68 356 Z" fill="#B04816"/>
+    <path d="M590 356 L588 378 C584 392 570 400 550 400 L536 400 C556 392 570 378 572 356 Z" fill="#B04816"/>
+
+    <!-- Two brass latches on the front rim -->
+    <rect x="148" y="302" width="38" height="32" rx="8" fill="#C08552"/>
+    <rect x="155" y="308" width="24" height="10" rx="4" fill="#FFD166" stroke="none"/>
+    <rect x="454" y="302" width="38" height="32" rx="8" fill="#C08552"/>
+    <rect x="461" y="308" width="24" height="10" rx="4" fill="#FFD166" stroke="none"/>
+
+    <!-- Front carry handle -->
+    <rect x="252" y="342" width="22" height="24" rx="6" fill="#C08552"/>
+    <rect x="366" y="342" width="22" height="24" rx="6" fill="#C08552"/>
+    <rect x="266" y="346" width="108" height="20" rx="10" fill="#B04816"/>
+    <path d="M276 352 L364 352" stroke="#EB8149" stroke-width="5"/>
+  </g>
+</svg>

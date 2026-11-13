@@ -17,3 +17,4 @@ export * from './transitionTiming';
 export * from './worldMotion';
 export * from './homesTrainMotion';
 export * from './trainLayout';
+export * from './sortPackMotion';

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Back cover edge peeking under pages -->
+    <path d="M58 196 L192 178 C202 176 210 182 210 192 L210 202 C210 210 202 216 192 218 L72 232 C56 234 46 224 46 208 Z" fill="var(--item-shadow, #2B6FD6)"/>
+
+    <!-- Little red ribbon bookmark peeking out bottom -->
+    <path d="M126 206 L122 240 L136 232 L148 242 L146 204 Z" fill="#F24C4C"/>
+
+    <!-- Thick cream page block visible on fore-edge and bottom -->
+    <path d="M56 188 L194 170 L194 46 L206 54 C210 58 212 64 212 72 L212 192 C212 200 206 206 196 208 L68 224 C54 226 46 216 46 204 C46 194 50 189 56 188 Z" fill="#FFF6E8"/>
+    <!-- Page block shading and page lines -->
+    <path d="M190 54 L208 64 L208 196 L190 204 Z" fill="#F0DEC2" stroke="none"/>
+    <path d="M64 202 L196 186" fill="none" stroke="#F0DEC2" stroke-width="4"/>
+    <path d="M68 212 L198 196" fill="none" stroke="#F0DEC2" stroke-width="4"/>
+    <path d="M201 66 L201 186" fill="none" stroke="#F0DEC2" stroke-width="4"/>
+    <path d="M56 188 L194 170 L194 46 L206 54 C210 58 212 64 212 72 L212 192 C212 200 206 206 196 208 L68 224 C54 226 46 216 46 204 C46 194 50 189 56 188 Z" fill="none"/>
+
+    <!-- Front hardcover -->
+    <path d="M60 42 L184 26 C194 25 200 32 200 42 L200 166 C200 176 194 182 184 184 L64 200 C52 202 44 194 44 182 L44 62 C44 50 50 43 60 42 Z" fill="var(--item-fill, #4D96FF)"/>
+
+    <!-- Rounded book spine on left -->
+    <path d="M60 42 L74 40 L74 198 L64 200 C50 202 44 194 44 182 L44 62 C44 50 50 43 60 42 Z" fill="var(--item-shadow, #2B6FD6)"/>
+
+    <!-- Upper cover highlight -->
+    <path d="M84 52 L176 40 C182 40 186 44 186 50 C152 54 114 62 84 74 Z" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+
+    <!-- Picture emblem on front cover (rounded cream badge + golden star) -->
+    <circle cx="136" cy="112" r="34" fill="#FFF6E8" stroke-width="5"/>
+    <path d="M136 88 L143 102 L158 104 L147 114 L150 129 L136 122 L122 129 L125 114 L114 104 L129 102 Z" fill="#FFD166" stroke-width="4"/>
+  </g>
+</svg>

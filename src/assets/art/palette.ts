@@ -171,6 +171,20 @@ export const ART_PALETTE = {
   trainBlue: '#4D96FF',
   trainGold: '#FFD166',
   trainCoal: '#3D3532',
+  // Number Garden / Sorting Beds
+  soil: '#C9894B',
+  soilShadow: '#8C5230',
+  soilHighlight: '#E8AA6B',
+  gardenPath: '#F0DEC2',
+
+  // Language House / Travel Suitcase
+  caseLeather: '#D4622A',
+  caseLeatherShadow: '#B04816',
+  caseLeatherHighlight: '#EB8149',
+  caseCream: '#FFF2D6',
+  caseLining: '#F7DEC0',
+  // Who's Hiding? / Kitchen Orchestra (reused names for the new worlds)
+  bushBerry: '#E03E5B',
 } as const;
 
 export type ArtPaletteKey = keyof typeof ART_PALETTE;

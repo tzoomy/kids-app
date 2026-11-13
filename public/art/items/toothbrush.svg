@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!--Rotated toothbrush centered diagonally -->
+    <g transform="rotate(-42 128 128)">
+      <!-- Cream bristles block on top of brush head -->
+      <path d="M98 22 L98 58 L128 58 L128 22 C128 14 120 12 113 18 C106 12 98 14 98 22 Z" fill="#FFF6E8"/>
+      <!-- Soft blue bristle accent wave -->
+      <path d="M98 34 Q113 42 128 34 L128 46 Q113 54 98 46 Z" fill="#8CC0FF" stroke="none"/>
+      <!-- Bristle lower shadow -->
+      <rect x="98" y="50" width="30" height="8" fill="#F0DEC2" stroke="none"/>
+      <!-- Re-stroke bristles and tuft lines -->
+      <path d="M98 22 L98 58 L128 58 L128 22 C128 14 120 12 113 18 C106 12 98 14 98 22 Z" fill="none"/>
+      <line x1="108" y1="20" x2="108" y2="54" stroke-width="4"/>
+      <line x1="118" y1="20" x2="118" y2="54" stroke-width="4"/>
+
+      <!-- Chunky toddler toothbrush handle -->
+      <path d="M120 12 C136 12 146 22 146 40 L146 66 C146 80 138 92 138 108 L146 196 C148 220 136 238 120 238 C104 238 92 220 94 196 L102 108 C102 92 98 80 98 66 L124 66 L124 22 C124 16 118 12 120 12 Z" fill="var(--item-fill, #FFD43B)"/>
+
+      <!-- Handle shadow along back curve -->
+      <path d="M134 16 C142 22 146 30 146 40 L146 66 C146 80 138 92 138 108 L146 196 C148 220 136 238 120 238 C130 226 132 204 130 182 L126 108 C126 90 134 78 134 62 Z" fill="var(--item-shadow, #EAA814)" stroke="none"/>
+
+      <!-- Handle highlight -->
+      <path d="M106 124 L114 124 L110 198 C106 198 102 192 102 184 Z" fill="var(--item-highlight, #FFF2A6)" stroke="none"/>
+
+      <!-- Re-stroke handle contour -->
+      <path d="M120 12 C136 12 146 22 146 40 L146 66 C146 80 138 92 138 108 L146 196 C148 220 136 238 120 238 C104 238 92 220 94 196 L102 108 C102 92 98 80 98 66 L124 66 L124 22 C124 16 118 12 120 12 Z" fill="none"/>
+
+      <!-- Cream rubber thumb grip oval on handle -->
+      <ellipse cx="120" cy="166" rx="11" ry="34" fill="#FFF6E8" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

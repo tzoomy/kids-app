@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" width="520" height="400">
+  <g id="flower-basket-front" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main woven wicker basket front belly -->
+    <g>
+      <path d="M64 208 C136 236 384 236 456 208 C452 268 434 318 404 348 C374 364 146 364 116 348 C86 318 68 268 64 208 Z" fill="#C68642"/>
+      <!-- Left belly warm highlight -->
+      <path d="M74 216 C102 226 142 232 184 234 L196 348 C158 346 130 340 120 332 C94 306 78 264 74 216 Z" fill="#DE9E5B"/>
+      <!-- Right and bottom belly warm shadow -->
+      <path d="M336 234 C378 232 418 226 446 216 C442 268 424 314 398 340 C368 358 164 358 124 344 C178 352 312 348 346 326 C366 308 356 268 336 234 Z" fill="#9E6540"/>
+
+      <!-- Horizontal woven wicker bands across the belly -->
+      <path d="M74 268 C164 294 356 294 446 268" fill="none" stroke="#8C5230" stroke-width="10"/>
+      <path d="M74 264 C164 290 356 290 446 264" fill="none" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M86 304 C172 328 348 328 434 304" fill="none" stroke="#8C5230" stroke-width="10"/>
+      <path d="M86 300 C172 324 348 324 434 300" fill="none" stroke="#3B2A22" stroke-width="5"/>
+
+      <!-- Woven wicker highlight segments between ribs -->
+      <g fill="#E8AA6B">
+        <rect x="104" y="252" width="34" height="10" rx="5" transform="rotate(6 121 257)"/>
+        <rect x="172" y="260" width="38" height="10" rx="5" transform="rotate(3 191 265)"/>
+        <rect x="242" y="264" width="36" height="10" rx="5"/>
+        <rect x="310" y="260" width="38" height="10" rx="5" transform="rotate(-3 329 265)"/>
+        <rect x="116" y="288" width="34" height="10" rx="5" transform="rotate(6 133 293)"/>
+        <rect x="180" y="296" width="36" height="10" rx="5" transform="rotate(3 198 301)"/>
+        <rect x="244" y="298" width="32" height="10" rx="5"/>
+        <rect x="304" y="296" width="36" height="10" rx="5" transform="rotate(-3 322 301)"/>
+      </g>
+
+      <!-- Vertical wicker rib lines -->
+      <g stroke="#3B2A22" stroke-width="5">
+        <line x1="146" y1="236" x2="162" y2="344"/>
+        <line x1="204" y1="244" x2="212" y2="350"/>
+        <line x1="260" y1="246" x2="260" y2="352"/>
+        <line x1="316" y1="244" x2="308" y2="350"/>
+        <line x1="374" y1="236" x2="358" y2="344"/>
+      </g>
+
+      <!-- Basket body outer outline -->
+      <path d="M64 208 C136 236 384 236 456 208 C452 268 434 318 404 348 C374 364 146 364 116 348 C86 318 68 268 64 208 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Sturdy braided wicker foot ring at the base -->
+    <g>
+      <path d="M106 340 C156 356 364 356 414 340 C418 348 412 358 398 362 C352 374 168 374 122 362 C108 358 102 348 106 340 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M120 346 C168 358 352 358 400 346" fill="none" stroke="#DE9E5B" stroke-width="5"/>
+      <g stroke="#3B2A22" stroke-width="4">
+        <line x1="162" y1="348" x2="154" y2="366"/>
+        <line x1="212" y1="352" x2="206" y2="370"/>
+        <line x1="260" y1="354" x2="260" y2="371"/>
+        <line x1="308" y1="352" x2="314" y2="370"/>
+        <line x1="358" y1="348" x2="366" y2="366"/>
+      </g>
+    </g>
+
+    <!-- Scalloped cream & soft sage cloth liner overhanging the front rim -->
+    <g>
+      <path d="M78 216 C142 240 378 240 442 216 L434 252 C406 266 374 262 348 248 C318 268 290 272 260 256 C230 272 202 268 172 248 C146 262 114 266 86 252 Z" fill="#FFF6E0" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Soft sage green decorative trim band along the front cloth drape -->
+      <path d="M84 236 C112 248 144 246 172 232 C202 252 230 256 260 240 C290 256 318 252 348 232 C376 246 408 248 436 236 L434 248 C406 260 374 256 348 242 C318 262 290 266 260 250 C230 266 202 262 172 242 C146 256 114 260 86 248 Z" fill="#9BC184"/>
+      <!-- Re-stroke cloth overhang border -->
+      <path d="M78 216 C142 240 378 240 442 216 L434 252 C406 266 374 262 348 248 C318 268 290 272 260 256 C230 272 202 268 172 248 C146 262 114 266 86 252 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Chunky braided front wicker rim lip (overlaps flower stems) -->
+    <g>
+      <path d="M46 198 C56 192 72 200 84 204 C144 222 376 222 436 204 C448 200 464 192 474 198 C482 204 478 220 464 226 C394 252 126 252 56 226 C42 220 38 204 46 198 Z" fill="#C68642" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Front rim lip upper highlight -->
+      <path d="M60 202 C136 230 384 230 460 202 C446 214 380 236 260 236 C140 236 74 214 60 202 Z" fill="#E8AA6B"/>
+      <!-- Front rim lip lower shadow -->
+      <path d="M58 220 C134 244 386 244 462 220 C448 228 382 246 260 246 C138 246 72 228 58 220 Z" fill="#9E6540"/>
+      <!-- Braided rim twist lines -->
+      <g stroke="#3B2A22" stroke-width="5">
+        <line x1="94" y1="206" x2="108" y2="234"/>
+        <line x1="148" y1="214" x2="162" y2="242"/>
+        <line x1="204" y1="218" x2="216" y2="246"/>
+        <line x1="260" y1="220" x2="260" y2="248"/>
+        <line x1="316" y1="218" x2="304" y2="246"/>
+        <line x1="372" y1="214" x2="358" y2="242"/>
+        <line x1="426" y1="206" x2="412" y2="234"/>
+      </g>
+      <!-- Re-stroke front rim outer contour cleanly -->
+      <path d="M46 198 C56 192 72 200 84 204 C144 222 376 222 436 204 C448 200 464 192 474 198 C482 204 478 220 464 226 C394 252 126 252 56 226 C42 220 38 204 46 198 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

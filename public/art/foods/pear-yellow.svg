@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stem -->
+    <path d="M124 58 C124 40 130 28 140 22 C146 20 150 26 145 32 C138 38 136 46 136 58 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Leaf -->
+    <g>
+      <path d="M134 46 C152 24 190 22 204 40 C192 64 156 66 134 46 Z" fill="#57C457"/>
+      <path d="M134 46 C156 66 192 64 204 40 C192 52 162 54 134 46 Z" fill="#3CA33C"/>
+      <path d="M152 36 C164 31 178 31 186 36" fill="none" stroke="#8AE07E" stroke-width="5"/>
+      <path d="M134 46 C152 24 190 22 204 40 C192 64 156 66 134 46 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Pear Body -->
+    <g>
+      <path d="M128 54 C156 54 170 76 174 106 C178 130 212 146 212 182 C212 216 178 232 128 232 C78 232 44 216 44 182 C44 146 78 130 82 106 C86 76 100 54 128 54 Z" fill="#FFD43B"/>
+      <!-- Pear Shadow -->
+      <path d="M162 72 C169 82 172 94 174 106 C178 130 212 146 212 182 C212 216 178 232 128 232 C92 232 62 222 50 202 C92 220 148 214 178 184 C194 168 188 144 166 122 C156 112 162 88 162 72 Z" fill="#EAA814"/>
+      <!-- Pear Highlight -->
+      <path d="M98 84 C94 98 92 112 84 126 C74 142 64 156 64 176" fill="none" stroke="#FFF2A6" stroke-width="12"/>
+      <circle cx="66" cy="194" r="5" fill="#FFF2A6"/>
+      <circle cx="96" cy="88" r="4" fill="#FFFDF9"/>
+      <!-- Pear Outline -->
+      <path d="M128 54 C156 54 170 76 174 106 C178 130 212 146 212 182 C212 216 178 232 128 232 C78 232 44 216 44 182 C44 146 78 130 82 106 C86 76 100 54 128 54 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <!-- Bottom dimple -->
+      <path d="M118 230 C124 224 132 224 138 230" fill="none" stroke="#3B2A22" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

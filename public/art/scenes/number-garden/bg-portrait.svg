@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Sky background -->
+  <rect width="800" height="1280" fill="#B8E6FF"/>
+
+  <!-- Soft warm sun glow in upper right -->
+  <circle cx="650" cy="150" r="76" fill="#FFF2A6"/>
+  <circle cx="650" cy="150" r="54" fill="#FFD166" stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Calm clouds in upper sky -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M110 210 C82 210 62 192 66 166 C70 142 94 130 118 136 C132 112 168 106 192 124 C214 114 244 126 250 150 C272 154 286 172 282 192 C278 206 262 210 242 210 Z" fill="#FFFDF9"/>
+    <path d="M78 198 C100 206 230 206 268 194 C264 206 252 210 242 210 L110 210 C92 210 82 205 78 198 Z" fill="#FFF6E8" stroke="none"/>
+    <path d="M110 210 C82 210 62 192 66 166 C70 142 94 130 118 136 C132 112 168 106 192 124 C214 114 244 126 250 150 C272 154 286 172 282 192 C278 206 262 210 242 210 Z" fill="none"/>
+
+    <path d="M430 310 C408 310 392 296 396 276 C400 258 420 248 440 254 C454 234 484 232 504 248 C526 244 548 258 548 280 C564 286 570 300 560 308 C552 310 540 310 528 310 Z" fill="#FFFDF9"/>
+    <path d="M408 300 C430 306 524 306 552 298 C548 307 538 310 528 310 L430 310 C418 310 412 306 408 300 Z" fill="#FFF6E8" stroke="none"/>
+    <path d="M430 310 C408 310 392 296 396 276 C400 258 420 248 440 254 C454 234 484 232 504 248 C526 244 548 258 548 280 C564 286 570 300 560 308 C552 310 540 310 528 310 Z" fill="none"/>
+  </g>
+
+  <!-- Distant rolling hills -->
+  <path d="M-20 500 C140 420 340 410 520 465 C640 430 740 435 820 475 L820 680 L-20 680 Z" fill="#8AE07E" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- Distant rounded tree and bushes -->
+  <g stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="118" y="388" width="24" height="68" rx="8" fill="#B87D56"/>
+    <path d="M78 402 C56 402 44 380 56 358 C50 332 74 310 102 316 C116 296 150 296 164 316 C190 312 210 334 202 360 C214 380 202 402 178 402 Z" fill="#57C457"/>
+    <path d="M70 352 C84 322 128 306 160 322 C128 318 94 332 76 360 Z" fill="#8AE07E" stroke="none"/>
+    <path d="M62 390 C98 400 164 400 196 386 C192 396 184 402 178 402 L78 402 C68 402 64 396 62 390 Z" fill="#3CA33C" stroke="none"/>
+    <path d="M78 402 C56 402 44 380 56 358 C50 332 74 310 102 316 C116 296 150 296 164 316 C190 312 210 334 202 360 C214 380 202 402 178 402 Z" fill="none"/>
+
+    <path d="M610 462 C588 462 576 442 588 424 C586 402 608 386 632 392 C648 374 682 376 696 396 C720 394 738 412 732 434 C740 450 728 462 708 462 Z" fill="#57C457"/>
+    <path d="M602 418 C618 394 664 384 690 398 C660 396 626 404 608 424 Z" fill="#8AE07E" stroke="none"/>
+    <path d="M610 462 C588 462 576 442 588 424 C586 402 608 386 632 392 C648 374 682 376 696 396 C720 394 738 412 732 434 C740 450 728 462 708 462 Z" fill="none"/>
+  </g>
+
+  <!-- Low distant wooden fence -->
+  <g fill="#F7DEC0" stroke="#7A5C48" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="210" y="446" width="380" height="14" rx="6" fill="#E5BE94"/>
+    <rect x="210" y="474" width="380" height="14" rx="6" fill="#E5BE94"/>
+    <rect x="230" y="424" width="22" height="82" rx="8"/>
+    <rect x="315" y="424" width="22" height="82" rx="8"/>
+    <rect x="400" y="424" width="22" height="82" rx="8"/>
+    <rect x="485" y="424" width="22" height="82" rx="8"/>
+    <rect x="555" y="424" width="22" height="82" rx="8"/>
+  </g>
+
+  <!-- Midground and lower-half green garden lawn -->
+  <path d="M-20 520 C190 475 430 480 620 510 C710 522 770 512 820 504 L820 1300 L-20 1300 Z" fill="#98D886" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M-20 532 C190 487 430 492 620 522 C710 534 770 524 820 516 L820 554 C760 562 700 570 610 556 C430 528 190 522 -20 566 Z" fill="#8AE07E"/>
+
+  <!-- Wide soft dirt path across the lower half where flower beds sit -->
+  <path d="M-20 650 C170 622 390 618 560 634 C690 646 760 638 820 630 L820 1210 C670 1226 480 1232 290 1220 C120 1210 20 1218 -20 1224 Z" fill="#F0DEC2" stroke="#7A5C48" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Path upper highlight rim -->
+  <path d="M-20 660 C170 632 390 628 560 644 C690 656 760 648 820 640 L820 672 C760 680 690 688 560 676 C390 660 170 664 -20 692 Z" fill="#FFF6E8"/>
+  <!-- Path lower subtle shadow rim -->
+  <path d="M-20 1188 C40 1180 130 1174 290 1184 C480 1196 670 1190 820 1174 L820 1207 C670 1223 480 1229 290 1217 C120 1207 20 1215 -20 1221 Z" fill="#E5BE94"/>
+
+  <!-- Calm pebble accents -->
+  <ellipse cx="140" cy="780" rx="28" ry="11" fill="#E5BE94"/>
+  <ellipse cx="640" cy="740" rx="32" ry="12" fill="#E5BE94"/>
+  <ellipse cx="220" cy="1080" rx="30" ry="11" fill="#E5BE94"/>
+  <ellipse cx="590" cy="1110" rx="28" ry="10" fill="#E5BE94"/>
+</svg>

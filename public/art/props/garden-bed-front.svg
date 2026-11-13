@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 260" width="520" height="260">
+  <!-- Front vertical wooden wall (matches garden-bed-back.svg) -->
+  <path d="M24 148 L24 184 C24 215 52 238 88 238 L432 238 C468 238 496 215 496 184 L496 148 C496 176 468 184 426 184 L94 184 C52 184 24 176 24 148 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M28 154 L28 176 C28 204 54 224 88 224 L432 224 C466 224 492 204 492 176 L492 154 Z" fill="#B87D56"/>
+
+  <!-- Near-side wooden top lip between soil bottom edge (y=184) and front outer rim (y=208) -->
+  <path d="M20 144 C20 179 49 208 84 208 L436 208 C471 208 500 179 500 144 L472 138 C472 163 451 184 426 184 L94 184 C69 184 48 163 48 138 Z" fill="#B87D56" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Highlight along the near-side wooden lip -->
+  <path d="M28 148 C28 178 54 202 88 202 L432 202 C466 202 492 178 492 148 L484 146 C480 174 458 194 428 194 L92 194 C62 194 40 174 36 146 Z" fill="#CC926B"/>
+
+  <!-- Front plank joint lines matching garden-bed-back.svg -->
+  <g stroke="#3B2A22" stroke-width="4" stroke-linecap="round">
+    <line x1="150" y1="184" x2="150" y2="236"/>
+    <line x1="370" y1="184" x2="370" y2="236"/>
+  </g>
+</svg>
