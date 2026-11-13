@@ -46,6 +46,9 @@ export interface RoundInfo {
   correctCount: number;
   characterState: string;
   ready: boolean;
+  /** Who's Hiding? speaker button centre, in game coordinates. */
+  replayCenter?: { x: number; y: number };
+  hinted?: boolean;
 }
 
 type Hooks = {
@@ -54,6 +57,8 @@ type Hooks = {
   getSpokenLines: (since?: number) => SpokenLine[];
   getRoundInfo: () => RoundInfo | null;
   getGameSize: () => { width: number; height: number };
+  /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
+  isListening: () => boolean;
 };
 
 type HookName = keyof Hooks;
@@ -87,6 +92,15 @@ export function getBuildingHit(page: Page, worldId: string): Promise<PageRect | 
 
 export function getSpokenLines(page: Page, since?: number): Promise<SpokenLine[]> {
   return callHook<SpokenLine[]>(page, 'getSpokenLines', [since]);
+}
+
+/** Current LearningSession listening flag. Read-only; only present under ?e2e=1. */
+export function isListening(page: Page): Promise<boolean> {
+  return callHook<boolean>(page, 'isListening');
+}
+
+export function getGameSize(page: Page): Promise<{ width: number; height: number }> {
+  return callHook<{ width: number; height: number }>(page, 'getGameSize');
 }
 
 /** Resolves with the first recorded spoken line matching the predicate (polling the speech log). */

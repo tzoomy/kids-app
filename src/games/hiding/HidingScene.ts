@@ -106,6 +106,7 @@ export class HidingScene extends Phaser.Scene {
   /** Plays once per visit, before the first request, the same pattern as the restaurant intro. */
   private introPending = true;
   private introPlaying = false;
+  private helpPlaying = false;
   private correctCount = 0;
   private lastBalanceSec = 0;
   private earnedPending = false;
@@ -136,6 +137,7 @@ export class HidingScene extends Phaser.Scene {
     this.helpOpen = false;
     this.introPending = true;
     this.introPlaying = false;
+    this.helpPlaying = false;
     this.correctCount = 0;
     this.earnedPending = false;
     this.speakSeq = 0;
@@ -234,22 +236,48 @@ export class HidingScene extends Phaser.Scene {
     transitionTo(this, 'MapScene', { style: 'iris' });
   }
 
+  private speakerAvoidRect(): { x: number; y: number; width: number; height: number } | undefined {
+    if (!this.layout) return undefined;
+    const { x, y, radius } = this.layout.replay;
+    const box = this.game.canvas.getBoundingClientRect();
+    const scale = Math.min(box.width / this.scale.width, box.height / this.scale.height);
+    const offsetX = (box.width - this.scale.width * scale) / 2;
+    const offsetY = (box.height - this.scale.height * scale) / 2;
+    return {
+      x: box.left + offsetX + (x - radius) * scale,
+      y: box.top + offsetY + (y - radius) * scale,
+      width: radius * 2 * scale,
+      height: radius * 2 * scale,
+    };
+  }
+
   private showHelp(): void {
     this.session.reportInteraction();
     this.helpOpen = true;
+    this.hintTimer?.remove();
     // The help line replaces whatever is playing (intro or request); older flows see the new seq and stop.
     const seq = ++this.speakSeq;
     this.introPlaying = false;
+    this.helpPlaying = true;
     this.session.reportListening(true);
     void this.context.audio.play(heLine('hiding.help')).finally(() => {
-      if (seq === this.speakSeq) this.session.reportListening(false);
+      if (seq !== this.speakSeq) return;
+      this.helpPlaying = false;
+      this.session.reportListening(false);
+      if (!this.helpOpen) this.scheduleIdleHint();
     });
-    this.context.shell.showHelp(this.context.content.hiding.helpTextHe, () => {
-      this.helpOpen = false;
-      this.session.reportInteraction();
-      // Closing the card cuts the help line and repeats the open request.
-      if (this.round && !this.round.done && this.ready) void this.speakPrompt();
-    });
+    this.context.shell.showHelp(
+      this.context.content.hiding.helpTextHe,
+      () => {
+        this.helpOpen = false;
+        this.helpPlaying = false;
+        this.session.reportInteraction();
+        this.scheduleIdleHint();
+        // Closing the card cuts the help line and repeats the open request.
+        if (this.round && !this.round.done && this.ready) void this.speakPrompt();
+      },
+      this.speakerAvoidRect(),
+    );
   }
 
   // ---------------------------------------------------------------- round
@@ -318,9 +346,8 @@ export class HidingScene extends Phaser.Scene {
       const intro = this.introPending ? heLine('hiding.intro') : undefined;
       this.introPending = false;
       void this.speakPrompt(undefined, intro);
-      if (this.ageConfig.hintMode === 'demonstrate') {
-        this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint());
-      }
+      // When an intro will play, the idle-hint clock starts when that line ends (AC-40).
+      if (!intro) this.scheduleIdleHint();
     });
   }
 
@@ -438,6 +465,7 @@ export class HidingScene extends Phaser.Scene {
           if (seq === this.speakSeq) this.session.reportListening(false);
           return;
         }
+        if (before.lineId === 'he.hiding.intro') this.scheduleIdleHint();
       }
       await this.context.audio.play({
         lineId: text?.lineId ?? this.round.lineId,
@@ -477,12 +505,20 @@ export class HidingScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- hints and taps
 
+  /** Start (or restart) the age-2 idle auto-hint clock from now. */
+  private scheduleIdleHint(): void {
+    if (this.ageConfig.hintMode !== 'demonstrate') return;
+    if (!this.round || this.round.done || !this.ready) return;
+    if (this.helpOpen || this.introPlaying || this.helpPlaying) return;
+    this.hintTimer?.remove();
+    this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint());
+  }
+
   private giveHint(before?: SpeechRequest): void {
     const round = this.round;
     if (!round || round.done) return;
-    if (this.helpOpen || this.introPlaying) {
-      this.hintTimer?.remove();
-      this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint(before));
+    if (this.helpOpen || this.introPlaying || this.helpPlaying) {
+      // The idle-hint clock is restarted when the blocking line ends or the help card closes.
       return;
     }
     // Only the idle auto-hint before the first tap counts (later ones follow a recorded miss,

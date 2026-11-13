@@ -36,6 +36,8 @@ declare global {
       /** Spoken lines requested so far, optionally only those with index >= sinceIndex. */
       getSpokenLines: (sinceIndex?: number) => SpokenLine[];
       getSpokenLineCount: () => number;
+      /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
+      isListening: () => boolean;
     };
   }
 }
@@ -175,6 +177,9 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     },
     getSpokenLineCount() {
       return speechRecorder.getCount();
+    },
+    isListening() {
+      return context.isListening();
     },
   };
 

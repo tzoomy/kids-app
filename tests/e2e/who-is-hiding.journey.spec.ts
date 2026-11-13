@@ -3,14 +3,128 @@ import {
   clickGame,
   enterWorldByTap,
   getBuildingHit,
+  getGameSize,
   getRoundInfo,
   getSpokenLines,
+  isListening,
   waitForRoundReady,
   waitForScene,
   waitForSpokenLine,
   type PageRect,
   type SpokenLine,
 } from './helpers/journey';
+
+/** Device-TTS mock duration (ms). Kept short enough to poll, long enough not to miss isListening. */
+const E2E_TTS_MS = 1000;
+/** Age-2 idle auto-hint delay from who-is-hiding.json. */
+const HINT_DELAY_MS = 6000;
+const SPEAKER_RADIUS_GAME = 44;
+const MIN_HIT_PX = 64;
+
+/** Install a SpeechSynthesis stand-in with he/en/fr voices and a fixed utterance length. */
+async function installE2eTts(page: Page): Promise<void> {
+  // Pure JS string: Playwright serializes addInitScript callbacks from the test source,
+  // so type annotations in a function body can break the mock in the browser.
+  await page.addInitScript(`(() => {
+    const durationMs = ${E2E_TTS_MS};
+    const voices = [
+      { name: 'E2E Hebrew', lang: 'he-IL', default: false, localService: true, voiceURI: 'e2e-he' },
+      { name: 'E2E English', lang: 'en-US', default: true, localService: true, voiceURI: 'e2e-en' },
+      { name: 'E2E French', lang: 'fr-FR', default: false, localService: true, voiceURI: 'e2e-fr' },
+    ];
+    let timer = 0;
+    const synth = {
+      pending: false,
+      speaking: false,
+      paused: false,
+      onvoiceschanged: null,
+      getVoices: () => voices,
+      cancel() {
+        if (timer) {
+          window.clearTimeout(timer);
+          timer = 0;
+        }
+        synth.speaking = false;
+      },
+      speak(utterance) {
+        synth.cancel();
+        synth.speaking = true;
+        timer = window.setTimeout(function () {
+          timer = 0;
+          synth.speaking = false;
+          if (typeof utterance.onend === 'function') {
+            utterance.onend(new Event('end'));
+          }
+        }, durationMs);
+      },
+      pause() {},
+      resume() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent() { return false; },
+    };
+    // Fake voice objects are enough for hasVoiceFor('he'), but assigning one to
+    // SpeechSynthesisUtterance.voice throws and rejects play(), hanging the intro.
+    var desc = Object.getOwnPropertyDescriptor(SpeechSynthesisUtterance.prototype, 'voice');
+    if (desc && desc.set) {
+      Object.defineProperty(SpeechSynthesisUtterance.prototype, 'voice', {
+        configurable: true,
+        get: function () { return desc.get.call(this); },
+        set: function (v) { try { desc.set.call(this, v); } catch (e) {} },
+      });
+    }
+    Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: synth });
+  })()`);
+}
+
+function rectsOverlap(a: PageRect, b: PageRect): boolean {
+  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+}
+
+async function speakerPageRect(page: Page): Promise<PageRect> {
+  const info = await getRoundInfo(page);
+  if (!info?.replayCenter) throw new Error('no replayCentre in getRoundInfo');
+  const size = await getGameSize(page);
+  const box = await page.locator('canvas').boundingBox();
+  if (!box) throw new Error('no canvas');
+  const r = SPEAKER_RADIUS_GAME;
+  const { x, y } = info.replayCenter;
+  return {
+    x: box.x + ((x - r) / size.width) * box.width,
+    y: box.y + ((y - r) / size.height) * box.height,
+    width: ((2 * r) / size.width) * box.width,
+    height: ((2 * r) / size.height) * box.height,
+  };
+}
+
+/** Tap the help overlay at a point that is not on the card or the speaker. */
+async function clickOverlayOutsideCard(page: Page): Promise<void> {
+  const cardBox = await page.locator('[data-testid="help-card"]').boundingBox();
+  const overlayBox = await page.locator('[data-testid="help-card-close"]').boundingBox();
+  if (!cardBox || !overlayBox) throw new Error('help card or overlay not visible');
+  let speaker: PageRect | null = null;
+  try {
+    speaker = await speakerPageRect(page);
+  } catch {
+    speaker = null;
+  }
+  const inRect = (pt: { x: number; y: number }, r: PageRect) =>
+    pt.x >= r.x && pt.x <= r.x + r.width && pt.y >= r.y && pt.y <= r.y + r.height;
+  const candidates = [
+    { x: overlayBox.x + 12, y: overlayBox.y + 12 },
+    { x: overlayBox.x + overlayBox.width - 12, y: overlayBox.y + 12 },
+    { x: overlayBox.x + 12, y: overlayBox.y + overlayBox.height - 12 },
+    { x: overlayBox.x + overlayBox.width / 2, y: overlayBox.y + 12 },
+  ];
+  const tap = candidates.find((pt) => !inRect(pt, cardBox) && (!speaker || !inRect(pt, speaker)));
+  if (!tap) throw new Error('no free overlay tap point outside the card and speaker');
+  await page.mouse.click(tap.x, tap.y);
+}
+
+async function hinted(page: Page): Promise<boolean> {
+  const info = await getRoundInfo(page);
+  return info?.hinted === true;
+}
 
 function isIntro(line: SpokenLine): boolean {
   return line.lineId === 'he.hiding.intro' && line.lang === 'he';
@@ -50,6 +164,10 @@ async function enterNatureLabFromMap(page: Page): Promise<void> {
 }
 
 test.describe("Who's Hiding? intro and help (Pass 1)", () => {
+  test.beforeEach(async ({ page }) => {
+    await installE2eTts(page);
+  });
+
   test('[AC-32] intro plays once per visit, before the first request, and again after leaving and re-entering', async ({ page }) => {
     test.setTimeout(60_000);
     await enterWorldByTap(page, 'profile-a', 'nature-lab');
@@ -106,9 +224,8 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     const help = await waitForSpokenLine(page, isHelp, 10_000);
     expect(help.index).toBeGreaterThan(firstRequest.index);
-    // The help overlay covers the canvas and the prompt bubble (tap anywhere closes the card),
-    // so a real pointer click cannot reach the speaker while help is open. The scene still
-    // guards replay() and postpones the idle hint while helpOpen. Closing repeats the request.
+    // The overlay is moved so it does not cover the speaker; a tap on the overlay
+    // outside the card still closes it (AC-39). Closing repeats the request.
     expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     const afterHelp = (await getSpokenLines(page)).at(-1)!.index;
     // No further request should start while the card stays open.
@@ -116,9 +233,109 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     const duringHelp = (await getSpokenLines(page)).filter((l) => l.index > afterHelp);
     expect(duringHelp.filter(isRequest)).toHaveLength(0);
 
-    await page.locator('[data-testid="help-card-close"]').click();
+    await clickOverlayOutsideCard(page);
     await expect(page.locator('[data-testid="help-card"]')).toHaveCount(0);
     const repeated = await waitForRequest(page, afterHelp + 1);
     expect(repeated.index).toBeGreaterThan(help.index);
+  });
+
+  test('[AC-38] @single-orientation isListening is true only while the help line plays, and false before and after it', async ({ page }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    test.setTimeout(60_000);
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    await waitForRequest(page);
+    // Wait until the first request has finished so listening is idle before help.
+    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+
+    await page.locator('[data-testid="hud-help"]').click();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    await waitForSpokenLine(page, isHelp, 10_000);
+    await expect.poll(async () => isListening(page), { timeout: 2000 }).toBe(true);
+
+    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    expect(await isListening(page)).toBe(false);
+  });
+
+  test('[AC-39] help card and speaker do not overlap in either orientation; hit targets are at least 64px; speaker stays tappable', async ({ page }) => {
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    await waitForSpokenLine(page, isIntro, 15_000);
+
+    await page.locator('[data-testid="hud-help"]').click();
+    const card = page.locator('[data-testid="help-card"]');
+    await expect(card).toBeVisible();
+    const cardBox = await card.boundingBox();
+    if (!cardBox) throw new Error('no help-card box');
+    const speaker = await speakerPageRect(page);
+    expect(speaker.width, 'speaker width').toBeGreaterThanOrEqual(MIN_HIT_PX);
+    expect(speaker.height, 'speaker height').toBeGreaterThanOrEqual(MIN_HIT_PX);
+    expect(Math.min(cardBox.width, cardBox.height), 'help-card hit').toBeGreaterThanOrEqual(MIN_HIT_PX);
+    expect(rectsOverlap(cardBox, speaker), `card ${JSON.stringify(cardBox)} overlaps speaker ${JSON.stringify(speaker)}`).toBe(false);
+
+    const info = await getRoundInfo(page);
+    if (!info?.replayCenter) throw new Error('no replayCenter');
+    await clickGame(page, info.replayCenter.x, info.replayCenter.y);
+    await page.waitForTimeout(200);
+    await expect(card).toBeVisible();
+
+    await clickOverlayOutsideCard(page);
+    await expect(card).toHaveCount(0);
+  });
+
+  test('[AC-40] @single-orientation idle hint does not fire during intro or help, only after the full delay from when they end', async ({ page }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    test.setTimeout(90_000);
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    await waitForSpokenLine(page, isIntro, 15_000);
+
+    // During the intro the idle hint must stay off.
+    const introDeadline = Date.now() + E2E_TTS_MS + 500;
+    while (Date.now() < introDeadline && !(await getSpokenLines(page)).some(isRequest)) {
+      expect(await hinted(page)).toBe(false);
+      await page.waitForTimeout(100);
+    }
+    const afterIntro = await waitForRequest(page);
+    expect(await hinted(page)).toBe(false);
+
+    // Wait until just before the full delay measured from when the intro actually ended
+    // (the request line's `at`), not from when the test noticed it — under load the
+    // poll can lag and a fixed 5600 ms wait would overshoot.
+    const hintDueAt = afterIntro.at + HINT_DELAY_MS - 400;
+    const introRemain = hintDueAt - Date.now();
+    if (introRemain > 0) await page.waitForTimeout(introRemain);
+    expect(await hinted(page)).toBe(false);
+    await expect.poll(async () => hinted(page), { timeout: 2000 }).toBe(true);
+
+    // Fresh visit for the help-line delay (the idle hint runs only once per request).
+    await page.locator('[data-testid="hud-back"]').click();
+    await enterNatureLabFromMap(page);
+    await waitForRoundReady(page);
+    await waitForRequest(page);
+    await expect.poll(async () => isListening(page), { timeout: E2E_TTS_MS + 2000 }).toBe(false);
+    expect(await hinted(page)).toBe(false);
+
+    await page.locator('[data-testid="hud-help"]').click();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    await waitForSpokenLine(page, isHelp, 10_000);
+    const helpWatchUntil = Date.now() + E2E_TTS_MS + 500;
+    while (Date.now() < helpWatchUntil) {
+      expect(await hinted(page)).toBe(false);
+      if (!(await isListening(page))) break;
+      await page.waitForTimeout(80);
+    }
+    await expect.poll(async () => isListening(page), { timeout: 2000 }).toBe(false);
+    expect(await hinted(page)).toBe(false);
+
+    await clickOverlayOutsideCard(page);
+    await expect(page.locator('[data-testid="help-card"]')).toHaveCount(0);
+    const closedAt = Date.now();
+    // Closing repeats the request; the full delay still starts from close / line end, not from ready.
+    const closeRemain = closedAt + HINT_DELAY_MS - 400 - Date.now();
+    if (closeRemain > 0) await page.waitForTimeout(closeRemain);
+    expect(await hinted(page)).toBe(false);
+    await expect.poll(async () => hinted(page), { timeout: 2000 }).toBe(true);
   });
 });

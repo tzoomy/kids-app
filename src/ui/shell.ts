@@ -8,6 +8,7 @@ import {
   renderPromptBubble,
   clearPromptBubble,
   showHelpOverlay,
+  type HelpOverlayAvoid,
   renderBubblesEndScreen,
   showToast,
   type MapChromeOptions,
@@ -99,8 +100,8 @@ export class AppShell {
     clearPromptBubble(this.chromeRoot);
   }
 
-  showHelp(text: string, onClose: () => void): void {
-    showHelpOverlay(this.chromeRoot, text, onClose);
+  showHelp(text: string, onClose: () => void, avoid?: HelpOverlayAvoid): void {
+    showHelpOverlay(this.chromeRoot, text, onClose, avoid);
   }
 
   setBubblesChrome(opts: BubblesChromeOptions): void {

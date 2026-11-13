@@ -68,9 +68,18 @@ export class AppContext {
     return this.currentProfileId;
   }
 
+  private activeLearningSession: LearningSession | null = null;
+
   createLearningSession(): LearningSession {
     const state = this.store.getProfileState(this.requireProfileId(), new Date(this.nowMs()));
-    return new LearningSession(state, this.store.getState().settings, this.nowMs);
+    const session = new LearningSession(state, this.store.getState().settings, this.nowMs);
+    this.activeLearningSession = session;
+    return session;
+  }
+
+  /** Read-only listening flag of the current learning session, if any. */
+  isListening(): boolean {
+    return this.activeLearningSession?.isListening() ?? false;
   }
 
   createLeisureSession(): LeisureSession {
