@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 import { clickGame, enterWorldByTap, getActiveScenes, waitForRoundReady, waitForScene, waitForSpokenLine } from './helpers/journey';
 
 test.describe('animal restaurant: map journey', () => {
-  test('[AC-01] real-tap journey: profile -> Language House building -> restaurant -> one correct trial -> back to the map', async ({ page }) => {
+  test('[AC-01] real-tap journey: profile -> Language House building -> picker -> restaurant -> one correct trial -> back to the map', async ({ page }) => {
     test.setTimeout(60_000); // the Hebrew intro clip plays before the food request
-    await enterWorldByTap(page, 'profile-a', 'language-house');
+    await enterWorldByTap(page, 'profile-a', 'language-house', 'animal-restaurant'); // building -> picker -> game-picker-animal-restaurant
 
     expect(await getActiveScenes(page)).toContain('RestaurantScene');
     expect(await getActiveScenes(page)).not.toContain('MapScene');
