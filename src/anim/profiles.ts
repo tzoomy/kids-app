@@ -59,6 +59,11 @@ export const ANIM_PROFILE = {
     glow: { duration: 320, alpha: 1, ease: 'Sine.easeInOut' },
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
+
+  /** Colouring Time fill flash. Clipped to the region; never scale (AC-24). */
+  colouring: {
+    fill: { durationMs: 280, flashFrom: 0.7 },
+  },
 } as const;
 
 export type AnimProfile = typeof ANIM_PROFILE;

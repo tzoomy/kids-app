@@ -2,6 +2,7 @@ import worldsJson from './worlds.json';
 import animalRestaurantJson from './games/animal-restaurant.json';
 import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import whosHidingJson from './games/who-is-hiding.json';
+import leisureColouringJson from './games/leisure-colouring.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -9,10 +10,12 @@ import {
   AnimalRestaurantContentSchema,
   KitchenOrchestraContentSchema,
   WhosHidingContentSchema,
+  LeisureColouringContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type WhosHidingContent,
+  type LeisureColouringContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -35,6 +38,10 @@ export function loadHeStrings(): typeof heJson {
 
 export function loadKitchenOrchestra(): KitchenOrchestraContent {
   return KitchenOrchestraContentSchema.parse(kitchenOrchestraJson);
+}
+
+export function loadLeisureColouring(): LeisureColouringContent {
+  return LeisureColouringContentSchema.parse(leisureColouringJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

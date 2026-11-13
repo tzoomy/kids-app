@@ -12,6 +12,7 @@ export const GAME_SCENE: Record<string, string> = {
   bubbles: 'BubblesScene',
   // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'who-is-hiding': 'HidingScene',
+  'leisure-colouring': 'ColouringScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -23,6 +24,13 @@ export const WORLD_ENTRY_GAME: Record<string, string> = {
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+};
+
+/** Extra picker-card games on a world that still defaults to a direct entry game.
+ * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
+ * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
+export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
+  'leisure-corner': ['leisure-colouring'],
 };
 
 export interface PageRect {
@@ -79,16 +87,40 @@ export interface OrchestraInfo {
   phase: 'listen' | 'echo' | 'celebrate';
 }
 
+export interface ColouringSeed {
+  pageId: string;
+  fills?: Record<string, string>;
+}
+
+export interface ColouringInfo {
+  pageId: string;
+  pageIndex: number;
+  selectedColor: string;
+  fills: Record<string, string>;
+  undoCount: number;
+  ageTrack: 'age2' | 'age5';
+  balanceSec: number;
+  inGrace: boolean;
+  ended: boolean;
+  pageRect: PageRect;
+  pageSide: number;
+  regions: Array<{ id: string; hit: PageRect; tapPoint: { x: number; y: number } }>;
+}
+
 type Hooks = {
   getOrchestraInfo: () => OrchestraInfo | null;
   getActiveScenes: () => string[];
   getBuildingHit: (worldId: string) => PageRect | null;
   getSpokenLines: (since?: number) => SpokenLine[];
+  getSpokenLineCount: () => number;
   getRoundInfo: () => RoundInfo | null;
   getGameSize: () => { width: number; height: number };
   /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
   isListening: () => boolean;
   seedHidingLevel: (level: number) => void;
+  seedBalanceSec: (sec: number) => void;
+  seedColouringState: (seed: ColouringSeed) => void;
+  getColouringInfo: () => ColouringInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -243,13 +275,14 @@ export async function enterWorldByTap(
   const pickerDefault = PICKER_WORLD_DEFAULT_GAME[worldId];
   const game = gameId ?? pickerDefault ?? WORLD_ENTRY_GAME[worldId];
   const targetScene = game ? GAME_SCENE[game] : undefined;
+  const extraPicker = Boolean(gameId && PICKER_WORLD_EXTRA_GAMES[worldId]?.includes(gameId));
   if (!game || !targetScene) throw new Error(`enterWorldByTap: no game scene known for world "${worldId}"`);
-  if (!pickerDefault && WORLD_ENTRY_GAME[worldId] !== game) {
+  if (!pickerDefault && WORLD_ENTRY_GAME[worldId] !== game && !extraPicker) {
     throw new Error(`enterWorldByTap: world "${worldId}" has no game "${game}"`);
   }
 
   await tapWorldBuilding(page, profile, worldId, opts);
-  if (pickerDefault) await tapTestId(page, `game-picker-${game}`);
+  if (pickerDefault || extraPicker) await tapTestId(page, `game-picker-${game}`);
   await waitForScene(page, targetScene);
 }
 
@@ -308,3 +341,39 @@ export async function waitForOrchestraEcho(page: Page): Promise<OrchestraInfo> {
   if (!info) throw new Error('no active orchestra trial');
   return info;
 }
+
+export function getSpokenLineCount(page: Page): Promise<number> {
+  return callHook<number>(page, 'getSpokenLineCount');
+}
+
+export async function seedBalanceSec(page: Page, sec: number): Promise<void> {
+  await callHook<void>(page, 'seedBalanceSec', [sec]);
+}
+
+export async function seedColouringState(page: Page, seed: ColouringSeed): Promise<void> {
+  await callHook<void>(page, 'seedColouringState', [seed]);
+}
+
+export function getColouringInfo(page: Page): Promise<ColouringInfo | null> {
+  return callHook<ColouringInfo | null>(page, 'getColouringInfo');
+}
+
+/** Waits until ColouringScene is active and getColouringInfo() is non-null. */
+export async function waitForColouringReady(page: Page, timeout = 15_000): Promise<ColouringInfo> {
+  await page.waitForFunction(() => {
+    const hooks = (window as unknown as { __testHooks__?: Hooks }).__testHooks__;
+    return hooks?.getColouringInfo() !== null && hooks?.getColouringInfo() !== undefined;
+  }, undefined, { timeout });
+  const info = await getColouringInfo(page);
+  if (!info) throw new Error('ColouringScene is active but getColouringInfo() is null');
+  return info;
+}
+
+/** Real click at a region's tapPoint (page CSS px). */
+export async function tapColouringRegion(page: Page, regionId: string): Promise<void> {
+  const info = await getColouringInfo(page);
+  const region = info?.regions.find((r) => r.id === regionId);
+  if (!region) throw new Error(`no hit-testable region "${regionId}" (info ${info ? 'present' : 'null'})`);
+  await page.mouse.click(region.tapPoint.x, region.tapPoint.y);
+}
+

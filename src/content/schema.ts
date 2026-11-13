@@ -350,3 +350,51 @@ export const WhosHidingContentSchema = z
 
 export type HidingAnimal = z.infer<typeof HidingAnimalSchema>;
 export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;
+
+
+/** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
+export const ColouringRegionSchema = z.object({
+  id: z.string().min(1),
+  age2: z.boolean(),
+  parent: z.string().min(1).optional(),
+});
+
+export const ColouringPageSchema = z.object({
+  id: z.string().min(1),
+  regions: z.array(ColouringRegionSchema).min(1),
+});
+
+export const ColouringPaletteColorSchema = z.object({
+  id: z.string().min(1),
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  age2: z.boolean(),
+  age5: z.boolean(),
+});
+
+export const LeisureColouringContentSchema = z
+  .object({
+    id: z.literal('leisure-colouring'),
+    world: z.literal('leisure-corner'),
+    earnsLeisure: z.literal(false),
+    defaultColor: z.literal('red'),
+    pages: z.array(ColouringPageSchema).length(8),
+    palette: z.array(ColouringPaletteColorSchema).min(8),
+  })
+  .superRefine((value, ctx) => {
+    if (value.palette.some((c) => 'adaptive' in (c as object))) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'palette entries must not include adaptive fields' });
+    }
+    const age2 = value.palette.filter((c) => c.age2);
+    const age5 = value.palette.filter((c) => c.age5);
+    if (age2.length !== 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-2 palette must have exactly 8 colours' });
+    }
+    if (age5.length !== 16) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-5 palette must have exactly 16 colours' });
+    }
+  });
+
+export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
+export type ColouringPage = z.infer<typeof ColouringPageSchema>;
+export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
+export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;

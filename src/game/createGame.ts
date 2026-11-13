@@ -4,6 +4,9 @@ import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantS
 import { HidingScene, type HidingRoundInfo } from '../games/hiding/HidingScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
+import { ColouringScene } from '../games/colouring/ColouringScene';
+import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
+import { writeColouringSeed } from '../core/colouring/seed';
 import type { AppContext } from './appContext';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
@@ -27,6 +30,10 @@ declare global {
       seedOrchestraLevel: (level: number) => void;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
+      /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
+      seedColouringState: (seed: ColouringSeed) => void;
+      /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
+      getColouringInfo: () => ColouringInfo | null;
       /** Names of the currently active scenes. */
       getActiveScenes: () => string[];
       /** Game canvas size in game coordinates. */
@@ -76,6 +83,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('HidingScene', HidingScene, false);
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
+  game.scene.add('ColouringScene', ColouringScene, false);
 
   game.registry.set('appContext', context);
 
@@ -93,6 +101,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('HidingScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('ColouringScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -144,6 +153,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedColouringState(seed) {
+      writeColouringSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getColouringInfo() {
+      const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
+      return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;
