@@ -4,9 +4,18 @@ import path from 'node:path';
 
 // Shared by vite.config.ts and vitest.config.ts so the build-time constants stay in sync.
 
-function readVersion(): string {
-  const pkgPath = path.resolve(__dirname, '..', 'package.json');
-  return (JSON.parse(readFileSync(pkgPath, 'utf8')) as { version: string }).version;
+const FALLBACK_VERSION = '0.0.0';
+
+// Never throws: a missing/unreadable/invalid package.json or a bad `version` yields '0.0.0'
+// so the Vite/Vitest config load cannot break.
+export function readVersion(pkgPath: string = path.resolve(__dirname, '..', 'package.json')): string {
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    const version = (parsed as { version?: unknown } | null)?.version;
+    return typeof version === 'string' && version.length > 0 ? version : FALLBACK_VERSION;
+  } catch {
+    return FALLBACK_VERSION;
+  }
 }
 
 function readGitSha(): string {

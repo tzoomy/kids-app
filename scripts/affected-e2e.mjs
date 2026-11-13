@@ -251,12 +251,16 @@ function readStdin() {
   }
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const opts = { base: null, head: 'HEAD', files: null, githubOutput: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--base') opts.base = argv[++i];
-    else if (a === '--head') opts.head = argv[++i];
+    if (a === '--base') {
+      const next = argv[i + 1];
+      // A bare `--base` (last flag, or followed by another flag) is an empty base, not stdin.
+      if (next !== undefined && !String(next).startsWith('--')) opts.base = argv[++i];
+      else opts.base = '';
+    } else if (a === '--head') opts.head = argv[++i];
     else if (a === '--github-output') opts.githubOutput = true;
     else if (a === '--files') {
       opts.files = [];

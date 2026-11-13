@@ -16,3 +16,9 @@ export declare function selectAffectedE2eOrSmokeOnDiffFailure(opts: {
   existingSpecs?: string[];
 }): { changed: string[]; specs: string[]; warning: string | null };
 export declare function selectAffectedE2e(changedFiles: string[], existingSpecs?: string[]): string[];
+export declare function parseArgs(argv: string[]): {
+  base: string | null;
+  head: string;
+  files: string[] | null;
+  githubOutput: boolean;
+};
