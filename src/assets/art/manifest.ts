@@ -125,4 +125,16 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'fx-instrument-glow', url: 'art/fx/instrument-glow.svg', width: 256, height: 256 },
   { key: 'kitchen-bg-landscape', url: 'art/scenes/kitchen/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'kitchen-bg-portrait', url: 'art/scenes/kitchen/bg-portrait.svg', width: 800, height: 1280 },
+
+  // Colouring Time (Leisure Corner) — 800x800 tap-to-fill pages and calm desk backgrounds
+  { key: 'colouring-page-cat', url: 'art/colouring/pages/cat.svg', width: 800, height: 800 },
+  { key: 'colouring-page-dog', url: 'art/colouring/pages/dog.svg', width: 800, height: 800 },
+  { key: 'colouring-page-rabbit', url: 'art/colouring/pages/rabbit.svg', width: 800, height: 800 },
+  { key: 'colouring-page-bear', url: 'art/colouring/pages/bear.svg', width: 800, height: 800 },
+  { key: 'colouring-page-panda', url: 'art/colouring/pages/panda.svg', width: 800, height: 800 },
+  { key: 'colouring-page-lion', url: 'art/colouring/pages/lion.svg', width: 800, height: 800 },
+  { key: 'colouring-page-butterfly', url: 'art/colouring/pages/butterfly.svg', width: 800, height: 800 },
+  { key: 'colouring-page-chef', url: 'art/colouring/pages/chef.svg', width: 800, height: 800 },
+  { key: 'leisure-colouring-bg-landscape', url: 'art/scenes/leisure-colouring/bg-landscape.svg', width: 1280, height: 800 },
+  { key: 'leisure-colouring-bg-portrait', url: 'art/scenes/leisure-colouring/bg-portrait.svg', width: 800, height: 1280 },
 ];
