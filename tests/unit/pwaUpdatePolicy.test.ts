@@ -43,6 +43,7 @@ describe('isSafeToApplyUpdate', () => {
     ['restaurant', false],
     ['bubbles', false],
     ['orchestra', false],
+    ['hiding', false],
     ['parent', false],
     ['loading', false],
   ];
@@ -62,6 +63,7 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'restaurant' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'bubbles' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'orchestra' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'hiding' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');
   });
@@ -69,6 +71,7 @@ describe('decidePwaUpdate', () => {
   it('skips when no update is waiting', () => {
     expect(decidePwaUpdate({ ...base, updateAvailable: false, screen: 'profile' })).toBe('skip');
     expect(decidePwaUpdate({ ...base, updateAvailable: false, screen: 'restaurant' })).toBe('skip');
+    expect(decidePwaUpdate({ ...base, updateAvailable: false, screen: 'hiding' })).toBe('skip');
   });
 
   it('skips during the post-reload startup guard so the first launch does not loop', () => {

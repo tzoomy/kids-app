@@ -11,8 +11,20 @@ import { setAppScreen } from '../pwa';
 let mapGuidancePlayed = false;
 
 export class MapScene extends Phaser.Scene {
+  /** Building objects by world id (read-only access for the e2e hit-rectangle hook). */
+  private readonly buildings = new Map<string, Phaser.GameObjects.Container>();
+
   constructor() {
     super('MapScene');
+  }
+
+  /** Current tap rectangle of a world's building in game coordinates (follows the idle float), or null. */
+  getBuildingRect(worldId: string): { x: number; y: number; width: number; height: number } | null {
+    const b = this.buildings.get(worldId);
+    if (!b || !b.scene) return null;
+    const width = b.width * Math.abs(b.scaleX);
+    const height = b.height * Math.abs(b.scaleY);
+    return { x: b.x - width / 2, y: b.y - height / 2, width, height };
   }
 
   create(): void {
@@ -31,6 +43,7 @@ export class MapScene extends Phaser.Scene {
     const startX = cx - ((cols - 1) * spacingX) / 2;
     const startY = cy - ((rows - 1) * spacingY) / 2 + (portrait ? this.scale.height * 0.04 : 0);
 
+    this.buildings.clear();
     const pins: MapPin[] = [];
     // Set once the child has tapped anything, so the "where to go" line never talks over a tap.
     let touched = false;
@@ -43,6 +56,7 @@ export class MapScene extends Phaser.Scene {
       const locked = world.status === 'locked';
       const building = drawWorldBuilding(this, world.id, locked, 180);
       building.setPosition(x, y);
+      this.buildings.set(world.id, building);
       building.setAlpha(locked ? 0.72 : 1);
 
       // Staggered pop-in, then a gentle idle float.
@@ -70,8 +84,25 @@ export class MapScene extends Phaser.Scene {
           }
           return;
         }
+        if (world.id === 'language-house') {
+          // Language House hosts two games: the child picks one (or closes the picker and stays on the map).
+          context.shell.showGamePicker({
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          return;
+        }
         if (world.entryGameId === 'animal-restaurant') {
           transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
+        } else if (world.entryGameId === 'who-is-hiding') {
+          transitionTo(this, 'HidingScene', { style: 'iris', originX: x, originY: y });
         }
         if (world.entryGameId === 'kitchen-orchestra') {
           transitionTo(this, 'OrchestraScene', { style: 'iris', originX: x, originY: y });
@@ -125,7 +156,10 @@ export class MapScene extends Phaser.Scene {
         void context.audio.play(heLine('map.choose'));
       });
     }
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => context.audio.stopAll());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      context.audio.stopAll();
+      context.shell.hideGamePicker();
+    });
 
     window.__GAME_READY__ = true;
   }

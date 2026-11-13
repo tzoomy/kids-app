@@ -13,6 +13,10 @@ Two labels mark something Maor has not approved; use only these in new and edite
 
 Older direction documents (`docs/ARCHITECTURE.md`, `docs/WORLDS.md`) still say **proposal — pending owner approval**; treat that like an open decision. Do not treat any of these as approved.
 
+One label marks an item Maor has resolved:
+
+- `**Decided by the owner (YYYY-MM-DD):**` on a single resolved item. When Maor decides an open item, change `**Open decision for the owner:**` in place to this label with the decision date, keep the item's text (reworded only to state the decision), and add a line under the spec's `## Changelog`.
+
 ## 1. Team, roles, and branches
 
 Approved by Maor on 2026-11-11.
@@ -51,8 +55,15 @@ Every new game or feature starts with `docs/specs/<game-id>.md` (copied from the
 
 Each spec is split into:
 
-- **Pass 1 — working game:** the mechanic, adaptive difficulty, leisure, clean SVGs, basic animation, and device TTS.
-- **Pass 2 — polish:** richer art and animation and recorded Gemini TTS voice (Leda, device TTS stays the fallback).
+- **Pass 1 — working game:** the mechanic, adaptive difficulty, leisure, clean SVGs, **basic** animation (existing motion helpers and simple tweens), and **basic** voice: device TTS, or recorded clips that already exist. No new recordings and no polish.
+- **Pass 2 — polish:** polished art and animation, and new recorded Gemini TTS clips (Leda; device TTS stays the fallback). Pass 2 starts only after Maor has approved the finished Pass 1.
+
+**Decided by the owner (2026-11-13):** by default, a new game or a big change is built first with basic animation and basic voice (device TTS or existing recorded clips only). Polished animation and new recorded clips come only after the change is done and Maor approves it. This saves time and tokens. An explicit owner decision in a spec can override the default for a specific item. For example, Maor put the Animal Restaurant `attr.*`/`not.*` clips (#32 AC-41) and the Who's Hiding intro and help clips (#33 AC-34) in Pass 1 on 2026-11-13. Record such an override as a `**Decided by the owner (YYYY-MM-DD):**` item in the spec. In practice:
+
+- **Spec approval (§2):** unless Maor has explicitly decided otherwise for an item, the approved spec lists polished animation and new clips under Pass 2 (or Out of scope), not under Pass 1, and a Pass-1 acceptance criterion does not require polished animation or a new recording.
+- **Tests first and `Pass in progress` (§4):** `Pass in progress: 1` gates only the basic Pass-1 criteria. Pass-2 criteria (for example, "recorded clips exist for every line") get tests, and `Pass in progress` moves to `2`, only after Maor approves Pass 1 and the Pass-2 work starts.
+- **Asset requests to the art and audio agent (Gemini):** in Pass 1, request new art or audio only when it is strictly needed for the game to function (for example, a prop the child must tap, or a background so the scene reads). Otherwise use placeholders: existing art, simple shapes, procedural fallbacks, or device TTS. Polished art, rig animation, and new Leda clips are requested only for Pass 2.
+- **Big changes to an existing game** follow the same two steps: a basic working version first, polish after approval.
 
 Each acceptance criterion names its pass. Each pass is gated only against its own criteria. The spec's `Pass in progress` line (`none`, `1`, or `2`) tells the AC coverage check which criteria must already have tests.
 

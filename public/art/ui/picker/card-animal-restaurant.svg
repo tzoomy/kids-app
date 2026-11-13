@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" width="640" height="800">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Card Base Fill -->
+    <rect x="8" y="8" width="624" height="784" rx="36" fill="#FFF3E0"/>
+
+    <!-- Cafe Wallpaper Stripes -->
+    <path d="M44 12h32v508H44zM116 12h32v508h-32zM188 12h32v508h-32zM260 12h32v508h-32zM332 12h32v508h-32zM404 12h32v508h-32zM476 12h32v508h-32zM548 12h32v508h-32z" fill="#F7DEC0" fill-opacity="0.45"/>
+
+    <!-- Lower Wainscot Band Behind Counter -->
+    <rect x="12" y="428" width="616" height="96" fill="#F7DEC0"/>
+    <line x1="12" y1="428" x2="628" y2="428" stroke="#E5BE94" stroke-width="8"/>
+    <line x1="12" y1="424" x2="628" y2="424" stroke="#7A5C48" stroke-width="4"/>
+
+    <!-- Arched Cafe Window (Left) -->
+    <g>
+      <path d="M 48 214 A 72 68 0 0 1 192 214 L 192 356 L 48 356 Z" fill="#B8E6FF" stroke="#7A5C48" stroke-width="5"/>
+      <circle cx="88" cy="196" r="16" fill="#FFF3B0"/>
+      <path d="M 50 302 Q 112 272 190 304 L 190 354 L 50 354 Z" fill="#98D886"/>
+      <line x1="120" y1="148" x2="120" y2="354" stroke="#FFF8EE" stroke-width="6"/>
+      <line x1="50" y1="262" x2="190" y2="262" stroke="#FFF8EE" stroke-width="6"/>
+      <path d="M 48 214 A 72 68 0 0 1 192 214 L 192 356 L 48 356 Z" fill="none" stroke="#7A5C48" stroke-width="5"/>
+      <!-- Cafe Awning Stripes -->
+      <path d="M 42 154 L 92 154 L 88 188 C 88 198, 42 198, 42 188 Z" fill="#EE6C62" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 92 154 L 148 154 L 148 188 C 148 198, 88 198, 88 188 Z" fill="#FFF8EE" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 148 154 L 198 154 L 198 188 C 198 198, 148 198, 148 188 Z" fill="#EE6C62" stroke="#7A5C48" stroke-width="4"/>
+      <rect x="38" y="352" width="164" height="16" rx="6" fill="#E5BE94" stroke="#7A5C48" stroke-width="4"/>
+    </g>
+
+    <!-- Warm Cafe Pendant Lamp (Right) -->
+    <g>
+      <circle cx="516" cy="152" r="52" fill="#FFF3B0" fill-opacity="0.5"/>
+      <line x1="516" y1="12" x2="516" y2="112" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 496 150 A 20 16 0 0 0 536 150 Z" fill="#FFFDF9" stroke="#7A5C48" stroke-width="4"/>
+      <path d="M 472 150 C 472 120, 492 108, 516 108 C 540 108, 560 120, 560 150 Z" fill="#FFD166" stroke="#7A5C48" stroke-width="4.5"/>
+      <path d="M 488 134 C 496 122, 506 118, 520 118" fill="none" stroke="#FFF3B0" stroke-width="5"/>
+    </g>
+
+    <!-- Festive Bunting Garland -->
+    <g stroke="#7A5C48" stroke-width="4">
+      <path d="M 24 36 Q 320 98 616 36" fill="none"/>
+      <path d="M 96 48 L 118 88 L 142 54 Z" fill="#EE6C62"/>
+      <path d="M 186 60 L 208 100 L 232 64 Z" fill="#FFD166"/>
+      <path d="M 284 66 L 306 106 L 330 66 Z" fill="#98D886"/>
+      <path d="M 382 64 L 404 100 L 428 60 Z" fill="#B8E6FF"/>
+      <path d="M 474 54 L 496 88 L 520 48 Z" fill="#EE6C62"/>
+    </g>
+
+    <!-- House-Style Friendly Panda Behind the Counter -->
+    <g>
+      <!-- Panda Ears -->
+      <g>
+        <path d="M 232 238 C 204 220, 194 186, 212 162 C 230 140, 266 146, 282 168 C 294 186, 288 216, 272 240 Z" fill="#3D3532"/>
+        <path d="M 232 238 C 210 222, 202 196, 206 176 C 208 198, 224 220, 250 232 Z" fill="#282220"/>
+        <path d="M 220 166 C 236 152, 258 154, 270 168 C 256 158, 236 158, 220 166 Z" fill="#594E4A"/>
+        <ellipse cx="246" cy="192" rx="22" ry="22" fill="#FF9EBB"/>
+        <path d="M 232 238 C 204 220, 194 186, 212 162 C 230 140, 266 146, 282 168 C 294 186, 288 216, 272 240 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+        <path d="M 408 238 C 436 220, 446 186, 428 162 C 410 140, 374 146, 358 168 C 346 186, 352 216, 368 240 Z" fill="#3D3532"/>
+        <path d="M 408 238 C 430 222, 438 196, 434 176 C 432 198, 416 220, 390 232 Z" fill="#282220"/>
+        <path d="M 420 166 C 404 152, 382 154, 370 168 C 384 158, 404 158, 420 166 Z" fill="#594E4A"/>
+        <ellipse cx="394" cy="192" rx="22" ry="22" fill="#FF9EBB"/>
+        <path d="M 408 238 C 436 220, 446 186, 428 162 C 410 140, 374 146, 358 168 C 346 186, 352 216, 368 240 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      </g>
+
+      <!-- Panda Torso & Dark Shoulder Saddle -->
+      <path d="M 258 372 C 230 404, 218 466, 224 520 L 416 520 C 422 466, 410 404, 382 372 C 362 354, 278 354, 258 372 Z" fill="#FFFBF5"/>
+      <path d="M 258 372 C 238 394, 226 426, 222 454 C 258 442, 288 436, 320 436 C 352 436, 382 442, 418 454 C 414 426, 402 394, 382 372 C 362 354, 278 354, 258 372 Z" fill="#3D3532"/>
+      <path d="M 258 372 C 278 354, 362 354, 382 372 C 368 394, 272 394, 258 372 Z" fill="#282220"/>
+      <ellipse cx="320" cy="488" rx="56" ry="38" fill="#FFFFFF"/>
+      <path d="M 258 372 C 230 404, 218 466, 224 520 L 416 520 C 422 466, 410 404, 382 372 C 362 354, 278 354, 258 372 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Panda Arms -->
+      <path d="M 244 402 C 206 412, 180 450, 188 486 C 196 510, 226 510, 240 486 C 250 468, 252 442, 248 418 Z" fill="#3D3532"/>
+      <path d="M 188 474 C 190 502, 220 510, 240 486 C 224 496, 200 492, 188 474 Z" fill="#282220"/>
+      <ellipse cx="212" cy="476" rx="11" ry="13" transform="rotate(-20 212 476)" fill="#FF9EBB"/>
+      <path d="M 244 402 C 206 412, 180 450, 188 486 C 196 510, 226 510, 240 486" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <path d="M 396 402 C 434 412, 460 450, 452 486 C 444 510, 414 510, 400 486 C 390 468, 388 442, 392 418 Z" fill="#3D3532"/>
+      <path d="M 452 474 C 450 502, 420 510, 400 486 C 416 496, 440 492, 452 474 Z" fill="#282220"/>
+      <ellipse cx="428" cy="476" rx="11" ry="13" transform="rotate(20 428 476)" fill="#FF9EBB"/>
+      <path d="M 396 402 C 434 412, 460 450, 452 486 C 444 510, 414 510, 400 486" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Panda Plump Head -->
+      <path d="M 320 176 C 250 176, 206 212, 196 274 C 186 336, 218 388, 320 388 C 422 388, 454 336, 444 274 C 434 212, 390 176, 320 176 Z" fill="#FFFBF5"/>
+      <path d="M 196 298 C 196 352, 234 388, 320 388 C 406 388, 444 352, 444 298 C 430 346, 390 370, 320 370 C 250 370, 210 346, 196 298 Z" fill="#E5DDD0"/>
+      <path d="M 240 214 C 264 188, 332 184, 378 196 C 332 190, 270 198, 240 214 Z" fill="#FFFFFF"/>
+
+      <!-- Charcoal Eye Patches -->
+      <ellipse cx="256" cy="278" rx="38" ry="44" transform="rotate(18 256 278)" fill="#3D3532"/>
+      <path d="M 234 244 C 246 234, 266 234, 278 244 C 264 240, 246 240, 234 244 Z" fill="#594E4A"/>
+      <ellipse cx="384" cy="278" rx="38" ry="44" transform="rotate(-18 384 278)" fill="#3D3532"/>
+      <path d="M 362 244 C 374 234, 394 234, 406 244 C 394 240, 376 240, 362 244 Z" fill="#594E4A"/>
+
+      <!-- Rosy Blush Cheeks -->
+      <ellipse cx="226" cy="318" rx="24" ry="15" transform="rotate(6 226 318)" fill="#FF8FA3"/>
+      <ellipse cx="222" cy="314" rx="10" ry="5" transform="rotate(6 222 314)" fill="#FFC2CE"/>
+      <ellipse cx="414" cy="318" rx="24" ry="15" transform="rotate(-6 414 318)" fill="#FF8FA3"/>
+      <ellipse cx="410" cy="314" rx="10" ry="5" transform="rotate(-6 410 314)" fill="#FFC2CE"/>
+
+      <!-- Cream Muzzle & Nose -->
+      <ellipse cx="320" cy="322" rx="56" ry="42" fill="#FFFFFF"/>
+      <path d="M 266 332 C 274 354, 294 364, 320 364 C 346 364, 366 354, 374 332 C 360 346, 342 354, 320 354 C 298 354, 280 346, 266 332 Z" fill="#E5DDD0"/>
+      <line x1="320" y1="302" x2="320" y2="318" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 298 284 C 298 275, 342 275, 342 284 C 342 295, 329 306, 320 306 C 311 306, 298 295, 298 284 Z" fill="#3B2A22"/>
+      <ellipse cx="314" cy="283" rx="8" ry="3.5" fill="#FFFDF9"/>
+
+      <!-- Big Glossy Eyes -->
+      <g>
+        <ellipse cx="260" cy="272" rx="21" ry="25" fill="#261710" stroke="#594E4A" stroke-width="3"/>
+        <path d="M 244 277 C 248 290, 272 290, 276 277 C 270 284, 250 284, 244 277 Z" fill="#8C5230"/>
+        <ellipse cx="265" cy="261" rx="9" ry="10" fill="#FFFDF9"/>
+        <circle cx="252" cy="280" r="4" fill="#FFFDF9"/>
+
+        <ellipse cx="380" cy="272" rx="21" ry="25" fill="#261710" stroke="#594E4A" stroke-width="3"/>
+        <path d="M 364 277 C 368 290, 392 290, 396 277 C 390 284, 370 284, 364 277 Z" fill="#8C5230"/>
+        <ellipse cx="375" cy="261" rx="9" ry="10" fill="#FFFDF9"/>
+        <circle cx="388" cy="280" r="4" fill="#FFFDF9"/>
+      </g>
+
+      <!-- Friendly Brows & Happy Smile -->
+      <path d="M 238 222 Q 256 212 274 220" fill="none" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 402 222 Q 384 212 366 220" fill="none" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 308 326 C 308 342, 332 342, 332 326 Z" fill="#FF758F" stroke="#3B2A22" stroke-width="5"/>
+      <path d="M 294 318 C 300 332, 314 332, 320 320 C 326 332, 340 332, 346 318" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Head Outline -->
+      <path d="M 308 177 C 312 167, 320 167, 324 175 C 328 169, 336 171, 332 177 C 394 179, 434 214, 444 274 C 454 336, 422 388, 320 388 C 218 388, 186 336, 196 274 C 206 214, 248 178, 308 177 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Restaurant Counter (Lower Section) -->
+    <g>
+      <path d="M 8 516 L 632 516 L 632 756 A 36 36 0 0 1 596 792 L 44 792 A 36 36 0 0 1 8 756 Z" fill="#B87D56"/>
+      <rect x="10" y="592" width="620" height="24" fill="#9E6540"/>
+      <!-- Recessed Wood Panels -->
+      <rect x="44" y="628" width="256" height="128" rx="16" fill="#CC926B" stroke="#5C4338" stroke-width="5"/>
+      <rect x="340" y="628" width="256" height="128" rx="16" fill="#CC926B" stroke="#5C4338" stroke-width="5"/>
+      <line x1="68" y1="644" x2="276" y2="644" stroke="#E5BE94" stroke-width="4"/>
+      <line x1="364" y1="644" x2="572" y2="644" stroke="#E5BE94" stroke-width="4"/>
+
+      <!-- Cream Countertop Surface -->
+      <rect x="8" y="496" width="624" height="84" fill="#FFF6E6"/>
+      <rect x="8" y="496" width="624" height="12" fill="#EAD7B8"/>
+      <rect x="8" y="574" width="624" height="22" fill="#EAD7B8"/>
+      <line x1="48" y1="516" x2="260" y2="516" stroke="#FFFDF9" stroke-width="6"/>
+      <line x1="380" y1="516" x2="592" y2="516" stroke="#FFFDF9" stroke-width="6"/>
+      <line x1="8" y1="496" x2="632" y2="496" stroke="#3B2A22" stroke-width="6"/>
+      <line x1="8" y1="574" x2="632" y2="574" stroke="#5C4338" stroke-width="4"/>
+      <line x1="8" y1="596" x2="632" y2="596" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Left Plate with Apple -->
+    <g>
+      <ellipse cx="176" cy="560" rx="118" ry="26" fill="#D9C3A5"/>
+      <path d="M 76 548 C 76 576, 120 588, 176 588 C 232 588, 276 576, 276 548 Z" fill="#E2D4BE" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="176" cy="538" rx="114" ry="42" fill="#FFFBF2"/>
+      <path d="M 66 548 A 114 42 0 0 0 286 548 C 264 568, 224 576, 176 576 C 128 576, 88 568, 66 548 Z" fill="#F3E9D8"/>
+      <ellipse cx="176" cy="537" rx="102" ry="34" fill="none" stroke="#F4A261" stroke-width="4.5"/>
+      <ellipse cx="176" cy="536" rx="80" ry="25" fill="#F3E9D8" stroke="#E2D4BE" stroke-width="3"/>
+      <ellipse cx="176" cy="538" rx="114" ry="42" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Red Apple -->
+      <path d="M 174 432 C 174 414, 180 400, 190 394 C 195 392, 198 398, 194 402 C 188 408, 184 418, 184 432 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 182 418 C 196 398, 232 394, 244 410 C 234 432, 202 436, 182 418 Z" fill="#57C457"/>
+      <path d="M 182 418 C 202 436, 234 432, 244 410 C 234 420, 206 424, 182 418 Z" fill="#3CA33C"/>
+      <path d="M 182 418 C 196 398, 232 394, 244 410 C 234 432, 202 436, 182 418 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+      <path d="M 176 432 C 154 418, 102 426, 96 478 C 90 528, 128 564, 160 564 C 168 564, 172 560, 176 560 C 180 560, 184 564, 192 564 C 224 564, 262 528, 256 478 C 250 426, 198 418, 176 432 Z" fill="#F24C4C"/>
+      <path d="M 246 452 C 254 500, 222 544, 186 550 C 164 554, 132 548, 110 532 C 124 554, 146 564, 160 564 C 168 564, 172 560, 176 560 C 180 560, 184 564, 192 564 C 224 564, 262 528, 256 478 C 254 466, 250 458, 246 452 Z" fill="#CC3333"/>
+      <path d="M 118 470 C 120 452, 134 440, 148 440 C 154 440, 156 448, 148 450 C 138 454, 130 464, 128 476 C 126 482, 118 478, 118 470 Z" fill="#FF8585"/>
+      <ellipse cx="134" cy="454" rx="6" ry="3.5" transform="rotate(-30 134 454)" fill="#FFFDF9"/>
+      <path d="M 176 432 C 154 418, 102 426, 96 478 C 90 528, 128 564, 160 564 C 168 564, 172 560, 176 560 C 180 560, 184 564, 192 564 C 224 564, 262 528, 256 478 C 250 426, 198 418, 176 432 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Right Plate with Cookie -->
+    <g>
+      <ellipse cx="464" cy="560" rx="118" ry="26" fill="#D9C3A5"/>
+      <path d="M 364 548 C 364 576, 408 588, 464 588 C 520 588, 564 576, 564 548 Z" fill="#E2D4BE" stroke="#3B2A22" stroke-width="6"/>
+      <ellipse cx="464" cy="538" rx="114" ry="42" fill="#FFFBF2"/>
+      <path d="M 354 548 A 114 42 0 0 0 574 548 C 552 568, 512 576, 464 576 C 416 576, 376 568, 354 548 Z" fill="#F3E9D8"/>
+      <ellipse cx="464" cy="537" rx="102" ry="34" fill="none" stroke="#F4A261" stroke-width="4.5"/>
+      <ellipse cx="464" cy="536" rx="80" ry="25" fill="#F3E9D8" stroke="#E2D4BE" stroke-width="3"/>
+      <ellipse cx="464" cy="538" rx="114" ry="42" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+      <!-- Chocolate-Chip Cookie -->
+      <path d="M 464 428 C 492 426, 520 436, 534 458 C 550 480, 552 512, 538 538 C 524 562, 496 574, 464 572 C 432 574, 404 562, 390 538 C 376 512, 378 480, 394 458 C 408 436, 436 426, 464 428 Z" fill="#D99B56"/>
+      <path d="M 534 458 C 550 480, 552 512, 538 538 C 524 562, 496 574, 464 572 C 432 574, 404 562, 390 538 C 406 558, 436 564, 470 562 C 508 560, 534 534, 536 496 C 536 482, 535 470, 534 458 Z" fill="#B87835"/>
+      <path d="M 402 486 C 408 464, 426 448, 452 442" fill="none" stroke="#F0B97A" stroke-width="10"/>
+      <g fill="#52321E" stroke="#3B2A22" stroke-width="5">
+        <ellipse cx="462" cy="464" rx="10" ry="8"/>
+        <ellipse cx="418" cy="502" rx="11" ry="8"/>
+        <ellipse cx="460" cy="508" rx="13" ry="10"/>
+        <ellipse cx="502" cy="488" rx="11" ry="8"/>
+        <ellipse cx="434" cy="542" rx="11" ry="8"/>
+        <ellipse cx="488" cy="538" rx="12" ry="8"/>
+      </g>
+      <circle cx="458" cy="505" r="3" fill="#8C5230"/>
+      <circle cx="416" cy="499" r="2.5" fill="#8C5230"/>
+      <circle cx="486" cy="535" r="2.5" fill="#8C5230"/>
+      <path d="M 464 428 C 492 426, 520 436, 534 458 C 550 480, 552 512, 538 538 C 524 562, 496 574, 464 572 C 432 574, 404 562, 390 538 C 376 512, 378 480, 394 458 C 408 436, 436 426, 464 428 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    </g>
+
+    <!-- Cheerful Sparkles -->
+    <g fill="#FFD166" stroke="#3B2A22" stroke-width="4">
+      <path d="M 102 396 L 108 410 L 122 416 L 108 422 L 102 436 L 96 422 L 82 416 L 96 410 Z"/>
+      <path d="M 548 388 L 554 402 L 568 408 L 554 414 L 548 428 L 542 414 L 528 408 L 542 402 Z"/>
+    </g>
+
+    <!-- Card Inner Highlight Bevel & 6px #3B2A22 Outer Frame -->
+    <path d="M 44 16 L 596 16 A 28 28 0 0 1 624 44" fill="none" stroke="#FFFDF9" stroke-width="6"/>
+    <rect x="8" y="8" width="624" height="784" rx="36" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>
