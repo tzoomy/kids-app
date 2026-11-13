@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -56,6 +56,22 @@ describe('real art manifest', () => {
     for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
     expect(fxArtKey('instrument-glow')).toBeDefined();
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
+
+  it('registers Language House game-picker assets and ensures picker-close is at least 64x64', () => {
+    const registered = getArtManifest();
+    for (const key of [
+      'picker-card-animal-restaurant',
+      'picker-card-kitchen-orchestra',
+      'picker-close',
+      'picker-bg',
+    ]) {
+      expect(ART_MANIFEST.find((e) => e.key === key), `${key} in ART_MANIFEST`).toBeDefined();
+      expect(registered.find((e) => e.key === key), `${key} registered`).toBeDefined();
+    }
+    const closeEntry = ART_MANIFEST.find((e) => e.key === 'picker-close');
+    expect(closeEntry?.width).toBeGreaterThanOrEqual(64);
+    expect(closeEntry?.height).toBeGreaterThanOrEqual(64);
   });
 });
 
