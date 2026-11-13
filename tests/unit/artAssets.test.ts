@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -52,10 +52,34 @@ describe('real art manifest', () => {
     expect(foodArtKey('apple')).toBeDefined();
   });
 
-  it('registers Kitchen Orchestra chef, instruments, glow, and kitchen scenes', () => {
-    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
+  it('registers Who\'s Hiding? and Kitchen Orchestra art', () => {
+    for (const name of ['bush-round-back', 'bush-round-front', 'bush-tall-back', 'bush-tall-front']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('hiding', name), `hiding/${name}`).toBeDefined();
+      expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+    }
+    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) {
+      expect(instrumentArtKey(name), name).toBeDefined();
+    }
     expect(fxArtKey('instrument-glow')).toBeDefined();
-    for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+  });
+
+  it('registers Language House game-picker assets and ensures picker-close is at least 64x64', () => {
+    const registered = getArtManifest();
+    for (const key of [
+      'picker-card-animal-restaurant',
+      'picker-card-kitchen-orchestra',
+      'picker-close',
+      'picker-bg',
+    ]) {
+      expect(ART_MANIFEST.find((e) => e.key === key), `${key} in ART_MANIFEST`).toBeDefined();
+      expect(registered.find((e) => e.key === key), `${key} registered`).toBeDefined();
+    }
+    const closeEntry = ART_MANIFEST.find((e) => e.key === 'picker-close');
+    expect(closeEntry?.width).toBeGreaterThanOrEqual(64);
+    expect(closeEntry?.height).toBeGreaterThanOrEqual(64);
   });
 });
 
@@ -79,22 +103,46 @@ describe('real animal rigs', () => {
       }
     }
   });
+
+  it('keeps every animal ear above the Who\'s Hiding? L5 reveal line (0.3), still overlapping the head', () => {
+    // L5 hides the animal so only the top 30% of its rig shows (feet at y=0, so the line is at
+    // -(1 - 0.3) * height). The ears are the only clue left there, so each ear's top must clear
+    // the line by a readable margin, and its bottom must still tuck under the head when fully shown.
+    const L5_REVEAL = 0.3;
+    const MIN_EAR_ABOVE_LINE = 24;
+    for (const kind of ANIMAL_KINDS) {
+      const rig = ANIMAL_RIGS[kind];
+      const line = -(1 - L5_REVEAL) * rig.height;
+      const head = rig.parts.head;
+      const headTop = head.y - head.originY * head.height;
+      for (const id of ['earL', 'earR']) {
+        const ear = rig.parts[id];
+        expect(ear, `${kind}.${id}`).toBeDefined();
+        const earTop = ear.y - ear.originY * ear.height;
+        const earBottom = earTop + ear.height;
+        expect(line - earTop, `${kind}.${id} top clears the L5 line`).toBeGreaterThanOrEqual(MIN_EAR_ABOVE_LINE);
+        expect(earBottom, `${kind}.${id} reaches below the head top`).toBeGreaterThan(headTop);
+      }
+    }
+  });
 });
 
 describe('chef rig', () => {
-  it('is registered as a character, not a restaurant animal', () => {
+  it('is complete, registered, and kept out of the restaurant animal list', () => {
     expect(ANIMAL_RIGS.chef).toBeUndefined();
     const rig = CHARACTER_RIGS.chef;
     expect(rig, 'chef rig').toBeDefined();
     expect(rig.kind).toBe('chef');
-    for (const id of ['body', 'head', 'hat']) expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    for (const id of ['body', 'head', 'hat', 'eyeL', 'eyeR', 'mouth']) {
+      expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    }
     expect(rigTextureKeys(rig), 'chef textures are all in the manifest').toBeDefined();
   });
 
   it('matches every chef part size to its manifest entry', () => {
     const rig = CHARACTER_RIGS.chef;
     for (const part of Object.values(rig.parts)) {
-      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/chef/${part.key}.svg`);
+      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/${rig.kind}/${part.key}.svg`);
       expect(entry, `chef/${part.key}`).toBeDefined();
       expect([entry?.width, entry?.height], `chef/${part.key} size`).toEqual([part.width, part.height]);
     }
