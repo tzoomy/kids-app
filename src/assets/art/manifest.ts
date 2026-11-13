@@ -108,6 +108,14 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'restaurant-bg-portrait', url: 'art/scenes/restaurant/bg-portrait.svg', width: 800, height: 1280 },
   { key: 'restaurant-counter', url: 'art/scenes/restaurant/counter.svg', width: 1280, height: 260 },
 
+  // Nature Lab — Who's Hiding?
+  { key: 'prop-bush-round-back', url: 'art/props/bush-round-back.svg', width: 360, height: 280 },
+  { key: 'prop-bush-round-front', url: 'art/props/bush-round-front.svg', width: 360, height: 280 },
+  { key: 'prop-bush-tall-back', url: 'art/props/bush-tall-back.svg', width: 280, height: 360 },
+  { key: 'prop-bush-tall-front', url: 'art/props/bush-tall-front.svg', width: 280, height: 360 },
+  { key: 'hiding-bg-landscape', url: 'art/scenes/hiding/bg-landscape.svg', width: 1280, height: 800 },
+  { key: 'hiding-bg-portrait', url: 'art/scenes/hiding/bg-portrait.svg', width: 800, height: 1280 },
+
   // Kitchen Orchestra (Creative Studio) — chef, instruments, kitchen scenes
   { key: 'character-chef-body', url: 'art/characters/chef/body.svg', width: 240, height: 240 },
   { key: 'character-chef-head', url: 'art/characters/chef/head.svg', width: 236, height: 196 },
@@ -135,4 +143,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'food-grapes-green', url: 'art/foods/grapes-green.svg', width: 256, height: 256 },
   { key: 'food-pear-green', url: 'art/foods/pear-green.svg', width: 256, height: 256 },
   { key: 'food-pear-yellow', url: 'art/foods/pear-yellow.svg', width: 256, height: 256 },
+  // Language House Game Picker
+  { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
+  { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
+  { key: 'picker-close', url: 'art/ui/picker/close.svg', width: 128, height: 128 },
+  { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
 ];

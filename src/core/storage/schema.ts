@@ -37,6 +37,11 @@ export interface ProfileState {
   /** Local calendar day (YYYY-MM-DD) that earnedTodaySec applies to. */
   day: string;
   stars: number;
+  /**
+   * Visits started per game id (optional; absent in older payloads, read as 0). Sorting Beds uses it to cycle
+   * colour, shape, size across visits (AC-21) so the cycle survives an app restart.
+   */
+  gameVisits?: Record<string, number>;
 }
 
 export interface AppState {

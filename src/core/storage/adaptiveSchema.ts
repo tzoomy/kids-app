@@ -62,6 +62,34 @@ function parseSkill(v: unknown): SkillState | null {
   };
 }
 
+/**
+ * One-time skill-key renames for progress stored by older builds. Kitchen Orchestra moved from
+ * Art Studio to Language House (Kitchen Orchestra spec, 2026-11-12), so its skill keys moved with it.
+ * Keys are `<world>.<gameId>.<lang>`; the language suffix is preserved.
+ */
+export const SKILL_KEY_PREFIX_RENAMES: ReadonlyArray<readonly [from: string, to: string]> = [
+  ['art-studio.kitchen-orchestra.', 'language-house.kitchen-orchestra.'],
+];
+
+/**
+ * Returns skills with legacy keys renamed. Safe and idempotent: returns the same object when nothing
+ * needs renaming, never overwrites a skill already stored under the new key (the new key wins), and
+ * never touches other keys.
+ */
+export function renameLegacySkillKeys(skills: Record<string, SkillState>): Record<string, SkillState> {
+  const legacy = Object.keys(skills).filter((k) => SKILL_KEY_PREFIX_RENAMES.some(([from]) => k.startsWith(from)));
+  if (legacy.length === 0) return skills;
+  const out: Record<string, SkillState> = { ...skills };
+  for (const key of legacy) {
+    const rename = SKILL_KEY_PREFIX_RENAMES.find(([from]) => key.startsWith(from));
+    if (!rename) continue;
+    const target = rename[1] + key.slice(rename[0].length);
+    if (!(target in out)) out[target] = skills[key];
+    delete out[key];
+  }
+  return out;
+}
+
 export interface ParsedProfile {
   profile: AdaptiveProfile;
   /** False when the payload was written by a newer build: defaults are used and nothing may be written. */
@@ -104,5 +132,5 @@ export function parseAdaptiveProfile(
     const skill = parseSkill(value);
     if (skill) skills[key] = skill;
   }
-  return { profile: { schemaVersion: 1, profileId, skills }, writable: true };
+  return { profile: { schemaVersion: 1, profileId, skills: renameLegacySkillKeys(skills) }, writable: true };
 }

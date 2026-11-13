@@ -1,4 +1,5 @@
 import type { AudioProvider, SpeechRequest } from './types';
+import type { SpeechObserver } from './speechLog';
 
 /**
  * Tries providers in priority order (static files first, device TTS fallback) and
@@ -11,8 +12,14 @@ import type { AudioProvider, SpeechRequest } from './types';
  */
 export class AudioManager {
   private generation = 0;
+  private observer: SpeechObserver | null = null;
 
   constructor(private readonly providers: AudioProvider[]) {}
+
+  /** Attaches a passive observer (e2e speech spy). It only watches; it never changes playback. */
+  setObserver(observer: SpeechObserver | null): void {
+    this.observer = observer;
+  }
 
   warmup(): void {
     for (const p of this.providers) p.warmup();
@@ -25,10 +32,12 @@ export class AudioManager {
 
   async play(request: SpeechRequest): Promise<boolean> {
     this.stopAll();
+    this.observer?.onRequest(request);
     const gen = this.generation;
     for (const provider of this.providers) {
       if (gen !== this.generation) return false;
       if (!provider.isAvailable()) continue;
+      this.observer?.onAttempt(request, provider.id);
       const played = await provider.play(request);
       if (played) return true;
     }
