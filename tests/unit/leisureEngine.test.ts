@@ -8,6 +8,7 @@ const settings: LeisureSettings = {
   dailyEarnCapMinutes: 30,
   idleSeconds: 20,
   languages: 'both',
+  timeEarning: { enabled: true },
 };
 
 describe('earnParticipation', () => {

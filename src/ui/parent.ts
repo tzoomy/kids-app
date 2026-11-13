@@ -1,5 +1,5 @@
 import { el, formatClock } from './dom';
-import type { AppState, LanguageSetting } from '../core/storage/schema';
+import { isTimeEarningEnabled, type AppState, type LanguageSetting } from '../core/storage/schema';
 import heStrings from '../content/i18n/he.json';
 import { applyPwaUpdate, pwaNeedsRefresh } from '../pwa';
 
@@ -148,6 +148,7 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
       dailyEarnCapMinutes: Math.max(0, Number(capInput.value) || 0),
       idleSeconds: Math.max(5, Number(idleInput.value) || state.settings.idleSeconds),
       languages: langSelect.value as LanguageSetting,
+      timeEarning: { enabled: isTimeEarningEnabled(state.settings) },
     };
     const edits = profileInputs.map((p) => ({
       id: p.id,

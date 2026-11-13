@@ -12,7 +12,7 @@ import { createGame, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
-import type { AgeTrack } from './core/storage/schema';
+import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
 
 const shellRoot = document.getElementById('shell-root');
 if (!shellRoot) throw new Error('#shell-root missing from web/index.html');
@@ -131,6 +131,7 @@ function showProfileSelectScreen(): void {
   const entries = state.profiles.map((profile) => ({
     profile,
     state: store.getProfileState(profile.id, new Date()),
+    showTime: isTimeEarningEnabled(state.settings),
   }));
   shell.showProfileSelect(
     entries,

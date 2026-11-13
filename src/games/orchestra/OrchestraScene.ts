@@ -172,6 +172,7 @@ export class OrchestraScene extends Phaser.Scene {
       balanceSec: state.balanceSec,
       earnedTodaySec: state.earnedTodaySec,
       dailyCapSec: settings.dailyEarnCapMinutes * 60,
+      showTime: this.context.isTimeEarningEnabled(),
       onBack: () => this.goBack(),
       onHelp: () => this.showHelp(),
     });

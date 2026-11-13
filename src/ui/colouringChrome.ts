@@ -28,6 +28,8 @@ export interface ColouringChromeOptions {
   selected: string;
   balanceSec: number;
   low: boolean;
+  /** False while time earning is paused: no countdown chip is shown. Defaults to true. */
+  showTime?: boolean;
   undoEnabled: boolean;
   prevEnabled: boolean;
   nextEnabled: boolean;
@@ -86,7 +88,7 @@ export class ColouringHud {
     bar.appendChild(back);
     this.countdown = el('span', 'shell-countdown');
     this.countdown.dataset.testid = COLOURING_TEST_IDS.countdown;
-    bar.appendChild(this.countdown);
+    if (opts.showTime !== false) bar.appendChild(this.countdown);
     const help = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
     help.type = 'button';
     help.dataset.testid = 'hud-help';

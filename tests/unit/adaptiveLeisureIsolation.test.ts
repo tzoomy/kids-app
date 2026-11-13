@@ -59,6 +59,8 @@ describe('leisure / adaptive separation', () => {
     const adaptive = new AdaptiveStore(driver);
     const meta = buildMeta({ levelCount: 5, tracks: { age2: { start: 1, max: 5 }, age5: { start: 4, max: 5 } } });
 
+    leisureStore.getState().settings.timeEarning = { enabled: true };
+
     function timeline(profileId: string, firstTryCorrect: boolean) {
       const state = leisureStore.getProfileState(profileId, NOW);
       let t = 0;

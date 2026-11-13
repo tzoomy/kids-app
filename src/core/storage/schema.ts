@@ -23,6 +23,8 @@ export interface LeisureSettings {
   /** PLACEHOLDER policy, pending owner decision. */
   idleSeconds: number;
   languages: LanguageSetting;
+  /** Master switch for the time-earning mechanic (earn, spend, balance UI). Off by default. */
+  timeEarning: { enabled: boolean };
 }
 
 export interface ProfileState {
@@ -57,6 +59,7 @@ export const DEFAULT_SETTINGS: LeisureSettings = {
   dailyEarnCapMinutes: 30,
   idleSeconds: 20,
   languages: 'both',
+  timeEarning: { enabled: false },
 };
 
 export const DEFAULT_PROFILES: ProfileSettings[] = [
@@ -67,10 +70,20 @@ export const DEFAULT_PROFILES: ProfileSettings[] = [
 export function defaultAppState(): AppState {
   return {
     schemaVersion: SCHEMA_VERSION,
-    settings: { ...DEFAULT_SETTINGS },
+    settings: { ...DEFAULT_SETTINGS, timeEarning: { ...DEFAULT_SETTINGS.timeEarning } },
     profiles: DEFAULT_PROFILES.map((p) => ({ ...p })),
     data: {},
   };
+}
+
+/** True only when time earning is explicitly enabled; a missing or malformed field reads as off. */
+export function isTimeEarningEnabled(settings: Pick<LeisureSettings, 'timeEarning'> | null | undefined): boolean {
+  return settings?.timeEarning?.enabled === true;
+}
+
+/** Coerces settings read from storage so `timeEarning.enabled` always exists. */
+export function normalizeSettings(settings: LeisureSettings): LeisureSettings {
+  return { ...settings, timeEarning: { enabled: isTimeEarningEnabled(settings) } };
 }
 
 export function defaultProfileState(day: string): ProfileState {

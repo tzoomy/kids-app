@@ -78,7 +78,7 @@ export class MapScene extends Phaser.Scene {
         }
         if (world.status === 'leisure') {
           const profileState = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
-          if (profileState.balanceSec > 0) {
+          if (!context.isTimeEarningEnabled() || profileState.balanceSec > 0) {
             context.shell.showGamePicker({
               games: LEISURE_PICKER_GAMES,
               title: context.content.he.gamePicker.leisureTitle,
@@ -148,6 +148,7 @@ export class MapScene extends Phaser.Scene {
       context.shell.setMapChrome({
         title: context.content.he.worldMap.title,
         balanceSec: profileState.balanceSec,
+        showTime: context.isTimeEarningEnabled(),
         onParent: () => context.onRequestParent?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
         pins,
