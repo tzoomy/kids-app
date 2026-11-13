@@ -57,6 +57,20 @@ describe('real art manifest', () => {
     expect(fxArtKey('instrument-glow')).toBeDefined();
     for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
   });
+
+  it('registers Sorting Beds flower-basket and layered back/front props with matching dimensions', () => {
+    const keys = ['flower-basket', 'flower-basket-back', 'flower-basket-front'] as const;
+    const entries = keys.map((key) => {
+      const entry = ART_MANIFEST.find((e) => e.key === key);
+      expect(entry, key).toBeDefined();
+      return entry!;
+    });
+    expect([entries[1].width, entries[1].height]).toEqual([entries[0].width, entries[0].height]);
+    expect([entries[2].width, entries[2].height]).toEqual([entries[0].width, entries[0].height]);
+    expect(propArtKey('flower-basket')).toBe('flower-basket');
+    expect(propArtKey('flower-basket-back')).toBe('flower-basket-back');
+    expect(propArtKey('flower-basket-front')).toBe('flower-basket-front');
+  });
 });
 
 describe('real animal rigs', () => {
