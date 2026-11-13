@@ -1,6 +1,6 @@
 {
   "id": "kitchen-orchestra",
-  "world": "art-studio",
+  "world": "language-house",
   "template": "ordered-steps",
   "skill": "listen-and-echo",
   "languages": ["en", "fr"],
