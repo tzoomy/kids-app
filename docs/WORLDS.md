@@ -319,7 +319,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 
 ## Rewards and creation
 
-Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 4).
+Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 3).
 
 ### 1. Wardrobe
 
