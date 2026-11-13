@@ -192,6 +192,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'language-house-bg-landscape', url: 'art/scenes/language-house/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'language-house-bg-portrait', url: 'art/scenes/language-house/bg-portrait.svg', width: 800, height: 1280 },
 
+  // Sorting Beds — flower basket prop (single-sprite fallback + layered back/front for sitting flowers)
+  { key: 'flower-basket', url: 'art/props/flower-basket.svg', width: 520, height: 400 },
+  { key: 'flower-basket-back', url: 'art/props/flower-basket-back.svg', width: 520, height: 400 },
+  { key: 'flower-basket-front', url: 'art/props/flower-basket-front.svg', width: 520, height: 400 },
   // Language House Game Picker
   { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },

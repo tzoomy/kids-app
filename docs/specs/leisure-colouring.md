@@ -189,7 +189,7 @@ Paths, keys, ids, and line ids below are frozen at approval so Gemini can start 
 
 **Asset paths and manifest keys** (British spelling, so nothing collides with PR #24's `public/art/coloring/`):
 
-| Asset | Path | Manifest key (`src/assets/art/manifest.ts`) |
+| Asset | Path | Manifest key (`src/assets/art/colouringManifest.ts`) |
 |---|---|---|
 | 8 colouring pages | `public/art/colouring/pages/<pageId>.svg` | `colouring-page-<pageId>` |
 | Landscape background (1280×800) | `public/art/scenes/leisure-colouring/bg-landscape.svg` | `leisure-colouring-bg-landscape` |
@@ -347,7 +347,7 @@ All open decisions were resolved by the owner on 2026-11-13.
 - **Decided by the owner (2026-11-13):** Game name is "Colouring Time" / `זמן צביעה`, to stay distinct from the future Art Studio game "Color the World".
 - **Decided by the owner (2026-11-13):** A two-card Leisure Corner picker (Bubbles and Colouring Time) instead of jumping straight into Bubbles, copied from the Language House picker (PR #43), because the Leisure Corner now holds two games and the pattern already exists.
 - **Decided by the owner (2026-11-13):** Palette sizes and colours are 8 dots at age 2 and 16 at age 5, from the palette table (the kiosk's "about 20" is a ceiling; 16 keeps 64 px dots in one or two rows).
-- **Decided by the owner (2026-11-13):** Minimum tap-target size is 64 CSS px (swatches, tools, region hit boxes; hit boxes grow, painted regions do not), because 112 px would not fit the age-5 palette.
+- **Decided by the owner (2026-11-13):** Minimum tap-target size is 64 CSS px (swatches and tools), because 112 px would not fit the age-5 palette. **Team-lead decision (2026-11-13):** shapes are drawn thick enough (B2) and a tap snaps to the nearest region (B1); there is no hit-box growth.
 - **Decided by the owner (2026-11-13):** Which pages ship in Pass 1: 8 original pages in this order: `cat`, `dog`, `rabbit`, `bear`, `panda`, `lion`, `butterfly`, `chef`, with the frozen region lists above.
 - **Decided by the owner (2026-11-13):** Previous and next stop at the ends (disabled, no wrap), so a toddler cannot loop by accident.
 - **Decided by the owner (2026-11-13):** Undo and clear behaviour: undo covers the last fill or clear, cap 50, in memory for the visit only and emptied on a page change; clear is one undoable step with no confirm dialog.
