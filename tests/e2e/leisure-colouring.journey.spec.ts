@@ -1,5 +1,4 @@
 // Real-tap journeys for Colouring Time Pass 1. Hooks only seed or read; entry is via enterWorldByTap.
-import { existsSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
 import {
   enterWorldByTap,
@@ -345,11 +344,6 @@ test.describe('leisure-colouring journeys', () => {
     await expect(page.locator('[data-testid="colouring-end-home"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="colouring-countdown"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="leisure-balance"]')).toHaveCount(0);
-
-    const shotDir = '/workspace/shots-timepause';
-    if (existsSync(shotDir)) {
-      await page.screenshot({ path: `${shotDir}/colouring-time-paused-landscape.png`, fullPage: false });
-    }
 
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');

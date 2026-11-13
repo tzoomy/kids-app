@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
+import { buildDefines } from './build/buildDefines';
 
 // Vite root is web/, publicDir is repo public/, build outDir is repo dist/.
 // base is /kids-app/ to match the GitHub Pages project path.
 export default defineConfig({
   root: 'web',
   base: '/kids-app/',
+  define: buildDefines(),
   publicDir: path.resolve(__dirname, 'public'),
   resolve: {
     alias: {
