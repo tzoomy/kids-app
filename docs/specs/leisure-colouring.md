@@ -202,7 +202,7 @@ Paths, keys, ids, and line ids below are frozen at approval so Gemini can start 
 
 **SVG contract (pages).**
 
-- Warm paper; dark-brown outline `#3B2A22`; **stroke-width 6** in viewBox units; `stroke-linecap` and `stroke-linejoin` `round`; no heavy gradients or filters, no `<text>`, no external references, no rasters; original assets only.
+- Warm paper; dark-brown outline `#3B2A22`; **stroke-width 6** in viewBox units; `stroke-linecap` and `stroke-linejoin` `round`; no heavy gradients or filters, no `<text>`, no external references, no rasters; do not copy characters, art, or audio from inspiration apps.
 - Each file under the existing **15 KB** hard cap (`tests/unit/artAssets.test.ts`); aim under 6 KB (`docs/ANIMATION.md`). If a page will not fit, simplify the regions; do not raise the cap.
 - **viewBox `0 0 800 800`** (square), so the page letterboxes cleanly in both orientations. These are flat colouring pages: do not use the character-rig 400×480 feet-origin space, do not add pages to `ANIMAL_KINDS` or `CHARACTER_RIGS`, and do not build a puppet rig. **Decided by the owner (2026-11-13):** the square 800×800 viewBox is kept, so each page letterboxes cleanly in both orientations.
 - Required structure:
