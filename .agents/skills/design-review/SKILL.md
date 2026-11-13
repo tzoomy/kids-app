@@ -20,6 +20,7 @@ Use a fresh, short session. Always pass `--effort` (default `medium`; `high` or 
 - Every relevant acceptance criterion in the spec (`AC-xx`), including ones this PR claims to pass.
 - Tap targets at least 64 CSS px.
 - No overlap, clipping, or missing rig layers.
+- A new image or pose of an approved character stays consistent with the approved design under `public/art/characters/<name>/` or `public/art/animals/<name>/`.
 - Hebrew RTL chrome with LTR learning tokens; contrast and clutter at tablet distance, for toddlers.
 
 ## Write-up

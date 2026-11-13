@@ -20,6 +20,10 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 - The subject must stay readable at 64 CSS px (icons, peeks, and HUD marks especially).
 - Prefer a small edit to the current SVG over a full redraw.
 
+## Approved design reference
+
+Once a character design is approved, every new image or animation frame/pose of that character must mention the approved design in the `agy` prompt with `@` (for example `@public/art/animals/bear/` or `@public/art/characters/chef/head.svg`) and tell Gemini to base the output on it so the character stays consistent. `agy --help` has no `--image` or `--attach` flag; `@path` is the official mechanism. Approved art lives under `public/art/characters/<name>/` and `public/art/animals/<name>/` (see `src/assets/art/manifest.ts`). `--add-dir` does not attach an image.
+
 ## Pass and checks
 
 - Always pass `--effort` (`low|medium|high|xhigh|max`). Default `medium`; use `high` or above for complicated work. Raise effort within a model before switching to a stronger one.
