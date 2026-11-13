@@ -1,5 +1,5 @@
 import type { AppState, ProfileState } from './schema';
-import { STORAGE_KEY, SCHEMA_VERSION, defaultAppState } from './schema';
+import { STORAGE_KEY, SCHEMA_VERSION, defaultAppState, normalizeSettings } from './schema';
 import { LEGACY_STORAGE_KEY, migrateLegacyState, ensureProfileState } from './legacyMigration';
 import { localDayKey } from './dayKey';
 
@@ -25,6 +25,7 @@ export function loadAppState(now: Date = new Date(), driver: StorageDriver | nul
     try {
       const parsed = JSON.parse(rawV2) as AppState;
       if (parsed && parsed.schemaVersion === SCHEMA_VERSION && Array.isArray(parsed.profiles)) {
+        parsed.settings = normalizeSettings(parsed.settings ?? defaultAppState().settings);
         for (const p of parsed.profiles) ensureProfileState(parsed, p.id, now);
         return parsed;
       }

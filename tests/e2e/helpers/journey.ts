@@ -134,6 +134,7 @@ type Hooks = {
   getSortingInfo: () => SortingInfo | null;
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
+  seedTimeEarningEnabled: (enabled: boolean) => void;
 };
 
 type HookName = keyof Hooks;
@@ -186,6 +187,8 @@ export async function seedHidingLevel(page: Page, level: number): Promise<void> 
 /** Optional steps for a journey: `beforeEnter` runs on the map (after the profile tap), before the building tap. */
 export interface JourneyOptions {
   beforeEnter?: () => Promise<void>;
+  /** Seeds settings.timeEarning.enabled before the profile tap (default true: existing tests exercise the earning UI). */
+  timeEarningEnabled?: boolean;
 }
 
 /** Resolves with the first recorded spoken line matching the predicate (polling the speech log). */
@@ -219,6 +222,7 @@ export async function tapWorldBuilding(
 ): Promise<void> {
   // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
   await page.goto('./?e2e=1');
+  await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
   if (opts?.beforeEnter) await opts.beforeEnter();
@@ -408,6 +412,15 @@ export async function seedSortingLevel(page: Page, level: number): Promise<void>
 /** Seeds the app's language setting (stored settings.languages) so a test knows which language a round uses. Call from `beforeEnter`. */
 export async function seedLanguageSetting(page: Page, lang: 'en' | 'fr' | 'both'): Promise<void> {
   await callHook<void>(page, 'seedLanguageSetting', [lang]);
+}
+
+/** Seeds settings.timeEarning.enabled (seed only; waits for the hooks, no profile needed). Call right after `goto('?e2e=1')`. Reloads once so profile-select and later HUDs render with the persisted flag. */
+export async function seedTimeEarningEnabled(page: Page, enabled: boolean): Promise<void> {
+  await page.waitForFunction(
+    () => (window as unknown as { __testHooks__?: Hooks }).__testHooks__?.seedTimeEarningEnabled !== undefined,
+  );
+  await callHook<void>(page, 'seedTimeEarningEnabled', [enabled]);
+  await page.reload();
 }
 
 export function getSortingInfo(page: Page): Promise<SortingInfo | null> {

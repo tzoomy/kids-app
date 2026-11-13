@@ -1,4 +1,4 @@
-import type { LeisureSettings, ProfileState } from '../storage/schema';
+import { isTimeEarningEnabled, type LeisureSettings, type ProfileState } from '../storage/schema';
 import { localDayKey } from '../storage/dayKey';
 
 /** Resets today's earned counter when the local calendar day has rolled over. Unredeemed balance carries. */
@@ -21,6 +21,7 @@ export function earnParticipation(
   day: string,
   dtSec: number,
 ): void {
+  if (!isTimeEarningEnabled(settings)) return;
   rolloverIfNeeded(state, day);
   state.activeSec += dtSec;
 

@@ -13,6 +13,8 @@ export interface MapPin {
 export interface MapChromeOptions {
   title: string;
   balanceSec: number;
+  /** False while time earning is paused: no balance chip. Defaults to true. */
+  showTime?: boolean;
   onParent: () => void;
   onSwitchProfile: () => void;
   pins: MapPin[];
@@ -37,7 +39,7 @@ export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void
   right.appendChild(homeBtn);
   const balance = el('span', 'shell-pill', `⏳ ${formatClock(opts.balanceSec)}`);
   balance.dataset.testid = 'leisure-balance';
-  right.appendChild(balance);
+  if (opts.showTime !== false) right.appendChild(balance);
   bar.appendChild(right);
   root.appendChild(bar);
   renderMapPins(root, opts);
@@ -65,6 +67,8 @@ export interface RestaurantChromeOptions {
   balanceSec: number;
   earnedTodaySec: number;
   dailyCapSec: number;
+  /** False while time earning is paused: no balance chip and no earned-today progress. Defaults to true. */
+  showTime?: boolean;
   onBack: () => void;
   onHelp: () => void;
 }
@@ -93,7 +97,7 @@ export class RestaurantHud {
     const progress = el('div', 'shell-progress');
     this.fill = el('div');
     progress.appendChild(this.fill);
-    bar.appendChild(progress);
+    if (opts.showTime !== false) bar.appendChild(progress);
 
     const right = el('div', 'shell-row');
     right.style.gap = '1vmin';
@@ -102,7 +106,7 @@ export class RestaurantHud {
     right.appendChild(this.stars);
     this.balance = el('span', 'shell-pill');
     this.balance.dataset.testid = 'leisure-balance';
-    right.appendChild(this.balance);
+    if (opts.showTime !== false) right.appendChild(this.balance);
     const helpBtn = el('button', 'shell-pill', `❓ ${heStrings.restaurant.helpButton}`);
     helpBtn.dataset.testid = 'hud-help';
     helpBtn.addEventListener('click', opts.onHelp);
@@ -181,6 +185,8 @@ export function showHelpOverlay(root: HTMLElement, text: string, onClose: () => 
 export interface BubblesChromeOptions {
   balanceSec: number;
   low: boolean;
+  /** False while time earning is paused: no countdown chip is shown. Defaults to true. */
+  showTime?: boolean;
   onBack: () => void;
 }
 
@@ -197,7 +203,7 @@ export class BubblesHud {
     bar.appendChild(backBtn);
     this.countdown = el('span', 'shell-countdown');
     this.countdown.dataset.testid = 'bubbles-countdown';
-    bar.appendChild(this.countdown);
+    if (opts.showTime !== false) bar.appendChild(this.countdown);
     root.appendChild(bar);
     this.update(opts);
   }

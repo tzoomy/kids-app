@@ -11,6 +11,7 @@ import { ColouringScene } from '../games/colouring/ColouringScene';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
 import type { AppContext } from './appContext';
+import type { Store } from '../core/storage/store';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
 import { skillKey } from '../core/adaptive';
@@ -35,6 +36,8 @@ declare global {
       seedSortingLevel: (level: number) => void;
       /** Seeds the stored language setting (settings.languages) and persists. Seed only: no navigation, no game action. */
       seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
+      /** Writes settings.timeEarning = { enabled } and persists. Seed only: no navigation, no game action, no profile needed. */
+      seedTimeEarningEnabled: (enabled: boolean) => void;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
       /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
@@ -65,6 +68,20 @@ export function isE2e(): boolean {
 function pickBaseSize(): { width: number; height: number } {
   // Landscape 1280x800, portrait 800x1280 — matches the two supported tablet orientations.
   return window.innerWidth >= window.innerHeight ? { width: 1280, height: 800 } : { width: 800, height: 1280 };
+}
+
+/** ?e2e=1 only. Installs seedTimeEarningEnabled before the Phaser game exists (profile-select). */
+export function installEarlyTimeEarningHook(store: Store): void {
+  if (!isE2e()) return;
+  const current = window.__testHooks__;
+  const seedTimeEarningEnabled = (enabled: boolean): void => {
+    store.getState().settings.timeEarning = { enabled };
+    store.persist();
+  };
+  window.__testHooks__ = {
+    ...(current ?? {}),
+    seedTimeEarningEnabled,
+  } as NonNullable<Window['__testHooks__']>;
 }
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
@@ -167,6 +184,10 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     },
     seedLanguageSetting(lang) {
       context.store.getState().settings.languages = lang;
+      context.store.persist();
+    },
+    seedTimeEarningEnabled(enabled) {
+      context.store.getState().settings.timeEarning = { enabled };
       context.store.persist();
     },
     getSortingInfo() {

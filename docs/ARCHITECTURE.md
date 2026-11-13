@@ -190,6 +190,8 @@ This is a core component already set as a requirement. Rule details are still **
 
 The module (`src/core/leisure`) does not depend on Phaser. Every game reports to it: activity start, action, pause, exit, completion. It computes qualifying participation time, balance, caps, and redemption, and separately stores learning evidence (skill, language, independent success or with a hint).
 
+Time earning is paused by `settings.timeEarning.enabled` (default `false`, `LeisureSettings`): when off, nothing is earned or spent and all balance/timer UI is hidden; set it to `true` to restore the behaviour below.
+
 Proposed rules, following the vision documents (not final policy):
 
 - Earning is based on participation, including thinking, mistakes, and hints; not on speed or success.

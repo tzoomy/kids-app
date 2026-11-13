@@ -1,7 +1,7 @@
 import { Store, type StorageDriver } from '../core/storage/store';
 import { AdaptiveStore } from '../core/storage/adaptiveStore';
 import { localDayKey } from '../core/storage/dayKey';
-import type { AgeTrack } from '../core/storage/schema';
+import { isTimeEarningEnabled, type AgeTrack } from '../core/storage/schema';
 import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
@@ -84,8 +84,13 @@ export class AppContext {
     return this.activeLearningSession?.isListening() ?? false;
   }
 
+  /** Whether the time-earning mechanic (earn, spend, balance UI) is active. Off by default. */
+  isTimeEarningEnabled(): boolean {
+    return isTimeEarningEnabled(this.store.getState().settings);
+  }
+
   createLeisureSession(): LeisureSession {
     const state = this.store.getProfileState(this.requireProfileId(), new Date(this.nowMs()));
-    return new LeisureSession(state);
+    return new LeisureSession(state, 5, this.isTimeEarningEnabled());
   }
 }
