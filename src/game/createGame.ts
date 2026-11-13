@@ -8,6 +8,8 @@ import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
 import { skillKey } from '../core/adaptive';
 import { localDayKey } from '../core/storage/dayKey';
+import { SpeechRecorder, type SpokenLine } from '../core/audio';
+import { gameRectToPageRect, type Rect } from '../testing/pageRect';
 
 declare global {
   interface Window {
@@ -26,6 +28,11 @@ declare global {
       getActiveScenes: () => string[];
       /** Game canvas size in game coordinates. */
       getGameSize: () => { width: number; height: number };
+      /** Building hit rectangle of a world in page CSS pixels (top-left + size); null when the map is not active or the world has no building. */
+      getBuildingHit: (worldId: string) => Rect | null;
+      /** Spoken lines requested so far, optionally only those with index >= sinceIndex. */
+      getSpokenLines: (sinceIndex?: number) => SpokenLine[];
+      getSpokenLineCount: () => number;
     };
   }
 }
@@ -67,6 +74,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.registry.set('appContext', context);
 
   // Test/recording hooks exist only with ?e2e=1 (they expose the correct answer).
+  const speechRecorder = new SpeechRecorder();
+  if (isE2e()) context.audio.setObserver(speechRecorder);
   if (isE2e()) window.__testHooks__ = {
     goToScreen(screen) {
       window.__GAME_READY__ = false;
@@ -127,6 +136,24 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     },
     getGameSize() {
       return { width: game.scale.width, height: game.scale.height };
+    },
+    getBuildingHit(worldId) {
+      if (!game.scene.isActive('MapScene')) return null;
+      const scene = game.scene.getScene('MapScene') as MapScene | null;
+      const gameRect = scene?.getBuildingRect(worldId);
+      if (!gameRect) return null;
+      const box = game.canvas.getBoundingClientRect();
+      return gameRectToPageRect(
+        gameRect,
+        { x: box.left, y: box.top, width: box.width, height: box.height },
+        { width: game.scale.width, height: game.scale.height },
+      );
+    },
+    getSpokenLines(sinceIndex) {
+      return speechRecorder.getLines(sinceIndex);
+    },
+    getSpokenLineCount() {
+      return speechRecorder.getCount();
     },
   };
 
