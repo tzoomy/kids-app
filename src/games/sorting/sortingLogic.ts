@@ -169,6 +169,8 @@ export interface BuildRoundParams {
   /** Flowers in the round (the adaptive `trialsPerRound`, 3). */
   flowerCount: number;
   random: () => number;
+  /** Optional flower id (shape-color-size) the round should start with (the engine's known item). */
+  preferredFirst?: string;
 }
 
 export interface RoundBedPlan {
@@ -318,6 +320,17 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
     beds,
     flowers,
   };
+}
+
+/** The part of SkillSession the first-flower choice needs. */
+export interface FirstFlowerSkills {
+  familiarItemIds(lang: string): string[];
+  selectNextItem(lang: string, candidates: readonly string[]): string;
+}
+
+/** STUB (TDD step 1): the first-flower choice through the adaptive engine. */
+export function chooseFirstFlower(_skills: FirstFlowerSkills, _lang: string): string {
+  return '';
 }
 
 /** Attributes a rule sorts by. */
