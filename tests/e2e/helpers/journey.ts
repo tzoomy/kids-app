@@ -2,6 +2,9 @@
 // Not a test file: Playwright only runs *.spec.ts / *.test.ts, so this folder is never collected.
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
+import type { SortingInfo } from '../../../src/games/sorting/types';
+
+export type { SortingInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -12,12 +15,15 @@ export const GAME_SCENE: Record<string, string> = {
   bubbles: 'BubblesScene',
   // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'who-is-hiding': 'HidingScene',
+  // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
+  'sorting-beds': 'SortingScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
   'nature-lab': 'who-is-hiding',
+  'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
@@ -89,6 +95,11 @@ type Hooks = {
   /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
   isListening: () => boolean;
   seedHidingLevel: (level: number) => void;
+  getSortingInfo: () => SortingInfo | null;
+  getSpokenLineCount: () => number;
+  seedSortingLevel: (level: number) => void;
+  seedBalanceSec: (sec: number) => void;
+  seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
 };
 
 type HookName = keyof Hooks;
@@ -307,4 +318,139 @@ export async function waitForOrchestraEcho(page: Page): Promise<OrchestraInfo> {
   const info = await getOrchestraInfo(page);
   if (!info) throw new Error('no active orchestra trial');
   return info;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Sorting Beds (docs/specs/sorting-beds.md, docs/contracts/sorting-beds.md)
+// Hit rectangles from getSortingInfo are already in page CSS px: tap them with page.mouse.click (not clickGame).
+// ---------------------------------------------------------------------------------------------
+
+export type ReadySortingInfo = SortingInfo & { currentItem: NonNullable<SortingInfo['currentItem']> };
+
+export function getSpokenLineCount(page: Page): Promise<number> {
+  return callHook<number>(page, 'getSpokenLineCount');
+}
+
+/** Seeds the active profile's persisted Sorting Beds level. Call from `enterWorldByTap(page, profile, worldId, undefined, { beforeEnter })`. */
+export async function seedSortingLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSortingLevel', [level]);
+}
+
+/** Seeds the active profile's leisure balance in seconds. Call from `enterWorldByTap(page, profile, worldId, undefined, { beforeEnter })`. */
+export async function seedBalanceSec(page: Page, sec: number): Promise<void> {
+  await callHook<void>(page, 'seedBalanceSec', [sec]);
+}
+
+/** Seeds the app's language setting (stored settings.languages) so a test knows which language a round uses. Call from `beforeEnter`. */
+export async function seedLanguageSetting(page: Page, lang: 'en' | 'fr' | 'both'): Promise<void> {
+  await callHook<void>(page, 'seedLanguageSetting', [lang]);
+}
+
+export function getSortingInfo(page: Page): Promise<SortingInfo | null> {
+  return callHook<SortingInfo | null>(page, 'getSortingInfo');
+}
+
+/** Waits until the current flower is in the basket and bed taps are accepted (kept tight: about 12 s). */
+export async function waitForSortingReady(page: Page, timeout = 12_000): Promise<ReadySortingInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getSortingInfo();
+      return info !== null && info.ready && info.currentItem !== null;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getSortingInfo(page);
+  if (!info || !info.currentItem) throw new Error('no active Sorting Beds round');
+  return info as ReadySortingInfo;
+}
+
+/** Flowers placed so far in the round, summed over the beds (examples excluded). */
+export function placedCount(info: SortingInfo): number {
+  return info.beds.reduce((sum, bed) => sum + bed.count, 0);
+}
+
+/** Real pointer click at the centre of a page-px rectangle. */
+export async function tapRect(page: Page, hit: PageRect): Promise<void> {
+  await page.mouse.click(hit.x + hit.width / 2, hit.y + hit.height / 2);
+}
+
+/** Real tap on a bed, using a fresh read of its hit rectangle. */
+export async function tapBed(page: Page, bedId: string): Promise<void> {
+  const info = await getSortingInfo(page);
+  const bed = info?.beds.find((b) => b.id === bedId);
+  if (!bed) throw new Error(`no bed "${bedId}" in the active round`);
+  await tapRect(page, bed.hit);
+}
+
+/** Id of a bed that does NOT accept the current flower. */
+export function wrongBedId(info: ReadySortingInfo): string {
+  const bed = info.beds.find((b) => b.id !== info.currentItem.targetBedId);
+  if (!bed) throw new Error('the round has no second bed');
+  return bed.id;
+}
+
+/** Polls until the state differs from `before` (a flower was consumed, the round moved on, or the level changed). */
+async function waitForStateChange(page: Page, before: ReadySortingInfo, timeout: number): Promise<void> {
+  const beforeCount = placedCount(before);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSortingInfo(page);
+    const changed =
+      info === null ||
+      info.currentItem === null ||
+      !info.ready ||
+      placedCount(info) !== beforeCount ||
+      info.currentItem.id !== before.currentItem.id ||
+      info.level !== before.level;
+    if (changed) return;
+    if (Date.now() > deadline) throw new Error('the tap on the matching bed did not change the Sorting Beds state');
+    await page.waitForTimeout(50);
+  }
+}
+
+/** Waits for the current flower, taps its matching bed for real, waits until it is consumed. Returns the info read before the tap. */
+export async function placeCurrentCorrectly(page: Page, timeout = 12_000): Promise<ReadySortingInfo> {
+  const before = await waitForSortingReady(page, timeout);
+  const target = before.beds.find((b) => b.id === before.currentItem.targetBedId);
+  if (!target) throw new Error(`target bed "${before.currentItem.targetBedId}" is not among the beds`);
+  await tapRect(page, target.hit);
+  await waitForStateChange(page, before, timeout);
+  return before;
+}
+
+/** Reads the HUD star counter (a star emoji followed by the number). */
+export async function readStarCount(page: Page): Promise<number> {
+  const text = (await page.locator('[data-testid="star-count"]').textContent()) ?? '';
+  const match = text.match(/(\d+)/);
+  if (!match) throw new Error(`unreadable star count: "${text}"`);
+  return Number(match[1]);
+}
+
+/** Reads the HUD leisure balance ("m:ss") in seconds. */
+export async function readBalanceSec(page: Page): Promise<number> {
+  const text = (await page.locator('[data-testid="leisure-balance"]').first().textContent()) ?? '';
+  const match = text.match(/(\d+):(\d{2})/);
+  if (!match) throw new Error(`unreadable leisure balance: "${text}"`);
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+export interface StoredSkill {
+  level: number;
+  recent: string[];
+  items: Record<string, unknown>;
+}
+
+/** The persisted adaptive skill of a profile (read-only localStorage read), e.g. to prove "one placement is one recorded trial". */
+export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `number-garden.sorting-beds.${lang}`] as const,
+  );
 }
