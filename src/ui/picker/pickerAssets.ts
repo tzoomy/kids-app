@@ -6,7 +6,7 @@ import { ART_MANIFEST, type ArtManifestEntry } from '../../assets/art/manifest';
  * The real SVGs arrive on branch art/language-house-picker, which registers these same four keys in
  * src/assets/art/manifest.ts. Until then the placeholder block below stands in. `resolvePickerAsset`
  * looks in the manifest first, so once the art branch lands the real files win with no code change here.
- * Do NOT add these keys to ART_MANIFEST on this branch (see docs/specs/kitchen-orchestra.assets.md).
+ * Do NOT add these keys to ART_MANIFEST on this branch (see docs/assets/language-house-picker.md).
  */
 export const PICKER_ASSET_KEYS = [
   'picker-card-animal-restaurant',

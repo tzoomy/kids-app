@@ -33,9 +33,10 @@ describe('Language House picker placeholder art', () => {
     expect([...PICKER_ASSET_KEYS].sort()).toEqual([...KEYS].sort());
   });
 
-  it('keeps the picker keys out of the main art manifest (the art branch registers them)', () => {
-    const manifestKeys = new Set(ART_MANIFEST.map((e) => e.key));
-    for (const key of KEYS) expect(manifestKeys.has(key)).toBe(false);
+  it('never registers a picker key twice in the main art manifest (art/language-house-picker owns those entries)', () => {
+    // When the art branch registers the keys, resolvePickerAsset returns its entries instead (see the last test).
+    const manifestKeys = ART_MANIFEST.map((e) => e.key).filter((k) => (KEYS as readonly string[]).includes(k));
+    expect(new Set(manifestKeys).size).toBe(manifestKeys.length);
   });
 
   it('resolves every key to a placeholder that exists on disk (or a CSS shape)', () => {
@@ -44,6 +45,8 @@ describe('Language House picker placeholder art', () => {
       expect(asset.key).toBe(key);
       if (asset.kind === 'css') {
         expect(asset.css.length).toBeGreaterThan(0);
+      } else if (asset.kind === 'manifest') {
+        expect(fs.existsSync(path.join('public', asset.url))).toBe(true);
       } else {
         expect(asset.kind).toBe('placeholder');
         expect(fs.existsSync(path.join('public', asset.url))).toBe(true);

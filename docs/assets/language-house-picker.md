@@ -22,6 +22,6 @@ to the placeholder. Once the art branch is merged, the real entries win automati
 ## Expected merge with `art/language-house-picker`
 
 1. Merge the art branch. It adds the four keys to `ART_MANIFEST` and the SVG files.
-2. Nothing in the picker code needs to change. `tests/unit/kitchen-orchestra.picker.test.ts` asserts that the
-   keys are absent from the manifest; that one assertion must be removed or inverted in the merge.
+2. Nothing in the picker code or tests needs to change: `tests/unit/kitchen-orchestra.picker.test.ts` accepts either the
+   placeholder or the real manifest entry, and only fails if a key is registered twice.
 3. Optionally delete the `PLACEHOLDERS` block and the fallback branch of `resolvePickerAsset` afterwards.
