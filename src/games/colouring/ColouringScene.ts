@@ -59,6 +59,7 @@ export class ColouringScene extends Phaser.Scene {
   private undoStack: Fills[] = [];
   private regionDefs: ColouringRegionDef[] = [];
   private pages = new Map<string, PageData>();
+  private pageDefs = new Map<string, ColouringRegionDef[]>();
   private ready = false;
   private ended = false;
   private warnedLow = false;
@@ -86,6 +87,7 @@ export class ColouringScene extends Phaser.Scene {
     this.warnedLow = false;
     this.alive = true;
     this.pages = new Map();
+    this.pageDefs = new Map();
     this.undoStack = [];
     this.visuals = [];
     this.pulse = null;
@@ -112,7 +114,7 @@ export class ColouringScene extends Phaser.Scene {
     this.tickTimer = this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
     void this.say(COLOURING_VOICE.intro);
 
-    this.loadArt(() => void this.showPage());
+    this.loadArt(() => void this.loadAllPages());
     window.__GAME_READY__ = true;
   }
 
@@ -259,20 +261,26 @@ export class ColouringScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- page
 
-  private async showPage(): Promise<void> {
-    const pageId = this.pageId;
-    const def = this.context.content.colouring.pages[this.pageIndex];
-    this.regionDefs = def.regions.map((r) => ({ id: r.id, age2: r.age2, parent: r.parent }));
-    let data = this.pages.get(pageId);
-    if (!data) {
-      const text = await this.fetchSvg(pageId);
-      if (!this.alive || pageId !== this.pageId) return;
-      const geometry = parsePageSvg(text, this.regionDefs.map((r) => r.id));
-      const tester = createPageTester(geometry, this.regionDefs, this.ageTrack);
-      const tapPoints = new Map<string, { x: number; y: number }>();
-      data = { geometry, tester, tapPoints };
-      this.pages.set(pageId, data);
+  /** Fetches and parses every page once, so a page change is synchronous and the hook is never null mid-session. */
+  private async loadAllPages(): Promise<void> {
+    const pages = this.context.content.colouring.pages;
+    const parsed = await Promise.all(
+      pages.map(async (def) => {
+        const defs: ColouringRegionDef[] = def.regions.map((r) => ({ id: r.id, age2: r.age2, parent: r.parent }));
+        const geometry = parsePageSvg(await this.fetchSvg(def.id), defs.map((r) => r.id));
+        return { id: def.id, defs, geometry };
+      }),
+    );
+    if (!this.alive) return;
+    for (const { id, defs, geometry } of parsed) {
+      this.pageDefs.set(id, defs);
+      this.pages.set(id, { geometry, tester: createPageTester(geometry, defs, this.ageTrack), tapPoints: new Map() });
     }
+    this.showPage();
+  }
+
+  private showPage(): void {
+    this.regionDefs = this.pageDefs.get(this.pageId) ?? [];
     if (!this.fillCanvas) {
       if (this.textures.exists(FILL_TEXTURE)) this.textures.remove(FILL_TEXTURE);
       this.fillCanvas = this.textures.createCanvas(FILL_TEXTURE, VIEWBOX, VIEWBOX) ?? undefined;
@@ -424,7 +432,7 @@ export class ColouringScene extends Phaser.Scene {
     this.pulse = null;
     this.persistSave();
     this.refreshChrome();
-    void this.showPage();
+    this.showPage();
   }
 
   // ---------------------------------------------------------------- time
