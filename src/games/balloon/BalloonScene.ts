@@ -148,6 +148,10 @@ export class BalloonScene extends Phaser.Scene {
 
   private cleanup(): void {
     this.roundToken++;
+    this.hintTimer?.remove();
+    this.retryTimer?.remove();
+    this.hintTimer = undefined;
+    this.retryTimer = undefined;
     this.round = null;
     this.clearBalloons();
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
@@ -227,6 +231,8 @@ export class BalloonScene extends Phaser.Scene {
     this.session.reportInteraction();
     this.helpOpen = true;
     this.hintTimer?.remove();
+    // Help cut the intro short: play it again when the card closes.
+    if (this.introPlaying) this.introPending = true;
     const content = this.context.content.balloon;
     const seq = ++this.speakSeq;
     this.introPlaying = false;
@@ -250,7 +256,11 @@ export class BalloonScene extends Phaser.Scene {
           return;
         }
         this.scheduleIdleHint();
-        if (this.round && !this.round.done && this.ready) void this.speakPrompt();
+        if (this.round && !this.round.done && this.ready) {
+          const intro = this.introPending ? { lineId: INTRO_LINE_ID, lang: 'he' as const, text: this.context.content.balloon.introHe } : undefined;
+          this.introPending = false;
+          void this.speakPrompt(intro);
+        }
       },
       this.speakerAvoidRect(),
     );
@@ -304,6 +314,8 @@ export class BalloonScene extends Phaser.Scene {
     void Promise.all(rises).then(() => {
       if (token !== this.roundToken || !this.round || this.round.done) return;
       this.ready = true;
+      // Help opened during the pop-in: keep the intro for when the card closes.
+      if (this.helpOpen) return;
       const intro = this.introPending ? { lineId: INTRO_LINE_ID, lang: 'he' as const, text: content.introHe } : undefined;
       this.introPending = false;
       void this.speakPrompt(intro);
@@ -407,7 +419,24 @@ export class BalloonScene extends Phaser.Scene {
   private replay(): void {
     if (!this.round || this.round.done || !this.ready || this.helpOpen) return;
     this.session.reportInteraction();
-    void this.speakPrompt();
+    // A voluntary replay restarts the age-2 idle clock instead of letting a pending hint talk over it.
+    this.hintTimer?.remove();
+    const round = this.round;
+    void this.speakPrompt().then(() => {
+      if (this.round === round && !round.done) this.scheduleIdleHint();
+    });
+  }
+
+  /** Age-5 first wrong tap: the retry line and the request again, deferred while the intro or help is speaking or open. */
+  private repeatRequest(retry?: SpeechRequest): void {
+    const round = this.round;
+    if (!round || round.done) return;
+    if (this.helpOpen || this.introPlaying || this.helpPlaying) {
+      this.retryTimer?.remove();
+      this.retryTimer = this.time.delayedCall(HINT_DEFER_POLL_MS, () => this.repeatRequest(retry));
+      return;
+    }
+    void this.speakPrompt(retry);
   }
 
   /** Speaks the request (device TTS for EN/FR), optionally after one Hebrew line. A newer call supersedes an older one. */
@@ -415,10 +444,11 @@ export class BalloonScene extends Phaser.Scene {
     if (!this.round || this.helpOpen) return;
     const seq = ++this.speakSeq;
     const round = this.round;
+    // A newer call supersedes an interrupted intro, so the flag never sticks (it would block every hint).
+    this.introPlaying = before?.lineId === INTRO_LINE_ID;
     this.session.reportListening(true);
     try {
       if (before) {
-        this.introPlaying = before.lineId === INTRO_LINE_ID;
         try {
           await this.context.audio.play(before);
         } finally {
@@ -540,7 +570,7 @@ export class BalloonScene extends Phaser.Scene {
     } else {
       this.context.sfx.hint();
       if (round.tries >= 2) later(() => this.giveHint());
-      else later(() => void this.speakPrompt(retry));
+      else later(() => this.repeatRequest(retry));
     }
   }
 
@@ -556,6 +586,7 @@ export class BalloonScene extends Phaser.Scene {
     this.context.sfx.pop();
     this.context.sfx.yay();
     this.speakSeq++;
+    this.introPlaying = false;
     this.correctCount++;
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();

@@ -339,6 +339,62 @@ test.describe('balloon pop: hints and help (review fixes)', () => {
     await waitForSpokenLine(page, isRetry, 10_000, help.index);
   });
 
+  test('[AC-17] @single-orientation age 2: a speaker replay that cuts the intro short does not block later hints', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await installE2eTts(page, 2500); // a long intro, so the replay tap lands inside it
+    await enter(page, 'profile-a', { lang: 'en' });
+    const info = await waitForBalloonReady(page);
+    await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.intro', 8_000);
+    await tapRect(page, info.replay);
+    const lineId = `balloon.${info.targetItemId}.en`;
+    const replayed = await waitForSpokenLine(page, (l) => l.lineId === lineId, 8_000);
+    // Then, idle: the age-2 idle hint (the request again) still comes.
+    await waitForSpokenLine(page, (l) => l.lineId === lineId, 15_000, replayed.index + 1);
+    // And a wrong tap still gets its retry line.
+    const before = await getSpokenLineCount(page);
+    await tapBalloon(page, wrongItemId(info));
+    await waitForSpokenLine(page, isRetry, 10_000, before);
+  });
+
+  test('[AC-17] @single-orientation help opened during the intro: the intro plays again once the card closes', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await installE2eTts(page, 2500);
+    await enter(page, 'profile-a', { lang: 'en' });
+    const info = await waitForBalloonReady(page);
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.intro', 8_000);
+    await page.locator('[data-testid="hud-help"]').click();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.help', 8_000, intro.index + 1);
+    await closeHelpCard(page);
+    const again = await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.intro', 10_000, intro.index + 1);
+    await waitForSpokenLine(page, (l) => l.lineId === `balloon.${info.targetItemId}.en`, 10_000, again.index + 1);
+  });
+
+  test('[AC-17] @single-orientation age 5: the first wrong tap keeps its retry line when help opens right after it', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await installE2eTts(page, 600);
+    await enter(page, 'profile-b', { lang: 'en' });
+    const info = await waitForBalloonReady(page);
+    await waitForSpokenLine(page, (l) => l.lineId === `balloon.${info.targetItemId}.en`, 10_000);
+    // The age-5 retry line waits for the wobble; open help inside that window (pre-measured, raw clicks for speed).
+    const helpBox = await page.locator('[data-testid="hud-help"]').boundingBox();
+    if (!helpBox) throw new Error('no help button');
+    const wrong = info.balloons.find((b) => b.itemId === wrongItemId(info))!.hit;
+    await page.mouse.click(wrong.x + wrong.width / 2, wrong.y + wrong.height / 2);
+    await page.mouse.click(helpBox.x + helpBox.width / 2, helpBox.y + helpBox.height / 2);
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    expect((await getBalloonInfo(page))?.tries).toBe(1);
+    const help = await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.help', 8_000);
+    // Keep the card open past the wobble delay, so the retry falls due while help is up.
+    await page.waitForTimeout(1_000);
+    expect((await getSpokenLines(page, help.index)).some(isRetry)).toBe(false);
+    await closeHelpCard(page);
+    await waitForSpokenLine(page, isRetry, 10_000, help.index);
+  });
+
   test('[AC-17] @single-orientation age 2: the idle hint repeats while the child stays idle', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(60_000);
