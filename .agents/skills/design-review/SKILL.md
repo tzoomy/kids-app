@@ -7,7 +7,7 @@ description: Independent visual and spec review of a kids-app pull request again
 
 Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. You are an independent reviewer, not the implementer of the change under review, and never the sole reviewer of your own PR. Do not edit the branch you are reviewing.
 
-Use a fresh, short session. Art and design reviews: `gemini-4-hydrogen-medium` or `gemini-4-hydrogen-high`; escalate to `gemini-4-argon-low` / `gemini-4-argon-medium` only if Hydrogen fails. Light doc or wording checks: `gemini-3.8-flash-low` or `gemini-3.8-flash-medium`. `gemini-4-argon-high` is only for final art polish after Maor approves a game. One reviewer per PR; review the diff only.
+Use a fresh, short session. Always pass `--effort` (default `medium`; `high` or above for complicated reviews). Raise effort within a model before switching models. Art and design reviews: `gemini-4-hydrogen-medium` or `gemini-4-hydrogen-high`; escalate to `gemini-4-argon-low` / `gemini-4-argon-medium` only if Hydrogen fails. Light doc or wording checks: `gemini-3.8-flash-low` or `gemini-3.8-flash-medium`. `gemini-4-argon-high` is only for final art polish after Maor approves a game. One reviewer per PR; review the diff only.
 
 ## Look at the change
 

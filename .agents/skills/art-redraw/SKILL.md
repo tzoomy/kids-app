@@ -22,6 +22,7 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 
 ## Pass and checks
 
+- Always pass `--effort` (`low|medium|high|xhigh|max`). Default `medium`; use `high` or above for complicated work. Raise effort within a model before switching to a stronger one.
 - Pass 1 only: first-pass art with `gemini-3.8-flash-high`. Rig/geometry fixes and harder drafts: `gemini-4-hydrogen-medium` or `gemini-4-hydrogen-high`; escalate to `gemini-4-argon-low` / `gemini-4-argon-medium` only if Hydrogen fails. Do not add Pass 2 polish or recorded voice, and do not use `gemini-4-argon-high`, unless Maor has approved this game and asked for that polish.
 - After the edit, locally run only tests related to the change. The full suite runs in CI. Read only failure summaries, not full logs.
 - If the change is visual and in-game or preview shots are needed, use the `before-after-shots` skill. Do not take screenshots for non-visual changes.
