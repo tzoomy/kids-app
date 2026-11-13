@@ -22,10 +22,10 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 
 ## Approved design reference
 
-Once a character design is approved, base new images/poses on the approved design in `public/art/characters/<name>/` or `public/art/animals/<name>/`.
+Once a character design is approved, base new images/poses on the approved design in `public/art/characters/<name>/` or `public/art/animals/<name>/`, and attach the approved design image as a reference (`@path` in the `agy` prompt).
 
 ## Pass and checks
 
 - Pass 1 only: first-pass art. Do not add Pass 2 polish or recorded voice unless Maor has approved this game and asked for that polish.
-- After the edit, locally run only tests related to the change. The full suite runs in CI. Read only failure summaries, not full logs.
+- After the edit, run affected tests only, plus a smoke set (journey+hud) for shared code; full suite via `workflow_dispatch`. Read only failure summaries, not full logs.
 - If the change is visual and in-game or preview shots are needed, use the `before-after-shots` skill. Do not take screenshots for non-visual changes.
