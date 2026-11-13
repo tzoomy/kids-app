@@ -345,10 +345,12 @@ export const ANIMAL_RIGS: Record<string, AnimalRig> = {
         height: 214,
         depth: 1,
       },
+      // Ears sit high (y -340, was -298) so the tips clear the Who's Hiding? L5 reveal line
+      // (0.3 => y -336); floppy ears hanging fully below it left no dog clue at that level.
       earL: {
         key: 'ear-left',
         x: -86,
-        y: -298,
+        y: -340,
         originX: 0.72,
         originY: 0.22,
         width: 88,
@@ -359,7 +361,7 @@ export const ANIMAL_RIGS: Record<string, AnimalRig> = {
       earR: {
         key: 'ear-right',
         x: 86,
-        y: -298,
+        y: -340,
         originX: 0.28,
         originY: 0.22,
         width: 88,
