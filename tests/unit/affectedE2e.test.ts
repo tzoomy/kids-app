@@ -72,6 +72,20 @@ describe('affected e2e selection', () => {
     expect(picked).toEqual(['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts']);
   });
 
+  it('picnic train files select the picnic train specs, and a picker change also re-runs the sorting journey', () => {
+    const picnicSpecs = [
+      'tests/e2e/picnic-train.journey.spec.ts',
+      'tests/e2e/picnic-train.picker.spec.ts',
+      'tests/e2e/picnic-train.platform.spec.ts',
+    ];
+    expect(selectAffectedE2e(['src/games/picnic/picnicLogic.ts'])).toEqual(picnicSpecs);
+    expect(selectAffectedE2e(['src/content/games/picnic-train.json'])).toEqual(picnicSpecs);
+    expect(selectAffectedE2e(['tests/unit/picnic-train.logic.test.ts'])).toEqual(picnicSpecs);
+    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
+    expect(picker).toContain('tests/e2e/picnic-train.picker.spec.ts');
+    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
+  });
+
   it('game content JSON selects that game specs', () => {
     expect(selectAffectedE2e(['src/content/games/animal-restaurant.json'])).toEqual([
       'tests/e2e/animal-restaurant.journey.spec.ts',

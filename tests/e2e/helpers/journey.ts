@@ -16,20 +16,22 @@ export const GAME_SCENE: Record<string, string> = {
   // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'who-is-hiding': 'HidingScene',
   'leisure-colouring': 'ColouringScene',
-  // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
+  // Number Garden hosts two games, so its building opens a picker (see PICKER_WORLD_DEFAULT_GAME).
   'sorting-beds': 'SortingScene',
+  'picnic-train': 'PicnicScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
   'nature-lab': 'who-is-hiding',
-  'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  // Number Garden: Sorting Beds is the default card; pass 'picnic-train' to enterWorldByTap for the other one.
+  'number-garden': 'sorting-beds',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
