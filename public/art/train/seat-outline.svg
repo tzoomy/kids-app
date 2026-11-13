@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 160" width="140" height="160" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Pale ghost silhouette of one train bench / seat -->
+  <g fill="#FFF6E8" fill-opacity="0.55" stroke="#3B2A22" stroke-width="6" stroke-dasharray="10 10">
+    <!-- High backrest on right -->
+    <rect x="92" y="20" width="30" height="92" rx="12"/>
+    <!-- Horizontal bench cushion -->
+    <rect x="18" y="84" width="104" height="30" rx="12"/>
+    <!-- Lower bench base support -->
+    <rect x="28" y="114" width="84" height="24" rx="8"/>
+  </g>
+  <!-- Subtle inner armrest ghost detail -->
+  <rect x="28" y="70" width="66" height="16" rx="8" fill="#FFFDF9" fill-opacity="0.5" stroke="#5C4338" stroke-width="4" stroke-dasharray="8 8"/>
+</svg>

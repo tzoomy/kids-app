@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { COLOURING_PAGES } from '../shared/leisureColouringPages';
-import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
-import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey } from '../../src/anim/artRegistry';
+import { ANIMAL_RIGS, ANIMAL_ART_KINDS, CHARACTER_RIGS, HABITAT_ANIMAL_RIGS, HABITAT_ANIMAL_KINDS } from '../../src/assets/art/rigs';
+import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey, homeArtKey, trainArtKey } from '../../src/anim/artRegistry';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 // Mirrors ANIMAL_KINDS in src/assets/vectorArt.ts (not imported: it pulls in Phaser).
@@ -18,6 +18,7 @@ beforeEach(() => {
   registerArtManifest(ART_MANIFEST);
   registerAnimalRigs(ANIMAL_RIGS);
   registerAnimalRigs(CHARACTER_RIGS);
+  registerAnimalRigs(HABITAT_ANIMAL_RIGS);
 });
 
 describe('real art manifest', () => {
@@ -148,6 +149,22 @@ describe('real art manifest', () => {
     expect(propArtKey('flower-basket-back')).toBe('flower-basket-back');
     expect(propArtKey('flower-basket-front')).toBe('flower-basket-front');
   });
+
+  it('registers Who Lives Here? and Picnic Train art', () => {
+    for (const name of ['nest-back', 'nest-front', 'burrow-back', 'burrow-front', 'pond-back', 'pond-front', 'hive-back', 'hive-front', 'kennel-back', 'kennel-front', 'tree-hollow-back', 'tree-hollow-front']) {
+      expect(homeArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['clue-card-back', 'clue-card-frame', 'clue-icon-feather', 'clue-icon-paw', 'clue-icon-water', 'clue-icon-honeycomb', 'clue-icon-bone', 'clue-icon-leaf', 'picnic-basket']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['engine', 'car', 'car-single', 'seat-outline', 'item-outline']) {
+      expect(trainArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('habitats', name), `habitats/${name}`).toBeDefined();
+      expect(sceneArtKey('picnic-train', name), `picnic-train/${name}`).toBeDefined();
+    }
+  });
 });
 
 describe('real animal rigs', () => {
@@ -212,6 +229,29 @@ describe('chef rig', () => {
       const entry = ART_MANIFEST.find((e) => e.url === `art/characters/${rig.kind}/${part.key}.svg`);
       expect(entry, `chef/${part.key}`).toBeDefined();
       expect([entry?.width, entry?.height], `chef/${part.key} size`).toEqual([part.width, part.height]);
+    }
+  });
+});
+
+describe('habitat animal rigs', () => {
+  it('is complete, registered, and kept out of the restaurant animal list', () => {
+    for (const kind of HABITAT_ANIMAL_KINDS) {
+      expect(ANIMAL_ART_KINDS.includes(kind), `${kind} must not be a restaurant kind`).toBe(false);
+      const rig = HABITAT_ANIMAL_RIGS[kind];
+      expect(rig, `rig for ${kind}`).toBeDefined();
+      expect(rig.kind).toBe(kind);
+      for (const id of ['body', 'head']) expect(rig.parts[id], `${kind}.${id}`).toBeDefined();
+      expect(rigTextureKeys(rig), `${kind} textures are all in the manifest`).toBeDefined();
+    }
+  });
+
+  it('matches every habitat rig part size to its manifest entry', () => {
+    for (const rig of Object.values(HABITAT_ANIMAL_RIGS)) {
+      for (const part of Object.values(rig.parts)) {
+        const entry = ART_MANIFEST.find((e) => e.url === `art/animals/${rig.kind}/${part.key}.svg`);
+        expect(entry, `${rig.kind}/${part.key}`).toBeDefined();
+        expect([entry?.width, entry?.height], `${rig.kind}/${part.key} size`).toEqual([part.width, part.height]);
+      }
     }
   });
 });

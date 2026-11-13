@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer water ripple ring at bottom -->
+    <ellipse cx="80" cy="124" rx="58" ry="18" fill="#8CC0FF" />
+    <!-- Inner water ripple ring -->
+    <ellipse cx="80" cy="124" rx="36" ry="10" fill="#D6EAFF" stroke-width="5" />
+
+    <!-- Plump glossy water drop -->
+    <path d="M 80 18 C 80 18 120 62 120 88 C 120 110 102 126 80 126 C 58 126 40 110 40 88 C 40 62 80 18 80 18 Z" fill="#4D96FF" />
+
+    <!-- Water drop right-bottom crescent shadow -->
+    <path d="M 96 48 C 110 68 114 82 114 90 C 114 108 98 120 80 120 C 68 120 58 114 52 106 C 62 112 72 114 82 112 C 98 108 106 94 96 48 Z" fill="#2B6FD6" stroke="none" />
+
+    <!-- Water drop left highlight -->
+    <path d="M 54 88 C 52 72 64 50 76 34 C 68 54 62 72 64 90 C 64 96 56 96 54 88 Z" fill="#8CC0FF" stroke="none" />
+    <ellipse cx="60" cy="78" rx="6" ry="12" transform="rotate(14 60 78)" fill="#D6EAFF" stroke="none" />
+  </g>
+</svg>

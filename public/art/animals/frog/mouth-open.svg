@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Wide cheerful open frog mouth -->
+  <path d="M 10 13 C 22 17, 46 17, 58 13 C 60 30, 49 42, 34 42 C 19 42, 8 30, 10 13 Z" fill="#9E2A3B"/>
+  <!-- Rounded pink frog tongue -->
+  <path d="M 16 29 C 22 21, 46 21, 52 29 C 47 38, 41 42, 34 42 C 27 42, 21 38, 16 29 Z" fill="#FF758F"/>
+  <!-- Mouth outline -->
+  <path d="M 10 13 C 22 17, 46 17, 58 13 C 60 30, 49 42, 34 42 C 19 42, 8 30, 10 13 Z" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

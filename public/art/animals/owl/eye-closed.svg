@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Warm brown eyelid crease shadow -->
+  <path d="M 10 33 C 16 19, 38 19, 44 33" fill="none" stroke="#A96032" stroke-width="6" stroke-linecap="round"/>
+  <!-- Happy arched closed owl eye -->
+  <path d="M 9 31 C 15 16, 39 16, 45 31" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Outer lash flick -->
+  <path d="M 10 30 Q 4 26 4 21" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

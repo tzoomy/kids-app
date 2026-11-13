@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Cute pink frog tongue peek -->
+  <path d="M 25 22 C 25 33, 43 33, 43 22 Z" fill="#FF758F" stroke="#3B2A22" stroke-width="4.5" stroke-linejoin="round"/>
+  <!-- Wide friendly frog smile -->
+  <path d="M 8 14 C 18 27, 50 27, 60 14" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Cheek dimple ticks -->
+  <path d="M 5 16 Q 8 11 12 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 63 16 Q 60 11 56 13" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

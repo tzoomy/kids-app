@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Sturdy tree trunk with flared roots -->
+    <path d="M 74 114 H 246 C 244 196 250 284 282 356 C 288 366 276 374 260 372 C 234 370 212 362 198 354 C 184 368 136 368 122 354 C 108 362 86 370 60 372 C 44 374 32 366 38 356 C 70 284 76 196 74 114 Z" fill="#B87D56" />
+    <!-- Left side trunk highlight -->
+    <path d="M 82 122 H 122 C 118 202 114 284 86 356 C 72 362 56 364 48 360 C 76 288 82 202 82 122 Z" fill="#CC926B" stroke="none" />
+    <!-- Right side trunk shadow -->
+    <path d="M 206 122 H 240 C 238 202 246 288 274 360 C 264 364 248 362 234 356 C 210 284 208 202 206 122 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Gentle vertical bark lines (single lines only, no eye-like knots) -->
+    <path d="M 88 156 Q 92 224 76 312" fill="none" stroke="#7A4B2A" stroke-width="5" />
+    <path d="M 232 164 Q 228 232 244 316" fill="none" stroke="#7A4B2A" stroke-width="5" />
+
+    <!-- Top foliage canopy -->
+    <path d="M 38 118 C 16 102 20 66 48 56 C 58 28 96 16 126 30 C 146 14 182 14 200 32 C 230 20 266 34 274 62 C 298 74 300 106 278 122 C 254 138 66 138 38 118 Z" fill="#57C457" />
+    <!-- Foliage upper highlight -->
+    <path d="M 56 68 C 72 40 102 30 126 42 C 148 26 178 26 196 42 C 222 34 250 44 260 68 C 232 52 198 48 160 48 C 122 48 84 52 56 68 Z" fill="#8AE07E" stroke="none" />
+    <!-- Foliage lower shadow -->
+    <path d="M 46 112 C 92 128 228 128 274 112 C 256 132 64 132 46 112 Z" fill="#3CA33C" stroke="none" />
+
+    <!-- Generous rounded tree hollow opening (settle target for the owl) -->
+    <ellipse cx="160" cy="236" rx="66" ry="78" fill="#D9A06B" />
+    <ellipse cx="160" cy="236" rx="54" ry="66" fill="#261710" />
+    <!-- Inner hollow top shadow depth -->
+    <path d="M 110 218 A 52 60 0 0 1 210 218 A 54 48 0 0 0 110 218 Z" fill="#5C3422" stroke="none" />
+
+    <!-- Soft grass tufts at the foot of the tree -->
+    <path d="M 28 372 C 18 352 32 340 46 354 C 52 336 70 338 70 356 C 84 344 96 354 86 372 Z" fill="#57C457" />
+    <path d="M 234 372 C 224 354 236 344 250 356 C 250 338 268 336 274 354 C 288 340 302 352 292 372 Z" fill="#57C457" />
+  </g>
+</svg>

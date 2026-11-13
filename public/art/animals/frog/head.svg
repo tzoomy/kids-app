@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" width="240" height="170">
+  <!-- Wide frog head silhouette with raised eye-domes at top -->
+  <path d="M 38 48 C 38 16, 88 12, 102 36 C 114 34, 126 34, 138 36 C 152 12, 202 16, 202 48 C 224 68, 230 106, 214 134 C 196 156, 160 160, 120 160 C 80 160, 44 156, 26 134 C 10 106, 16 68, 38 48 Z" fill="#57C457"/>
+
+  <!-- Lower cheek and chin shadow -->
+  <path d="M 18 106 C 24 146, 62 160, 120 160 C 178 160, 216 146, 222 106 C 208 138, 174 150, 120 150 C 66 150, 32 138, 18 106 Z" fill="#3CA33C"/>
+
+  <!-- Upper eye-dome and brow highlights -->
+  <path d="M 46 42 C 54 22, 82 20, 94 34 C 78 28, 58 30, 46 42 Z" fill="#8AE07E"/>
+  <path d="M 146 34 C 158 20, 186 22, 194 42 C 182 30, 162 28, 146 34 Z" fill="#8AE07E"/>
+
+  <!-- Soft pale green lower chin/throat area -->
+  <ellipse cx="120" cy="126" rx="64" ry="26" fill="#CFF27E"/>
+  <path d="M 60 132 C 74 148, 96 152, 120 152 C 144 152, 166 148, 180 132 C 164 144, 144 146, 120 146 C 96 146, 76 144, 60 132 Z" fill="#98D886"/>
+
+  <!-- Rosy blush cheeks -->
+  <ellipse cx="42" cy="112" rx="20" ry="13" transform="rotate(6 42 112)" fill="#FF8FA3"/>
+  <ellipse cx="38" cy="109" rx="8" ry="4" transform="rotate(6 38 109)" fill="#FFFDF9"/>
+  <ellipse cx="198" cy="112" rx="20" ry="13" transform="rotate(-6 198 112)" fill="#FF8FA3"/>
+  <ellipse cx="194" cy="109" rx="8" ry="4" transform="rotate(-6 194 109)" fill="#FFFDF9"/>
+
+  <!-- Cute little frog nostrils -->
+  <ellipse cx="108" cy="92" rx="3.5" ry="4.5" transform="rotate(-12 108 92)" fill="#3B2A22"/>
+  <ellipse cx="132" cy="92" rx="3.5" ry="4.5" transform="rotate(12 132 92)" fill="#3B2A22"/>
+
+  <!-- Head outline -->
+  <path d="M 38 48 C 38 16, 88 12, 102 36 C 114 34, 126 34, 138 36 C 152 12, 202 16, 202 48 C 224 68, 230 106, 214 134 C 196 156, 160 160, 120 160 C 80 160, 44 156, 26 134 C 10 106, 16 68, 38 48 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

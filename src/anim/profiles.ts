@@ -60,6 +60,19 @@ export const ANIM_PROFILE = {
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
 
+  /** Who Lives Here? walk-home and settle-in. */
+  homes: {
+    walk: { duration: 700, bob: 10, ease: 'Sine.easeInOut' },
+    settle: { duration: 420, scale: 0.86, ease: 'Back.easeOut' },
+  },
+
+  /** Picnic Train chug, arrive, and hand-out. */
+  train: {
+    chug: { bob: 8, duration: 180, ease: 'Sine.easeInOut' },
+    arrive: { duration: 800, ease: 'Sine.easeOut' },
+    handOut: { duration: 520, arcHeight: 110, endScale: 0.7, ease: 'Sine.easeIn' },
+  },
+
   /** Sorting Beds (docs/specs/sorting-beds.md): flower drop into a bed, soil settle, rule-sign flip on the L8 switch. */
   sorting: {
     drop: { duration: 520, arcHeight: 120, endScale: 0.92, ease: 'Sine.easeIn' },

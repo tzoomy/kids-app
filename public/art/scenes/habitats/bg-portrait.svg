@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Calm sky background -->
+  <rect width="800" height="1280" fill="#B8E6FF" />
+  <path d="M 0 0 H 800 V 460 Q 400 520 0 460 Z" fill="#D6EAFF" />
+
+  <!-- Soft warm sun in upper right -->
+  <circle cx="654" cy="148" r="68" fill="#FFE073" stroke="#5C4338" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 618 112 A 52 52 0 0 1 690 128 A 54 54 0 0 0 618 112 Z" fill="#FFFDF9" />
+  <path d="M 608 178 A 56 56 0 0 0 702 170 A 60 60 0 0 1 608 178 Z" fill="#FFD166" />
+
+  <!-- Puffy clouds in taller sky -->
+  <g stroke="#5C4338" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 96 226 H 282 C 308 226 324 206 316 184 C 310 166 290 160 276 164 C 264 136 230 124 202 138 C 180 118 140 124 128 154 C 102 154 80 174 82 198 C 84 214 90 226 96 226 Z" fill="#FFFDF9" />
+    <path d="M 102 220 H 278 C 296 220 308 208 308 196 C 280 206 156 208 102 220 Z" fill="#FFF6E8" stroke="none" />
+
+    <path d="M 416 346 H 568 C 590 346 602 330 596 312 C 590 298 574 292 562 296 C 550 274 522 266 500 278 C 482 264 450 268 440 292 C 420 292 402 308 404 326 C 406 338 410 346 416 346 Z" fill="#FFFDF9" />
+    <path d="M 422 340 H 564 C 578 340 586 332 586 322 C 562 330 466 332 422 340 Z" fill="#FFF6E8" stroke="none" />
+  </g>
+
+  <!-- Distant background hills -->
+  <path d="M -20 560 Q 190 450 420 518 T 820 496 V 1280 H -20 Z" fill="#98D886" stroke="#5C4338" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 24 536 Q 190 466 390 516 Q 210 490 24 536 Z" fill="#8AE07E" />
+  <path d="M 480 516 Q 660 476 790 502 Q 650 494 480 516 Z" fill="#8AE07E" />
+
+  <!-- Distant left tree -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 68 452 V 534 H 96 V 452 Z" fill="#B87D56" />
+    <path d="M 84 452 V 534 H 96 V 452 Z" fill="#9E6540" stroke="none" />
+    <rect x="68" y="452" width="28" height="82" fill="none" />
+    <path d="M 26 464 C 14 438 34 406 62 406 C 72 384 106 384 116 406 C 142 408 156 440 140 464 C 128 480 38 480 26 464 Z" fill="#57C457" />
+    <path d="M 42 424 C 56 402 98 398 112 416 C 88 410 60 414 42 424 Z" fill="#8AE07E" stroke="none" />
+    <path d="M 34 460 C 64 474 108 474 134 458 C 120 474 48 474 34 460 Z" fill="#3CA33C" stroke="none" />
+  </g>
+
+  <!-- Distant right tree -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 692 436 V 522 H 720 V 436 Z" fill="#B87D56" />
+    <path d="M 708 436 V 522 H 720 V 436 Z" fill="#9E6540" stroke="none" />
+    <rect x="692" y="436" width="28" height="86" fill="none" />
+    <path d="M 648 450 C 636 422 656 390 684 390 C 694 368 728 368 738 390 C 766 392 780 424 764 450 C 750 466 662 466 648 450 Z" fill="#57C457" />
+    <path d="M 664 408 C 678 386 720 382 734 400 C 710 394 682 398 664 408 Z" fill="#8AE07E" stroke="none" />
+    <path d="M 656 446 C 686 460 730 460 758 444 C 742 460 670 460 656 446 Z" fill="#3CA33C" stroke="none" />
+  </g>
+
+  <!-- Lower-half meadow hillside -->
+  <path d="M -20 596 Q 220 546 430 578 T 820 570 V 1300 H -20 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 20 600 Q 220 558 410 584 Q 220 574 20 600 Z" fill="#8AE07E" />
+  <path d="M -20 1160 Q 400 1120 820 1160 V 1300 H -20 Z" fill="#3CA33C" />
+
+  <!-- Generous open clearing and dirt path in the lower half -->
+  <path d="M 326 568 C 304 646 116 694 84 824 C 52 954 128 1110 88 1290 H 712 C 672 1110 748 954 716 824 C 684 694 496 646 474 568 Z" fill="#F0DEC2" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 348 588 C 328 660 156 712 126 832 C 98 948 164 1094 134 1260 H 666 C 636 1094 702 948 674 832 C 644 712 472 660 452 588 Z" fill="#FFF6E8" />
+  <path d="M 118 834 C 146 720 302 670 338 594 C 292 662 132 710 102 830 C 72 950 144 1100 108 1270 H 132 C 162 1100 94 950 118 834 Z" fill="#E8AA6B" />
+
+  <!-- Low side bushes and small stones -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 16 746 C 2 722 20 694 46 696 C 56 676 88 678 98 698 C 122 700 134 726 120 746 Z" fill="#57C457" />
+    <path d="M 34 710 C 48 692 82 690 94 704 C 74 700 50 702 34 710 Z" fill="#8AE07E" stroke="none" />
+
+    <path d="M 680 756 C 666 732 684 704 710 706 C 720 686 752 688 762 708 C 786 710 798 736 784 756 Z" fill="#57C457" />
+    <path d="M 698 720 C 712 702 746 700 758 714 C 738 710 714 712 698 720 Z" fill="#8AE07E" stroke="none" />
+
+    <ellipse cx="168" cy="1028" rx="18" ry="11" fill="#E8AA6B" />
+    <ellipse cx="634" cy="996" rx="20" ry="12" fill="#E8AA6B" />
+    <ellipse cx="400" cy="692" rx="16" ry="9" fill="#F0DEC2" />
+  </g>
+</svg>

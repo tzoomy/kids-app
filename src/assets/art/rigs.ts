@@ -717,3 +717,71 @@ export const CHARACTER_RIGS: Record<string, AnimalRig> = {
 };
 
 export const CHARACTER_ART_KINDS: string[] = ['chef'];
+
+/**
+ * Extra rigged animals for Who Lives Here? These are registered with the art
+ * system but MUST stay out of ANIMAL_ART_KINDS / the restaurant picker.
+ */
+export const HABITAT_ANIMAL_RIGS: Record<string, AnimalRig> = {
+  bird: {
+    kind: 'bird',
+    height: 480,
+    eyeClosedKey: 'eye-closed',
+    mouthKeys: { smile: 'mouth-smile', open: 'mouth-open', hmm: 'mouth-hmm' },
+    parts: {
+      tail: { key: 'tail', x: 78, y: -72, originX: 0.2, originY: 0.7, width: 100, height: 120, depth: 0, parent: 'body' },
+      wingL: { key: 'wing-left', x: -70, y: -110, originX: 0.8, originY: 0.5, width: 130, height: 110, depth: 0, parent: 'body' },
+      wingR: { key: 'wing-right', x: 70, y: -110, originX: 0.2, originY: 0.5, width: 130, height: 110, depth: 2, parent: 'body' },
+      body: { key: 'body', x: 0, y: 0, originX: 0.5, originY: 0.96, width: 220, height: 200, depth: 1 },
+      head: { key: 'head', x: 0, y: -168, originX: 0.5, originY: 0.88, width: 200, height: 180, depth: 3 },
+      eyeL: { key: 'eye-open', x: -38, y: -248, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head' },
+      eyeR: { key: 'eye-open', x: 38, y: -248, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head', flipX: true },
+      mouth: { key: 'mouth-smile', x: 0, y: -200, originX: 0.5, originY: 0.35, width: 68, height: 48, depth: 5, parent: 'head' },
+    },
+  },
+  frog: {
+    kind: 'frog',
+    height: 480,
+    eyeClosedKey: 'eye-closed',
+    mouthKeys: { smile: 'mouth-smile', open: 'mouth-open', hmm: 'mouth-hmm' },
+    parts: {
+      body: { key: 'body', x: 0, y: 0, originX: 0.5, originY: 0.96, width: 260, height: 180, depth: 1 },
+      head: { key: 'head', x: 0, y: -132, originX: 0.5, originY: 0.9, width: 240, height: 170, depth: 3 },
+      eyeL: { key: 'eye-open', x: -52, y: -230, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head' },
+      eyeR: { key: 'eye-open', x: 52, y: -230, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head', flipX: true },
+      mouth: { key: 'mouth-smile', x: 0, y: -168, originX: 0.5, originY: 0.35, width: 68, height: 48, depth: 5, parent: 'head' },
+    },
+  },
+  bee: {
+    kind: 'bee',
+    height: 480,
+    eyeClosedKey: 'eye-closed',
+    mouthKeys: { smile: 'mouth-smile', open: 'mouth-open', hmm: 'mouth-hmm' },
+    parts: {
+      wingL: { key: 'wing-left', x: -62, y: -150, originX: 0.85, originY: 0.8, width: 140, height: 120, depth: 0, parent: 'body' },
+      wingR: { key: 'wing-right', x: 62, y: -150, originX: 0.15, originY: 0.8, width: 140, height: 120, depth: 0, parent: 'body' },
+      body: { key: 'body', x: 0, y: 0, originX: 0.5, originY: 0.96, width: 200, height: 180, depth: 1 },
+      head: { key: 'head', x: 0, y: -150, originX: 0.5, originY: 0.88, width: 180, height: 170, depth: 3 },
+      eyeL: { key: 'eye-open', x: -32, y: -228, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head' },
+      eyeR: { key: 'eye-open', x: 32, y: -228, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head', flipX: true },
+      mouth: { key: 'mouth-smile', x: 0, y: -184, originX: 0.5, originY: 0.35, width: 68, height: 48, depth: 5, parent: 'head' },
+    },
+  },
+  owl: {
+    kind: 'owl',
+    height: 480,
+    eyeClosedKey: 'eye-closed',
+    mouthKeys: { smile: 'mouth-smile', open: 'mouth-open', hmm: 'mouth-hmm' },
+    parts: {
+      body: { key: 'body', x: 0, y: 0, originX: 0.5, originY: 0.96, width: 240, height: 220, depth: 1 },
+      earL: { key: 'ear-left', x: -70, y: -330, originX: 0.65, originY: 0.85, width: 80, height: 90, depth: 2, parent: 'head' },
+      earR: { key: 'ear-right', x: 70, y: -330, originX: 0.35, originY: 0.85, width: 80, height: 90, depth: 2, parent: 'head' },
+      head: { key: 'head', x: 0, y: -182, originX: 0.5, originY: 0.88, width: 236, height: 196, depth: 3 },
+      eyeL: { key: 'eye-open', x: -44, y: -258, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head' },
+      eyeR: { key: 'eye-open', x: 44, y: -258, originX: 0.5, originY: 0.5, width: 52, height: 58, depth: 4, parent: 'head', flipX: true },
+      mouth: { key: 'mouth-smile', x: 0, y: -212, originX: 0.5, originY: 0.35, width: 68, height: 48, depth: 5, parent: 'head' },
+    },
+  },
+};
+
+export const HABITAT_ANIMAL_KINDS: string[] = ['bird', 'frog', 'bee', 'owl'];

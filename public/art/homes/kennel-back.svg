@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 320" width="360" height="320">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Wooden house main body -->
+    <path d="M 64 118 L 180 42 L 296 118 V 270 H 64 Z" fill="#CC926B" />
+    <!-- Shadow under roof eaves -->
+    <path d="M 68 122 L 180 50 L 292 122 V 142 L 180 70 L 68 142 Z" fill="#9E6540" stroke="none" />
+    <!-- Lower wall warm wood shading -->
+    <rect x="67" y="216" width="226" height="51" fill="#B87D56" stroke="none" />
+
+    <!-- Horizontal wood plank lines (subtle, no face shapes) -->
+    <line x1="68" y1="164" x2="292" y2="164" stroke="#5C4338" stroke-width="4" />
+    <line x1="68" y1="214" x2="292" y2="214" stroke="#5C4338" stroke-width="4" />
+
+    <!-- Flat wooden base platform -->
+    <rect x="44" y="266" width="272" height="28" rx="12" fill="#B87D56" />
+    <path d="M 56 272 H 304 C 296 278 64 278 56 272 Z" fill="#CC926B" stroke="none" />
+    <path d="M 52 284 H 308 C 304 290 56 290 52 284 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Generous arched doorway (settle target for the dog) -->
+    <path d="M 112 266 V 176 A 68 68 0 0 1 248 176 V 266 Z" fill="#9E6540" />
+    <path d="M 122 266 V 178 A 58 58 0 0 1 238 178 V 266 Z" fill="#261710" />
+    <!-- Cozy inner floor shadow inside doorway -->
+    <path d="M 125 244 H 235 V 264 H 125 Z" fill="#5C3422" stroke="none" />
+
+    <!-- Peaked red roof -->
+    <path d="M 32 128 L 168 30 C 176 24 184 24 192 30 L 328 128 C 336 134 332 148 320 148 C 314 148 308 144 302 140 L 180 52 L 58 140 C 52 144 46 148 40 148 C 28 148 24 134 32 128 Z" fill="#EE6C62" />
+    <!-- Roof upper highlight -->
+    <path d="M 48 122 L 176 32 C 180 30 182 30 186 32 L 312 122 L 304 128 L 180 40 L 56 128 Z" fill="#FFF6E8" stroke="none" />
+  </g>
+</svg>

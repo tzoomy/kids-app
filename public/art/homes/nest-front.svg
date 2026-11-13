@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 280" width="360" height="280">
+  <!-- Front rim of twigs only; interior bowl above y=176 is completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main front woven rim band -->
+    <path d="M 52 146 C 56 134 72 134 80 146 C 98 172 136 184 180 184 C 224 184 262 172 280 146 C 288 134 304 134 308 146 C 302 204 248 228 180 228 C 112 228 58 204 52 146 Z" fill="#B87D56" />
+
+    <!-- Highlight along top of front rim -->
+    <path d="M 68 150 C 92 178 134 192 180 192 C 226 192 268 178 292 150 C 276 184 232 202 180 202 C 128 202 84 184 68 150 Z" fill="#CC926B" stroke="none" />
+
+    <!-- Shadow along bottom curve of front rim -->
+    <path d="M 64 174 C 84 208 128 222 180 222 C 232 222 276 208 296 174 C 280 210 234 226 180 226 C 126 226 80 210 64 174 Z" fill="#9E6540" stroke="none" />
+
+    <!-- Woven twig texture lines on the front lip -->
+    <path d="M 74 172 Q 130 204 202 198" fill="none" stroke="#3B2A22" stroke-width="5" />
+    <path d="M 148 208 Q 218 212 284 174" fill="none" stroke="#3B2A22" stroke-width="5" />
+    <path d="M 96 198 Q 168 222 246 204" fill="none" stroke="#3B2A22" stroke-width="5" />
+
+    <!-- Small cheerful front leaf tucked on right rim -->
+    <path d="M 262 198 C 286 188 312 198 314 218 C 296 232 270 224 262 198 Z" fill="#57C457" />
+    <path d="M 272 202 C 286 196 300 202 304 212 C 292 210 280 206 272 202 Z" fill="#8AE07E" stroke="none" />
+  </g>
+</svg>
