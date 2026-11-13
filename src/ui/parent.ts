@@ -2,6 +2,7 @@ import { el, formatClock } from './dom';
 import type { AppState, LanguageSetting } from '../core/storage/schema';
 import heStrings from '../content/i18n/he.json';
 import { applyPwaUpdate, pwaNeedsRefresh } from '../pwa';
+import { formatBuildInfo } from '../buildInfo';
 
 export function renderParentGate(root: HTMLElement, onSuccess: () => void, onCancel: () => void): void {
   const a = 3 + Math.floor(Math.random() * 7);
@@ -131,6 +132,10 @@ export function renderParentSettings(root: HTMLElement, state: AppState, callbac
 
   body.appendChild(el('p', 'shell-note', t.placeholderNote));
   body.appendChild(el('p', 'shell-note', t.wipeNote));
+  const buildInfo = el('p', 'shell-note', formatBuildInfo());
+  buildInfo.dataset.testid = 'parent-build-info';
+  buildInfo.dir = 'ltr';
+  body.appendChild(buildInfo);
   if (pwaNeedsRefresh()) {
     const refresh = el('button', 'shell-btn', t.refreshApp);
     refresh.addEventListener('click', () => { void applyPwaUpdate(); });
