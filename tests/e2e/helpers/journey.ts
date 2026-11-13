@@ -145,7 +145,9 @@ export async function tapWorldBuilding(page: Page, profile: ProfileTestId, world
   let rect: PageRect | null = null;
   await expectPoll(async () => {
     const current = await getBuildingHit(page, worldId);
-    const settled = current !== null && previous !== null && Math.abs(current.width - previous.width) < 0.5;
+    // Width 0 means the pop-in has not started yet (scale 0): never treat that as settled.
+    const settled =
+      current !== null && previous !== null && current.width > 0 && Math.abs(current.width - previous.width) < 0.5;
     previous = current;
     rect = current;
     return settled;
