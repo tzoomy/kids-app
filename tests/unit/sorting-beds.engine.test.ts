@@ -50,6 +50,7 @@ const settings: LeisureSettings = {
   dailyEarnCapMinutes: 30,
   idleSeconds: 20,
   languages: 'both',
+  timeEarning: { enabled: true },
 };
 
 describe('sorting-beds: adaptive rules (AC-04, AC-07)', () => {
@@ -162,6 +163,7 @@ describe('sorting-beds: leisure (AC-08)', () => {
     const a = store.getProfileState('a', NOW);
     const b = store.getProfileState('b', NOW);
     b.balanceSec = 77;
+    store.getState().settings.timeEarning = { enabled: true };
     let now = 0;
     const learning = new LearningSession(a, store.getState().settings, () => now);
     learning.start();

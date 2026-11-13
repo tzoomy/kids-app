@@ -44,6 +44,7 @@ export function migrateLegacyState(raw: string, now: Date): AppState | null {
       dailyEarnCapMinutes: legacy.settings?.dailyEarnCapMin ?? 30,
       idleSeconds: legacy.settings?.idleSec ?? 20,
       languages: legacy.settings?.langs ?? 'both',
+      timeEarning: { enabled: false },
     },
     profiles: legacy.profiles.map((p) => ({
       id: p.id,

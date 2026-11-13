@@ -216,6 +216,7 @@ export class ColouringScene extends Phaser.Scene {
       selected: this.selectedColor,
       balanceSec: this.session.balanceSec,
       low: this.isLow(),
+      showTime: this.context.isTimeEarningEnabled(),
       undoEnabled: false,
       prevEnabled: false,
       nextEnabled: false,
@@ -253,7 +254,7 @@ export class ColouringScene extends Phaser.Scene {
   }
 
   private isLow(): boolean {
-    return this.session.balanceSec <= LOW_BALANCE_WARNING_SEC;
+    return this.context.isTimeEarningEnabled() && this.session.balanceSec <= LOW_BALANCE_WARNING_SEC;
   }
 
   private showHelp(): void {

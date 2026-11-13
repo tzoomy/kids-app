@@ -1,4 +1,5 @@
 // Real-tap journeys for Colouring Time Pass 1. Hooks only seed or read; entry is via enterWorldByTap.
+import { existsSync } from 'node:fs';
 import { test, expect, type Page } from '@playwright/test';
 import {
   enterWorldByTap,
@@ -321,5 +322,37 @@ test.describe('leisure-colouring journeys', () => {
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');
     await expect(page.locator('[data-testid="game-picker-leisure-colouring"]')).toHaveCount(0);
+  });
+
+  test('with timeEarning disabled, Colouring Time opens with no timer or balance, does not end after a short seeded time, and leaves via back', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo); // @single-orientation
+    test.setTimeout(90_000);
+    await enterWorldByTap(page, 'profile-a', 'leisure-corner', 'leisure-colouring', {
+      timeEarningEnabled: false,
+      beforeEnter: () => seedBalanceSec(page, 2),
+    });
+    const info = await waitForColouringReady(page);
+    expect(info.ended).toBe(false);
+    await expect(page.locator('[data-testid="hud-back"]')).toBeVisible();
+    await expect(page.locator('[data-testid="colouring-countdown"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="leisure-balance"]')).toHaveCount(0);
+
+    // A 2 s balance + 5 s grace would have ended a timed session.
+    await page.waitForTimeout(13_000);
+    expect(await getActiveScenes(page)).toContain('ColouringScene');
+    expect((await getColouringInfo(page))?.ended).toBe(false);
+    await expect(page.locator('[data-testid="colouring-end"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="colouring-end-home"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="colouring-countdown"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="leisure-balance"]')).toHaveCount(0);
+
+    const shotDir = '/workspace/shots-timepause';
+    if (existsSync(shotDir)) {
+      await page.screenshot({ path: `${shotDir}/colouring-time-paused-landscape.png`, fullPage: false });
+    }
+
+    await tapTestId(page, 'hud-back');
+    await waitForScene(page, 'MapScene');
+    expect(await getActiveScenes(page)).not.toContain('ColouringScene');
   });
 });

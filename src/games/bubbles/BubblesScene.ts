@@ -66,12 +66,13 @@ export class BubblesScene extends Phaser.Scene {
     this.context.shell.setBubblesChrome({
       balanceSec: this.session.balanceSec,
       low: this.isLow(),
+      showTime: this.context.isTimeEarningEnabled(),
       onBack: () => this.goBack(),
     });
   }
 
   private isLow(): boolean {
-    return this.session.balanceSec <= LOW_BALANCE_WARNING_SEC;
+    return this.context.isTimeEarningEnabled() && this.session.balanceSec <= LOW_BALANCE_WARNING_SEC;
   }
 
   private refreshChrome(): void {

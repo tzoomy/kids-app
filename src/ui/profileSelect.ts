@@ -6,6 +6,8 @@ import heStrings from '../content/i18n/he.json';
 export interface ProfileSelectEntry {
   profile: ProfileSettings;
   state: ProfileState;
+  /** False while time earning is paused: no balance chip. Defaults to true. */
+  showTime?: boolean;
 }
 
 const AVATAR_EMOJI: Record<string, string> = {
@@ -24,7 +26,7 @@ export function renderProfileSelect(
   screen.appendChild(el('div', 'shell-title', heStrings.whoIsPlaying));
 
   const row = el('div', 'shell-row');
-  for (const { profile, state } of entries) {
+  for (const { profile, state, showTime } of entries) {
     const btn = el('button', 'shell-btn shell-profile-btn');
     btn.dataset.testid = `profile-${profile.id}`;
     const avatar = el('div', 'shell-avatar', AVATAR_EMOJI[profile.avatar] ?? '⭐');
@@ -32,7 +34,7 @@ export function renderProfileSelect(
     avatar.style.background = '#fff';
     btn.appendChild(avatar);
     btn.appendChild(el('span', undefined, profile.name));
-    btn.appendChild(el('span', undefined, `⏳ ${formatClock(state.balanceSec)}`));
+    if (showTime !== false) btn.appendChild(el('span', undefined, `⏳ ${formatClock(state.balanceSec)}`));
     btn.addEventListener('click', () => onPick(profile.id));
     row.appendChild(btn);
   }

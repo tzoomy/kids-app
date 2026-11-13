@@ -20,6 +20,8 @@ export class LeisureSession {
   constructor(
     private readonly state: ProfileState,
     private readonly graceSeconds = 5,
+    /** When false (time earning paused) the session never spends balance, enters grace, or ends. */
+    private readonly spendingEnabled = true,
   ) {
     this.graceRemainingSec = graceSeconds;
   }
@@ -38,6 +40,7 @@ export class LeisureSession {
 
   /** Call once per elapsed second (or pass a custom dtSec) while the leisure screen is open and visible. */
   tick(dtSec = 1): LeisureTickResult {
+    if (!this.spendingEnabled) return { endedNow: false, inGrace: false };
     if (this.hidden) return { endedNow: false, inGrace: this.inGrace };
 
     if (this.state.balanceSec > 0) {
