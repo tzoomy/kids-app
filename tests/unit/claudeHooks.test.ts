@@ -5,8 +5,10 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const root = path.resolve(__dirname, '../..');
-const guard = path.join(root, '.claude/hooks/push-guard.mjs');
-const stopHook = path.join(root, '.claude/hooks/check-changed-ts.sh');
+// HOOKS_DIR lets reviewers run the suite against staged copies; the default is the real location.
+const hooksDir = process.env.HOOKS_DIR ? path.resolve(root, process.env.HOOKS_DIR) : path.join(root, '.claude/hooks');
+const guard = path.join(hooksDir, 'push-guard.mjs');
+const stopHook = path.join(hooksDir, 'check-changed-ts.sh');
 
 function tmp(prefix: string): string {
   return fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), prefix)));
@@ -221,10 +223,11 @@ describe('Stop hook: check-changed-ts.sh', () => {
 
   it('(c) does not hang or fail with empty or closed stdin', () => {
     const t0 = Date.now();
-    const r = spawnSync('sh', [stopHook], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', cwd: tmp('hooks-empty-'), timeout: 20000, env: { ...process.env, CLAUDE_PROJECT_DIR: '' } });
+    const nonGit = tmp('hooks-empty-');
+    const r = spawnSync('sh', [stopHook], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', cwd: nonGit, timeout: 20000, env: { ...process.env, CLAUDE_PROJECT_DIR: nonGit } });
     expect(r.status).toBe(0);
     expect(Date.now() - t0).toBeLessThan(15000);
-    expect(runStop('').status).toBe(0);
+    expect(runStop('', { env: { CLAUDE_PROJECT_DIR: nonGit } }).status).toBe(0);
   });
 
   it('(g) runs in the repo of the input cwd, not CLAUDE_PROJECT_DIR', () => {
