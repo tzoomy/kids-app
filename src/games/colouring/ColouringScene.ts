@@ -20,11 +20,13 @@ import type { LeisureSession } from '../../core/leisure';
 import type { ColouringGeometry, ColouringHud } from '../../ui/colouringChrome';
 import heStrings from '../../content/i18n/he.json';
 import { effectiveColour, type ColouringRegionDef } from './regions';
+import type { VuRect } from './pageGeometry';
 import { chooseTapPoint, createPageTester, parsePageSvg, VIEWBOX, type PageGeometry, type PageTester } from './pageGeometry';
+import { measureDecorations } from './decorations';
 import { computeColouringLayout } from './layout';
 import { fillPulse } from './colouringMotion';
 import { COLOURING_VOICE } from './voice';
-import type { ColouringAgeTrack, ColouringInfo, ColouringRegionInfo } from './types';
+import type { ColouringAgeTrack, ColouringInfo, PageRect, ColouringRegionInfo } from './types';
 
 export type { ColouringInfo, ColouringRegionInfo, ColouringSeed, PageRect } from './types';
 
@@ -65,6 +67,8 @@ export class ColouringScene extends Phaser.Scene {
   private alive = false;
   private geometry!: ColouringGeometry;
   private visuals: Phaser.GameObjects.GameObject[] = [];
+  /** Craft-prop bboxes per background key, in that SVG's viewBox units (hook data only). */
+  private decorations = new Map<string, Array<{ id: string; rect: VuRect }>>();
   private fillCanvas?: Phaser.Textures.CanvasTexture;
   private pulse: { regionId: string; alpha: number } | null = null;
   private tickTimer?: Phaser.Time.TimerEvent;
@@ -270,7 +274,18 @@ export class ColouringScene extends Phaser.Scene {
         return { id: def.id, defs, geometry };
       }),
     );
+    const bgs = await Promise.all(
+      COLOURING_ART_MANIFEST.filter((e) => e.key.startsWith('leisure-colouring-bg-')).map(async (e) => {
+        try {
+          const text = await (await fetch(assetUrl(import.meta.env.BASE_URL, e.url))).text();
+          return [e.key, measureDecorations(text)] as const;
+        } catch {
+          return [e.key, [] as Array<{ id: string; rect: VuRect }>] as const;
+        }
+      }),
+    );
     if (!this.alive) return;
+    for (const [key, list] of bgs) this.decorations.set(key, list);
     for (const { id, defs, geometry } of parsed) {
       this.pageDefs.set(id, defs);
       this.pages.set(id, { geometry, tester: createPageTester(geometry, defs, this.ageTrack), tapPoints: new Map() });
@@ -503,6 +518,31 @@ export class ColouringScene extends Phaser.Scene {
       pageRect,
       pageSide: pageRect.width,
       regions,
+      decorations: this.decorationRects(canvasRect, size),
+      chromeButtons: this.chromeButtonRects(),
     };
+  }
+
+  private decorationRects(canvasRect: PageRect, size: { width: number; height: number }): Array<{ id: string; rect: PageRect }> {
+    const landscape = size.width >= size.height;
+    const key = landscape ? 'leisure-colouring-bg-landscape' : 'leisure-colouring-bg-portrait';
+    // The background image is stretched to the canvas; the SVG viewBox equals the game size at the base sizes.
+    const vb = landscape ? { width: 1280, height: 800 } : { width: 800, height: 1280 };
+    const sx = size.width / vb.width;
+    const sy = size.height / vb.height;
+    return (this.decorations.get(key) ?? []).map(({ id, rect }) => ({
+      id,
+      rect: gameRectToPageRect({ x: rect.x * sx, y: rect.y * sy, width: rect.width * sx, height: rect.height * sy }, canvasRect, size),
+    }));
+  }
+
+  /** DOM chrome buttons in page CSS px (the elements the child actually taps). */
+  private chromeButtonRects(): Array<{ id: string; rect: PageRect }> {
+    const out: Array<{ id: string; rect: PageRect }> = [];
+    for (const el of document.querySelectorAll<HTMLElement>('.colouring-layer button[data-testid]')) {
+      const b = el.getBoundingClientRect();
+      out.push({ id: el.dataset.testid ?? '', rect: { x: b.left, y: b.top, width: b.width, height: b.height } });
+    }
+    return out;
   }
 }

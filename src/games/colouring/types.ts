@@ -37,6 +37,10 @@ export interface ColouringInfo {
   pageSide: number;
   /** Only regions hit-testable for this age track. */
   regions: ColouringRegionInfo[];
+  /** Additive, optional: background craft-prop groups (axis-aligned bbox, page CSS px). Desk planks/grain excluded. */
+  decorations?: Array<{ id: string; rect: PageRect }>;
+  /** Additive, optional: chrome, tool and swatch buttons by data-testid (page CSS px). */
+  chromeButtons?: Array<{ id: string; rect: PageRect }>;
 }
 
 /** Payload of the seed-only hook `seedColouringState`. */
