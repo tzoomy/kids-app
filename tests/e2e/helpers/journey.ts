@@ -10,7 +10,7 @@ export const WORLD_SCENE: Record<string, string> = {
   'language-house': 'RestaurantScene',
   'art-studio': 'OrchestraScene',
   'leisure-corner': 'BubblesScene',
-  // Who's Hiding? (PR #29, feat/game-hiding). HidingScene is not on main yet, so no test enters nature-lab until that PR lands.
+  // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'nature-lab': 'HidingScene',
 };
 
@@ -126,7 +126,8 @@ export async function enterWorldByTap(page: Page, profile: ProfileTestId, worldI
   let rect: PageRect | null = null;
   await expectPoll(async () => {
     const current = await getBuildingHit(page, worldId);
-    const settled = current !== null && previous !== null && Math.abs(current.width - previous.width) < 0.5;
+    // Width must be past the pop-in start (scale 0). Later buildings (Nature Lab is third) stay at width 0 during their stagger; two 0 readings would otherwise look "settled" and the click would miss.
+    const settled = current !== null && current.width > 20 && previous !== null && Math.abs(current.width - previous.width) < 0.5;
     previous = current;
     rect = current;
     return settled;

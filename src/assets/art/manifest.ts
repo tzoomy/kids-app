@@ -113,8 +113,8 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'prop-bush-round-front', url: 'art/props/bush-round-front.svg', width: 360, height: 280 },
   { key: 'prop-bush-tall-back', url: 'art/props/bush-tall-back.svg', width: 280, height: 360 },
   { key: 'prop-bush-tall-front', url: 'art/props/bush-tall-front.svg', width: 280, height: 360 },
-  { key: 'nature-lab-bg-landscape', url: 'art/scenes/nature-lab/bg-landscape.svg', width: 1280, height: 800 },
-  { key: 'nature-lab-bg-portrait', url: 'art/scenes/nature-lab/bg-portrait.svg', width: 800, height: 1280 },
+  { key: 'hiding-bg-landscape', url: 'art/scenes/hiding/bg-landscape.svg', width: 1280, height: 800 },
+  { key: 'hiding-bg-portrait', url: 'art/scenes/hiding/bg-portrait.svg', width: 800, height: 1280 },
 
   // Kitchen Orchestra (Creative Studio) — chef, instruments, kitchen scenes
   { key: 'character-chef-body', url: 'art/characters/chef/body.svg', width: 240, height: 240 },

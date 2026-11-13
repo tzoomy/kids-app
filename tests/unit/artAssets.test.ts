@@ -57,7 +57,7 @@ describe('real art manifest', () => {
       expect(propArtKey(name), name).toBeDefined();
     }
     for (const name of ['bg-landscape', 'bg-portrait']) {
-      expect(sceneArtKey('nature-lab', name), `nature-lab/${name}`).toBeDefined();
+      expect(sceneArtKey('hiding', name), `hiding/${name}`).toBeDefined();
       expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
     }
     for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) {

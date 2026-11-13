@@ -103,6 +103,9 @@ export class HidingScene extends Phaser.Scene {
   private roundToken = 0;
   private lastTargetId = '';
   private helpOpen = false;
+  /** Plays once per visit, before the first request, the same pattern as the restaurant intro. */
+  private introPending = true;
+  private introPlaying = false;
   private correctCount = 0;
   private lastBalanceSec = 0;
   private earnedPending = false;
@@ -131,6 +134,8 @@ export class HidingScene extends Phaser.Scene {
     this.ready = false;
     this.hinted = false;
     this.helpOpen = false;
+    this.introPending = true;
+    this.introPlaying = false;
     this.correctCount = 0;
     this.earnedPending = false;
     this.speakSeq = 0;
@@ -184,7 +189,7 @@ export class HidingScene extends Phaser.Scene {
   private paintBackground(): void {
     const w = this.scale.width;
     const h = this.scale.height;
-    const key = sceneArtKey('nature-lab', w >= h ? 'bg-landscape' : 'bg-portrait');
+    const key = sceneArtKey('hiding', w >= h ? 'bg-landscape' : 'bg-portrait');
     if (key && this.textures.exists(key)) {
       this.add.image(w / 2, h / 2, key).setDisplaySize(w, h).setDepth(DEPTH.background);
       return;
@@ -232,15 +237,17 @@ export class HidingScene extends Phaser.Scene {
   private showHelp(): void {
     this.session.reportInteraction();
     this.helpOpen = true;
-    this.speakSeq++;
-    this.context.audio.stopAll();
-    // The superseded request no longer clears the flag (its seq is stale) and this game has no Hebrew
-    // help clip, so nothing is audibly playing: an open card must not count as listening.
-    this.session.reportListening(false);
+    // The help line replaces whatever is playing (intro or request); older flows see the new seq and stop.
+    const seq = ++this.speakSeq;
+    this.introPlaying = false;
+    this.session.reportListening(true);
+    void this.context.audio.play(heLine('hiding.help')).finally(() => {
+      if (seq === this.speakSeq) this.session.reportListening(false);
+    });
     this.context.shell.showHelp(this.context.content.hiding.helpTextHe, () => {
       this.helpOpen = false;
       this.session.reportInteraction();
-      // Closing the card repeats the request.
+      // Closing the card cuts the help line and repeats the open request.
       if (this.round && !this.round.done && this.ready) void this.speakPrompt();
     });
   }
@@ -308,7 +315,9 @@ export class HidingScene extends Phaser.Scene {
           if (token === this.roundToken) void this.rustleBush(b);
         });
       });
-      void this.speakPrompt();
+      const intro = this.introPending ? heLine('hiding.intro') : undefined;
+      this.introPending = false;
+      void this.speakPrompt(undefined, intro);
       if (this.ageConfig.hintMode === 'demonstrate') {
         this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint());
       }
@@ -419,8 +428,16 @@ export class HidingScene extends Phaser.Scene {
     this.session.reportListening(true);
     try {
       if (before) {
-        await this.context.audio.play(before);
-        if (seq !== this.speakSeq || round.done || this.round !== round) return;
+        this.introPlaying = before.lineId === 'he.hiding.intro';
+        try {
+          await this.context.audio.play(before);
+        } finally {
+          if (seq === this.speakSeq) this.introPlaying = false;
+        }
+        if (seq !== this.speakSeq || round.done || this.round !== round) {
+          if (seq === this.speakSeq) this.session.reportListening(false);
+          return;
+        }
       }
       await this.context.audio.play({
         lineId: text?.lineId ?? this.round.lineId,
@@ -463,7 +480,7 @@ export class HidingScene extends Phaser.Scene {
   private giveHint(before?: SpeechRequest): void {
     const round = this.round;
     if (!round || round.done) return;
-    if (this.helpOpen) {
+    if (this.helpOpen || this.introPlaying) {
       this.hintTimer?.remove();
       this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint(before));
       return;
