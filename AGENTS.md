@@ -38,7 +38,7 @@ The full cycle is in `docs/PROCESS.md`. In short:
 
 ## In-session token rules
 
-- Replies are at most 5 lines; put details in the PR.
+- Replies should be as short as possible without losing important information; there is no line cap. Put details in the PR.
 - Run only the tests affected by the change locally. The full suite runs in CI. Read failure summaries only.
 - Take screenshots only for visual changes.
 
