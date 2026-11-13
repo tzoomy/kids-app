@@ -21,6 +21,17 @@ export type PickerAsset =
   | { key: string; kind: 'manifest' | 'placeholder'; url: string }
   | { key: string; kind: 'css'; css: string };
 
+/**
+ * Intrinsic sizes of the real art on draft PR #40 (art/language-house-picker), which registers the same keys
+ * with these sizes in ART_MANIFEST. The layout is sized to them so merging #40 only swaps the files in.
+ */
+export const PICKER_ART_SIZES: Record<PickerAssetKey, { width: number; height: number }> = {
+  'picker-card-animal-restaurant': { width: 640, height: 800 },
+  'picker-card-kitchen-orchestra': { width: 640, height: 800 },
+  'picker-close': { width: 128, height: 128 }, // shown at about 120 CSS px
+  'picker-bg': { width: 1280, height: 800 }, // cover in portrait
+};
+
 /** Placeholder block: each key maps to an existing art file under `public/` or to a CSS shape. */
 const PLACEHOLDERS: Record<PickerAssetKey, { url: string } | { css: string }> = {
   'picker-card-animal-restaurant': { url: 'art/scenes/restaurant/bg-landscape.svg' },

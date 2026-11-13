@@ -62,3 +62,23 @@ describe('Language House picker placeholder art', () => {
     expect(resolvePickerAsset('picker-bg', manifest).kind).not.toBe('manifest');
   });
 });
+
+describe('Language House picker art sizes (paired with draft art PR #40)', () => {
+  it('sizes the layout to the #40 art: 640x800 cards, 128x128 close, 1280x800 background', async () => {
+    const { PICKER_ART_SIZES } = await import('../../src/ui/picker/pickerAssets');
+    expect(PICKER_ART_SIZES['picker-card-animal-restaurant']).toEqual({ width: 640, height: 800 });
+    expect(PICKER_ART_SIZES['picker-card-kitchen-orchestra']).toEqual({ width: 640, height: 800 });
+    expect(PICKER_ART_SIZES['picker-close']).toEqual({ width: 128, height: 128 });
+    expect(PICKER_ART_SIZES['picker-bg']).toEqual({ width: 1280, height: 800 });
+  });
+
+  it('resolves the #40 manifest entries (same keys and urls) instead of the placeholders', () => {
+    const pr40 = [
+      { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
+      { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
+      { key: 'picker-close', url: 'art/ui/picker/close.svg', width: 128, height: 128 },
+      { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
+    ];
+    for (const e of pr40) expect(resolvePickerAsset(e.key, pr40)).toEqual({ key: e.key, kind: 'manifest', url: e.url });
+  });
+});

@@ -19,7 +19,7 @@ function applyArt(node: HTMLElement, key: string): void {
     node.style.cssText += asset.css;
     return;
   }
-  const img = el('img', 'picker-art-img');
+  const img = el('img', asset.kind === 'manifest' ? 'picker-art-img picker-art-real' : 'picker-art-img');
   img.src = `${import.meta.env.BASE_URL}${asset.url}`;
   img.alt = '';
   img.draggable = false;
@@ -56,7 +56,9 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   close.dataset.testid = PICKER_CLOSE_TEST_ID;
   close.setAttribute('aria-label', t.close);
   applyArt(close, 'picker-close');
-  close.appendChild(el('span', 'picker-close-x', '×'));
+  // The real close.svg (#40) draws its own cross and has no text; the placeholder needs the glyph.
+  if (resolvePickerAsset('picker-close').kind === 'manifest') close.classList.add('picker-close-real');
+  else close.appendChild(el('span', 'picker-close-x', '×'));
   close.addEventListener('click', () => opts.onClose());
   header.appendChild(close);
   const title = el('h1', 'picker-title', t.title);

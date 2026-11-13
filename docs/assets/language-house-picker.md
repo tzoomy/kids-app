@@ -24,4 +24,5 @@ to the placeholder. Once the art branch is merged, the real entries win automati
 1. Merge the art branch. It adds the four keys to `ART_MANIFEST` and the SVG files.
 2. Nothing in the picker code or tests needs to change: `tests/unit/kitchen-orchestra.picker.test.ts` accepts either the
    placeholder or the real manifest entry, and only fails if a key is registered twice.
-3. Optionally delete the `PLACEHOLDERS` block and the fallback branch of `resolvePickerAsset` afterwards.
+3. #40 uses the same keys and sizes (cards 640x800, close 128x128 shown at about 120 CSS px, bg 1280x800, cover in portrait); the layout is sized to them.
+4. Optionally delete the `PLACEHOLDERS` block and the fallback branch of `resolvePickerAsset` afterwards.
