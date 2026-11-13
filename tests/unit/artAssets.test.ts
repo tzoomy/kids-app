@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
+import { COLOURING_PAGES } from '../shared/leisureColouringPages';
 import { ANIMAL_RIGS, CHARACTER_RIGS } from '../../src/assets/art/rigs';
 import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey } from '../../src/anim/artRegistry';
 
@@ -36,7 +37,14 @@ describe('real art manifest', () => {
   });
 
   it('has no SVG under public/art that the manifest does not list', () => {
-    const listed = new Set(ART_MANIFEST.map((e) => e.url));
+    // Colouring Time art is lazy-loaded (never in the boot ART_MANIFEST, AC-34); its paths match
+    // src/assets/art/colouringManifest.ts on PR #51. Swap this for COLOURING_ART_MANIFEST once #51 lands.
+    const lazyColouring = [
+      ...COLOURING_PAGES.map((p) => `art/colouring/pages/${p.id}.svg`),
+      'art/scenes/leisure-colouring/bg-landscape.svg',
+      'art/scenes/leisure-colouring/bg-portrait.svg',
+    ];
+    const listed = new Set([...ART_MANIFEST.map((e) => e.url), ...lazyColouring]);
     const walk = (dir: string): string[] =>
       fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));
     for (const f of walk(path.join(PUBLIC_DIR, 'art')).filter((f) => f.endsWith('.svg'))) {
