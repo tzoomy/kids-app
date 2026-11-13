@@ -72,7 +72,7 @@ getSortingInfo(): SortingInfo | null         // scene.getSortingInfo() while Sor
   L8: after the first placement the colour half becomes shape (size x shape); `switchRule` animation using `ANIM_PROFILE.sorting.ruleSwitch`.
 - **Labels and scaffolds.** L1-L3 `label: 'picture'` (rule icon on the plaque and large on the bed); L2-L3 `ghostSlots: true`; L4-L6 `label: 'symbol'` (plaque icon only, two icons at L6);
   L7-L8 `label: 'none'` (blank plaque) with one pre-planted example flower per bed (`example` set, not counted). L8 examples are distinct under both rules.
-- **Round composition.** Flowers target at least 2 beds; capacity is the flowers that belong to each bed; non-rule attributes vary per `extra.vary`; items are `<shape>-<color>-<size>`.
+- **Round composition.** Flowers target at least 2 beds; capacity is the flowers that belong to each bed; non-rule attributes vary per `extra.vary` (at L8, `vary: 2` still means shape varies); items are `<shape>-<color>-<size>`.
 - **Tap targets.** Beds and the basket flower are at least 64 CSS px in both orientations; never shrink them (pan or show fewer).
 - **Leisure.** Standard learning-session wiring (`reportInteraction`, `reportListening`, `reportCelebrating`, `complete`, `exit`, `tick(1)` each second); `endVisit()` on exit.
 - **Motion.** Use `ANIM_PROFILE.sorting` (`drop`, `settle`, `ruleSwitch`) from `src/anim/profiles.ts`. Do not add Phaser imports to that file.
@@ -82,7 +82,8 @@ getSortingInfo(): SortingInfo | null         // scene.getSortingInfo() while Sor
 Hebrew guidance (`lang: 'he'`): `sorting.rule.color.he`, `sorting.rule.shape.he`, `sorting.rule.size.he`, `sorting.rule.two-attr.he` (conjunction rounds),
 `sorting.switch.shape.he` (L8 switch), `sorting.correct.he`, `sorting.wrong.hint.he`, `sorting.bed-full.he`, `sorting.help.he`.
 Learning tokens in the round language (`en` or `fr`, fixed for the round): `sorting.word.<red|yellow|blue|big|small>.<lang>`; `large` is spoken as `big`.
-Colour round: colour word. Size round: size word. Conjunction round: size word, then colour word, as two separate requests. Shape round: no token.
+Colour round: colour word. Size round: size word. Conjunction round (including L8 before the switch): size word, then colour word, as two separate requests. Shape round: no token.
+**Team-lead decision (2026-11-13):** after the L8 switch to size × shape, Pass 1 speaks **only** the size token for the remaining flowers. Shape is carried visually by the example flower in each bed; shape words stay in Pass 2. `extra.vary: 2` (shape varies) applies at L8 as well: the three flowers are composed at the start of the round, so shape varies among them.
 Round start: the rule line, then (age 2 idle hint) the same rule line again. Do not add `voice-lines-he.json` rows or `audio-manifest.json` entries without a clip and hash (Pass 2).
 
 ## Art keys (REFERENCE ONLY: do not merge the art PRs, do not add their SVGs here)

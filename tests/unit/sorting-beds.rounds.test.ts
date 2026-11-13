@@ -187,20 +187,27 @@ describe('sorting-beds: round composition (AC-32)', () => {
     }
   });
 
-  it('[AC-32] non-rule attributes vary per extra.vary (L1-L7); vary 0 holds them constant', () => {
-    for (let level = 1; level <= 7; level++) {
+  it('[AC-32] non-rule attributes vary per extra.vary (L1-L8); vary 0 holds them constant; at L8 vary 2 still means shape varies', () => {
+    for (let level = 1; level <= 8; level++) {
       const levers = leversOf(level);
       let widest = 0;
+      let shapeVaries = 0;
       for (const plan of plansFor(level)) {
         expect(plan.flowers).toHaveLength(3);
+        // Flowers are composed at the start of the round, so L8 is judged under the pre-switch size x colour rule:
+        // only shape is left, and vary: 2 means shape varies (team-lead decision 2026-11-13).
         const nonRule = (['color', 'shape', 'size'] as const).filter((a) => !ATTRS_OF_RULE[plan.rule].includes(a));
         const varying = nonRule.filter((a) => new Set(plan.flowers.map((f) => f[a])).size > 1).length;
         const cap = Math.min(levers.vary, nonRule.length);
         expect(varying, `L${level}`).toBeLessThanOrEqual(cap);
         widest = Math.max(widest, varying);
+        if (new Set(plan.flowers.map((f) => f.shape)).size > 1) shapeVaries += 1;
       }
-      // Colour rounds leave 2 non-rule attributes (shape, size); conjunction rounds (L6-L7) leave only shape.
+      // Colour rounds leave 2 non-rule attributes (shape, size); conjunction and L8 rounds leave only shape.
       expect(widest, `L${level} reaches its vary cap over 30 rounds`).toBe(Math.min(levers.vary, level >= 6 ? 1 : 2));
+      if (level >= 6) {
+        expect(shapeVaries, `L${level} shape varies across composed rounds`).toBeGreaterThan(0);
+      }
     }
   });
 

@@ -90,6 +90,19 @@ describe('sorting-beds: content and language selection (AC-09)', () => {
       { lineId: 'sorting.word.yellow.fr', lang: 'fr' },
     ]);
   });
+
+  it('[AC-09] after the L8 switch to size x shape, Pass 1 speaks only the size token; no shape word', () => {
+    const large: FlowerSpec = { shape: 'tulip', color: 'yellow', size: 'large' };
+    const small: FlowerSpec = { shape: 'daisy', color: 'red', size: 'small' };
+    expect(placementWordLines('size+shape', large, 'en')).toEqual([{ lineId: 'sorting.word.big.en', lang: 'en' }]);
+    expect(placementWordLines('size+shape', small, 'fr')).toEqual([{ lineId: 'sorting.word.small.fr', lang: 'fr' }]);
+    // Shape is carried visually by the example flower; Pass 1 never requests a shape-word line.
+    for (const flower of [large, small]) {
+      const ids = placementWordLines('size+shape', flower, 'en').map((l) => l.lineId);
+      expect(ids.some((id) => /tulip|daisy|round|shape/.test(id))).toBe(false);
+      expect(ids).toHaveLength(1);
+    }
+  });
 });
 
 describe('sorting-beds: bed labels, scaffolds and content validation (AC-22)', () => {
