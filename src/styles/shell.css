@@ -469,10 +469,11 @@ body {
   width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
   gap: 28px;
   min-height: 0;
+  container-type: size; /* cards are sized from this box (cqw/cqh) so they stay exactly 4:5 */
 }
 .picker-card {
   appearance: none;
@@ -484,10 +485,11 @@ body {
   overflow: hidden;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 480px; /* about 4:5 for the 640x800 card art at the landscape panel height */
+  position: relative;
+  flex: 0 0 auto;
+  /* Exactly 4:5 (the 640x800 card art), as large as fits: two side by side in landscape. */
+  aspect-ratio: 4 / 5;
+  width: min(calc((100cqw - 28px) / 2), 80cqh);
   min-height: 64px;
   box-shadow: 0 8px 0 rgba(59, 42, 34, 0.14);
   text-align: center;
@@ -499,9 +501,8 @@ body {
   outline-offset: 6px;
 }
 .picker-card-art {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: #fff3e0;
 }
@@ -525,7 +526,10 @@ body {
   box-shadow: none;
 }
 .picker-card-label {
-  flex: 0 0 auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: #fff6e8;
   border-top: 4px solid #3b2a22;
   padding: 12px 16px 14px;
@@ -557,9 +561,8 @@ body {
     gap: 20px;
   }
   .picker-card {
-    width: 100%;
-    max-width: none;
-    height: 0; /* share the leftover height equally */
+    /* Stacked: each card gets half the height, and never more than the full width. */
+    width: min(100cqw, calc((100cqh - 20px) / 2 * 0.8));
   }
   .picker-card-label {
     font-size: 24px;
