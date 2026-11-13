@@ -47,7 +47,7 @@ The full cycle is in `docs/PROCESS.md`. In short:
 ## In-session token rules
 
 - Replies should be as short as possible without losing important information; there is no line cap. Put details in the PR.
-- Run only the tests affected by the change locally. The full suite runs in CI. Read failure summaries only.
+- Run only the tests affected by the change locally. CI also runs only affected tests; the full suite runs on demand (workflow_dispatch) or locally with `npm test` and `npm run test:e2e` (see `docs/PROCESS.md`, "CI: affected tests"). Read failure summaries only.
 - Take screenshots only for visual changes.
 
 ## Cross-review and merge
