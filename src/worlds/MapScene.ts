@@ -123,6 +123,9 @@ export class MapScene extends Phaser.Scene {
         if (world.entryGameId === 'sorting-beds') {
           transitionTo(this, 'SortingScene', { style: 'iris', originX: x, originY: y });
         }
+        if (world.entryGameId === 'sticker-board') {
+          transitionTo(this, 'StickerBoardScene', { style: 'iris', originX: x, originY: y });
+        }
       });
 
       const labels: Record<string, string> = {

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Calm deep-blue night sky -->
+  <rect width="800" height="1280" fill="#243B6B" />
+  <path d="M 0 0 H 800 V 460 Q 400 520 0 460 Z" fill="#2B467D" />
+
+  <!-- Tiny soft star dots near upper and side edges -->
+  <g stroke="none">
+    <circle cx="92" cy="112" r="4" fill="#FFF6D6" />
+    <circle cx="196" cy="168" r="3" fill="#DCE8FF" />
+    <circle cx="124" cy="284" r="3.5" fill="#FFF6D6" />
+    <circle cx="76" cy="430" r="3" fill="#DCE8FF" />
+    <circle cx="310" cy="88" r="3" fill="#DCE8FF" />
+    <circle cx="520" cy="96" r="3.5" fill="#FFF6D6" />
+    <circle cx="654" cy="144" r="4.5" fill="#FFF6D6" />
+    <circle cx="724" cy="94" r="3" fill="#DCE8FF" />
+    <circle cx="694" cy="296" r="3.5" fill="#FFF6D6" />
+    <circle cx="732" cy="446" r="3" fill="#DCE8FF" />
+  </g>
+
+  <!-- Soft low grey-lilac moon surface along the bottom -->
+  <path d="M -20 1110 Q 220 1064 430 1094 T 820 1084 V 1300 H -20 Z" fill="#B2A5C4" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M -20 1142 Q 210 1104 420 1134 T 820 1122 V 1300 H -20 Z" fill="#C8BDD8" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 18 1150 Q 210 1116 420 1144 Q 610 1166 782 1132 Q 610 1152 420 1134 Q 210 1106 18 1150 Z" fill="#D8CFE6" />
+
+  <!-- Subtle edge craters near bottom corners -->
+  <ellipse cx="116" cy="1216" rx="34" ry="11" fill="#B8ABC9" />
+  <ellipse cx="678" cy="1208" rx="38" ry="12" fill="#B8ABC9" />
+</svg>

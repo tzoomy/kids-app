@@ -642,3 +642,200 @@ body {
   justify-content: flex-start;
   padding-top: 8vmin;
 }
+
+/* Sticker Board (Pass 1): absolutely positioned tray, backgrounds, crayons, tools, board overlay and album modal. */
+.sticker-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sticker-layer > * {
+  pointer-events: auto;
+}
+
+.sticker-layer > .shell-top-bar {
+  pointer-events: none;
+}
+
+.sticker-board,
+.sticker-tray-btn,
+.sticker-tool,
+.sticker-crayon,
+.sticker-request {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.sticker-board {
+  background: transparent;
+  border: 3px dashed rgba(255, 255, 255, 0.55);
+  border-radius: 24px;
+  touch-action: none;
+}
+
+.sticker-tray-btn {
+  min-width: 64px;
+  min-height: 64px;
+  border: 3px solid rgba(59, 42, 34, 0.25);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 0 rgba(59, 42, 34, 0.14);
+}
+
+.sticker-tray-btn:active {
+  transform: translateY(2px);
+}
+
+.sticker-tray-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.sticker-tool {
+  min-width: 64px;
+  min-height: 64px;
+  border: 3px solid rgba(59, 42, 34, 0.2);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  font: inherit;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 0 rgba(59, 42, 34, 0.14);
+}
+
+.sticker-tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sticker-tool.selected {
+  box-shadow: 0 0 0 4px #3b2a22;
+}
+
+.sticker-crayon {
+  min-width: 64px;
+  min-height: 64px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(59, 42, 34, 0.28);
+}
+
+/* Selected crayon: ring plus scale, never colour-only. */
+.sticker-crayon.selected {
+  box-shadow: 0 0 0 5px #3b2a22, 0 4px 8px rgba(59, 42, 34, 0.3);
+  transform: scale(1.08);
+}
+
+.sticker-request {
+  min-width: 64px;
+  min-height: 64px;
+  border: 3px solid #3b2a22;
+  border-radius: 20px;
+  background: rgba(255, 253, 249, 0.96);
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 0 rgba(59, 42, 34, 0.16);
+}
+
+.sticker-request-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.sticker-request-speaker {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sticker-album-view {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(59, 42, 34, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.sticker-album-panel {
+  width: min(860px, 94vw);
+  max-height: 86vh;
+  background: #fff8ed;
+  border: 5px solid #3b2a22;
+  border-radius: 28px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sticker-album-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sticker-album-title {
+  margin: 0;
+  font-size: clamp(22px, 4vmin, 34px);
+  color: #3b2a22;
+}
+
+.sticker-album-close {
+  position: static;
+}
+
+.sticker-album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  overflow: auto;
+  padding: 4px;
+}
+
+.sticker-album-item {
+  min-width: 64px;
+  min-height: 64px;
+  border: 4px solid #3b2a22;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  aspect-ratio: 16 / 10;
+}
+
+.sticker-album-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sticker-album-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 22px;
+  color: #6b6258;
+  margin: 24px 0;
+}

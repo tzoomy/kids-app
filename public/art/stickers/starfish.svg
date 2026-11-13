@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Five-armed starfish -->
+    <path d="M128 28 C140 28 148 70 158 82 C168 92 218 86 224 98 C230 110 186 138 182 152 C178 166 202 212 190 222 C178 232 142 194 128 194 C114 194 78 232 66 222 C54 212 78 166 74 152 C70 138 26 110 32 98 C38 86 88 92 98 82 C108 70 116 28 128 28 Z" fill="#FF8743"/>
+
+    <!-- Flat shadow on lower-right arms -->
+    <path d="M224 98 C230 110 186 138 182 152 C178 166 202 212 190 222 C178 232 142 194 128 194 C114 194 78 232 66 222 C60 217 62 204 66 190 C94 188 124 176 146 154 C172 130 198 104 224 98 Z" fill="#E0631E" stroke="none"/>
+
+    <!-- Flat highlight on upper-left arm -->
+    <path d="M126 42 C118 46 112 66 106 84 C98 92 64 94 46 98 C52 106 76 114 96 116 C114 102 124 72 126 42 Z" fill="#FFB380" stroke="none"/>
+
+    <!-- Small decorative dots (no face) -->
+    <circle cx="128" cy="128" r="8" fill="#FFE0B2" stroke="none"/>
+    <circle cx="128" cy="64" r="5" fill="#FFE0B2" stroke="none"/>
+    <circle cx="128" cy="92" r="6" fill="#FFE0B2" stroke="none"/>
+    <circle cx="72" cy="108" r="5" fill="#FFE0B2" stroke="none"/>
+    <circle cx="96" cy="118" r="6" fill="#FFE0B2" stroke="none"/>
+    <circle cx="184" cy="108" r="5" fill="#FFE0B2" stroke="none"/>
+    <circle cx="160" cy="118" r="6" fill="#FFE0B2" stroke="none"/>
+    <circle cx="88" cy="186" r="5" fill="#FFE0B2" stroke="none"/>
+    <circle cx="104" cy="162" r="6" fill="#FFE0B2" stroke="none"/>
+    <circle cx="168" cy="186" r="5" fill="#FFE0B2" stroke="none"/>
+    <circle cx="152" cy="162" r="6" fill="#FFE0B2" stroke="none"/>
+
+    <!-- Outer outline -->
+    <path d="M128 28 C140 28 148 70 158 82 C168 92 218 86 224 98 C230 110 186 138 182 152 C178 166 202 212 190 222 C178 232 142 194 128 194 C114 194 78 232 66 222 C54 212 78 166 74 152 C70 138 26 110 32 98 C38 86 88 92 98 82 C108 70 116 28 128 28 Z" fill="none"/>
+  </g>
+</svg>

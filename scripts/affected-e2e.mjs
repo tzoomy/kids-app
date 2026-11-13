@@ -96,6 +96,19 @@ export const GAME_RULES = [
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
   },
   {
+    id: 'sticker-board',
+    match: [
+      /^src\/games\/stickers\//,
+      /^src\/core\/stickers\//,
+      /^src\/content\/games\/sticker-board\.json$/,
+      /^src\/ui\/stickerBoardChrome\.ts$/,
+      /^src\/assets\/art\/stickerBoardManifest\.ts$/,
+      /^public\/art\/(stickers|scenes\/sticker-board)\//,
+      /^tests\/unit\/sticker-board[^/]*$/,
+    ],
+    specs: ['tests/e2e/sticker-board.journey.spec.ts'],
+  },
+  {
     id: 'credits',
     match: [
       /^src\/content\/credits[^/]*$/,

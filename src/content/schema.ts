@@ -437,3 +437,84 @@ export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
 export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+
+/** Sticker Board (docs/specs/sticker-board.md): free-creation Art Studio game, no adaptive block. */
+export const StickerBoardBackgroundSchema = z.object({
+  id: z.string().min(1),
+  he: z.string().min(1),
+  name: LangPairSchema,
+  place: LangPairSchema,
+});
+
+export const StickerBoardStickerSchema = z.object({
+  id: z.string().min(1),
+  theme: z.string().min(1),
+  artKey: z.string().min(1),
+  name: LangPairSchema,
+});
+
+export const StickerBoardCrayonSchema = z.object({
+  id: z.string().min(1),
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  age2: z.boolean(),
+  age5: z.boolean(),
+});
+
+export const StickerBoardContentSchema = z
+  .object({
+    id: z.literal('sticker-board'),
+    world: z.literal('art-studio'),
+    earnsLeisure: z.boolean(),
+    defaultBackground: z.string().min(1),
+    defaultColor: z.string().min(1),
+    backgrounds: z.array(StickerBoardBackgroundSchema).length(3),
+    stickers: z.array(StickerBoardStickerSchema).length(12),
+    crayons: z.array(StickerBoardCrayonSchema).min(4),
+  })
+  .superRefine((value, ctx) => {
+    const bgIds = new Set(value.backgrounds.map((b) => b.id));
+    if (bgIds.size !== value.backgrounds.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['backgrounds'], message: 'background ids must be unique' });
+    }
+    if (!bgIds.has(value.defaultBackground)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultBackground'], message: 'defaultBackground must exist in backgrounds' });
+    }
+    const stickerIds = new Set<string>();
+    const themeCounts = new Map<string, number>();
+    value.stickers.forEach((s, i) => {
+      if (stickerIds.has(s.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers', i, 'id'], message: `duplicate sticker id "${s.id}"` });
+      }
+      stickerIds.add(s.id);
+      if (!bgIds.has(s.theme)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers', i, 'theme'], message: `unknown sticker theme "${s.theme}"` });
+      }
+      themeCounts.set(s.theme, (themeCounts.get(s.theme) ?? 0) + 1);
+    });
+    for (const bg of value.backgrounds) {
+      if ((themeCounts.get(bg.id) ?? 0) !== 4) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers'], message: `theme "${bg.id}" must have 4 stickers` });
+      }
+    }
+    const crayonIds = new Set(value.crayons.map((c) => c.id));
+    if (crayonIds.size !== value.crayons.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'crayon ids must be unique' });
+    }
+    const defaultCrayon = value.crayons.find((c) => c.id === value.defaultColor);
+    if (!defaultCrayon || !defaultCrayon.age2 || !defaultCrayon.age5) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultColor'], message: 'defaultColor must exist and be enabled for age2 and age5' });
+    }
+    const age2 = value.crayons.filter((c) => c.age2);
+    const age5 = value.crayons.filter((c) => c.age5);
+    if (age2.length !== 4) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'age-2 crayons must have 4 colours' });
+    }
+    if (age5.length !== 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'age-5 crayons must have 8 colours' });
+    }
+  });
+
+export type StickerBoardBackground = z.infer<typeof StickerBoardBackgroundSchema>;
+export type StickerBoardSticker = z.infer<typeof StickerBoardStickerSchema>;
+export type StickerBoardCrayon = z.infer<typeof StickerBoardCrayonSchema>;
+export type StickerBoardContent = z.infer<typeof StickerBoardContentSchema>;

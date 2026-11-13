@@ -23,8 +23,9 @@
     {
       "id": "art-studio",
       "nameHe": "סטודיו האמנות",
-      "status": "locked",
-      "earnsLeisure": true
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "sticker-board"
     },
     {
       "id": "leisure-corner",

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bottom hinge ears -->
+    <path d="M98 186 L86 206 C84 212 90 216 98 214 L128 210 L158 214 C166 216 172 212 170 206 L158 186 Z" fill="#E87A7A"/>
+
+    <!-- Scalloped shell body -->
+    <path d="M128 196 C100 186 58 158 34 128 C28 118 32 102 46 98 C50 82 64 70 80 70 C88 54 104 44 128 44 C152 44 168 54 176 70 C192 70 206 82 210 98 C224 102 228 118 222 128 C198 158 156 186 128 196 Z" fill="#FFA8A8"/>
+
+    <!-- Flat shadow on right side -->
+    <path d="M128 44 C152 44 168 54 176 70 C192 70 206 82 210 98 C224 102 228 118 222 128 C198 158 156 186 128 196 C152 168 168 122 162 66 C154 54 142 46 128 44 Z" fill="#F28585" stroke="none"/>
+
+    <!-- Flat highlight on upper-left -->
+    <path d="M114 52 C98 54 88 64 82 76 C68 78 58 88 54 102 C68 94 84 90 100 94 C104 76 108 62 114 52 Z" fill="#FFD6D6" stroke="none"/>
+
+    <!-- Outer shell outline -->
+    <path d="M128 196 C100 186 58 158 34 128 C28 118 32 102 46 98 C50 82 64 70 80 70 C88 54 104 44 128 44 C152 44 168 54 176 70 C192 70 206 82 210 98 C224 102 228 118 222 128 C198 158 156 186 128 196 Z" fill="none"/>
+
+    <!-- Fan ribs radiating from hinge -->
+    <path d="M124 188 C98 160 72 130 46 98" fill="none" stroke-width="5"/>
+    <path d="M126 188 C110 150 96 112 80 70" fill="none" stroke-width="5"/>
+    <path d="M128 188 L128 46" fill="none" stroke-width="5"/>
+    <path d="M130 188 C146 150 160 112 176 70" fill="none" stroke-width="5"/>
+    <path d="M132 188 C158 160 184 130 210 98" fill="none" stroke-width="5"/>
+  </g>
+</svg>

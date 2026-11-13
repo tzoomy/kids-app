@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Small exhaust flame -->
+    <path d="M106 188 C98 206 108 226 128 234 C148 226 158 206 150 188 Z" fill="#FF922B"/>
+    <path d="M116 190 C112 204 118 216 128 222 C138 216 144 204 140 190 Z" fill="#FFD43B" stroke="none"/>
+    <path d="M106 188 C98 206 108 226 128 234 C148 226 158 206 150 188 Z" fill="none"/>
+
+    <!-- Exhaust nozzle -->
+    <path d="M104 176 L152 176 L146 192 L110 192 Z" fill="#8C7A72"/>
+
+    <!-- Left and right fins -->
+    <path d="M90 132 C64 144 54 166 56 186 C70 182 82 176 94 176 Z" fill="#F24C4C"/>
+    <path d="M56 186 C70 182 82 176 94 176 L92 164 C78 168 64 176 56 186 Z" fill="#CC3333" stroke="none"/>
+    <path d="M90 132 C64 144 54 166 56 186 C70 182 82 176 94 176 Z" fill="none"/>
+
+    <path d="M166 132 C192 144 202 166 200 186 C186 182 174 176 162 176 Z" fill="#F24C4C"/>
+    <path d="M166 132 C192 144 202 166 200 186 C186 182 174 176 162 176 Z" fill="#CC3333" stroke="none"/>
+    <path d="M166 132 C192 144 202 166 200 186 C186 182 174 176 162 176 Z" fill="none"/>
+
+    <!-- Main rocket body -->
+    <path d="M128 24 C156 48 172 86 172 130 C172 154 166 170 158 180 L98 180 C90 170 84 154 84 130 C84 86 100 48 128 24 Z" fill="#FFF9F0"/>
+    <!-- Body shadow -->
+    <path d="M144 42 C162 66 172 98 172 130 C172 154 166 170 158 180 L138 180 C148 166 154 146 154 122 C154 90 148 62 144 42 Z" fill="#E6DDD0" stroke="none"/>
+    <!-- Body highlight -->
+    <path d="M104 78 C96 98 94 120 96 144 C98 156 102 164 108 170 C104 148 104 114 112 82 Z" fill="#FFFFFF" stroke="none"/>
+
+    <!-- Red nose cone -->
+    <path d="M128 24 C146 39 158 58 165 78 Q128 86 91 78 C98 58 110 39 128 24 Z" fill="#F24C4C"/>
+    <path d="M128 24 C146 39 158 58 165 78 Q150 82 140 82 C142 60 136 40 128 24 Z" fill="#CC3333" stroke="none"/>
+    <path d="M124 30 C112 44 104 58 100 72 Q110 74 116 74 C118 56 122 40 124 30 Z" fill="#FF8585" stroke="none"/>
+
+    <!-- Re-stroke body and nose seam -->
+    <path d="M128 24 C156 48 172 86 172 130 C172 154 166 170 158 180 L98 180 C90 170 84 154 84 130 C84 86 100 48 128 24 Z" fill="none"/>
+    <path d="M91 78 Q128 86 165 78" fill="none"/>
+
+    <!-- Center front fin -->
+    <path d="M128 148 C136 158 138 176 134 192 L122 192 C118 176 120 158 128 148 Z" fill="#F24C4C"/>
+
+    <!-- Round porthole window -->
+    <circle cx="128" cy="116" r="24" fill="#FFD166"/>
+    <circle cx="128" cy="116" r="16" fill="#74C0FC"/>
+    <path d="M138 104 A16 16 0 0 1 116 126 A16 16 0 0 0 138 104 Z" fill="#4DABF7" stroke="none"/>
+    <ellipse cx="122" cy="110" rx="5" ry="3" transform="rotate(-30 122 110)" fill="#D0EBFF" stroke="none"/>
+    <circle cx="128" cy="116" r="16" fill="none" stroke-width="5"/>
+  </g>
+</svg>

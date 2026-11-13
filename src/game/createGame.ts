@@ -10,6 +10,9 @@ import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
 import { ColouringScene } from '../games/colouring/ColouringScene';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
+import { StickerBoardScene } from '../games/stickers/StickerBoardScene';
+import type { StickerBoardInfo, StickerBoardSeed } from '../games/stickers/types';
+import { writeStickerBoardSeed } from '../core/stickers/seed';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
 import { PreloadScene } from '../anim/PreloadScene';
@@ -23,7 +26,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'stickers') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -44,6 +47,10 @@ declare global {
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
       getColouringInfo: () => ColouringInfo | null;
+      /** Writes the Sticker Board autosave key only. Call on the map, before entering. */
+      seedStickerBoardState: (seed: StickerBoardSeed) => void;
+      /** Current Sticker Board snapshot (null when StickerBoardScene is not active or not ready); rectangles are page CSS px. */
+      getStickerBoardInfo: () => StickerBoardInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
@@ -111,6 +118,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('StickerBoardScene', StickerBoardScene, false);
 
   game.registry.set('appContext', context);
 
@@ -127,6 +135,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'stickers' ? 'StickerBoardScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
@@ -136,6 +145,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('OrchestraScene');
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
+      game.scene.stop('StickerBoardScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -200,6 +210,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getColouringInfo() {
       const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
       return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
+    },
+    seedStickerBoardState(seed) {
+      writeStickerBoardSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getStickerBoardInfo() {
+      const scene = game.scene.getScene('StickerBoardScene') as StickerBoardScene | null;
+      return scene && game.scene.isActive('StickerBoardScene') ? scene.getStickerBoardInfo() : null;
     },
     seedHidingLevel(level) {
       const profileId = context.requireProfileId();

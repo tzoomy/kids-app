@@ -18,13 +18,16 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
+  // Sticker Board is the only Art Studio game, so the building opens it directly.
+  'sticker-board': 'StickerBoardScene',
 };
 
-/** Entry game of each single-game world. Art Studio is locked until its own game exists. */
+/** Entry game of each single-game world. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
   'nature-lab': 'who-is-hiding',
   'number-garden': 'sorting-beds',
+  'art-studio': 'sticker-board',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
