@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { enterWorldByTap, seedHidingLevel } from './helpers/journey';
+import { enterWorldByTap, seedHidingLevel, seedTimeEarningEnabled } from './helpers/journey';
 
 type Hooks = {
   getRoundInfo: () => HidingInfo | null;
@@ -36,6 +36,7 @@ async function waitForGameReady(page: Page): Promise<void> {
 
 async function enterProfile(page: Page): Promise<void> {
   await page.goto('/?e2e=1');
+  await seedTimeEarningEnabled(page, true);
   await page.locator('[data-testid="profile-a"]').click();
   await waitForGameReady(page);
 }

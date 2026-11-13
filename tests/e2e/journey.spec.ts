@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { seedTimeEarningEnabled } from './helpers/journey';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const screenshotsDir = path.resolve(dirname, '../../docs/screenshots');
@@ -82,6 +83,7 @@ async function clickGame(page: Page, x: number, y: number): Promise<void> {
 test.describe('kids-app journey', () => {
   test('restaurant requests voice clips, keeps the prompt bubble across HUD ticks and updates stars on arrival', async ({ page }) => {
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
     await goToScreen(page, 'restaurant');
@@ -122,6 +124,7 @@ test.describe('kids-app journey', () => {
     const sizeTag = `${testInfo.project.use.viewport?.width}x${testInfo.project.use.viewport?.height}`;
 
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
 
     await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
     if (sizeTag === '1280x800' || sizeTag === '800x1280') {
@@ -157,6 +160,7 @@ test.describe('kids-app journey', () => {
 
   test('wrong choices in the restaurant never reduce the leisure balance', async ({ page }) => {
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
 
@@ -188,6 +192,7 @@ test.describe('kids-app journey', () => {
 
   test('wrong tap then correct tap: a double tap is one try, nothing is deducted, one star is added', async ({ page }) => {
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
     await page.evaluate((sec) => {
@@ -220,6 +225,7 @@ test.describe('kids-app journey', () => {
 
   test('tapping the animal repeats the request without selecting a plate', async ({ page }) => {
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
     await goToScreen(page, 'restaurant');
@@ -237,6 +243,7 @@ test.describe('kids-app journey', () => {
   /** Starts a restaurant visit at a seeded adaptive level (the hook writes it before the scene starts). */
   async function startRestaurantAtLevel(page: Page, level: number): Promise<RoundInfo> {
     await page.goto('/?e2e=1');
+    await seedTimeEarningEnabled(page, true);
     await page.locator('[data-testid="profile-a"]').click();
     await waitForGameReady(page);
     await page.evaluate((l) => {

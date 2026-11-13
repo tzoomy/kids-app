@@ -8,7 +8,7 @@ import { Store } from './core/storage/store';
 import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from './core/audio';
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
-import { createGame, isE2e } from './game/createGame';
+import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
@@ -18,6 +18,7 @@ const shellRoot = document.getElementById('shell-root');
 if (!shellRoot) throw new Error('#shell-root missing from web/index.html');
 
 const store = new Store();
+installEarlyTimeEarningHook(store);
 const audioManager = new AudioManager([new StaticFileProvider(loadAudioManifest(), import.meta.env.BASE_URL), new DeviceTtsProvider()]);
 const sfx = new SfxPlayer();
 const shell = new AppShell(shellRoot);
