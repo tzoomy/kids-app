@@ -345,4 +345,12 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
+  // Science World — Sink or Float (docs/specs/sink-or-float.md)
+  { key: 'prop-water-tank', url: 'art/props/water-tank.svg', width: 320, height: 320 },
+  { key: 'prop-float-ball', url: 'art/props/float-ball.svg', width: 160, height: 160 },
+  { key: 'prop-float-leaf', url: 'art/props/float-leaf.svg', width: 160, height: 160 },
+  { key: 'prop-float-apple', url: 'art/props/float-apple.svg', width: 160, height: 160 },
+  { key: 'prop-float-stone', url: 'art/props/float-stone.svg', width: 160, height: 160 },
+  { key: 'prop-float-key', url: 'art/props/float-key.svg', width: 160, height: 160 },
+  { key: 'prop-float-spoon', url: 'art/props/float-spoon.svg', width: 160, height: 160 },
 ];

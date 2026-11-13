@@ -437,3 +437,106 @@ export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
 export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+
+const nonBlankString = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+/** Sink or Float (docs/specs/sink-or-float.md): no-fail buoyancy experiment in Science World. */
+export const SINK_FLOAT_OBJECT_IDS = ['ball', 'leaf', 'apple', 'stone', 'key', 'spoon'] as const;
+
+export const SinkFloatObjectSchema = z.object({
+  id: z.enum(SINK_FLOAT_OBJECT_IDS),
+  floats: z.boolean(),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+  resultHe: nonBlankString,
+});
+
+export const SinkOrFloatContentSchema = z
+  .object({
+    id: z.literal('sink-or-float'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    objects: z.array(SinkFloatObjectSchema).length(SINK_FLOAT_OBJECT_IDS.length),
+    outcomes: z.object({
+      floats: z.object({ en: nonBlankString, fr: nonBlankString }),
+      sinks: z.object({ en: nonBlankString, fr: nonBlankString }),
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: nonBlankString,
+      introPredict: nonBlankString,
+      ask: nonBlankString,
+      letsSee: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const seen = new Set<string>();
+    value.objects.forEach((obj, i) => {
+      if (seen.has(obj.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects', i, 'id'],
+          message: `duplicate object id "${obj.id}"`,
+        });
+      }
+      seen.add(obj.id);
+    });
+    for (const id of SINK_FLOAT_OBJECT_IDS) {
+      if (!seen.has(id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects'],
+          message: `missing object "${id}"`,
+        });
+      }
+    }
+    if (!value.objects.some((o) => o.floats) || !value.objects.some((o) => !o.floats)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least one floater and one sinker',
+      });
+    }
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'predict') {
+        issue('extra.mode must be "free" or "predict"');
+      }
+      const dropsPerStar = level.extra?.dropsPerStar;
+      if (
+        dropsPerStar !== undefined &&
+        (typeof dropsPerStar !== 'number' || !Number.isInteger(dropsPerStar) || dropsPerStar < 1)
+      ) {
+        issue('extra.dropsPerStar must be a positive integer');
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('sink-or-float supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'predict') {
+        issue('audio-only sink-or-float levels must use extra.mode "predict"');
+      }
+    });
+  });
+
+export type SinkFloatObjectContent = z.infer<typeof SinkFloatObjectSchema>;
+export type SinkOrFloatContent = z.infer<typeof SinkOrFloatContentSchema>;

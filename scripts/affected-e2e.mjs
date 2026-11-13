@@ -106,6 +106,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/science-world.map.spec.ts'],
   },
   {
+    id: 'sink-or-float',
+    match: [
+      /^src\/games\/sinkFloat\//,
+      /^src\/content\/games\/sink-or-float\.json$/,
+      /^public\/art\/props\/(water-tank|float-[a-z]+)\.svg$/,
+      /^tests\/unit\/sink-or-float[^/]*$/,
+    ],
+    specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'credits',
     match: [
       /^src\/content\/credits[^/]*$/,

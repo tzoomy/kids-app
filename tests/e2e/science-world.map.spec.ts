@@ -6,7 +6,6 @@ import {
   tapTestId,
   tapWorldBuilding,
   waitForScene,
-  waitForSpokenLine,
 } from './helpers/journey';
 
 // Science World map area (separate map area: pending Maor decision, docs/PENDING-DECISIONS.md).
@@ -30,28 +29,34 @@ test.describe('science world map area', () => {
     expect(hit.y + hit.height).toBeLessThanOrEqual(vp.height + 0.5);
   });
 
-  test('real tap opens the Science World picker with its gentle coming-soon state, and close returns to the map', async ({ page }) => {
+  test('real tap opens the Science World picker with the Sink or Float card (no empty card), and close returns to the map', async ({ page }) => {
     await tapWorldBuilding(page, 'profile-a', 'science-world');
 
-    const empty = page.locator('[data-testid="game-picker-empty"]');
-    await empty.waitFor({ state: 'visible', timeout: 10_000 });
-    await expect(empty).toHaveText('הניסויים בדרך! נבקר כאן בקרוב.');
+    const card = page.locator('[data-testid="game-picker-sink-or-float"]');
+    await card.waitFor({ state: 'visible', timeout: 10_000 });
+    await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
     await expect(page.getByText('עולם המדע').first()).toBeVisible();
-    // No game cards yet; the area never fails or locks, it just says "soon".
-    await expect(page.locator('[data-testid^="game-picker-"].picker-card')).toHaveCount(0);
-    await waitForSpokenLine(page, (l) => l.lineId === 'he.map.comingSoon');
+    await expect(card).toContainText('צף או שוקע?');
 
-    // Regression: a press on the card must not reach a map building underneath (Number Garden in portrait).
-    await tapTestId(page, 'game-picker-empty');
-    await page.waitForTimeout(600);
-    expect(await getActiveScenes(page)).toEqual(['MapScene']);
-    await expect(empty).toBeVisible();
+    const cardBox = await getStableBox(page, 'game-picker-sink-or-float');
+    expect(cardBox.width).toBeGreaterThanOrEqual(MIN_TAP);
+    expect(cardBox.height).toBeGreaterThanOrEqual(MIN_TAP);
 
     const close = await getStableBox(page, 'game-picker-close');
     expect(close.width).toBeGreaterThanOrEqual(MIN_TAP);
     expect(close.height).toBeGreaterThanOrEqual(MIN_TAP);
     await tapTestId(page, 'game-picker-close');
-    await expect(empty).toBeHidden();
+    await expect(card).toBeHidden();
     expect(await getActiveScenes(page)).toContain('MapScene');
+  });
+
+  test('real tap on the Sink or Float card opens SinkFloatScene', async ({ page }) => {
+    await tapWorldBuilding(page, 'profile-a', 'science-world');
+    await tapTestId(page, 'game-picker-sink-or-float');
+    await waitForScene(page, 'SinkFloatScene');
+    // Regression: the press on the card must not also tap the map building under it (Number Garden in portrait).
+    await page.waitForTimeout(600);
+    expect(await getActiveScenes(page)).toEqual(['SinkFloatScene']);
+    await expect(page.locator('[data-testid="game-picker-sink-or-float"]')).toHaveCount(0);
   });
 });

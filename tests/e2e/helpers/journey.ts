@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
 
-export type { SortingInfo };
+export type { SortingInfo, SinkFloatInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -18,6 +19,7 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
+  'sink-or-float': 'SinkFloatScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -37,6 +39,7 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
  * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
+  'science-world': ['sink-or-float'],
 };
 
 export interface PageRect {
@@ -135,6 +138,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedSinkFloatLevel: (level: number) => void;
+  getSinkFloatInfo: () => SinkFloatInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -530,4 +535,24 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Sink or Float level for every language (seed only). Call on the map, before entering. */
+export async function seedSinkFloatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSinkFloatLevel', [level]);
+}
+
+export function getSinkFloatInfo(page: Page): Promise<SinkFloatInfo | null> {
+  return callHook<SinkFloatInfo | null>(page, 'getSinkFloatInfo');
+}
+
+/** Waits until Sink or Float accepts taps and returns its state. */
+export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promise<SinkFloatInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSinkFloatInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
