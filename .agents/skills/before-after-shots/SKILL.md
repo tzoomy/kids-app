@@ -5,7 +5,7 @@ description: Captures before-and-after screenshots of a kids-app visual change f
 
 # Before and after shots
 
-Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This skill covers only how to capture comparison screenshots.
+Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This skill covers only how to capture comparison screenshots. Use a fresh, short session, and only for visual changes — do not capture screenshots for docs, wording, or other non-visual work.
 
 ## Servers and ports
 

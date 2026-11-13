@@ -5,7 +5,7 @@ description: Minimally redraws an existing SVG in this kids-app repo (peek, icon
 
 # Art redraw
 
-Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This skill covers only a minimal redraw of art that already exists.
+Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This skill covers only a minimal redraw of art that already exists. Use a fresh, short session.
 
 ## Keep frozen
 
@@ -22,6 +22,6 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 
 ## Pass and checks
 
-- Pass 1 only: clean, basic art. Do not add Pass 2 polish or recorded voice unless the owner has approved Pass 2 for this task.
-- After the edit, `npm test` and `npm run build` must pass.
-- If in-game or preview shots are needed, use the `before-after-shots` skill; do not skip a visual check of a visual change.
+- Pass 1 only: clean, basic art, drafted with `gemini-3.8-flash-high`. Do not add Pass 2 polish or recorded voice, and do not use Argon, unless Maor has approved this game and asked for polish (`gemini-4-argon-high` then).
+- After the edit, locally run only tests related to the change. The full suite runs in CI. Read only failure summaries, not full logs.
+- If the change is visual and in-game or preview shots are needed, use the `before-after-shots` skill. Do not take screenshots for non-visual changes.

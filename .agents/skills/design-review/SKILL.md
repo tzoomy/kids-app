@@ -7,11 +7,13 @@ description: Independent visual and spec review of a kids-app pull request again
 
 Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. You are an independent reviewer, not the implementer of the change under review, and never the sole reviewer of your own PR. Do not edit the branch you are reviewing.
 
-## Look at the real UI
+Use a fresh, short session and `gemini-3.8-flash-high` (docs, wording, and art included). `gemini-4-argon-high` is only for polish after Maor approves a game. One reviewer per PR; review the diff only.
 
-- Read the diff, the approved spec (`docs/specs/`), and the screenshots. A visual change with no inspected screenshot is a blocker.
-- Serve the build over HTTP (not `file://`). Open a fresh page for each orientation at native `1280×800` and `800×1280` (do not resize a Phaser FIT canvas in place).
-- If you need to take the shots, follow `before-after-shots`: start your own preview on a private port with an uncommitted local config; never use port 4173; never reuse another worktree's server; stop only servers you started.
+## Look at the change
+
+- Review the diff, and the approved spec (`docs/specs/`) only as it applies to this diff. Do not expand into unrelated files.
+- For a visual change, inspect the PR's screenshots in both orientations. A visual change with no inspected screenshot is a blocker. Do not take or attach screenshots for non-visual diffs.
+- If shots are missing for a visual change and you must take them, follow `before-after-shots`: start your own preview on a private port with an uncommitted local config; never use port 4173; never reuse another worktree's server; stop only servers you started.
 
 ## Check
 
