@@ -39,9 +39,9 @@
     <ellipse cx="690" cy="1195" rx="12" ry="6" fill="none" stroke="#CFA374" stroke-width="2"/>
     <path d="M 620 1200 Q 690 1210 760 1195" fill="none" stroke="#CFA374" stroke-width="2.5"/>
 
-    <!-- CRAFT PROPS: TOP CORNERS ONLY (y <= 130) -->
-
-    <!-- Top-Left Corner: Two Cute Crayons -->
+    <!-- CRAFT PROPS: side gutters beside the tool row, below the page (y 870-980; page ends y=808,
+         tools sit at x 248-552, palette starts y>=1104). Each prop group has a stable deco-* id. -->
+    <g id="deco-crayons"><g transform="translate(0 850)">
     <!-- Crayon 1: Coral Red (angled slightly down-right) -->
     <g>
       <path d="M 35 35 L 125 50 L 122 66 L 32 51 Z" fill="#F28B82" stroke="#3B2A22" stroke-width="4"/>
@@ -56,18 +56,14 @@
       <polygon points="85,85 97,87 95,103 83,101" fill="#81C995"/>
       <polygon points="135,93 156,97 132,109" fill="#81C995" stroke="#3B2A22" stroke-width="4"/>
     </g>
-    <!-- Top-Left Soft Sparkles / Dots -->
-    <path d="M 175 33 Q 175 40 182 40 Q 175 40 175 47 Q 175 40 168 40 Q 175 40 175 33 Z" fill="#FDD663"/>
-    <circle cx="30" cy="85" r="4.5" fill="#90CAF9"/>
-    <circle cx="165" cy="115" r="4" fill="#F8BBD0"/>
-
-    <!-- Top-Right Corner: Cute Palette, Brush, & Eraser (x >= 590, y <= 130) -->
-    <!-- Small Pink Eraser -->
+    </g></g>
+    <g id="deco-eraser"><g transform="translate(0 850)">
     <path d="M 600 40 L 632 35 L 637 60 L 605 65 Z" fill="#F8BBD0" stroke="#3B2A22" stroke-width="3.5"/>
     <path d="M 612 38 L 632 35 L 637 60 L 617 63 Z" fill="#FFFDF9" stroke="#3B2A22" stroke-width="3"/>
     <line x1="622" y1="37" x2="626" y2="61" stroke="#90CAF9" stroke-width="3"/>
 
-    <!-- Small Wooden Paint Palette -->
+    </g></g>
+    <g id="deco-palette"><g transform="translate(0 850)">
     <path d="M 645 35 C 675 20 740 22 765 50 C 785 75 765 110 730 118 C 690 125 645 105 635 75 C 630 55 635 42 645 35 Z" fill="#F4D3A1" stroke="#3B2A22" stroke-width="4"/>
     <ellipse cx="660" cy="85" rx="8" ry="11" fill="#E4BF94" stroke="#3B2A22" stroke-width="3.5"/>
     <!-- Small Paint Dollops -->
@@ -82,14 +78,19 @@
     <circle cx="705" cy="100" r="8.5" fill="#CE93D8" stroke="#3B2A22" stroke-width="3"/>
     <circle cx="703" cy="98" r="2.5" fill="#FFFDF9"/>
 
-    <!-- Small Paintbrush -->
+    </g></g>
+    <g id="deco-brush"><g transform="translate(0 850)">
     <path d="M 590 125 L 670 70 L 676 74 L 596 129 Z" fill="#CFA374" stroke="#3B2A22" stroke-width="3.5"/>
     <path d="M 670 70 L 676 74 L 684 68 L 678 64 Z" fill="#CFD8DC" stroke="#3B2A22" stroke-width="3"/>
     <path d="M 678 64 Q 694 52 696 58 Q 692 68 684 68 Z" fill="#90CAF9" stroke="#3B2A22" stroke-width="3"/>
 
-    <!-- Top-Right Soft Sparkles / Dots -->
-    <path d="M 610 88 Q 610 95 617 95 Q 610 95 610 102 Q 610 95 603 95 Q 610 95 610 88 Z" fill="#FDD663"/>
-    <circle cx="765" cy="25" r="4" fill="#81C995"/>
-    <circle cx="645" cy="120" r="4.5" fill="#F8BBD0"/>
+    </g></g>
+
+    <g id="deco-sparkle-1"><g transform="translate(0 850)"><path d="M 175 33 Q 175 40 182 40 Q 175 40 175 47 Q 175 40 168 40 Q 175 40 175 33 Z" fill="#FDD663"/></g></g>
+    <g id="deco-sparkle-2"><g transform="translate(0 850)"><circle cx="30" cy="85" r="4.5" fill="#90CAF9"/></g></g>
+    <g id="deco-sparkle-3"><g transform="translate(0 850)"><circle cx="165" cy="115" r="4" fill="#F8BBD0"/></g></g>
+    <g id="deco-sparkle-4"><g transform="translate(0 850)"><path d="M 610 88 Q 610 95 617 95 Q 610 95 610 102 Q 610 95 603 95 Q 610 95 610 88 Z" fill="#FDD663"/></g></g>
+    <g id="deco-sparkle-5"><g transform="translate(0 850)"><circle cx="765" cy="25" r="4" fill="#81C995"/></g></g>
+    <g id="deco-sparkle-6"><g transform="translate(0 850)"><circle cx="645" cy="120" r="4.5" fill="#F8BBD0"/></g></g>
   </g>
 </svg>

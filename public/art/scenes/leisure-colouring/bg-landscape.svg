@@ -31,10 +31,11 @@
     <path d="M 70 410 Q 130 418 180 408" fill="none" stroke="#CFA374" stroke-width="2.5"/>
     <path d="M 1080 720 Q 1160 710 1230 724" fill="none" stroke="#CFA374" stroke-width="2.5"/>
 
-    <!-- CRAFT PROPS: FAR-LEFT STRIP & CORNERS ONLY (x <= 200) -->
+    <!-- CRAFT PROPS: left column below the tool buttons (tools end at y=380, x<=88; page starts at x=288).
+         Each prop group has a stable deco-* id used by the e2e overlap check. -->
 
-    <!-- Top-Left: Ceramic Pencil Cup with Tools -->
-    <!-- Tool 1: Purple Marker / Ruler -->
+    <!-- Pencil cup, shrunk and moved clear of hud-help and the tool column -->
+    <g id="deco-pencil-cup"><g transform="translate(160 408) scale(0.6)">
     <path d="M 86 126 L 76 82 L 88 78 L 98 126 Z" fill="#CE93D8" stroke="#3B2A22" stroke-width="3.5"/>
     <!-- Tool 2: Sky Blue Pencil (angled left) -->
     <path d="M 82 128 L 52 48 L 64 44 L 94 126 Z" fill="#90CAF9" stroke="#3B2A22" stroke-width="4"/>
@@ -54,7 +55,10 @@
     <!-- Cute Heart Badge on Cup -->
     <path d="M 110 180 C 110 170 96 162 96 172 C 96 182 110 192 110 192 C 110 192 124 182 124 172 C 124 162 110 170 110 180 Z" fill="#F28B82" stroke="#3B2A22" stroke-width="3"/>
 
-    <!-- Mid-Left: Two Loose Crayons -->
+    </g></g>
+
+    <!-- Two loose crayons, shifted right of the tool column -->
+    <g id="deco-crayons"><g transform="translate(70 0)">
     <!-- Crayon 1: Coral Red -->
     <g>
       <path d="M 60 300 L 135 328 L 129 344 L 54 316 Z" fill="#F28B82" stroke="#3B2A22" stroke-width="4"/>
@@ -70,13 +74,17 @@
       <polygon points="120,373 139,380 114,389" fill="#80CBC4" stroke="#3B2A22" stroke-width="4"/>
     </g>
 
-    <!-- Mid-Left: Soft Pink Eraser -->
+    </g></g>
+
+    <g id="deco-eraser">
     <path d="M 65 440 L 125 435 L 130 475 L 70 480 Z" fill="#F8BBD0" stroke="#3B2A22" stroke-width="4"/>
     <path d="M 85 438 L 125 435 L 130 475 L 90 478 Z" fill="#FFFDF9" stroke="#3B2A22" stroke-width="3.5"/>
     <!-- Star on Eraser Sleeve -->
     <polygon points="105,450 107,455 112,455 108,458 110,463 105,460 100,463 102,458 98,455 103,455" fill="#90CAF9"/>
 
-    <!-- Bottom-Left: Cute Wooden Paint Palette -->
+    </g>
+
+    <g id="deco-palette">
     <path d="M 55 585 C 95 550 170 560 195 615 C 215 660 190 725 140 745 C 95 760 45 725 40 670 C 35 630 35 605 55 585 Z" fill="#F4D3A1" stroke="#3B2A22" stroke-width="4"/>
     <ellipse cx="75" cy="690" rx="14" ry="18" fill="#E1BA8E" stroke="#3B2A22" stroke-width="4"/>
     <!-- Paint Blobs -->
@@ -91,16 +99,18 @@
     <circle cx="95" cy="735" r="12" fill="#CE93D8" stroke="#3B2A22" stroke-width="3.5"/>
     <circle cx="92" cy="732" r="3" fill="#FFFDF9"/>
 
-    <!-- Paintbrush Resting on Palette -->
+    </g>
+
+    <g id="deco-brush">
     <path d="M 45 765 L 140 600 L 148 605 L 53 770 Z" fill="#CFA374" stroke="#3B2A22" stroke-width="3.5"/>
     <path d="M 140 600 L 148 605 L 156 591 L 148 586 Z" fill="#CFD8DC" stroke="#3B2A22" stroke-width="3"/>
     <path d="M 148 586 Q 162 566 168 570 Q 166 585 156 591 Z" fill="#90CAF9" stroke="#3B2A22" stroke-width="3"/>
 
-    <!-- Tiny Soft Sparkles / Confetti Dots (Far Left Margin Only, x < 200) -->
-    <path d="M 185 98 Q 185 105 192 105 Q 185 105 185 112 Q 185 105 178 105 Q 185 105 185 98 Z" fill="#FDD663"/>
-    <path d="M 40 252 Q 40 260 48 260 Q 40 260 40 268 Q 40 260 32 260 Q 40 260 40 252 Z" fill="#FDD663"/>
-    <circle cx="180" cy="260" r="5" fill="#F8BBD0"/>
-    <path d="M 185 408 Q 185 415 192 415 Q 185 415 185 422 Q 185 415 178 415 Q 185 415 185 408 Z" fill="#81C995"/>
-    <circle cx="45" cy="530" r="4.5" fill="#90CAF9"/>
+    </g>
+
+    <!-- Sparkles (the two that sat under the tool column were dropped) -->
+    <g id="deco-sparkle-1"><circle cx="180" cy="260" r="5" fill="#F8BBD0"/></g>
+    <g id="deco-sparkle-2"><path d="M 185 394 Q 185 401 192 401 Q 185 401 185 408 Q 185 401 178 401 Q 185 401 185 394 Z" fill="#81C995"/></g>
+    <g id="deco-sparkle-3"><circle cx="45" cy="530" r="4.5" fill="#90CAF9"/></g>
   </g>
 </svg>
