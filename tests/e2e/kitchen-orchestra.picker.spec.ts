@@ -64,6 +64,27 @@ test.describe('language house game picker', () => {
     expect(overlaps(restaurant, boxes['game-picker-close'])).toBe(false);
     expect(overlaps(orchestra, boxes['game-picker-close'])).toBe(false);
 
+    // Each card (the whole button) is exactly 4:5, like the 640x800 art, and the art fills it: no letterbox gaps.
+    const BORDER = 6;
+    for (const id of CARD_IDS) {
+      const card = boxes[id];
+      expect(Math.abs(card.width / card.height - 0.8), `${id} aspect ${card.width}x${card.height}`).toBeLessThanOrEqual(0.02);
+      const art = page.locator(`[data-testid="${id}"] .picker-card-art`);
+      const img = page.locator(`[data-testid="${id}"] .picker-card-art img`);
+      const artBox = (await art.boundingBox())!;
+      const imgBox = (await img.boundingBox())!;
+      for (const [name, inner] of [['art box', artBox], ['img', imgBox]] as const) {
+        const tol = BORDER + 2;
+        expect(Math.abs(inner.x - card.x), `${id} ${name} left gap`).toBeLessThanOrEqual(tol);
+        expect(Math.abs(inner.y - card.y), `${id} ${name} top gap`).toBeLessThanOrEqual(tol);
+        expect(Math.abs(card.x + card.width - (inner.x + inner.width)), `${id} ${name} right gap`).toBeLessThanOrEqual(tol);
+        expect(Math.abs(card.y + card.height - (inner.y + inner.height)), `${id} ${name} bottom gap`).toBeLessThanOrEqual(tol);
+      }
+    }
+    // Both cards have the same size.
+    expect(Math.abs(restaurant.width - orchestra.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(restaurant.height - orchestra.height)).toBeLessThanOrEqual(1);
+
     // No game was opened by the building tap.
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
