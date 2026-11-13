@@ -1,11 +1,13 @@
 // Colouring Time (leisure-colouring) art contract, docs/specs/leisure-colouring.md
-// ("SVG contract (pages)" and the frozen page and region manifest). Pure Node + jsdom
-// DOMParser: no Phaser, no canvas. The implementation PR should move PAGES into
-// src/content/games/leisure-colouring.json (AC-09) and import it here.
+// ("SVG contract (pages)" and the frozen page and region manifest). Structure only: pure Node +
+// jsdom DOMParser, no Phaser, no canvas. jsdom has no path geometry, so visible thickness, gaps,
+// seams, containment and self-intersection are checked in Chromium by
+// tests/e2e/leisure-colouring.art.spec.ts (PR #49 review M6).
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
+import { COLOURING_PAGES, pageRegions, type ColouringPageSpec } from '../shared/leisureColouringPages';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 const PAGE_DIR = path.join(PUBLIC_DIR, 'art/colouring/pages');
@@ -15,34 +17,7 @@ const PAPER = '#FFFDF9';
 const OUTLINE = '#3B2A22';
 const MIN_COARSE = 80;
 const MIN_FINE = 48;
-/** Smallest area (viewBox px^2) a region must own on top of the stack for its age track. */
-const MIN_VISIBLE_AREA = 900;
-const GRID = 4;
 
-type Coarse = string;
-type Fine = [part: string, parent: string];
-interface PageDef { id: string; coarse: Coarse[]; fine: Fine[] }
-
-/** Frozen page and region manifest (spec table order = display order). */
-const PAGES: PageDef[] = [
-  { id: 'cat', coarse: ['body', 'head', 'ear-left', 'ear-right', 'tail', 'paw-left', 'paw-right', 'cushion'],
-    fine: [['ear-inner-left', 'ear-left'], ['ear-inner-right', 'ear-right'], ['muzzle', 'head'], ['belly', 'body'], ['stripe-back', 'body'], ['bow', 'body']] },
-  { id: 'dog', coarse: ['body', 'head', 'ear-left', 'ear-right', 'tail', 'paw-left', 'paw-right', 'bone'],
-    fine: [['muzzle', 'head'], ['eye-patch', 'head'], ['collar', 'body'], ['belly', 'body'], ['spot-back', 'body']] },
-  { id: 'rabbit', coarse: ['body', 'head', 'ear-left', 'ear-right', 'tail', 'paw-left', 'paw-right', 'carrot'],
-    fine: [['ear-inner-left', 'ear-left'], ['ear-inner-right', 'ear-right'], ['muzzle', 'head'], ['belly', 'body'], ['carrot-leaves', 'carrot']] },
-  { id: 'bear', coarse: ['body', 'head', 'ear-left', 'ear-right', 'arm-left', 'arm-right', 'foot-left', 'foot-right', 'honey-pot'],
-    fine: [['ear-inner-left', 'ear-left'], ['ear-inner-right', 'ear-right'], ['muzzle', 'head'], ['belly', 'body'], ['honey-label', 'honey-pot']] },
-  { id: 'panda', coarse: ['body', 'head', 'ear-left', 'ear-right', 'arm-left', 'arm-right', 'foot-left', 'foot-right', 'bamboo'],
-    fine: [['eye-patch-left', 'head'], ['eye-patch-right', 'head'], ['muzzle', 'head'], ['belly', 'body'], ['bamboo-leaf', 'bamboo']] },
-  { id: 'lion', coarse: ['mane', 'head', 'body', 'ear-left', 'ear-right', 'tail', 'paw-left', 'paw-right'],
-    fine: [['muzzle', 'head'], ['ear-inner-left', 'ear-left'], ['ear-inner-right', 'ear-right'], ['tail-tuft', 'tail'], ['belly', 'body']] },
-  { id: 'butterfly', coarse: ['body', 'head', 'wing-upper-left', 'wing-upper-right', 'wing-lower-left', 'wing-lower-right', 'flower', 'leaf'],
-    fine: [['spot-upper-left', 'wing-upper-left'], ['spot-upper-right', 'wing-upper-right'], ['spot-lower-left', 'wing-lower-left'], ['spot-lower-right', 'wing-lower-right'],
-      ['band-upper-left', 'wing-upper-left'], ['band-upper-right', 'wing-upper-right'], ['flower-centre', 'flower']] },
-  { id: 'chef', coarse: ['hat', 'head', 'jacket', 'arm-left', 'arm-right', 'trousers', 'shoe-left', 'shoe-right', 'pot'],
-    fine: [['hat-band', 'hat'], ['apron', 'jacket'], ['scarf', 'jacket'], ['button-top', 'jacket'], ['button-bottom', 'jacket'], ['pot-lid', 'pot']] },
-];
 
 // ---------- minimal SVG path flattening (M L H V C S Q T Z, absolute and relative) ----------
 type Pt = [number, number];
@@ -126,20 +101,6 @@ function bbox(flat: Flat) {
   return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
 }
 
-/** SVG default fill-rule nonzero. */
-function contains(flat: Flat, x: number, y: number): boolean {
-  let wn = 0;
-  for (const s of flat.subpaths) {
-    for (let k = 0; k < s.length; k++) {
-      const [ax, ay] = s[k];
-      const [bx, by] = s[(k + 1) % s.length];
-      if (ay <= y) { if (by > y && (bx - ax) * (y - ay) - (x - ax) * (by - ay) > 0) wn++; }
-      else if (by <= y && (bx - ax) * (y - ay) - (x - ax) * (by - ay) < 0) wn--;
-    }
-  }
-  return wn !== 0;
-}
-
 function readSvg(file: string): { text: string; doc: Document } {
   const text = fs.readFileSync(file, 'utf8');
   const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
@@ -154,10 +115,11 @@ function expectCleanSvg(text: string, doc: Document, label: string) {
   expect(/href\s*=|url\(|https?:|data:/i.test(text.replace('xmlns="http://www.w3.org/2000/svg"', '')), `${label}: no external refs, urls, or rasters`).toBe(false);
 }
 
-const regionIds = (p: PageDef) => [...p.coarse.map((c) => `${p.id}-${c}`), ...p.fine.map(([f]) => `${p.id}-${f}`)];
+const regionIds = (p: ColouringPageSpec) => pageRegions(p).map((r) => r.id);
+const PAGES = COLOURING_PAGES;
 
 describe('leisure-colouring page art', () => {
-  it('[AC-26] the frozen manifest has 8 pages with 6-10 coarse and 12-20 total regions', () => {
+  it('[AC-26] the page manifest has 8 pages with 6-10 coarse and 12-20 total regions', () => {
     expect(PAGES.map((p) => p.id)).toEqual(['cat', 'dog', 'rabbit', 'bear', 'panda', 'lion', 'butterfly', 'chef']);
     for (const p of PAGES) {
       expect(p.coarse.length, p.id).toBeGreaterThanOrEqual(6);
@@ -194,6 +156,7 @@ describe('leisure-colouring page art', () => {
         expect(svg.getAttribute('viewBox')).toBe('0 0 800 800');
         expect(svg.getAttribute('width')).toBe('800');
         expect(svg.getAttribute('height')).toBe('800');
+        expect(svg.hasAttribute('transform') || svg.querySelector('g#fills')?.hasAttribute('transform'), 'no transform above the regions').toBe(false);
         expectCleanSvg(text, doc, page.id);
         const groups = Array.from(svg.children);
         expect(groups.map((g) => `${g.tagName}#${g.getAttribute('id')}`)).toEqual(['g#fills', 'g#outlines']);
@@ -220,12 +183,15 @@ describe('leisure-colouring page art', () => {
         for (const k of kids) expect(k.tagName, 'only <path> regions in fills').toBe('path');
         const ids = kids.map((k) => k.getAttribute('id'));
         expect(new Set(ids).size, 'unique ids').toBe(ids.length);
-        expect(new Set(ids)).toEqual(new Set(regionIds(page)));
+        expect(ids, 'exactly the manifest regions, in manifest (z-) order').toEqual(regionIds(page));
         const fineParent = new Map(page.fine.map(([f, par]) => [`${page.id}-${f}`, `${page.id}-${par}`]));
         for (const k of kids) {
           const id = k.getAttribute('id')!;
           expect(k.getAttribute('fill'), `${id} paper fill`).toBe(PAPER);
           expect(k.hasAttribute('transform'), `${id} no transform`).toBe(false);
+          expect(k.getAttribute('fill-rule') ?? 'nonzero', `${id} fill-rule nonzero (no holes)`).toBe('nonzero');
+          const d = k.getAttribute('d') ?? '';
+          expect((d.match(/[Zz]/g) ?? []).length, `${id}: as many Z as M`).toBe((d.match(/[Mm]/g) ?? []).length);
           const parent = fineParent.get(id);
           const flat = flattenPath(k.getAttribute('d') ?? '');
           expect(flat.subpaths.length, `${id} has geometry`).toBeGreaterThan(0);
@@ -245,25 +211,6 @@ describe('leisure-colouring page art', () => {
         }
       });
 
-      it('[AC-26] every hit-testable region owns a tappable area on both age tracks', () => {
-        const { doc } = readSvg(file);
-        const regions = Array.from(doc.getElementById('fills')!.children).map((k) => ({
-          id: k.getAttribute('id')!, age2: k.getAttribute('data-age2') === 'true', flat: flattenPath(k.getAttribute('d')!),
-        })).map((r) => ({ ...r, b: bbox(r.flat) }));
-        for (const track of ['age2', 'age5'] as const) {
-          const live = regions.filter((r) => track === 'age5' || r.age2);
-          const won = new Map(live.map((r) => [r.id, 0]));
-          for (let y = GRID / 2; y < 800; y += GRID) {
-            for (let x = GRID / 2; x < 800; x += GRID) {
-              for (let k = live.length - 1; k >= 0; k--) {
-                const b = live[k].b;
-                if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && contains(live[k].flat, x, y)) { won.set(live[k].id, won.get(live[k].id)! + 1); break; }
-              }
-            }
-          }
-          for (const [id, n] of won) expect(n * GRID * GRID, `${track}: ${id} visible area`).toBeGreaterThanOrEqual(MIN_VISIBLE_AREA);
-        }
-      });
     });
   }
 
