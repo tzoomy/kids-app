@@ -10,8 +10,9 @@
     {
       "id": "number-garden",
       "nameHe": "גן המספרים",
-      "status": "locked",
-      "earnsLeisure": true
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "sorting-beds"
     },
     {
       "id": "nature-lab",

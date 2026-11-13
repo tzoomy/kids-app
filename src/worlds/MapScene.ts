@@ -90,6 +90,9 @@ export class MapScene extends Phaser.Scene {
         if (world.entryGameId === 'kitchen-orchestra') {
           transitionTo(this, 'OrchestraScene', { style: 'iris', originX: x, originY: y });
         }
+        if (world.entryGameId === 'sorting-beds') {
+          transitionTo(this, 'SortingScene', { style: 'iris', originX: x, originY: y });
+        }
       });
 
       const labels: Record<string, string> = {

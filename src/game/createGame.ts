@@ -3,6 +3,9 @@ import { MapScene } from '../worlds/MapScene';
 import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
+import { SortingScene } from '../games/sorting/SortingScene';
+import type { SortingInfo } from '../games/sorting/types';
+import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
 import type { AppContext } from './appContext';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
@@ -24,6 +27,10 @@ declare global {
       /** Current orchestra trial (null when the kitchen is not active). */
       getOrchestraInfo: () => OrchestraRoundInfo | null;
       seedOrchestraLevel: (level: number) => void;
+      /** Seeds the active profile's persisted Sorting Beds level (level, cleanStreak 0, recent []) for every language. Call before entering. */
+      seedSortingLevel: (level: number) => void;
+      /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
+      getSortingInfo: () => SortingInfo | null;
       /** Names of the currently active scenes. */
       getActiveScenes: () => string[];
       /** Game canvas size in game coordinates. */
@@ -70,6 +77,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('RestaurantScene', RestaurantScene, false);
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
+  game.scene.add('SortingScene', SortingScene, false);
 
   game.registry.set('appContext', context);
 
@@ -86,6 +94,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('RestaurantScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('SortingScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -122,6 +131,19 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedSortingLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        context.content.sorting,
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    getSortingInfo() {
+      const scene = game.scene.getScene('SortingScene') as SortingScene | null;
+      return scene && game.scene.isActive('SortingScene') ? scene.getSortingInfo() : null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;

@@ -259,3 +259,40 @@ export const KitchenOrchestraContentSchema = z
 export type OrchestraInstrument = z.infer<typeof OrchestraInstrumentSchema>;
 export type KitchenOrchestraContent = z.infer<typeof KitchenOrchestraContentSchema>;
 
+/** Sorting Beds (docs/specs/sorting-beds.md): per-level extras are `attributes` (1|2) and `vary` (0|1|2). */
+export const SortingBedsContentSchema = z
+  .object({
+    id: z.literal('sorting-beds'),
+    world: z.literal('number-garden'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    ageTracks: z.object({
+      age2: AgeTrackConfigSchema,
+      age5: AgeTrackConfigSchema,
+    }),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      if (level.support !== undefined && level.support !== 'picture-audio') {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'sorting beds only supports support "picture-audio"' });
+      }
+      if (level.request !== undefined && level.request !== 'rule-switch') {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'sorting beds only supports request "rule-switch"' });
+      }
+      if (level.choiceCount === undefined || level.choiceCount < 2 || level.choiceCount > 4) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'sorting beds levels require choiceCount within 2..4' });
+      }
+      const attributes = level.extra?.attributes;
+      if (attributes !== 1 && attributes !== 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'sorting beds levels require extra.attributes of 1 or 2' });
+      }
+      const vary = level.extra?.vary;
+      if (vary !== 0 && vary !== 1 && vary !== 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'sorting beds levels require extra.vary of 0, 1, or 2' });
+      }
+    });
+  });
+
+export type SortingBedsContent = z.infer<typeof SortingBedsContentSchema>;
+
