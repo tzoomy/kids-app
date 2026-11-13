@@ -1,15 +1,15 @@
 # `leisure-colouring` — Colouring Time (`זמן צביעה`)
 
-Status: **draft — pending owner approval**
+Status: **approved**
 Pass in progress: **none**
 
-**Basic-first rule (applies to this spec).** By default, Pass 1 is a working game with basic animation and device TTS or existing recorded clips only; polish and new recordings come in Pass 2 after the owner approves the finished Pass 1. An explicit owner decision in this spec can override the default for a specific item. (`docs/PROCESS.md` §3, decided by the owner on 2026-11-13.) No item in this draft needs an override.
+**Basic-first rule (applies to this spec).** By default, Pass 1 is a working game with basic animation and device TTS or existing recorded clips only; polish and new recordings come in Pass 2 after the owner approves the finished Pass 1. An explicit owner decision in this spec can override the default for a specific item. (`docs/PROCESS.md` §3, decided by the owner on 2026-11-13.) No item in this spec needs an override.
 
 ## Summary
 
 Colouring Time is a **free-time** activity in the Leisure Corner (`leisure-corner`). The child sees a large outlined line-art page (a cute cat, a butterfly, a chef, …), a row of round colour dots along the bottom, and a few tool buttons (undo, clear, previous and next page, back). She taps a colour, then taps inside a closed region of the page, and that region fills with the colour. There is no task, no correct answer, no grading, no stars, and no learning loop. The game **spends** earned leisure time (it never earns), and her picture is saved automatically on the device, so she can come back to it later.
 
-**Open decision for the owner:** the game name. **Team-lead proposal:** "Colouring Time" / `זמן צביעה`, to stay distinct from the future Art Studio game "Color the World".
+**Decided by the owner (2026-11-13):** the game name is "Colouring Time" / `זמן צביעה`, to stay distinct from the future Art Studio game "Color the World".
 
 It is deliberately different from the future educational Art Studio game "Color the World" (`docs/WORLDS.md`: colour names, optional requests such as "colour the apple red", a local album). That game, its colour-name vocabulary, and its crayon-mixing mechanic are out of scope here.
 
@@ -33,9 +33,9 @@ This is a play game, so the template's learning goals are play and experience go
 - **Fill.** Tapping inside a closed region of the current page sets that region's colour to the selected colour. If the region already has a colour it is overwritten. If the selected colour already equals the region's colour, nothing changes and no undo step is recorded.
 - **No-op taps.** A tap outside every region, on the outline only, or on a region the current age track does not hit-test, is a no-op: no sound, no animation, no undo step, no hint, no message.
 - **No wrong path.** There is no correct answer, no "mistake" feedback, no hint, no stars, and no score. The leisure balance changes only through the timer.
-- **Undo.** Reverts the last fill or the last clear. The undo stack lives in memory for the current visit only, cap 50 steps (the oldest step is dropped at 51). A reload keeps fills but not the undo stack. The undo stack belongs to the current page and is emptied on a page change, so undo never changes a page the child cannot see. Undo is disabled (`disabled` attribute) when the stack is empty. **Open decision for the owner:** undo and clear behaviour (cap 50, visit-only, emptied on a page change; clear is one undoable step with no confirm). **Team-lead proposal:** exactly as written here, the simplest model a 5-year-old can predict, and a toddler cannot lose a picture by accident.
+- **Undo.** Reverts the last fill or the last clear. The undo stack lives in memory for the current visit only, cap 50 steps (the oldest step is dropped at 51). A reload keeps fills but not the undo stack. The undo stack belongs to the current page and is emptied on a page change, so undo never changes a page the child cannot see. Undo is disabled (`disabled` attribute) when the stack is empty. **Decided by the owner (2026-11-13):** undo and clear behaviour is as written here (cap 50, visit-only, emptied on a page change; clear is one undoable step with no confirm), the simplest model a 5-year-old can predict, and a toddler cannot lose a picture by accident.
 - **Clear.** Resets every region of the current page to paper in one step; it is one undoable step; there is **no confirm dialog**. Clear is a no-op (no undo step) on a page with no fills.
-- **Previous / next page.** Steps through the pages in the order in the page table and autosaves the current page. **Open decision for the owner:** what previous and next do at the ends. **Team-lead proposal:** stop at the ends (previous disabled on page 1, next disabled on page 8, no wrap), so a toddler cannot loop by accident.
+- **Previous / next page.** Steps through the pages in the order in the page table and autosaves the current page. **Decided by the owner (2026-11-13):** previous and next stop at the ends (previous disabled on page 1, next disabled on page 8, no wrap), so a toddler cannot loop by accident.
 - **Exit.** `hud-back` autosaves and returns to `MapScene` with the iris transition. After a time-out, see Leisure.
 - **Input mode per age:** tap only at both ages. No brush, no drag-to-paint, no bitmap flood fill.
 - **HUD chrome:** back (`hud-back`), leisure countdown (`colouring-countdown`), help (`hud-help`), and the tools (`colouring-undo`, `colouring-clear`, `colouring-prev`, `colouring-next`) live in the DOM top bar, like `BubblesHud`. The palette (`colouring-palette`) is a DOM bar along the bottom.
@@ -56,7 +56,7 @@ Each page is an SVG that is already cut into named, closed regions. A fill sets 
 - **Hit-test rule:** the topmost region (the last in document order) that contains the tap point and is hit-testable for the profile's age track wins.
 - **Age 2:** only `age2: true` regions are hit-tested, so a tap on a fine region's area fills its parent coarse region.
 - **Age 5:** all regions are hit-tested; a tap inside a fine region fills the fine region.
-- **Open decision for the owner:** age 2 versus age 5 regions. **Team-lead proposal:** the same SVG for both; age 2 hit-tests only the coarse regions, age 5 can fill the fine ones too.
+- **Decided by the owner (2026-11-13):** age 2 versus age 5 regions use the same SVG for both; age 2 hit-tests only the coarse regions, age 5 can fill the fine ones too.
 - **Effective colour of a region** (what is painted) = `fills[region]` if set, else, for a fine region, `fills[parent]` if set, else paper `#FFFDF9`. So colouring the head after an ear is already filled keeps the ear colour, and an untouched fine region shows its parent's colour. The `fills` map stores only explicit fills.
 - Eyes, noses, whiskers, and similar details are **outline strokes only** (never regions).
 
@@ -67,7 +67,7 @@ Each page is an SVG that is already cut into named, closed regions. A fill sets 
 - Save on every fill, undo, clear, page change, exit (`hud-back`), and time-out. The undo stack is in memory only (cap 50): a reload keeps fills and the current page, not the undo stack.
 - Loading is defensive: bad JSON, a wrong `v`, an unknown page id, an unknown region id, or an unknown colour id loads as empty for that part and never throws. The store lives in `src/core/colouring/store.ts` and has no Phaser dependency.
 - Isolated per profile: unit tests must prove that writing one profile never changes another's key.
-- **Open decision for the owner:** where the picture is stored. **Team-lead proposal:** the separate per-profile key above with `{ regionId: colorId }` maps and no change to `ProfileState`, so the frozen schema stays untouched and each profile's picture is isolated.
+- **Decided by the owner (2026-11-13):** the picture is stored in the separate per-profile key above with `{ regionId: colorId }` maps and no change to `ProfileState`, so the frozen schema stays untouched and each profile's picture is isolated.
 
 ### Implementation sketch (for later, not part of this PR)
 
@@ -83,7 +83,7 @@ Each page is an SVG that is already cut into named, closed regions. A fill sets 
 **Justified exception: there are no levels, no adaptive engine, and no `SkillSession`.** This is a free-time game with no task to scale. Age 2 versus age 5 is a **presentation variant** (palette size and which regions can be filled independently), not a start level. There is no min or max level and no adaptive rules.
 
 - `ColouringScene` and its modules must not import `src/core/adaptive` or `SkillSession`, and no skill key is written to `kids-app-adaptive:<profileId>`.
-- **Content schema note.** Today `GameContent` in `src/content/schema.ts` requires an `adaptive` block (levels, rules). Implementation must add a separate **leisure-game content schema** (additively, in `src/content/schema.ts` and `loadContent.ts`) for `src/content/games/leisure-colouring.json` instead of faking levels. The leisure schema holds the page list, the region manifest, the two palettes, and `earnsLeisure: false`, and has no `adaptive` field. The existing learning-game schema and files are not changed. **Open decision for the owner:** the new leisure-game schema. **Team-lead proposal:** add it, because faking levels would put false data in a game that has none.
+- **Content schema note.** Today `GameContent` in `src/content/schema.ts` requires an `adaptive` block (levels, rules). Implementation must add a separate **leisure-game content schema** (additively, in `src/content/schema.ts` and `loadContent.ts`) for `src/content/games/leisure-colouring.json` instead of faking levels. The leisure schema holds the page list, the region manifest, the two palettes, and `earnsLeisure: false`, and has no `adaptive` field. The existing learning-game schema and files are not changed. **Decided by the owner (2026-11-13):** add the new leisure-game schema, because faking levels would put false data in a game that has none.
 
 ## Leisure
 
@@ -91,7 +91,7 @@ Each page is an SVG that is already cut into named, closed regions. A fill sets 
 - Use `LeisureSession` (`src/core/leisure/leisureSession.ts`) exactly as `BubblesScene` does: a 1 s tick that calls `session.tick(1)` and persists the store, `session.setHidden(document.hidden)` on `visibilitychange` (a hidden tab never spends), and the 5 s grace after the balance reaches 0, then `endedNow`.
 - **Low warning** at 30 s remaining (`LOW_BALANCE_WARNING_SEC = 30`, same as Bubbles): the countdown gets the `low` style and the warning line plays once per visit.
 - **Entry with `balanceSec === 0`** does not open the game or the picker's game; the map shows the existing `⏳ 0:00` toast, the same as Bubbles today (see Player journey for the picker case).
-- **On `endedNow`:** autosave the current page immediately, stop input (taps and tools are ignored), stop audio, play the end line, show the end screen (`colouring-end`) with one Home button. Work is never discarded on time-out. **Open decision for the owner:** how a time-out ends. **Team-lead proposal:** this flow with a single Home button back to the map (no restaurant button; `bubbles.end` is not reused), because the restaurant offer is wrong for a free-time game.
+- **On `endedNow`:** autosave the current page immediately, stop input (taps and tools are ignored), stop audio, play the end line, show the end screen (`colouring-end`) with one Home button. Work is never discarded on time-out. **Decided by the owner (2026-11-13):** a time-out ends with this flow and a single Home button back to the map (no restaurant button; `bubbles.end` is not reused), because the restaurant offer is wrong for a free-time game.
 - Balances never mix across profiles (one `ProfileState` per profile, as today). The only thing that spends the balance is the timer; no action in the game, and no mistake (there are none), reduces it.
 
 ## Player journey from the map
@@ -99,7 +99,7 @@ Each page is an SVG that is already cut into named, closed regions. A fill sets 
 Profile → tap Leisure Corner on the map → leisure picker → Colouring Time → fill at least one region → `hud-back` → map.
 
 - Map building hit target: `getBuildingHit('leisure-corner')`.
-- **Leisure picker (replaces today's direct jump into Bubbles).** **Open decision for the owner:** a two-card picker instead of jumping straight into Bubbles. **Team-lead proposal:** the picker, because the Leisure Corner now holds two games and PR #43 already has the pattern. Modelled on the Language House picker (PR #43): a two-card overlay with `game-picker-bubbles` and `game-picker-leisure-colouring`, and `game-picker-close` (close stays on the map). `leisure-corner` stays `"status": "leisure"`, `"earnsLeisure": false`, and has no `entryGameId`. The picker opens only when `balanceSec > 0`; with 0 balance the map shows the `⏳ 0:00` toast and no picker. After a game, `hud-back` returns to the map, not to the picker.
+- **Leisure picker (replaces today's direct jump into Bubbles).** **Decided by the owner (2026-11-13):** a two-card picker instead of jumping straight into Bubbles, because the Leisure Corner now holds two games and PR #43 already has the pattern. Modelled on the Language House picker (PR #43): a two-card overlay with `game-picker-bubbles` and `game-picker-leisure-colouring`, and `game-picker-close` (close stays on the map). `leisure-corner` stays `"status": "leisure"`, `"earnsLeisure": false`, and has no `entryGameId`. The picker opens only when `balanceSec > 0`; with 0 balance the map shows the `⏳ 0:00` toast and no picker. After a game, `hud-back` returns to the map, not to the picker.
 - **`enterWorldByTap` note.** The shared helper (PR #37) maps `leisure-corner` to `BubblesScene`. Once the picker lands, the helper (or a new `enterLeisureGameByTap`) taps the building and then the card testid. That helper change is a minor change in the implementation PR, and the existing Bubbles tests are updated to tap `game-picker-bubbles`.
 - **`AppScreen`:** `'colouring'`. `isSafeToApplyUpdate('colouring')` is `false`.
 - **`data-testid`s (frozen at approval):**
@@ -191,7 +191,7 @@ The backgrounds are a simple, calm desk or paper table, original only, with an e
 
 - Warm paper; dark-brown outline `#3B2A22`; **stroke-width 6** in viewBox units; `stroke-linecap` and `stroke-linejoin` `round`; no heavy gradients or filters, no `<text>`, no external references, no rasters; original assets only.
 - Each file under the existing **15 KB** hard cap (`tests/unit/artAssets.test.ts`); aim under 6 KB (`docs/ANIMATION.md`). If a page will not fit, simplify the regions; do not raise the cap.
-- **viewBox `0 0 800 800`** (square), so the page letterboxes cleanly in both orientations. These are flat colouring pages: do not use the character-rig 400×480 feet-origin space, do not add pages to `ANIMAL_KINDS` or `CHARACTER_RIGS`, and do not build a puppet rig. **Open decision for the owner:** the square 800×800 viewBox. **Team-lead proposal:** keep it, so each page letterboxes cleanly in both orientations.
+- **viewBox `0 0 800 800`** (square), so the page letterboxes cleanly in both orientations. These are flat colouring pages: do not use the character-rig 400×480 feet-origin space, do not add pages to `ANIMAL_KINDS` or `CHARACTER_RIGS`, and do not build a puppet rig. **Decided by the owner (2026-11-13):** the square 800×800 viewBox is kept, so each page letterboxes cleanly in both orientations.
 - Required structure:
 
   ```xml
@@ -234,7 +234,7 @@ interface ColouringPageDef { id: string; regions: ColouringRegionDef[] }     // 
 //   palettes: { age2: string[]; age5: string[] } }
 ```
 
-**Open decision for the owner:** which pages ship in Pass 1. **Team-lead proposal:** these 8 original pages in this order, with these frozen region lists (a region added later is a spec change).
+**Decided by the owner (2026-11-13):** these 8 original pages ship in Pass 1 in this order, with these frozen region lists (a region added later is a spec change).
 
 The butterfly is the kiosk reference and also a profile avatar; the chef is a kitchen character the girls already know. Both are drawn fresh as flat line art; no existing asset is reused. The pages are by Gemini and original; none of PR #24's eight object pages (apple, house, fish, flower, car, sun, tree, balloon) is reused.
 
@@ -261,9 +261,9 @@ The butterfly is the kiosk reference and also a profile avatar; the chef is a ki
 
 Swatch order is the table order. Default selected colour: `red`.
 
-**Open decision for the owner:** palette sizes and colours. **Team-lead proposal:** 8 dots at age 2 and 16 at age 5, as in the table (the kiosk's "about 20" is a ceiling; 16 keeps 64 px dots in one or two rows).
+**Decided by the owner (2026-11-13):** palette sizes and colours are 8 dots at age 2 and 16 at age 5, as in the table (the kiosk's "about 20" is a ceiling; 16 keeps 64 px dots in one or two rows).
 
-**Layout (both orientations).** The fitted square page is centred; the palette runs along the bottom and wraps to two rows when it must, never shrinking a swatch below 64 CSS px (age 5: 16 dots in one or two rows); the tools sit in the top bar. The layout is recomputed on rotation; fills persist. Tap targets: **Open decision for the owner:** minimum tap-target size. `docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px. **Team-lead proposal:** 64 CSS px for swatches, tools, and region hit boxes (a 112 px palette would not fit 16 colours in two rows on a portrait tablet; the page regions are large at age 2), and a visually larger swatch of at least 72 px where space allows. Never shrink below 64.
+**Layout (both orientations).** The fitted square page is centred; the palette runs along the bottom and wraps to two rows when it must, never shrinking a swatch below 64 CSS px (age 5: 16 dots in one or two rows); the tools sit in the top bar. The layout is recomputed on rotation; fills persist. Tap targets: **Decided by the owner (2026-11-13):** minimum tap-target size is 64 CSS px for swatches, tools, and region hit boxes (a 112 px palette would not fit 16 colours in two rows on a portrait tablet; the page regions are large at age 2), and a visually larger swatch of at least 72 px where space allows. Never shrink below 64. (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px.)
 
 **RTL.** Hebrew chrome (back, countdown, help, end screen, tool labels) is RTL and reuses the shell and HUD pattern of `BubblesHud` (top bar, `hud-back`, countdown) with a dedicated `colouring-countdown`. No English or French tokens appear in Pass 1.
 
@@ -282,7 +282,7 @@ Swatch order is the table order. Default selected colour: `red`.
 
 **Animation (Pass 1).** A short tint and scale pulse on the filled region (basic tween, about 280 ms, scale to `1.04` and back). The profile knobs are plain numbers in a new `ANIM_PROFILE.colouring` key in `src/anim/profiles.ts` (additive), for example `{ fill: { durationMs: 280, pulseScale: 1.04 } }`, with a pure helper for the keyframes, unit-tested without importing Phaser. If `ANIM_PROFILE.color` from PR #24 has merged, reuse its knobs instead of duplicating them. With `prefers-reduced-motion`, skip the pulse and apply the colour at once (`motion.ts` factor). No fill-burst or splash particles in Pass 1. Painting uses rasterised textures redrawn only when a fill changes, never per frame.
 
-**Audio (Pass 1).** Device TTS through `AudioManager.play({ lineId, lang, text })`, plus existing recorded clips where the text already fits. Existing soft SFX (`sfx.pop()` on a fill; the existing tap or pop sound on tool buttons) is enough. No colour-name teaching lines in Pass 1 (this is not a language game). Feminine singular Hebrew. **Open decision for the owner:** voice in Pass 1. **Team-lead proposal:** device TTS for the three new lines, the existing `bubbles.lowWarning` clip for the 30 s warning, no colour-name lines, and recorded Leda clips only in Pass 2.
+**Audio (Pass 1).** Device TTS through `AudioManager.play({ lineId, lang, text })`, plus existing recorded clips where the text already fits. Existing soft SFX (`sfx.pop()` on a fill; the existing tap or pop sound on tool buttons) is enough. No colour-name teaching lines in Pass 1 (this is not a language game). Feminine singular Hebrew. **Decided by the owner (2026-11-13):** voice in Pass 1 is device TTS for the three new lines, the existing `bubbles.lowWarning` clip for the 30 s warning, no colour-name lines, and recorded Leda clips only in Pass 2.
 
 **Voice table:**
 
@@ -321,20 +321,23 @@ Do not reuse `bubbles.end` (its text offers to visit the restaurant, which is wr
 
 ## Open decisions for the owner
 
-- **Open decision for the owner:** Game name. **Team-lead proposal:** "Colouring Time" / `זמן צביעה`, to stay distinct from the future Art Studio game "Color the World".
-- **Open decision for the owner:** A two-card Leisure Corner picker (Bubbles and Colouring Time) instead of jumping straight into Bubbles. **Team-lead proposal:** the picker, copied from the Language House picker (PR #43), because the Leisure Corner now holds two games and the pattern already exists.
-- **Open decision for the owner:** Palette sizes and colours. **Team-lead proposal:** 8 dots at age 2 and 16 at age 5, from the palette table (the kiosk's "about 20" is a ceiling; 16 keeps 64 px dots in one or two rows).
-- **Open decision for the owner:** Minimum tap-target size. **Team-lead proposal:** 64 CSS px (swatches, tools, region hit boxes; hit boxes grow, painted regions do not), because 112 px would not fit the age-5 palette.
-- **Open decision for the owner:** Which pages ship in Pass 1. **Team-lead proposal:** 8 original pages in this order: `cat`, `dog`, `rabbit`, `bear`, `panda`, `lion`, `butterfly`, `chef`, with the frozen region lists above.
-- **Open decision for the owner:** What previous and next do at the ends. **Team-lead proposal:** stop at the ends (disabled, no wrap), so a toddler cannot loop by accident.
-- **Open decision for the owner:** Undo and clear behaviour. **Team-lead proposal:** undo covers the last fill or clear, cap 50, in memory for the visit only and emptied on a page change; clear is one undoable step with no confirm dialog.
-- **Open decision for the owner:** How a time-out ends. **Team-lead proposal:** autosave, end line, then an end screen with a single Home button back to the map (no restaurant button; `bubbles.end` is not reused).
-- **Open decision for the owner:** Where the picture is stored. **Team-lead proposal:** a separate per-profile `localStorage` key `kids-app-colouring:<profileId>` with `{ regionId: colorId }` maps, and no change to `ProfileState`.
-- **Open decision for the owner:** Age 2 versus age 5 regions. **Team-lead proposal:** the same SVG; age 2 hit-tests only the coarse regions (a tap on a fine area fills the parent), age 5 can fill the fine regions too.
-- **Open decision for the owner:** Voice in Pass 1. **Team-lead proposal:** device TTS for the three new lines, reuse the existing `bubbles.lowWarning` clip for the 30 s warning, no colour-name lines, and recorded Leda clips only in Pass 2.
-- **Open decision for the owner:** The square 800×800 viewBox. **Team-lead proposal:** keep it (not the 400×480 rig space), so pages letterbox cleanly in both orientations.
-- **Open decision for the owner:** A new leisure-game content schema. **Team-lead proposal:** add it, with no dummy `adaptive` block, because faking levels would put false data in a game that has none.
+All open decisions were resolved by the owner on 2026-11-13.
+
+- **Decided by the owner (2026-11-13):** Game name is "Colouring Time" / `זמן צביעה`, to stay distinct from the future Art Studio game "Color the World".
+- **Decided by the owner (2026-11-13):** A two-card Leisure Corner picker (Bubbles and Colouring Time) instead of jumping straight into Bubbles, copied from the Language House picker (PR #43), because the Leisure Corner now holds two games and the pattern already exists.
+- **Decided by the owner (2026-11-13):** Palette sizes and colours are 8 dots at age 2 and 16 at age 5, from the palette table (the kiosk's "about 20" is a ceiling; 16 keeps 64 px dots in one or two rows).
+- **Decided by the owner (2026-11-13):** Minimum tap-target size is 64 CSS px (swatches, tools, region hit boxes; hit boxes grow, painted regions do not), because 112 px would not fit the age-5 palette.
+- **Decided by the owner (2026-11-13):** Which pages ship in Pass 1: 8 original pages in this order: `cat`, `dog`, `rabbit`, `bear`, `panda`, `lion`, `butterfly`, `chef`, with the frozen region lists above.
+- **Decided by the owner (2026-11-13):** Previous and next stop at the ends (disabled, no wrap), so a toddler cannot loop by accident.
+- **Decided by the owner (2026-11-13):** Undo and clear behaviour: undo covers the last fill or clear, cap 50, in memory for the visit only and emptied on a page change; clear is one undoable step with no confirm dialog.
+- **Decided by the owner (2026-11-13):** How a time-out ends: autosave, end line, then an end screen with a single Home button back to the map (no restaurant button; `bubbles.end` is not reused).
+- **Decided by the owner (2026-11-13):** Where the picture is stored: a separate per-profile `localStorage` key `kids-app-colouring:<profileId>` with `{ regionId: colorId }` maps, and no change to `ProfileState`.
+- **Decided by the owner (2026-11-13):** Age 2 versus age 5 regions: the same SVG; age 2 hit-tests only the coarse regions (a tap on a fine area fills the parent), age 5 can fill the fine regions too.
+- **Decided by the owner (2026-11-13):** Voice in Pass 1 is device TTS for the three new lines, reuse the existing `bubbles.lowWarning` clip for the 30 s warning, no colour-name lines, and recorded Leda clips only in Pass 2.
+- **Decided by the owner (2026-11-13):** The square 800×800 viewBox is kept (not the 400×480 rig space), so pages letterbox cleanly in both orientations.
+- **Decided by the owner (2026-11-13):** A new leisure-game content schema is added, with no dummy `adaptive` block, because faking levels would put false data in a game that has none.
 
 ## Changelog
 
 - `2026-11-13` — created — substantive
+- 2026-11-13 — approved by the owner; all 13 team-lead proposals accepted (game name, leisure picker, palette, 64 CSS px targets, 8 pages, prev/next stop at ends, undo/clear, time-out Home button, per-profile autosave key, age-2/age-5 regions, Pass 1 voice, 800×800 viewBox, leisure-game schema); 0 ACs added — substantive
