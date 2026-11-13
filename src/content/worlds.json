@@ -4,27 +4,27 @@
       "id": "language-house",
       "nameHe": "בית השפות",
       "status": "open",
-      "earnsLeisure": true,
-      "entryGameId": "animal-restaurant"
+      "earnsLeisure": true
     },
     {
       "id": "number-garden",
       "nameHe": "גן המספרים",
-      "status": "locked",
-      "earnsLeisure": true
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "sorting-beds"
     },
     {
       "id": "nature-lab",
       "nameHe": "מעבדת הטבע",
-      "status": "locked",
-      "earnsLeisure": true
+      "status": "open",
+      "earnsLeisure": true,
+      "entryGameId": "who-is-hiding"
     },
     {
       "id": "art-studio",
       "nameHe": "סטודיו האמנות",
-      "status": "open",
-      "earnsLeisure": true,
-      "entryGameId": "kitchen-orchestra"
+      "status": "locked",
+      "earnsLeisure": true
     },
     {
       "id": "leisure-corner",

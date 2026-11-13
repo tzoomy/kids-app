@@ -4,6 +4,7 @@ import {
   flowerArtKey,
   foodArtKey,
   fxArtKey,
+  instrumentArtKey,
   getAnimalRig,
   getArtManifest,
   itemArtKey,
@@ -80,6 +81,15 @@ describe('art registry fallbacks', () => {
     registerArtManifest(bearManifest());
     expect(animalPartKey('bear', 'ear-left')).toBe('animal.bear.ear-left');
     expect(animalPartKey('cat', 'ear-left')).toBeUndefined();
+  });
+
+  it('resolves character parts and instruments by path', () => {
+    registerArtManifest([
+      { key: 'character.chef.head', url: 'art/characters/chef/head.svg', width: 236, height: 196 },
+      { key: 'instrument-pot', url: 'art/instruments/pot.svg', width: 256, height: 256 },
+    ]);
+    expect(animalPartKey('chef', 'head')).toBe('character.chef.head');
+    expect(instrumentArtKey('pot')).toBe('instrument-pot');
   });
 
   it('rigTextureKeys needs every part plus eye-closed and mouth variants', () => {

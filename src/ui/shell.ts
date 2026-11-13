@@ -8,6 +8,7 @@ import {
   renderPromptBubble,
   clearPromptBubble,
   showHelpOverlay,
+  type HelpOverlayAvoid,
   renderBubblesEndScreen,
   showToast,
   type MapChromeOptions,
@@ -15,6 +16,7 @@ import {
   type BubblesChromeOptions,
   type RestaurantHudValues,
 } from './hud';
+import { renderGamePicker, type GamePickerOptions } from './picker/gamePicker';
 import type { AppState } from '../core/storage/schema';
 
 /**
@@ -24,13 +26,25 @@ import type { AppState } from '../core/storage/schema';
 export class AppShell {
   private readonly overlayRoot: HTMLElement;
   private readonly chromeRoot: HTMLElement;
+  private readonly pickerRoot: HTMLElement;
   private restaurantHud?: RestaurantHud;
   private bubblesHud?: BubblesHud;
 
   constructor(private readonly root: HTMLElement) {
     this.overlayRoot = el('div', 'shell-overlay');
     this.chromeRoot = el('div', 'shell-chrome');
-    this.root.replaceChildren(this.overlayRoot, this.chromeRoot);
+    // Own root, so map-chrome repaints (resize) never wipe an open picker.
+    this.pickerRoot = el('div', 'shell-picker-root');
+    this.root.replaceChildren(this.overlayRoot, this.chromeRoot, this.pickerRoot);
+  }
+
+  /** Opens the Language House game picker over the map. Replaces any picker already open. */
+  showGamePicker(opts: GamePickerOptions): void {
+    this.pickerRoot.replaceChildren(renderGamePicker(opts));
+  }
+
+  hideGamePicker(): void {
+    this.pickerRoot.replaceChildren();
   }
 
   clearOverlay(): void {
@@ -38,6 +52,7 @@ export class AppShell {
   }
 
   clearChrome(): void {
+    this.hideGamePicker();
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
     this.chromeRoot.replaceChildren();
@@ -99,8 +114,8 @@ export class AppShell {
     clearPromptBubble(this.chromeRoot);
   }
 
-  showHelp(text: string, onClose: () => void): void {
-    showHelpOverlay(this.chromeRoot, text, onClose);
+  showHelp(text: string, onClose: () => void, avoid?: HelpOverlayAvoid): void {
+    showHelpOverlay(this.chromeRoot, text, onClose, avoid);
   }
 
   setBubblesChrome(opts: BubblesChromeOptions): void {

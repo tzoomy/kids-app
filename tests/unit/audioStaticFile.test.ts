@@ -126,7 +126,8 @@ describe('voice clip coverage', () => {
       expect(rel, id).toMatch(/^audio\/(en|fr|he)\/[a-z0-9-]+\.mp3$/);
       const file = path.join(publicDir, rel);
       expect(fs.existsSync(file), `${id} -> ${rel}`).toBe(true);
-      expect(fs.statSync(file).size, rel).toBeLessThan(60_000);
+      // 48 kbps mono 24 kHz; longer Hebrew guidance lines (about 10–12 s) exceed 60 KB.
+      expect(fs.statSync(file).size, rel).toBeLessThan(80_000);
     }
   });
 
@@ -139,6 +140,16 @@ describe('voice clip coverage', () => {
       }
     }
     for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((_, i) => valid.add(`thanks.${lang}.${i}`));
+    for (const item of content.items) {
+      for (const variant of item.variants ?? []) {
+        for (const lang of ['en', 'fr'] as const) {
+          valid.add(`attr.${item.id}.${variant.color}.${lang}`);
+          valid.add(`not.${item.id}.${variant.color}.${lang}`);
+        }
+      }
+    }
+    // Decided French pan line (Kitchen Orchestra). Other orchestra.* lines stay on device TTS.
+    valid.add('orchestra.play.pan.fr');
     for (const key of Object.keys(heLines)) if (!key.startsWith('_')) valid.add(`he.${key}`);
     for (const id of Object.keys(manifest)) expect(valid.has(id), id).toBe(true);
   });
@@ -152,8 +163,20 @@ describe('voice clip coverage', () => {
       }
     }
     for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((_, i) => ids.push(`thanks.${lang}.${i}`));
+    for (const item of content.items) {
+      for (const variant of item.variants ?? []) {
+        for (const lang of ['en', 'fr'] as const) {
+          ids.push(`attr.${item.id}.${variant.color}.${lang}`);
+          ids.push(`not.${item.id}.${variant.color}.${lang}`);
+        }
+      }
+    }
+    ids.push('orchestra.play.pan.fr');
     for (const key of Object.keys(heLines)) if (!key.startsWith('_')) ids.push(`he.${key}`);
-    const missing = ids.filter((id) => !manifest[id]);
+    // he.hiding.intro / he.hiding.help texts are in voice-lines-he.json so heLine works; clips and
+    // hashes land with #39 (not merged here). [AC-34] in who-is-hiding.audio.test.ts pins the gap.
+    const pendingUntil39 = new Set(['he.hiding.intro', 'he.hiding.help']);
+    const missing = ids.filter((id) => !manifest[id] && !pendingUntil39.has(id));
     expect(missing).toEqual([]);
   });
 
@@ -168,6 +191,16 @@ describe('voice clip coverage', () => {
       }
     }
     for (const lang of ['en', 'fr'] as const) content.thanks[lang].forEach((t, i) => (texts[`thanks.${lang}.${i}`] = t));
+    for (const item of content.items) {
+      for (const variant of item.variants ?? []) {
+        for (const lang of ['en', 'fr'] as const) {
+          texts[`attr.${item.id}.${variant.color}.${lang}`] = variant[lang].pick;
+          texts[`not.${item.id}.${variant.color}.${lang}`] = variant[lang].not;
+        }
+      }
+    }
+    // Decided 2026-11-12: use poêle, not the stale tambour string still in kitchen-orchestra.json.
+    texts['orchestra.play.pan.fr'] = 'Joue sur la poêle !';
     for (const [key, text] of Object.entries(heLines)) if (!key.startsWith('_')) texts[`he.${key}`] = text;
     const hashes = textHashes as Record<string, string>;
     const stale = Object.keys(manifest).filter((id) => {

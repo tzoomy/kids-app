@@ -143,14 +143,21 @@ Convention for these seven games (a design proposal, not a rule the engine enfor
 
 | L | Levers |
 |---|---|
-| 1 | choiceCount 2 (bushes), distractor far, support partial-reveal, extra.reveal 0.9 |
-| 2 | choiceCount 3, distractor far, partial-reveal, extra.reveal 0.8 |
-| 3 | choiceCount 3, distractor same-category, partial-reveal, extra.reveal 0.6 |
-| 4 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.5 |
-| 5 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.3 (ears or tail only) |
-| 6 | choiceCount 5, distractor same-category, partial-reveal, extra.reveal 0.3 |
-| 7 | choiceCount 5, distractor same-category, support audio-only (the animal's sound only) |
-| 8 | choiceCount 6, distractor same-category, support audio-only, extra.soundMs 800 (shorter sound) |
+| 1 | choiceCount 2 (bushes), distractor far, support partial-reveal, extra.reveal 0.9, extra.speak name-sound |
+| 2 | choiceCount 3, distractor far, partial-reveal, extra.reveal 0.8, extra.speak name-sound |
+| 3 | choiceCount 3, distractor same-category, partial-reveal, extra.reveal 0.6, extra.speak name-sound |
+| 4 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.5, extra.speak name-sound |
+| 5 | choiceCount 4, distractor same-category, partial-reveal, extra.reveal 0.3 (ears or tail only), extra.speak name |
+| 6 | choiceCount 5, distractor same-category, partial-reveal, extra.reveal 0.3, extra.speak name |
+| 7 | choiceCount 5, distractor same-category, support audio-only (the animal's sound only), extra.reveal 0.3, extra.speak sound |
+| 8 | choiceCount 6, distractor same-category, support audio-only, extra.reveal 0.3, extra.speak sound, extra.soundMs 800 (shorter sound) |
+
+*Implementation refinements (issue #26; start levels unchanged: age 2 starts L2, age 5 starts L5).*
+- `extra.speak` is new: `name-sound` (name plus the animal's sound), `name` (name alone), `sound` (sound alone). It follows the research doc's progression "sound + name → name → sound", so the age-5 start (L5) is harder than the age-2 start (L2) in four ways: more bushes (4 vs 3), look-alike neighbours (same-category vs far), a smaller visible part (ears vs most of the animal) and no sound hint in the request.
+- `extra.reveal` is the fraction of the animal's height that shows above the bush foliage (1 = whole animal, 0.3 = ears or the top of the head). It is also kept at 0.3 on the two audio-only levels. Reason: every bush hides a different animal, so a fully empty bush row would make L7 and L8 a pure guess. On audio-only levels "nothing visible" means no visual cue for the *request* (no text bubble, no written name); the animals keep their ear-level peek so the sound can be matched to a bush. This needs the owner's confirmation (see the issue notes).
+- `extra.soundMs 800` cannot time device TTS, so the lever selects each animal's short sound word (for example "Meow!" instead of "Meow, meow!").
+- Look-alike groups are content (`group` per animal): big cats (cat, lion), bears (bear, panda), pets (dog, rabbit). `same-category` takes the target's group first and fills the rest from other groups, so L8 (6 bushes) uses all six animals.
+- Hints (the idle auto-hint, age 2) and a replay never change the level rules. A hint lifts the answer animal to at least 0.9 and rustles its bush; on audio-only levels the hint speaks the request again plus the animal's clue and shows nothing. Only the idle auto-hint marks the trial hinted. A voluntary replay (the speaker button or the request bubble) does not.
 
 **Kitchen Orchestra** (age 2 starts L1, age 5 starts L4)
 
