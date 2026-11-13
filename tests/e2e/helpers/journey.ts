@@ -136,7 +136,8 @@ export async function waitForSpokenLine(
  * world's building (real pointer click at the centre of its hit rectangle). Returns right after the tap.
  */
 export async function tapWorldBuilding(page: Page, profile: ProfileTestId, worldId: string): Promise<void> {
-  await page.goto('/?e2e=1');
+  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
+  await page.goto('./?e2e=1');
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
 
