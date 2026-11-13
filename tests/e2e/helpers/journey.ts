@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 
-export type { SortingInfo };
+export type { SortingInfo, PotionInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -18,6 +19,7 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
+  'potion-lab': 'PotionScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -30,6 +32,7 @@ export const WORLD_ENTRY_GAME: Record<string, string> = {
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'science-world': 'potion-lab',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -135,6 +138,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedPotionLevel: (level: number) => void;
+  getPotionInfo: () => PotionInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -530,4 +535,24 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Potion Lab level for every language (seed only). Call on the map, before entering. */
+export async function seedPotionLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedPotionLevel', [level]);
+}
+
+export function getPotionInfo(page: Page): Promise<PotionInfo | null> {
+  return callHook<PotionInfo | null>(page, 'getPotionInfo');
+}
+
+/** Waits until Potion Lab accepts pot taps and returns its state. */
+export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<PotionInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getPotionInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }

@@ -7,6 +7,8 @@ import he from '../../src/content/i18n/he.json';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { buildingArtKey, registerArtManifest, resetArtRegistry } from '../../src/anim/artRegistry';
 import { PICKER_EMPTY_TEST_ID, SCIENCE_WORLD_PICKER_GAMES } from '../../src/ui/picker/pickerModel';
+import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
+import { loadPotionLab } from '../../src/content/loadContent';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
 import { selectAffectedE2e } from '../../scripts/affected-e2e.mjs';
 
@@ -55,8 +57,15 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     }
   });
 
-  it('picker list is empty until its first game lands', () => {
-    expect(SCIENCE_WORLD_PICKER_GAMES).toEqual([]);
+  it('picker list has the potion-lab entry, whose content world is science-world, with a Hebrew label and resolvable asset', () => {
+    expect(SCIENCE_WORLD_PICKER_GAMES.map((g) => [g.gameId, g.testId, g.sceneKey, g.assetKey, g.labelKey])).toEqual([
+      ['potion-lab', 'game-picker-potion-lab', 'PotionScene', 'picker-card-potion-lab', 'potionLab'],
+    ]);
+    const potion = loadPotionLab();
+    expect(potion.world).toBe('science-world');
+    const entry = SCIENCE_WORLD_PICKER_GAMES[0];
+    expect(() => resolvePickerAsset(entry.assetKey)).not.toThrow();
+    expect((he.gamePicker as Record<string, string>)[entry.labelKey]).toBe('מעבדת השיקויים');
   });
 });
 

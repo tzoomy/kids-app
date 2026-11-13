@@ -106,6 +106,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/science-world.map.spec.ts'],
   },
   {
+    id: 'potion-lab',
+    match: [
+      /^src\/games\/potionLab\//,
+      /^src\/content\/games\/potion-lab\.json$/,
+      /^public\/art\/props\/(paint-pot|mixing-bowl)\.svg$/,
+      /^tests\/unit\/potion-lab[^/]*$/,
+    ],
+    specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'credits',
     match: [
       /^src\/content\/credits[^/]*$/,

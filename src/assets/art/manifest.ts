@@ -345,4 +345,7 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
+  // Science World — Potion Lab (docs/specs/potion-lab.md)
+  { key: 'prop-paint-pot', url: 'art/props/paint-pot.svg', width: 200, height: 200 },
+  { key: 'prop-mixing-bowl', url: 'art/props/mixing-bowl.svg', width: 320, height: 240 },
 ];

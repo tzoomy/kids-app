@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'potion-lab';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'potionLab';
 }
 
 /**
@@ -60,9 +60,14 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
 
 /**
  * Science World picker (separate map area, pending owner decision; docs/PENDING-DECISIONS.md).
- * Empty until its games land: the building then opens the picker's gentle "coming soon" state.
- * Append games here (additive registry), e.g. Potion Lab, Sink or Float, Magic Magnet:
- *   { gameId: 'potion-lab', testId: 'game-picker-potion-lab', sceneKey: 'PotionScene', assetKey: 'picker-card-potion-lab', labelKey: 'potionLab' }
- * (extend PickerGameId and labelKey, add the he.json label and a pickerAssets placeholder).
+ * Append games here (additive registry), e.g. Sink or Float, Magic Magnet.
  */
-export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [];
+export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'potion-lab',
+    testId: 'game-picker-potion-lab',
+    sceneKey: 'PotionScene',
+    assetKey: 'picker-card-potion-lab',
+    labelKey: 'potionLab',
+  },
+];

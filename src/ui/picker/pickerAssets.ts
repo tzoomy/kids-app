@@ -46,11 +46,16 @@ const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = 
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
 };
 
+/** Science World picker cards (additive). Pass-1 placeholder in science blue; real card art is Pass 2. */
+const SCIENCE_WORLD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+};
+
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
-  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key];
+  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? SCIENCE_WORLD_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }
