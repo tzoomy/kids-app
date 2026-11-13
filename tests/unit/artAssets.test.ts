@@ -103,6 +103,28 @@ describe('real animal rigs', () => {
       }
     }
   });
+
+  it('keeps every animal ear above the Who\'s Hiding? L5 reveal line (0.3), still overlapping the head', () => {
+    // L5 hides the animal so only the top 30% of its rig shows (feet at y=0, so the line is at
+    // -(1 - 0.3) * height). The ears are the only clue left there, so each ear's top must clear
+    // the line by a readable margin, and its bottom must still tuck under the head when fully shown.
+    const L5_REVEAL = 0.3;
+    const MIN_EAR_ABOVE_LINE = 24;
+    for (const kind of ANIMAL_KINDS) {
+      const rig = ANIMAL_RIGS[kind];
+      const line = -(1 - L5_REVEAL) * rig.height;
+      const head = rig.parts.head;
+      const headTop = head.y - head.originY * head.height;
+      for (const id of ['earL', 'earR']) {
+        const ear = rig.parts[id];
+        expect(ear, `${kind}.${id}`).toBeDefined();
+        const earTop = ear.y - ear.originY * ear.height;
+        const earBottom = earTop + ear.height;
+        expect(line - earTop, `${kind}.${id} top clears the L5 line`).toBeGreaterThanOrEqual(MIN_EAR_ABOVE_LINE);
+        expect(earBottom, `${kind}.${id} reaches below the head top`).toBeGreaterThan(headTop);
+      }
+    }
+  });
 });
 
 describe('chef rig', () => {
