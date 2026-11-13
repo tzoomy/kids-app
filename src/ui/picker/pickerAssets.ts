@@ -46,7 +46,7 @@ const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = 
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
 };
 
-/** Extra Language House picker cards (Pass 1 placeholders; do not add to PICKER_ASSET_KEYS). */
+/** Extra Language House picker cards added after #40 (additive; keeps PICKER_ASSET_KEYS unchanged). */
 const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-letter-monster': { css: 'background:linear-gradient(180deg,#dcd6ff,#f3ecff)' },
 };
@@ -55,7 +55,8 @@ const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css:
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
-  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key];
+  const placeholder =
+    PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }
