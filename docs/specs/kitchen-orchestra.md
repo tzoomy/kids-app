@@ -1,6 +1,6 @@
 # kitchen-orchestra — Kitchen Orchestra
 
-Status: **draft — pending owner approval**
+Status: **approved**
 Pass in progress: **none**
 
 ## Summary
@@ -251,9 +251,12 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
 
 ## Open decisions for the owner
 
+All open decisions were resolved by the owner on 2026-11-13.
+
 None remaining. Owner decisions of 2026-11-12 are recorded in the sections above.
 
 ## Changelog
 
 - 2026-11-12 — created (retroactive spec of the game on main, plus proposed Language House move) — substantive
 - 2026-11-12 — Owner decisions: Language House move and picker (PR #36), including Art Studio lock and skill-key migration; French pan name `poêle` / `Joue sur la poêle !` (content change later); tap target 64 CSS px; age 5 has no idle hint (hint only after a mistake). Shared e2e handles and `enterWorldByTap` from PR #37 (pending merge). Added picker ACs AC-16–AC-19. — substantive
+- 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (none were labelled open in the spec; the 2026-11-12 decisions stand unchanged); 0 ACs added — substantive
