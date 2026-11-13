@@ -2,7 +2,9 @@ name: CI
 
 # Affected-tests CI (see docs/PROCESS.md, "CI: affected tests"):
 #   - pull_request / push: related unit tests (vitest --changed) + build + check:ac, and only the
-#     e2e specs mapped from the changed files (scripts/affected-e2e.mjs). Never the full suite.
+#     e2e specs mapped from the changed files (scripts/affected-e2e.mjs). Never the full e2e suite.
+#   - safe defaults: an unusable diff base runs the full unit suite (scripts/unit-tests-mode.mjs) and the
+#     smoke e2e set, each with a ::warning::; an unmapped changed path also selects the smoke set.
 #   - push to main: deploy follows build + related unit tests; e2e runs in a separate job that
 #     deploy does not wait for.
 #   - workflow_dispatch (manual): the full suite (all unit tests, all e2e, build, check:ac). No deploy.
@@ -42,11 +44,9 @@ jobs:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
+          # No guessing: an empty, all-zeros (new branch) or unfetchable (force-push) base is passed on
+          # as-is, and the unit and e2e steps below fall back to the full unit suite / smoke e2e.
           BASE="${PR_BASE_SHA:-$PUSH_BEFORE_SHA}"
-          # New branch / first push has an all-zeros "before"; a force-push can leave it unreachable.
-          if [ -z "$BASE" ] || [ "${BASE//0/}" = "" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            BASE="$(git rev-parse HEAD~1 2>/dev/null || true)"
-          fi
           echo "Diff base: ${BASE:-<none>}"
           echo "sha=$BASE" >> "$GITHUB_OUTPUT"
 
@@ -59,14 +59,19 @@ jobs:
         env:
           BASE_SHA: ${{ steps.base.outputs.sha }}
         run: |
-          if [ -z "$BASE_SHA" ]; then
-            echo "No diff base available; running no related unit tests."
+          # `full` when the base is empty, all zeros or not a fetchable commit (warning printed by the
+          # script); never a vacuous pass. Otherwise `changed`.
+          MODE="$(node scripts/unit-tests-mode.mjs "$BASE_SHA")"
+          if [ "$MODE" = "full" ]; then
+            npm test
             exit 0
           fi
           echo "Changed files vs $BASE_SHA:"
-          git diff --name-only "$BASE_SHA" HEAD
-          # Zero related tests is fine (docs/config-only changes); never fall back to the full suite.
+          git diff --name-only "$BASE_SHA...HEAD" || true
+          # Zero related tests is fine (docs/config-only changes).
           npx vitest run --changed "$BASE_SHA" --passWithNoTests
+          # The e2e map safety net must also run on a PR that only adds a spec (no import-graph link).
+          npx vitest run tests/unit/affectedE2e.test.ts
 
       - name: Acceptance-criteria coverage (docs/specs vs test titles)
         run: npm run check:ac
@@ -110,15 +115,8 @@ jobs:
             exit 0
           fi
           BASE="${PR_BASE_SHA:-$PUSH_BEFORE_SHA}"
-          if [ -z "$BASE" ] || [ "${BASE//0/}" = "" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            BASE="$(git rev-parse HEAD~1 2>/dev/null || true)"
-          fi
-          if [ -z "$BASE" ]; then
-            echo "No diff base available; no e2e selected."
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "specs=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # The script handles an empty/all-zeros base or a failing `git diff` itself: it selects the
+          # smoke set with a ::warning:: and writes run=true. Never run=false for those cases.
           node scripts/affected-e2e.mjs --base "$BASE" --head HEAD --github-output
 
       - name: Read Playwright version

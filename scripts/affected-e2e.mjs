@@ -4,9 +4,11 @@
 // Maps changed files to the Playwright specs that should run. Explicit map, no heuristics:
 //   - a changed spec selects itself;
 //   - game-specific files (game folder, content JSON, unit tests, helpers) select that game's specs;
-//   - shared code (core, ui, game, worlds, anim, config, ...) selects the smoke set only
-//     (plus any direct mappings that also match);
-//   - docs, markdown, prototype files and unit-only tests select nothing.
+//   - any other changed path (shared runtime code, config, scripts, tooling, unknown paths)
+//     falls back to the smoke set (plus any direct mappings that also match);
+//   - only docs, markdown, prototype files and unit-only tests select nothing.
+// A changed code path never selects zero specs. A missing diff base or a failed `git diff`
+// selects the smoke set with a `::warning::` line, never zero specs.
 // The full e2e suite is never selected; run it with `npm run test:e2e` or workflow_dispatch.
 //
 // Usage:
@@ -103,6 +105,17 @@ export const GAME_RULES = [
     specs: ['tests/e2e/credits.spec.ts'],
   },
   {
+    id: 'build-info',
+    // The parent screen shows the build info line, so parent.ts also selects the smoke set (shared UI).
+    match: [
+      /^src\/buildInfo\.ts$/,
+      /^build\/buildDefines\.ts$/,
+      /^src\/ui\/parent\.ts$/,
+      /^tests\/unit\/buildInfo[^/]*$/,
+    ],
+    specs: ['tests/e2e/buildInfo.spec.ts'],
+  },
+  {
     id: 'help-card',
     // The shell is also shared code, so shell.ts additionally selects the smoke set.
     match: [/^src\/ui\/shell\.ts$/],
@@ -110,37 +123,21 @@ export const GAME_RULES = [
   },
 ];
 
-/** Game folders / files that are NOT shared runtime code and select nothing on their own. */
+/**
+ * The only paths that select nothing: clearly non-runtime. Everything else that changed
+ * (src, web, public, config, scripts, tools, build, workflows, unknown paths) selects the smoke set.
+ */
 const NO_E2E = [
   /\.md$/i,
   /^docs\//,
-  /^\.github\/(?!workflows\/)/,
-  /^\.claude\//,
-  /^tests\/unit\//,
-  /^tests\/fixtures\//,
-  /^scripts\/tts\//,
-  /^tools\//,
   // Prototype files at the repository root (not built by Vite).
   /^(index\.html|app\.js|style\.css|sw\.js|manifest\.json|icon[^/]*)$/,
-  /^(AGENTS|CLAUDE|GEMINI|README)/,
-];
-
-/** Shared runtime / tooling: selects the smoke set. */
-const SHARED = [
-  /^src\//,
-  /^web\//, // Vite root (index.html app shell)
-  /^public\//,
-  /^package(-lock)?\.json$/,
-  /^(vite|vitest|playwright)\.config\.ts$/,
-  /^tsconfig[^/]*\.json$/,
-  /^\.github\/workflows\//,
-  /^scripts\/(affected-e2e|check-ac-coverage)\./,
-  /^tests\/e2e\/helpers\//,
-  /^tests\/shared\//,
+  // Unit-only tests (game-mapped ones are handled by GAME_RULES before this point).
+  /^tests\/unit\//,
 ];
 
 /** Directly mapped files that are also shared runtime code. */
-const ALSO_SMOKE = [/^src\/ui\/shell\.ts$/, /^src\/ui\/picker\//];
+const ALSO_SMOKE = [/^src\/ui\/shell\.ts$/, /^src\/ui\/picker\//, /^src\/ui\/parent\.ts$/];
 
 const norm = (f) => f.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
@@ -179,9 +176,8 @@ export function selectAffectedE2e(changedFiles, existingSpecs) {
     // (shell help, game picker) additionally selects the smoke set.
     if (direct && !ALSO_SMOKE.some((re) => re.test(file))) continue;
     if (NO_E2E.some((re) => re.test(file))) continue;
-    if (SHARED.some((re) => re.test(file))) {
-      for (const s of SMOKE_SPECS) selected.add(s);
-    }
+    // Anything else (shared runtime, config, scripts, tooling, unknown paths): smoke, never zero.
+    for (const s of SMOKE_SPECS) selected.add(s);
   }
   let result = [...selected];
   if (existingSpecs) {
@@ -191,12 +187,56 @@ export function selectAffectedE2e(changedFiles, existingSpecs) {
   return result.sort();
 }
 
-function listSpecs(root) {
-  const dir = path.join(root, 'tests', 'e2e');
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.spec.ts'))
-    .map((f) => `tests/e2e/${f}`);
+/** Recursively lists tests/e2e/**\/*.spec.ts (repo-relative, forward slashes, sorted). */
+export function listSpecs(root) {
+  const out = [];
+  const walk = (rel) => {
+    for (const entry of fs.readdirSync(path.join(root, rel), { withFileTypes: true })) {
+      const child = `${rel}/${entry.name}`;
+      if (entry.isDirectory()) walk(child);
+      else if (entry.name.endsWith('.spec.ts')) out.push(child);
+    }
+  };
+  walk('tests/e2e');
+  return out.sort();
+}
+
+const ZERO_SHA = /^0+$/;
+
+/**
+ * Selects specs for `git diff base...head`. Never selects zero specs because the diff is unavailable:
+ * a missing/all-zeros base or a throwing `diff` returns the smoke set plus a `::warning::` line.
+ *
+ * @param {{ base?: string, head?: string, diff: (range: string) => string, existingSpecs?: string[] }} opts
+ *   `diff(range)` returns `git diff --name-only <range>` output and may throw.
+ * @returns {{ changed: string[], specs: string[], warning: string | null }}
+ */
+export function selectAffectedE2eOrSmokeOnDiffFailure({ base, head = 'HEAD', diff, existingSpecs }) {
+  const smoke = () => {
+    const keep = existingSpecs ? new Set(existingSpecs) : null;
+    return SMOKE_SPECS.filter((s) => !keep || keep.has(s)).sort();
+  };
+  const trimmed = (base ?? '').trim();
+  if (!trimmed || ZERO_SHA.test(trimmed)) {
+    return {
+      changed: [],
+      specs: smoke(),
+      warning: '::warning::affected-e2e: diff base was missing or unusable (empty or all zeros); running the smoke e2e set instead of skipping.',
+    };
+  }
+  const range = `${trimmed}...${head}`;
+  let changed;
+  try {
+    changed = parseChangedFiles(diff(range));
+  } catch (err) {
+    const reason = String(err && err.message ? err.message : err).split('\n')[0];
+    return {
+      changed: [],
+      specs: smoke(),
+      warning: `::warning::affected-e2e: git diff failed for ${range} (${reason}); running the smoke e2e set instead of skipping.`,
+    };
+  }
+  return { changed, specs: selectAffectedE2e(changed, existingSpecs), warning: null };
 }
 
 function git(root, args) {
@@ -226,29 +266,31 @@ function parseArgs(argv) {
   return opts;
 }
 
-const ZERO_SHA = /^0+$/;
-
 function main() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const opts = parseArgs(process.argv.slice(2));
+  const existingSpecs = listSpecs(root);
 
   let changed;
+  let specs;
   if (opts.files) {
     changed = opts.files.map(norm).filter(Boolean);
+    specs = selectAffectedE2e(changed, existingSpecs);
   } else if (opts.base !== null && opts.base !== undefined) {
-    // New branch / first push (all-zeros SHA) or empty base: compare with the parent commit.
-    const base = !opts.base || ZERO_SHA.test(opts.base) ? `${opts.head}~1` : opts.base;
-    try {
-      changed = parseChangedFiles(git(root, ['diff', '--name-only', `${base}`, opts.head]));
-    } catch (err) {
-      console.error(`affected-e2e: cannot diff ${base}..${opts.head} (${err.message.split('\n')[0]}); selecting nothing.`);
-      changed = [];
-    }
+    // Missing base or a failed diff selects the smoke set with a warning, never zero specs.
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({
+      base: opts.base,
+      head: opts.head,
+      diff: (range) => git(root, ['diff', '--name-only', range]),
+      existingSpecs,
+    });
+    changed = r.changed;
+    specs = r.specs;
+    if (r.warning) console.error(r.warning);
   } else {
     changed = parseChangedFiles(readStdin());
+    specs = selectAffectedE2e(changed, existingSpecs);
   }
-
-  const specs = selectAffectedE2e(changed, listSpecs(root));
 
   console.error(`affected-e2e: ${changed.length} changed file(s)`);
   for (const f of changed) console.error(`  changed: ${f}`);

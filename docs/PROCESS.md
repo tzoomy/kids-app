@@ -116,12 +116,15 @@ A merge to `main` publishes to GitHub Pages, so this gate comes before merge. Fo
 
 CI (`.github/workflows/ci.yml`) runs only what the change affects. PRs that touch only `*.md` or `docs/**` do not trigger it.
 
-- **Unit tests:** `vitest run --changed <base>` (Vitest's own import graph). `<base>` is the PR base SHA on `pull_request`, and `github.event.before` on push to `main` (falling back to `HEAD~1` for a new branch). Zero related tests is fine; it never falls back to the full unit suite. `npm run check:ac` and `npm run build` always run in `test-and-build`.
+- **Unit tests:** `vitest run --changed <base>` (Vitest's own import graph). `<base>` is the PR base SHA on `pull_request`, and `github.event.before` on push to `main`. Zero related tests is fine for a usable base. `tests/unit/affectedE2e.test.ts` always runs as well, so a PR that only adds a spec still hits the orphan check. **If the base is empty, all zeros, or not a fetchable commit, CI runs the full unit suite (`npm test`) and prints a `::warning::`** (decided by `scripts/unit-tests-mode.mjs`); it is never a vacuous pass. `npm run check:ac` and `npm run build` always run in `test-and-build`.
 - **E2E:** `scripts/affected-e2e.mjs` maps changed files to Playwright specs with an explicit table (`GAME_RULES`):
   - a game's folder, content JSON, unit tests and e2e helpers select that game's specs;
   - a changed spec selects itself;
-  - shared code (`src/core`, `src/ui`, `src/game`, `src/worlds`, `src/anim`, `src/main.ts`, `web/`, `public/`, `package*.json`, configs, shared e2e helpers, the workflow) selects the smoke set only: `journey.spec.ts` and `hud.spec.ts`;
-  - docs, markdown, prototype files and unit-only tests select nothing, and then Playwright is not installed or run.
+  - shared code (`src/core`, `src/ui`, `src/game`, `src/worlds`, `src/anim`, `src/main.ts`, `web/`, `public/`, `package*.json`, configs, shared e2e helpers, `scripts/affected-e2e.mjs`, `scripts/unit-tests-mode.mjs`, the workflow) selects the smoke set only: `journey.spec.ts` and `hud.spec.ts`;
+  - **an unmapped changed path (new top-level trees, `tools/`, other `scripts/*`, odd config names, unknown paths) also falls back to the smoke set**; a code change never selects zero specs;
+  - only `*.md`, `docs/**`, root prototype files (`index.html`, `app.js`, `style.css`, `sw.js`, `manifest.json`, icons) and unit-only tests (`tests/unit/**` not mapped to a game) select nothing, and then Playwright is not installed or run;
+  - **a missing/all-zeros diff base or a failing `git diff` (`base...HEAD`) selects the smoke set and prints a `::warning::`; it is never `run=false`**. The script handles this itself (`selectAffectedE2eOrSmokeOnDiffFailure`), so the workflow has no skip branch;
+  - the parent screen (`src/ui/parent.ts`) and build info files map to `buildInfo.spec.ts` (parent also selects smoke).
   - A unit test (`tests/unit/affectedE2e.test.ts`) fails if a `tests/e2e/*.spec.ts` is not reachable from the map, so add every new spec to `GAME_RULES` (or the smoke set).
   - Try it locally: `node scripts/affected-e2e.mjs --base origin/main`, or `node scripts/affected-e2e.mjs --files src/games/sorting/sortingLogic.ts`.
 - **Push to `main`:** `test-and-build` (related unit tests, check:ac, build) gates `deploy`. The affected-e2e job is separate and does not block deploy.

@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {
   GAME_RULES,
   SMOKE_SPECS,
+  listSpecs,
   parseChangedFiles,
   selectAffectedE2e,
+  selectAffectedE2eOrSmokeOnDiffFailure,
 } from '../../scripts/affected-e2e.mjs';
 
 const root = path.resolve(__dirname, '..', '..');
@@ -33,6 +36,26 @@ describe('affected e2e selection', () => {
 
   it('unrelated tooling (prototype files, unit-only tests) selects nothing', () => {
     expect(selectAffectedE2e(['index.html', 'app.js', 'style.css', 'sw.js', 'tests/unit/storage.test.ts'])).toEqual([]);
+  });
+
+  it('an unmapped source path falls back to the smoke set, never zero specs', () => {
+    expect(selectAffectedE2e(['unknown/path.ts'])).toEqual(SMOKE);
+  });
+
+  it('unmapped scripts, tools, build helpers and odd config names fall back to the smoke set', () => {
+    for (const f of ['scripts/some-new-script.mjs', 'tools/art-preview/render.ts', 'build/otherHelper.ts', 'eslint.config.js', '.nvmrc', 'tests/fixtures/other/data.json']) {
+      expect(selectAffectedE2e([f]), f).toEqual(SMOKE);
+    }
+  });
+
+  it('build info files select the buildInfo spec only', () => {
+    for (const f of ['src/buildInfo.ts', 'build/buildDefines.ts', 'tests/unit/buildInfo.test.ts', 'tests/e2e/buildInfo.spec.ts']) {
+      expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/buildInfo.spec.ts']);
+    }
+  });
+
+  it('the parent screen (shows the build info line) selects buildInfo plus smoke', () => {
+    expect(selectAffectedE2e(['src/ui/parent.ts'])).toEqual(['tests/e2e/buildInfo.spec.ts', ...SMOKE]);
   });
 
   it('a game-only change selects that game specs and not the whole suite', () => {
@@ -138,6 +161,84 @@ describe('affected e2e selection', () => {
       'src/games/sorting/sortingLogic.ts',
       'docs/PROCESS.md',
     ]);
+  });
+});
+
+describe('affected e2e diff-base fallbacks', () => {
+  const noDiff = () => {
+    throw new Error('diff must not be called without a usable base');
+  };
+
+  it('uses three-dot base...head and selects from the changed files when the diff works', () => {
+    const calls: string[][] = [];
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({
+      base: 'abc123',
+      head: 'HEAD',
+      diff: (...args: string[]) => {
+        calls.push(args);
+        return 'src/games/sorting/sortingLogic.ts\n';
+      },
+      existingSpecs: specsOnDisk,
+    });
+    expect(calls).toEqual([['abc123...HEAD']]);
+    expect(r.warning).toBeNull();
+    expect(r.changed).toEqual(['src/games/sorting/sortingLogic.ts']);
+    expect(r.specs).toEqual(['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts']);
+  });
+
+  it('a docs-only diff legitimately selects nothing and does not warn', () => {
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({ base: 'abc123', head: 'HEAD', diff: () => 'docs/PROCESS.md\n', existingSpecs: specsOnDisk });
+    expect(r.specs).toEqual([]);
+    expect(r.warning).toBeNull();
+  });
+
+  it.each([
+    ['empty', ''],
+    ['undefined', undefined],
+    ['all zeros', '0000000000000000000000000000000000000000'],
+  ])('a %s base selects the smoke set with a warning and never diffs', (_name, base) => {
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({ base: base as string | undefined, head: 'HEAD', diff: noDiff, existingSpecs: specsOnDisk });
+    expect(r.specs).toEqual(SMOKE);
+    expect(r.warning).toMatch(/^::warning::/);
+    expect(r.warning).toMatch(/base/i);
+  });
+
+  it('a throwing git diff selects the smoke set with a warning, not an empty selection', () => {
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({
+      base: 'deadbeef',
+      head: 'HEAD',
+      diff: () => {
+        throw new Error('fatal: bad revision');
+      },
+      existingSpecs: specsOnDisk,
+    });
+    expect(r.specs).toEqual(SMOKE);
+    expect(r.warning).toMatch(/^::warning::/);
+    expect(r.warning).toMatch(/diff failed/i);
+    expect(r.warning).toContain('fatal: bad revision');
+  });
+});
+
+describe('affected e2e spec listing', () => {
+  it('lists specs recursively so a nested spec is not dropped as deleted', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'affected-e2e-'));
+    try {
+      const dir = path.join(tmp, 'tests', 'e2e');
+      fs.mkdirSync(path.join(dir, 'nested', 'deeper'), { recursive: true });
+      fs.writeFileSync(path.join(dir, 'top.spec.ts'), '');
+      fs.writeFileSync(path.join(dir, 'nested', 'a.spec.ts'), '');
+      fs.writeFileSync(path.join(dir, 'nested', 'deeper', 'b.spec.ts'), '');
+      fs.writeFileSync(path.join(dir, 'nested', 'helper.ts'), '');
+      const listed = listSpecs(tmp);
+      expect(listed).toEqual(['tests/e2e/nested/a.spec.ts', 'tests/e2e/nested/deeper/b.spec.ts', 'tests/e2e/top.spec.ts']);
+      expect(selectAffectedE2e(['tests/e2e/nested/a.spec.ts'], listed)).toEqual(['tests/e2e/nested/a.spec.ts']);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('lists exactly the real top-level specs on disk', () => {
+    expect(listSpecs(root)).toEqual(specsOnDisk);
   });
 });
 
