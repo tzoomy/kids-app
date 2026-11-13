@@ -4,8 +4,7 @@
       "id": "language-house",
       "nameHe": "בית השפות",
       "status": "open",
-      "earnsLeisure": true,
-      "entryGameId": "animal-restaurant"
+      "earnsLeisure": true
     },
     {
       "id": "number-garden",
@@ -22,9 +21,8 @@
     {
       "id": "art-studio",
       "nameHe": "סטודיו האמנות",
-      "status": "open",
-      "earnsLeisure": true,
-      "entryGameId": "kitchen-orchestra"
+      "status": "locked",
+      "earnsLeisure": true
     },
     {
       "id": "leisure-corner",
