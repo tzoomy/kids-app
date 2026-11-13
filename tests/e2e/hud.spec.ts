@@ -25,3 +25,16 @@ for (const gameId of ['animal-restaurant', 'kitchen-orchestra'] as const) {
     }
   });
 }
+
+for (const gameId of ['animal-restaurant', 'kitchen-orchestra'] as const) {
+  test(`prompt bubble sits below the taller HUD pills (no overlap) in ${gameId}`, async ({ page }) => {
+    await enterWorldByTap(page, 'profile-a', 'language-house', gameId);
+    const bubble = await getStableBox(page, 'prompt-bubble', 15_000);
+    for (const id of ['hud-back', 'hud-help', 'star-count', 'leisure-balance']) {
+      const pill = await getStableBox(page, id);
+      const overlaps =
+        bubble.x < pill.x + pill.width && pill.x < bubble.x + bubble.width && bubble.y < pill.y + pill.height && pill.y < bubble.y + bubble.height;
+      expect(overlaps, `prompt-bubble overlaps ${id} in ${gameId}: bubble ${JSON.stringify(bubble)} pill ${JSON.stringify(pill)}`).toBe(false);
+    }
+  });
+}
