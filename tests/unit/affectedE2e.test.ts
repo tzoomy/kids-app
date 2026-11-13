@@ -6,6 +6,7 @@ import {
   GAME_RULES,
   SMOKE_SPECS,
   listSpecs,
+  parseArgs,
   parseChangedFiles,
   selectAffectedE2e,
   selectAffectedE2eOrSmokeOnDiffFailure,
@@ -13,11 +14,19 @@ import {
 
 const root = path.resolve(__dirname, '..', '..');
 const e2eDir = path.join(root, 'tests', 'e2e');
-const specsOnDisk = fs
-  .readdirSync(e2eDir)
-  .filter((f) => f.endsWith('.spec.ts'))
-  .map((f) => `tests/e2e/${f}`)
-  .sort();
+
+/** Recursive listing used for map-coverage, matching production `listSpecs`. */
+function listSpecsOnDisk(dir: string, prefix = 'tests/e2e'): string[] {
+  const out: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const rel = `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) out.push(...listSpecsOnDisk(path.join(dir, entry.name), rel));
+    else if (entry.name.endsWith('.spec.ts')) out.push(rel);
+  }
+  return out.sort();
+}
+
+const specsOnDisk = listSpecsOnDisk(e2eDir);
 
 const SMOKE = ['tests/e2e/hud.spec.ts', 'tests/e2e/journey.spec.ts'];
 
@@ -237,15 +246,28 @@ describe('affected e2e spec listing', () => {
     }
   });
 
-  it('lists exactly the real top-level specs on disk', () => {
+  it('lists exactly the real specs on disk, including nested ones', () => {
     expect(listSpecs(root)).toEqual(specsOnDisk);
+  });
+
+  it('map-coverage disk helper lists nested specs, not only the top level', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'affected-e2e-disk-'));
+    try {
+      const dir = path.join(tmp, 'tests', 'e2e');
+      fs.mkdirSync(path.join(dir, 'nested'), { recursive: true });
+      fs.writeFileSync(path.join(dir, 'top.spec.ts'), '');
+      fs.writeFileSync(path.join(dir, 'nested', 'inner.spec.ts'), '');
+      expect(listSpecsOnDisk(dir)).toEqual(['tests/e2e/nested/inner.spec.ts', 'tests/e2e/top.spec.ts']);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });
 
 describe('affected e2e map coverage', () => {
   const mapped = new Set<string>([...SMOKE_SPECS, ...GAME_RULES.flatMap((r: { specs: string[] }) => r.specs)]);
 
-  it('every tests/e2e/*.spec.ts is reachable by a mapping entry or the smoke set (no orphans)', () => {
+  it('every tests/e2e/**/*.spec.ts is reachable by a mapping entry or the smoke set (no orphans)', () => {
     const orphans = specsOnDisk.filter((s) => !mapped.has(s));
     expect(orphans).toEqual([]);
   });
@@ -269,5 +291,35 @@ describe('affected e2e map coverage', () => {
     for (const folder of folders) {
       expect(selectAffectedE2e([`src/games/${folder}/x.ts`]).length, folder).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('affected e2e parseArgs', () => {
+  it('treats a bare --base (no value) as an empty base, not as missing/stdin', () => {
+    expect(parseArgs(['--base']).base).toBe('');
+    expect(parseArgs(['--base', '--head', 'HEAD']).base).toBe('');
+    expect(parseArgs(['--head', 'HEAD', '--base']).base).toBe('');
+  });
+
+  it('still reads an explicit --base value', () => {
+    expect(parseArgs(['--base', 'abc123', '--head', 'HEAD']).base).toBe('abc123');
+    expect(parseArgs(['--head', 'HEAD', '--base', 'abc123']).base).toBe('abc123');
+  });
+
+  it('leaves base null when --base is omitted, so main can still read stdin', () => {
+    expect(parseArgs([]).base).toBeNull();
+    expect(parseArgs(['--head', 'HEAD']).base).toBeNull();
+  });
+
+  it('empty --base selects the smoke set instead of skipping or waiting on stdin', () => {
+    const r = selectAffectedE2eOrSmokeOnDiffFailure({
+      base: parseArgs(['--base']).base ?? undefined,
+      head: 'HEAD',
+      diff: () => {
+        throw new Error('diff should not run for an empty base');
+      },
+    });
+    expect(r.specs).toEqual([...SMOKE_SPECS].sort());
+    expect(r.warning).toMatch(/missing or unusable/);
   });
 });
