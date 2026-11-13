@@ -1,7 +1,7 @@
 // Sorting Beds Pass 1 review fix: engine wiring of the first flower of a round (known item after a level drop).
 import { describe, expect, it } from 'vitest';
 import { loadSortingBeds } from '@/content/loadContent';
-import { SkillSession, buildMeta, skillKey } from '@/core/adaptive';
+import { SkillSession, buildMeta, skillKey, type SkillState } from '@/core/adaptive';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
 import type { StorageDriver } from '@/core/storage/store';
 import {
@@ -52,7 +52,7 @@ describe('sorting-beds wiring: first flower of a round', () => {
   it('[AC-04] after a level drop the first flower is a known (mastered) item and afterDrop is cleared', () => {
     const { store, skills } = setup();
     const key = skillKey(content.world, content.id, 'en');
-    const dropped = {
+    const dropped: SkillState = {
       level: 4,
       cleanStreak: 0,
       recent: [],

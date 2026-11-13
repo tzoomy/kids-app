@@ -33,6 +33,7 @@ import {
   WRONG_TAP_LOCK_MS,
   bedPresentation,
   buildRound,
+  chooseFirstFlower,
   levelLevers,
   placementWordLines,
   ruleLine,
@@ -335,6 +336,8 @@ export class SortingScene extends Phaser.Scene {
       visitAttribute: visitAttribute(this.visitIndex, levers.choiceCount),
       flowerCount: this.meta.rules.trialsPerRound,
       random: Math.random,
+      // The engine picks the first flower (a known one right after a level drop; this also clears afterDrop).
+      preferredFirst: chooseFirstFlower(this.skills, this.roundLang),
     });
     this.roundIndex++;
     this.rule = this.plan.rule;

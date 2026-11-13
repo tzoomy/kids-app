@@ -215,15 +215,20 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
   const { rule, bedCount } = ruleForRound(levers, roundIndex, params.visitAttribute);
   const ruleSwitch = levers.ruleSwitch && rule === 'size+color';
   const withExamples = levers.scaffold === 'none';
+  const preferred = parseFlowerId(params.preferredFirst);
 
   // Beds under the starting rule.
   let accepts: BedAccepts[];
   if (rule === 'size+color') {
-    accepts = conjunctionBeds(pickConjunctionColors(random));
+    const colors = pickConjunctionColors(random);
+    if (preferred && !colors.includes(preferred.color)) colors[1] = preferred.color;
+    accepts = conjunctionBeds(colors);
   } else {
     const attr = rule as SortAttribute;
     const values = valuesOf(attr);
     const chosen = bedCount >= values.length ? values.slice() : shuffled(random, values).slice(0, bedCount);
+    // The preferred first flower needs a bed: make sure its value is one of the chosen beds.
+    if (preferred && !chosen.includes(preferred[attr])) chosen[chosen.length - 1] = preferred[attr];
     // Keep the art/voice order of the values so beds read left to right consistently.
     chosen.sort((a, b) => values.indexOf(a) - values.indexOf(b));
     accepts = chosen.map((value): BedAccepts => ({ [attr]: value }) as BedAccepts);
@@ -256,11 +261,20 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
   const targets: number[] = [];
   if (beds.length > 0) {
     const order = shuffled(random, beds.map((_, i) => i));
+    const preferredBed = preferred ? beds.findIndex((b) => flowerMatches(b.accepts, preferred)) : -1;
+    if (preferredBed >= 0) {
+      order.splice(order.indexOf(preferredBed), 1);
+      order.unshift(preferredBed);
+    }
     for (let i = 0; i < flowerCount; i++) {
       targets.push(i < Math.min(2, order.length) ? order[i] : pickIndex(random, beds.length));
     }
   }
   const targetOrder = shuffled(random, targets);
+  if (preferred && targetOrder.length > 0) {
+    const at = targetOrder.indexOf(beds.findIndex((b) => flowerMatches(b.accepts, preferred)));
+    if (at > 0) [targetOrder[0], targetOrder[at]] = [targetOrder[at], targetOrder[0]];
+  }
 
   const switchAfter = ruleSwitch ? RULE_SWITCH_AFTER_PLACEMENTS : null;
   const ruleAt = (index: number): SortRule => (switchAfter !== null && index >= switchAfter ? 'size+shape' : rule);
@@ -276,6 +290,7 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
     shape: pick(random, ATTRIBUTE_VALUES.shape),
     size: pick(random, ATTRIBUTE_VALUES.size),
   };
+  if (preferred) Object.assign(constants, preferred); // non-varying attributes stay constant, at the preferred flower's values
   const roundColors = rule === 'size+color' ? Array.from(new Set(accepts.map((a) => a.color as FlowerColor))) : null;
 
   const specs: FlowerSpec[] = targetOrder.map((bedIndex, index) => {
@@ -293,6 +308,8 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
       size: (bedAccepts.size ?? free('size')) as FlowerSize,
     };
   });
+
+  if (preferred && specs.length > 0) specs[0] = { ...preferred };
 
   // A varying attribute must really vary: if all flowers drew the same value, change one free flower.
   for (const attr of varying) {
@@ -324,13 +341,30 @@ export function buildRound(params: BuildRoundParams): RoundPlan {
 
 /** The part of SkillSession the first-flower choice needs. */
 export interface FirstFlowerSkills {
-  familiarItemIds(lang: string): string[];
   selectNextItem(lang: string, candidates: readonly string[]): string;
 }
 
-/** STUB (TDD step 1): the first-flower choice through the adaptive engine. */
-export function chooseFirstFlower(_skills: FirstFlowerSkills, _lang: string): string {
-  return '';
+/** All 18 flower ids ('<shape>-<color>-<size>'). */
+export const ALL_FLOWER_IDS: readonly string[] = ATTRIBUTE_VALUES.shape.flatMap((shape) =>
+  ATTRIBUTE_VALUES.color.flatMap((color) => ATTRIBUTE_VALUES.size.map((size) => `${shape}-${color}-${size}`)),
+);
+
+/** Parses a flower id; null when it is missing or not one of the 18 variants. */
+export function parseFlowerId(id: string | undefined): FlowerSpec | null {
+  if (!id || !ALL_FLOWER_IDS.includes(id)) return null;
+  const [shape, color, size] = id.split('-') as [FlowerShape, FlowerColor, FlowerSize];
+  return { shape, color, size };
+}
+
+/**
+ * The flower a round starts with, chosen by the engine like the restaurant's food. `selectNextItem` over all 18
+ * flowers returns a known (mastered) flower right after a level drop and clears the after-drop flag; otherwise it
+ * schedules due, retry, new and seen flowers. Only the first flower of a round is engine-chosen (the others must
+ * target the round's beds). `familiarItemIds` is not needed: there is no secondary slot, and the engine already
+ * restricts the after-drop choice to known items. Feed the result to `buildRound({ preferredFirst })`.
+ */
+export function chooseFirstFlower(skills: FirstFlowerSkills, lang: string): string {
+  return skills.selectNextItem(lang, ALL_FLOWER_IDS);
 }
 
 /** Attributes a rule sorts by. */
