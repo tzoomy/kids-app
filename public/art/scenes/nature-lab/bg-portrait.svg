@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tall Vertical Sky Base in windowSky -->
+    <rect x="0" y="0" width="800" height="780" fill="#B8E6FF"/>
+
+    <!-- Layered Sky Bands fading between warm cream and windowSky (no gradients) -->
+    <path d="M0 0 H800 V240 C620 264 420 228 240 248 C120 260 50 248 0 238 Z" fill="#FFF6E8" fill-opacity="0.48"/>
+    <path d="M0 0 H800 V132 C640 150 440 122 260 138 C130 148 60 138 0 130 Z" fill="#FFF6E8" fill-opacity="0.82"/>
+    <path d="M0 410 C220 390 460 426 680 404 C740 398 776 402 800 408 V780 H0 Z" fill="#FFF6E8" fill-opacity="0.42"/>
+    <path d="M0 536 C240 516 500 548 800 526 V780 H0 Z" fill="#FFF6E8" fill-opacity="0.72"/>
+
+    <!-- Soft Warm Sun -->
+    <circle cx="164" cy="224" r="72" fill="#FFF3B0" fill-opacity="0.45"/>
+    <circle cx="164" cy="224" r="46" fill="#FFF3B0"/>
+
+    <!-- Soft White Clouds across Vertical Sky -->
+    <g fill="#FFFDF9" stroke="#7A5C48" stroke-width="3.5" stroke-opacity="0.35">
+      <path d="M448 214 C448 190 472 176 496 186 C512 164 552 164 568 186 C590 182 608 198 602 218 L450 218 Z"/>
+      <path d="M116 376 C116 354 138 342 158 350 C172 332 206 332 220 350 C238 346 254 360 250 376 Z"/>
+      <path d="M512 436 C512 414 534 402 556 410 C570 390 606 390 622 410 C642 406 658 420 654 436 Z"/>
+    </g>
+
+    <!-- Distant Tree Silhouettes in Muted Green along Mid-Frame Ridge -->
+    <g fill-opacity="0.55">
+      <!-- Left grove -->
+      <rect x="76" y="592" width="12" height="52" rx="4" fill="#7A4B2A"/>
+      <path d="M44 606 C36 574 58 542 82 544 C106 542 128 574 120 606 Z" fill="#3CA33C"/>
+      <rect x="148" y="604" width="10" height="46" rx="4" fill="#7A4B2A"/>
+      <path d="M120 616 C114 590 132 566 153 568 C174 566 192 590 186 616 Z" fill="#57C457"/>
+
+      <!-- Center-right grove -->
+      <rect x="598" y="602" width="10" height="46" rx="4" fill="#7A4B2A"/>
+      <path d="M570 614 C564 588 582 564 603 566 C624 564 642 588 636 614 Z" fill="#57C457"/>
+      <rect x="668" y="586" width="12" height="54" rx="4" fill="#7A4B2A"/>
+      <path d="M634 600 C626 568 648 536 674 538 C700 536 722 568 714 600 Z" fill="#3CA33C"/>
+    </g>
+
+    <!-- Mid-Frame Rolling windowHill Hills -->
+    <path d="M0 644 C160 598 340 612 500 648 C620 674 720 624 800 638 V840 H0 Z" fill="#98D886" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.5"/>
+    <path d="M0 656 C160 612 330 624 486 658 C328 636 164 628 0 670 Z" fill="#8AE07E" fill-opacity="0.65"/>
+
+    <!-- Second Mid-Frame Hill Band -->
+    <path d="M0 726 C200 694 410 738 610 704 C700 690 760 698 800 712 V900 H0 Z" fill="#8AE07E" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.55"/>
+    <path d="M0 738 C200 706 410 750 610 716 C700 702 760 710 800 724 V900 H0 Z" fill="#98D886"/>
+
+    <!-- Open Grassy Ground in the Lower Third (y=808..1280) -->
+    <path d="M0 812 C240 788 520 822 800 798 V1280 H0 Z" fill="#98D886" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.6"/>
+    <path d="M0 944 C280 922 540 954 800 932 V1280 H0 Z" fill="#57C457" fill-opacity="0.28"/>
+
+    <!-- Subtle Meadow Grass Tuft Accents -->
+    <g fill="none" stroke="#3CA33C" stroke-width="4" stroke-opacity="0.55">
+      <path d="M118 884 C120 872 126 866 130 862 M130 884 C134 872 140 868 144 864"/>
+      <path d="M432 872 C434 860 440 854 444 850 M444 872 C448 860 454 856 458 852"/>
+      <path d="M674 888 C676 876 682 870 686 866 M686 888 C690 876 696 872 700 868"/>
+    </g>
+
+    <!-- Foreground Grass Shadow Rim and Dirt Band (floorWood / leafShadow) -->
+    <path d="M0 1126 C180 1106 380 1136 580 1116 C680 1106 750 1116 800 1112 V1280 H0 Z" fill="#3CA33C" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.65"/>
+    <path d="M0 1164 C210 1146 430 1174 640 1154 C710 1148 760 1154 800 1150 V1280 H0 Z" fill="#D9A06B" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.7"/>
+    <path d="M0 1182 C210 1164 430 1192 640 1172 C710 1166 760 1172 800 1168 V1194 C760 1198 710 1192 640 1198 C430 1218 210 1190 0 1208 Z" fill="#FAD9B8" fill-opacity="0.45"/>
+    <path d="M0 1232 C260 1218 540 1240 800 1224 V1280 H0 Z" fill="#B87D56" fill-opacity="0.45"/>
+  </g>
+</svg>

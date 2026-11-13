@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Base Sky in windowSky -->
+    <rect x="0" y="0" width="1280" height="540" fill="#B8E6FF"/>
+
+    <!-- Layered Sky Bands fading between warm cream and windowSky (no gradients) -->
+    <path d="M0 0 H1280 V168 C980 192 720 154 420 176 C220 190 90 174 0 164 Z" fill="#FFF6E8" fill-opacity="0.48"/>
+    <path d="M0 0 H1280 V96 C1020 112 740 88 460 104 C240 116 110 102 0 94 Z" fill="#FFF6E8" fill-opacity="0.82"/>
+    <path d="M0 248 C310 232 620 264 940 242 C1100 232 1200 240 1280 248 V540 H0 Z" fill="#FFF6E8" fill-opacity="0.42"/>
+    <path d="M0 326 C340 308 680 340 1020 318 C1140 310 1220 318 1280 324 V540 H0 Z" fill="#FFF6E8" fill-opacity="0.72"/>
+
+    <!-- Soft Warm Sun -->
+    <circle cx="212" cy="168" r="68" fill="#FFF3B0" fill-opacity="0.45"/>
+    <circle cx="212" cy="168" r="44" fill="#FFF3B0"/>
+
+    <!-- Soft White Storybook Clouds -->
+    <g fill="#FFFDF9" stroke="#7A5C48" stroke-width="3.5" stroke-opacity="0.35">
+      <path d="M348 176 C348 154 370 142 392 150 C406 130 442 128 458 148 C478 144 496 158 492 176 Z"/>
+      <path d="M716 142 C716 118 742 104 768 114 C786 92 828 92 846 114 C870 110 890 126 884 146 L718 146 Z"/>
+      <path d="M1018 192 C1018 172 1038 160 1058 168 C1072 150 1104 150 1118 168 C1136 164 1152 176 1148 192 Z"/>
+    </g>
+
+    <!-- Distant Tree Silhouettes in Muted Green along Far Ridge -->
+    <g fill-opacity="0.55">
+      <!-- Left distant grove -->
+      <rect x="114" y="344" width="12" height="48" rx="4" fill="#7A4B2A"/>
+      <path d="M82 356 C74 328 96 296 120 298 C144 296 166 328 158 356 Z" fill="#3CA33C"/>
+      <rect x="184" y="352" width="10" height="44" rx="4" fill="#7A4B2A"/>
+      <path d="M156 364 C150 338 168 312 189 314 C210 312 228 338 222 364 Z" fill="#57C457"/>
+      <rect x="248" y="362" width="10" height="40" rx="4" fill="#7A4B2A"/>
+      <path d="M224 372 C218 350 234 328 253 330 C272 328 288 350 282 372 Z" fill="#3CA33C"/>
+
+      <!-- Center-left distant trees -->
+      <rect x="526" y="366" width="10" height="42" rx="4" fill="#7A4B2A"/>
+      <path d="M500 376 C494 352 510 330 531 332 C552 330 568 352 562 376 Z" fill="#57C457"/>
+
+      <!-- Right distant grove -->
+      <rect x="966" y="356" width="10" height="44" rx="4" fill="#7A4B2A"/>
+      <path d="M938 366 C932 340 950 316 971 318 C992 316 1010 340 1004 366 Z" fill="#57C457"/>
+      <rect x="1038" y="340" width="12" height="52" rx="4" fill="#7A4B2A"/>
+      <path d="M1004 354 C996 322 1018 290 1044 292 C1070 290 1092 322 1084 354 Z" fill="#3CA33C"/>
+      <rect x="1116" y="352" width="10" height="46" rx="4" fill="#7A4B2A"/>
+      <path d="M1088 364 C1082 338 1100 314 1121 316 C1142 314 1160 338 1154 364 Z" fill="#57C457"/>
+    </g>
+
+    <!-- Distant Rolling windowHill Hills -->
+    <path d="M0 392 C180 344 390 356 590 396 C790 434 1020 346 1280 384 V560 H0 Z" fill="#98D886" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.5"/>
+    <path d="M0 404 C180 358 380 368 576 406 C384 382 184 374 0 418 Z" fill="#8AE07E" fill-opacity="0.65"/>
+
+    <!-- Second Mid-Distance Rolling Hill Band -->
+    <path d="M0 456 C240 426 470 468 720 432 C940 400 1120 418 1280 448 V600 H0 Z" fill="#8AE07E" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.55"/>
+    <path d="M0 468 C240 438 470 480 720 444 C940 412 1120 430 1280 460 V600 H0 Z" fill="#98D886"/>
+
+    <!-- Open Lower-Third Grassy Meadow for Bushes (y=508..800) -->
+    <path d="M0 516 C320 494 640 526 960 504 C1100 494 1200 502 1280 512 V800 H0 Z" fill="#98D886" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.6"/>
+    <path d="M0 596 C360 576 740 606 1280 584 V800 H0 Z" fill="#57C457" fill-opacity="0.28"/>
+
+    <!-- Subtle Open-Meadow Grass Tuft Accents -->
+    <g fill="none" stroke="#3CA33C" stroke-width="4" stroke-opacity="0.55">
+      <path d="M148 566 C150 554 156 548 160 544 M160 566 C164 554 170 550 174 546"/>
+      <path d="M624 558 C626 546 632 540 636 536 M636 558 C640 546 646 542 650 538"/>
+      <path d="M1092 562 C1094 550 1100 544 1104 540 M1104 562 C1108 550 1114 546 1118 542"/>
+    </g>
+
+    <!-- Foreground Grass Shadow Rim and Dirt Band (floorWood / leafShadow) -->
+    <path d="M0 704 C220 684 460 714 700 694 C940 674 1120 698 1280 688 V800 H0 Z" fill="#3CA33C" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.65"/>
+    <path d="M0 732 C260 714 520 742 800 722 C1020 706 1160 724 1280 718 V800 H0 Z" fill="#D9A06B" stroke="#7A5C48" stroke-width="4" stroke-opacity="0.7"/>
+    <path d="M0 746 C260 728 520 756 800 736 C1020 720 1160 738 1280 732 V754 C1160 760 1020 742 800 758 C520 778 260 750 0 768 Z" fill="#FAD9B8" fill-opacity="0.45"/>
+    <path d="M0 776 C320 764 680 784 1280 770 V800 H0 Z" fill="#B87D56" fill-opacity="0.45"/>
+  </g>
+</svg>

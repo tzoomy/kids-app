@@ -52,10 +52,18 @@ describe('real art manifest', () => {
     expect(foodArtKey('apple')).toBeDefined();
   });
 
-  it('registers Kitchen Orchestra chef, instruments, glow, and kitchen scenes', () => {
-    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) expect(instrumentArtKey(name), name).toBeDefined();
+  it('registers Who\'s Hiding? and Kitchen Orchestra art', () => {
+    for (const name of ['bush-round-back', 'bush-round-front', 'bush-tall-back', 'bush-tall-front']) {
+      expect(propArtKey(name), name).toBeDefined();
+    }
+    for (const name of ['bg-landscape', 'bg-portrait']) {
+      expect(sceneArtKey('nature-lab', name), `nature-lab/${name}`).toBeDefined();
+      expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
+    }
+    for (const name of ['pot', 'pan', 'glass-low', 'glass-mid', 'glass-high']) {
+      expect(instrumentArtKey(name), name).toBeDefined();
+    }
     expect(fxArtKey('instrument-glow')).toBeDefined();
-    for (const name of ['bg-landscape', 'bg-portrait']) expect(sceneArtKey('kitchen', name), `kitchen/${name}`).toBeDefined();
   });
 });
 
@@ -82,19 +90,21 @@ describe('real animal rigs', () => {
 });
 
 describe('chef rig', () => {
-  it('is registered as a character, not a restaurant animal', () => {
+  it('is complete, registered, and kept out of the restaurant animal list', () => {
     expect(ANIMAL_RIGS.chef).toBeUndefined();
     const rig = CHARACTER_RIGS.chef;
     expect(rig, 'chef rig').toBeDefined();
     expect(rig.kind).toBe('chef');
-    for (const id of ['body', 'head', 'hat']) expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    for (const id of ['body', 'head', 'hat', 'eyeL', 'eyeR', 'mouth']) {
+      expect(rig.parts[id], `chef.${id}`).toBeDefined();
+    }
     expect(rigTextureKeys(rig), 'chef textures are all in the manifest').toBeDefined();
   });
 
   it('matches every chef part size to its manifest entry', () => {
     const rig = CHARACTER_RIGS.chef;
     for (const part of Object.values(rig.parts)) {
-      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/chef/${part.key}.svg`);
+      const entry = ART_MANIFEST.find((e) => e.url === `art/characters/${rig.kind}/${part.key}.svg`);
       expect(entry, `chef/${part.key}`).toBeDefined();
       expect([entry?.width, entry?.height], `chef/${part.key} size`).toEqual([part.width, part.height]);
     }
