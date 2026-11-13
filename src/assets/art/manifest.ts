@@ -125,4 +125,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'fx-instrument-glow', url: 'art/fx/instrument-glow.svg', width: 256, height: 256 },
   { key: 'kitchen-bg-landscape', url: 'art/scenes/kitchen/bg-landscape.svg', width: 1280, height: 800 },
   { key: 'kitchen-bg-portrait', url: 'art/scenes/kitchen/bg-portrait.svg', width: 800, height: 1280 },
+
+  // Language House Game Picker
+  { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
+  { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
+  { key: 'picker-close', url: 'art/ui/picker/close.svg', width: 128, height: 128 },
+  { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
 ];
