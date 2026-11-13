@@ -22,7 +22,7 @@ import { buildMeta, type GameLevelsMeta, type SkillSession } from '../../core/ad
 import type { AgeTrackConfig, SortingBedsContent } from '../../content/schema';
 import { Juice } from '../../anim/juice';
 import { transitionTo } from '../../anim/transitions';
-import { bounce, hintPulse, popIn, shakeSoft, wait, wobble } from '../../anim/tweens';
+import { bounce, hintPulse, popIn, wait, wobble } from '../../anim/tweens';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect } from '../../testing/pageRect';
 import type { Lang } from '../templates/choiceServe';
@@ -49,7 +49,7 @@ import {
 } from './sortingLogic';
 import { computeSortingLayout, type BedSlotLayout, type LayoutRect, type SortingLayout } from './sortingLayout';
 import { addBackground, makeBasket, makeBed, makeFlower, makeRuleIcon, makeSign } from './sortingArt';
-import { bloomFlowers, dropIntoBed, hopToward, switchRule } from './sortingMotion';
+import { bloomFlowers, dropIntoBed, hopToward, shakeBed, switchRule } from './sortingMotion';
 import { SORTING_LINE_TEXT, rtlIsolate } from './sortingVoice';
 import type { SortingInfo, SortRule } from './types';
 
@@ -71,6 +71,8 @@ interface BedView {
   plantLayer: Phaser.GameObjects.Container;
   ghostLayer: Phaser.GameObjects.Container;
   highlight: Phaser.GameObjects.Graphics;
+  /** Bumped by every pulse; only the latest pulse may hide the highlight. */
+  pulseGen: number;
   planted: Phaser.GameObjects.Container[];
   accepts: BedAccepts;
   count: number;
@@ -107,6 +109,8 @@ export class SortingScene extends Phaser.Scene {
   private lockedUntil = 0;
   private token = 0;
   private speakSeq = 0;
+  /** True from a line request until the audio really ends (the speak caps may clear `speaking` earlier). */
+  private linePlaying = false;
   private speaking = false;
   private helpOpen = false;
   private hintTimer?: Phaser.Time.TimerEvent;
@@ -289,6 +293,7 @@ export class SortingScene extends Phaser.Scene {
   private say(line: LineRequest, maxMs: number): Promise<void> {
     const seq = ++this.speakSeq;
     this.speaking = true;
+    this.linePlaying = true;
     this.session.reportListening(true);
     const text = SORTING_LINE_TEXT[line.lineId] ?? '';
     const played = this.context.audio.play({ lineId: line.lineId, lang: line.lang, text });
@@ -298,7 +303,10 @@ export class SortingScene extends Phaser.Scene {
         this.session.reportListening(false);
       }
     };
-    void played.finally(done);
+    void played.finally(() => {
+      if (seq === this.speakSeq) this.linePlaying = false;
+      done();
+    });
     return Promise.race([played.then(() => undefined), wait(this, maxMs)]).then(done);
   }
 
@@ -318,6 +326,11 @@ export class SortingScene extends Phaser.Scene {
   // Rounds
   // -------------------------------------------------------------------------------------------
 
+  /**
+   * Level timing: the round's level is read here, once per round, and the plan is fixed for the round.
+   * Age 2 (levelChange 'between-rounds') changes level only at a round boundary. Age 5 ('after-trial') may record a
+   * level change after any placement, but the scene shows it from the NEXT round (a round never changes level midway).
+   */
   private startRound(first: boolean): void {
     const token = ++this.token;
     this.hintTimer?.remove();
@@ -407,6 +420,7 @@ export class SortingScene extends Phaser.Scene {
         plantLayer,
         ghostLayer,
         highlight,
+        pulseGen: 0,
         planted: [],
         accepts: { ...bedPlan.accepts },
         count: 0,
@@ -542,7 +556,8 @@ export class SortingScene extends Phaser.Scene {
 
   private giveHint(token: number): void {
     if (token !== this.token || !this.current || !this.ready || !this.tracker || this.tracker.isRecorded) return;
-    if (this.helpOpen || this.speaking) {
+    if (this.tracker.isHinted) return; // one idle hint per trial
+    if (this.helpOpen || this.speaking || this.linePlaying) {
       // Wait out a playing line or the open help card, then retry after another hintDelayMs.
       this.hintTimer = this.time.delayedCall(this.ageConfig.hintDelayMs, () => this.giveHint(token));
       return;
@@ -552,7 +567,7 @@ export class SortingScene extends Phaser.Scene {
     this.context.sfx.hint();
     const bed = this.beds.find((b) => b.plan.id === this.current?.plan.targetBedId);
     if (bed) {
-      void hintPulse(this, bed.root);
+      this.pulseBed(bed, false);
       Juice.for(this).burst('sparkle', bed.slot.x, bed.slot.y - bed.slot.height * 0.4);
       void hopToward(this, this.current.view, bed.slot.x, bed.slot.soilY);
     }
@@ -566,6 +581,22 @@ export class SortingScene extends Phaser.Scene {
       void wobble(this, this.current.view);
     }
     void this.say(ruleLine(this.rule), HE_LINE_MAX_MS);
+    // A replay is activity: restart the idle-hint countdown (age 2, before the trial's hint or result).
+    if (this.current && this.ready && this.tracker && !this.tracker.isHinted && !this.tracker.isRecorded) {
+      this.scheduleHint(this.token);
+    }
+  }
+
+  /**
+   * Pulses a bed. A restarted pulse stops the previous one (hintPulse), so only the latest pulse hides the highlight;
+   * `highlight` shows it for this pulse (wrong tap), otherwise its current visibility is kept until the pulse ends.
+   */
+  private pulseBed(view: BedView, highlight: boolean): void {
+    const gen = ++view.pulseGen;
+    if (highlight) view.highlight.setAlpha(1);
+    void hintPulse(this, view.root).then(() => {
+      if (view.pulseGen === gen) view.highlight.setAlpha(0);
+    });
   }
 
   private onBedTap(view: BedView): void {
@@ -584,12 +615,9 @@ export class SortingScene extends Phaser.Scene {
   private onWrongBed(view: BedView): void {
     this.lockedUntil = this.time.now + WRONG_TAP_LOCK_MS;
     this.context.sfx.hint();
-    void shakeSoft(this, view.root);
+    void shakeBed(this, view.root, view.slot.x, WRONG_TAP_LOCK_MS);
     const target = this.beds.find((b) => b.plan.id === this.current?.plan.targetBedId);
-    if (target) {
-      target.highlight.setAlpha(1);
-      void hintPulse(this, target.root).then(() => target.highlight.setAlpha(0));
-    }
+    if (target) this.pulseBed(target, true);
     void this.say({ lineId: 'sorting.wrong.hint.he', lang: 'he' }, HE_LINE_MAX_MS);
   }
 

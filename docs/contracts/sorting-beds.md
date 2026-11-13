@@ -30,6 +30,7 @@ Status: the scene is a stub. The AC tests under `tests/` fail on purpose until t
 - `AppScreen`: `'sorting'` (`src/pwa/updatePolicy.ts`). `create()` must call `setAppScreen('sorting')`. `isSafeToApplyUpdate('sorting') === false`.
 - E2E journey map: `WORLD_SCENE['number-garden'] = 'SortingScene'` in `tests/e2e/helpers/journey.ts`.
 - Adaptive skill key per round language: `number-garden.sorting-beds.<lang>`; level changes are recorded through `SkillSession` (`this.context.createSkillSession`).
+- When level changes take effect: the scene reads the level once per round, at round start, and never changes it mid-round. Age 2 (`between-rounds`) changes level only at a round boundary. Age 5 (`after-trial`) may record a level change after any placement; it shows from the next round.
 - World wiring: `src/content/worlds.json` has `number-garden` as `open`, `earnsLeisure: true`, `entryGameId: 'sorting-beds'`.
 - Content: `context.content.sorting` (`SortingBedsContent`).
 

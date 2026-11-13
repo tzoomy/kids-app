@@ -1,6 +1,8 @@
 // Sorting Beds motion helpers (Phaser). Equivalent to dropIntoBed / switchRule in src/anim/sortPackMotion.ts on
 // PR #20 (not on this branch), built on the shared tween helpers and the frozen ANIM_PROFILE.sorting knobs.
 // Imports Phaser, so unit tests never import this file.
+// TODO(after #20 merges): consolidate with src/anim/sortPackMotion.ts (dropIntoBed / switchRule overlap). Until then
+// this file stays self-contained and must not import #20.
 import Phaser from 'phaser';
 import { ANIM_PROFILE as P } from '../../anim/profiles';
 import { amp, ampScale } from '../../anim/motion';
@@ -71,4 +73,35 @@ export function bloomFlowers(scene: Phaser.Scene, flowers: readonly Target[]): P
       });
     }),
   ).then(() => undefined);
+}
+
+/**
+ * Soft horizontal shake of a bed that always ends inside `withinMs` (the wrong-tap input lock), so a re-tap after the
+ * lock never meets a running shake. Same distance and easing as ANIM_PROFILE.shakeSoft; the 3 back-and-forths are
+ * timed to fit. Any earlier shake on the target is stopped and the bed is put back at `restX`.
+ */
+const activeShakes = new WeakMap<Target, Phaser.Tweens.Tween>();
+
+export function shakeBed(scene: Phaser.Scene, target: Target, restX: number, withinMs: number): Promise<void> {
+  activeShakes.get(target)?.stop();
+  target.setX(restX);
+  const cycles = P.shakeSoft.repeats + 1;
+  const half = Math.min(P.shakeSoft.duration, Math.floor((withinMs - 20) / (cycles * 2)));
+  return new Promise((resolve) => {
+    const finish = () => {
+      target.setX(restX);
+      resolve();
+    };
+    const tween = scene.tweens.add({
+      targets: target,
+      x: restX + amp(P.shakeSoft.distance),
+      duration: half,
+      yoyo: true,
+      repeat: P.shakeSoft.repeats,
+      ease: P.shakeSoft.ease,
+      onComplete: finish,
+      onStop: finish,
+    });
+    activeShakes.set(target, tween);
+  });
 }
