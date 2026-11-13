@@ -81,7 +81,7 @@ export const GAME_RULES = [
     // The Nature Lab picker (docs/specs/seed-to-flower.md) is the way into both Nature Lab games.
     id: 'nature-lab-picker',
     match: [/^src\/ui\/picker\//],
-    specs: ['tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
+    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
   },
   {
     id: 'leisure-colouring',

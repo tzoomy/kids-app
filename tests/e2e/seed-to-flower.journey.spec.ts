@@ -1,6 +1,4 @@
 // Seed to Flower (docs/specs/seed-to-flower.md), Pass 1. Real taps only; hooks seed or read state.
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { test, expect, type Page } from '@playwright/test';
 import {
   enterWorldByTap,
@@ -19,13 +17,6 @@ import {
 
 const LANDSCAPE = 'landscape-1280x800';
 const MIN_HIT_PX = 64;
-const screenshotsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/screenshots');
-
-/** In-game screenshot for the ready-for-merge gate (docs/PROCESS.md section 5); CI uploads docs/screenshots/. */
-async function shot(page: Page, name: string, project: string): Promise<void> {
-  const size = project === LANDSCAPE ? '1280x800' : '800x1280';
-  await page.screenshot({ path: path.join(screenshotsDir, `seed-to-flower-${name}-${size}.png`) });
-}
 
 /** @single-orientation tests run in the landscape project only (docs/PROCESS.md section 4). */
 function skipIfNotLandscape(testInfo: { project: { name: string } }): void {
@@ -67,17 +58,12 @@ async function growOneStep(page: Page): Promise<SeedFlowerInfo> {
 }
 
 test.describe('seed to flower', () => {
-  test('[AC-01] [AC-10] full real-tap journey: Nature Lab picker → grow a flower → back to the map; the picker still opens Who\'s Hiding?', async ({ page }, testInfo) => {
+  test('[AC-01] [AC-10] full real-tap journey: Nature Lab picker → grow a flower → back to the map; the picker still opens Who\'s Hiding?', async ({ page }) => {
     test.setTimeout(90_000);
-    const project = testInfo.project.name;
     await tapWorldBuilding(page, 'profile-b', 'nature-lab');
-    await page.locator('[data-testid="game-picker-seed-to-flower"]').waitFor({ state: 'visible' });
-    await shot(page, 'picker', project);
     await tapTestId(page, 'game-picker-seed-to-flower');
     await waitForScene(page, 'SeedFlowerScene');
     const info = await waitForSeedFlowerReady(page);
-    await page.waitForTimeout(600);
-    await shot(page, 'age5-start', project);
     for (const rect of [info.water, info.sun]) {
       expect(rect.width).toBeGreaterThanOrEqual(MIN_HIT_PX);
       expect(rect.height).toBeGreaterThanOrEqual(MIN_HIT_PX);
@@ -86,14 +72,8 @@ test.describe('seed to flower', () => {
     let state = info;
     for (let i = 0; i < 10 && state.plantsBloomed === 0 && !state.bloomed; i++) {
       state = await growOneStep(page);
-      if (state.stage === 'bud') {
-        await page.waitForTimeout(700);
-        await shot(page, 'bud', project);
-      }
     }
     expect(state.bloomed || state.plantsBloomed > 0).toBe(true);
-    await page.waitForTimeout(700);
-    await shot(page, 'bloom', project);
     await expect.poll(() => readStarCount(page)).toBe(starsBefore + 1);
 
     await tapTestId(page, 'hud-back');
@@ -107,8 +87,6 @@ test.describe('seed to flower', () => {
   test('[AC-03] @single-orientation age 2 free touch: the sun first grows the plant, one stage per tap', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     const info = await enterSeedFlower(page, 'profile-a');
-    await page.waitForTimeout(600);
-    await shot(page, 'age2-start', testInfo.project.name);
     expect(info.level).toBe(2);
     expect(info.mode).toBe('free');
     expect(info.stage).toBe('seed');
@@ -129,8 +107,6 @@ test.describe('seed to flower', () => {
 
     await tapRect(page, info.sun);
     const nudged = await waitForPlant(page, (i) => i.lastEvent === 'needs-water', 'no needs-water nudge');
-    await page.waitForTimeout(250);
-    await shot(page, 'needs-water-hint', testInfo.project.name);
     expect(nudged.stageIndex).toBe(0);
     await expect
       .poll(async () => (await getSpokenLines(page, spokenBefore)).some((l) => l.lineId === 'seed.needWater.he' && l.lang === 'he'))
@@ -142,6 +118,10 @@ test.describe('seed to flower', () => {
     await waitForPlant(page, (i) => i.watered && i.lastEvent === 'watered', 'water not accepted');
     await tapRect(page, info.sun);
     const grown = await waitForPlant(page, (i) => i.stageIndex === 1, 'water then sun did not grow the plant');
+    // The seed is named when the plant starts on a naming level (review fix on #65).
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId === `seed.stage.seed.${grown.language}` && l.lang === grown.language))
+      .toBe(true);
     expect(grown.stage).toBe('sprout');
     const lang = grown.language;
     await expect
@@ -159,5 +139,17 @@ test.describe('seed to flower', () => {
     await expect.poll(() => readStarCount(page)).toBe(stars + 1);
     const next = await waitForPlant(page, (i) => i.plantsBloomed === 1 && i.stage === 'seed' && i.ready, 'no new seed after the bloom', 15_000);
     expect(next.stageIndex).toBe(0);
+  });
+
+  test('[AC-03] @single-orientation regression (#65 review): rapid free-mode taps never leave a tween on a destroyed plant', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    const info = await enterSeedFlower(page, 'profile-a');
+    // Three taps well inside the 380 ms growth tween: each new stage replaces a plant that is still growing.
+    for (let i = 0; i < 3; i++) await tapRect(page, i % 2 === 0 ? info.water : info.sun);
+    await waitForPlant(page, (i) => i.bloomed || i.plantsBloomed > 0, 'rapid taps did not reach the flower');
+    await waitForPlant(page, (i) => i.plantsBloomed === 1 && i.ready, 'no new seed after the rapid bloom', 15_000);
+    expect(errors).toEqual([]);
   });
 });

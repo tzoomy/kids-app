@@ -108,9 +108,8 @@ describe('affected e2e selection', () => {
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
     expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
     expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
-    expect(selectAffectedE2e(['src/ui/picker/pickerModel.ts'])).toEqual(
-      expect.arrayContaining(['tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts']),
-    );
+    const natureLab = ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/ui/picker/pickerModel.ts'])).toEqual(expect.arrayContaining(natureLab));
   });
 
   it('credits content and UI select the credits spec', () => {

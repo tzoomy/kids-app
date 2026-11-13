@@ -31,11 +31,11 @@ A seed sits in a soil mound in the Nature Lab meadow. The child taps the waterin
 - **Ordered mode** (`extra.order: "water-then-sun"`): water first (event `watered`; the soil darkens and the plant wiggles), then sun grows the plant one stage. Sun before water is not an error: nothing grows, the watering can pulses and a gentle Hebrew line says to water first (event `needs-water`); the step is marked out of order for the adaptive engine. Water again while already watered pulses the sun and a gentle Hebrew line says "now the sun" (event `needs-sun`); this is not marked.
 - Taps while bloomed are ignored (event `resting`) until the next seed appears.
 
-**One plant = one engine round.** Each growth step is one adaptive trial (`itemId` = the stage the plant grows into; `firstTryCorrect` = no out-of-order tap during the step; `hinted` = the idle hint fired during the step). With 4 stages a plant is 3 trials, the default `trialsPerRound`.
+**One plant = one engine round.** Each growth step is one adaptive trial (`itemId` = the stage the plant grows into; `firstTryCorrect` = no out-of-order tap during the step; `hinted` = the idle hint fired during the step). With 4 stages a plant is 3 trials, the default `trialsPerRound`. At L1 (3 stages) a plant is 2 trials, so engine rounds and plants do not line up there: the scene reads the level and picks the language only when a new plant starts, so a plant never changes level or language mid-way, and a level change or language switch that falls mid-plant takes effect on the next plant.
 
-**Bloom.** `yay` SFX, sparkle and confetti bursts, the star count goes up by one and is persisted, a star flies to the HUD star pill, the flower name is spoken in the round's language, and after a short pause a new seed starts (a new plant, possibly in the other language when the setting is `both`).
+**Bloom.** `yay` SFX, the learning session reports celebrating until the next seed, sparkle and confetti bursts, the star count goes up by one and is persisted, a star flies to the HUD star pill, the flower name is spoken in the round's language, and after a short pause a new seed starts (a new plant, possibly in the other language when the setting is `both`).
 
-**Stage names.** On levels with `extra.naming: "all"`, each new stage is named in the round's language ("A sprout!" / "Une pousse !"); on `"bloom"` levels only the flower is named.
+**Stage names.** On levels with `extra.naming: "all"`, the seed is named when the plant starts (after the intro on the first plant of a visit) and each new stage is named in the round's language ("A sprout!" / "Une pousse !"); on `"bloom"` levels only the flower is named.
 
 **Idle hint.** After the track's `hintDelayMs` without a tap, the tool to use next pulses once (free mode: the watering can; ordered: the watering can, or the sun once watered) and the `hint` SFX plays. On the audio-only level (L5) nothing pulses; the order line is spoken instead. The hint marks the current step hinted.
 
@@ -109,7 +109,7 @@ Profile → tap the Nature Lab building → **Nature Lab game picker** (new: Who
 | `seed.help.he` | he | (`helpTextHe`) | Help button |
 | `seed.needWater.he` | he | קודם מים! | Sun before water (ordered) |
 | `seed.needSun.he` | he | עכשיו השמש! | Water while already watered (ordered) |
-| `seed.stage.<stage>.<lang>` | en / fr | A seed! / Une graine ! · A sprout! / Une pousse ! · A bud! / Un bouton ! · A flower! / Une fleur ! | New stage (naming levels: every stage; bloom levels: flower only) |
+| `seed.stage.<stage>.<lang>` | en / fr | A seed! / Une graine ! · A sprout! / Une pousse ! · A bud! / Un bouton ! · A flower! / Une fleur ! | Plant start (seed) and each new stage on naming levels; flower only on bloom levels |
 | `he.praise.0` | he | existing recorded clip | Every bloom |
 
 - **World and PWA wiring:** Nature Lab keeps `entryGameId: who-is-hiding`, and its building now opens a picker (`NATURE_LAB_PICKER_GAMES`). New `AppScreen` `seed-flower` (not safe for a mid-game update).
@@ -135,3 +135,4 @@ Only after Maor approves the finished Pass 1: polished plant-stage art and growt
 ## Changelog
 
 - `2026-11-13` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-13` — review fixes (#65): the seed is named at plant start on naming levels; L1 trial count documented; bloom reports celebrating — minor

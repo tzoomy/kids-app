@@ -9,6 +9,8 @@ import { bloomFor, planForLevel, seedHeLine, speaksStage, stageLine, trialForGro
 import { nextRoundLanguage } from '@/games/restaurant/trialTracker';
 import { NATURE_LAB_PICKER_GAMES } from '@/ui/picker/pickerModel';
 import seedJson from '@/content/games/seed-to-flower.json';
+import { resolvePickerAsset } from '@/ui/picker/pickerAssets';
+import heStrings from '@/content/i18n/he.json';
 
 function memoryDriver(): StorageDriver {
   const map = new Map<string, string>();
@@ -137,6 +139,9 @@ describe('Seed to Flower: levels, adaptive trials and content', () => {
     expect(speaksStage(l2, 'flower')).toBe(true);
     expect(speaksStage(l4, 'sprout')).toBe(true);
     expect(speaksStage(l4, 'bud')).toBe(true);
+    // The seed is named at plant start on naming levels only.
+    expect(speaksStage(l4, 'seed')).toBe(true);
+    expect(speaksStage(l2, 'seed')).toBe(false);
   });
 
   it('[AC-01] the Nature Lab picker lists Who\'s Hiding? first and Seed to Flower second; bloom art cycles through existing blooms', () => {
@@ -144,6 +149,11 @@ describe('Seed to Flower: levels, adaptive trials and content', () => {
       ['who-is-hiding', 'game-picker-who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'game-picker-seed-to-flower', 'SeedFlowerScene'],
     ]);
+    for (const g of NATURE_LAB_PICKER_GAMES) {
+      expect(() => resolvePickerAsset(g.assetKey)).not.toThrow();
+      expect((heStrings.gamePicker as Record<string, string>)[g.labelKey]).toBeTruthy();
+    }
+    expect(heStrings.gamePicker.natureLabTitle).toBeTruthy();
     expect(bloomFor(content, 0)).toBe(content.blooms[0]);
     expect(bloomFor(content, content.blooms.length)).toBe(content.blooms[0]);
   });

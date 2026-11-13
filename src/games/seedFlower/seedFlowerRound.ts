@@ -32,7 +32,7 @@ export function trialForGrowth(event: Extract<PlantEvent, { kind: 'grew' }>, hin
   return { itemId: event.to, firstTryCorrect: !event.stepOutOfOrder, hinted };
 }
 
-/** Whether a newly reached stage is spoken on this level. */
+/** Whether a stage is spoken on this level: every stage (the seed at plant start) on naming levels, else only the flower. */
 export function speaksStage(plan: SeedFlowerPlan, stage: StageId): boolean {
   return plan.naming === 'all' || stage === 'flower';
 }

@@ -536,7 +536,6 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
   );
 }
 
-
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
 export async function seedSeedFlowerLevel(page: Page, level: number): Promise<void> {
   await callHook<void>(page, 'seedSeedFlowerLevel', [level]);

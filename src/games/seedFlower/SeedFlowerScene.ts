@@ -22,6 +22,7 @@ import type { SpeechRequest } from '../../core/audio/types';
 import { applyTool, createPlant, nextTool, stageId, type PlantEvent, type PlantState, type StageId, type Tool } from './seedFlowerMachine';
 import { bloomFor, planForLevel, seedHeLine, speaksStage, stageLine, trialForGrowth, type SeedFlowerPlan } from './seedFlowerRound';
 import type { SeedFlowerInfo } from './seedFlowerTypes';
+import { disposePlantView } from './plantView';
 
 let cachedContent: SeedToFlowerContent | null = null;
 function content(): SeedToFlowerContent {
@@ -190,7 +191,7 @@ export class SeedFlowerScene extends Phaser.Scene {
 
   /** Rebuilds the plant for the current stage, foot at the soil line. */
   private renderPlant(stage: StageId): Phaser.GameObjects.Container {
-    this.plantView?.destroy();
+    disposePlantView(this.tweens, this.plantView);
     const view = this.add.container(this.layout.plantX, this.layout.groundY).setDepth(DEPTH.plant);
     const u = 1.15;
     const tex = (key: string | undefined) => (key && this.textures.exists(key) ? key : undefined);
@@ -306,7 +307,8 @@ export class SeedFlowerScene extends Phaser.Scene {
     const token = ++this.plantToken;
     const c = content();
     const settings = this.context.store.getState().settings;
-    // One plant = one engine round (3 growth steps), in one language.
+    // The level and language are read only here, at the start of a plant, so they never change mid-plant.
+    // A 4-stage plant is one engine round (3 trials); an L1 plant (3 stages) is 2 trials (see the spec).
     this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), settings.languages);
     this.levelNo = this.skills.level(this.lang);
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
@@ -321,10 +323,14 @@ export class SeedFlowerScene extends Phaser.Scene {
       this.ready = true;
       this.scheduleHint();
     });
-    if (this.introPending) {
-      this.introPending = false;
-      void this.speak(seedHeLine(c, this.plan.mode === 'free' ? 'intro.free' : 'intro.ordered'));
-    }
+    const intro = this.introPending ? seedHeLine(c, this.plan.mode === 'free' ? 'intro.free' : 'intro.ordered') : undefined;
+    this.introPending = false;
+    // On naming levels the seed itself is named too (after the intro on the first plant of a visit).
+    const seedLine = speaksStage(this.plan, 'seed') ? stageLine(c, 'seed', this.lang) : undefined;
+    void (async () => {
+      if (intro) await this.speak(intro);
+      if (seedLine && token === this.plantToken && this.sys.isActive()) await this.speak(seedLine);
+    })();
   }
 
   private scheduleHint(): void {
@@ -414,6 +420,8 @@ export class SeedFlowerScene extends Phaser.Scene {
     this.hintTimer?.remove();
     this.context.sfx.yay();
     this.session.complete();
+    // Watching the bloom celebration counts as participation until the next seed (also set by complete()).
+    this.session.reportCelebrating(true);
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();
