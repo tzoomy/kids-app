@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 114 292 L 114 332 C 114 344, 166 344, 166 332 L 166 292 Z" fill="#7A4B2A"/>
+    <path d="M 114 318 C 126 334, 154 334, 166 318 L 166 332 C 166 344, 114 344, 114 332 Z" fill="#5C4338"/>
+    <path d="M 114 292 L 114 332 C 114 344, 166 344, 166 332 L 166 292" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Tall shrub: three stacked leaf lobes, slightly narrower at the top -->
+    <path d="M 54 250 C 36 200, 60 164, 100 154 C 96 110, 124 78, 160 80 C 198 70, 236 104, 222 150 C 254 162, 262 206, 236 248 C 254 280, 220 316, 140 318 C 60 316, 32 278, 54 250 Z" fill="#57C457"/>
+    <path d="M 64 270 C 80 304, 110 310, 140 310 C 170 310, 210 304, 224 270 C 200 294, 170 298, 140 298 C 110 298, 82 294, 64 270 Z" fill="#3CA33C"/>
+    <path d="M 112 112 C 128 94, 160 92, 178 110 C 154 104, 130 104, 112 112 Z" fill="#8AE07E"/>
+    <path d="M 86 176 C 102 158, 134 158, 150 176" fill="none" stroke="#8AE07E" stroke-width="7"/>
+    <circle cx="200" cy="128" r="8" fill="#E03E5B"/>
+    <circle cx="214" cy="142" r="6" fill="#E03E5B"/>
+    <circle cx="198" cy="125" r="2.4" fill="#FFFDF9"/>
+    <path d="M 54 250 C 36 200, 60 164, 100 154 C 96 110, 124 78, 160 80 C 198 70, 236 104, 222 150 C 254 162, 262 206, 236 248 C 254 280, 220 316, 140 318 C 60 316, 32 278, 54 250 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>
