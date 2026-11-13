@@ -222,6 +222,8 @@ export class ShadowScene extends Phaser.Scene {
     this.session.reportInteraction();
     this.helpOpen = true;
     this.hintTimer?.remove();
+    // Help cut the intro short: play it again when the card closes.
+    if (this.introPlaying) this.introPending = true;
     const content = this.context.content.shadow;
     const seq = ++this.speakSeq;
     this.introPlaying = false;

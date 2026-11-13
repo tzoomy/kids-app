@@ -312,6 +312,20 @@ test.describe('shadow match: hints and help', () => {
     await waitForSpokenLine(page, isRetry, 10_000, before);
   });
 
+  test('[AC-18] @single-orientation help opened during the intro: the intro plays again once the card closes', async ({ page }) => {
+    landscapeOnly(test.info());
+    test.setTimeout(60_000);
+    await installE2eTts(page, 2500);
+    const info = await enter(page, 'profile-a', { lang: 'en' });
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'he.shadow.intro', 8_000);
+    await page.locator('[data-testid="hud-help"]').click();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    await waitForSpokenLine(page, (l) => l.lineId === 'he.shadow.help', 8_000, intro.index + 1);
+    await closeHelpCard(page);
+    const again = await waitForSpokenLine(page, (l) => l.lineId === 'he.shadow.intro', 10_000, intro.index + 1);
+    await waitForSpokenLine(page, (l) => l.lineId === `shadow.${info.targetId}.sound.en`, 10_000, again.index + 1);
+  });
+
   test('[AC-18] @single-orientation age 2: the idle hint repeats while the child stays idle', async ({ page }) => {
     landscapeOnly(test.info());
     test.setTimeout(60_000);
