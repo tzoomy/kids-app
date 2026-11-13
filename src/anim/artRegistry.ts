@@ -107,6 +107,11 @@ export function flowerArtKey(name: string): string | undefined {
   return keyForUrl(`art/flowers/${name}.svg`);
 }
 
+/** Map building art (`art/buildings/<world-id>.svg`); the procedural building is the fallback. */
+export function buildingArtKey(worldId: string): string | undefined {
+  return keyForUrl(`art/buildings/${worldId}.svg`);
+}
+
 export function itemArtKey(name: string): string | undefined {
   return keyForUrl(`art/items/${name}.svg`);
 }

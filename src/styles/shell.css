@@ -642,3 +642,21 @@ body {
   justify-content: flex-start;
   padding-top: 8vmin;
 }
+
+/* Empty picker (Science World before its games land): one gentle "coming soon" card. */
+.picker-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  max-width: 520px;
+  padding: 32px;
+  border-radius: 28px;
+  border: 6px dashed #3b2a22;
+  background: #eef3ff;
+  color: #3b2a22;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+}

@@ -6,7 +6,7 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES, SCIENCE_WORLD_PICKER_GAMES } from '../ui/picker/pickerModel';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -112,6 +112,27 @@ export class MapScene extends Phaser.Scene {
           });
           return;
         }
+        if (world.id === 'science-world') {
+          // Science World is its own map area; its games are listed in SCIENCE_WORLD_PICKER_GAMES.
+          // Until the first game lands, the picker shows a gentle "coming soon" card.
+          const t = context.content.he.gamePicker;
+          context.shell.showGamePicker({
+            games: SCIENCE_WORLD_PICKER_GAMES,
+            title: t.scienceWorldTitle,
+            emptyText: t.scienceWorldEmpty,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          if (SCIENCE_WORLD_PICKER_GAMES.length === 0) void context.audio.play(heLine('map.comingSoon'));
+          return;
+        }
         if (world.entryGameId === 'animal-restaurant') {
           transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
         } else if (world.entryGameId === 'who-is-hiding') {
@@ -129,6 +150,7 @@ export class MapScene extends Phaser.Scene {
         'language-house': context.content.he.worldMap.languageHouse,
         'number-garden': context.content.he.worldMap.numberGarden,
         'nature-lab': context.content.he.worldMap.natureLab,
+        'science-world': context.content.he.worldMap.scienceWorld,
         'art-studio': context.content.he.worldMap.artStudio,
         'leisure-corner': context.content.he.worldMap.leisureCorner,
       };
