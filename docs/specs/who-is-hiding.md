@@ -1,6 +1,6 @@
 # `who-is-hiding` — Who's Hiding?
 
-Status: **draft — pending owner approval**
+Status: **approved**
 Pass in progress: **none**
 
 > **Retroactive spec.** This describes the game as implemented on PR #29 (branch `feat/game-hiding`, commit `3fd6d7e`), which is **not on `main` yet**. File references below are to that commit (read with `git show 3fd6d7e:<path>`). Where the code differs from the research proposal or from the template's expectations, this spec describes the code and lists the difference as needed work or as an open decision.
@@ -24,7 +24,7 @@ Source: `docs/research/games-per-world.md` §4.3 Game B (branch `origin/docs/gam
 ## World and why
 
 - **World:** Nature Lab (`nature-lab`).
-- **Why this game belongs there:** the Nature Lab's goal is creatures, curiosity, and cause and effect (`docs/WORLDS.md`, "Nature Lab"; world table: "Creatures, cause and effect, curiosity"). The research document calls Who's Hiding? "the cheapest way to open a new world" because it reuses the choice/serve template (bushes instead of plates) and the existing animal art. `docs/WORLDS.md` lists "Who Lives Here?" as the first Nature Lab candidate; it does not describe Who's Hiding? yet. **Open decision for the owner:** confirm Who's Hiding? as the Nature Lab entry game (`entryGameId`) instead of, or before, "Who Lives Here?", and whether `docs/WORLDS.md` should get a Who's Hiding? section.
+- **Why this game belongs there:** the Nature Lab's goal is creatures, curiosity, and cause and effect (`docs/WORLDS.md`, "Nature Lab"; world table: "Creatures, cause and effect, curiosity"). The research document calls Who's Hiding? "the cheapest way to open a new world" because it reuses the choice/serve template (bushes instead of plates) and the existing animal art. `docs/WORLDS.md` lists "Who Lives Here?" as the first Nature Lab candidate; it does not describe Who's Hiding? yet. **Decided by the owner (2026-11-13):** Who's Hiding? is the Nature Lab entry game (`entryGameId`), before "Who Lives Here?". Implementation item: add a Who's Hiding? section to `docs/WORLDS.md` (not edited in this spec change).
 
 ## Mechanic
 
@@ -50,7 +50,7 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 - **Hint on an audio-only level (L7–L8):** nothing visual changes; the `hint` SFX plays and the request is spoken followed by the animal's descriptive clue (`hintFor`, line id `hiding.<id>.hint.clue.<lang>`).
 - **A second hint can follow a wrong tap:** the idle timer is not cancelled by a wrong tap, so on age 2 a child who taps wrong early can get the wrong-tap hint and then the idle hint at 6 s. This is the same as the restaurant. See the open decisions.
 
-**Help card:** the HUD help button opens the Hebrew help card (`content.helpTextHe`). Opening it stops all audio, supersedes any pending speech, and reports **not listening** to the leisure session, because this game has no Hebrew help clip and nothing is playing (fix in commit `3fd6d7e`, "stop counting an open help card as listening"). Replays are ignored while the card is open. Closing it repeats the request if the request is still open and ready.
+**Help card:** the HUD help button opens the Hebrew help card (`content.helpTextHe`). Opening it stops all audio and supersedes any pending speech. Today (commit `3fd6d7e`) it then reports **not listening**, because there is no help clip (fix "stop counting an open help card as listening"). **Target (Pass 1, decided 2026-11-13):** after stopping audio it plays `he.hiding.help` and reports listening only while that clip plays, like the restaurant; when the clip ends (or fails) it reports not listening again. Replays are ignored while the card is open. Closing it stops the help clip and repeats the request if the request is still open and ready. The intro (`he.hiding.intro`) plays once per visit before the first request and counts as listening while it plays.
 
 **Leaving the game:** the HUD back button (⬅️) stops audio, persists the store, clears the bubble, and returns to the map with an iris transition (`goBack`). On scene shutdown, `cleanup()` ends the learning session (`session.exit()`) and the adaptive visit (`skills.endVisit()`). Switching profile (`returnToProfileSelect`/`pickProfile` in `src/main.ts`) also stops `HidingScene`. A hidden tab stops audio and never earns (`visibilitychange`).
 
@@ -92,7 +92,7 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 
 - `session.start()` on scene create; a 1 s loop calls `session.tick(1)`, persists the store, and updates the HUD balance and daily-cap progress bar.
 - Every bush tap (correct or wrong), replay, and help open/close calls `reportInteraction()`; speaking the request or a hint reports listening while it plays; a correct answer calls `complete()` (celebrating) until the next request starts.
-- Opening the help card reports **not listening** (no Hebrew help clip in this game; commit `3fd6d7e`). In the restaurant the help card plays the `restaurant.help` clip and reports listening while it plays.
+- Opening the help card reports **not listening** on `3fd6d7e` (no help clip yet). **Target (Pass 1):** it plays `he.hiding.help` and reports listening only while the clip plays, the same as the restaurant's `restaurant.help`; the Hebrew intro also counts as listening while it plays.
 - A hidden tab never earns (`setHidden`). Mistakes never reduce the balance; balances are per profile through `context.store.getProfileState(profileId, …)` and never mix. The daily earn cap comes from `settings.dailyEarnCapMinutes`.
 - On exit `session.exit()` clears the listening and celebrating flags.
 
@@ -136,7 +136,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-05 | One real-tap level change at a low level (for example a seeded age-2 profile at L2 rises to L3 after three clean answers and the next engine round shows 3 bushes with same-category neighbours) | 1 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
 | AC-06 | High levels play correctly: seeded L7 and L8 entered from the map show 5 and 6 bushes, no text bubble, a sound-only request (L8 the short sound word), and accept a correct tap | 1 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
 | AC-07 | A new age-2 profile starts at L2 and a new age-5 profile at L5; both tracks have min 1 and max 8 (no age-2 ceiling) | 1 | unit | @single-orientation | |
-| AC-08 | Leisure accrues through `LearningSession` as specified (interaction, listening, celebrating; not while hidden; not while only the help card is open), never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
+| AC-08 | Leisure accrues through `LearningSession` as specified (interaction, listening, celebrating; not while hidden; not while the help card is open and no help clip is playing), never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
 | AC-09 | Content and language: every animal has EN/FR name, sound, short sound and clue; the request language follows the parent's language setting | 1 | unit | @single-orientation | |
 | AC-10 | Each voice line requests the right line id, language and text (request, hint, found line, Hebrew retry/praise/leisure-earned) through a speech spy | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`, `getSpokenLineCount` |
 | AC-11 | Smoke: a request can be answered at `1280x800` and `800x1280` with all bushes on screen | 1 | e2e | both | `getRoundInfo`, `getBuildingHit` |
@@ -154,12 +154,18 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-23 | A trial is recorded exactly once, on the first accepted bush tap; a double tap within 400 ms counts as one try; a hint after a recorded miss changes nothing | 1 | e2e | @single-orientation | `getRoundInfo` |
 | AC-24 | After a level drop the next target is a known animal; the same animal is not asked twice in a row | 1 | unit | @single-orientation | |
 | AC-25 | The request language stays fixed for the 3 trials of an engine round and is re-picked at the boundary (or early if the parent disables it) | 1 | unit | @single-orientation | |
-| AC-26 | Help card: opening it stops audio, does not count as listening, blocks replays and postpones the idle hint; closing it repeats the open request | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testids `hud-help`, `help-card`, `help-card-close` |
+| ~~AC-26~~ | ~~Help card: opening it stops audio, does not count as listening, blocks replays and postpones the idle hint; closing it repeats the open request~~ Superseded by AC-35 (the help card now plays a help clip) | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testids `hud-help`, `help-card`, `help-card-close` |
 | AC-27 | Input is tap-only on both tracks: an age-5 profile answers by tapping a bush (no drag) | 1 | e2e | @single-orientation | `getRoundInfo`, `getBuildingHit` |
 | AC-28 | Layout: 2–6 bushes fit in both orientations with non-overlapping hit areas inside the screen and below the speaker button | 1 | unit | @single-orientation | |
 | AC-29 | The `hiding` screen is unsafe for a mid-game PWA update; profile and map stay safe | 1 | unit | @single-orientation | |
 | AC-30 | Nature Lab is open on the map with `entryGameId` `who-is-hiding`; the skill key `nature-lab.who-is-hiding.<lang>` is distinct from the restaurant's | 1 | unit | @single-orientation | |
 | AC-31 | The content schema rejects bad track bounds, missing or unsupported levers, bad prompt frames, duplicate animal ids, and same-category levels without a look-alike group | 1 | unit | @single-orientation | |
+| AC-32 | The Hebrew intro `he.hiding.intro` plays exactly once per visit, before the first request, and not again on later requests; leaving to the map and re-entering plays it once more | 1 | e2e | @single-orientation | `getSpokenLines`, `getRoundInfo`, `getBuildingHit`; testid `hud-back` |
+| AC-33 | Tapping the help pill plays `he.hiding.help` (and opens the help card) | 1 | e2e | @single-orientation | `getSpokenLines`; testids `hud-help`, `help-card` |
+| AC-34 | The clips `audio/he/hiding-intro.mp3` and `audio/he/hiding-help.mp3` exist, `voice-lines-he.json` has `hiding.intro` and `hiding.help` (non-empty text), and the `audio-manifest.json` rows and text hashes match | 1 | unit | @single-orientation | |
+| AC-35 | Help card (replaces AC-26): opening it stops audio, plays the help clip and counts as listening only while the clip plays, blocks replays and postpones the idle hint; closing it stops the clip and repeats the open request | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testids `hud-help`, `help-card`, `help-card-close` |
+| AC-36 | Pass 2: more look-alike pairs (animals with new art) are in the content and every `same-category` request still places a look-alike | 2 | unit | @single-orientation | |
+| AC-37 | Pass 2: a clue-only request level and a two-clue request level exist and are reachable on the age-5 track | 2 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
 
 ### Existing test mapping (retroactive)
 
@@ -192,7 +198,13 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 | AC-23 | `tests/e2e/hiding.spec.ts` — `a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial`; `tests/unit/hidingRound.test.ts` — `records once on the first accepted tap: a wrong tap is the miss, later taps record nothing`; `tests/unit/hidingRound.test.ts` — `a hint after the miss was recorded changes nothing` | — |
 | AC-24 | — | No game-level test (only the generic engine tests on `main`) |
 | AC-25 | `tests/unit/hidingRound.test.ts` — `the language stays fixed within a round and is re-picked at the boundary` | Tests the shared helper, not the scene's use of `atRoundBoundary` |
-| AC-26 | — | No test of the help-card fix |
+| ~~AC-26~~ | — | Superseded by AC-35 |
+| AC-32 | — | New (2026-11-13); no test |
+| AC-33 | — | New; no test |
+| AC-34 | — | New; no test |
+| AC-35 | — | New; no test (replaces AC-26) |
+| AC-36 | — | Pass 2; no test |
+| AC-37 | — | Pass 2; no test |
 | AC-27 | `tests/e2e/hiding.spec.ts` — `a clean correct tap completes the trial and starts the next round` | Age-2 profile only; no age-5 tap test |
 | AC-28 | `tests/unit/hidingRound.test.ts` — `fits every bush count in both orientations without overlapping hit areas` | — |
 | AC-29 | — | `tests/unit/pwaUpdatePolicy.test.ts` does not cover `hiding` |
@@ -222,10 +234,12 @@ Needed before `Pass in progress` can move to `1`:
 - **AC-22:** a check that nothing visual changes on an audio-only hint.
 - **AC-24:** a unit test that a drop serves a known animal and the same animal is not repeated.
 - **AC-25:** a scene-level check that the language is constant across an engine round.
-- **AC-26:** a help-card test (open with `hud-help`, close by tapping `help-card-close`; stops audio, not listening, closing repeats the request).
+- **AC-35 (replaces AC-26):** a help-card test (open with `hud-help`, close by tapping `help-card-close`; stops audio, plays the help clip and listens only while it plays, closing repeats the request).
+- **AC-32, AC-33, AC-34:** intro once per visit and help-pill line through the speech spy; clips, text and hashes exist for `he.hiding.intro` and `he.hiding.help` (record with `scripts/tts/generate_voice.py`).
 - **AC-27:** an age-5 tap test.
 - **AC-29:** add `hiding` to the PWA update-policy test.
-- **AC-15:** Pass 2 only.
+- **AC-15:** Pass 2 only (the Hebrew intro and help clips are Pass 1, AC-34).
+- **AC-36, AC-37:** Pass 2 only.
 
 ## Art, animation, and audio
 
@@ -236,9 +250,9 @@ Needed before `Pass in progress` can move to `1`:
   - `prop-bush-round-front` → `art/props/bush-round-front.svg` (360 × 280)
   - `prop-bush-tall-back` → `art/props/bush-tall-back.svg` (280 × 360)
   - `prop-bush-tall-front` → `art/props/bush-tall-front.svg` (280 × 360)
-  - `nature-lab-bg-landscape` → `art/scenes/nature-lab/bg-landscape.svg` (1280 × 800)
-  - `nature-lab-bg-portrait` → `art/scenes/nature-lab/bg-portrait.svg` (800 × 1280)
-  - The scene folder is named `nature-lab`, the world id, although the template asks for scene folders named per scene or game. **Open decision for the owner:** keep `scenes/nature-lab/` or rename it (for example `scenes/hiding/`) before a second Nature Lab game shares the world.
+  - `hiding-bg-landscape` → `art/scenes/hiding/bg-landscape.svg` (1280 × 800)
+  - `hiding-bg-portrait` → `art/scenes/hiding/bg-portrait.svg` (800 × 1280)
+  - **Decided by the owner (2026-11-13):** rename the scene art folder to `public/art/scenes/hiding/` (named after the game, as the template asks). **Implementation item:** on `3fd6d7e` the files are `art/scenes/nature-lab/bg-landscape.svg` and `bg-portrait.svg` under the manifest keys `nature-lab-bg-landscape` / `nature-lab-bg-portrait`; move the files, rename the keys to `hiding-bg-*` (the names above are the target), and update `src/assets/art/manifest.ts`, the scene's use of the keys, and `tests/unit/artAssets.test.ts`.
   - Animals: the six existing animal kinds (cat, lion, bear, panda, dog, rabbit) through `Character` with `kind` from the content, i.e. the existing restaurant animal art; no new `CHARACTER_RIGS` entry.
   - Procedural fallbacks keep the game playable without art: green ellipses for bushes and a sky/grass fill for the background (`bushImage`, `paintBackground`).
 - **SVG contract:** the bush and scene SVGs come from PR #18 and are covered by `tests/unit/artAssets.test.ts` on `3fd6d7e` (size and content rules).
@@ -260,18 +274,20 @@ Needed before `Pass in progress` can move to `1`:
 | `he.retry.<n>` (`heVariant('retry')`) | he | Existing shared retry line | First wrong tap of a request (before the hint on age 2, before the request on age 5) |
 | `he.praise.<n>` (`heVariant('praise')`) | he | Existing shared praise line | Every 3rd correct answer of the visit |
 | `he.leisure.earned` (`heLine('leisure.earned')`) | he | Existing shared line | After a correct answer when the balance crossed a whole minute and no praise is due |
+| `he.hiding.intro` | he | New recorded Leda clip (Pass 1), same pattern as `he.restaurant.intro`. Meaning: welcome to the meadow, animals are hiding behind the bushes, listen to who is wanted and tap the right bush. Feminine singular, addressing one girl, natural for ages 2–5. The Hebrew text is authored in `src/content/voice-lines-he.json` as `hiding.intro` | Once per visit, before the first request |
+| `he.hiding.help` | he | New recorded Leda clip (Pass 1), same pattern as `he.restaurant.help`. Meaning: listen to the request, look for the animal that is peeking out, tap its bush, and tap the speaker to hear it again. Feminine singular, ages 2–5. The Hebrew text is authored in `src/content/voice-lines-he.json` as `hiding.help` | The help pill (HUD ❓) is tapped |
 
-  `{name}`, `{sound}`, `{soundShort}`, `{clue}` come from each animal in `src/content/games/who-is-hiding.json`. There is **no Hebrew intro line and no Hebrew help line** for this game (the help card is text only).
+  `{name}`, `{sound}`, `{soundShort}`, `{clue}` come from each animal in `src/content/games/who-is-hiding.json`. **Decided by the owner (2026-11-13):** Pass 1 adds a recorded Hebrew intro (`he.hiding.intro`) and help line (`he.hiding.help`), Leda clips like the restaurant's (`he.restaurant.intro`, `he.restaurant.help`). Each needs a `voice-lines-he.json` entry (`hiding.intro`, `hiding.help`), an `audio-manifest.json` row (`audio/he/hiding-intro.mp3`, `audio/he/hiding-help.mp3`), the clip, and its text hash. The intro plays once per visit before the first request (the restaurant's `introPending` pattern); the help clip plays when the help pill opens the help card, which stays shown with its text. The Hebrew wording is not written in this spec because repository documentation is English only; it is authored in the voice-lines file at implementation and reviewed by the owner with the clips.
 - **World and PWA wiring:** `nature-lab` `entryGameId: "who-is-hiding"`, `earnsLeisure: true`, `status: "open"`; `AppScreen` `'hiding'` unsafe for mid-game updates (see Player journey).
 
 ### Pass 2 — polish
 
-- Not started. Candidates: richer bush and meadow art, a peek/hide idle loop using the unused `peekFromBush`/`hideInBush`, more animals with art (more look-alike pairs), a Hebrew intro and help clip.
-- Recorded Gemini TTS clips (voice Leda) for the voice table, rendered with `scripts/tts/generate_voice.py`; device TTS stays the fallback. No `voice-lines-he.json` entries or `audio-manifest.json` rows without the clip and its text hash.
+- Not started. Candidates: richer bush and meadow art, a peek/hide idle loop using the unused `peekFromBush`/`hideInBush`, more animals with art (more look-alike pairs, AC-36), clue-only and two-clue request levels (AC-37).
+- Recorded Gemini TTS clips (voice Leda) for the EN/FR lines of the voice table (the Hebrew intro and help clips are Pass 1), rendered with `scripts/tts/generate_voice.py`; device TTS stays the fallback. No `voice-lines-he.json` entries or `audio-manifest.json` rows without the clip and its text hash.
 
 ## Out of scope
 
-- A clue-only request level and "two clues combined" (research age-5 ladder); describing-word requests.
+- Clue-only and two-clue request levels (research age-5 ladder) are Pass 2 (AC-37), not Pass 1; describing-word requests.
 - Animals without existing art (for example a tiger), and more than six animals.
 - Response-time scoring (`useResponseTime` stays false) and drag input.
 - Parent tools specific to this game.
@@ -280,23 +296,26 @@ Needed before `Pass in progress` can move to `1`:
 
 ## Open decisions for the owner
 
+All open decisions were resolved by the owner on 2026-11-13.
+
 - **Decided by the owner (2026-11-12):** L7–L8 keep the ear-level peek (`reveal` 0.3) instead of a fully invisible animal; "audio-only" means only that the request has no text bubble. Fully hidden animals would make the level a pure guess with one animal per bush.
-- **Open decision for the owner:** L8 "short sound" is a shorter sound word (`soundShort`, for example "Meow!"), not an 800 ms sound, because device TTS cannot be timed. Revisit with recorded clips in Pass 2.
-- **Open decision for the owner:** limited look-alike pairs: only six animals have art, giving three pairs (cat/lion, bear/panda, dog/rabbit). Each `same-category` request has exactly one look-alike; dog/rabbit are grouped as "pets" and do not look alike much.
-- **Open decision for the owner:** no Hebrew intro and no Hebrew help audio; the help card is text only (unlike the restaurant, which plays `restaurant.help`).
-- **Open decision for the owner:** a second hint can follow a wrong tap (age 2: the wrong-tap hint and then the 6 s idle hint), the same as the restaurant. Keep, or cancel the idle timer after a wrong tap.
+- **Decided by the owner (2026-11-13):** the `soundShort` word is accepted for L8 (a shorter sound word, for example "Meow!", not an 800 ms sound). Revisit with recorded clips in Pass 2.
+- **Decided by the owner (2026-11-13):** the three look-alike pairs (cat/lion, bear/panda, dog/rabbit) are accepted; each `same-category` request has exactly one look-alike. More pairs are Pass 2 (AC-36).
+- **Decided by the owner (2026-11-13):** add a recorded Hebrew intro and help line in Pass 1 (`he.hiding.intro`, `he.hiding.help`, Leda clips like the restaurant's); see the voice table and AC-32 to AC-35. This replaces the earlier text-only help card.
+- **Decided by the owner (2026-11-13):** keep the second hint after a wrong tap (age 2: the wrong-tap hint and then the 6 s idle hint), the same as the restaurant.
 - **Decided by the owner (2026-11-12):** age 5 gets no idle auto-hint (same as the restaurant); a hint comes only after a mistake. This is intended behaviour.
-- **Open decision for the owner:** no age-2 ceiling: an age-2 profile can climb to the audio-only levels L7–L8.
-- **Open decision for the owner:** no tablet check yet (AC-14 has not run).
-- **Open decision for the owner:** merge order with PR #18: the art branch `feat/art-hiding-orchestra` (PR #18) was merged into PR #29 (`d479c07`). PR #29 is based on `924114e`, before Kitchen Orchestra (#28) landed on `main`; `main` already has the orchestra and chef art and its own `src/anim/worldMotion.ts`, `profiles.ts`, `manifest.ts`, `createGame.ts`, `MapScene.ts`, `main.ts` and `updatePolicy.ts` (`AppScreen` with `'orchestra'`) changes. PR #29 needs a rebase onto `main` with additive merges of these shared registries, and PR #18 should be closed or merged first so the art lands once.
+- **Decided by the owner (2026-11-13):** no age-2 ceiling (confirmed): an age-2 profile can climb to the audio-only levels L7–L8.
+- **Decided by the owner (2026-11-13):** accepted as written: the tablet check (AC-14) has not run yet and stays a Pass 1 device criterion.
+- **Decided by the owner (2026-11-13):** merge order with PR #18: the art branch `feat/art-hiding-orchestra` (PR #18) was merged into PR #29 (`d479c07`). PR #29 is based on `924114e`, before Kitchen Orchestra (#28) landed on `main`; `main` already has the orchestra and chef art and its own `src/anim/worldMotion.ts`, `profiles.ts`, `manifest.ts`, `createGame.ts`, `MapScene.ts`, `main.ts` and `updatePolicy.ts` (`AppScreen` with `'orchestra'`) changes. PR #29 needs a rebase onto `main` with additive merges of these shared registries. Merge order: PR #18 first, then rebase PR #29.
 - **Decided by the owner (2026-11-12):** the minimum tap-target size is 64 px. Whether the 88-unit speaker button meets it on the tablet is part of the tablet check (AC-14).
-- **Open decision for the owner:** Who's Hiding? as the Nature Lab entry game rather than "Who Lives Here?", and a Who's Hiding? section in `docs/WORLDS.md`.
-- **Open decision for the owner:** the scene art folder is named after the world (`scenes/nature-lab/`) rather than the game.
-- **Open decision for the owner:** the research ladder's clue-only and two-clue requests are not implemented (clues appear only in audio-only hints); add them as levels later or leave out of scope.
-- **Open decision for the owner:** age-2 start at L2 (3 bushes) instead of the research proposal's 2 bushes.
+- **Decided by the owner (2026-11-13):** Who's Hiding? is the Nature Lab entry game rather than "Who Lives Here?"; a Who's Hiding? section is added to `docs/WORLDS.md` as an implementation item.
+- **Decided by the owner (2026-11-13):** rename the scene art folder to `public/art/scenes/hiding/` (implementation item).
+- **Decided by the owner (2026-11-13):** clue-only and two-clue request levels are Pass 2 (AC-37); in Pass 1 clues appear only in audio-only hints.
+- **Decided by the owner (2026-11-13):** the age-2 start at L2 (3 bushes) is confirmed.
 
 ## Changelog
 
 - `2026-11-12` — created (retroactive spec of the existing game) — substantive
 - `2026-11-12` — applied owner decisions: minimum tap target 64 px; age 5 has no idle auto-hint, a hint comes only after a mistake (intended behaviour); L7–L8 keep the ear-level peek — minor
 - `2026-11-12` — aligned test handles with the shared names in draft PR #37 (`hud-back`, `hud-help`, `prompt-bubble`, `help-card`, `help-card-close`, `getBuildingHit` in page CSS pixels, `getSpokenLines` / `getSpokenLineCount`, `enterWorldByTap`) — minor
+- 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (Nature Lab entry game, scene folder `scenes/hiding/`, L8 short sound word, three look-alike pairs, Hebrew intro and help clips in Pass 1, second hint kept, no age-2 ceiling, merge order PR #18 then PR #29, clue-only levels Pass 2, age-2 start L2); 6 ACs added (AC-32 to AC-37; AC-26 superseded by AC-35) — substantive
