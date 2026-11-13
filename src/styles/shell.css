@@ -115,9 +115,11 @@ body {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 1vmin 2vmin;
-  min-height: 48px;
+  min-height: 64px; /* owner minimum tap target */
+  min-width: 64px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   border: none;
   font: inherit;
@@ -346,7 +348,8 @@ body {
 }
 
 .shell-prompt-bubble {
-  top: 7.4vmin;
+  /* Below the 64 CSS px HUD pills: top bar offset + pill height + a small gap. */
+  top: calc(max(1.5vmin, env(safe-area-inset-top)) + 64px + 1.2vmin);
   padding: 0.8vmin 2.6vmin;
   font-size: clamp(18px, 3.6vmin, 30px);
   /* left: 50% would otherwise shrink-wrap the text to half the screen and force two lines. */
@@ -356,7 +359,6 @@ body {
 
 @media (min-aspect-ratio: 1/1) {
   .shell-prompt-bubble {
-    top: 7.4vmin;
     max-width: min(70vw, 640px);
   }
 }
@@ -380,4 +382,195 @@ body {
   background: #fff;
   padding: 12px 0 4px;
   margin-top: 4px;
+}
+
+/* Language House game picker (design: PR #36). Whole card and close button are big tap targets (>= 64 CSS px). */
+.shell-game-picker {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 36px;
+  color: #3b2a22;
+  font-family: 'Noto Sans Hebrew', 'Arial Hebrew', Tahoma, system-ui, sans-serif;
+}
+.picker-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center; /* 1280x800 bg (#40), cover in portrait */
+}
+.picker-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 42, 34, 0.42);
+}
+.picker-panel {
+  position: relative;
+  width: min(1180px, 100%);
+  height: min(740px, 100%);
+  background: #fff6e8;
+  border: 6px solid #3b2a22;
+  border-radius: 36px;
+  box-shadow: 0 18px 0 rgba(59, 42, 34, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 28px 24px;
+}
+.picker-header {
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  min-height: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.picker-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 140px;
+  text-align: center;
+}
+.picker-close {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 120px;
+  height: 120px;
+  min-width: 64px;
+  min-height: 64px;
+  border: 6px solid #3b2a22;
+  border-radius: 50%;
+  background: #fffdf9;
+  color: #3b2a22;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 0 rgba(59, 42, 34, 0.16);
+  overflow: hidden;
+  padding: 0;
+}
+.picker-close-x {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+}
+.picker-close:focus-visible {
+  outline: 4px solid #e5be94;
+  outline-offset: 4px;
+}
+.picker-cards {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 0;
+  container-type: size; /* cards are sized from this box (cqw/cqh) so they stay exactly 4:5 */
+}
+.picker-card {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 6px solid #3b2a22;
+  border-radius: 28px;
+  background: #fffdf9;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  position: relative;
+  flex: 0 0 auto;
+  /* Exactly 4:5 (the 640x800 card art), as large as fits: two side by side in landscape. */
+  aspect-ratio: 4 / 5;
+  width: min(calc((100cqw - 28px) / 2), 80cqh);
+  min-height: 64px;
+  box-shadow: 0 8px 0 rgba(59, 42, 34, 0.14);
+  text-align: center;
+  color: inherit;
+  font: inherit;
+}
+.picker-card:focus-visible {
+  outline: 4px solid #c9842a;
+  outline-offset: 6px;
+}
+.picker-card-art {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff3e0;
+}
+.picker-art-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  pointer-events: none;
+}
+.picker-art-real {
+  /* Real cards are 640x800 (#40): show the whole picture, no crop. */
+  object-fit: contain;
+  object-position: center;
+}
+.picker-close-real {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.picker-card-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff6e8;
+  border-top: 4px solid #3b2a22;
+  padding: 12px 16px 14px;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+@media (orientation: portrait) {
+  .shell-game-picker {
+    padding: 20px 16px;
+  }
+  .picker-panel {
+    height: 100%;
+    padding: 24px 18px 22px;
+  }
+  .picker-title {
+    font-size: 26px;
+    margin: 0 132px;
+  }
+  .picker-header {
+    margin-bottom: 6px;
+  }
+  .picker-close {
+    top: 0;
+  }
+  .picker-cards {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .picker-card {
+    /* Stacked: each card gets half the height, and never more than the full width. */
+    width: min(100cqw, calc((100cqh - 20px) / 2 * 0.8));
+  }
+  .picker-card-label {
+    font-size: 24px;
+    padding: 10px 12px 12px;
+  }
 }

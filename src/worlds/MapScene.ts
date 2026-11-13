@@ -84,6 +84,21 @@ export class MapScene extends Phaser.Scene {
           }
           return;
         }
+        if (world.id === 'language-house') {
+          // Language House hosts two games: the child picks one (or closes the picker and stays on the map).
+          context.shell.showGamePicker({
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          return;
+        }
         if (world.entryGameId === 'animal-restaurant') {
           transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
         } else if (world.entryGameId === 'who-is-hiding') {
@@ -141,7 +156,10 @@ export class MapScene extends Phaser.Scene {
         void context.audio.play(heLine('map.choose'));
       });
     }
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => context.audio.stopAll());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      context.audio.stopAll();
+      context.shell.hideGamePicker();
+    });
 
     window.__GAME_READY__ = true;
   }

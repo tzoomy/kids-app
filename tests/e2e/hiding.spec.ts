@@ -190,7 +190,7 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
   });
 
   test('[AC-06] [AC-18] [AC-22] seeded L7 and L8 entered from the map are audio-only: no bubble, sound / short sound, and a correct tap still works', async ({ page }) => {
-    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 7) });
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', undefined, { beforeEnter: () => seedHidingLevel(page, 7) });
     let info = await waitForReady(page);
     expect(info.level).toBe(7);
     expect(info.speak).toBe('sound');
@@ -211,7 +211,7 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     await clickGame(page, c.x, c.y);
     await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
 
-    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 8) });
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', undefined, { beforeEnter: () => seedHidingLevel(page, 8) });
     info = await waitForReady(page);
     expect(info.level).toBe(8);
     expect(info.speak).toBe('sound');

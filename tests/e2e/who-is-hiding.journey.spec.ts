@@ -397,7 +397,7 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
   test('[AC-05] @single-orientation age-2 climbs from seeded L2 to L3 after three clean trials; L3 has a same-category neighbour', async ({ page }) => {
     test.skip(test.info().project.name !== 'landscape-1280x800');
     test.setTimeout(120_000);
-    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 2) });
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', undefined, { beforeEnter: () => seedHidingLevel(page, 2) });
     await waitForSpokenLine(page, isIntro, 15_000);
     let stars = 0;
     const playCleanOnLevel = async (level: number, count: number): Promise<void> => {

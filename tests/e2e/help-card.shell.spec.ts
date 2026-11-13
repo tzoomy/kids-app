@@ -37,7 +37,7 @@ test.describe('help card: tapping the card does not close it; the dimmer does', 
   });
 
   test('[AC-39] orchestra help card itself does not close; the dimmer does', async ({ page }) => {
-    await enterWorldByTap(page, 'profile-a', 'art-studio');
+    await enterWorldByTap(page, 'profile-a', 'language-house', 'kitchen-orchestra'); // Kitchen Orchestra is in Language House (picker) on main
     await waitForScene(page, 'OrchestraScene');
     await expect(page.locator('[data-testid="hud-help"]')).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(800);
