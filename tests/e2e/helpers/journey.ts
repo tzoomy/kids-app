@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { BalloonInfo } from '../../../src/games/balloon/types';
 
-export type { SortingInfo };
+export type { SortingInfo, BalloonInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -16,20 +17,21 @@ export const GAME_SCENE: Record<string, string> = {
   // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'who-is-hiding': 'HidingScene',
   'leisure-colouring': 'ColouringScene',
-  // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
+  // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
+  'balloon-pop': 'BalloonScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
   'nature-lab': 'who-is-hiding',
-  'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'number-garden': 'sorting-beds',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -135,6 +137,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  getBalloonInfo: () => BalloonInfo | null;
+  seedBalloonLevel: (level: number) => void;
 };
 
 type HookName = keyof Hooks;
@@ -279,7 +283,8 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
 
 /**
  * Taps the world's building and returns when the world's game scene is active.
- * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
+ * Language House and Number Garden open a game picker first: then `game-picker-<gameId>` is tapped
+ * (defaults: animal-restaurant, sorting-beds).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
 export async function enterWorldByTap(
@@ -529,5 +534,68 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
       return parsed.skills?.[skill] ?? null;
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
+  );
+}
+
+// ---------------------------------------------------------------------------------------------
+// Balloon Pop (docs/specs/balloon-pop.md). Hit rectangles from getBalloonInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's persisted Balloon Pop level for every language. Call from `beforeEnter` (on the map). */
+export async function seedBalloonLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedBalloonLevel', [level]);
+}
+
+export function getBalloonInfo(page: Page): Promise<BalloonInfo | null> {
+  return callHook<BalloonInfo | null>(page, 'getBalloonInfo');
+}
+
+/** Waits until every balloon has risen into place and taps are accepted. */
+export async function waitForBalloonReady(page: Page, timeout = 12_000): Promise<BalloonInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getBalloonInfo();
+      return info !== null && info.ready;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getBalloonInfo(page);
+  if (!info) throw new Error('no active Balloon Pop trial');
+  return info;
+}
+
+/** Real tap on the balloon holding `itemId`, using a fresh read of its hit rectangle. */
+export async function tapBalloon(page: Page, itemId: string): Promise<void> {
+  const info = await getBalloonInfo(page);
+  const balloon = info?.balloons.find((b) => b.itemId === itemId);
+  if (!balloon) throw new Error(`no balloon "${itemId}" in the active trial`);
+  await tapRect(page, balloon.hit);
+}
+
+/** Waits for a ready trial, taps the requested balloon for real, and waits until the next trial is ready. Returns the info read before the tap. */
+export async function popCorrectBalloon(page: Page, timeout = 15_000): Promise<BalloonInfo> {
+  const before = await waitForBalloonReady(page, timeout);
+  await tapBalloon(page, before.targetItemId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getBalloonInfo(page);
+    if (info && info.ready && info.correctCount > before.correctCount) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the requested balloon did not start the next trial');
+    await page.waitForTimeout(50);
+  }
+}
+
+/** The persisted Balloon Pop skill of a profile (read-only localStorage read). */
+export async function readBalloonSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `number-garden.balloon-pop.${lang}`] as const,
   );
 }

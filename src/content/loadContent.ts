@@ -4,6 +4,7 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import balloonPopJson from './games/balloon-pop.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -13,12 +14,14 @@ import {
   SortingBedsContentSchema,
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
+  BalloonPopContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
   type LeisureColouringContent,
+  type BalloonPopContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -49,6 +52,10 @@ export function loadSortingBeds(): SortingBedsContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadBalloonPop(): BalloonPopContent {
+  return BalloonPopContentSchema.parse(balloonPopJson);
 }
 
 export function loadAudioManifest(): AudioManifest {
