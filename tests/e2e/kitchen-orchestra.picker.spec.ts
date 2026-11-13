@@ -125,6 +125,29 @@ test.describe('language house game picker', () => {
 });
 
 test.describe('kitchen orchestra: map journey', () => {
+  test('[AC-01] the game opens only from the Language House building: no other building opens it or the picker', async ({ page }) => {
+    test.setTimeout(90_000);
+    // Real taps on every other building, each from a fresh map. Art Studio, Number Garden and Nature Lab are locked
+    // (toast only). Leisure Corner opens Bubbles only when the leisure balance is above 0 (its own rule), so it may leave
+    // the map; whatever it does, it must never open Kitchen Orchestra, Animal Restaurant or the picker.
+    for (const worldId of ['art-studio', 'number-garden', 'nature-lab', 'leisure-corner']) {
+      await tapWorldBuilding(page, 'profile-a', worldId);
+      await page.waitForTimeout(1500); // let any (wrongly) triggered scene transition finish
+      const scenes = await getActiveScenes(page);
+      expect(scenes, `${worldId} must not open Kitchen Orchestra`).not.toContain('OrchestraScene');
+      expect(scenes, `${worldId} must not open Animal Restaurant`).not.toContain('RestaurantScene');
+      await expect(page.locator('[data-testid="game-picker-kitchen-orchestra"]'), `${worldId} must not open the picker`).toHaveCount(0);
+      if (worldId !== 'leisure-corner') expect(scenes, `${worldId} stays on the map`).toContain('MapScene');
+    }
+
+    // Only the Language House building opens the picker, and only its card opens the game.
+    await tapWorldBuilding(page, 'profile-a', 'language-house');
+    await page.locator('[data-testid="game-picker-kitchen-orchestra"]').waitFor({ state: 'visible', timeout: 10_000 });
+    expect(await getActiveScenes(page)).not.toContain('OrchestraScene');
+    await tapTestId(page, 'game-picker-kitchen-orchestra');
+    await waitForScene(page, 'OrchestraScene');
+  });
+
   test('[AC-01] real-tap journey: profile -> Language House -> picker -> Kitchen Orchestra -> one 3-trial round -> back to the map', async ({ page }) => {
     test.setTimeout(90_000);
     await enterWorldByTap(page, 'profile-a', 'language-house', 'kitchen-orchestra');
