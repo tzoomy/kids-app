@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main Banana Body -->
+    <path d="M188 38 C202 52 222 108 190 168 C158 228 84 238 40 208 C28 200 32 182 48 180 C92 174 134 150 154 110 C170 78 168 54 174 38 C177 30 183 33 188 38 Z" fill="#FFD43B"/>
+    <!-- Shadow along lower outer curve -->
+    <path d="M202 82 C210 112 204 142 190 168 C158 228 84 238 40 208 C35 204 33 198 34 192 C82 214 144 202 174 152 C192 122 198 96 196 72 C198 75 200 78 202 82 Z" fill="#EAA814"/>
+    <!-- Highlight along inner top curve -->
+    <path d="M68 184 C112 176 150 148 168 106 C175 90 178 74 180 62" fill="none" stroke="#FFF2A6" stroke-width="10"/>
+    <circle cx="54" cy="187" r="4.5" fill="#FFFDF9"/>
+    <!-- Ridge line -->
+    <path d="M48 196 C104 204 158 176 182 126 C194 100 196 72 188 48" fill="none" stroke="#EAA814" stroke-width="4"/>
+    <!-- Top Stem Tip -->
+    <path d="M172 42 C174 28 180 22 190 25 C198 28 196 38 191 46 C185 48 176 47 172 42 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Bottom Tip -->
+    <path d="M42 209 C32 205 26 196 30 187 C33 181 40 180 46 182 C42 190 40 200 42 209 Z" fill="#7A4B2A" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Outer Outline -->
+    <path d="M190 44 C206 64 220 114 190 168 C158 228 84 238 40 208 C28 200 32 182 48 180 C92 174 134 150 154 110 C168 82 168 58 173 42" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

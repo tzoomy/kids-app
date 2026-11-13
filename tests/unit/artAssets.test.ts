@@ -90,6 +90,28 @@ describe('real art manifest', () => {
     expect(closeEntry?.height).toBeGreaterThanOrEqual(64);
   });
 
+  it('registers all eight food colour variants and resolves foodArtKey with optional colour', () => {
+    const expectedVariants: Array<[string, string, string]> = [
+      ['apple', 'red', 'food-apple-red'],
+      ['apple', 'green', 'food-apple-green'],
+      ['banana', 'yellow', 'food-banana-yellow'],
+      ['banana', 'green', 'food-banana-green'],
+      ['grapes', 'purple', 'food-grapes-purple'],
+      ['grapes', 'green', 'food-grapes-green'],
+      ['pear', 'green', 'food-pear-green'],
+      ['pear', 'yellow', 'food-pear-yellow'],
+    ];
+    const manifestKeys = new Set(ART_MANIFEST.map((e) => e.key));
+    for (const [foodId, color, expectedKey] of expectedVariants) {
+      expect(manifestKeys.has(expectedKey), `${expectedKey} in manifest`).toBe(true);
+      expect(foodArtKey(foodId, color)).toBe(expectedKey);
+    }
+    expect(foodArtKey('apple')).toBe('food-apple');
+    expect(foodArtKey('banana')).toBe('food-banana');
+    expect(foodArtKey('grapes')).toBe('food-grapes');
+    expect(foodArtKey('pear')).toBe('food-pear');
+  });
+
   it('registers Sorting Beds flower-basket and layered back/front props with matching dimensions', () => {
     const keys = ['flower-basket', 'flower-basket-back', 'flower-basket-front'] as const;
     const entries = keys.map((key) => {
