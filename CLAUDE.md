@@ -25,3 +25,12 @@ You are the lead developer for logic, wiring, test handles and hooks, and tests-
 ## Review
 
 If you were asked only to review, do not edit files. Write a concrete critique: risks, gaps, alternatives, and what requires Maor's approval.
+
+## Claude Code hooks
+
+Project hooks live in committed `.claude/settings.json` and `.claude/hooks/`. See the [hooks reference](https://code.claude.com/docs/en/hooks) for exit codes: **exit 2** blocks the action (or, on `Stop`, keeps Claude working) and the reason is written to stderr.
+
+- **Push guard** (`PreToolUse` on Bash): blocks `git push` to `main` or `master`, including explicit refspecs such as `HEAD:main`, a plain push while the current branch is `main`/`master`, and any push with `--force`, `-f`, or `--force-with-lease`.
+- **Changed-file check** (`Stop`): if `git diff` against `HEAD` includes TypeScript files, runs `tsc --noEmit` and `vitest related --run` on those files (project-local binaries). No TS changes, or a missing local toolchain, skips the check. Failures are reported back to Claude (exit 2).
+
+Do not merge to `main`. Use a feature branch and a pull request.
