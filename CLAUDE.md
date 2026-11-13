@@ -25,3 +25,15 @@ You are the lead developer for logic, wiring, test handles and hooks, and tests-
 ## Review
 
 If you were asked only to review, do not edit files. Write a concrete critique: risks, gaps, alternatives, and what requires Maor's approval.
+
+## Claude Code hooks
+
+Project hooks live in committed `.claude/settings.json` and `.claude/hooks/`. See the [hooks reference](https://code.claude.com/docs/en/hooks) for exit codes: **exit 2** blocks the action (or, on `Stop`, keeps Claude working) and the reason is written to stderr.
+
+- **Push guard** (`PreToolUse` on Bash): blocks `git push` to `main` or `master`, including explicit refspecs such as `HEAD:main`, a plain push while the current branch is `main`/`master`, and any force push: `--force`, `-f`, `--force-with-lease`, or a `+refspec` (for example `+feat/x`). The current branch is taken from `git -C <dir>` or a leading `cd <dir> &&`, relative to the hook input `cwd`, otherwise from the input `cwd`. Pushes wrapped in `bash -c` / `sh -c` are inspected recursively. It is a best-effort policy check, not a security boundary.
+  - **Fails open** (exit 0) for empty or invalid stdin, non-Bash tools, and commands that are not a push.
+  - **Fails closed** (exit 2 with a reason) when a `git push` is present but cannot be analysed: unterminated quotes, shell expansion (`$VAR`, `$(...)`, backticks) in the push, an unknown current branch for a bare push, or an internal error while analysing the push. Rewrite the command in a simpler, explicit form.
+- **Changed-file check** (`Stop`): runs in the top level of the hook input `cwd` (falling back to `$CLAUDE_PROJECT_DIR`, then the script's repo). If the changed files (`git diff` against `HEAD` plus new untracked, non-ignored files) include TypeScript, it runs `tsc --noEmit` and `vitest related --run` on the existing changed files (deleted paths are skipped for vitest). Failures from tsc or vitest are reported back to Claude (exit 2).
+  - **Fails open** (exit 0) on its own problems so it never traps the session: `stop_hook_active` is true (no loops), no TS changes, no usable repo, missing local `tsc`/`vitest`, or an internal error such as `mktemp` failing.
+
+Do not merge to `main`. Use a feature branch and a pull request.
