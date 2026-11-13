@@ -116,6 +116,13 @@ export class ColouringScene extends Phaser.Scene {
     this.buildChrome();
     this.tickTimer = this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
     void this.say(COLOURING_VOICE.intro);
+    // If the visit starts already at or below 30 s, play the warning now rather
+    // than waiting for the first 1 s tick (fills and tools must not be blamed
+    // for that line).
+    if (this.isLow()) {
+      this.warnedLow = true;
+      void this.say(COLOURING_VOICE.lowWarning);
+    }
 
     this.loadArt(() => void this.loadAllPages());
     window.__GAME_READY__ = true;
