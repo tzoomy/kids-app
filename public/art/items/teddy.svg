@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Round teddy ears -->
+    <circle cx="76" cy="52" r="26" fill="var(--item-fill, #C87D4B)"/>
+    <circle cx="76" cy="52" r="14" fill="#FAD9B8" stroke-width="4"/>
+    <circle cx="180" cy="52" r="26" fill="var(--item-fill, #C87D4B)"/>
+    <circle cx="180" cy="52" r="14" fill="#FAD9B8" stroke-width="4"/>
+
+    <!-- Outstretched stubby arms -->
+    <ellipse cx="56" cy="148" rx="30" ry="20" transform="rotate(-24 56 148)" fill="var(--item-fill, #C87D4B)"/>
+    <ellipse cx="200" cy="148" rx="30" ry="20" transform="rotate(24 200 148)" fill="var(--item-fill, #C87D4B)"/>
+
+    <!-- Chubby sitting body -->
+    <ellipse cx="128" cy="168" rx="56" ry="52" fill="var(--item-fill, #C87D4B)"/>
+    <path d="M84 198 C104 218 152 218 172 198 C160 218 96 218 84 198 Z" fill="var(--item-shadow, #A96032)" stroke="none"/>
+    <!-- Cream tummy patch -->
+    <ellipse cx="128" cy="168" rx="34" ry="32" fill="#FAD9B8" stroke-width="5"/>
+
+    <!-- Sitting legs and paw pads -->
+    <ellipse cx="78" cy="206" rx="28" ry="24" transform="rotate(-12 78 206)" fill="var(--item-fill, #C87D4B)"/>
+    <ellipse cx="78" cy="208" rx="15" ry="13" transform="rotate(-12 78 208)" fill="#FAD9B8" stroke-width="4"/>
+    <ellipse cx="178" cy="206" rx="28" ry="24" transform="rotate(12 178 206)" fill="var(--item-fill, #C87D4B)"/>
+    <ellipse cx="178" cy="208" rx="15" ry="13" transform="rotate(12 178 208)" fill="#FAD9B8" stroke-width="4"/>
+
+    <!-- Teddy head -->
+    <ellipse cx="128" cy="90" rx="58" ry="50" fill="var(--item-fill, #C87D4B)"/>
+    <!-- Head shadow under chin -->
+    <path d="M80 116 C100 138 156 138 176 116 C162 138 94 138 80 116 Z" fill="var(--item-shadow, #A96032)" stroke="none"/>
+    <!-- Head forehead highlight -->
+    <ellipse cx="106" cy="58" rx="22" ry="10" transform="rotate(-16 106 58)" fill="var(--item-highlight, #E09A6C)" stroke="none"/>
+    <ellipse cx="128" cy="90" rx="58" ry="50" fill="none"/>
+
+    <!-- Soft rosy cheeks -->
+    <ellipse cx="86" cy="98" rx="10" ry="6" fill="#FF8FA3" stroke="none"/>
+    <ellipse cx="170" cy="98" rx="10" ry="6" fill="#FF8FA3" stroke="none"/>
+
+    <!-- Friendly animal-art eyes -->
+    <circle cx="102" cy="82" r="7" fill="#3B2A22" stroke="none"/>
+    <circle cx="100" cy="80" r="2.5" fill="#FFFDF9" stroke="none"/>
+    <circle cx="154" cy="82" r="7" fill="#3B2A22" stroke="none"/>
+    <circle cx="152" cy="80" r="2.5" fill="#FFFDF9" stroke="none"/>
+
+    <!-- Cream muzzle, nose, and gentle smile -->
+    <ellipse cx="128" cy="104" rx="24" ry="18" fill="#FAD9B8" stroke-width="5"/>
+    <ellipse cx="128" cy="96" rx="9" ry="6" fill="#3B2A22" stroke="none"/>
+    <path d="M128 101 L128 108" fill="none" stroke-width="4"/>
+    <path d="M118 108 Q128 117 138 108" fill="none" stroke-width="4"/>
+  </g>
+</svg>

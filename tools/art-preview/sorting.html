@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorting Beds — Art Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px 24px 32px;
+    }
+    h1 { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 18px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 1280px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06);
+    }
+    .label { font-size: 15px; font-weight: 800; padding: 10px 14px 6px; }
+    .note { font-size: 12px; color: #5C4338; padding: 0 14px 8px; }
+    .stage {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      overflow: hidden;
+      background: #B8E6FF;
+    }
+    .stage.wide { height: 460px; }
+    .stage img.bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 62%;
+    }
+    .bed {
+      position: absolute;
+      width: 240px;
+      height: 120px;
+      /* Large, obvious tap target for age 2 */
+    }
+    .bed .hit {
+      position: absolute; inset: -12px -8px 0;
+      border: 3px dashed rgba(240, 196, 100, 0.0);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+    .bed.target .hit {
+      border-color: rgba(255, 209, 102, 0.95);
+      background: rgba(255, 209, 102, 0.18);
+    }
+    .bed img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+    .bed .bed-back { z-index: 1; }
+    .bed .bed-front { z-index: 4; }
+    .flower {
+      position: absolute;
+      width: 72px;
+      height: 110px;
+      z-index: 3;
+      transform-origin: 50% 100%;
+    }
+    .flower.large { width: 86px; height: 150px; }
+    .flower .stem, .flower .bloom { position: absolute; left: 0; width: 100%; display: block; }
+    .flower .stem { bottom: 0; height: 70%; z-index: 1; }
+    .flower .bloom { bottom: 48%; height: 58%; z-index: 2; }
+    .flower.large .stem { height: 72%; }
+    .flower.large .bloom { bottom: 52%; height: 50%; }
+    .sign {
+      position: absolute;
+      width: 110px;
+      height: 142px;
+      z-index: 5;
+    }
+    .sign img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .sign .icon {
+      position: absolute;
+      left: 22%;
+      top: 18%;
+      width: 56%;
+      height: 44%;
+      object-fit: contain;
+      z-index: 3;
+      transform-origin: 50% 50%;
+    }
+    .state-switch .sign .icon { animation: ruleFlip 1.6s ease-in-out infinite; }
+    .state-drop .flower.dropping { animation: dropSettle 1.8s ease-in-out infinite; }
+    @keyframes ruleFlip {
+      0%, 100% { transform: scaleX(1); }
+      40% { transform: scaleX(0); }
+      55% { transform: scaleX(0); }
+      80% { transform: scaleX(1); }
+    }
+    @keyframes dropSettle {
+      0% { transform: translate(120px, -150px) scale(1) rotate(-8deg); }
+      55% { transform: translate(0, 0) scale(0.92) rotate(0deg); }
+      70% { transform: translate(0, 6px) scale(1.06, 0.86); }
+      85% { transform: translate(0, 0) scale(0.96, 1.04); }
+      100% { transform: translate(0, 0) scale(0.92); }
+    }
+    .strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      padding: 8px 14px 16px;
+      background: #FFF6E8;
+    }
+    .strip .flower { position: relative; width: 64px; height: 120px; }
+    .strip .flower.large { width: 72px; height: 150px; }
+    .chip { font-size: 11px; font-weight: 700; color: #5C4338; text-align: center; width: 64px; }
+    .icons { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 14px 16px; align-items: center; }
+    .icons img { width: 72px; height: 72px; background: #FFF6E8; border-radius: 16px; border: 2px solid #E5BE94; padding: 6px; }
+    @media (prefers-reduced-motion: reduce) {
+      .flower.dropping, .sign .icon { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Sorting Beds — Number Garden art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Beds are large tap-to-send targets. Flowers layer stem + bloom; color and shape are separate variants.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Garden scene — two beds, path flowers, current rule</div>
+      <div class="note">Age-2 layout: two obvious beds, one color rule, flowers ready to send. The highlighted bed is the clear target.</div>
+      <div class="stage wide" id="scene-ready"></div>
+    </div>
+    <div class="row">
+      <div class="card">
+        <div class="label">Drop and settle</div>
+        <div class="note">A flower flies into the target bed and squashes softly as it lands.</div>
+        <div class="stage state-drop" id="scene-drop"></div>
+      </div>
+      <div class="card">
+        <div class="label">Rule switch</div>
+        <div class="note">The sign flips from a color rule (red) to a shape rule (tulip).</div>
+        <div class="stage state-switch" id="scene-switch"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Flower attributes — color × shape, two sizes</div>
+      <div class="note">Each bloom is a recolorable SVG (CSS variables with hex fallbacks). Size is a separate stem asset.</div>
+      <div class="strip" id="flower-strip"></div>
+    </div>
+    <div class="card">
+      <div class="label">Rule-sign icons</div>
+      <div class="note">Color, shape, and size icons that swap onto the plaque.</div>
+      <div class="icons" id="icon-strip"></div>
+    </div>
+  </div>
+
+  <script>
+    const ART = '../../public/art';
+
+    function flowerEl(shape, color, size, extraClass) {
+      const el = document.createElement('div');
+      el.className = 'flower ' + (size === 'large' ? 'large ' : '') + (extraClass || '');
+      const stem = document.createElement('img');
+      stem.className = 'stem';
+      stem.src = `${ART}/flowers/stem-${size}.svg`;
+      stem.alt = `${size} stem`;
+      const bloom = document.createElement('img');
+      bloom.className = 'bloom';
+      bloom.src = `${ART}/flowers/bloom-${shape}-${color}.svg`;
+      bloom.alt = `${color} ${shape}`;
+      el.appendChild(stem);
+      el.appendChild(bloom);
+      return el;
+    }
+
+    function bedEl(left, bottom, isTarget) {
+      const el = document.createElement('div');
+      el.className = 'bed' + (isTarget ? ' target' : '');
+      el.style.left = left;
+      el.style.bottom = bottom;
+      const back = document.createElement('img');
+      back.className = 'bed-back';
+      back.src = `${ART}/props/garden-bed-back.svg`;
+      back.alt = 'flower bed';
+      const front = document.createElement('img');
+      front.className = 'bed-front';
+      front.src = `${ART}/props/garden-bed-front.svg`;
+      front.alt = '';
+      const hit = document.createElement('div');
+      hit.className = 'hit';
+      el.appendChild(back);
+      el.appendChild(hit);
+      el.appendChild(front);
+      return el;
+    }
+
+    function signEl(icon, left, bottom) {
+      const el = document.createElement('div');
+      el.className = 'sign';
+      el.style.left = left;
+      el.style.bottom = bottom;
+      const post = document.createElement('img');
+      post.src = `${ART}/props/rule-sign-post.svg`;
+      post.alt = 'rule sign';
+      const plaque = document.createElement('img');
+      plaque.src = `${ART}/props/rule-sign-plaque.svg`;
+      plaque.alt = '';
+      const ic = document.createElement('img');
+      ic.className = 'icon';
+      ic.src = `${ART}/props/${icon}.svg`;
+      ic.alt = icon.replace('rule-icon-', 'rule: ');
+      el.appendChild(post);
+      el.appendChild(plaque);
+      el.appendChild(ic);
+      return el;
+    }
+
+    function fillScene(stage, mode) {
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/scenes/number-garden/bg-landscape.svg`;
+      bg.alt = '';
+      stage.appendChild(bg);
+
+      const bedA = bedEl('8%', '10%', true);
+      const bedB = bedEl('52%', '10%', false);
+      stage.appendChild(bedA);
+      stage.appendChild(bedB);
+
+      const icon = mode === 'switch' ? 'rule-icon-shape-tulip' : 'rule-icon-color-red';
+      stage.appendChild(signEl(icon, '78%', '38%'));
+
+      if (mode === 'ready') {
+        const pathFlowers = [
+          ['tulip', 'red', 'small', '12%', '36%'],
+          ['daisy', 'yellow', 'large', '28%', '32%'],
+          ['round', 'blue', 'small', '40%', '38%'],
+          ['tulip', 'yellow', 'large', '22%', '28%'],
+        ];
+        for (const [shape, color, size, left, bottom] of pathFlowers) {
+          const f = flowerEl(shape, color, size);
+          f.style.left = left;
+          f.style.bottom = bottom;
+          f.style.zIndex = '6';
+          stage.appendChild(f);
+        }
+      }
+
+      if (mode === 'drop') {
+        const settled = flowerEl('tulip', 'red', 'small');
+        settled.style.left = '18%';
+        settled.style.bottom = '28%';
+        settled.classList.add('dropping');
+        stage.appendChild(settled);
+        const waiting = flowerEl('daisy', 'red', 'large');
+        waiting.style.left = '36%';
+        waiting.style.bottom = '36%';
+        waiting.style.zIndex = '6';
+        stage.appendChild(waiting);
+      }
+
+      if (mode === 'switch') {
+        const inBed = flowerEl('tulip', 'red', 'small');
+        inBed.style.left = '16%';
+        inBed.style.bottom = '26%';
+        stage.appendChild(inBed);
+        const inBed2 = flowerEl('tulip', 'yellow', 'large');
+        inBed2.style.left = '24%';
+        inBed2.style.bottom = '22%';
+        stage.appendChild(inBed2);
+      }
+    }
+
+    fillScene(document.getElementById('scene-ready'), 'ready');
+    fillScene(document.getElementById('scene-drop'), 'drop');
+    fillScene(document.getElementById('scene-switch'), 'switch');
+
+    const strip = document.getElementById('flower-strip');
+    for (const size of ['small', 'large']) {
+      for (const shape of ['tulip', 'daisy', 'round']) {
+        for (const color of ['red', 'yellow', 'blue']) {
+          const wrap = document.createElement('div');
+          wrap.style.textAlign = 'center';
+          wrap.appendChild(flowerEl(shape, color, size));
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = `${size} ${color} ${shape}`;
+          wrap.appendChild(chip);
+          strip.appendChild(wrap);
+        }
+      }
+    }
+
+    const icons = [
+      'rule-icon-color-red', 'rule-icon-color-yellow', 'rule-icon-color-blue',
+      'rule-icon-shape-tulip', 'rule-icon-shape-daisy', 'rule-icon-shape-round',
+      'rule-icon-size-small', 'rule-icon-size-large',
+    ];
+    const iconStrip = document.getElementById('icon-strip');
+    for (const name of icons) {
+      const img = document.createElement('img');
+      img.src = `${ART}/props/${name}.svg`;
+      img.alt = name.replace('rule-icon-', '');
+      iconStrip.appendChild(img);
+    }
+
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>

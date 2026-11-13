@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Right short felt leg from hip (y=380) down to shoe (y=446) -->
+    <rect x="206" y="380" width="40" height="66" rx="18" ry="18" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Right leg highlight -->
+    <rect x="212" y="388" width="10" height="46" rx="5" ry="5" fill="#FFE7CF"/>
+    <!-- Right leg shadow -->
+    <path d="M 232 386 L 240 386 L 240 436 Q 240 442 226 442 L 226 434 Q 232 434 232 386 Z" fill="#E5BF98"/>
+    <!-- Cozy sock top band -->
+    <rect x="206" y="424" width="40" height="16" rx="6" ry="6" fill="#FFF6E8" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+  <g id="fills" stroke="none">
+    <path id="apple-stem" fill="#FFFDF9" d="M 306 184 C 304 148 310 114 322 92 C 330 90 344 96 342 108 C 332 130 328 156 328 184 Z" />
+    <path id="apple-leaf" fill="#FFFDF9" d="M 336 136 C 368 94 442 90 476 124 C 446 164 384 166 333 148 Z" />
+    <path id="apple-body" fill="#FFFDF9" d="M 306 184 C 248 152 138 178 128 300 C 118 430 204 540 286 544 C 306 545 315 534 320 534 C 325 534 334 545 354 544 C 436 540 522 430 512 300 C 502 178 392 152 328 184 Z" />
+  </g>
+  <g id="outlines" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 306 184 C 304 148 310 114 322 92 C 330 90 344 96 342 108 C 332 130 328 156 328 184" />
+    <path d="M 336 136 C 368 94 442 90 476 124 C 446 164 384 166 333 148 Z" />
+    <path d="M 306 184 C 248 152 138 178 128 300 C 118 430 204 540 286 544 C 306 545 315 534 320 534 C 325 534 334 545 354 544 C 436 540 522 430 512 300 C 502 178 392 152 328 184" />
+    <path d="M 278 180 C 296 192 338 192 356 180" stroke-width="5" />
+    <path d="M 356 138 C 388 126 424 124 452 126" stroke-width="4" />
+    <path d="M 178 260 C 168 300 170 346 184 382" stroke-width="4" />
+  </g>
+</svg>

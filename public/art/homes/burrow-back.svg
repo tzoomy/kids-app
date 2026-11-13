@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="400" height="280">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Grassy hill dome -->
+    <path d="M 26 226 C 22 116 98 46 200 46 C 302 46 378 116 374 226 C 340 242 270 248 200 248 C 130 248 60 242 26 226 Z" fill="#57C457" />
+    <!-- Hill top highlight -->
+    <path d="M 56 142 C 82 78 136 54 200 54 C 264 54 318 78 344 142 C 304 94 254 74 200 74 C 146 74 96 94 56 142 Z" fill="#8AE07E" stroke="none" />
+    <!-- Hill lower shadow -->
+    <path d="M 32 204 C 66 230 130 240 200 240 C 270 240 334 230 368 204 L 372 224 C 338 240 270 246 200 246 C 130 246 62 240 28 224 Z" fill="#3CA33C" stroke="none" />
+
+    <!-- Top grass tuft -->
+    <path d="M 178 48 C 172 28 184 20 194 36 C 202 18 216 20 212 40 C 224 28 234 36 222 50" fill="#8AE07E" />
+
+    <!-- Warm soil rim around burrow mouth -->
+    <path d="M 84 228 C 80 132 128 88 200 88 C 272 88 320 132 316 228 C 276 244 124 244 84 228 Z" fill="#C9894B" />
+    <!-- Soil arch highlight -->
+    <path d="M 98 168 C 108 116 146 96 200 96 C 254 96 292 116 302 168 C 284 128 248 110 200 110 C 152 110 116 128 98 168 Z" fill="#E8AA6B" stroke="none" />
+    <!-- Soil lower shadow -->
+    <path d="M 90 212 C 126 234 274 234 310 212 L 314 226 C 274 242 126 242 86 226 Z" fill="#8C5230" stroke="none" />
+
+    <!-- Generous dark rounded burrow opening (settle target) -->
+    <path d="M 114 218 C 110 144 146 112 200 112 C 254 112 290 144 286 218 C 256 232 144 232 114 218 Z" fill="#261710" />
+    <!-- Pale inner lip so a light animal (rabbit) has contrast at the opening edge -->
+    <path d="M 114 218 C 110 144 146 112 200 112 C 254 112 290 144 286 218 C 256 232 144 232 114 218 Z" fill="none" stroke="#FAD9B8" stroke-width="7" />
+    <!-- Subtle inner tunnel depth ring -->
+    <path d="M 122 186 C 126 142 156 120 200 120 C 244 120 274 142 278 186 C 264 152 236 134 200 134 C 164 134 136 152 122 186 Z" fill="#5C4338" stroke="none" />
+  </g>
+</svg>

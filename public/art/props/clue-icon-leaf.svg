@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Curved brown leaf petiole stem at bottom-left -->
+    <path d="M 24 136 C 34 126 44 116 54 106" fill="none" stroke="#3B2A22" stroke-width="14" />
+    <path d="M 24 136 C 34 126 44 116 54 106" fill="none" stroke="#7A4B2A" stroke-width="6" />
+
+    <!-- Plump storybook green leaf blade -->
+    <path d="M 44 116 C 26 84 44 40 84 28 C 106 22 126 24 136 24 C 136 34 138 54 132 76 C 120 116 76 134 44 116 Z" fill="#57C457" />
+
+    <!-- Upper leaf half light-green highlight -->
+    <path d="M 46 106 C 36 80 50 46 84 36 C 102 30 118 30 128 30 C 104 44 74 72 46 106 Z" fill="#8AE07E" stroke="none" />
+
+    <!-- Lower leaf curve shadow -->
+    <path d="M 52 114 C 80 124 114 108 126 72 C 130 56 130 42 130 34 C 134 52 132 74 122 94 C 108 120 78 128 52 114 Z" fill="#3CA33C" stroke="none" />
+
+    <!-- Central vein and two gentle side veins -->
+    <path d="M 46 114 Q 84 76 122 38" fill="none" stroke="#3B2A22" stroke-width="5" />
+    <path d="M 70 90 Q 66 70 76 56" fill="none" stroke="#3B2A22" stroke-width="4" />
+    <path d="M 84 76 Q 102 80 112 68" fill="none" stroke="#3B2A22" stroke-width="4" />
+  </g>
+</svg>

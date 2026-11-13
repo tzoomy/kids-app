@@ -10,7 +10,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import type { AgeTrack } from './core/storage/schema';
 
@@ -26,6 +26,7 @@ const context = new AppContext(store, audioManager, sfx, {
   worlds: loadWorlds(),
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
+  sorting: loadSortingBeds(),
   hiding: loadWhosHiding(),
   colouring: loadLeisureColouring(),
   he: loadHeStrings(),
@@ -144,6 +145,8 @@ function returnToProfileSelect(): void {
   audioManager.stopAll();
   game?.scene.stop('RestaurantScene');
   game?.scene.stop('HidingScene');
+  game?.scene.stop('SortingScene');
+  game?.scene.stop('ColouringScene');
   game?.scene.stop('BubblesScene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
@@ -168,6 +171,8 @@ function pickProfile(profileId: string): void {
   } else {
     game.scene.stop('RestaurantScene');
     game.scene.stop('HidingScene');
+    game.scene.stop('SortingScene');
+    game.scene.stop('ColouringScene');
     game.scene.stop('BubblesScene');
     game.scene.start('MapScene');
   }

@@ -84,7 +84,7 @@ Basic animation and basic voice only: device TTS or recorded clips that already 
 - **Asset paths and manifest keys:** under `public/art/` (`characters/`, `animals/`, `props/`, `foods/`, `instruments/`, `fx/`, `scenes/<scene-or-game-name>/`), keyed in `src/assets/art/manifest.ts`. Scene folders are named per scene or game, never the world id (two games can share a world).
 - **SVG contract:** warm palette; dark-brown outline `#3B2A22` about 6 px; no heavy gradients or filters, no `<text>`, no external references, no rasters; each file under 15 KB (enforced by `tests/unit/artAssets.test.ts`); original assets only.
 - **Rigs:** origin at the feet centre on the 400 × 480 reference; heads without eyes and mouth (separate swappable parts). Say which rig map is used: `CHARACTER_RIGS` for new characters, not the restaurant `ANIMAL_KINDS` picker. Previews composite every layer.
-- **Layout:** landscape and portrait backgrounds. Tap targets: **Open decision for the owner:** minimum tap-target size (`docs/ARCHITECTURE.md` says about 64 px and up; the art reviews proposed 112 CSS px). If items do not fit at that size, pan or show fewer; never shrink them.
+- **Layout:** landscape and portrait backgrounds. Tap targets: **Decided by the owner (2026-11-13):** minimum 64 CSS px. If items do not fit at that size, pan or show fewer; never shrink them.
 - **RTL:** Hebrew UI chrome is RTL; English and French learning tokens stay LTR. Say whether the game reuses the existing HUD.
 - **Animation:** `ANIM_PROFILE` knobs (`src/anim/profiles.ts`) and motion helpers (`src/anim/worldMotion.ts`) to add or reuse. Unit tests import pure modules only, never Phaser.
 - **Voice table** (device TTS through `AudioManager.play({ lineId, lang, text })`):

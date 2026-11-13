@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color the World — Art Studio art preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #FFF6E8; color: #3B2A22; font-family: system-ui, sans-serif; padding: 20px 24px 40px; }
+    h1 { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .sub { text-align: center; font-size: 13px; color: #5C4338; margin-bottom: 18px; }
+    .card { background: #FFFDF9; border: 3px solid #E5BE94; border-radius: 22px; padding: 12px 16px 16px; margin: 0 auto 16px; max-width: 1280px; box-shadow: 0 6px 18px rgba(59,42,34,0.06); }
+    .label { font-weight: 800; font-size: 15px; }
+    .note { font-size: 12px; color: #5C4338; margin: 2px 0 8px; }
+    .pages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .page { background: #FFF6E8; border: 2px solid #E5BE94; border-radius: 16px; padding: 8px; text-align: center; }
+    .page .frame { position: relative; width: 100%; aspect-ratio: 1; background: #FFFDF9; border-radius: 12px; overflow: hidden; }
+    .page .frame svg, .page .frame .svg-host { width: 100%; height: 100%; display: block; }
+    .page span { display: block; font-size: 12px; font-weight: 700; margin-top: 6px; }
+    .stage { position: relative; height: 420px; border-radius: 16px; overflow: hidden; background: #F7DEC0; }
+    .stage img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+    .desk-page { position: absolute; left: 50%; top: 36px; width: 240px; height: 240px; transform: translateX(-70%); background: #FFFDF9; border-radius: 12px; box-shadow: 0 4px 12px rgba(59,42,34,0.12); overflow: hidden; z-index: 2; }
+    .desk-page .svg-host, .desk-page svg { width: 100%; height: 100%; display: block; }
+    .splash { position: absolute; left: 54%; top: 110px; width: 96px; height: 96px; z-index: 4; animation: splash-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+    .burst { position: absolute; left: 36%; top: 70px; width: 72px; height: 72px; z-index: 4; animation: splash-pop 0.42s ease-out both; }
+    @keyframes splash-pop { from { transform: scale(0.4); opacity: 0.2; } to { transform: scale(1.15); opacity: 1; } }
+    .crayon-row { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; gap: 8px; align-items: flex-end; z-index: 3; }
+    .crayon-row img { height: 110px; width: auto; }
+    .crayons { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; justify-content: center; }
+    .crayon { text-align: center; }
+    .crayon img { height: 132px; width: auto; }
+    .crayon span { display: block; font-size: 11px; margin-top: 4px; }
+    .pots, .mixes { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; }
+    .pots img { width: 88px; height: 88px; }
+    .mixes img { height: 96px; width: auto; }
+    .mix { text-align: center; }
+    .mix span { display: block; font-size: 11px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Color the World — Art Studio art preview</h1>
+  <p class="sub">Dev-only preview. No game logic. Line-art pages with stable region ids, close-shade crayons, mix-color visuals, and fill/splash.</p>
+
+  <div class="card">
+    <div class="label">Studio desk — sample region tint with splash and fill-burst</div>
+    <div class="note">The apple page is tinted (region-tint, not flood-fill). Splash and fill-burst use ANIM_PROFILE.color knobs. Crayons along the desk show close shades.</div>
+    <div class="stage" id="scene-studio"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Eight coloring pages (line art, then a sample fill)</div>
+    <div class="note">Each region is a separately fillable path with a stable id under &lt;g id="fills"&gt;, outlines on top.</div>
+    <div class="pages" id="pages-blank"></div>
+    <div class="note" style="margin-top:12px;">Sample fills (same pages, a few regions tinted):</div>
+    <div class="pages" id="pages-filled"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Crayon palette — close-shade variants</div>
+    <div class="note">Red, blue, and green families include light / base / dark (green: light + base) so age-5 requests can use close colors.</div>
+    <div class="crayons" id="crayons"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Paint pots and mix-color visuals</div>
+    <div class="note">Mix cards read left to right: color A, plus, color B, arrow, result. No text in the SVGs.</div>
+    <div class="pots" id="pots"></div>
+    <div class="mixes" id="mixes" style="margin-top:14px;"></div>
+  </div>
+
+  <script type="module">
+    const ART = '../../public/art';
+    const PAGES = {
+      apple: ['apple-body', 'apple-stem', 'apple-leaf'],
+      house: ['house-wall', 'house-roof', 'house-door', 'house-window', 'house-chimney', 'house-path'],
+      fish: ['fish-body', 'fish-tail', 'fish-fin', 'fish-eye'],
+      flower: ['flower-center','flower-petal-1','flower-petal-2','flower-petal-3','flower-petal-4','flower-petal-5','flower-stem','flower-leaf'],
+      car: ['car-body', 'car-cabin', 'car-window', 'car-wheel-left', 'car-wheel-right'],
+      sun: ['sun-disk', 'sun-ray-1', 'sun-ray-2', 'sun-ray-3', 'sun-ray-4', 'sun-ray-5', 'sun-ray-6'],
+      tree: ['tree-trunk', 'tree-foliage', 'tree-ground'],
+      balloon: ['balloon-body', 'balloon-highlight', 'balloon-string', 'balloon-bow'],
+    };
+    const SAMPLE = {
+      apple: { 'apple-body': '#F24C4C', 'apple-leaf': '#57C457', 'apple-stem': '#7A4B2A' },
+      house: { 'house-wall': '#FFF6E8', 'house-roof': '#EE6C62', 'house-door': '#8C5230', 'house-window': '#B8E6FF', 'house-chimney': '#C9894B', 'house-path': '#F0DEC2' },
+      fish: { 'fish-body': '#4D96FF', 'fish-tail': '#2B6FD6', 'fish-fin': '#8CC0FF', 'fish-eye': '#FFFDF9' },
+      flower: { 'flower-center': '#FFD43B', 'flower-petal-1': '#FF8FA3', 'flower-petal-2': '#FF8FA3', 'flower-petal-3': '#FF8FA3', 'flower-petal-4': '#FF8FA3', 'flower-petal-5': '#FF8FA3', 'flower-stem': '#57C457', 'flower-leaf': '#3CA33C' },
+      car: { 'car-body': '#4D96FF', 'car-cabin': '#FFF6E8', 'car-window': '#B8E6FF', 'car-wheel-left': '#3D3532', 'car-wheel-right': '#3D3532' },
+      sun: { 'sun-disk': '#FFD43B', 'sun-ray-1': '#F4A261', 'sun-ray-2': '#F4A261', 'sun-ray-3': '#F4A261', 'sun-ray-4': '#F4A261', 'sun-ray-5': '#F4A261', 'sun-ray-6': '#F4A261' },
+      tree: { 'tree-trunk': '#8C5230', 'tree-foliage': '#57C457', 'tree-ground': '#98D886' },
+      balloon: { 'balloon-body': '#EE6C62', 'balloon-highlight': '#FFFDF9', 'balloon-string': '#5C4338', 'balloon-bow': '#4D96FF' },
+    };
+    const CRAYONS = ['red','red-light','red-dark','orange','yellow','green','green-light','blue','blue-light','blue-dark','purple','pink','brown'];
+    const POTS = ['red','yellow','blue','orange','green','purple'];
+    const MIX = [
+      { id: 'orange', label: 'red + yellow → orange' },
+      { id: 'green', label: 'blue + yellow → green' },
+      { id: 'purple', label: 'red + blue → purple' },
+    ];
+
+    async function loadPage(name, fills) {
+      const res = await fetch(`${ART}/coloring/${name}.svg`);
+      const text = await res.text();
+      const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+      const svg = doc.documentElement;
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      if (fills) {
+        for (const [id, color] of Object.entries(fills)) {
+          const el = svg.getElementById(id);
+          if (el) el.setAttribute('fill', color);
+        }
+      }
+      const host = document.createElement('div');
+      host.className = 'svg-host';
+      host.appendChild(document.importNode(svg, true));
+      return host;
+    }
+
+    async function addPage(container, name, fills) {
+      const page = document.createElement('div');
+      page.className = 'page';
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+      frame.appendChild(await loadPage(name, fills));
+      const cap = document.createElement('span');
+      cap.textContent = name;
+      page.appendChild(frame);
+      page.appendChild(cap);
+      container.appendChild(page);
+    }
+
+    const blank = document.getElementById('pages-blank');
+    const filled = document.getElementById('pages-filled');
+    const jobs = [];
+    for (const name of Object.keys(PAGES)) jobs.push(addPage(blank, name, null));
+    for (const name of Object.keys(PAGES)) jobs.push(addPage(filled, name, SAMPLE[name]));
+
+    const crayons = document.getElementById('crayons');
+    for (const id of CRAYONS) {
+      const el = document.createElement('div');
+      el.className = 'crayon';
+      const img = document.createElement('img');
+      img.src = `${ART}/palette/crayon-${id}.svg`;
+      img.alt = id;
+      const cap = document.createElement('span');
+      cap.textContent = id;
+      el.appendChild(img);
+      el.appendChild(cap);
+      crayons.appendChild(el);
+    }
+    const pots = document.getElementById('pots');
+    for (const id of POTS) {
+      const img = document.createElement('img');
+      img.src = `${ART}/palette/pot-${id}.svg`;
+      img.alt = 'pot ' + id;
+      pots.appendChild(img);
+    }
+    const mixes = document.getElementById('mixes');
+    for (const mix of MIX) {
+      const el = document.createElement('div');
+      el.className = 'mix';
+      const img = document.createElement('img');
+      img.src = `${ART}/palette/mix-${mix.id}.svg`;
+      img.alt = mix.label;
+      const cap = document.createElement('span');
+      cap.textContent = mix.label;
+      el.appendChild(img);
+      el.appendChild(cap);
+      mixes.appendChild(el);
+    }
+
+    const stage = document.getElementById('scene-studio');
+    const bg = document.createElement('img');
+    bg.className = 'bg';
+    bg.src = `${ART}/scenes/art-studio/bg-landscape.svg`;
+    bg.alt = '';
+    stage.appendChild(bg);
+    const desk = document.createElement('div');
+    desk.className = 'desk-page';
+    const crayonRow = document.createElement('div');
+    crayonRow.className = 'crayon-row';
+    for (const id of ['red-light','red','orange','yellow','green','blue-light','blue']) {
+      const img = document.createElement('img');
+      img.src = `${ART}/palette/crayon-${id}.svg`;
+      img.alt = id;
+      crayonRow.appendChild(img);
+    }
+    stage.appendChild(crayonRow);
+    const splash = document.createElement('img');
+    splash.className = 'splash';
+    splash.src = `${ART}/fx/splash.svg`;
+    splash.alt = 'splash';
+    const burst = document.createElement('img');
+    burst.className = 'burst';
+    burst.src = `${ART}/fx/fill-burst.svg`;
+    burst.alt = 'fill burst';
+    stage.appendChild(desk);
+    stage.appendChild(burst);
+    stage.appendChild(splash);
+
+    jobs.push(loadPage('apple', SAMPLE.apple).then((host) => desk.appendChild(host)));
+    await Promise.all(jobs);
+    window.__PREVIEW_READY__ = true;
+  </script>
+</body>
+</html>

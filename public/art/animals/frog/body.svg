@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180">
+  <!-- Neck tab tucked under head -->
+  <path d="M 94 36 C 94 10, 166 10, 166 36 Z" fill="#3CA33C" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Squat hind legs tucked at sides -->
+  <g>
+    <!-- Left hind leg -->
+    <path d="M 56 84 C 22 86, 10 118, 22 146 C 30 162, 54 164, 68 150 Z" fill="#57C457"/>
+    <path d="M 20 132 C 26 156, 48 162, 66 150 C 50 152, 32 146, 20 132 Z" fill="#3CA33C"/>
+    <path d="M 28 102 C 34 92, 46 88, 56 90 C 44 94, 34 98, 28 102 Z" fill="#8AE07E"/>
+    <path d="M 56 84 C 22 86, 10 118, 22 146 C 30 162, 54 164, 68 150" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right hind leg -->
+    <path d="M 204 84 C 238 86, 250 118, 238 146 C 230 162, 206 164, 192 150 Z" fill="#57C457"/>
+    <path d="M 240 132 C 234 156, 212 162, 194 150 C 210 152, 228 146, 240 132 Z" fill="#3CA33C"/>
+    <path d="M 232 102 C 226 92, 214 88, 204 90 C 216 94, 226 98, 232 102 Z" fill="#8AE07E"/>
+    <path d="M 204 84 C 238 86, 250 118, 238 146 C 230 162, 206 164, 192 150" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Round squat frog torso -->
+  <path d="M 76 28 C 48 48, 40 94, 48 136 C 54 162, 86 168, 130 168 C 174 168, 206 162, 212 136 C 220 94, 212 48, 184 28 C 166 16, 94 16, 76 28 Z" fill="#57C457"/>
+
+  <!-- Torso shadows -->
+  <path d="M 76 28 C 94 16, 166 16, 184 28 C 170 44, 90 44, 76 28 Z" fill="#3CA33C"/>
+  <path d="M 49 132 C 56 160, 88 168, 130 168 C 172 168, 204 160, 211 132 C 194 154, 166 160, 130 160 C 94 160, 66 154, 49 132 Z" fill="#3CA33C"/>
+
+  <!-- Torso highlight -->
+  <path d="M 68 52 C 58 74, 56 100, 60 122 C 66 100, 70 76, 80 56 Z" fill="#8AE07E"/>
+
+  <!-- Soft yellow-green belly patch -->
+  <ellipse cx="130" cy="106" rx="54" ry="46" fill="#CFF27E"/>
+  <path d="M 78 118 C 88 142, 106 152, 130 152 C 154 152, 172 142, 182 118 C 168 136, 150 144, 130 144 C 110 144, 92 136, 78 118 Z" fill="#98D886"/>
+
+  <!-- Torso outline -->
+  <path d="M 76 28 C 48 48, 40 94, 48 136 C 54 162, 86 168, 130 168 C 174 168, 206 162, 212 136 C 220 94, 212 48, 184 28 C 166 16, 94 16, 76 28 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Short front arms and wide webbed frog feet at bottom -->
+  <g>
+    <!-- Left webbed foot -->
+    <path d="M 42 158 C 42 146, 62 142, 82 146 C 98 148, 108 156, 104 166 C 100 172, 84 172, 72 170 C 58 172, 42 168, 42 158 Z" fill="#57C457"/>
+    <path d="M 44 162 C 54 170, 88 172, 102 165 C 88 168, 58 168, 44 162 Z" fill="#3CA33C"/>
+    <ellipse cx="72" cy="153" rx="16" ry="5" fill="#8AE07E"/>
+    <path d="M 42 158 C 42 146, 62 142, 82 146 C 98 148, 108 156, 104 166 C 100 172, 84 172, 72 170 C 58 172, 42 168, 42 158 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 62 156 L 58 168 M 80 156 L 80 169" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Right webbed foot -->
+    <path d="M 218 158 C 218 146, 198 142, 178 146 C 162 148, 152 156, 156 166 C 160 172, 176 172, 188 170 C 202 172, 218 168, 218 158 Z" fill="#57C457"/>
+    <path d="M 216 162 C 206 170, 172 172, 158 165 C 172 168, 202 168, 216 162 Z" fill="#3CA33C"/>
+    <ellipse cx="188" cy="153" rx="16" ry="5" fill="#8AE07E"/>
+    <path d="M 218 158 C 218 146, 198 142, 178 146 C 162 148, 152 156, 156 166 C 160 172, 176 172, 188 170 C 202 172, 218 168, 218 158 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 198 156 L 202 168 M 180 156 L 180 169" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

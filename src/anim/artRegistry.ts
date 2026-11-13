@@ -56,7 +56,14 @@ export function animalPartKey(kind: string, partKey: string): string | undefined
   return keyForUrl(`art/animals/${kind}/${partKey}.svg`) ?? keyForUrl(`art/characters/${kind}/${partKey}.svg`);
 }
 
-export function foodArtKey(foodId: string): string | undefined {
+// Note for Claude: buildFood() in src/games/restaurant/restaurantArt.ts currently skips
+// registered art whenever choice.color is set and draws procedurally. To use the colour-variant
+// SVGs, call foodArtKey(choice.item.id, choice.color) and load that texture the same way as the
+// default food art, instead of always calling drawFoodIcon.
+export function foodArtKey(foodId: string, color?: string): string | undefined {
+  if (color) {
+    return keyForUrl(`art/foods/${foodId}-${color}.svg`) ?? keyForUrl(`art/foods/${foodId}.svg`);
+  }
   return keyForUrl(`art/foods/${foodId}.svg`);
 }
 
@@ -76,6 +83,33 @@ export function instrumentArtKey(name: string): string | undefined {
   return keyForUrl(`art/instruments/${name}.svg`);
 }
 
+export function puppetArtKey(name: string): string | undefined {
+  return keyForUrl(`art/puppet/${name}.svg`);
+}
+
+export function coloringArtKey(name: string): string | undefined {
+  return keyForUrl(`art/coloring/${name}.svg`);
+}
+
+export function paletteArtKey(name: string): string | undefined {
+  return keyForUrl(`art/palette/${name}.svg`);
+}
+
+export function homeArtKey(name: string): string | undefined {
+  return keyForUrl(`art/homes/${name}.svg`);
+}
+
+export function trainArtKey(name: string): string | undefined {
+  return keyForUrl(`art/train/${name}.svg`);
+}
+
+export function flowerArtKey(name: string): string | undefined {
+  return keyForUrl(`art/flowers/${name}.svg`);
+}
+
+export function itemArtKey(name: string): string | undefined {
+  return keyForUrl(`art/items/${name}.svg`);
+}
 
 /**
  * Lists every texture key a rig needs (parts plus the eye-closed and mouth variants),

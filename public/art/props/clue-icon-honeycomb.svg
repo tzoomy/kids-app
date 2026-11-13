@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cell 1 (Top-Left hexagon) -->
+    <polygon points="56,22 86,39 86,73 56,90 26,73 26,39" fill="#FFE073" />
+    <polygon points="56,32 77,44 77,68 56,80 35,68 35,44" fill="#FFCA3A" stroke="none" />
+    <polygon points="56,36 74,46 74,56 56,46 38,56 38,46" fill="#E8A317" stroke="none" />
+
+    <!-- Cell 2 (Top-Right hexagon) -->
+    <polygon points="116,22 146,39 146,73 116,90 86,73 86,39" fill="#FFE073" />
+    <polygon points="116,32 137,44 137,68 116,80 95,68 95,44" fill="#FFCA3A" stroke="none" />
+    <polygon points="116,36 134,46 134,56 116,46 98,56 98,46" fill="#E8A317" stroke="none" />
+
+    <!-- Cell 3 (Bottom-Center hexagon) -->
+    <polygon points="86,73 116,90 116,124 86,141 56,124 56,90" fill="#FFE073" />
+    <polygon points="86,83 107,95 107,119 86,131 65,119 65,95" fill="#FFCA3A" stroke="none" />
+    <polygon points="86,87 104,97 104,107 86,97 68,107 68,97" fill="#E8A317" stroke="none" />
+
+    <!-- Plump golden honey drop on the lower-left -->
+    <path d="M 38 96 C 38 96 52 114 52 126 C 52 135 46 141 38 141 C 30 141 24 135 24 126 C 24 114 38 96 38 96 Z" fill="#FFD43B" stroke-width="5" />
+    <circle cx="34" cy="124" r="4" fill="#FFFDF9" stroke="none" />
+  </g>
+</svg>

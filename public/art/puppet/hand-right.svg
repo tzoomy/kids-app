@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Right rounded mitten/felt hand around (305, 310) -->
+    <path d="M 298 290 Q 320 288 326 308 Q 330 328 310 332 Q 290 334 284 316 Q 274 312 276 300 Q 278 290 290 294 Q 294 290 298 290 Z" fill="#FAD9B8" stroke="#3B2A22" stroke-width="6"/>
+    <!-- Hand highlight -->
+    <path d="M 302 296 Q 316 296 320 310 Q 312 302 300 302 Z" fill="#FFE7CF"/>
+    <!-- Hand lower shadow -->
+    <path d="M 322 320 Q 308 330 290 320 Q 298 330 312 328 Q 320 326 322 320 Z" fill="#E5BF98"/>
+    <!-- Re-stroke mitten outline cleanly -->
+    <path d="M 298 290 Q 320 288 326 308 Q 330 328 310 332 Q 290 334 284 316 Q 274 312 276 300 Q 278 290 290 294 Q 294 290 298 290 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>

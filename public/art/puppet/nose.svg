@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft shadow under nose -->
+    <ellipse cx="180" cy="164" rx="13" ry="8" fill="#E5BF98"/>
+    <!-- Rounded felt button nose around (180, 158) -->
+    <ellipse cx="180" cy="157" rx="14" ry="11" fill="#FF8FA3" stroke="#3B2A22" stroke-width="5"/>
+    <!-- Nose highlight -->
+    <ellipse cx="176" cy="153" rx="6" ry="3.5" fill="#FFC2CE"/>
+  </g>
+</svg>

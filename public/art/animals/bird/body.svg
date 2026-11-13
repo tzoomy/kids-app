@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200" width="220" height="200">
+  <!-- Neck tab tucked under head -->
+  <path d="M 80 42 C 80 12, 140 12, 140 42 Z" fill="#CC3333" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Plump storybook bird torso -->
+  <path d="M 68 34 C 42 58, 34 106, 42 146 C 50 176, 78 186, 110 186 C 142 186, 170 176, 178 146 C 186 106, 178 58, 152 34 C 136 20, 84 20, 68 34 Z" fill="#F24C4C"/>
+
+  <!-- Under-neck and lower body shadow -->
+  <path d="M 68 34 C 84 20, 136 20, 152 34 C 140 50, 80 50, 68 34 Z" fill="#CC3333"/>
+  <path d="M 43 142 C 50 174, 78 186, 110 186 C 142 186, 170 174, 177 142 C 162 168, 138 174, 110 174 C 82 174, 58 168, 43 142 Z" fill="#CC3333"/>
+
+  <!-- Upper left torso highlight -->
+  <path d="M 62 58 C 52 80, 50 108, 54 130 C 60 108, 64 82, 74 62 Z" fill="#EE6C62"/>
+
+  <!-- Warm cream-yellow belly patch -->
+  <ellipse cx="110" cy="116" rx="44" ry="48" fill="#FFF2A6"/>
+  <path d="M 68 128 C 76 152, 92 164, 110 164 C 128 164, 144 152, 152 128 C 138 146, 124 154, 110 154 C 96 154, 82 146, 68 128 Z" fill="#FFE073"/>
+
+  <!-- Soft feather scallop marks on chest -->
+  <path d="M 92 86 Q 100 94 108 86" fill="none" stroke="#E8A317" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 112 86 Q 120 94 128 86" fill="none" stroke="#E8A317" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 102 102 Q 110 110 118 102" fill="none" stroke="#E8A317" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Torso outline -->
+  <path d="M 68 34 C 42 58, 34 106, 42 146 C 50 176, 78 186, 110 186 C 142 186, 170 176, 178 146 C 186 106, 178 58, 152 34 C 136 20, 84 20, 68 34 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Short orange bird legs and three-toed feet at bottom -->
+  <g>
+    <!-- Left foot -->
+    <path d="M 80 172 L 80 184" stroke="#3B2A22" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 56 188 C 56 178, 70 176, 80 178 C 90 176, 102 178, 102 188 C 102 194, 92 195, 80 194 C 68 195, 56 194, 56 188 Z" fill="#FF8533"/>
+    <path d="M 58 189 C 66 195, 92 195, 100 189 C 90 192, 68 192, 58 189 Z" fill="#E8A317"/>
+    <ellipse cx="78" cy="183" rx="12" ry="4" fill="#FFD166"/>
+    <path d="M 56 188 C 56 178, 70 176, 80 178 C 90 176, 102 178, 102 188 C 102 194, 92 195, 80 194 C 68 195, 56 194, 56 188 Z" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 72 184 L 70 193 M 88 184 L 90 193" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Right foot -->
+    <path d="M 140 172 L 140 184" stroke="#3B2A22" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 118 188 C 118 178, 130 176, 140 178 C 150 176, 164 178, 164 188 C 164 194, 152 195, 140 194 C 128 195, 118 194, 118 188 Z" fill="#FF8533"/>
+    <path d="M 120 189 C 128 195, 154 195, 162 189 C 152 192, 130 192, 120 189 Z" fill="#E8A317"/>
+    <ellipse cx="142" cy="183" rx="12" ry="4" fill="#FFD166"/>
+    <path d="M 118 188 C 118 178, 130 176, 140 178 C 150 176, 164 178, 164 188 C 164 194, 152 195, 140 194 C 128 195, 118 194, 118 188 Z" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 132 184 L 130 193 M 148 184 L 150 193" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

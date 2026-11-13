@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Side carry loop attached to cap -->
+    <path d="M162 66 C188 66 202 82 196 102 C192 116 176 118 164 108" fill="none" stroke="#EAA814" stroke-width="14"/>
+    <path d="M162 66 C188 66 202 82 196 102 C192 116 176 118 164 108" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Red flip drinking spout -->
+    <path d="M104 48 L110 24 C112 18 118 16 126 18 L138 20 C144 22 146 28 144 36 L140 48 Z" fill="#F24C4C"/>
+
+    <!-- Bottle neck -->
+    <rect x="96" y="72" width="64" height="20" fill="var(--item-shadow, #2B6FD6)"/>
+
+    <!-- Main cylindrical bottle body -->
+    <rect x="70" y="86" width="116" height="148" rx="30" fill="var(--item-fill, #4D96FF)"/>
+
+    <!-- Right-side and bottom shadow on bottle body -->
+    <path d="M150 86 L156 86 C172 86 186 100 186 116 L186 204 C186 220 172 234 156 234 L100 234 C86 234 74 224 71 210 C96 218 138 218 152 196 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+
+    <!-- Left vertical glossy highlight -->
+    <rect x="84" y="102" width="16" height="106" rx="8" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+
+    <!-- Cream non-slip grip band around middle -->
+    <rect x="68" y="138" width="120" height="44" rx="8" fill="#FFF6E8"/>
+    <rect x="152" y="141" width="33" height="38" rx="4" fill="#F0DEC2" stroke="none"/>
+    <rect x="68" y="138" width="120" height="44" rx="8" fill="none"/>
+    <!-- Water droplet icon on grip band -->
+    <path d="M128 146 C128 146 116 158 116 165 C116 171 121 176 128 176 C135 176 140 171 140 165 C140 158 128 146 128 146 Z" fill="#8CC0FF" stroke-width="4"/>
+
+    <!-- Re-stroke bottle body contour -->
+    <rect x="70" y="86" width="116" height="148" rx="30" fill="none"/>
+
+    <!-- Contrasting yellow screw cap -->
+    <rect x="84" y="44" width="88" height="32" rx="12" fill="#FFD43B"/>
+    <path d="M146 47 L160 47 C166 47 169 51 169 58 L169 64 C169 70 166 73 160 73 L146 73 Z" fill="#EAA814" stroke="none"/>
+    <rect x="84" y="44" width="88" height="32" rx="12" fill="none"/>
+    <!-- Cap grip ridges -->
+    <line x1="104" y1="52" x2="104" y2="68" stroke-width="4"/>
+    <line x1="128" y1="52" x2="128" y2="68" stroke-width="4"/>
+    <line x1="152" y1="52" x2="152" y2="68" stroke-width="4"/>
+  </g>
+</svg>

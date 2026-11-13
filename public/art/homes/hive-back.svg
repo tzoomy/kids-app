@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top supporting branch -->
+    <path d="M 24 38 C 96 28 176 32 256 44 C 262 54 258 68 246 70 C 174 60 98 58 30 66 C 18 64 16 48 24 38 Z" fill="#7A4B2A" />
+    <path d="M 30 44 C 100 36 176 38 248 48 C 176 46 102 44 30 52 Z" fill="#B87D56" stroke="none" />
+    <path d="M 30 60 C 100 52 174 54 246 64 L 244 68 C 172 58 98 56 30 64 Z" fill="#5C4338" stroke="none" />
+
+    <!-- Branch leaves -->
+    <path d="M 64 36 C 46 16 58 4 80 14 C 92 20 86 32 64 36 Z" fill="#57C457" />
+    <path d="M 62 16 C 70 12 78 16 80 24 C 72 20 66 18 62 16 Z" fill="#8AE07E" stroke="none" />
+    <path d="M 206 42 C 222 18 244 16 248 34 C 242 48 222 50 206 42 Z" fill="#57C457" />
+    <path d="M 218 34 C 228 24 238 24 242 32 C 232 32 224 32 218 34 Z" fill="#8AE07E" stroke="none" />
+
+    <!-- Short wooden stem connecting hive to branch -->
+    <rect x="126" y="56" width="28" height="32" rx="10" fill="#9E6540" />
+
+    <!-- Layered rounded beehive body -->
+    <!-- Tier 1 (top) -->
+    <rect x="78" y="80" width="124" height="46" rx="23" fill="#FFCA3A" />
+    <path d="M 92 92 C 110 86 144 86 174 90 C 144 92 112 94 92 92 Z" fill="#FFE073" stroke="none" />
+    <path d="M 86 112 C 118 120 162 120 194 112 C 186 122 94 122 86 112 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Tier 2 (upper-middle) -->
+    <rect x="56" y="118" width="168" height="54" rx="27" fill="#FFCA3A" />
+    <path d="M 74 130 C 106 124 156 124 198 128 C 156 130 108 132 74 130 Z" fill="#FFE073" stroke="none" />
+    <path d="M 66 156 C 112 166 168 166 214 156 C 204 168 76 168 66 156 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Tier 3 (wide middle) -->
+    <rect x="42" y="164" width="196" height="62" rx="31" fill="#FFCA3A" />
+    <path d="M 62 178 C 102 170 166 170 212 176 C 166 178 104 180 62 178 Z" fill="#FFE073" stroke="none" />
+    <path d="M 52 208 C 104 220 176 220 228 208 C 216 222 64 222 52 208 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Tier 4 (lower-middle) -->
+    <rect x="54" y="216" width="172" height="56" rx="28" fill="#FFCA3A" />
+    <path d="M 72 228 C 108 222 162 222 202 226 C 162 228 110 230 72 228 Z" fill="#FFE073" stroke="none" />
+    <path d="M 64 256 C 110 266 170 266 216 256 C 206 268 74 268 64 256 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Tier 5 (bottom cap) -->
+    <rect x="80" y="264" width="120" height="46" rx="23" fill="#FFCA3A" />
+    <path d="M 96 274 C 122 270 156 270 182 274 C 156 276 122 276 96 274 Z" fill="#FFE073" stroke="none" />
+    <path d="M 88 294 C 120 304 160 304 192 294 C 182 306 98 306 88 294 Z" fill="#E8A317" stroke="none" />
+
+    <!-- Generous rounded entrance hole in lower-middle (settle target for the bee) -->
+    <circle cx="140" cy="214" r="52" fill="#E8A317" />
+    <circle cx="140" cy="214" r="42" fill="#261710" />
+    <path d="M 104 202 A 38 38 0 0 1 176 202 A 40 34 0 0 0 104 202 Z" fill="#5C3422" stroke="none" />
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="400" height="280">
+  <!-- Front soil lip and side grass tufts only; burrow hole interior stays completely transparent -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Front earthen threshold lip below the opening -->
+    <path d="M 80 220 C 116 204 156 212 200 212 C 244 212 284 204 320 220 C 328 234 312 248 286 250 C 228 256 172 256 114 250 C 88 248 72 234 80 220 Z" fill="#C9894B" />
+    <!-- Highlight on top of soil lip -->
+    <path d="M 94 222 C 128 212 162 218 200 218 C 238 218 272 212 306 222 C 270 228 130 228 94 222 Z" fill="#E8AA6B" stroke="none" />
+    <!-- Shadow at bottom of soil lip -->
+    <path d="M 88 236 C 134 248 266 248 312 236 C 304 246 286 250 264 252 C 216 254 184 254 136 252 C 114 250 96 246 88 236 Z" fill="#8C5230" stroke="none" />
+
+    <!-- Left front grass tuft -->
+    <path d="M 38 232 C 28 206 44 192 58 210 C 64 190 84 194 82 216 C 96 204 110 214 98 234 Z" fill="#57C457" />
+    <path d="M 46 222 C 44 210 50 204 56 214 C 62 202 74 204 74 218 Z" fill="#8AE07E" stroke="none" />
+
+    <!-- Right front grass tuft -->
+    <path d="M 302 234 C 290 214 304 204 318 216 C 316 194 336 190 342 210 C 356 192 372 206 362 232 Z" fill="#57C457" />
+    <path d="M 326 218 C 326 204 338 202 344 214 C 350 204 356 210 354 222 Z" fill="#8AE07E" stroke="none" />
+  </g>
+</svg>

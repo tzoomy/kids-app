@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <!-- Main wooden/cream plaque aligned to the frame in rule-sign-post.svg -->
+  <rect x="36" y="34" width="208" height="200" rx="28" fill="#CC926B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Plaque lower shadow -->
+  <path d="M40 196 C40 215 54 230 72 230 L208 230 C226 230 240 215 240 196 L240 206 C240 220 226 231 208 231 L72 231 C54 231 40 220 40 206 Z" fill="#9E6540"/>
+
+  <!-- Slightly recessed 160x160 cream panel in the center (x=60..220, y=54..214) where a 160x160 rule icon sits -->
+  <rect x="60" y="54" width="160" height="160" rx="22" fill="#FFF6E8" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Recessed top inner shadow -->
+  <path d="M82 58 L198 58 C208 58 216 66 216 76 L216 86 C216 74 206 68 194 68 L86 68 C74 68 64 74 64 86 L64 76 C64 66 72 58 82 58 Z" fill="#F0DEC2"/>
+  <!-- Recessed bottom inner highlight -->
+  <path d="M64 190 C64 202 74 210 86 210 L194 210 C206 210 216 202 216 190 L216 196 C216 204 208 211 198 211 L82 211 C72 211 64 204 64 196 Z" fill="#FFFDF9"/>
+  <rect x="60" y="54" width="160" height="160" rx="22" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

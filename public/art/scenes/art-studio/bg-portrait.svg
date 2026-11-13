@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <g stroke="none">
+    <!-- Upper and lower studio walls -->
+    <rect fill="#FFF3E0" x="0" y="0" width="800" height="520" />
+    <rect fill="#F7DEC0" x="0" y="520" width="800" height="140" />
+    <rect fill="#F0DEC2" x="0" y="520" width="800" height="20" />
+    <!-- Soft studio window on upper left (single pane, not eye-like) -->
+    <rect fill="#B87D56" x="64" y="76" width="236" height="270" rx="28" />
+    <rect fill="#B8E6FF" x="84" y="96" width="196" height="230" rx="16" />
+    <path fill="#FFFDF9" d="M 112 168 C 112 150 134 144 148 154 C 162 138 194 142 202 160 C 220 160 228 180 212 190 L 120 190 C 108 188 106 176 112 168 Z" />
+    <path fill="#8AE07E" d="M 84 280 C 120 254 172 258 210 280 C 238 264 264 268 280 284 L 280 326 L 84 326 Z" />
+    <path fill="#57C457" d="M 84 300 C 132 284 198 288 280 304 L 280 326 L 84 326 Z" />
+    <rect fill="#CC926B" x="48" y="336" width="268" height="24" rx="10" />
+    <!-- High wooden shelf on upper right with two small paint pots -->
+    <rect fill="#CC926B" x="480" y="210" width="250" height="22" rx="10" />
+    <path fill="#9E6540" d="M 510 232 L 530 232 L 524 258 L 510 258 Z M 680 232 L 700 232 L 700 258 L 686 258 Z" />
+    <path fill="#E5BF98" d="M 526 160 L 578 160 L 572 210 L 532 210 Z" />
+    <ellipse fill="#F24C4C" cx="552" cy="160" rx="26" ry="8" />
+    <path fill="#E5BF98" d="M 604 168 L 652 168 L 646 210 L 610 210 Z" />
+    <ellipse fill="#FFD43B" cx="628" cy="168" rx="24" ry="7" />
+    <!-- Distant side easel frame on right -->
+    <path fill="#B87D56" d="M 610 660 L 665 370 L 685 370 L 632 660 Z M 730 660 L 675 370 L 695 370 L 752 660 Z" />
+    <rect fill="#FFF6E8" x="616" y="400" width="128" height="150" rx="12" />
+    <rect fill="#CC926B" x="600" y="546" width="156" height="18" rx="8" />
+    <!-- Clear lower-half wooden table / work surface -->
+    <rect fill="#D9A06B" x="0" y="640" width="800" height="640" />
+    <rect fill="#CC926B" x="0" y="640" width="800" height="32" />
+    <rect fill="#B87D56" x="0" y="1244" width="800" height="36" />
+  </g>
+  <g fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 0 520 L 800 520" />
+    <rect x="64" y="76" width="236" height="270" rx="28" />
+    <rect x="84" y="96" width="196" height="230" rx="16" stroke-width="5" />
+    <rect x="48" y="336" width="268" height="24" rx="10" />
+    <rect x="480" y="210" width="250" height="22" rx="10" />
+    <path d="M 526 160 L 532 210 L 572 210 L 578 160" stroke-width="5" />
+    <ellipse cx="552" cy="160" rx="26" ry="8" stroke-width="5" />
+    <path d="M 604 168 L 610 210 L 646 210 L 652 168" stroke-width="5" />
+    <ellipse cx="628" cy="168" rx="24" ry="7" stroke-width="5" />
+    <path d="M 620 640 L 672 370 L 692 370 L 742 640" />
+    <rect x="616" y="400" width="128" height="150" rx="12" />
+    <rect x="600" y="546" width="156" height="18" rx="8" />
+    <path d="M 0 640 L 800 640" />
+    <path d="M 0 672 L 800 672" stroke="#5C4338" stroke-width="4" />
+  </g>
+</svg>

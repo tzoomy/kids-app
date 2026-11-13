@@ -44,6 +44,8 @@ describe('isSafeToApplyUpdate', () => {
     ['bubbles', false],
     ['orchestra', false],
     ['hiding', false],
+    ['sorting', false],
+    ['colouring', false],
     ['parent', false],
     ['loading', false],
   ];
@@ -64,6 +66,8 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'bubbles' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'orchestra' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'hiding' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'sorting' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'colouring' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');
   });

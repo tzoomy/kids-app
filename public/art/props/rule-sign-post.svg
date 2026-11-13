@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 360" width="280" height="360">
+  <!-- Wooden ground feet / base planted at the bottom -->
+  <path d="M68 344 C68 322 92 310 140 310 C188 310 212 322 212 344 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M84 341 C88 326 108 318 140 318 C172 318 192 326 196 341 Z" fill="#B87D56"/>
+
+  <!-- Angled wooden support struts -->
+  <path d="M90 332 L122 276 L134 284 L106 336 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M190 332 L158 276 L146 284 L174 336 Z" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Central vertical wooden post -->
+  <rect x="118" y="216" width="44" height="128" rx="10" fill="#B87D56" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="124" y="222" width="12" height="116" rx="5" fill="#CC926B"/>
+  <rect x="146" y="222" width="10" height="116" rx="4" fill="#9E6540"/>
+  <rect x="118" y="216" width="44" height="128" rx="10" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Top post finial cap -->
+  <rect x="112" y="10" width="56" height="24" rx="12" fill="#CC926B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Outer wooden frame that holds the plaque -->
+  <rect x="24" y="22" width="232" height="224" rx="36" fill="#9E6540" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M60 26 L220 26 C238 26 252 40 252 58 L252 80 C252 54 236 38 214 38 L66 38 C44 38 28 54 28 80 L28 58 C28 40 42 26 60 26 Z" fill="#CC926B"/>
+  <rect x="24" y="22" width="232" height="224" rx="36" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

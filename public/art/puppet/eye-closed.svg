@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="360" height="480">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left closed sleeping eyelid around (140, 130) -->
+    <path d="M 121 130 Q 140 112 159 130 Q 140 142 121 130 Z" fill="#E5BF98"/>
+    <path d="M 121 130 Q 140 143 159 130" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <line x1="125" y1="134" x2="119" y2="140" stroke="#3B2A22" stroke-width="4.5"/>
+    <line x1="140" y1="138" x2="140" y2="145" stroke="#3B2A22" stroke-width="4.5"/>
+
+    <!-- Right closed sleeping eyelid around (220, 130) -->
+    <path d="M 201 130 Q 220 112 239 130 Q 220 142 201 130 Z" fill="#E5BF98"/>
+    <path d="M 201 130 Q 220 143 239 130" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <line x1="235" y1="134" x2="241" y2="140" stroke="#3B2A22" stroke-width="4.5"/>
+    <line x1="220" y1="138" x2="220" y2="145" stroke="#3B2A22" stroke-width="4.5"/>
+  </g>
+</svg>

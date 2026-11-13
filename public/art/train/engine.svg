@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 260" width="360" height="260" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Right coupler stub to connect flush with cars -->
+  <rect x="336" y="196" width="21" height="18" rx="6" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Smokestack / Chimney -->
+  <path d="M82 54 H122 L116 112 H88 Z" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="74" y="40" width="56" height="20" rx="10" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M84 47 H120" stroke="#FFF8EE" stroke-width="4"/>
+
+  <!-- Warm steam dome on top of boiler -->
+  <path d="M148 110 Q148 78 172 78 Q196 78 196 110 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M158 96 Q172 84 184 94" fill="none" stroke="#FFF8EE" stroke-width="4"/>
+
+  <!-- Rear Cabin (facing left, open side window) -->
+  <rect x="210" y="56" width="122" height="140" rx="14" fill="#EE6C62" stroke="#3B2A22" stroke-width="6"/>
+  <!-- Cabin highlight & shadow -->
+  <path d="M222 68 H318" stroke="#FFF8EE" stroke-width="6" stroke-opacity="0.55"/>
+  <rect x="214" y="168" width="114" height="24" fill="#C08552" opacity="0.35"/>
+
+  <!-- Cabin Roof -->
+  <rect x="198" y="42" width="144" height="22" rx="11" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M212 50 H328" stroke="#FFF8EE" stroke-width="5"/>
+
+  <!-- Cabin single large arched side window (not eye-like) -->
+  <rect x="234" y="78" width="74" height="58" rx="14" fill="#B8E6FF" stroke="#3B2A22" stroke-width="6"/>
+  <path d="M248 92 L264 78 M254 108 L282 82" stroke="#FFFDF9" stroke-width="5"/>
+  <rect x="228" y="132" width="86" height="10" rx="5" fill="#FFF8EE" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Boiler barrel -->
+  <rect x="58" y="106" width="164" height="90" rx="22" fill="#EE6C62" stroke="#3B2A22" stroke-width="6"/>
+  <!-- Boiler highlight and lower shadow -->
+  <path d="M78 120 H208" stroke="#FFF8EE" stroke-width="8" stroke-opacity="0.5"/>
+  <path d="M64 172 H218 V192 H64 Z" fill="#C08552" opacity="0.35"/>
+
+  <!-- Gold boiler bands -->
+  <rect x="128" y="106" width="14" height="90" rx="4" fill="#FFD166" stroke="#3B2A22" stroke-width="5"/>
+  <rect x="188" y="106" width="14" height="90" rx="4" fill="#FFD166" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Front nose cap on left of boiler -->
+  <path d="M58 118 H46 Q34 118 34 132 V170 Q34 184 46 184 H58 Z" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Single side-profile headlamp on front-left -->
+  <rect x="20" y="128" width="22" height="32" rx="8" fill="#FFD166" stroke="#3B2A22" stroke-width="5"/>
+  <path d="M20 134 Q10 134 10 144 Q10 154 20 154 Z" fill="#FFF8EE" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Front cowcatcher / bumper on left -->
+  <path d="M54 192 L12 228 H58 Z" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <line x1="38" y1="206" x2="28" y2="228" stroke="#3B2A22" stroke-width="5"/>
+  <line x1="48" y1="202" x2="44" y2="228" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Continuous running board / chassis frame (matches car.svg height) -->
+  <rect x="44" y="192" width="298" height="24" rx="10" fill="#FFF8EE" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="50" y="204" width="286" height="9" rx="4" fill="#F0DEC2"/>
+
+  <!-- Three chunky wheels with bottom edge at y=260 (cy=225, r=32, stroke=6 -> 225+32+3=260) -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- Front wheel -->
+    <circle cx="92" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="92" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="92" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+
+    <!-- Middle wheel -->
+    <circle cx="188" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="188" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="188" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+
+    <!-- Rear wheel -->
+    <circle cx="284" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="284" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="284" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+  </g>
+
+  <!-- Connecting side rod across the wheels -->
+  <rect x="82" y="220" width="212" height="10" rx="5" fill="#FFF8EE" stroke="#3B2A22" stroke-width="5"/>
+</svg>

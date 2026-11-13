@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48" width="68" height="48">
+  <!-- Small thoughtful wavy bee mouth line (never a frown) -->
+  <path d="M 22 20 C 28 17, 34 22, 41 18 C 44 16, 47 15, 50 16" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cute cheek dimple tick -->
+  <path d="M 52 13 Q 55 16 52 20" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+</svg>

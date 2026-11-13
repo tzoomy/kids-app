@@ -60,9 +60,51 @@ export const ANIM_PROFILE = {
     glowPulse: { duration: 900, ease: 'Sine.easeInOut' },
   },
 
+  // Puppet Says (Language House) — pose knobs only; no game logic.
+  puppet: {
+    jump: { height: 72, duration: 520, stretch: 1.1, ease: 'Quad.easeOut' },
+    clap: { distance: 78, duration: 180, repeats: 3, ease: 'Sine.easeInOut' },
+    wave: { angle: 28, duration: 200, repeats: 4, ease: 'Sine.easeInOut' },
+    sleep: { headAngle: 12, duration: 640, ease: 'Sine.easeInOut' },
+    dance: { hop: 18, duration: 280, ease: 'Sine.easeInOut' },
+  },
+
+  // Color the World (Art Studio) — fill / splash knobs only; no game logic.
+  color: {
+    fill: { duration: 280, ease: 'Quad.easeOut' },
+    splash: { scale: 1.35, duration: 320, ease: 'Back.easeOut' },
+    burst: { duration: 420, ease: 'Quad.easeOut' },
+  },
+
+  /** Who Lives Here? walk-home and settle-in. */
+  homes: {
+    walk: { duration: 700, bob: 10, ease: 'Sine.easeInOut' },
+    settle: { duration: 420, scale: 0.86, ease: 'Back.easeOut' },
+  },
+
+  /** Picnic Train chug, arrive, and hand-out. */
+  train: {
+    chug: { bob: 8, duration: 180, ease: 'Sine.easeInOut' },
+    arrive: { duration: 800, ease: 'Sine.easeOut' },
+    handOut: { duration: 520, arcHeight: 110, endScale: 0.7, ease: 'Sine.easeIn' },
+  },
+
+  /** Sorting Beds (docs/specs/sorting-beds.md): flower drop into a bed, soil settle, rule-sign flip on the L8 switch. */
+  sorting: {
+    drop: { duration: 520, arcHeight: 120, endScale: 0.92, ease: 'Sine.easeIn' },
+    settle: { duration: 280, squash: 0.9, ease: 'Back.easeOut' },
+    ruleSwitch: { duration: 480, ease: 'Sine.easeInOut' },
+  },
+
   /** Colouring Time fill flash. Clipped to the region; never scale (AC-24). */
   colouring: {
     fill: { durationMs: 280, flashFrom: 0.7 },
+  },
+
+  /** Travel Suitcase pack-into-case and landing bounce. */
+  suitcase: {
+    pack: { duration: 560, arcHeight: 140, endScale: 0.88, ease: 'Sine.easeIn' },
+    bounce: { height: 22, duration: 360, ease: 'Sine.easeOut' },
   },
 } as const;
 

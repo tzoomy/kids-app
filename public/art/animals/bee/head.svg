@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 170" width="180" height="170">
+  <!-- Two cute curved antennae with bobble tips -->
+  <path d="M 68 34 C 62 18, 48 12, 38 16" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <circle cx="36" cy="17" r="9" fill="#3D3532" stroke="#3B2A22" stroke-width="5"/>
+  <circle cx="34" cy="14" r="3" fill="#FFFDF9"/>
+
+  <path d="M 112 34 C 118 18, 132 12, 142 16" fill="none" stroke="#3B2A22" stroke-width="5.5" stroke-linecap="round"/>
+  <circle cx="144" cy="17" r="9" fill="#3D3532" stroke="#3B2A22" stroke-width="5"/>
+  <circle cx="142" cy="14" r="3" fill="#FFFDF9"/>
+
+  <!-- Plump round golden bee head -->
+  <path d="M 90 28 C 42 28, 14 56, 14 98 C 14 138, 42 160, 90 160 C 138 160, 166 138, 166 98 C 166 56, 138 28, 90 28 Z" fill="#FFD43B"/>
+
+  <!-- Lower cheek and chin shadow -->
+  <path d="M 15 108 C 20 142, 46 160, 90 160 C 134 160, 160 142, 165 108 C 154 136, 130 148, 90 148 C 50 148, 26 136, 15 108 Z" fill="#EAA814"/>
+
+  <!-- Crown highlight crescent -->
+  <path d="M 42 50 C 60 34, 102 32, 132 42 C 102 38, 64 42, 42 50 Z" fill="#FFE073"/>
+
+  <!-- Rosy blush cheeks -->
+  <ellipse cx="36" cy="114" rx="17" ry="11" transform="rotate(6 36 114)" fill="#FF8FA3"/>
+  <ellipse cx="32" cy="111" rx="6.5" ry="3.2" transform="rotate(6 32 111)" fill="#FFFDF9"/>
+  <ellipse cx="144" cy="114" rx="17" ry="11" transform="rotate(-6 144 114)" fill="#FF8FA3"/>
+  <ellipse cx="140" cy="111" rx="6.5" ry="3.2" transform="rotate(-6 140 111)" fill="#FFFDF9"/>
+
+  <!-- Cute tiny nose dot -->
+  <ellipse cx="90" cy="106" rx="5" ry="3.5" fill="#3B2A22"/>
+
+  <!-- Friendly eyebrows -->
+  <path d="M 42 58 Q 54 50 66 56" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 138 58 Q 126 50 114 56" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head outline -->
+  <path d="M 90 28 C 42 28, 14 56, 14 98 C 14 138, 42 160, 90 160 C 138 160, 166 138, 166 98 C 166 56, 138 28, 90 28 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

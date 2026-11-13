@@ -4,6 +4,9 @@ import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantS
 import { HidingScene, type HidingRoundInfo } from '../games/hiding/HidingScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
+import { SortingScene } from '../games/sorting/SortingScene';
+import type { SortingInfo } from '../games/sorting/types';
+import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
 import { ColouringScene } from '../games/colouring/ColouringScene';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
@@ -19,7 +22,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -28,12 +31,20 @@ declare global {
       /** Current orchestra trial (null when the kitchen is not active). */
       getOrchestraInfo: () => OrchestraRoundInfo | null;
       seedOrchestraLevel: (level: number) => void;
-      /** Same for Who's Hiding?. Call before entering it. */
-      seedHidingLevel: (level: number) => void;
+      /** Seeds the active profile's persisted Sorting Beds level (level, cleanStreak 0, recent []) for every language. Call before entering. */
+      seedSortingLevel: (level: number) => void;
+      /** Seeds the stored language setting (settings.languages) and persists. Seed only: no navigation, no game action. */
+      seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
+      /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
+      getSortingInfo: () => SortingInfo | null;
       /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
       getColouringInfo: () => ColouringInfo | null;
+      /** Same for Who's Hiding?. Call before entering it. */
+      seedHidingLevel: (level: number) => void;
+      /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
+      isListening: () => boolean;
       /** Names of the currently active scenes. */
       getActiveScenes: () => string[];
       /** Game canvas size in game coordinates. */
@@ -43,8 +54,6 @@ declare global {
       /** Spoken lines requested so far, optionally only those with index >= sinceIndex. */
       getSpokenLines: (sinceIndex?: number) => SpokenLine[];
       getSpokenLineCount: () => number;
-      /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
-      isListening: () => boolean;
     };
   }
 }
@@ -83,6 +92,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('HidingScene', HidingScene, false);
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
+  game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
 
   game.registry.set('appContext', context);
@@ -94,13 +104,20 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     goToScreen(screen) {
       window.__GAME_READY__ = false;
       const sceneKey =
-        screen === 'map' ? 'MapScene' : screen === 'restaurant' ? 'RestaurantScene' : screen === 'hiding' ? 'HidingScene' : screen === 'orchestra' ? 'OrchestraScene' : 'BubblesScene';
+        screen === 'map' ? 'MapScene'
+        : screen === 'restaurant' ? 'RestaurantScene'
+        : screen === 'hiding' ? 'HidingScene'
+        : screen === 'orchestra' ? 'OrchestraScene'
+        : screen === 'sorting' ? 'SortingScene'
+        : screen === 'colouring' ? 'ColouringScene'
+        : 'BubblesScene';
       game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
       game.scene.stop('RestaurantScene');
       game.scene.stop('HidingScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
       game.scene.start(sceneKey);
     },
@@ -139,6 +156,30 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       }
       context.adaptive.persist(profileId);
     },
+    seedSortingLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        context.content.sorting,
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    seedLanguageSetting(lang) {
+      context.store.getState().settings.languages = lang;
+      context.store.persist();
+    },
+    getSortingInfo() {
+      const scene = game.scene.getScene('SortingScene') as SortingScene | null;
+      return scene && game.scene.isActive('SortingScene') ? scene.getSortingInfo() : null;
+    },
+    seedColouringState(seed) {
+      writeColouringSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getColouringInfo() {
+      const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
+      return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
+    },
     seedHidingLevel(level) {
       const profileId = context.requireProfileId();
       const { world, id, languages } = context.content.hiding;
@@ -153,13 +194,6 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
-    },
-    seedColouringState(seed) {
-      writeColouringSeed(window.localStorage, context.requireProfileId(), seed);
-    },
-    getColouringInfo() {
-      const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
-      return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;

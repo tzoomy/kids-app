@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorting Beds — Flower Basket Prop Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+    .page {
+      width: 100%;
+      height: 100%;
+      padding: 20px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    header {
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #3B2A22;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #5C4338;
+      margin-top: 4px;
+    }
+    .panels {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+    .panel {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 6px 18px rgba(59, 42, 34, 0.06);
+    }
+    .panel-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #3B2A22;
+      text-align: center;
+    }
+    .panel-sub {
+      font-size: 12px;
+      color: #5C4338;
+      margin-top: 2px;
+      text-align: center;
+    }
+    .stage-garden {
+      position: relative;
+      width: 442px;
+      height: 340px;
+      border-radius: 20px;
+      background: #E9F3DC;
+      border: 2px dashed #B9D49F;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Garden path band along bottom of preview stage */
+    .stage-garden::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 150px;
+      background: #F3DEC0;
+      border-top: 3px solid #DFC29B;
+    }
+    /* Shared 520x400 coordinate stage scaled to 416x320 (0.8x) */
+    .basket-stage {
+      position: relative;
+      width: 416px;
+      height: 320px;
+      z-index: 1;
+    }
+    .basket-stage .layer {
+      position: absolute;
+      inset: 0;
+      width: 416px;
+      height: 320px;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    .tap-ref {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      width: 64px;
+      height: 64px;
+      border: 2px dashed #7A5C48;
+      border-radius: 12px;
+      background: rgba(255, 253, 249, 0.78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #3B2A22;
+      text-align: center;
+      line-height: 1.15;
+      z-index: 5;
+    }
+    .parts-strip {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 20px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 20px;
+    }
+    .part-chip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFF6E8;
+      border: 2px dashed #E5BE94;
+      border-radius: 16px;
+      padding: 8px 16px;
+    }
+    .part-chip img {
+      width: 156px;
+      height: 120px;
+      display: block;
+    }
+    .part-meta {
+      font-size: 13px;
+      color: #3B2A22;
+      line-height: 1.4;
+    }
+    .part-meta code {
+      font-weight: 800;
+      background: #F7DEC0;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    /* Portrait 800x1280 layout */
+    @media (max-aspect-ratio: 1/1) {
+      .page {
+        padding: 22px 24px;
+        gap: 16px;
+      }
+      .panels {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .stage-garden {
+        width: 520px;
+        height: 400px;
+      }
+      .basket-stage,
+      .basket-stage .layer {
+        width: 468px;
+        height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Sorting Beds — Flower Basket Prop Preview (520 × 400 shared viewBox)</h1>
+      <p class="subtitle">Single-sprite fallback (<code>flower-basket</code>) and 3-layer composite (<code>flower-basket-back</code> + preview flower + <code>flower-basket-front</code>)</p>
+    </header>
+
+    <div class="panels">
+      <!-- Panel 1: Complete flower-basket.svg -->
+      <section class="panel" data-testid="panel-complete">
+        <div>
+          <div class="panel-title">1. Complete Prop (<code>flower-basket.svg</code>)</div>
+          <div class="panel-sub">Single-sprite fallback — back + lining + front composited in 520 × 400</div>
+        </div>
+        <div class="stage-garden">
+          <div class="basket-stage">
+            <img class="layer" src="../../public/art/props/flower-basket.svg" alt="Complete flower basket" />
+          </div>
+          <div class="tap-ref">64×64px<br/>min tap</div>
+        </div>
+      </section>
+
+      <!-- Panel 2: Layered back + inline placeholder flower + front -->
+      <section class="panel" data-testid="panel-layered">
+        <div>
+          <div class="panel-title">2. Layered Basket with Flower Inside</div>
+          <div class="panel-sub"><code>flower-basket-back.svg</code> (z=1) → inline placeholder flower (z=2) → <code>flower-basket-front.svg</code> (z=3)</div>
+        </div>
+        <div class="stage-garden">
+          <div class="basket-stage">
+            <!-- Back layer: handle, back rim, and cream/sage interior lining -->
+            <img class="layer" style="z-index: 1;" src="../../public/art/props/flower-basket-back.svg" alt="Flower basket back layer" />
+
+            <!-- Inline preview-only placeholder flower in the shared 520x400 coordinate space -->
+            <svg class="layer" style="z-index: 2;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" width="520" height="400">
+              <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Stem reaching down into the basket well (y=130..275; lower stem occluded by front lip at y=220+) -->
+                <path d="M260 132 C256 178 258 226 264 274" fill="none" stroke="#3B2A22" stroke-width="18"/>
+                <path d="M260 132 C256 178 258 226 264 274" fill="none" stroke="#58A65C" stroke-width="10"/>
+                <!-- Left and right leaves peeking above the basket rim -->
+                <path d="M256 196 C220 176 192 186 184 206 C206 220 236 218 258 204 Z" fill="#68B86B"/>
+                <path d="M262 192 C298 172 326 182 334 202 C312 216 282 214 260 200 Z" fill="#68B86B"/>
+                <!-- Friendly placeholder blossom sitting clearly inside the basket frame -->
+                <circle cx="260" cy="90" r="28" fill="#FF6B6B"/>
+                <circle cx="300" cy="118" r="28" fill="#FF6B6B"/>
+                <circle cx="284" cy="162" r="28" fill="#FF6B6B"/>
+                <circle cx="236" cy="162" r="28" fill="#FF6B6B"/>
+                <circle cx="220" cy="118" r="28" fill="#FF6B6B"/>
+                <circle cx="260" cy="128" r="24" fill="#FFD166"/>
+              </g>
+            </svg>
+
+            <!-- Front layer: front rim lip, cloth overhang, and woven belly occluding lower stem -->
+            <img class="layer" style="z-index: 3;" src="../../public/art/props/flower-basket-front.svg" alt="Flower basket front layer" />
+          </div>
+          <div class="tap-ref">64×64px<br/>min tap</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="parts-strip">
+      <div class="part-chip">
+        <img src="../../public/art/props/flower-basket-back.svg" alt="Back layer only" />
+        <div class="part-meta">
+          <div><code>flower-basket-back</code></div>
+          <div>Handle + back rim + cream/sage interior bowl</div>
+        </div>
+      </div>
+      <div class="part-chip">
+        <img src="../../public/art/props/flower-basket-front.svg" alt="Front layer only" />
+        <div class="part-meta">
+          <div><code>flower-basket-front</code></div>
+          <div>Front braided lip + scalloped liner + woven belly</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        window.__PREVIEW_READY__ = true;
+      });
+    });
+  </script>
+</body>
+</html>

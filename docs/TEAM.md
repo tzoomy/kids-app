@@ -10,7 +10,7 @@ The repository is public. Do not upload secrets, keys, the girls' real names, or
 
 ## Language
 
-All code, comments, documentation, commit messages, issue and pull request titles and descriptions, and all prompts to Claude, Gemini, or any other agent must be in English only. Kid-facing app UI strings stay in Hebrew (learning content may also include English and French). Hebrew is used only in conversation between Maor and Grok Bot, not in the repository and not in work among agents.
+See `AGENTS.md`.
 
 ---
 
@@ -35,7 +35,7 @@ The author of a PR is never its sole reviewer. Two agents must not write the sam
 3. **Pull request.** The description is in English. The PR links to the issue, explains how to test, and states whether the change will affect the live site after merge.
 4. **Review.** A reviewer who is not the sole author reviews against the spec (Gemini via `agy -p` with a read-only prompt in English, or Claude for Gemini's PRs). Save the raw review under `docs/reviews/`. Fix what is convincing, and document disagreements in the PR body or in an updated review.
 5. **CI.** Must be green: unit tests, the AC coverage check, build, and Playwright journeys. The full ready-for-merge gate is in `docs/PROCESS.md` §5.
-6. **Merge.** No change of any size is merged without Maor's explicit approval.
+6. **Merge.** No change of any size is merged without Maor's explicit approval. The team lead runs batched merge rounds once or twice a day.
 7. **Publish.** A merge to `main` triggers a build and publish to GitHub Pages.
 
 Do not rewrite `main`. Force-push only with `--force-with-lease` on your own task branch when rebasing; never on `main` or on a branch another agent uses.
@@ -44,7 +44,7 @@ Do not rewrite `main`. Force-push only with `--force-with-lease` on your own tas
 
 ## How to run the agents
 
-From the machine where the tools are installed, inside the repository, with `PATH` including `~/.npm-global/bin` and `~/.local/bin` as needed.
+From the machine where the tools are installed, inside the repository. The Claude CLI is `/home/box/.local/bin/claude` (`PATH` may also include `~/.npm-global/bin` and `~/.local/bin`). The launching bot sets `--model`/`--effort` from its own memory.
 
 - Claude, an implementation or review task:
   `claude -p "…"`

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 200" width="920" height="200">
+  <!-- Soft wall drop shadow behind shelf and brackets -->
+  <path d="M36 96 L884 96 L884 124 L768 124 L768 190 L708 190 L708 124 L212 124 L212 190 L152 190 L152 124 L36 124 Z" fill="#9E6540" opacity="0.24"/>
+
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left wooden bracket -->
+    <g>
+      <path d="M148 106 L212 106 L212 132 C192 136 184 152 182 178 C182 184 176 188 168 188 L156 188 C151 188 148 184 148 178 Z" fill="#B87D56"/>
+      <path d="M148 106 L212 106 L212 122 L148 122 Z" fill="#9E6540" stroke="none"/>
+      <path d="M156 124 L156 178" stroke="#CC926B" stroke-width="5"/>
+      <path d="M148 106 L212 106 L212 132 C192 136 184 152 182 178 C182 184 176 188 168 188 L156 188 C151 188 148 184 148 178 Z" fill="none"/>
+      <circle cx="166" cy="166" r="5" fill="#C08552" stroke-width="4"/>
+    </g>
+
+    <!-- Right wooden bracket -->
+    <g>
+      <path d="M708 106 L772 106 L772 178 C772 184 769 188 764 188 L752 188 C744 188 738 184 738 178 C736 152 728 136 708 132 Z" fill="#B87D56"/>
+      <path d="M708 106 L772 106 L772 122 L708 122 Z" fill="#9E6540" stroke="none"/>
+      <path d="M764 124 L764 178" stroke="#9E6540" stroke-width="5"/>
+      <path d="M708 106 L772 106 L772 178 C772 184 769 188 764 188 L752 188 C744 188 738 184 738 178 C736 152 728 136 708 132 Z" fill="none"/>
+      <circle cx="754" cy="166" r="5" fill="#C08552" stroke-width="4"/>
+    </g>
+
+    <!-- Top horizontal surface plane where items rest -->
+    <path d="M52 44 L868 44 C878 44 886 48 890 56 L898 76 L22 76 L30 56 C34 48 42 44 52 44 Z" fill="#CC926B"/>
+    <!-- Top surface warm highlight strip -->
+    <path d="M46 52 L874 52 L882 66 L38 66 Z" fill="#F0DEC2" stroke="none" opacity="0.55"/>
+    <path d="M52 44 L868 44 C878 44 886 48 890 56 L898 76 L22 76 L30 56 C34 48 42 44 52 44 Z" fill="none"/>
+
+    <!-- Front wooden plank face -->
+    <rect x="20" y="74" width="880" height="36" rx="12" fill="#B87D56"/>
+    <!-- Top bevel highlight on front plank -->
+    <path d="M32 80 L888 80" stroke="#CC926B" stroke-width="5"/>
+    <!-- Bottom shadow on front plank -->
+    <path d="M26 100 L894 100 C892 106 886 108 878 108 L42 108 C34 108 28 106 26 100 Z" fill="#9E6540" stroke="none"/>
+    <!-- Subtle wood grain lines -->
+    <path d="M120 92 Q180 86 240 92" fill="none" stroke="#9E6540" stroke-width="4"/>
+    <path d="M410 90 Q470 96 540 90" fill="none" stroke="#9E6540" stroke-width="4"/>
+    <path d="M680 92 Q740 86 800 92" fill="none" stroke="#9E6540" stroke-width="4"/>
+    <!-- Re-stroke front plank face -->
+    <rect x="20" y="74" width="880" height="36" rx="12" fill="none"/>
+  </g>
+</svg>

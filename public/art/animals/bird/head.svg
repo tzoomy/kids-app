@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" width="200" height="180">
+  <!-- Plump storybook bird head with crown crest -->
+  <path d="M 88 20 C 90 8, 100 6, 104 16 C 110 8, 120 10, 116 20 C 158 24, 184 54, 186 98 C 188 142, 156 168, 100 168 C 44 168, 12 142, 14 98 C 16 54, 44 24, 88 20 Z" fill="#F24C4C"/>
+
+  <!-- Lower cheek and chin shadow -->
+  <path d="M 14 108 C 16 146, 48 168, 100 168 C 152 168, 184 146, 186 108 C 174 140, 146 156, 100 156 C 54 156, 26 140, 14 108 Z" fill="#CC3333"/>
+
+  <!-- Crown highlight crescent -->
+  <path d="M 44 46 C 62 28, 110 24, 144 34 C 110 30, 68 34, 44 46 Z" fill="#EE6C62"/>
+
+  <!-- Soft cream lower face patch -->
+  <ellipse cx="100" cy="122" rx="46" ry="32" fill="#FFF2A6"/>
+  <path d="M 56 130 C 64 146, 80 154, 100 154 C 120 154, 136 146, 144 130 C 132 142, 116 148, 100 148 C 84 148, 68 142, 56 130 Z" fill="#FFE073"/>
+
+  <!-- Rosy blush cheeks -->
+  <ellipse cx="38" cy="116" rx="18" ry="12" transform="rotate(6 38 116)" fill="#FF8FA3"/>
+  <ellipse cx="34" cy="113" rx="7" ry="3.5" transform="rotate(6 34 113)" fill="#FFFDF9"/>
+  <ellipse cx="162" cy="116" rx="18" ry="12" transform="rotate(-6 162 116)" fill="#FF8FA3"/>
+  <ellipse cx="158" cy="113" rx="7" ry="3.5" transform="rotate(-6 158 113)" fill="#FFFDF9"/>
+
+  <!-- Small neutral upper beak bridge (covered/completed by mouth beak parts) -->
+  <path d="M 86 108 C 92 100, 108 100, 114 108 C 114 114, 108 118, 100 118 C 92 118, 86 114, 86 108 Z" fill="#FF8533" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="98" cy="106" rx="6" ry="2.5" fill="#FFD166"/>
+
+  <!-- Friendly eyebrows -->
+  <path d="M 44 54 Q 56 46 70 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 156 54 Q 144 46 130 52" fill="none" stroke="#3B2A22" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Head outline with crown feather tuft -->
+  <path d="M 88 20 C 90 8, 100 6, 104 16 C 110 8, 120 10, 116 20 C 158 24, 184 54, 186 98 C 188 142, 156 168, 100 168 C 44 168, 12 142, 14 98 C 16 54, 44 24, 88 20 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

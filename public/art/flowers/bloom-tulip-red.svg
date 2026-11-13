@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Center upright tulip petal -->
+  <path d="M128 34 C160 34 184 78 178 144 C172 184 152 212 128 212 C104 212 84 184 78 144 C72 78 96 34 128 34 Z" fill="var(--bloom-fill, #F24C4C)" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Center petal inner shadow & top highlight -->
+  <path d="M92 128 C100 166 114 196 128 196 C142 196 156 166 164 128 C154 154 140 170 128 170 C116 170 102 154 92 128 Z" fill="var(--bloom-shadow, #CC3333)"/>
+  <path d="M112 52 C122 44 136 48 142 68 C132 60 120 64 114 78 C108 72 108 58 112 52 Z" fill="var(--bloom-highlight, #FF8585)"/>
+
+  <!-- Left cupped tulip petal -->
+  <path d="M52 64 C84 64 118 96 134 148 C144 180 138 216 116 216 C72 216 44 172 44 110 C44 82 46 64 52 64 Z" fill="var(--bloom-fill, #F24C4C)" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 84 C74 88 94 108 104 134 C88 118 72 110 56 112 C52 100 52 90 56 84 Z" fill="var(--bloom-highlight, #FF8585)"/>
+
+  <!-- Right cupped tulip petal overlapping at the base -->
+  <path d="M204 64 C172 64 136 98 118 152 C108 182 112 216 134 216 C180 216 212 172 212 110 C212 82 210 64 204 64 Z" fill="var(--bloom-fill, #F24C4C)" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M196 84 C180 88 164 104 154 126 C168 114 182 108 196 110 C200 98 200 90 196 84 Z" fill="var(--bloom-highlight, #FF8585)"/>
+
+  <!-- Deep rounded cup shadow along the bottom of the tulip -->
+  <path d="M56 158 C72 194 98 212 128 212 C158 212 184 194 200 158 C184 180 158 194 128 194 C98 194 72 180 56 158 Z" fill="var(--bloom-shadow, #CC3333)"/>
+
+  <!-- Crisp outer cup silhouette line -->
+  <path d="M52 64 C46 64 44 82 44 110 C44 172 74 216 128 216 C182 216 212 172 212 110 C212 82 210 64 204 64" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

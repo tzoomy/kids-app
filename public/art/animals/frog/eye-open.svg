@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 58" width="52" height="58">
+  <!-- Soft green upper eyelid rim -->
+  <path d="M 6 28 C 6 11, 46 11, 46 28" fill="none" stroke="#3CA33C" stroke-width="5" stroke-linecap="round"/>
+  <!-- Big round white sclera -->
+  <ellipse cx="26" cy="29" rx="20" ry="22" fill="#FFFDF9" stroke="#3B2A22" stroke-width="4.5"/>
+  <!-- Big glossy dark pupil -->
+  <ellipse cx="26" cy="29" rx="15" ry="17" fill="#261710"/>
+  <!-- Warm lower iris crescent -->
+  <path d="M 14 33 C 17 43, 35 43, 38 33 C 33 38, 19 38, 14 33 Z" fill="#6E422C"/>
+  <!-- Big bright upper catchlight -->
+  <ellipse cx="31" cy="20" rx="7" ry="8" fill="#FFFDF9"/>
+  <!-- Small lower catchlight -->
+  <circle cx="19" cy="36" r="3.2" fill="#FFFDF9"/>
+</svg>

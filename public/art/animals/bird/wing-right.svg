@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 110" width="130" height="110">
+  <!-- Rounded feathered right wing -->
+  <path d="M 18 28 C 48 14, 96 22, 116 52 C 124 66, 114 84, 94 82 C 98 94, 82 102, 62 94 C 44 88, 22 72, 12 52 C 8 42, 10 32, 18 28 Z" fill="#F24C4C"/>
+
+  <!-- Lower feather shadow -->
+  <path d="M 116 56 C 120 70, 110 84, 94 82 C 98 94, 82 102, 62 94 C 44 88, 22 72, 12 52 C 28 70, 48 82, 68 84 C 84 86, 94 78, 92 68 C 104 72, 112 66, 116 56 Z" fill="#CC3333"/>
+
+  <!-- Upper wing ridge highlight -->
+  <path d="M 26 30 C 48 22, 78 26, 98 42 C 76 34, 48 28, 26 30 Z" fill="#EE6C62"/>
+
+  <!-- Wing outline and soft feather notch line -->
+  <path d="M 18 28 C 48 14, 96 22, 116 52 C 124 66, 114 84, 94 82 C 98 94, 82 102, 62 94 C 44 88, 22 72, 12 52 C 8 42, 10 32, 18 28 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 94 82 C 82 78, 70 70, 60 60" fill="none" stroke="#3B2A22" stroke-width="4.5" stroke-linecap="round"/>
+</svg>
