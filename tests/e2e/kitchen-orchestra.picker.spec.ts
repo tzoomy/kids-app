@@ -127,10 +127,10 @@ test.describe('language house game picker', () => {
 test.describe('kitchen orchestra: map journey', () => {
   test('[AC-01] the game opens only from the Language House building: no other building opens it or the picker', async ({ page }) => {
     test.setTimeout(90_000);
-    // Real taps on every other building, each from a fresh map. Art Studio and Nature Lab are locked (toast only).
-    // Number Garden opens its own game (Sorting Beds), and Leisure Corner opens Bubbles only when the leisure balance is
-    // above 0, so those two may leave the map; whatever they do, they must never open Kitchen Orchestra, Animal Restaurant
-    // or the picker.
+    // Real taps on every other building, each from a fresh map. Art Studio is locked (toast only).
+    // Number Garden opens its own game (Sorting Beds), Nature Lab opens Who's Hiding?, and Leisure Corner opens Bubbles
+    // only when the leisure balance is above 0, so those three may leave the map; whatever they do, they must never open
+    // Kitchen Orchestra, Animal Restaurant or the picker.
     for (const worldId of ['art-studio', 'number-garden', 'nature-lab', 'leisure-corner']) {
       await tapWorldBuilding(page, 'profile-a', worldId);
       await page.waitForTimeout(1500); // let any (wrongly) triggered scene transition finish
@@ -138,7 +138,7 @@ test.describe('kitchen orchestra: map journey', () => {
       expect(scenes, `${worldId} must not open Kitchen Orchestra`).not.toContain('OrchestraScene');
       expect(scenes, `${worldId} must not open Animal Restaurant`).not.toContain('RestaurantScene');
       await expect(page.locator('[data-testid="game-picker-kitchen-orchestra"]'), `${worldId} must not open the picker`).toHaveCount(0);
-      if (worldId === 'art-studio' || worldId === 'nature-lab') expect(scenes, `${worldId} stays on the map`).toContain('MapScene');
+      if (worldId === 'art-studio') expect(scenes, `${worldId} stays on the map`).toContain('MapScene');
     }
 
     // Only the Language House building opens the picker, and only its card opens the game.

@@ -37,16 +37,34 @@ function landscapeOnly(testInfo: TestInfo): void {
   if (testInfo.project.name !== LANDSCAPE) test.skip();
 }
 
+/** Tap the dimmer (help overlay) at a point that is not on the card itself. Main's help card (AC-39) does not close on a card tap. */
+async function clickOverlayOutsideCard(page: Page): Promise<void> {
+  const cardBox = await page.locator('[data-testid="help-card"]').boundingBox();
+  const overlayBox = await page.locator('[data-testid="help-card-close"]').boundingBox();
+  if (!cardBox || !overlayBox) throw new Error('help card or overlay not visible');
+  const inRect = (pt: { x: number; y: number }, r: { x: number; y: number; width: number; height: number }) =>
+    pt.x >= r.x && pt.x <= r.x + r.width && pt.y >= r.y && pt.y <= r.y + r.height;
+  const candidates = [
+    { x: overlayBox.x + 12, y: overlayBox.y + 12 },
+    { x: overlayBox.x + overlayBox.width - 12, y: overlayBox.y + 12 },
+    { x: overlayBox.x + 12, y: overlayBox.y + overlayBox.height - 12 },
+    { x: overlayBox.x + overlayBox.width / 2, y: overlayBox.y + 12 },
+  ];
+  const tap = candidates.find((pt) => !inRect(pt, cardBox));
+  if (!tap) throw new Error('no free overlay tap point outside the card');
+  await page.mouse.click(tap.x, tap.y);
+}
+
 async function enter(
   page: Page,
   profile: ProfileTestId,
   seed: { level?: number; balanceSec?: number; lang?: 'en' | 'fr' | 'both' } = {},
 ): Promise<void> {
   await enterWorldByTap(page, profile, 'number-garden', undefined, {
-    beforeEnter: async (mapPage) => {
-      if (seed.lang !== undefined) await seedLanguageSetting(mapPage, seed.lang);
-      if (seed.level !== undefined) await seedSortingLevel(mapPage, seed.level);
-      if (seed.balanceSec !== undefined) await seedBalanceSec(mapPage, seed.balanceSec);
+    beforeEnter: async () => {
+      if (seed.lang !== undefined) await seedLanguageSetting(page, seed.lang);
+      if (seed.level !== undefined) await seedSortingLevel(page, seed.level);
+      if (seed.balanceSec !== undefined) await seedBalanceSec(page, seed.balanceSec);
     },
   });
 }
@@ -85,10 +103,10 @@ test.describe('sorting beds: map journey', () => {
   test('[AC-01] real-tap journey: profile -> Number Garden building -> Sorting Beds -> one round -> back to the map', async ({ page }) => {
     test.setTimeout(60_000);
     await enterWorldByTap(page, 'profile-a', 'number-garden', undefined, {
-      beforeEnter: async (mapPage) => {
+      beforeEnter: async () => {
         // Still on the map: the game only starts from this world's building.
-        expect(await getActiveScenes(mapPage)).toContain('MapScene');
-        expect(await getActiveScenes(mapPage)).not.toContain('SortingScene');
+        expect(await getActiveScenes(page)).toContain('MapScene');
+        expect(await getActiveScenes(page)).not.toContain('SortingScene');
       },
     });
     const scenes = await getActiveScenes(page);
@@ -497,7 +515,7 @@ test.describe('sorting beds: voice', () => {
     const help = await waitForSpokenLine(page, (l) => l.lineId === 'sorting.help.he', 8_000, helpFrom);
     expect(help.lang).toBe('he');
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
-    await page.locator('[data-testid="help-card-close"]').click();
+    await clickOverlayOutsideCard(page);
     await expect(page.locator('[data-testid="help-card"]')).toHaveCount(0);
 
     // Wrong bed: the hint line, in Hebrew.

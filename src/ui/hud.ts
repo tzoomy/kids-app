@@ -49,6 +49,7 @@ export function renderMapPins(root: HTMLElement, opts: Pick<MapChromeOptions, 'p
   const rootRect = root.getBoundingClientRect();
   for (const pin of opts.pins) {
     const node = el('div', `shell-map-pin${pin.locked ? ' is-locked' : ''}`);
+    node.dataset.worldId = pin.id;
     node.appendChild(el('span', 'shell-map-pin-label', pin.label));
     if (pin.comingSoon) node.appendChild(el('span', 'shell-map-pin-soon', pin.comingSoon));
     const left = canvasRect.left - rootRect.left + (pin.gameX / opts.gameWidth) * canvasRect.width;
@@ -147,12 +148,28 @@ export function showToast(root: HTMLElement, text: string): void {
   window.setTimeout(() => toast.remove(), 1400);
 }
 
-export function showHelpOverlay(root: HTMLElement, text: string, onClose: () => void): void {
+/** Optional page-CSS-pixel rectangle the help overlay must not cover (e.g. the speaker button). */
+export interface HelpOverlayAvoid {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export function showHelpOverlay(root: HTMLElement, text: string, onClose: () => void, avoid?: HelpOverlayAvoid): void {
   const overlay = el('div', 'shell-help-overlay');
-  // The whole overlay is the close target (tap anywhere), so it carries the close test id.
+  // The overlay (outside the card) is the close target, so it carries the close test id.
   overlay.dataset.testid = 'help-card-close';
+  if (avoid) {
+    const gap = 12;
+    const rootBox = root.getBoundingClientRect();
+    const top = Math.max(0, avoid.y + avoid.height + gap - rootBox.top);
+    overlay.style.top = `${top}px`;
+  }
   const card = el('div', 'shell-card', text);
   card.dataset.testid = 'help-card';
+  // "Tap anywhere outside the card closes"; a tap on the card itself must not close it.
+  card.addEventListener('click', (event) => event.stopPropagation());
   overlay.appendChild(card);
   overlay.addEventListener('click', () => {
     overlay.remove();
