@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { enterWorldByTap, seedHidingLevel, seedTimeEarningEnabled } from './helpers/journey';
+import { enterWorldByTap, seedHidingLevel, seedTimeEarningEnabled, tapTestId } from './helpers/journey';
 
 type Hooks = {
   getRoundInfo: () => HidingInfo | null;
@@ -90,6 +90,8 @@ async function openFromMap(page: Page): Promise<void> {
   // Wait for the staggered pop-in of the buildings to finish before tapping.
   await page.waitForTimeout(900);
   await page.mouse.click(labelBox.x + labelBox.width / 2, labelBox.y - 88 * scale);
+  // Nature Lab opens its game picker: Who's Hiding? is the first card.
+  await tapTestId(page, 'game-picker-who-is-hiding');
   await page.waitForFunction(() => (window as unknown as { __testHooks__: Hooks }).__testHooks__.getActiveScenes().includes('HidingScene'), undefined, {
     timeout: 8000,
   });

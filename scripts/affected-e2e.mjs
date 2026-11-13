@@ -52,9 +52,23 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/hiding\//,
       /^src\/content\/games\/who-is-hiding\.json$/,
+      // Nature Lab now opens a game picker first, so the picker code is part of the Who's Hiding? entry path.
+      /^src\/ui\/picker\//,
       /^tests\/unit\/(hiding|who-is-hiding)[^/]*$/,
     ],
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
+  },
+  {
+    id: 'who-lives-here',
+    match: [
+      /^src\/games\/habitat\//,
+      /^src\/content\/games\/who-lives-here\.json$/,
+      /^src\/ui\/picker\//,
+      /^src\/anim\/homesTrainMotion\.ts$/,
+      /^public\/art\/(homes|scenes\/habitats)\//,
+      /^tests\/unit\/who-lives-here[^/]*$/,
+    ],
+    specs: ['tests/e2e/who-lives-here.journey.spec.ts'],
   },
   {
     id: 'kitchen-orchestra',
