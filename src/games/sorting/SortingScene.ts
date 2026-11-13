@@ -61,8 +61,6 @@ const HE_LINE_MAX_MS = 3600;
 const WORD_LINE_MAX_MS = 1600;
 const ROUND_END_HOLD_MS = 900;
 
-/** Session-wide visit counter per profile (cycles colour, shape, size across visits at one-attribute levels). */
-const visitCounters = new Map<string, number>();
 
 interface BedView {
   plan: RoundPlanBed;
@@ -141,8 +139,12 @@ export class SortingScene extends Phaser.Scene {
     this.roundIndex = 0;
     this.token++;
 
-    const visit = visitCounters.get(profileId) ?? 0;
-    visitCounters.set(profileId, visit + 1);
+    // Visit counter per profile, persisted in the profile state (cycles colour, shape, size across visits, AC-21).
+    const profileState = this.context.store.getProfileState(profileId, new Date(this.context.nowMs()));
+    const visits = profileState.gameVisits ?? {};
+    const visit = Number.isInteger(visits[this.content.id]) && visits[this.content.id] >= 0 ? visits[this.content.id] : 0;
+    profileState.gameVisits = { ...visits, [this.content.id]: visit + 1 };
+    this.context.store.persist();
     this.visitIndex = visit;
 
     this.visibilityHandler = () => {
