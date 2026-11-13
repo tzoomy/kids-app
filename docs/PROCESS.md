@@ -2,7 +2,7 @@
 
 Status: **approved** (v2, with the owner's decisions of 2026-11-12). Every agent follows this cycle for every new game or feature and for every fix to a game. The spec is the source of truth.
 
-Direction for worlds and architecture stays in `docs/WORLDS.md` and `docs/ARCHITECTURE.md`; tools and how to run the agents are in `docs/TEAM.md`. The game spec template is `docs/specs/TEMPLATE.md`.
+Direction for worlds and architecture stays in `docs/WORLDS.md` and `docs/ARCHITECTURE.md`; tools and how to run the agents are in `docs/TEAM.md`. Precedence between these files, and the merge and force-push rules, are in [`AGENTS.md`](../AGENTS.md#cross-review-and-merge). The game spec template is `docs/specs/TEMPLATE.md`.
 
 ## Approval labels
 
@@ -23,20 +23,19 @@ Approved by Maor on 2026-11-11.
 
 | Who | Role |
 |---|---|
-| Grok Bot | Team lead: writes specs with Claude or Gemini, derives plans and tasks, opens PRs and issues, summarizes reviews for Maor. Never merges without Maor's approval. |
-| Claude (`claude`) | Logic, wiring, test handles and hooks, and tests-first work (Vitest and Playwright). Reviews Gemini's PRs for test handles, hooks, and shared registries. |
-| Gemini (`agy`) | Art, SVG, animation, voice line design, and visual code. Reviews Claude's PRs and the screenshots against the spec and the visual bar in `GEMINI.md`. |
-| GitHub Actions | Unit tests, AC coverage check, build, Playwright journeys, screenshots as an artifact. |
-| Maor | Approves specs and every merge, runs the functional tablet check, and reports feedback from use at home. |
+| Grok Bot | Team lead: writes specs with Claude or Gemini, derives plans and tasks, opens issues, assigns work, summarizes reviews, updates Maor, and merges per [`AGENTS.md`](../AGENTS.md#cross-review-and-merge). |
+| Claude (`claude`) | Logic, wiring, test handles and hooks, and tests-first work (Vitest and Playwright) on a dedicated branch; may launch sub-agents within the task. Cross-reviews the Gemini expert's PRs with Claude Code (full review). |
+| Gemini expert (`agy`) | Art, SVG, animation, voice line design, and visual code. Cross-reviews Claude's PRs and the screenshots with `agy` (full review) against the spec and the visual bar in `GEMINI.md`. |
+| GitHub Actions | CI on PRs: affected tests only, plus a smoke set (journey+hud) for shared code; full suite via `workflow_dispatch`; docs-only changes skip CI. Unit tests, AC coverage check, build, Playwright journeys, screenshots as an artifact. |
+| Maor | Approves specs, decides product questions, new games, force-push, and disagreements, runs the functional tablet check, reports feedback from use at home, and sets the conversion ratio, caps, and world order. |
 
 Branch rules:
 
 - One branch per task (`docs/…`, `feat/…`, `fix/…`, `chore/…`); never work on `main` and never rewrite `main` history.
 - Two agents must not write the same files on the same branch without coordination.
-- Force-push only with `--force-with-lease`, only on your own task branch, only to rebase it onto `origin/main`. Never force-push `main` or a branch another agent is using.
 - Shared registries are merged **additively**: keep every game's entries, knobs, helpers, and tests. This covers `src/assets/art/manifest.ts`, `src/assets/art/rigs.ts`, `src/anim/profiles.ts`, `src/anim/artRegistry.ts`, `src/anim/registerArt.ts`, `src/anim/index.ts`, `src/anim/worldMotion.ts`, `tests/unit/artAssets.test.ts`, `src/content/schema.ts`, `src/content/loadContent.ts`, `src/content/worlds.json`, and `src/pwa/updatePolicy.ts`.
 - The author of a PR is never its sole reviewer.
-- No change of any size is merged to `main` without Maor's explicit approval.
+- Merge and force-push rules: see [`AGENTS.md`](../AGENTS.md#cross-review-and-merge).
 
 ## 2. Spec first
 
@@ -111,7 +110,7 @@ A merge to `main` publishes to GitHub Pages, so this gate comes before merge. Fo
 - CI is green, including the Playwright journeys named in the spec and the AC coverage check.
 - In-game screenshots (not only art-preview boards) at native `1280×800` and `800×1280`, each taken in a fresh page at that size (resizing a Phaser FIT canvas letterboxes): age-2 start, age-5 start if it looks different, one correct-feedback frame, and one hint or retry frame. Playwright writes them to `docs/screenshots/` and CI uploads them as the `screenshots` artifact; preview scripts write to `tools/art-preview/shots/`.
 - A named reviewer has actually inspected the screenshots for contrast, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, and tap-target size. A file existing is not a review.
-- The change has been reviewed against the spec by a named reviewer who is not its sole author. The review is saved in `docs/reviews/` or linked from the PR.
+- The change has been cross-reviewed against the spec (a full review) by the agent who is not its author, and the reviewer posted APPROVE as a PR comment. A copy in `docs/reviews/` is optional.
 
 ### CI: affected tests
 
@@ -131,7 +130,7 @@ CI (`.github/workflows/ci.yml`) runs only what the change affects. PRs that touc
 
 ## 6. Merge
 
-Only with Maor's explicit approval.
+See [`AGENTS.md`](../AGENTS.md#cross-review-and-merge).
 
 ## 7. Functional tablet check and feedback
 

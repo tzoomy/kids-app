@@ -29,4 +29,4 @@ Use a fresh, short session. One reviewer per PR; review the diff only.
 - Rank each finding **blocker**, **major**, or **minor**, and point to `file:line` (or a named screenshot).
 - Drop claims you cannot verify from the diff, the spec, or the screenshots. Do not guess device audio or unshot states.
 - Say whether you agree or disagree with the author or with another reviewer.
-- Return complete output that can go in `docs/reviews/` or on the PR. Do not merge.
+- Post the verdict as a PR comment: APPROVE, or the blocking issues. A copy in `docs/reviews/` is optional. Remove the review worktree after the review.

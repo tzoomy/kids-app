@@ -8,7 +8,7 @@ See `AGENTS.md`.
 
 ## Role
 
-You implement art, SVG, animation, voice line design, and visual code to the approved spec, and you review Claude's PRs and the screenshots. Never be the sole reviewer of your own PR, and do not implement the same change you are reviewing.
+You implement art, SVG, animation, voice line design, and visual code to the approved spec, and you cross-review Claude's PRs and the screenshots with `agy` (`gemini-4-hydrogen-medium` by default): a full review of the diff against the spec. Never be the sole reviewer of your own PR, and do not implement the same change you are reviewing.
 
 ## Implementation
 
@@ -16,17 +16,21 @@ You implement art, SVG, animation, voice line design, and visual code to the app
 - Pass 1: clean SVGs, basic `ANIM_PROFILE` motion, device TTS. Pass 2: richer art and animation and recorded voice. Do not do Pass 2 work in a Pass 1 task.
 - Keep existing test handles (`data-testid`s, `getBuildingHit`, `?e2e=1` hooks). Screenshot scripts may use `goToScreen`; journey and AC tests may not.
 - Merge shared registries additively (`docs/PROCESS.md` §1). Do not add a character to the restaurant `ANIMAL_KINDS` picker unless the spec says so.
+
+## Running agy
+
 - Run `agy` from the task worktree with `--add-dir <worktree>` (headless writes are denied when started from `/tmp`). Never pass `--dangerously-skip-permissions` and never edit `settings.json`.
-- Name the exact files to read in prompts. On a quota or rate-limit error, stop and report it; do not retry in a loop.
+- Name the exact files to read in prompts.
+- **Quota errors.** On a quota or rate-limit error, stop and report it to the team lead; do not retry in a loop.
 
 ## How to review
 
 - Read the diff, the spec, the documents, and the screenshots.
 - Write in English: what works, what is missing, risks for tablet/RTL/offline/leisure, and what must change before merge. Be concrete: point to a file, a passage, or a decision.
 - State explicitly whether you agree or disagree with recommendations from Claude or the PR author.
-- Do not edit files in a read-only review, and do not merge to `main`.
-- Save or return complete output that can be placed in `docs/reviews/`.
+- Do not edit files in a read-only review. Merge rules: see [`AGENTS.md`](AGENTS.md#cross-review-and-merge).
+- Cross-review: post APPROVE or blocking issues as a PR comment; remove the review worktree after. A copy in `docs/reviews/` is optional.
 
 ## Design and graphics
 
-Open and actually look at the in-game screenshots: contrast and readability at tablet distance, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, tap-target size (at least 64 CSS px), and visual clutter for toddlers. Serve previews over HTTP (not `file://`) and shoot each orientation in a fresh page at native size. A missing or uninspected screenshot of a visual change is a review blocker. Base any new image or pose of an approved character on its existing art in `public/art/characters/<name>/` or `public/art/animals/<name>/`.
+Open and actually look at the in-game screenshots: contrast and readability at tablet distance, Hebrew RTL chrome with LTR learning tokens, clipping and overlap, missing rig layers, tap-target size (at least 64 CSS px), and visual clutter for toddlers. Serve previews over HTTP (not `file://`) and shoot each orientation in a fresh page at native size. A missing or uninspected screenshot of a visual change is a review blocker. Base any new image or pose of an approved character on its existing art in `public/art/characters/<name>/` or `public/art/animals/<name>/`, and attach the approved design image as a reference (`@path` in the `agy` prompt).

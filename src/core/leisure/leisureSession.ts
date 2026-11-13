@@ -21,7 +21,7 @@ export class LeisureSession {
     private readonly state: ProfileState,
     private readonly graceSeconds = 5,
     /** When false (time earning paused) the session never spends balance, enters grace, or ends. */
-    private readonly spendingEnabled = true,
+    private readonly spendingEnabled = false,
   ) {
     this.graceRemainingSec = graceSeconds;
   }
