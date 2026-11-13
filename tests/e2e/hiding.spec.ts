@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { enterWorldByTap, seedHidingLevel } from './helpers/journey';
 
 type Hooks = {
   getRoundInfo: () => HidingInfo | null;
@@ -26,6 +27,7 @@ type HidingInfo = {
   skillKey: string;
   correctCount: number;
   ready: boolean;
+  shortSound?: boolean;
 };
 
 async function waitForGameReady(page: Page): Promise<void> {
@@ -109,7 +111,7 @@ async function recordedTrials(page: Page): Promise<number> {
 }
 
 test.describe("Who's Hiding? (Nature Lab)", () => {
-  test('profile select -> map -> Nature Lab opens a ready round at the age-2 start level', async ({ page }) => {
+  test('[AC-01] [AC-07] [AC-11] profile select -> map -> Nature Lab opens a ready round at the age-2 start level', async ({ page }) => {
     await enterProfile(page);
     await openFromMap(page);
     const info = await waitForReady(page);
@@ -124,9 +126,13 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     expect(info.reveal).toBeCloseTo(0.8);
     expect(info.tries).toBe(0);
     await expect(page.locator('.shell-prompt-bubble')).toBeVisible();
+    await page.locator('[data-testid="hud-back"]').click();
+    await page.waitForFunction(
+      () => (window as unknown as { __testHooks__: Hooks }).__testHooks__.getActiveScenes().includes('MapScene'),
+    );
   });
 
-  test('a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial', async ({ page }) => {
+  test('[AC-03] [AC-08] [AC-23] a wrong bush never reduces the leisure balance; the correct bush adds one star and completes the trial', async ({ page }) => {
     await enterProfile(page);
     await page.evaluate((sec) => (window as unknown as { __testHooks__: Hooks }).__testHooks__.seedBalanceSec(sec), 120);
     await openFromMap(page);
@@ -151,7 +157,7 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     expect(await recordedTrials(page)).toBe(1); // exactly once per trial: the correct tap adds nothing
   });
 
-  test('a clean correct tap completes the trial and starts the next round', async ({ page }) => {
+  test('[AC-02] a clean correct tap completes the trial and starts the next round', async ({ page }) => {
     await enterProfile(page);
     await openFromMap(page);
     const info = await waitForReady(page);
@@ -169,7 +175,7 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     );
   });
 
-  test('tapping the speaker or the request bubble replays it: no try, no hint, no recorded trial', async ({ page }) => {
+  test('[AC-20] tapping the speaker or the request bubble replays it: no try, no hint, no recorded trial', async ({ page }) => {
     await enterProfile(page);
     await openFromMap(page);
     const info = await waitForReady(page);
@@ -183,14 +189,12 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     expect(await recordedTrials(page)).toBe(0);
   });
 
-  test('a seeded higher level (L7, audio-only) shows no visual cue for the request', async ({ page }) => {
-    await enterProfile(page);
-    await page.evaluate(() => (window as unknown as { __testHooks__: Hooks }).__testHooks__.seedHidingLevel(7));
-    await page.evaluate(() => (window as unknown as { __testHooks__: Hooks }).__testHooks__.goToScreen('hiding'));
-    await waitForGameReady(page);
-    const info = await waitForReady(page);
+  test('[AC-06] [AC-18] [AC-22] seeded L7 and L8 entered from the map are audio-only: no bubble, sound / short sound, and a correct tap still works', async ({ page }) => {
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 7) });
+    let info = await waitForReady(page);
     expect(info.level).toBe(7);
     expect(info.speak).toBe('sound');
+    expect(info.shortSound).not.toBe(true);
     expect(info.visualCue).toBe(false);
     expect(info.choiceCount).toBe(5);
     await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
@@ -202,5 +206,33 @@ test.describe("Who's Hiding? (Nature Lab)", () => {
     expect(after.tries).toBe(0);
     expect(after.correctCount).toBe(0);
     await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
+
+    const c = info.choiceCenters[info.correctIndex];
+    await clickGame(page, c.x, c.y);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
+
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 8) });
+    info = await waitForReady(page);
+    expect(info.level).toBe(8);
+    expect(info.speak).toBe('sound');
+    expect(info.shortSound).toBe(true);
+    expect(info.visualCue).toBe(false);
+    expect(info.choiceCount).toBe(6);
+    await expect(page.locator('.shell-prompt-bubble')).toHaveCount(0);
+    const c8 = info.choiceCenters[info.correctIndex];
+    await clickGame(page, c8.x, c8.y);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
+  });
+
+  test('[AC-07] [AC-27] age-5 profile starts at L5 and a correct tap completes the trial', async ({ page }) => {
+    await enterWorldByTap(page, 'profile-b', 'nature-lab');
+    const info = await waitForReady(page);
+    expect(info.level).toBe(5);
+    expect(info.choiceCount).toBe(4);
+    expect(info.reveal).toBeCloseTo(0.3);
+    expect(info.speak).toBe('name');
+    const c = info.choiceCenters[info.correctIndex];
+    await clickGame(page, c.x, c.y);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
   });
 });

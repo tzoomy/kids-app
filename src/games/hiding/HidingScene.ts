@@ -18,7 +18,7 @@ import { crossedWholeMinute, shouldPraise, shouldSayRetry, showsPromptBubble } f
 import { type Lang } from '../templates/choiceServe';
 import type { SpeechRequest } from '../../core/audio/types';
 import { buildHidingRound, eligibleAnimalIds, isCorrectBush, type HidingRoundSpec } from './hidingRound';
-import { animalFeetY, computeHidingLayout, type BushSlot, type HidingLayout } from './hidingLayout';
+import { animalFeetY, computeHidingLayout, BUSH_ART, type BushSlot, type HidingLayout } from './hidingLayout';
 
 export interface HidingRoundInfo {
   /** Always 'hiding'; lets a test tell this round apart from a restaurant round. */
@@ -49,6 +49,12 @@ export interface HidingRoundInfo {
   correctCount: number;
   /** True once every bush has popped in and the request has been given. */
   ready: boolean;
+  /** Current scaleX of the correct bush's front foliage (setDisplaySize, so not 1). */
+  correctFrontScale: number;
+  /** Visible span (game px) of the correct animal above the front foliage's current top. */
+  correctPeek: number;
+  /** L8 short sound word when true. */
+  shortSound: boolean;
 }
 
 interface BushView {
@@ -477,6 +483,17 @@ export class HidingScene extends Phaser.Scene {
     }
   }
 
+  private correctBushVisuals(correctIndex: number): { correctFrontScale: number; correctPeek: number } {
+    const view = this.bushes[correctIndex];
+    if (!view) return { correctFrontScale: 1, correctPeek: 0 };
+    const front = view.front as Phaser.GameObjects.Components.Transform & { displayHeight?: number };
+    const scale = front.scaleX;
+    const displayH = front.displayHeight ?? view.slot.height * Math.abs(scale);
+    const foliageTop = front.y - displayH * (1 - BUSH_ART[view.slot.shape].topFrac);
+    const headY = view.character.root.y - view.slot.animalHeight;
+    return { correctFrontScale: scale, correctPeek: foliageTop - headY };
+  }
+
   getRoundInfo(): HidingRoundInfo | null {
     if (!this.round || this.round.done) return null;
     const round = this.round;
@@ -500,6 +517,8 @@ export class HidingScene extends Phaser.Scene {
       skillKey: round.skillKey,
       correctCount: this.correctCount,
       ready: this.ready,
+      ...this.correctBushVisuals(correctIndex),
+      shortSound: round.level.shortSound,
     };
   }
 
@@ -529,7 +548,7 @@ export class HidingScene extends Phaser.Scene {
     // A voice-only level shows nothing of the answer: the hint is the spoken request plus a clue.
     if (view && !round.level.audioOnly) {
       void rustleBush(this, view.front);
-      void hintPulse(this, view.front);
+      void hintPulse(this, view.front, view.front.scaleX);
       Juice.for(this).burst('sparkle', view.slot.x, view.slot.topY);
       // More of the animal shows (never less than it already did).
       const y = animalFeetY(view.slot.topY, view.slot.animalHeight, Math.max(round.level.reveal, HINT_MIN_REVEAL));

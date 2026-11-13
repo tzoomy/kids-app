@@ -49,6 +49,12 @@ export interface RoundInfo {
   /** Who's Hiding? speaker button centre, in game coordinates. */
   replayCenter?: { x: number; y: number };
   hinted?: boolean;
+  targetId?: string;
+  choiceIds?: string[];
+  correctFrontScale?: number;
+  correctPeek?: number;
+  shortSound?: boolean;
+  speak?: string;
 }
 
 type Hooks = {
@@ -59,6 +65,7 @@ type Hooks = {
   getGameSize: () => { width: number; height: number };
   /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
   isListening: () => boolean;
+  seedHidingLevel: (level: number) => void;
 };
 
 type HookName = keyof Hooks;
@@ -127,13 +134,23 @@ export async function waitForSpokenLine(
  * world's building (real pointer click at the centre of its hit rectangle) and returns when the
  * world's game scene is active.
  */
-export async function enterWorldByTap(page: Page, profile: ProfileTestId, worldId: string): Promise<void> {
+export async function seedHidingLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedHidingLevel', [level]);
+}
+
+export async function enterWorldByTap(
+  page: Page,
+  profile: ProfileTestId,
+  worldId: string,
+  opts?: { beforeEnter?: () => Promise<void> },
+): Promise<void> {
   const targetScene = WORLD_SCENE[worldId];
   if (!targetScene) throw new Error(`enterWorldByTap: no game scene known for world "${worldId}"`);
 
   await page.goto('/?e2e=1');
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
+  if (opts?.beforeEnter) await opts.beforeEnter();
 
   // Wait for the building's pop-in to finish (its size stops changing), then tap its centre.
   let previous: PageRect | null = null;

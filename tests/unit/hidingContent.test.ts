@@ -14,7 +14,7 @@ function withLevel(index: number, patch: Record<string, unknown>) {
 }
 
 describe("Who's Hiding? content schema", () => {
-  it('validates and every animal has EN/FR name, sound, short sound and clue', () => {
+  it('[AC-09] validates and every animal has EN/FR name, sound, short sound and clue', () => {
     expect(content.animals.length).toBeGreaterThanOrEqual(6);
     for (const a of content.animals) {
       for (const lang of ['en', 'fr'] as const) {
@@ -26,14 +26,14 @@ describe("Who's Hiding? content schema", () => {
     }
   });
 
-  it('has 8 levels; age 2 starts at L2 and age 5 at L5, both with min 1 and max = levels.length (no age-2 ceiling)', () => {
+  it('[AC-07] has 8 levels; age 2 starts at L2 and age 5 at L5, both with min 1 and max = levels.length (no age-2 ceiling)', () => {
     const { adaptive } = content;
     expect(adaptive.levels).toHaveLength(8);
     expect(adaptive.tracks.age2).toEqual({ start: 2, min: 1, max: 8 });
     expect(adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 8 });
   });
 
-  it('the age-5 start is meaningfully harder than the age-2 start', () => {
+  it('[AC-07] the age-5 start is meaningfully harder than the age-2 start', () => {
     const a2 = hidingLevel(content.adaptive.levels[content.adaptive.tracks.age2.start - 1]);
     const a5 = hidingLevel(content.adaptive.levels[content.adaptive.tracks.age5.start - 1]);
     expect(a5.choiceCount).toBeGreaterThan(a2.choiceCount);
@@ -44,7 +44,7 @@ describe("Who's Hiding? content schema", () => {
     expect(a5.speak).toBe('name');
   });
 
-  it('the level curve never gets easier: bushes up, reveal down, speech thinner', () => {
+  it('[AC-16] the level curve never gets easier: bushes up, reveal down, speech thinner', () => {
     const levels = content.adaptive.levels.map(hidingLevel);
     for (let i = 1; i < levels.length; i++) {
       expect(levels[i].choiceCount).toBeGreaterThanOrEqual(levels[i - 1].choiceCount);
@@ -59,7 +59,7 @@ describe("Who's Hiding? content schema", () => {
     expect(levels[6].shortSound).toBe(false);
   });
 
-  it('the reveal fraction maps to the visible part of the animal', () => {
+  it('[AC-18] the reveal fraction maps to the visible part of the animal', () => {
     expect(revealPart(0.9)).toBe('whole');
     expect(revealPart(0.8)).toBe('body');
     expect(revealPart(0.6)).toBe('head');
@@ -67,7 +67,7 @@ describe("Who's Hiding? content schema", () => {
     expect(revealPart(0.3)).toBe('ears');
   });
 
-  it('the skill key is distinct from the restaurant skill keys', () => {
+  it('[AC-30] the skill key is distinct from the restaurant skill keys', () => {
     const restaurant = loadAnimalRestaurant();
     for (const lang of ['en', 'fr'] as const) {
       const hiding = skillKey(content.world, content.id, lang);
@@ -76,14 +76,14 @@ describe("Who's Hiding? content schema", () => {
     }
   });
 
-  it('Nature Lab is open on the map and its entry game is Who\'s Hiding?', () => {
+  it('[AC-30] Nature Lab is open on the map and its entry game is Who\'s Hiding?', () => {
     const nature = loadWorlds().worlds.find((w) => w.id === 'nature-lab');
     expect(nature?.status).toBe('open');
     expect(nature?.entryGameId).toBe(content.id);
     expect(nature?.id).toBe(content.world);
   });
 
-  it('rejects bad track bounds, missing levers and unsupported values', () => {
+  it('[AC-31] rejects bad track bounds, missing levers and unsupported values', () => {
     const badBounds = JSON.parse(JSON.stringify(rawHiding));
     badBounds.adaptive.tracks.age2.max = 9;
     expect(WhosHidingContentSchema.safeParse(badBounds).success).toBe(false);
@@ -99,7 +99,7 @@ describe("Who's Hiding? content schema", () => {
     expect(withLevel(0, { bogus: 1 }).success).toBe(false);
   });
 
-  it('rejects bad frames, duplicate animal ids and same-category without a look-alike group', () => {
+  it('[AC-31] rejects bad frames, duplicate animal ids and same-category without a look-alike group', () => {
     const badFrame = JSON.parse(JSON.stringify(rawHiding));
     badFrame.promptFrames.name.en = 'Where is it?';
     expect(WhosHidingContentSchema.safeParse(badFrame).success).toBe(false);

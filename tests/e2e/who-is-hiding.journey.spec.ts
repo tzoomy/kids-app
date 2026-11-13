@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import {
   clickGame,
   enterWorldByTap,
+  seedHidingLevel,
   getBuildingHit,
   getGameSize,
   getRoundInfo,
@@ -226,7 +227,7 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     expect(help.index).toBeGreaterThan(firstRequest.index);
     // The overlay is moved so it does not cover the speaker; a tap on the overlay
     // outside the card still closes it (AC-39). Closing repeats the request.
-    expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
     const afterHelp = (await getSpokenLines(page)).at(-1)!.index;
     // No further request should start while the card stays open.
     await page.waitForTimeout(400);
@@ -258,7 +259,7 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     expect(await isListening(page)).toBe(false);
   });
 
-  test('[AC-39] help card and speaker do not overlap in either orientation; hit targets are at least 64px; speaker stays tappable', async ({ page }) => {
+  test('[AC-39] help card and speaker do not overlap in either orientation; hit targets are at least 64px; tapping the card does not close it, the dimmer does, and the speaker stays tappable', async ({ page }) => {
     await enterWorldByTap(page, 'profile-a', 'nature-lab');
     await waitForRoundReady(page);
     await waitForSpokenLine(page, isIntro, 15_000);
@@ -278,6 +279,9 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     if (!info?.replayCenter) throw new Error('no replayCenter');
     await clickGame(page, info.replayCenter.x, info.replayCenter.y);
     await page.waitForTimeout(200);
+    await expect(card).toBeVisible();
+
+    await card.click();
     await expect(card).toBeVisible();
 
     await clickOverlayOutsideCard(page);
@@ -337,5 +341,123 @@ test.describe("Who's Hiding? intro and help (Pass 1)", () => {
     if (closeRemain > 0) await page.waitForTimeout(closeRemain);
     expect(await hinted(page)).toBe(false);
     await expect.poll(async () => hinted(page), { timeout: 2000 }).toBe(true);
+  });
+
+  test('[AC-10] [AC-21] @single-orientation age-2 idle hint restores front foliage scale, does not shrink the peek, and speaks a hint', async ({ page }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    test.setTimeout(90_000);
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    await waitForSpokenLine(page, isIntro, 15_000);
+    const afterIntro = await waitForRequest(page);
+    const before = await getRoundInfo(page);
+    expect(before).not.toBeNull();
+    expect(before!.hinted).toBe(false);
+    const scaleBefore = before!.correctFrontScale!;
+    const peekBefore = before!.correctPeek!;
+    expect(scaleBefore).toBeGreaterThan(0);
+    expect(scaleBefore).not.toBeCloseTo(1, 2); // setDisplaySize, not native scale
+    expect(peekBefore).toBeGreaterThan(0);
+
+    // Wait until the idle hint has fired and the pulse has finished (260ms × yoyo × 3).
+    const hintDueAt = afterIntro.at + HINT_DELAY_MS + 200;
+    const remain = hintDueAt - Date.now();
+    if (remain > 0) await page.waitForTimeout(remain);
+    await expect.poll(async () => hinted(page), { timeout: 3000 }).toBe(true);
+    await page.waitForTimeout(1800);
+
+    const after = await getRoundInfo(page);
+    expect(after).not.toBeNull();
+    expect(after!.hinted).toBe(true);
+    expect(after!.correctFrontScale).toBeCloseTo(scaleBefore, 3);
+    // The animal is lifted to at least 0.9; the visible peek must not shrink.
+    expect(after!.correctPeek).toBeGreaterThanOrEqual(peekBefore - 1);
+    // AC-10: a hint line is spoken after the request (repeat of the request on L2).
+    const afterHint = (await getSpokenLines(page)).filter((l) => l.index > afterIntro.index);
+    expect(afterHint.filter(isRequest).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('[AC-21] @single-orientation age 5 gets no idle auto-hint', async ({ page }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    test.setTimeout(40_000);
+    await enterWorldByTap(page, 'profile-b', 'nature-lab');
+    await waitForRoundReady(page);
+    await waitForRequest(page);
+    expect(await hinted(page)).toBe(false);
+    await page.waitForTimeout(HINT_DELAY_MS + 500);
+    expect(await hinted(page)).toBe(false);
+    const info = await getRoundInfo(page);
+    expect(info?.level).toBe(5);
+  });
+
+  const LOOKALIKE: Record<string, string> = {
+    cat: 'lion', lion: 'cat', bear: 'panda', panda: 'bear', dog: 'rabbit', rabbit: 'dog',
+  };
+
+  test('[AC-05] @single-orientation age-2 climbs from seeded L2 to L3 after three clean trials; L3 has a same-category neighbour', async ({ page }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    test.setTimeout(120_000);
+    await enterWorldByTap(page, 'profile-a', 'nature-lab', { beforeEnter: () => seedHidingLevel(page, 2) });
+    await waitForSpokenLine(page, isIntro, 15_000);
+    let stars = 0;
+    const playCleanOnLevel = async (level: number, count: number): Promise<void> => {
+      for (let n = 0; n < count; n++) {
+        const info = await waitForRoundReady(page);
+        expect(info.level, `trial still on L${level}`).toBe(level);
+        const c = info.choiceCenters[info.correctIndex];
+        await clickGame(page, c.x, c.y);
+        stars += 1;
+        await expect(page.locator('[data-testid="star-count"]')).toHaveText(new RegExp(`⭐ ${stars}`), { timeout: 8000 });
+      }
+    };
+    // A clean engine round of 3 raises that language to L3. The next request may
+    // still be L2 if the engine re-picks the other (still seeded) language.
+    await playCleanOnLevel(2, 3);
+    let l3 = await waitForRoundReady(page);
+    if (l3.level === 2) {
+      await playCleanOnLevel(2, 3);
+      l3 = await waitForRoundReady(page);
+    }
+    expect(l3.level).toBe(3);
+    expect(l3.choiceCount).toBe(3);
+    expect(l3.targetId).toBeTruthy();
+    expect(l3.choiceIds).toContain(LOOKALIKE[l3.targetId!]);
+  });
+
+  test('[AC-01] [AC-02] [AC-10] [AC-11] real-tap journey: Nature Lab, a found line after a correct tap, then back to the map', async ({ page }) => {
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    const request = await waitForRequest(page);
+    expect(request.lang === 'en' || request.lang === 'fr').toBe(true);
+    expect((await getSpokenLines(page)).filter(isIntro)).toHaveLength(1);
+    const info = await getRoundInfo(page);
+    expect(info).not.toBeNull();
+    await clickGame(page, info!.choiceCenters[info!.correctIndex].x, info!.choiceCenters[info!.correctIndex].y);
+    const found = await waitForSpokenLine(page, (l) => l.lineId.startsWith('hiding.found.'), 10_000);
+    expect(found.lang).toBe(request.lang);
+    await expect(page.locator('[data-testid="star-count"]')).toHaveText(/⭐ 1/, { timeout: 8000 });
+    await page.locator('[data-testid="hud-back"]').click();
+    await waitForScene(page, 'MapScene');
+  });
+
+  test('[AC-12] @single-orientation Nature Lab stays available after going offline', async ({ page, context }) => {
+    test.skip(test.info().project.name !== 'landscape-1280x800');
+    await enterWorldByTap(page, 'profile-a', 'nature-lab');
+    await waitForRoundReady(page);
+    await context.setOffline(true);
+    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('[data-testid="hud-back"]')).toBeVisible();
+    expect(await getRoundInfo(page)).not.toBeNull();
+    await context.setOffline(false);
+  });
+
+  test('[AC-13] parent multiplication gate is shown when e2e bypass is off', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
+    await page.locator('[data-testid="parent-gate-btn"]').click();
+    await expect(page.getByText('אזור הורים')).toBeVisible();
+    await expect(page.getByText(/כמה זה/)).toBeVisible();
+    await page.getByRole('button', { name: 'ביטול' }).click();
+    await expect(page.locator('[data-testid="profile-a"]')).toBeVisible();
   });
 });
