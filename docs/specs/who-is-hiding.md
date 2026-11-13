@@ -45,12 +45,12 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 
 **Hints:**
 
-- **Idle auto-hint, age 2 only:** `hintDelayMs` 6000 ms after the request becomes ready, if the request is still open, `giveHint()` runs once (it is not repeated). It marks the trial hinted only if no tap was made yet. If the help card is open it is postponed by another `hintDelayMs`. Age 5 has no idle auto-hint (the timer is scheduled only for `hintMode === 'demonstrate'`), the same as in the restaurant. **Decided by the owner (2026-11-12):** this is intended behaviour: on age 5 a hint comes only after a mistake, and any age-5 `hintDelayMs` is unused by design.
+- **Idle auto-hint, age 2 only:** `hintDelayMs` 6000 ms after the request becomes ready, if the request is still open, `giveHint()` runs once (it is not repeated). It marks the trial hinted only if no tap was made yet. If the help card is open it is postponed. Age 5 has no idle auto-hint (the timer is scheduled only for `hintMode === 'demonstrate'`), the same as in the restaurant. **Decided by the owner (2026-11-12):** this is intended behaviour: on age 5 a hint comes only after a mistake, and any age-5 `hintDelayMs` is unused by design. **Team-lead decision (2026-11-13):** the idle auto-hint is postponed while `he.hiding.intro` or `he.hiding.help` is playing. It must not fire during those lines. The full `hintDelayMs` is measured from when the blocking line ends (and, if the help card is still open after the help line ends, from when the card is closed). It is not a leftover of a timer that started before the line.
 - **Hint on a level with a visual cue (L1–L6):** the correct bush's front rustles and pulses, a sparkle bursts at its top, the animal rises to at least 0.9 of its height (`HINT_MIN_REVEAL`, never lower than the level's reveal), the `hint` SFX plays, and the request is spoken again (`hintLineId` `hiding.<id>.hint.<speak>.<lang>`).
 - **Hint on an audio-only level (L7–L8):** nothing visual changes; the `hint` SFX plays and the request is spoken followed by the animal's descriptive clue (`hintFor`, line id `hiding.<id>.hint.clue.<lang>`).
 - **A second hint can follow a wrong tap:** the idle timer is not cancelled by a wrong tap, so on age 2 a child who taps wrong early can get the wrong-tap hint and then the idle hint at 6 s. This is the same as the restaurant. See the open decisions.
 
-**Help card:** the HUD help button opens the Hebrew help card (`content.helpTextHe`). Opening it stops all audio and supersedes any pending speech. Today (commit `3fd6d7e`) it then reports **not listening**, because there is no help clip (fix "stop counting an open help card as listening"). **Target (Pass 1, decided 2026-11-13):** after stopping audio it plays `he.hiding.help` and reports listening only while that clip plays, like the restaurant; when the clip ends (or fails) it reports not listening again. Replays are ignored while the card is open. Closing it stops the help clip and repeats the request if the request is still open and ready. The intro (`he.hiding.intro`) plays once per visit before the first request and counts as listening while it plays.
+**Help card:** the HUD help button opens the Hebrew help card (`content.helpTextHe`). Opening it stops all audio and supersedes any pending speech. Today (commit `3fd6d7e`) it then reports **not listening**, because there is no help clip (fix "stop counting an open help card as listening"). **Target (Pass 1, decided 2026-11-13):** after stopping audio it plays `he.hiding.help` and reports listening only while that clip plays, like the restaurant; when the clip ends (or fails) it reports not listening again. Replays are ignored while the card is open. Closing it stops the help clip and repeats the request if the request is still open and ready. The intro (`he.hiding.intro`) plays once per visit before the first request and counts as listening while it plays. **Team-lead decision (2026-11-13):** the help overlay must not cover the speaker / replay button (move or resize the overlay; keep "tap anywhere outside the card closes" if possible). The help card's rectangle and the speaker's rectangle must not overlap in either orientation. Hit targets stay at least 64 CSS px.
 
 **Leaving the game:** the HUD back button (⬅️) stops audio, persists the store, clears the bubble, and returns to the map with an iris transition (`goBack`). On scene shutdown, `cleanup()` ends the learning session (`session.exit()`) and the adaptive visit (`skills.endVisit()`). Switching profile (`returnToProfileSelect`/`pickProfile` in `src/main.ts`) also stops `HidingScene`. A hidden tab stops audio and never earns (`visibilitychange`).
 
@@ -113,7 +113,7 @@ Handles that exist today:
 
 - **Map building hit target:** `__testHooks__.getBuildingHit(worldId)` returns `{ x, y, width, height } | null` in **page CSS pixels** (top-left; accounts for canvas scaling and letterboxing; `null` when the map is not active or the world has no building). It is **added in draft PR #37 (branch `test/e2e-infra-v2`, not on `main` yet)**. Today (without PR #37) the e2e test taps 88 game units above the `.shell-map-pin[data-world-id="nature-lab"]` label (`openFromMap` in `tests/e2e/hiding.spec.ts`), which depends on the map layout; it switches to `getBuildingHit('nature-lab')` or the shared helper once PR #37 lands.
 - **Shared Playwright helper:** `enterWorldByTap(page, profile, worldId)` in `tests/e2e/helpers/journey.ts` (added in draft PR #37, not on `main` yet): opens `/?e2e=1`, taps the profile, waits for the map, taps the building centre from `getBuildingHit`, and waits for the world's game scene. Its `WORLD_SCENE` table in PR #37 does not list `nature-lab` yet; the game's journey adds `'nature-lab': 'HidingScene'` there.
-- **`data-testid`s** (final shared names; the new ones are added in draft PR #37, not on `main` yet): `profile-a` (the age-2 profile; `profile-b` is age 5), `leisure-balance`, `star-count`, `parent-gate-btn` (existing); `hud-back` (back pill), `hud-help` (help pill), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the whole help overlay: tapping anywhere closes it; there is no separate close button). Today the tests use the CSS hooks `.shell-prompt-bubble` and `.shell-map-pin[data-world-id="nature-lab"]`; they switch to the testids once PR #37 lands.
+- **`data-testid`s** (final shared names; the new ones are added in draft PR #37, not on `main` yet): `profile-a` (the age-2 profile; `profile-b` is age 5), `leisure-balance`, `star-count`, `parent-gate-btn` (existing); `hud-back` (back pill), `hud-help` (help pill), `prompt-bubble` (request bubble), `help-card` (help card), `help-card-close` (the help overlay: tapping anywhere on it, outside the card, closes it; there is no separate close button). **Team-lead decision (2026-11-13):** the overlay is laid out so it does not cover the speaker / replay button; a tap on the speaker does not close the card (replays stay blocked while the card is open). Today the tests use the CSS hooks `.shell-prompt-bubble` and `.shell-map-pin[data-world-id="nature-lab"]`; they switch to the testids once PR #37 lands.
 - **Seed and read hooks under `?e2e=1`** (`window.__testHooks__`, `src/game/createGame.ts`):
   - `seedBalanceSec(sec)` — seed (existing).
   - `seedHidingLevel(level)` — seed: sets the stored level for every content language and resets the streak and recent window (new on PR #29).
@@ -122,6 +122,15 @@ Handles that exist today:
   - `goToScreen('hiding')` — navigation; **not allowed** in AC tests (`docs/PROCESS.md` §4). It is used today by the L7 test and must be replaced by a map-entry journey.
   - `getBuildingHit(worldId)` — read, page CSS pixels (see above; draft PR #37).
   - `getSpokenLines(sinceIndex?)` — read: returns `Array<{ index, lineId, lang, source: 'clip' | 'tts', text?, at }>`; `getSpokenLineCount()` — read: returns a number. The speech spy for voice criteria; read-only, `?e2e=1` only; added in draft PR #37 (not on `main` yet). No test uses it for this game today.
+  - `isListening()` — read: returns whether the current `LearningSession` is currently reporting listening (the flag set by `reportListening`). Read-only, `?e2e=1` only. **Team-lead decision (2026-11-13):** added so e2e can assert that listening is true only while the help clip plays, and false immediately before and after it.
+
+**Team-lead decision (2026-11-13):** three clarifications on the approved Pass 1 intro/help behaviour (no owner re-approval; Status stays **approved**):
+
+1. A read-only `isListening()` e2e hook, available only under `?e2e=1`, like the other #37 handles. E2e asserts that listening is true only while the help clip plays, and false immediately before and after it (the help card may still be open).
+2. The help overlay must not cover the speaker / replay button. Move or resize the overlay, and keep "tap anywhere outside the card closes" if possible. The help card's rectangle and the speaker's rectangle must not overlap in either orientation. Hit targets stay at least 64 CSS px.
+3. The age-2 idle auto-hint is postponed while the intro and help lines play. It must not fire during those lines, and it fires only after the full `hintDelayMs` (6 s) measured from when the blocking line ends (and from when the help card is closed, if it was still open).
+
+These are pinned by AC-38, AC-39 and AC-40.
 
 ## Acceptance criteria
 
@@ -166,6 +175,9 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-35 | Help card (replaces AC-26): opening it stops audio, plays the help clip and counts as listening only while the clip plays, blocks replays and postpones the idle hint; closing it stops the clip and repeats the open request | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`; testids `hud-help`, `help-card`, `help-card-close` |
 | AC-36 | Pass 2: more look-alike pairs (animals with new art) are in the content and every `same-category` request still places a look-alike | 2 | unit | @single-orientation | |
 | AC-37 | Pass 2: a clue-only request level and a two-clue request level exist and are reachable on the age-5 track | 2 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
+| AC-38 | While the help card is open, `isListening()` is true only while `he.hiding.help` plays, and is false immediately before the line starts and after it ends (the card may still be open) | 1 | e2e | @single-orientation | `isListening`, `getSpokenLines`; testids `hud-help`, `help-card` |
+| AC-39 | In both orientations, the help card's page rectangle and the speaker / replay button's page rectangle do not overlap; both hit targets are at least 64 CSS px; a tap on the speaker does not close the card; a tap on the overlay outside the card still closes it | 1 | e2e | both | `getRoundInfo`; testids `hud-help`, `help-card`, `help-card-close` |
+| AC-40 | Age 2: the idle auto-hint does not fire while `he.hiding.intro` or `he.hiding.help` is playing, and fires only after the full `hintDelayMs` (6 s) measured from when that line ends (and from when the help card is closed, if it was still open) | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`, `isListening`; testids `hud-help`, `help-card`, `help-card-close` |
 
 ### Existing test mapping (retroactive)
 
@@ -205,6 +217,9 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 | AC-35 | — | New; no test (replaces AC-26) |
 | AC-36 | — | Pass 2; no test |
 | AC-37 | — | Pass 2; no test |
+| AC-38 | — | New (2026-11-13 team-lead); no test |
+| AC-39 | — | New (2026-11-13 team-lead); no test |
+| AC-40 | — | New (2026-11-13 team-lead); no test |
 | AC-27 | `tests/e2e/hiding.spec.ts` — `a clean correct tap completes the trial and starts the next round` | Age-2 profile only; no age-5 tap test |
 | AC-28 | `tests/unit/hidingRound.test.ts` — `fits every bush count in both orientations without overlapping hit areas` | — |
 | AC-29 | — | `tests/unit/pwaUpdatePolicy.test.ts` does not cover `hiding` |
@@ -240,6 +255,7 @@ Needed before `Pass in progress` can move to `1`:
 - **AC-29:** add `hiding` to the PWA update-policy test.
 - **AC-15:** Pass 2 only (the Hebrew intro and help clips are Pass 1, AC-34).
 - **AC-36, AC-37:** Pass 2 only.
+- **AC-38, AC-39, AC-40:** team-lead clarifications (2026-11-13): `isListening()` while the help clip plays; the help overlay must not cover the speaker (64 px targets, both orientations); the idle auto-hint delay starts when the intro/help line ends.
 
 ## Art, animation, and audio
 
@@ -320,3 +336,4 @@ All open decisions were resolved by the owner on 2026-11-13.
 - `2026-11-12` — aligned test handles with the shared names in draft PR #37 (`hud-back`, `hud-help`, `prompt-bubble`, `help-card`, `help-card-close`, `getBuildingHit` in page CSS pixels, `getSpokenLines` / `getSpokenLineCount`, `enterWorldByTap`) — minor
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (Nature Lab entry game, scene folder `scenes/hiding/`, L8 short sound word, three look-alike pairs, Hebrew intro and help clips in Pass 1, second hint kept, no age-2 ceiling, merge order PR #18 then PR #29, clue-only levels Pass 2, age-2 start L2); 6 ACs added (AC-32 to AC-37; AC-26 superseded by AC-35) — substantive
 - 2026-11-13 — AC-32 and AC-33 reworded to name the Hebrew lines as `heLine('hiding.intro')` (once per visit) and `heLine('hiding.help')` (when the help card opens), both asserted with `getSpokenLines`; the clips are on draft audio PR #39; implementation lands with the #29 rebase — clarification
+- 2026-11-13 — **Team-lead decision:** read-only `isListening()` hook (`?e2e=1`); help overlay must not cover the speaker / replay button (no overlap in either orientation, hit targets ≥ 64 CSS px, tap-outside still closes); idle auto-hint is postponed while intro/help lines play and the full `hintDelayMs` starts when they end. AC-38, AC-39 and AC-40 added. Status stays **approved** — clarification
