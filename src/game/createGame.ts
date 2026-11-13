@@ -7,6 +7,8 @@ import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/Orch
 import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
+import { PicnicScene } from '../games/picnic/PicnicScene';
+import type { PicnicInfo } from '../games/picnic/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
@@ -23,7 +25,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'colouring') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -38,6 +40,10 @@ declare global {
       seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
       /** Writes settings.timeEarning = { enabled } and persists. Seed only: no navigation, no game action, no profile needed. */
       seedTimeEarningEnabled: (enabled: boolean) => void;
+      /** Seeds the active profile's persisted Picnic Train level (level, cleanStreak 0, recent []) for every language. Call before entering. */
+      seedPicnicLevel: (level: number) => void;
+      /** Current Picnic Train (null when PicnicScene is not active or has no train); rectangles are page CSS px. */
+      getPicnicInfo: () => PicnicInfo | null;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
       /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
@@ -110,6 +116,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
+  game.scene.add('PicnicScene', PicnicScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
 
   game.registry.set('appContext', context);
@@ -126,6 +133,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'hiding' ? 'HidingScene'
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
+        : screen === 'picnic' ? 'PicnicScene'
         : screen === 'colouring' ? 'ColouringScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
@@ -135,6 +143,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
       game.scene.stop('SortingScene');
+      game.scene.stop('PicnicScene');
       game.scene.stop('ColouringScene');
       game.scene.start(sceneKey);
     },
@@ -193,6 +202,19 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getSortingInfo() {
       const scene = game.scene.getScene('SortingScene') as SortingScene | null;
       return scene && game.scene.isActive('SortingScene') ? scene.getSortingInfo() : null;
+    },
+    seedPicnicLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        context.content.picnic,
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    getPicnicInfo() {
+      const scene = game.scene.getScene('PicnicScene') as PicnicScene | null;
+      return scene && game.scene.isActive('PicnicScene') ? scene.getPicnicInfo() : null;
     },
     seedColouringState(seed) {
       writeColouringSeed(window.localStorage, context.requireProfileId(), seed);

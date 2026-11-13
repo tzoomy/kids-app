@@ -96,6 +96,26 @@ export const GAME_RULES = [
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
   },
   {
+    id: 'picnic-train',
+    match: [
+      /^src\/games\/picnic\//,
+      /^src\/content\/games\/picnic-train\.json$/,
+      /^tests\/e2e\/helpers\/picnic\.ts$/,
+      /^tests\/unit\/picnic-train[^/]*$/,
+    ],
+    specs: [
+      'tests/e2e/picnic-train.journey.spec.ts',
+      'tests/e2e/picnic-train.picker.spec.ts',
+      'tests/e2e/picnic-train.platform.spec.ts',
+    ],
+  },
+  {
+    // The Number Garden building opens a picker with both games: a picker change must re-run both entry paths.
+    id: 'number-garden-picker',
+    match: [/^src\/ui\/picker\//],
+    specs: ['tests/e2e/picnic-train.picker.spec.ts', 'tests/e2e/sorting-beds.journey.spec.ts'],
+  },
+  {
     id: 'credits',
     match: [
       /^src\/content\/credits[^/]*$/,

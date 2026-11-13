@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'sorting-beds' | 'picnic-train';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'sortingBeds' | 'picnicTrain';
 }
 
 /**
@@ -52,5 +52,26 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'ColouringScene',
     assetKey: 'picker-card-colouring',
     labelKey: 'colouring',
+  },
+];
+
+/**
+ * Number Garden picker (docs/specs/picnic-train.md): Sorting Beds first (the original game), then Picnic Train.
+ * Under `dir="rtl"` the first card is on the right in landscape and on top in portrait.
+ */
+export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'sorting-beds',
+    testId: 'game-picker-sorting-beds',
+    sceneKey: 'SortingScene',
+    assetKey: 'picker-card-sorting-beds',
+    labelKey: 'sortingBeds',
+  },
+  {
+    gameId: 'picnic-train',
+    testId: 'game-picker-picnic-train',
+    sceneKey: 'PicnicScene',
+    assetKey: 'picker-card-picnic-train',
+    labelKey: 'picnicTrain',
   },
 ];

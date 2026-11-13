@@ -296,6 +296,52 @@ export const SortingBedsContentSchema = z
 
 export type SortingBedsContent = z.infer<typeof SortingBedsContentSchema>;
 
+/** Picnic Train tasks (docs/specs/picnic-train.md): one item for each friend, load N items, "how many are missing". */
+export const PICNIC_TASKS = ['one-each', 'load', 'missing'] as const;
+export type PicnicTask = (typeof PICNIC_TASKS)[number];
+export const PICNIC_LAYOUTS = ['rows', 'scattered'] as const;
+export type PicnicLayout = (typeof PICNIC_LAYOUTS)[number];
+
+/**
+ * Picnic Train (docs/specs/picnic-train.md): every level has `setSize` 2..10 (the largest train of the level),
+ * `extra.task` and `extra.layout`, and a `scaffold`. `request` is `quantity` for `load` levels, `two-step` for
+ * `missing` levels and absent for `one-each` levels.
+ */
+export const PicnicTrainContentSchema = z
+  .object({
+    id: z.literal('picnic-train'),
+    world: z.literal('number-garden'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    ageTracks: z.object({
+      age2: AgeTrackConfigSchema,
+      age5: AgeTrackConfigSchema,
+    }),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.setSize === undefined || level.setSize < 2 || level.setSize > 10) issue('picnic train levels require setSize within 2..10');
+      if (level.scaffold === undefined) issue('picnic train levels require a scaffold');
+      const task = level.extra?.task;
+      const layout = level.extra?.layout;
+      if (typeof task !== 'string' || !(PICNIC_TASKS as readonly string[]).includes(task)) {
+        issue(`picnic train levels require extra.task of ${PICNIC_TASKS.join(', ')}`);
+      }
+      if (typeof layout !== 'string' || !(PICNIC_LAYOUTS as readonly string[]).includes(layout)) {
+        issue(`picnic train levels require extra.layout of ${PICNIC_LAYOUTS.join(', ')}`);
+      }
+      const expectedRequest = task === 'load' ? 'quantity' : task === 'missing' ? 'two-step' : undefined;
+      if (level.request !== expectedRequest) {
+        issue(`picnic train ${String(task)} levels require request ${String(expectedRequest)}`);
+      }
+      if (level.support !== undefined || level.choiceCount !== undefined) issue('picnic train levels use only setSize, request, scaffold and extra');
+    });
+  });
+
+export type PicnicTrainContent = z.infer<typeof PicnicTrainContentSchema>;
+
 
 
 // ---------------------------------------------------------------------------

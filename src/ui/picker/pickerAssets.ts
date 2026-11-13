@@ -44,6 +44,9 @@ const PLACEHOLDERS: Record<PickerAssetKey, { url: string } | { css: string }> = 
 const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-bubbles': { css: 'background:linear-gradient(180deg,#a1c4fd,#c2e9fb)' },
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
+  // Number Garden picker cards (placeholders: the approved scene backgrounds; Pass 2 brings real card art).
+  'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
+  'picker-card-picnic-train': { url: 'art/scenes/picnic-train/bg-landscape.svg' },
 };
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
