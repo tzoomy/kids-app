@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Size rule icons — plaque comparison</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FFF6E8;
+      color: #3B2A22;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px 24px 32px;
+    }
+    h1 { font-size: 26px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .sub { text-align: center; color: #5C4338; margin-bottom: 8px; font-size: 14px; }
+    .tag {
+      display: inline-block;
+      background: #3B2A22;
+      color: #FFF6E8;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin: 0 auto 18px;
+    }
+    .tag-wrap { text-align: center; }
+    h2 { font-size: 18px; font-weight: 800; margin: 8px 0 12px; }
+    .section {
+      background: #FFFDF9;
+      border: 3px solid #E5BE94;
+      border-radius: 24px;
+      padding: 16px 18px 20px;
+      margin: 0 auto 18px;
+      max-width: 1240px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 18px;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .cell { text-align: center; }
+    .cell .name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #5C4338;
+      margin-top: 6px;
+    }
+    .plaque {
+      position: relative;
+      /* Plaque is 280x360; recessed icon panel is 160x160 at (60, 54). */
+    }
+    .plaque.s64 { width: 112px; height: 144px; }
+    .plaque.s128 { width: 224px; height: 288px; }
+    .plaque .bg,
+    .plaque .icon { position: absolute; display: block; }
+    .plaque .bg { inset: 0; width: 100%; height: 100%; }
+    .plaque .icon {
+      left: calc(60 / 280 * 100%);
+      top: calc(54 / 360 * 100%);
+      width: calc(160 / 280 * 100%);
+      height: calc(160 / 360 * 100%);
+    }
+  </style>
+</head>
+<body>
+  <h1>Size rule icons on the rule-sign plaque</h1>
+  <p class="sub">Icons rendered at 64 and 128 CSS px in the plaque’s 160×160 recess, next to the colour and shape icons.</p>
+  <div class="tag-wrap"><span id="tag" class="tag"></span></div>
+
+  <section class="section">
+    <h2>64 CSS px (minimum tap-target size)</h2>
+    <div id="row-64" class="row"></div>
+  </section>
+
+  <section class="section">
+    <h2>128 CSS px</h2>
+    <div id="row-128" class="row"></div>
+  </section>
+
+  <script>
+    const ART = '../../public/art';
+    const ICONS = [
+      ['rule-icon-color-red', 'color red'],
+      ['rule-icon-color-yellow', 'color yellow'],
+      ['rule-icon-color-blue', 'color blue'],
+      ['rule-icon-shape-tulip', 'shape tulip'],
+      ['rule-icon-shape-daisy', 'shape daisy'],
+      ['rule-icon-shape-round', 'shape round'],
+      ['rule-icon-size-small', 'size small'],
+      ['rule-icon-size-large', 'size large'],
+    ];
+    const params = new URLSearchParams(location.search);
+    const label = (params.get('label') || 'preview').toUpperCase();
+    document.getElementById('tag').textContent = label;
+
+    function cell(icon, name, sizeClass) {
+      const wrap = document.createElement('div');
+      wrap.className = 'cell';
+      const plaque = document.createElement('div');
+      plaque.className = 'plaque ' + sizeClass;
+      const bg = document.createElement('img');
+      bg.className = 'bg';
+      bg.src = `${ART}/props/rule-sign-plaque.svg`;
+      bg.alt = 'rule sign plaque';
+      const ic = document.createElement('img');
+      ic.className = 'icon';
+      ic.src = `${ART}/props/${icon}.svg`;
+      ic.alt = name;
+      plaque.appendChild(bg);
+      plaque.appendChild(ic);
+      const cap = document.createElement('div');
+      cap.className = 'name';
+      cap.textContent = name;
+      wrap.appendChild(plaque);
+      wrap.appendChild(cap);
+      return wrap;
+    }
+
+    const row64 = document.getElementById('row-64');
+    const row128 = document.getElementById('row-128');
+    for (const [icon, name] of ICONS) {
+      row64.appendChild(cell(icon, name, 's64'));
+      row128.appendChild(cell(icon, name, 's128'));
+    }
+
+    const imgs = Array.from(document.querySelectorAll('img'));
+    Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+      window.__PREVIEW_READY__ = true;
+    });
+  </script>
+</body>
+</html>

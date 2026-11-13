@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- BACK SOCK (tilted slightly left) -->
+    <g transform="translate(-26, -12) rotate(-8 128 128)">
+      <!-- Main sock body -->
+      <path d="M84 44 L144 44 L144 132 C144 142 152 148 168 154 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L96 196 C76 190 68 174 72 152 L84 44 Z" fill="var(--item-fill, #4D96FF)"/>
+      <!-- Shadow along bottom/back -->
+      <path d="M72 152 C68 174 76 190 96 196 L166 216 C186 222 204 218 212 204 L100 172 L96 44 L84 44 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+      <!-- Cream heel patch -->
+      <path d="M72 148 C92 148 106 164 102 197 L96 196 C76 190 68 174 72 148 Z" fill="#FFF6E8"/>
+      <!-- Cream toe cap -->
+      <path d="M180 159 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L160 214 C164 190 170 172 180 159 Z" fill="#FFF6E8"/>
+      <!-- Re-stroke sock contour -->
+      <path d="M84 44 L144 44 L144 132 C144 142 152 148 168 154 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L96 196 C76 190 68 174 72 152 L84 44 Z" fill="none"/>
+      <!-- Ribbed cream cuff -->
+      <rect x="80" y="38" width="68" height="26" rx="8" fill="#FFF6E8"/>
+      <line x1="102" y1="42" x2="102" y2="60" stroke-width="4"/>
+      <line x1="126" y1="42" x2="126" y2="60" stroke-width="4"/>
+    </g>
+
+    <!-- FRONT SOCK (shifted right and down) -->
+    <g transform="translate(22, 14) rotate(6 128 128)">
+      <!-- Main sock body -->
+      <path d="M84 44 L144 44 L144 132 C144 142 152 148 168 154 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L96 196 C76 190 68 174 72 152 L84 44 Z" fill="var(--item-fill, #4D96FF)"/>
+      <!-- Shadow along bottom/heel -->
+      <path d="M72 152 C68 174 76 190 96 196 L166 216 C186 222 204 218 212 204 L104 174 L98 64 L82 64 Z" fill="var(--item-shadow, #2B6FD6)" stroke="none"/>
+      <!-- Front ankle highlight -->
+      <path d="M118 76 L132 76 L132 130 C124 130 118 124 118 114 Z" fill="var(--item-highlight, #8CC0FF)" stroke="none"/>
+      <!-- Cheerful yellow stripe below cuff -->
+      <path d="M81 74 L144 74 L144 88 L79 88 Z" fill="#FFD43B"/>
+      <!-- Cream heel patch -->
+      <path d="M72 148 C92 148 106 164 102 197 L96 196 C76 190 68 174 72 148 Z" fill="#FFF6E8"/>
+      <!-- Cream toe cap -->
+      <path d="M180 159 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L160 214 C164 190 170 172 180 159 Z" fill="#FFF6E8"/>
+      <!-- Re-stroke sock contour -->
+      <path d="M84 44 L144 44 L144 132 C144 142 152 148 168 154 L194 164 C212 170 220 188 212 204 C204 218 186 222 166 216 L96 196 C76 190 68 174 72 152 L84 44 Z" fill="none"/>
+      <!-- Ribbed cream cuff -->
+      <rect x="80" y="38" width="68" height="26" rx="8" fill="#FFF6E8"/>
+      <line x1="102" y1="42" x2="102" y2="60" stroke-width="4"/>
+      <line x1="126" y1="42" x2="126" y2="60" stroke-width="4"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Neutral cream/wood halo backing to frame the tulip silhouette -->
+  <path d="M80 16 C96 16 108 32 112 46 C126 36 140 46 138 72 C136 114 114 142 80 142 C46 142 24 114 22 72 C20 46 34 36 48 46 C52 32 64 16 80 16 Z" fill="#FFF6E8" stroke="#B87D56" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center upright tulip petal -->
+  <path d="M80 24 C100 24 114 52 110 92 C106 116 94 130 80 130 C66 130 54 116 50 92 C46 52 60 24 80 24 Z" fill="#F24C4C" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M74 34 C80 30 88 34 90 46 C84 42 78 44 74 52 Z" fill="#FF8585"/>
+
+  <!-- Left cupped tulip petal -->
+  <path d="M32 44 C52 44 74 64 84 96 C90 116 86 134 74 134 C46 134 28 108 28 70 C28 54 28 44 32 44 Z" fill="#F24C4C" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M36 58 C46 58 58 70 64 86 C54 76 44 72 36 74 Z" fill="#FF8585"/>
+
+  <!-- Right cupped tulip petal overlapping at base -->
+  <path d="M128 44 C108 44 84 66 74 100 C68 118 70 134 84 134 C112 134 132 108 132 70 C132 54 132 44 128 44 Z" fill="#F24C4C" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lower cup shadow -->
+  <path d="M36 102 C46 122 62 131 80 131 C98 131 114 122 124 102 C114 114 98 120 80 120 C62 120 46 114 36 102 Z" fill="#CC3333"/>
+
+  <!-- Clean outer cup contour -->
+  <path d="M32 44 C28 44 28 54 28 70 C28 108 48 134 80 134 C112 134 132 108 132 70 C132 54 132 44 128 44" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

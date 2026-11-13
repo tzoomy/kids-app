@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Floppy sun hat brim -->
+    <path d="M22 162 C20 136 66 120 128 120 C190 120 236 136 234 162 C232 188 188 206 128 206 C68 206 24 188 22 162 Z" fill="var(--item-fill, #FFD43B)"/>
+    <!-- Brim underside / lower shadow -->
+    <path d="M28 170 C54 190 92 198 128 198 C164 198 202 190 228 170 C220 192 180 206 128 206 C76 206 36 192 28 170 Z" fill="var(--item-shadow, #EAA814)" stroke="none"/>
+    <!-- Brim left highlight -->
+    <path d="M38 156 C48 142 78 134 108 134 C82 142 58 150 46 164 C40 164 36 160 38 156 Z" fill="var(--item-highlight, #FFF2A6)" stroke="none"/>
+    <!-- Re-stroke brim outer contour -->
+    <path d="M22 162 C20 136 66 120 128 120 C190 120 236 136 234 162 C232 188 188 206 128 206 C68 206 24 188 22 162 Z" fill="none"/>
+
+    <!-- Soft bucket crown -->
+    <path d="M62 144 L72 82 C76 58 98 46 128 46 C158 46 180 58 184 82 L194 144 C172 158 84 158 62 144 Z" fill="var(--item-fill, #FFD43B)"/>
+    <!-- Crown right-side shadow -->
+    <path d="M150 49 C168 54 181 65 184 82 L194 144 C182 151 164 155 144 155 C158 126 160 82 150 49 Z" fill="var(--item-shadow, #EAA814)" stroke="none"/>
+    <!-- Crown upper-left highlight -->
+    <path d="M84 84 C88 66 104 56 124 56 C112 64 98 78 94 106 C86 106 82 96 84 84 Z" fill="var(--item-highlight, #FFF2A6)" stroke="none"/>
+    <!-- Re-stroke crown contour -->
+    <path d="M62 144 L72 82 C76 58 98 46 128 46 C158 46 180 58 184 82 L194 144 C172 158 84 158 62 144 Z" fill="none"/>
+    <!-- Soft top crown seam -->
+    <path d="M84 68 Q128 80 172 68" fill="none" stroke="#3B2A22" stroke-width="5"/>
+
+    <!-- Cream ribbon band around base of crown -->
+    <path d="M64 130 Q128 144 192 130 L194 146 Q128 160 62 146 Z" fill="#FFF6E8"/>
+    <path d="M148 135 Q172 134 192 130 L194 146 Q172 151 148 152 Z" fill="#F0DEC2" stroke="none"/>
+    <path d="M64 130 Q128 144 192 130 L194 146 Q128 160 62 146 Z" fill="none"/>
+
+    <!-- Cute side ribbon tails on right -->
+    <path d="M174 142 C188 148 198 162 194 176 C184 176 174 164 168 150 Z" fill="#FFF6E8"/>
+    <path d="M164 146 C172 158 176 172 168 182 C158 178 156 164 156 148 Z" fill="#F0DEC2"/>
+    <circle cx="168" cy="144" r="9" fill="#FFF6E8"/>
+  </g>
+</svg>

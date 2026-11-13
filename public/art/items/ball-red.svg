@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main ball sphere -->
+    <circle cx="128" cy="128" r="88" fill="var(--item-fill, #F24C4C)"/>
+
+    <!-- Lower-right crescent shadow -->
+    <path d="M190 66 C206 98 198 144 168 174 C138 204 92 210 60 186 C88 218 142 222 180 188 C218 154 222 100 190 66 Z" fill="var(--item-shadow, #CC3333)" stroke="none"/>
+
+    <!-- Upper-left glossy highlight -->
+    <ellipse cx="92" cy="84" rx="28" ry="16" transform="rotate(-32 92 84)" fill="var(--item-highlight, #FF8585)" stroke="none"/>
+
+    <!-- Cream curved center band -->
+    <path d="M44 102 C88 134 168 134 212 102 C215 112 216 122 215 132 C168 164 88 164 41 132 C40 122 41 112 44 102 Z" fill="#FFF6E8"/>
+    <path d="M150 144 C174 142 196 136 215 126 C215 128 215 130 215 132 C196 145 174 152 150 154 Z" fill="#F0DEC2" stroke="none"/>
+    <path d="M44 102 C88 134 168 134 212 102" fill="none"/>
+    <path d="M41 132 C88 164 168 164 215 132" fill="none"/>
+
+    <!-- Simple curved play-ball seam -->
+    <path d="M128 40 C102 74 102 182 128 216" fill="none" stroke-width="5"/>
+
+    <!-- Re-stroke outer circle -->
+    <circle cx="128" cy="128" r="88" fill="none"/>
+  </g>
+</svg>

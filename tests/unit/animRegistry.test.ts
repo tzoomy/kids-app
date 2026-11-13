@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   animalPartKey,
+  flowerArtKey,
   foodArtKey,
   fxArtKey,
   instrumentArtKey,
   getAnimalRig,
   getArtManifest,
+  itemArtKey,
   keyForUrl,
   propArtKey,
   registerAnimalRigs,
@@ -141,5 +143,18 @@ describe('assetUrl', () => {
     expect(assetUrl('/kids-app/', 'art/foods/apple.svg')).toBe('/kids-app/art/foods/apple.svg');
     expect(assetUrl('/kids-app', './art/x.svg')).toBe('/kids-app/art/x.svg');
     expect(assetUrl('/', 'art/x.svg')).toBe('/art/x.svg');
+  });
+});
+
+describe('flower and item lookups', () => {
+  it('resolves flowers and travel items by path', () => {
+    registerArtManifest([
+      { key: 'flower-bloom-tulip-red', url: 'art/flowers/bloom-tulip-red.svg', width: 256, height: 256 },
+      { key: 'item-hat', url: 'art/items/hat.svg', width: 256, height: 256 },
+      { key: 'prop-bed', url: 'art/props/garden-bed-back.svg', width: 520, height: 260 },
+    ]);
+    expect(flowerArtKey('bloom-tulip-red')).toBe('flower-bloom-tulip-red');
+    expect(itemArtKey('hat')).toBe('item-hat');
+    expect(propArtKey('garden-bed-back')).toBe('prop-bed');
   });
 });
