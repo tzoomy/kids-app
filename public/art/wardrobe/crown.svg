@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" width="180" height="120">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Golden crown with five rounded points -->
+    <path d="M 24 104 L 18 46 C 18 36 30 34 36 42 L 50 60 L 54 30 C 56 20 68 20 72 30 L 78 52 L 84 18 C 86 10 94 10 96 18 L 102 52 L 108 30 C 112 20 124 20 126 30 L 130 60 L 144 42 C 150 34 162 36 162 46 L 156 104 Q 90 116 24 104 Z" fill="#FFD166"/>
+
+    <!-- Flat shadow on right side and lower rim -->
+    <path d="M 130 60 L 144 42 C 150 34 162 36 162 46 L 156 104 Q 90 116 24 104 L 25 94 Q 90 104 140 94 Z" fill="#E0A82E" stroke="none"/>
+    <!-- Flat highlight on upper-left -->
+    <path d="M 26 48 C 26 42 32 42 35 47 L 48 64 L 44 82 L 30 80 Z" fill="#FFEA9F" stroke="none"/>
+
+    <!-- Re-stroke crown contour -->
+    <path d="M 24 104 L 18 46 C 18 36 30 34 36 42 L 50 60 L 54 30 C 56 20 68 20 72 30 L 78 52 L 84 18 C 86 10 94 10 96 18 L 102 52 L 108 30 C 112 20 124 20 126 30 L 130 60 L 144 42 C 150 34 162 36 162 46 L 156 104 Q 90 116 24 104 Z" fill="none"/>
+
+    <!-- Subtle base band line -->
+    <path d="M 28 92 Q 90 102 152 92" fill="none" stroke-width="5"/>
+
+    <!-- Three round gems -->
+    <circle cx="52" cy="76" r="8" fill="#4EA8DE"/>
+    <circle cx="49" cy="73" r="2.5" fill="#FFFDF9" stroke="none"/>
+
+    <circle cx="90" cy="72" r="10" fill="#F25C54"/>
+    <circle cx="86" cy="68" r="3" fill="#FFFDF9" stroke="none"/>
+
+    <circle cx="128" cy="76" r="8" fill="#52B788"/>
+    <circle cx="125" cy="73" r="2.5" fill="#FFFDF9" stroke="none"/>
+  </g>
+</svg>

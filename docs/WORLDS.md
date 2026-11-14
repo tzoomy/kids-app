@@ -159,7 +159,7 @@ Goal: a sense of quantity, one-to-one matching, sorting, and comparison. Instruc
 
 ### 4. Balloon Pop
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** Pass 1 built (draft spec `docs/specs/balloon-pop.md`, pending owner approval); idea owner-approved 2026-11-13.
 
 - **Action:** Balloons float up; the girl pops the one that was named.
 - **Learning goal:** Color names (age 2) and recognizing digits by ear (age 5); numbers may be voiced in English or French as a deliberate counting-language skill, consistent with the Number Garden intro.
@@ -192,11 +192,11 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 - **Inspiration pattern:** Tiger eAcademy (short voice-guided task, immediate feedback); Sago Mini (calm exploration, the world responds). The game reuses the choice/serve template (bushes instead of plates) and the existing animal art.
 - **Age 2:** Starts at Level 2: few bushes, a picture-and-audio request, a demonstration hint if she waits, large touch targets, can hear the request again.
 - **Age 5:** Starts at Level 5: more bushes, less visual support, a short sound word, a hint only after a mistake.
-- **World wiring:** Nature Lab is open on the map with `entryGameId` `who-is-hiding`. Tapping the building opens Who's Hiding? directly (no game picker in Pass 1).
+- **World wiring:** Nature Lab is open on the map with `entryGameId` `who-is-hiding`. Tapping the building opens the Nature Lab station trail (Who's Hiding?, Seed to Flower, Who Lives Here?; see `docs/specs/who-lives-here.md`).
 
 ### 2. Who Lives Here?
 
-- **Stage:** Vision (a later Nature Lab game; Who's Hiding? is the entry game, decided 2026-11-13).
+- **Stage:** Pass 1 in progress; spec [`docs/specs/who-lives-here.md`](specs/who-lives-here.md), approved for build by Maor (continuous mode, 2026-11-13). Who's Hiding? stays the first Nature Lab game; the building opens the station trail (Who's Hiding?, Seed to Flower, Who Lives Here?).
 
 - **Action:** The girl helps an animal go home (nest, cave, water, tree) according to a voice hint or a picture.
 - **Learning goal:** Matching a creature to a habitat, animal vocabulary.
@@ -330,7 +330,7 @@ Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker
 - **Inspiration pattern:** Sago Mini (dressing up characters in a play world); Lingokids (fixed characters).
 - **Age 2:** Tap an item to put it on a character.
 - **Age 5:** Choose items and save an outfit.
-- **Open question:** Which progress unlocks which item: pending owner decision.
+- **Open question:** Which progress unlocks which item: pending owner decision. The default unlock rules are in the draft spec [`docs/specs/wardrobe.md`](specs/wardrobe.md) and `docs/PENDING-DECISIONS.md` (2026-11-14).
 
 ---
 
@@ -355,6 +355,7 @@ Goal: supporting features, not learning games.
 - **Learning goal:** Not a learning game; shows progress and gently guides the next choice.
 - **Inspiration pattern:** Tiger eAcademy (clear, visible progress); Khan Academy Kids (a path by domain).
 - **Age 2 and 5:** Same for both ages; the suggestion follows each girl's own adaptive level.
+- **Spec:** `docs/specs/station-trail.md` (draft, pending owner review of the details).
 
 ---
 

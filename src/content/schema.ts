@@ -390,55 +390,90 @@ export const WhosHidingContentSchema = z
 export type HidingAnimal = z.infer<typeof HidingAnimalSchema>;
 export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;
 
+// ---------------------------------------------------------------------------
+// Who Lives Here? (Nature Lab, docs/specs/who-lives-here.md): an animal goes to its home. Items (animals) -> bins (homes),
+// data-driven, so more habitats and animals are content-only changes.
+// ---------------------------------------------------------------------------
 
-/** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
-export const ColouringRegionSchema = z.object({
+/** Distractor homes next to the right one: `far` = other families first, `near` = the same family first. */
+export const HABITAT_DISTRACTORS = ['far', 'near'] as const;
+/** What the spoken request contains: the animal's name, or a descriptive clue. */
+export const HABITAT_REQUESTS = ['noun', 'riddle'] as const;
+export const HABITAT_MAX_HOMES = 4;
+
+export const HabitatHomeSchema = z.object({
+  /** Art key suffix: `home-<id>-back` and `home-<id>-front` in the art manifest. */
   id: z.string().min(1),
-  age2: z.boolean(),
-  parent: z.string().min(1).optional(),
+  /** Look-alike group: `near` distractors come from the target's family first. */
+  family: z.string().min(1),
+  /** Noun phrase with its article ("the pond", "la mare"), spoken after a correct tap. */
+  name: LangPairSchema,
 });
 
-export const ColouringPageSchema = z.object({
+export const HabitatAnimalSchema = z.object({
   id: z.string().min(1),
-  regions: z.array(ColouringRegionSchema).min(1),
+  /** Registered animal rig / art kind (public/art/animals/<kind>). */
+  kind: z.string().min(1),
+  /** The id of the home this animal lives in. */
+  home: z.string().min(1),
+  /** Noun phrase with its article ("the frog", "la grenouille"), spoken at noun levels. */
+  name: LangPairSchema,
+  /** Descriptive clue ("I have feathers and I build a nest."), spoken at riddle levels and after a miss. */
+  clue: LangPairSchema,
 });
 
-export const ColouringPaletteColorSchema = z.object({
-  id: z.string().min(1),
-  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
-  age2: z.boolean(),
-  age5: z.boolean(),
-});
-
-export const LeisureColouringContentSchema = z
+export const WhoLivesHereContentSchema = z
   .object({
-    id: z.literal('leisure-colouring'),
-    world: z.literal('leisure-corner'),
-    earnsLeisure: z.literal(false),
-    defaultColor: z.literal('red'),
-    pages: z.array(ColouringPageSchema).length(8),
-    palette: z.array(ColouringPaletteColorSchema).min(8),
+    id: z.literal('who-lives-here'),
+    world: z.literal('nature-lab'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    helpTextHe: z.string().min(1),
+    homes: z.array(HabitatHomeSchema).min(2),
+    animals: z.array(HabitatAnimalSchema).min(2),
+    adaptive: GameAdaptiveSchema,
   })
   .superRefine((value, ctx) => {
-    if (value.palette.some((c) => 'adaptive' in (c as object))) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'palette entries must not include adaptive fields' });
-    }
-    const age2 = value.palette.filter((c) => c.age2);
-    const age5 = value.palette.filter((c) => c.age5);
-    if (age2.length !== 8) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-2 palette must have exactly 8 colours' });
-    }
-    if (age5.length !== 16) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-5 palette must have exactly 16 colours' });
-    }
+    const homeIds = new Set<string>();
+    value.homes.forEach((h, i) => {
+      if (homeIds.has(h.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['homes', i, 'id'], message: `duplicate home id "${h.id}"` });
+      homeIds.add(h.id);
+    });
+    const animalIds = new Set<string>();
+    value.animals.forEach((a, i) => {
+      if (animalIds.has(a.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'id'], message: `duplicate animal id "${a.id}"` });
+      animalIds.add(a.id);
+      if (!homeIds.has(a.home)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'home'], message: `animal "${a.id}" lives in unknown home "${a.home}"` });
+      }
+    });
+    const maxHomes = Math.min(HABITAT_MAX_HOMES, value.homes.length);
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2) issue('levels require choiceCount of at least 2');
+      else if (level.choiceCount > maxHomes) issue(`choiceCount cannot exceed ${maxHomes} (the homes in the content, at most ${HABITAT_MAX_HOMES})`);
+      if (level.distractor !== undefined && !(HABITAT_DISTRACTORS as readonly string[]).includes(level.distractor)) {
+        issue('who-lives-here supports distractor "far" or "near"');
+      }
+      if (level.request !== undefined && !(HABITAT_REQUESTS as readonly string[]).includes(level.request)) {
+        issue('who-lives-here supports request "noun" or "riddle"');
+      }
+      if (level.support !== undefined && level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('who-lives-here supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && level.request !== 'riddle') issue('an audio-only level speaks the descriptive clue (request "riddle")');
+      if (level.scaffold !== undefined && level.scaffold !== 'outline') issue('who-lives-here supports scaffold "outline" (the right home glows)');
+      const clue = level.extra?.clue;
+      if (clue !== undefined && clue !== 'after-miss' && clue !== 'none') issue('extra.clue must be "after-miss" or "none"');
+    });
   });
 
-export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
-export type ColouringPage = z.infer<typeof ColouringPageSchema>;
-export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
-export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+export type HabitatHome = z.infer<typeof HabitatHomeSchema>;
+export type HabitatAnimal = z.infer<typeof HabitatAnimalSchema>;
+export type WhoLivesHereContent = z.infer<typeof WhoLivesHereContentSchema>;
 
-// ---------------------------------------------------------------------------
 // Shadow Match (Nature Lab, docs/specs/shadow-match.md): a variant of Who's Hiding? that reuses its
 // animals (names, sounds, groups) and round builder. Choices are silhouettes of the approved animal
 // art; the cue is the sound or the name. Per-level extras: `speak` (sound | name), optional `soundMs`.
@@ -501,6 +536,277 @@ export const ShadowMatchContentSchema = z
 
 export type ShadowMatchContent = z.infer<typeof ShadowMatchContentSchema>;
 
+/** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
+export const ColouringRegionSchema = z.object({
+  id: z.string().min(1),
+  age2: z.boolean(),
+  parent: z.string().min(1).optional(),
+});
+
+export const ColouringPageSchema = z.object({
+  id: z.string().min(1),
+  regions: z.array(ColouringRegionSchema).min(1),
+});
+
+export const ColouringPaletteColorSchema = z.object({
+  id: z.string().min(1),
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  age2: z.boolean(),
+  age5: z.boolean(),
+});
+
+export const LeisureColouringContentSchema = z
+  .object({
+    id: z.literal('leisure-colouring'),
+    world: z.literal('leisure-corner'),
+    earnsLeisure: z.literal(false),
+    defaultColor: z.literal('red'),
+    pages: z.array(ColouringPageSchema).length(8),
+    palette: z.array(ColouringPaletteColorSchema).min(8),
+  })
+  .superRefine((value, ctx) => {
+    if (value.palette.some((c) => 'adaptive' in (c as object))) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'palette entries must not include adaptive fields' });
+    }
+    const age2 = value.palette.filter((c) => c.age2);
+    const age5 = value.palette.filter((c) => c.age5);
+    if (age2.length !== 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-2 palette must have exactly 8 colours' });
+    }
+    if (age5.length !== 16) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['palette'], message: 'age-5 palette must have exactly 16 colours' });
+    }
+  });
+
+export type ColouringRegion = z.infer<typeof ColouringRegionSchema>;
+export type ColouringPage = z.infer<typeof ColouringPageSchema>;
+export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
+export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
+
+const nonBlankString = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+/** Letter Monster (docs/specs/letter-monster.md): no-fail color & initial-letter game in Language House. */
+export const LETTER_MONSTER_COLOR_IDS = ['red', 'yellow', 'orange', 'purple', 'green', 'brown', 'white', 'blue'] as const;
+export type LetterMonsterColorId = (typeof LETTER_MONSTER_COLOR_IDS)[number];
+
+/** Normalizes the first letter of a word (strips accents, treats the œ ligature as O). */
+export function normalizeInitialLetter(word: string): string {
+  const trimmed = word.trim();
+  if (!trimmed) return '';
+  const first = trimmed[0];
+  if (first === 'œ' || first === 'Œ') return 'O';
+  return first
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+}
+
+export const LetterMonsterColorEntrySchema = z.object({
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+export const LetterMonsterFoodSchema = z.object({
+  id: nonBlankString,
+  he: nonBlankString,
+  color: z.enum(LETTER_MONSTER_COLOR_IDS),
+  word: z.object({ en: nonBlankString, fr: nonBlankString }),
+  phrase: z.object({ en: nonBlankString, fr: nonBlankString }),
+  initial: z.object({
+    en: z.string().regex(/^[A-Z]$/),
+    fr: z.string().regex(/^[A-Z]$/),
+  }),
+});
+
+export const LetterMonsterContentSchema = z
+  .object({
+    id: z.literal('letter-monster'),
+    world: z.literal('language-house'),
+    template: z.literal('choice-serve'),
+    skill: nonBlankString,
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    colors: z.object({
+      red: LetterMonsterColorEntrySchema,
+      yellow: LetterMonsterColorEntrySchema,
+      orange: LetterMonsterColorEntrySchema,
+      purple: LetterMonsterColorEntrySchema,
+      green: LetterMonsterColorEntrySchema,
+      brown: LetterMonsterColorEntrySchema,
+      white: LetterMonsterColorEntrySchema,
+      blue: LetterMonsterColorEntrySchema,
+    }),
+    foods: z.array(LetterMonsterFoodSchema).min(4),
+    linesHe: z.object({
+      intro: nonBlankString,
+      askColorFrame: nonBlankString,
+      askLetter: nonBlankString,
+      notThis: nonBlankString,
+    }),
+    letterFrames: z.object({ en: nonBlankString, fr: nonBlankString }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.linesHe.askColorFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'askColorFrame'],
+        message: 'askColorFrame must include {color}',
+      });
+    }
+    for (const lang of ['en', 'fr'] as const) {
+      const frame = value.letterFrames[lang];
+      if (!frame.includes('{letter}') || !frame.includes('{word}')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['letterFrames', lang],
+          message: 'letterFrames must include {letter} and {word}',
+        });
+      }
+    }
+    const ids = new Set<string>();
+    value.foods.forEach((food, i) => {
+      if (ids.has(food.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['foods', i, 'id'], message: `duplicate food id "${food.id}"` });
+      }
+      ids.add(food.id);
+      for (const lang of ['en', 'fr'] as const) {
+        const expected = normalizeInitialLetter(food.word[lang]);
+        if (expected !== food.initial[lang]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['foods', i, 'initial', lang],
+            message: `${lang} word "${food.word[lang]}" starts with "${expected}", expected "${food.initial[lang]}"`,
+          });
+        }
+      }
+    });
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const req = level.extra?.request;
+      if (req !== 'color' && req !== 'letter') {
+        issue('extra.request must be "color" or "letter"');
+      }
+      const choices = level.extra?.choices;
+      if (choices !== 2 && choices !== 3) {
+        issue('extra.choices must be 2 or 3');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('letter-monster supports support "picture-audio" or "audio-only"');
+      }
+    });
+  });
+
+export type LetterMonsterColorEntry = z.infer<typeof LetterMonsterColorEntrySchema>;
+export type LetterMonsterFood = z.infer<typeof LetterMonsterFoodSchema>;
+export type LetterMonsterContent = z.infer<typeof LetterMonsterContentSchema>;
+
+// ---------------------------------------------------------------------------
+// Balloon Pop (Number Garden, docs/specs/balloon-pop.md). Choice family: the child pops one of
+// several balloons. Per-level extras: `mode` (color | digit), and `digitMin`/`digitMax` on digit levels.
+// ---------------------------------------------------------------------------
+
+export const BALLOON_MODES = ['color', 'digit'] as const;
+export type BalloonMode = (typeof BALLOON_MODES)[number];
+
+export const BalloonColorSchema = z.object({
+  id: z.string().min(1),
+  /** Key in PALETTE (src/assets/colors.ts). */
+  color: z.string().min(1),
+  /** Colour word spoken in the request ("red", "rouge"). */
+  name: LangPairSchema,
+});
+
+export const BalloonDigitSchema = z.object({
+  value: z.number().int().min(0).max(9),
+  /** Number word spoken in the request ("three", "trois"). */
+  name: LangPairSchema,
+  /** Look- or sound-alike digits, preferred as `near` distractors. */
+  near: z.array(z.number().int().min(0).max(9)).default([]),
+});
+
+export const BalloonPopContentSchema = z
+  .object({
+    id: z.literal('balloon-pop'),
+    world: z.literal('number-garden'),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Request frames per mode; `{name}` is replaced by the colour or number word. */
+    promptFrames: z.object({ color: LangPairSchema, digit: LangPairSchema }),
+    /** Short line spoken when the right balloon pops. */
+    popped: z.object({ en: z.array(z.string().min(1)).min(1), fr: z.array(z.string().min(1)).min(1) }),
+    /** Hebrew intro (first trial of a visit) and help texts, spoken by device TTS in Pass 1. */
+    introHe: z.string().min(1),
+    helpTextHe: z.string().min(1),
+    colors: z.array(BalloonColorSchema).min(2),
+    digits: z.array(BalloonDigitSchema).min(2),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    for (const mode of BALLOON_MODES) {
+      for (const lang of ['en', 'fr'] as const) {
+        if (!value.promptFrames[mode][lang].includes('{name}')) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', mode, lang], message: 'frame needs {name}' });
+        }
+      }
+    }
+    const colorIds = new Set<string>();
+    value.colors.forEach((c, i) => {
+      if (colorIds.has(c.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['colors', i, 'id'], message: `duplicate colour id "${c.id}"` });
+      colorIds.add(c.id);
+      if (!(c.color in PALETTE)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['colors', i, 'color'], message: `unknown palette colour "${c.color}"` });
+    });
+    const digitValues = new Set<number>();
+    value.digits.forEach((d, i) => {
+      if (digitValues.has(d.value)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['digits', i, 'value'], message: `duplicate digit ${d.value}` });
+      digitValues.add(d.value);
+    });
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      const mode = level.extra?.mode;
+      if (typeof mode !== 'string' || !(BALLOON_MODES as readonly string[]).includes(mode)) {
+        issue(`levels require extra.mode, one of ${BALLOON_MODES.join(', ')}`);
+        return;
+      }
+      if (level.distractor !== undefined && level.distractor !== 'far' && level.distractor !== 'near') {
+        issue('balloon-pop supports distractor "far" or "near"');
+      }
+      const count = level.choiceCount;
+      if (count === undefined || count < 2 || count > 6) {
+        issue('levels require choiceCount within 2..6');
+        return;
+      }
+      if (mode === 'color') {
+        if (count > value.colors.length) issue('choiceCount exceeds the number of colours');
+        return;
+      }
+      const min = level.extra?.digitMin;
+      const max = level.extra?.digitMax;
+      if (typeof min !== 'number' || typeof max !== 'number' || min > max) {
+        issue('digit levels require extra.digitMin <= extra.digitMax');
+        return;
+      }
+      const inRange = [...digitValues].filter((v) => v >= min && v <= max).length;
+      if (count > inRange) issue('choiceCount exceeds the digits in range');
+    });
+  });
+
+export type BalloonColor = z.infer<typeof BalloonColorSchema>;
+export type BalloonDigit = z.infer<typeof BalloonDigitSchema>;
+export type BalloonPopContent = z.infer<typeof BalloonPopContentSchema>;
+
 /** Seed to Flower (docs/specs/seed-to-flower.md): no-fail cause-and-effect game in Nature Lab. */
 export const SEED_FLOWER_STAGE_IDS = ['seed', 'sprout', 'bud', 'flower'] as const;
 
@@ -544,3 +850,464 @@ export const SeedToFlowerContentSchema = z
   });
 
 export type SeedToFlowerContent = z.infer<typeof SeedToFlowerContentSchema>;
+
+/** Potion Lab (docs/specs/potion-lab.md): no-fail color mixing game in Science World. */
+export const POTION_COLOR_IDS = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'] as const;
+
+export const PotionColorEntrySchema = z.object({
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+export const PotionLabContentSchema = z
+  .object({
+    id: z.literal('potion-lab'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    colors: z.object({
+      red: PotionColorEntrySchema,
+      yellow: PotionColorEntrySchema,
+      blue: PotionColorEntrySchema,
+      orange: PotionColorEntrySchema,
+      green: PotionColorEntrySchema,
+      purple: PotionColorEntrySchema,
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: nonBlankString,
+      introRequest: nonBlankString,
+      requestFrame: nonBlankString,
+      tryAgainFrame: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.linesHe.requestFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'requestFrame'],
+        message: 'requestFrame must include {color}',
+      });
+    }
+    if (!value.linesHe.tryAgainFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'tryAgainFrame'],
+        message: 'tryAgainFrame must include {color}',
+      });
+    }
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'request') {
+        issue('extra.mode must be "free" or "request"');
+      }
+      const mixesPerStar = level.extra?.mixesPerStar;
+      if (
+        mixesPerStar !== undefined &&
+        (typeof mixesPerStar !== 'number' || !Number.isInteger(mixesPerStar) || mixesPerStar < 1)
+      ) {
+        issue('extra.mixesPerStar must be a positive integer');
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('potion-lab supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'request') {
+        issue('audio-only potion-lab levels must use extra.mode "request"');
+      }
+    });
+  });
+
+export type PotionColorEntry = z.infer<typeof PotionColorEntrySchema>;
+export type PotionLabContent = z.infer<typeof PotionLabContentSchema>;
+
+/** Sink or Float (docs/specs/sink-or-float.md): no-fail buoyancy experiment in Science World. */
+export const SINK_FLOAT_OBJECT_IDS = ['ball', 'leaf', 'apple', 'stone', 'key', 'spoon'] as const;
+
+export const SinkFloatObjectSchema = z.object({
+  id: z.enum(SINK_FLOAT_OBJECT_IDS),
+  floats: z.boolean(),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+  resultHe: nonBlankString,
+});
+
+export const SinkOrFloatContentSchema = z
+  .object({
+    id: z.literal('sink-or-float'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    objects: z.array(SinkFloatObjectSchema).length(SINK_FLOAT_OBJECT_IDS.length),
+    outcomes: z.object({
+      floats: z.object({ en: nonBlankString, fr: nonBlankString }),
+      sinks: z.object({ en: nonBlankString, fr: nonBlankString }),
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: nonBlankString,
+      introPredict: nonBlankString,
+      ask: nonBlankString,
+      letsSee: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const seen = new Set<string>();
+    value.objects.forEach((obj, i) => {
+      if (seen.has(obj.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects', i, 'id'],
+          message: `duplicate object id "${obj.id}"`,
+        });
+      }
+      seen.add(obj.id);
+    });
+    for (const id of SINK_FLOAT_OBJECT_IDS) {
+      if (!seen.has(id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects'],
+          message: `missing object "${id}"`,
+        });
+      }
+    }
+    if (!value.objects.some((o) => o.floats) || !value.objects.some((o) => !o.floats)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least one floater and one sinker',
+      });
+    }
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'predict') {
+        issue('extra.mode must be "free" or "predict"');
+      }
+      const dropsPerStar = level.extra?.dropsPerStar;
+      if (
+        dropsPerStar !== undefined &&
+        (typeof dropsPerStar !== 'number' || !Number.isInteger(dropsPerStar) || dropsPerStar < 1)
+      ) {
+        issue('extra.dropsPerStar must be a positive integer');
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('sink-or-float supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'predict') {
+        issue('audio-only sink-or-float levels must use extra.mode "predict"');
+      }
+    });
+  });
+
+export type SinkFloatObjectContent = z.infer<typeof SinkFloatObjectSchema>;
+export type SinkOrFloatContent = z.infer<typeof SinkOrFloatContentSchema>;
+
+/** Magic Magnet (docs/specs/magic-magnet.md): no-fail magnetism cause-effect game in Science World. */
+export const MagnetObjectSchema = z.object({
+  id: nonBlankString,
+  metal: z.boolean(),
+  art: nonBlankString,
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+  reactHe: nonBlankString,
+  askHe: nonBlankString,
+});
+
+export const MagicMagnetContentSchema = z
+  .object({
+    id: z.literal('magic-magnet'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    objects: z.array(MagnetObjectSchema).min(4),
+    resultWords: z.object({
+      sticks: z.object({ en: nonBlankString, fr: nonBlankString }),
+      notSticks: z.object({ en: nonBlankString, fr: nonBlankString }),
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: nonBlankString,
+      introPredict: nonBlankString,
+      test: nonBlankString,
+      right: nonBlankString,
+      surprise: nonBlankString,
+      buttonSticks: nonBlankString,
+      buttonNotSticks: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const ids = new Set<string>();
+    let metalCount = 0;
+    let nonMetalCount = 0;
+    value.objects.forEach((obj, i) => {
+      if (ids.has(obj.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects', i, 'id'],
+          message: `duplicate object id "${obj.id}"`,
+        });
+      }
+      ids.add(obj.id);
+      if (obj.metal) metalCount++;
+      else nonMetalCount++;
+    });
+    if (metalCount < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least 2 metal objects',
+      });
+    }
+    if (nonMetalCount < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['objects'],
+        message: 'objects must include at least 2 non-metal objects',
+      });
+    }
+
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'predict') {
+        issue('extra.mode must be "free" or "predict"');
+      }
+      const objectCount = level.extra?.objectCount;
+      if (
+        typeof objectCount !== 'number' ||
+        !Number.isInteger(objectCount) ||
+        objectCount < 2 ||
+        objectCount > value.objects.length
+      ) {
+        issue(`extra.objectCount must be an integer between 2 and ${value.objects.length}`);
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('magic-magnet supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'predict') {
+        issue('audio-only magic-magnet levels must use extra.mode "predict"');
+      }
+    });
+  });
+
+export type MagnetObject = z.infer<typeof MagnetObjectSchema>;
+export type MagicMagnetContent = z.infer<typeof MagicMagnetContentSchema>;
+
+const suitcaseNonBlank = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+export const SUITCASE_REQUESTS = ['noun', 'two', 'attribute', 'negation'] as const;
+export type SuitcaseRequestKind = (typeof SUITCASE_REQUESTS)[number];
+
+export const SuitcaseColorVariantSchema = z.object({
+  color: suitcaseNonBlank,
+  art: suitcaseNonBlank,
+  en: suitcaseNonBlank,
+  fr: suitcaseNonBlank,
+  enOne: suitcaseNonBlank,
+  frOne: suitcaseNonBlank,
+});
+
+export const SuitcaseItemSchema = z.object({
+  id: suitcaseNonBlank,
+  art: suitcaseNonBlank,
+  he: suitcaseNonBlank,
+  en: z.object({ the: suitcaseNonBlank, a: suitcaseNonBlank }),
+  fr: z.object({ the: suitcaseNonBlank, a: suitcaseNonBlank }),
+  colors: z.array(SuitcaseColorVariantSchema).optional(),
+});
+
+const SuitcaseLangFramesSchema = z.object({
+  put: suitcaseNonBlank,
+  two: suitcaseNonBlank,
+  not: suitcaseNonBlank,
+  name: suitcaseNonBlank,
+  other: suitcaseNonBlank,
+});
+
+/** Travel Suitcase (docs/specs/travel-suitcase.md): EN/FR packing & vocabulary game in Language House. */
+export const TravelSuitcaseContentSchema = z
+  .object({
+    id: z.literal('travel-suitcase'),
+    world: suitcaseNonBlank,
+    template: z.literal('choice-serve'),
+    skill: suitcaseNonBlank,
+    languages: z.tuple([z.literal('en'), z.literal('fr')]),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    items: z.array(SuitcaseItemSchema).min(2),
+    frames: z.object({ en: SuitcaseLangFramesSchema, fr: SuitcaseLangFramesSchema }),
+    linesHe: z.object({ intro: suitcaseNonBlank, closed: suitcaseNonBlank }),
+    helpTextHe: suitcaseNonBlank,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const itemIds = new Set<string>();
+    let coloredCount = 0;
+
+    value.items.forEach((item, i) => {
+      if (itemIds.has(item.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['items', i, 'id'],
+          message: `duplicate item id "${item.id}"`,
+        });
+      }
+      itemIds.add(item.id);
+
+      if (item.colors !== undefined) {
+        if (item.colors.length !== 3) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['items', i, 'colors'],
+            message: `item "${item.id}" colors must have exactly 3 colour variants`,
+          });
+        } else {
+          coloredCount++;
+        }
+        const seenColors = new Set<string>();
+        const seenArts = new Set<string>();
+        item.colors.forEach((variant, j) => {
+          if (seenColors.has(variant.color)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['items', i, 'colors', j, 'color'],
+              message: `duplicate colour "${variant.color}" on item "${item.id}"`,
+            });
+          }
+          if (seenArts.has(variant.art)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['items', i, 'colors', j, 'art'],
+              message: `duplicate colour art "${variant.art}" on item "${item.id}"`,
+            });
+          }
+          seenColors.add(variant.color);
+          seenArts.add(variant.art);
+        });
+      }
+    });
+
+    for (const lang of ['en', 'fr'] as const) {
+      const f = value.frames[lang];
+      if (!f.put.includes('{the}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'put'], message: 'put frame must include {the}' });
+      }
+      if (!f.two.includes('{a}') || !f.two.includes('{b}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'two'], message: 'two frame must include {a} and {b}' });
+      }
+      if (!f.not.includes('{a}') || !f.not.includes('{one}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'not'], message: 'not frame must include {a} and {one}' });
+      }
+      if (!f.name.includes('{The}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'name'], message: 'name frame must include {The}' });
+      }
+      if (!f.other.includes('{the}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'other'], message: 'other frame must include {the}' });
+      }
+    }
+
+    const levelCount = value.adaptive.levels.length;
+    for (const trackName of ['age2', 'age5'] as const) {
+      const tr = value.adaptive.tracks[trackName];
+      if (tr.min < 1 || tr.max > levelCount || tr.start < tr.min || tr.start > tr.max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adaptive', 'tracks', trackName],
+          message: `track ${trackName} bounds must lie within 1..${levelCount}`,
+        });
+      }
+    }
+
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('travel-suitcase supports support "picture-audio" or "audio-only"');
+      }
+
+      const choiceCount = level.choiceCount;
+      if (
+        typeof choiceCount !== 'number' ||
+        !Number.isInteger(choiceCount) ||
+        choiceCount < 2 ||
+        choiceCount > value.items.length
+      ) {
+        issue(`choiceCount must be an integer between 2 and ${value.items.length}`);
+      }
+
+      const req = level.extra?.request;
+      if (typeof req !== 'string' || !(SUITCASE_REQUESTS as readonly string[]).includes(req)) {
+        issue(`extra.request must be one of ${SUITCASE_REQUESTS.join(', ')}`);
+      }
+
+      const requestsPerCase = level.extra?.requestsPerCase;
+      if (typeof requestsPerCase !== 'number' || !Number.isInteger(requestsPerCase) || requestsPerCase < 1) {
+        issue('extra.requestsPerCase must be a positive integer');
+      }
+
+      if (req === 'attribute' || req === 'negation') {
+        if (coloredCount < 2) {
+          issue(`${req} request requires at least 2 coloured items`);
+        }
+        if (choiceCount !== 4) {
+          issue(`${req} request requires choiceCount 4 (3 colours + 1 other item)`);
+        }
+      }
+    });
+  });
+
+export type SuitcaseColorVariant = z.infer<typeof SuitcaseColorVariantSchema>;
+export type SuitcaseItem = z.infer<typeof SuitcaseItemSchema>;
+export type TravelSuitcaseContent = z.infer<typeof TravelSuitcaseContentSchema>;

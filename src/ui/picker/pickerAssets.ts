@@ -40,24 +40,39 @@ const PLACEHOLDERS: Record<PickerAssetKey, { url: string } | { css: string }> = 
   'picker-close': { css: 'background:#FFFDF9;border-radius:50%' },
 };
 
-/** Leisure Corner picker cards (additive; not part of PICKER_ASSET_KEYS, which pins the Language House art). */
-const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+/**
+ * Card placeholders of every other picker card: the Leisure Corner games and the world games of the station trail
+ * (additive; not part of PICKER_ASSET_KEYS, which pins the Language House art). One lookup for all of them: a new
+ * game adds one line here. Pass-1 placeholders use existing art or a CSS shape; real card art is Pass 2 and wins
+ * through the manifest.
+ */
+const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  // Leisure Corner.
   'picker-card-bubbles': { css: 'background:linear-gradient(180deg,#a1c4fd,#c2e9fb)' },
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
-};
-
-/** Nature Lab picker cards (additive). Pass-1 placeholders from existing art; real card art is Pass 2. */
-const NATURE_LAB_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  // Language House (after #40).
+  'picker-card-letter-monster': { css: 'background:linear-gradient(180deg,#dcd6ff,#f3ecff)' },
+  'picker-card-travel-suitcase': { url: 'art/props/suitcase-front.svg' },
+  // Number Garden.
+  'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
+  'picker-card-balloon-pop': { css: 'background:radial-gradient(circle at 35% 40%,#ff6fb5 0 14%,transparent 15%),radial-gradient(circle at 62% 30%,#ffd93d 0 13%,transparent 14%),radial-gradient(circle at 50% 62%,#4d96ff 0 14%,transparent 15%),linear-gradient(180deg,#b8e6ff,#e7f7ff)' },
+  // Nature Lab.
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
   'picker-card-shadow-match': { css: 'background:radial-gradient(ellipse at 50% 70%,#2e2a3a 0 22%,transparent 23%),linear-gradient(180deg,#ffd38a,#b8e6ff)' },
   'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
+  'picker-card-who-lives-here': { url: 'art/scenes/habitats/bg-landscape.svg' },
+  // Science World, in science blue.
+  'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
+
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
-  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? NATURE_LAB_PLACEHOLDERS[key];
+  const placeholder = PLACEHOLDERS[key as PickerAssetKey] ?? CARD_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }

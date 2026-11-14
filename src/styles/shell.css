@@ -492,7 +492,7 @@ body {
   display: flex;
   position: relative;
   flex: 0 0 auto;
-  /* Exactly 4:5 (the 640x800 card art), as large as fits: sized by --picker-count in landscape. */
+  /* Exactly 4:5 (the 640x800 card art), as large as fits: side by side in landscape. */
   aspect-ratio: 4 / 5;
   width: min(calc((100cqw - (var(--picker-count, 2) - 1) * 28px) / var(--picker-count, 2)), 80cqh);
   min-height: 64px;
@@ -543,7 +543,78 @@ body {
   line-height: 1.25;
 }
 
+/* Station trail (docs/specs/station-trail.md): picker cards become stations on a dotted trail. Placeholder CSS visuals. */
+.station-trail {
+  position: relative;
+}
+.station-trail::before {
+  content: '';
+  position: absolute;
+  inset-inline: 8%;
+  top: 50%;
+  border-top: 8px dotted #c9842a;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.station-trail > .picker-card {
+  z-index: 1; /* above the trail line */
+  /* N stations share the row; with the default of two this equals the original two-card size. */
+  width: min(calc((100cqw - 28px * (var(--picker-count, 2) - 1)) / var(--picker-count, 2)), 80cqh);
+}
+.station-star {
+  position: absolute;
+  top: 12px;
+  inset-inline-start: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffd24a;
+  border: 4px solid #3b2a22;
+  color: #3b2a22;
+  font-size: 34px;
+  line-height: 48px;
+  text-align: center;
+  box-shadow: 0 4px 0 rgba(59, 42, 34, 0.2);
+  pointer-events: none;
+}
+.station-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  border: 8px solid #c9842a;
+  pointer-events: none;
+  animation: station-pulse 2s ease-in-out infinite;
+}
+@keyframes station-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.985);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .station-pulse {
+    animation: none;
+    opacity: 0.9;
+  }
+}
+
 @media (orientation: portrait) {
+  .station-trail::before {
+    inset-inline: auto;
+    top: 8%;
+    bottom: 8%;
+    left: 50%;
+    border-top: 0;
+    border-left: 8px dotted #c9842a;
+  }
+  .station-trail > .picker-card {
+    width: min(100cqw, calc((100cqh - 20px * (var(--picker-count, 2) - 1)) / var(--picker-count, 2) * 0.8));
+  }
   .shell-game-picker {
     padding: 20px 16px;
   }
@@ -566,7 +637,7 @@ body {
     gap: 20px;
   }
   .picker-card {
-    /* Stacked: each card shares the height by --picker-count, and never more than the full width. */
+    /* Stacked: each card gets an equal share of height, and never more than the full width. */
     width: min(100cqw, calc((100cqh - (var(--picker-count, 2) - 1) * 20px) / var(--picker-count, 2) * 0.8));
   }
   .picker-card-label {
@@ -588,6 +659,98 @@ body {
 
 .colouring-layer > .shell-top-bar {
   pointer-events: none;
+}
+
+/* Wardrobe (docs/specs/wardrobe.md): item buttons wrap along the bottom edge; each is at least 64 CSS px. */
+.wardrobe-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wardrobe-layer > .shell-top-bar {
+  pointer-events: none;
+}
+
+.wardrobe-items {
+  position: absolute;
+  left: max(2.5vmin, env(safe-area-inset-left));
+  right: max(2.5vmin, env(safe-area-inset-right));
+  bottom: max(2vmin, env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5vmin;
+  max-height: 40%;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.wardrobe-item {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  min-width: 64px;
+  min-height: 64px;
+  flex: 0 0 auto;
+  padding: 6px;
+  border: 4px solid #fff;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  cursor: pointer;
+}
+
+.wardrobe-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.wardrobe-item[data-worn='true'] {
+  border-color: #3b2a22;
+  box-shadow: 0 0 0 4px #ffd166;
+}
+
+.wardrobe-item[data-locked='true'] {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.wardrobe-item[data-locked='true'] img {
+  filter: grayscale(1);
+}
+
+.wardrobe-lock {
+  position: absolute;
+  inset-inline-end: 4px;
+  bottom: 2px;
+  font-size: 22px;
+}
+
+/* Unlock toast: lives in its own root so it survives chrome repaints and scene changes. */
+.wardrobe-toast {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2vmin 4vmin;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+  font-size: clamp(22px, 5vmin, 44px);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.wardrobe-toast img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
 .colouring-page,
@@ -643,6 +806,24 @@ body {
   padding-top: 8vmin;
 }
 
+/* Empty picker (Science World before its games land): one gentle "coming soon" card. */
+.picker-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  max-width: 520px;
+  padding: 32px;
+  border-radius: 28px;
+  border: 6px dashed #3b2a22;
+  background: #eef3ff;
+  color: #3b2a22;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* Parent-area button: 3-second long-press (docs/specs/parent-longpress-gate.md). */
 .shell-holdable {
   touch-action: none;
@@ -674,4 +855,5 @@ body {
 /* The fill grows from the inline start (right in RTL); keep the gradient running the same way. */
 [dir='rtl'] .shell-hold-progress > div {
   background: linear-gradient(270deg, #ffd93d, #ff6b6b);
+}
 }

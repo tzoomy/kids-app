@@ -41,6 +41,7 @@ export class Character {
   private readonly breath: Phaser.GameObjects.Container;
   private head?: Phaser.GameObjects.Container;
   private readonly images = new Map<string, Phaser.GameObjects.Image>();
+  private accessories: Phaser.GameObjects.GameObject[] = [];
   private readonly plan: CharacterArtPlan;
   private readonly sm = new CharacterStateMachine();
   private readonly ambientTweens: Phaser.Tweens.Tween[] = [];
@@ -117,6 +118,41 @@ export class Character {
     }
     bodyLevel.sort((a, b) => a.depth - b.depth).forEach((e) => this.breath.add(e.obj));
     if (this.head) headLevel.sort((a, b) => a.depth - b.depth).forEach((e) => this.head!.add(e.obj));
+  }
+
+  // ---------------------------------------------------------------- accessories
+
+  /**
+   * Mounts wardrobe accessories (replacing the previous ones). Coordinates inside each object are in rig
+   * reference px: head items are relative to the head pivot and follow the head; the other two groups are
+   * relative to the feet centre. `behindHead` sits between the body and the head group, `head` above the head
+   * parts, `front` above everything (the scarf). Layered rigs only: the single-image fallback has no head group,
+   * so its head items are not drawn.
+   */
+  setAccessories(layers: {
+    behindHead: Phaser.GameObjects.GameObject[];
+    head: Phaser.GameObjects.GameObject[];
+    front: Phaser.GameObjects.GameObject[];
+  }): void {
+    if (this.destroyed) return;
+    this.scene.tweens.killTweensOf(this.accessories);
+    for (const obj of this.accessories) obj.destroy();
+    this.accessories = [];
+    layers.behindHead.forEach((obj) => {
+      const at = this.head ? this.breath.getIndex(this.head) : this.breath.length;
+      this.breath.addAt(obj, at);
+      this.accessories.push(obj);
+    });
+    for (const obj of layers.head) {
+      if (this.head) {
+        this.head.add(obj);
+        this.accessories.push(obj);
+      } else obj.destroy();
+    }
+    for (const obj of layers.front) {
+      this.breath.add(obj);
+      this.accessories.push(obj);
+    }
   }
 
   // ---------------------------------------------------------------- queries

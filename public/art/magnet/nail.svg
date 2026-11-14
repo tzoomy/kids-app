@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" transform="rotate(30 128 128)">
+    <!-- Nail shaft and pointed tip -->
+    <path d="M 116 44 L 140 44 L 140 190 L 128 228 L 116 190 Z" fill="#C9CED6"/>
+
+    <!-- Flat shadow on right side of shaft and tip -->
+    <path d="M 130 44 L 140 44 L 140 190 L 128 228 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Flat highlight on left side of shaft -->
+    <rect x="120" y="50" width="6" height="136" rx="3" fill="#F2F4F7" stroke="none"/>
+
+    <!-- Re-stroke shaft and tip -->
+    <path d="M 116 44 L 140 44 L 140 190 L 128 228 L 116 190 Z" fill="none"/>
+
+    <!-- Flat round nail head -->
+    <rect x="86" y="26" width="84" height="20" rx="10" fill="#C9CED6"/>
+
+    <!-- Flat shadow on lower-right of nail head -->
+    <path d="M 136 26 L 160 26 A 10 10 0 0 1 160 46 L 96 46 A 10 10 0 0 1 88 40 L 136 40 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Flat highlight on upper-left of nail head -->
+    <rect x="94" y="30" width="46" height="6" rx="3" fill="#F2F4F7" stroke="none"/>
+
+    <!-- Re-stroke nail head -->
+    <rect x="86" y="26" width="84" height="20" rx="10" fill="none"/>
+  </g>
+</svg>

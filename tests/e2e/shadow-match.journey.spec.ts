@@ -101,9 +101,9 @@ test.beforeEach(async ({ page }) => {
 test.describe('shadow match: map journey', () => {
   test('[AC-01] real-tap journey: profile -> Nature Lab -> picker -> Shadow Match -> one round -> back to the map', async ({ page }) => {
     test.setTimeout(90_000);
-    // The Nature Lab building opens a picker with both games; closing it stays on the map.
+    // The Nature Lab building opens the station trail; closing it stays on the map.
     await tapWorldBuilding(page, 'profile-a', 'nature-lab');
-    for (const id of ['game-picker-who-is-hiding', 'game-picker-shadow-match', 'game-picker-close']) {
+    for (const id of ['game-picker-who-is-hiding', 'game-picker-seed-to-flower', 'game-picker-who-lives-here', 'game-picker-shadow-match', 'game-picker-close']) {
       await expect(page.locator(`[data-testid="${id}"]`)).toBeVisible();
     }
     await tapTestId(page, 'game-picker-close');

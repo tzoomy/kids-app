@@ -535,6 +535,7 @@ export class ShadowScene extends Phaser.Scene {
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();
     this.session.complete();
+    this.context.recordCompletedRound('nature-lab', 'shadow-match');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 140" width="260" height="140">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Wide straw sun hat brim -->
+    <path d="M 12 104 C 12 78 62 66 130 66 C 198 66 248 78 248 104 C 248 126 196 134 130 134 C 64 134 12 126 12 104 Z" fill="#F4C97A"/>
+    <!-- Flat shadow on lower brim -->
+    <path d="M 20 112 C 48 126 88 132 130 132 C 172 132 212 126 240 112 C 230 128 186 134 130 134 C 74 134 30 128 20 112 Z" fill="#D9A752" stroke="none"/>
+    <!-- Flat highlight on left brim -->
+    <path d="M 32 98 C 44 86 72 80 98 80 C 74 86 52 94 40 104 C 34 104 30 101 32 98 Z" fill="#FFE0A3" stroke="none"/>
+    <!-- Re-stroke brim contour -->
+    <path d="M 12 104 C 12 78 62 66 130 66 C 198 66 248 78 248 104 C 248 126 196 134 130 134 C 64 134 12 126 12 104 Z" fill="none"/>
+
+    <!-- Straw crown -->
+    <path d="M 64 90 L 74 36 C 78 18 100 12 130 12 C 160 12 182 18 186 36 L 196 90 C 170 102 90 102 64 90 Z" fill="#F4C97A"/>
+    <!-- Flat shadow on right side of crown -->
+    <path d="M 152 15 C 170 19 183 26 186 36 L 196 90 C 184 96 166 99 148 99 C 160 76 162 40 152 15 Z" fill="#D9A752" stroke="none"/>
+    <!-- Flat highlight on upper-left crown -->
+    <path d="M 84 42 C 88 26 104 20 124 20 C 110 26 98 38 94 60 C 86 60 82 52 84 42 Z" fill="#FFE0A3" stroke="none"/>
+    <!-- Re-stroke crown contour -->
+    <path d="M 64 90 L 74 36 C 78 18 100 12 130 12 C 160 12 182 18 186 36 L 196 90 C 170 102 90 102 64 90 Z" fill="none"/>
+
+    <!-- Warm coral ribbon band -->
+    <path d="M 66 76 Q 130 88 194 76 L 196 90 Q 130 102 64 90 Z" fill="#F25C54"/>
+    <path d="M 150 81 Q 174 80 194 76 L 196 90 Q 174 95 150 96 Z" fill="#CC3D36" stroke="none"/>
+    <path d="M 66 76 Q 130 88 194 76 L 196 90 Q 130 102 64 90 Z" fill="none"/>
+
+    <!-- Ribbon tails on right -->
+    <path d="M 176 88 C 190 94 200 106 196 118 C 186 118 176 108 170 96 Z" fill="#F25C54"/>
+    <circle cx="172" cy="88" r="8" fill="#F25C54"/>
+  </g>
+</svg>

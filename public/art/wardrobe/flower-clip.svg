@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 110" width="110" height="110">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Five-petal flower silhouette -->
+    <path d="M 38 35 C 34 10 76 10 72 35 C 96 24 108 62 82 66 C 98 86 64 108 55 84 C 46 108 12 86 28 66 C 2 62 14 24 38 35 Z" fill="#FF8FAB"/>
+
+    <!-- Flat shadow on bottom-right petals -->
+    <path d="M 82 66 C 94 82 68 102 55 84 C 66 90 78 78 82 66 Z" fill="#E06584" stroke="none"/>
+    <!-- Flat highlight on top petal -->
+    <path d="M 42 28 C 44 18 58 16 64 22 C 56 22 48 26 42 32 Z" fill="#FFB8CA" stroke="none"/>
+
+    <!-- Re-stroke flower petals -->
+    <path d="M 38 35 C 34 10 76 10 72 35 C 96 24 108 62 82 66 C 98 86 64 108 55 84 C 46 108 12 86 28 66 C 2 62 14 24 38 35 Z" fill="none"/>
+
+    <!-- Round centre -->
+    <circle cx="55" cy="55" r="16" fill="#FFD166"/>
+    <path d="M 42 62 C 48 70 62 70 68 62 C 62 66 48 66 42 62 Z" fill="#E0A82E" stroke="none"/>
+    <circle cx="50" cy="49" r="4" fill="#FFEA9F" stroke="none"/>
+    <circle cx="55" cy="55" r="16" fill="none"/>
+  </g>
+</svg>

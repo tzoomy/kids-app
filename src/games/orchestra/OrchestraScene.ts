@@ -420,6 +420,7 @@ export class OrchestraScene extends Phaser.Scene {
     const recorded = this.tracker?.record(true);
     if (recorded && this.roundLang) this.skills.record(this.roundLang, recorded);
     this.session.complete();
+    this.context.recordCompletedRound('language-house', 'kitchen-orchestra');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

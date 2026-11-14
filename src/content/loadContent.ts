@@ -3,9 +3,16 @@ import animalRestaurantJson from './games/animal-restaurant.json';
 import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
+import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import shadowMatchJson from './games/shadow-match.json';
+import letterMonsterJson from './games/letter-monster.json';
+import balloonPopJson from './games/balloon-pop.json';
+import travelSuitcaseJson from './games/travel-suitcase.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
+import potionLabJson from './games/potion-lab.json';
+import sinkOrFloatJson from './games/sink-or-float.json';
+import magicMagnetJson from './games/magic-magnet.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -14,17 +21,31 @@ import {
   KitchenOrchestraContentSchema,
   SortingBedsContentSchema,
   WhosHidingContentSchema,
+  WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
   ShadowMatchContentSchema,
+  LetterMonsterContentSchema,
+  BalloonPopContentSchema,
+  PotionLabContentSchema,
+  SinkOrFloatContentSchema,
+  TravelSuitcaseContentSchema,
   SeedToFlowerContentSchema,
+  MagicMagnetContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
+  type WhoLivesHereContent,
   type LeisureColouringContent,
   type ShadowMatchContent,
+  type LetterMonsterContent,
+  type BalloonPopContent,
+  type TravelSuitcaseContent,
   type SeedToFlowerContent,
+  type PotionLabContent,
+  type SinkOrFloatContent,
+  type MagicMagnetContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -39,6 +60,10 @@ export function loadAnimalRestaurant(): AnimalRestaurantContent {
 
 export function loadWhosHiding(): WhosHidingContent {
   return WhosHidingContentSchema.parse(whosHidingJson);
+}
+
+export function loadWhoLivesHere(): WhoLivesHereContent {
+  return WhoLivesHereContentSchema.parse(whoLivesHereJson);
 }
 
 export function loadHeStrings(): typeof heJson {
@@ -70,8 +95,32 @@ export function loadShadowMatch(): ShadowMatchContent {
   return content;
 }
 
+export function loadLetterMonster(): LetterMonsterContent {
+  return LetterMonsterContentSchema.parse(letterMonsterJson);
+}
+
+export function loadBalloonPop(): BalloonPopContent {
+  return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadPotionLab(): PotionLabContent {
+  return PotionLabContentSchema.parse(potionLabJson);
+}
+
+export function loadSinkOrFloat(): SinkOrFloatContent {
+  return SinkOrFloatContentSchema.parse(sinkOrFloatJson);
+}
+
+export function loadTravelSuitcase(): TravelSuitcaseContent {
+  return TravelSuitcaseContentSchema.parse(travelSuitcaseJson);
+}
+
 export function loadSeedToFlower(): SeedToFlowerContent {
   return SeedToFlowerContentSchema.parse(seedToFlowerJson);
+}
+
+export function loadMagicMagnet(): MagicMagnetContent {
+  return MagicMagnetContentSchema.parse(magicMagnetJson);
 }
 
 export function loadAudioManifest(): AudioManifest {
