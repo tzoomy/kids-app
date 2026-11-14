@@ -157,6 +157,37 @@ export function askLines(
   ];
 }
 
+/** Predict-mode question lines for `id`: word-only on L4 (`audioOnly`), otherwise Hebrew question + word. */
+export function questionLines(
+  content: MagicMagnetContent,
+  id: string,
+  lang: Lang,
+  audioOnly: boolean,
+): SpeechRequest[] {
+  return audioOnly ? [wordLine(content, id, lang)] : askLines(content, id, lang);
+}
+
+export interface RoundStartLineOptions {
+  includeIntro: boolean;
+  mode: MagnetMode;
+  targetId?: string | null;
+  lang: Lang | null;
+  audioOnly: boolean;
+}
+
+/** Voice lines spoken at the start of a round: optional visit intro, plus the first predict question in predict mode. */
+export function roundStartLines(
+  content: MagicMagnetContent,
+  opts: RoundStartLineOptions,
+): SpeechRequest[] {
+  const lines: SpeechRequest[] = [];
+  if (opts.includeIntro) lines.push(introLine(content, opts.mode));
+  if (opts.mode === 'predict' && opts.lang && opts.targetId) {
+    lines.push(...questionLines(content, opts.targetId, opts.lang, opts.audioOnly));
+  }
+  return lines;
+}
+
 /** Hebrew intro line for the start of a visit in free or predict mode. */
 export function introLine(content: MagicMagnetContent, mode: MagnetMode): SpeechRequest {
   return mode === 'predict'

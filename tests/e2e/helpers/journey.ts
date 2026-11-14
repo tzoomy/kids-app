@@ -32,14 +32,15 @@ export const WORLD_ENTRY_GAME: Record<string, string> = {
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
-  'science-world': 'magic-magnet',
 };
 
-/** Extra picker-card games on a world that still defaults to a direct entry game.
+/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another PR).
  * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
- * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
+ * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building.
+ * Science World tests pass `'magic-magnet'` explicitly so Potion Lab can own the default slot. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
+  'science-world': ['magic-magnet'],
 };
 
 export interface PageRect {

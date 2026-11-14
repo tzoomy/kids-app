@@ -4,6 +4,7 @@ import {
   dragMagnetTo,
   enterWorldByTap,
   getActiveScenes,
+  getBuildingHit,
   getMagnetInfo,
   getSpokenLines,
   readBalanceSec,
@@ -14,7 +15,9 @@ import {
   tapWorldBuilding,
   waitForMagnetReady,
   waitForScene,
+  waitForSpokenLine,
   type MagnetInfo,
+  type PageRect,
 } from './helpers/journey';
 
 const LANDSCAPE = 'landscape-1280x800';
@@ -48,6 +51,47 @@ async function waitForMagnet(
   }
 }
 
+/** Re-enters Magic Magnet from an already-open MapScene without reloading the page. */
+async function reenterMagicMagnetFromMap(page: Page): Promise<MagnetInfo> {
+  await waitForScene(page, 'MapScene');
+  let previous: PageRect | null = null;
+  let rect: PageRect | null = null;
+  const deadline = Date.now() + 15_000;
+  for (;;) {
+    const current = await getBuildingHit(page, 'science-world');
+    const settled =
+      current !== null && previous !== null && current.width > 0 && Math.abs(current.width - previous.width) < 0.5;
+    previous = current;
+    rect = current;
+    if (settled) break;
+    if (Date.now() > deadline) throw new Error('Science World building hit rectangle never settled');
+    await page.waitForTimeout(100);
+  }
+  const fresh = (await getBuildingHit(page, 'science-world')) ?? rect;
+  if (!fresh) throw new Error('Science World building has no hit rectangle');
+  await page.mouse.click(fresh.x + fresh.width / 2, fresh.y + fresh.height / 2);
+  await tapTestId(page, 'game-picker-magic-magnet');
+  await waitForScene(page, 'MagnetScene');
+  return waitForMagnetReady(page);
+}
+
+function assertTargetsOnScreen(page: Page, info: MagnetInfo): void {
+  const vp = page.viewportSize()!;
+  const targets = [
+    info.magnet,
+    ...info.objects.map((o) => o.rect),
+    ...(info.buttons ? [info.buttons.sticks, info.buttons.notSticks] : []),
+  ];
+  for (const rect of targets) {
+    expect(rect.width).toBeGreaterThanOrEqual(MIN_HIT_PX);
+    expect(rect.height).toBeGreaterThanOrEqual(MIN_HIT_PX);
+    expect(rect.x).toBeGreaterThanOrEqual(0);
+    expect(rect.y).toBeGreaterThanOrEqual(0);
+    expect(rect.x + rect.width).toBeLessThanOrEqual(vp.width + 0.5);
+    expect(rect.y + rect.height).toBeLessThanOrEqual(vp.height + 0.5);
+  }
+}
+
 test.describe('magic magnet', () => {
   test('[AC-01] full real-input journey: profile -> Science World -> picker card -> drag magnet onto metal object -> back to the map', async ({ page }) => {
     test.setTimeout(60_000);
@@ -68,6 +112,50 @@ test.describe('magic magnet', () => {
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');
     expect(await getActiveScenes(page)).not.toContain('MagnetScene');
+  });
+
+  test('[AC-04] free mode intro (age 2): plays magnet.intro.free.he on enter and again after re-entering from the map', async ({ page }) => {
+    test.setTimeout(60_000);
+    const info = await enterMagicMagnet(page, 'profile-a');
+    expect(info.mode).toBe('free');
+
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'magnet.intro.free.he' && l.lang === 'he');
+    expect((await getSpokenLines(page)).filter((l) => l.lineId === 'magnet.intro.free.he')).toHaveLength(1);
+
+    const afterFirstVisit = (await getSpokenLines(page)).at(-1)?.index ?? intro.index;
+    await tapTestId(page, 'hud-back');
+    await reenterMagicMagnetFromMap(page);
+    await waitForSpokenLine(
+      page,
+      (l) => l.lineId === 'magnet.intro.free.he' && l.lang === 'he',
+      10_000,
+      afterFirstVisit + 1,
+    );
+    expect((await getSpokenLines(page)).filter((l) => l.lineId === 'magnet.intro.free.he')).toHaveLength(2);
+  });
+
+  test('[AC-05] predict mode intro (age 5, L2): plays magnet.intro.predict.he and the first target ask lines in order before any touch', async ({ page }) => {
+    const info = await enterMagicMagnet(page, 'profile-b', 2);
+    expect(info.mode).toBe('predict');
+    expect(info.phase).toBe('predicting');
+    expect(info.target).not.toBeNull();
+    const targetId = info.target!;
+
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'magnet.intro.predict.he' && l.lang === 'he');
+    const ask = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === `magnet.ask.${targetId}.he` && l.lang === 'he',
+      10_000,
+      intro.index + 1,
+    );
+    const word = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === `magnet.word.${targetId}.${info.language}` && l.lang === info.language,
+      10_000,
+      ask.index + 1,
+    );
+    expect(intro.index).toBeLessThan(ask.index);
+    expect(ask.index).toBeLessThan(word.index);
   });
 
   test('[AC-04] @single-orientation free mode (age 2): every touched object is named in Hebrew and the learning language with sticks/notSticks', async ({ page }, testInfo) => {
@@ -207,21 +295,15 @@ test.describe('magic magnet', () => {
     const info = await enterMagicMagnet(page, 'profile-b', 2);
     expect(info.phase).toBe('predicting');
     expect(info.buttons).not.toBeNull();
+    assertTargetsOnScreen(page, info);
+  });
 
-    const vp = page.viewportSize()!;
-    const targets = [
-      info.magnet,
-      ...info.objects.map((o) => o.rect),
-      info.buttons!.sticks,
-      info.buttons!.notSticks,
-    ];
-    for (const rect of targets) {
-      expect(rect.width).toBeGreaterThanOrEqual(MIN_HIT_PX);
-      expect(rect.height).toBeGreaterThanOrEqual(MIN_HIT_PX);
-      expect(rect.x).toBeGreaterThanOrEqual(0);
-      expect(rect.y).toBeGreaterThanOrEqual(0);
-      expect(rect.x + rect.width).toBeLessThanOrEqual(vp.width + 0.5);
-      expect(rect.y + rect.height).toBeLessThanOrEqual(vp.height + 0.5);
-    }
+  test('[AC-09] level 3 (5 objects): magnet, object and prediction-button targets are at least 64 CSS px and on screen in both orientations', async ({ page }) => {
+    const info = await enterMagicMagnet(page, 'profile-b', 3);
+    expect(info.level).toBe(3);
+    expect(info.phase).toBe('predicting');
+    expect(info.objects).toHaveLength(5);
+    expect(info.buttons).not.toBeNull();
+    assertTargetsOnScreen(page, info);
   });
 });

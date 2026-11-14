@@ -80,7 +80,7 @@ Profile → tap the Science World building → Science World picker (Magic Magne
 
 - Map: `getBuildingHit('science-world')`; picker: `game-picker-magic-magnet`, `game-picker-close`
 - HUD: `hud-back`, `hud-help`, `star-count`, `leisure-balance`
-- Hooks under `?e2e=1`: `seedMagnetLevel(level)`, `getMagnetInfo()` (phase, mode, level, language, target, the objects with `metal` / `stuck`, and the page rectangles of the magnet, the objects and the prediction buttons).
+- Hooks under `?e2e=1`: `seedMagnetLevel(level)`, `getMagnetInfo()` (phase, mode, level, language, target, the objects with `metal` / `stuck`, and the page rectangles of the magnet, the objects and the prediction buttons), and `goToScreen('magic-magnet')` (for screenshot scripts only; forbidden in journey and AC tests).
 
 ## Acceptance criteria
 
@@ -140,3 +140,4 @@ Only after Maor approves Pass 1: a lab background, polished objects, magnetic sp
 ## Changelog
 
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-14` — fix: intro and first predict question now play (first-round speech deferred until the scene is RUNNING); intro e2e regressions, L3 AC-09 case, hint rescheduled on busy touches

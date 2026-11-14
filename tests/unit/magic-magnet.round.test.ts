@@ -18,8 +18,10 @@ import {
   introLine,
   pickRoundObjects,
   planForLevel,
+  questionLines,
   reactionLines,
   rightLine,
+  roundStartLines,
   surpriseLine,
   testLine,
   trialForReveal,
@@ -137,7 +139,62 @@ describe('Magic Magnet: levels, adaptive trials, voice lines and content', () =>
     expect(nextRoundLanguage(null, true, 'en')).toBe('en');
   });
 
-  it('[AC-05] planForLevel matches L1..L4 difficulty curve', () => {
+  it('[AC-04] roundStartLines plays intro on first round of a visit (plus target ask in predict mode) and omits intro on later rounds', () => {
+    expect(
+      roundStartLines(content, {
+        includeIntro: true,
+        mode: 'free',
+        targetId: null,
+        lang: 'en',
+        audioOnly: false,
+      }),
+    ).toEqual([introLine(content, 'free')]);
+
+    expect(
+      roundStartLines(content, {
+        includeIntro: false,
+        mode: 'free',
+        targetId: null,
+        lang: 'en',
+        audioOnly: false,
+      }),
+    ).toEqual([]);
+
+    expect(
+      roundStartLines(content, {
+        includeIntro: true,
+        mode: 'predict',
+        targetId: 'nail',
+        lang: 'en',
+        audioOnly: false,
+      }),
+    ).toEqual([introLine(content, 'predict'), ...askLines(content, 'nail', 'en')]);
+
+    expect(
+      roundStartLines(content, {
+        includeIntro: false,
+        mode: 'predict',
+        targetId: 'nail',
+        lang: 'en',
+        audioOnly: false,
+      }),
+    ).toEqual(askLines(content, 'nail', 'en'));
+
+    expect(
+      roundStartLines(content, {
+        includeIntro: true,
+        mode: 'predict',
+        targetId: 'nail',
+        lang: 'fr',
+        audioOnly: true,
+      }),
+    ).toEqual([introLine(content, 'predict'), wordLine(content, 'nail', 'fr')]);
+
+    expect(questionLines(content, 'ball', 'en', false)).toEqual(askLines(content, 'ball', 'en'));
+    expect(questionLines(content, 'ball', 'fr', true)).toEqual([wordLine(content, 'ball', 'fr')]);
+  });
+
+  it('[AC-06] planForLevel matches L1..L4 difficulty curve', () => {
     expect(planForLevel(content.adaptive.levels[0])).toEqual({
       mode: 'free',
       objectCount: 4,

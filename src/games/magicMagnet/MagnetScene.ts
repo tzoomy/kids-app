@@ -26,12 +26,12 @@ import {
   type MagnetState,
 } from './magnetMachine';
 import {
-  askLines,
-  introLine,
   pickRoundObjects,
   planForLevel,
+  questionLines,
   reactionLines,
   rightLine,
+  roundStartLines,
   surpriseLine,
   testLine,
   trialForReveal,
@@ -599,15 +599,25 @@ export class MagnetScene extends Phaser.Scene {
     this.objectViews = roundObjects.map((obj, idx) => this.createObjectView(obj, this.layout.objectSpots[idx], idx));
     const buttonsIn = this.updatePredictionUi(true);
 
-    const intro = this.introPending ? introLine(c, this.plan.mode) : undefined;
-    this.introPending = false;
-    const lines: SpeechRequest[] = [];
-    if (intro) lines.push(intro);
-    if (this.plan.mode === 'predict' && this.lang) {
-      const target = this.currentTarget();
-      if (target) lines.push(...this.questionLinesFor(target.id));
+    const startSpeech = () => {
+      if (token !== this.visitToken || !this.sys.isActive()) return;
+      const includeIntro = this.introPending;
+      this.introPending = false;
+      const lines = roundStartLines(c, {
+        includeIntro,
+        mode: this.plan.mode,
+        targetId: this.currentTarget()?.id,
+        lang: this.lang,
+        audioOnly: this.plan.audioOnly,
+      });
+      if (lines.length > 0) void this.speakSequence(lines, token);
+    };
+    if (fromCreate) {
+      // Phaser keeps scene status CREATING (so isActive() is false) until create() returns and emits CREATE.
+      this.events.once(Phaser.Scenes.Events.CREATE, startSpeech);
+    } else {
+      startSpeech();
     }
-    if (lines.length > 0) void this.speakSequence(lines, token);
 
     void Promise.all([wait(this, 80 + roundObjects.length * 60 + 260), buttonsIn]).then(() => {
       if (token !== this.visitToken || !this.sys.isActive()) return;
@@ -622,9 +632,7 @@ export class MagnetScene extends Phaser.Scene {
   }
 
   private questionLinesFor(id: string): SpeechRequest[] {
-    const c = content();
-    const lang = this.lang!;
-    return this.plan.audioOnly ? [wordLine(c, id, lang)] : askLines(c, id, lang);
+    return questionLines(content(), id, this.lang!, this.plan.audioOnly);
   }
 
   /** Resolves when the prediction buttons have finished popping in, so taps are not lost mid-tween. */
@@ -854,7 +862,10 @@ export class MagnetScene extends Phaser.Scene {
 
     const { state, event } = touch(this.magnet, id);
     this.lastEvent = event.kind;
-    if (event.kind === 'busy') return;
+    if (event.kind === 'busy') {
+      this.scheduleHint();
+      return;
+    }
 
     this.magnet = state;
     this.hintTimer?.remove();
