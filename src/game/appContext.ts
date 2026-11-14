@@ -27,6 +27,8 @@ export class AppContext {
   currentProfileId: string | null = null;
   /** Set by main.ts; lets Phaser scenes ask the DOM shell to open the parent gate. */
   onRequestParent: (() => void) | null = null;
+  /** Set by main.ts; a 3-second hold of the map's parent button opens the parent settings directly. */
+  onRequestParentSettings: (() => void) | null = null;
   /** Set by main.ts; lets Phaser scenes return to the profile-select screen. */
   onExitToProfileSelect: (() => void) | null = null;
 
