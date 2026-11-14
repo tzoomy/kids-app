@@ -37,7 +37,7 @@ The full cycle is in `docs/PROCESS.md`. In short:
 - **Spec first.** No game or feature code until Maor has approved `docs/specs/<game-id>.md`. Existing games (Animal Restaurant, Kitchen Orchestra, Who's Hiding?) get a retroactive spec before their next fix or feature PR. Changes update the spec first; substantive ones go back to Maor.
 - **Two passes.** Pass 1 is a working game (device TTS, basic animation); Pass 2 is polish (art, animation, Gemini voice). Each is gated only against its own criteria.
 - **Tests first.** Acceptance criteria have stable ids (`AC-01`, …) and become failing tests titled `[AC-xx] …` before implementation. CI fails if an automated criterion has no tagged test (`npm run check:ac`).
-- **Real UI e2e.** Real taps through the actual screens, entering every game through its map building. `?e2e=1` hooks only seed or read state. `goToScreen` is for screenshot scripts only. Parent-gate tests run without `?e2e=1`.
+- **Real UI e2e.** Real taps through the actual screens, entering every game through its map building. `?e2e=1` hooks only seed or read state. `goToScreen` is for screenshot scripts only. Parent-gate tests run without `?e2e=1`. In-game screenshots are produced via `tools/art-preview` (`node tools/art-preview/shoot-in-game.mjs` for the journey frames in `docs/screenshots/`) and are never taken in committed test specs.
 - **Parallel work.** Gemini starts art, animation, and voice right after spec approval, to the paths, ids, and contract frozen in the spec. Shared registries merge additively.
 - **Ready-for-merge gate.** CI green (including the spec's Playwright journeys and the AC coverage check), inspected in-game screenshots in both orientations for visual changes, and an APPROVE from the cross-review (below).
 - **Before each task**, send the team lead a short plan: model, effort, tools (web app vs `agy`/CLI), and tests.
@@ -48,7 +48,7 @@ The full cycle is in `docs/PROCESS.md`. In short:
 
 - Replies should be as short as possible without losing important information; there is no line cap. Put details in the PR.
 - Run only the tests affected by the change locally. CI also runs only affected tests; the full suite runs on demand (workflow_dispatch) or locally with `npm test` and `npm run test:e2e` (see `docs/PROCESS.md`, "CI: affected tests"). Read failure summaries only.
-- Take screenshots only for visual changes.
+- Take screenshots only for visual changes, via `tools/art-preview`, never in committed test specs.
 
 ## Cross-review and merge
 
