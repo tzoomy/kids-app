@@ -29,9 +29,10 @@ export const GAME_SCENE: Record<string, string> = {
   'seed-to-flower': 'SeedFlowerScene',
   'who-lives-here': 'HabitatScene',
   'leisure-colouring': 'ColouringScene',
-  // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
+  // Number Garden opens a picker (Sorting Beds, Balloon Pop, and Picnic Train once registered); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
   'balloon-pop': 'BalloonScene',
+  'picnic-train': 'PicnicScene',
   'potion-lab': 'PotionScene',
   'sink-or-float': 'SinkFloatScene',
   'magic-magnet': 'MagnetScene',
@@ -45,6 +46,7 @@ export const GAME_SCENE: Record<string, string> = {
  */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
+
 };
 
 /** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
