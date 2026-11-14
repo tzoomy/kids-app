@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'sink-or-float' | 'who-is-hiding' | 'seed-to-flower';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'sink-or-float' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'sinkOrFloat' | 'whoIsHiding' | 'seedToFlower';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'sinkOrFloat' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -32,6 +32,13 @@ export const PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'OrchestraScene',
     assetKey: 'picker-card-kitchen-orchestra',
     labelKey: 'kitchenOrchestra',
+  },
+  {
+    gameId: 'letter-monster',
+    testId: 'game-picker-letter-monster',
+    sceneKey: 'LetterMonsterScene',
+    assetKey: 'picker-card-letter-monster',
+    labelKey: 'letterMonster',
   },
 ];
 
@@ -55,6 +62,24 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'ColouringScene',
     assetKey: 'picker-card-colouring',
     labelKey: 'colouring',
+  },
+];
+
+/** Number Garden picker: Sorting Beds (the original game) first, then Balloon Pop (docs/specs/balloon-pop.md). */
+export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'sorting-beds',
+    testId: 'game-picker-sorting-beds',
+    sceneKey: 'SortingScene',
+    assetKey: 'picker-card-sorting-beds',
+    labelKey: 'sortingBeds',
+  },
+  {
+    gameId: 'balloon-pop',
+    testId: 'game-picker-balloon-pop',
+    sceneKey: 'BalloonScene',
+    assetKey: 'picker-card-balloon-pop',
+    labelKey: 'balloonPop',
   },
 ];
 

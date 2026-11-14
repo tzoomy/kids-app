@@ -68,6 +68,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'letter-monster',
+    match: [
+      /^src\/games\/letterMonster\//,
+      /^src\/content\/games\/letter-monster\.json$/,
+      /^public\/art\/props\/monster-[a-z]+\.svg$/,
+      /^tests\/unit\/letter-monster[^/]*$/,
+    ],
+    specs: ['tests/e2e/letter-monster.journey.spec.ts'],
+  },
+  {
     id: 'seed-to-flower',
     match: [
       /^src\/games\/seedFlower\//,
@@ -105,6 +115,8 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/sorting\//,
       /^src\/content\/games\/sorting-beds\.json$/,
+      // The Number Garden picker card is the Sorting Beds entry.
+      /^src\/ui\/picker\//,
       /^src\/anim\/(homesTrainMotion|sortPackMotion|trainLayout)\.ts$/,
       /^public\/art\/(homes|train)\//,
       /^tests\/unit\/(sorting-beds|sortPackMotion|homesTrainMotion|trainLayout)[^/]*$/,
@@ -130,6 +142,16 @@ export const GAME_RULES = [
       /^tests\/unit\/sink-or-float[^/]*$/,
     ],
     specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'balloon-pop',
+    match: [
+      /^src\/games\/balloon\//,
+      /^src\/content\/games\/balloon-pop\.json$/,
+      /^src\/ui\/picker\//,
+      /^tests\/unit\/balloon-pop[^/]*$/,
+    ],
+    specs: ['tests/e2e/balloon-pop.journey.spec.ts'],
   },
   {
     id: 'credits',

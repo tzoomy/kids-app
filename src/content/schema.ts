@@ -438,6 +438,230 @@ export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
 
+const nonBlankString = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+/** Letter Monster (docs/specs/letter-monster.md): no-fail color & initial-letter game in Language House. */
+export const LETTER_MONSTER_COLOR_IDS = ['red', 'yellow', 'orange', 'purple', 'green', 'brown', 'white', 'blue'] as const;
+export type LetterMonsterColorId = (typeof LETTER_MONSTER_COLOR_IDS)[number];
+
+/** Normalizes the first letter of a word (strips accents, treats the œ ligature as O). */
+export function normalizeInitialLetter(word: string): string {
+  const trimmed = word.trim();
+  if (!trimmed) return '';
+  const first = trimmed[0];
+  if (first === 'œ' || first === 'Œ') return 'O';
+  return first
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+}
+
+export const LetterMonsterColorEntrySchema = z.object({
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+export const LetterMonsterFoodSchema = z.object({
+  id: nonBlankString,
+  he: nonBlankString,
+  color: z.enum(LETTER_MONSTER_COLOR_IDS),
+  word: z.object({ en: nonBlankString, fr: nonBlankString }),
+  phrase: z.object({ en: nonBlankString, fr: nonBlankString }),
+  initial: z.object({
+    en: z.string().regex(/^[A-Z]$/),
+    fr: z.string().regex(/^[A-Z]$/),
+  }),
+});
+
+export const LetterMonsterContentSchema = z
+  .object({
+    id: z.literal('letter-monster'),
+    world: z.literal('language-house'),
+    template: z.literal('choice-serve'),
+    skill: nonBlankString,
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    colors: z.object({
+      red: LetterMonsterColorEntrySchema,
+      yellow: LetterMonsterColorEntrySchema,
+      orange: LetterMonsterColorEntrySchema,
+      purple: LetterMonsterColorEntrySchema,
+      green: LetterMonsterColorEntrySchema,
+      brown: LetterMonsterColorEntrySchema,
+      white: LetterMonsterColorEntrySchema,
+      blue: LetterMonsterColorEntrySchema,
+    }),
+    foods: z.array(LetterMonsterFoodSchema).min(4),
+    linesHe: z.object({
+      intro: nonBlankString,
+      askColorFrame: nonBlankString,
+      askLetter: nonBlankString,
+      notThis: nonBlankString,
+    }),
+    letterFrames: z.object({ en: nonBlankString, fr: nonBlankString }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.linesHe.askColorFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'askColorFrame'],
+        message: 'askColorFrame must include {color}',
+      });
+    }
+    for (const lang of ['en', 'fr'] as const) {
+      const frame = value.letterFrames[lang];
+      if (!frame.includes('{letter}') || !frame.includes('{word}')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['letterFrames', lang],
+          message: 'letterFrames must include {letter} and {word}',
+        });
+      }
+    }
+    const ids = new Set<string>();
+    value.foods.forEach((food, i) => {
+      if (ids.has(food.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['foods', i, 'id'], message: `duplicate food id "${food.id}"` });
+      }
+      ids.add(food.id);
+      for (const lang of ['en', 'fr'] as const) {
+        const expected = normalizeInitialLetter(food.word[lang]);
+        if (expected !== food.initial[lang]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['foods', i, 'initial', lang],
+            message: `${lang} word "${food.word[lang]}" starts with "${expected}", expected "${food.initial[lang]}"`,
+          });
+        }
+      }
+    });
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const req = level.extra?.request;
+      if (req !== 'color' && req !== 'letter') {
+        issue('extra.request must be "color" or "letter"');
+      }
+      const choices = level.extra?.choices;
+      if (choices !== 2 && choices !== 3) {
+        issue('extra.choices must be 2 or 3');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('letter-monster supports support "picture-audio" or "audio-only"');
+      }
+    });
+  });
+
+export type LetterMonsterColorEntry = z.infer<typeof LetterMonsterColorEntrySchema>;
+export type LetterMonsterFood = z.infer<typeof LetterMonsterFoodSchema>;
+export type LetterMonsterContent = z.infer<typeof LetterMonsterContentSchema>;
+
+// ---------------------------------------------------------------------------
+// Balloon Pop (Number Garden, docs/specs/balloon-pop.md). Choice family: the child pops one of
+// several balloons. Per-level extras: `mode` (color | digit), and `digitMin`/`digitMax` on digit levels.
+// ---------------------------------------------------------------------------
+
+export const BALLOON_MODES = ['color', 'digit'] as const;
+export type BalloonMode = (typeof BALLOON_MODES)[number];
+
+export const BalloonColorSchema = z.object({
+  id: z.string().min(1),
+  /** Key in PALETTE (src/assets/colors.ts). */
+  color: z.string().min(1),
+  /** Colour word spoken in the request ("red", "rouge"). */
+  name: LangPairSchema,
+});
+
+export const BalloonDigitSchema = z.object({
+  value: z.number().int().min(0).max(9),
+  /** Number word spoken in the request ("three", "trois"). */
+  name: LangPairSchema,
+  /** Look- or sound-alike digits, preferred as `near` distractors. */
+  near: z.array(z.number().int().min(0).max(9)).default([]),
+});
+
+export const BalloonPopContentSchema = z
+  .object({
+    id: z.literal('balloon-pop'),
+    world: z.literal('number-garden'),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Request frames per mode; `{name}` is replaced by the colour or number word. */
+    promptFrames: z.object({ color: LangPairSchema, digit: LangPairSchema }),
+    /** Short line spoken when the right balloon pops. */
+    popped: z.object({ en: z.array(z.string().min(1)).min(1), fr: z.array(z.string().min(1)).min(1) }),
+    /** Hebrew intro (first trial of a visit) and help texts, spoken by device TTS in Pass 1. */
+    introHe: z.string().min(1),
+    helpTextHe: z.string().min(1),
+    colors: z.array(BalloonColorSchema).min(2),
+    digits: z.array(BalloonDigitSchema).min(2),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    for (const mode of BALLOON_MODES) {
+      for (const lang of ['en', 'fr'] as const) {
+        if (!value.promptFrames[mode][lang].includes('{name}')) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', mode, lang], message: 'frame needs {name}' });
+        }
+      }
+    }
+    const colorIds = new Set<string>();
+    value.colors.forEach((c, i) => {
+      if (colorIds.has(c.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['colors', i, 'id'], message: `duplicate colour id "${c.id}"` });
+      colorIds.add(c.id);
+      if (!(c.color in PALETTE)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['colors', i, 'color'], message: `unknown palette colour "${c.color}"` });
+    });
+    const digitValues = new Set<number>();
+    value.digits.forEach((d, i) => {
+      if (digitValues.has(d.value)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['digits', i, 'value'], message: `duplicate digit ${d.value}` });
+      digitValues.add(d.value);
+    });
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      const mode = level.extra?.mode;
+      if (typeof mode !== 'string' || !(BALLOON_MODES as readonly string[]).includes(mode)) {
+        issue(`levels require extra.mode, one of ${BALLOON_MODES.join(', ')}`);
+        return;
+      }
+      if (level.distractor !== undefined && level.distractor !== 'far' && level.distractor !== 'near') {
+        issue('balloon-pop supports distractor "far" or "near"');
+      }
+      const count = level.choiceCount;
+      if (count === undefined || count < 2 || count > 6) {
+        issue('levels require choiceCount within 2..6');
+        return;
+      }
+      if (mode === 'color') {
+        if (count > value.colors.length) issue('choiceCount exceeds the number of colours');
+        return;
+      }
+      const min = level.extra?.digitMin;
+      const max = level.extra?.digitMax;
+      if (typeof min !== 'number' || typeof max !== 'number' || min > max) {
+        issue('digit levels require extra.digitMin <= extra.digitMax');
+        return;
+      }
+      const inRange = [...digitValues].filter((v) => v >= min && v <= max).length;
+      if (count > inRange) issue('choiceCount exceeds the digits in range');
+    });
+  });
+
+export type BalloonColor = z.infer<typeof BalloonColorSchema>;
+export type BalloonDigit = z.infer<typeof BalloonDigitSchema>;
+export type BalloonPopContent = z.infer<typeof BalloonPopContentSchema>;
+
 /** Seed to Flower (docs/specs/seed-to-flower.md): no-fail cause-and-effect game in Nature Lab. */
 export const SEED_FLOWER_STAGE_IDS = ['seed', 'sprout', 'bud', 'flower'] as const;
 
@@ -481,11 +705,6 @@ export const SeedToFlowerContentSchema = z
   });
 
 export type SeedToFlowerContent = z.infer<typeof SeedToFlowerContentSchema>;
-
-const nonBlankString = z
-  .string()
-  .min(1)
-  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
 
 /** Sink or Float (docs/specs/sink-or-float.md): no-fail buoyancy experiment in Science World. */
 export const SINK_FLOAT_OBJECT_IDS = ['ball', 'leaf', 'apple', 'stone', 'key', 'spoon'] as const;
