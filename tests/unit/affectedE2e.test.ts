@@ -269,7 +269,15 @@ describe('affected e2e selection', () => {
       'tests/e2e/hiding.spec.ts',
       'tests/e2e/hud.spec.ts',
       'tests/e2e/journey.spec.ts',
+      // Shadow Match lives in src/games/hiding/, so hiding changes also select its journey.
+      'tests/e2e/shadow-match.journey.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
+    ]);
+  });
+
+  it('Shadow Match content and silhouette changes select only the Shadow Match journey', () => {
+    expect(selectAffectedE2e(['src/content/games/shadow-match.json', 'src/anim/silhouette.ts'])).toEqual([
+      'tests/e2e/shadow-match.journey.spec.ts',
     ]);
   });
 

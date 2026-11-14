@@ -226,7 +226,7 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 
 ### 5. Shadow Match
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** Pass 1 built as a variant of Who's Hiding? (draft spec `docs/specs/shadow-match.md`, pending owner approval); idea owner-approved 2026-11-13.
 
 - **Action:** The girl identifies an animal by its silhouette and its sound; the name is heard in Hebrew, English, and French.
 - **Learning goal:** Animal names and sounds, matching a shape to a creature.

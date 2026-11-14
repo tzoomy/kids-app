@@ -53,6 +53,7 @@ export const PICKER_SPECS = [
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
+  'tests/e2e/shadow-match.journey.spec.ts',
   'tests/e2e/sink-or-float.journey.spec.ts',
   'tests/e2e/sorting-beds.journey.spec.ts',
   'tests/e2e/sorting-beds.platform.spec.ts',
@@ -87,6 +88,17 @@ export const GAME_RULES = [
       /^tests\/unit\/(hiding|who-is-hiding)[^/]*$/,
     ],
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
+  },
+  {
+    // Shadow Match is the silhouette variant of Who's Hiding? (same folder, so hiding changes select both).
+    id: 'shadow-match',
+    match: [
+      /^src\/games\/hiding\//,
+      /^src\/anim\/silhouette\.ts$/,
+      /^src\/content\/games\/(shadow-match|who-is-hiding)\.json$/,
+      /^tests\/unit\/shadow-match[^/]*$/,
+    ],
+    specs: ['tests/e2e/shadow-match.journey.spec.ts'],
   },
   {
     id: 'who-lives-here',

@@ -26,6 +26,8 @@ import {
   type PageRect,
   type ProfileTestId,
 } from './helpers/journey';
+import { PICKER_CLOSE_TEST_ID } from '../../src/ui/picker/pickerModel';
+import { stationsForWorld } from './helpers/worldStations';
 
 const LANDSCAPE = 'landscape-1280x800';
 const MIN_TAP = 64;
@@ -91,11 +93,14 @@ test.describe('who lives here: map, picker and journey', () => {
     await waitForScene(page, 'HabitatScene');
   });
 
-  test('[AC-16] the Nature Lab building opens a 3-station trail (Who\'s Hiding? first, Seed to Flower, Who Lives Here? third) and a close button', async ({ page }) => {
+  test('[AC-16] the Nature Lab building opens a trail whose cards match the registry (Who\'s Hiding? first) plus a close button, with no overlap in either orientation', async ({ page }) => {
     test.setTimeout(60_000);
     await tapWorldBuilding(page, 'profile-a', 'nature-lab');
-    const ids = ['game-picker-who-is-hiding', 'game-picker-seed-to-flower', 'game-picker-who-lives-here', 'game-picker-close'];
-    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
+    const cardIds = stationsForWorld('nature-lab').map((g) => g.testId);
+    expect(cardIds[0]).toBe('game-picker-who-is-hiding');
+    expect(cardIds).toContain('game-picker-shadow-match');
+    const ids = [...cardIds, PICKER_CLOSE_TEST_ID];
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(cardIds.length);
     const vp = page.viewportSize()!;
     const landscape = vp.width > vp.height;
     const boxes: Record<string, PageRect> = {};
@@ -109,19 +114,14 @@ test.describe('who lives here: map, picker and journey', () => {
       expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
       expect(box.y + box.height).toBeLessThanOrEqual(vp.height + 0.5);
     }
-    const hiding = boxes['game-picker-who-is-hiding'];
-    const seed = boxes['game-picker-seed-to-flower'];
-    const lives = boxes['game-picker-who-lives-here'];
-    // RTL chrome: the first card is on the right in landscape and on top in portrait; Who Lives Here? is third
-    // (left in landscape, bottom in portrait) with Seed to Flower in the middle.
-    if (landscape) {
-      expect(hiding.x).toBeGreaterThan(seed.x);
-      expect(seed.x).toBeGreaterThan(lives.x);
-    } else {
-      expect(hiding.y).toBeLessThan(seed.y);
-      expect(seed.y).toBeLessThan(lives.y);
+    // RTL chrome: registry order is right-to-left in landscape and top-to-bottom in portrait.
+    for (let i = 0; i < cardIds.length - 1; i++) {
+      const a = boxes[cardIds[i]];
+      const b = boxes[cardIds[i + 1]];
+      if (landscape) expect(a.x, `${cardIds[i]} should be to the right of ${cardIds[i + 1]}`).toBeGreaterThan(b.x);
+      else expect(a.y, `${cardIds[i]} should be above ${cardIds[i + 1]}`).toBeLessThan(b.y);
     }
-    // No two targets overlap (cards and the close button).
+    // No two targets overlap (all registry cards and the close button).
     for (let i = 0; i < ids.length; i++) {
       for (let j = i + 1; j < ids.length; j++) {
         const a = boxes[ids[i]];
@@ -139,6 +139,7 @@ test.describe('who lives here: map, picker and journey', () => {
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('HabitatScene');
     expect(scenes).not.toContain('HidingScene');
+    expect(scenes).not.toContain('ShadowScene');
     expect(await getBuildingHit(page, 'nature-lab')).not.toBeNull();
 
     // The first card still opens Who's Hiding?.

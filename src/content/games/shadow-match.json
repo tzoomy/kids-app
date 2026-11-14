@@ -1,0 +1,42 @@
+{
+  "id": "shadow-match",
+  "world": "nature-lab",
+  "template": "choice-serve",
+  "skill": "match-the-silhouette",
+  "animalsFrom": "who-is-hiding",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "promptFrames": {
+    "sound": { "en": "{sound} Who is it?", "fr": "{sound} Qui est-ce ?" },
+    "name": { "en": "Find {name}!", "fr": "Trouve {name} !" }
+  },
+  "revealFrame": { "en": "It's {name}!", "fr": "C'est {name} !" },
+  "revealFrameHe": "זה {nameHe}!",
+  "namesHe": {
+    "cat": "חתול",
+    "lion": "אריה",
+    "bear": "דוב",
+    "panda": "פנדה",
+    "dog": "כלב",
+    "rabbit": "ארנב"
+  },
+  "introHe": "ברוכה הבאה למשחק הצלליות! החיות מסתתרות בצל. הקשיבי ולחצי על הצל של החיה הנכונה.",
+  "helpTextHe": "הקשיבי לקול או לשם של החיה, ולחצי על הצל שלה כדי לגלות אותה. אפשר ללחוץ על הרמקול כדי לשמוע שוב.",
+  "adaptive": {
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 4, "max": 8 } },
+    "levels": [
+      { "choiceCount": 2, "distractor": "far", "extra": { "speak": "sound" } },
+      { "choiceCount": 3, "distractor": "far", "extra": { "speak": "sound" } },
+      { "choiceCount": 3, "distractor": "same-category", "extra": { "speak": "sound" } },
+      { "choiceCount": 4, "distractor": "same-category", "extra": { "speak": "sound" } },
+      { "choiceCount": 4, "distractor": "same-category", "extra": { "speak": "name" } },
+      { "choiceCount": 5, "distractor": "same-category", "extra": { "speak": "sound" } },
+      { "choiceCount": 5, "distractor": "same-category", "extra": { "speak": "name" } },
+      { "choiceCount": 6, "distractor": "same-category", "extra": { "speak": "sound", "soundMs": 800 } }
+    ]
+  }
+}
