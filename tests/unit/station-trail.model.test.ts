@@ -19,6 +19,7 @@ import {
   loadLetterMonster,
   loadPicnicTrain,
   loadTravelSuitcase,
+  loadWordTrain,
   loadPotionLab,
   loadSinkOrFloat,
   loadMagicMagnet,
@@ -40,6 +41,7 @@ const REAL_GAMES = collectTrailGames({
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
   suitcase: loadTravelSuitcase(),
+  wordTrain: loadWordTrain(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
@@ -242,6 +244,7 @@ describe('station trail: data-driven station list', () => {
       const expected = WORLD_GAMES.filter((card) => REAL_GAMES.some((g) => g.id === card.gameId && g.world === world.id)).map((c) => c.gameId);
       expect(ids(world.id), world.id).toEqual(expected);
     }
+    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase', 'word-train']);
     expect(ids('art-studio')).toEqual(['sticker-board']);
     expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
@@ -307,6 +310,7 @@ describe('station trail: data-driven station list', () => {
       ['sink-or-float', 'SinkFloatScene'],
       ['magic-magnet', 'MagnetScene'],
       ['travel-suitcase', 'SuitcaseScene'],
+      ['word-train', 'WordTrainScene'],
       ['sticker-board', 'StickerBoardScene'],
     ]);
   });
