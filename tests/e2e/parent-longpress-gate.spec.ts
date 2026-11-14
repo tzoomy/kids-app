@@ -50,7 +50,8 @@ async function shortPress(page: Page): Promise<void> {
 async function readGateAnswer(page: Page): Promise<number> {
   const question = page.getByText(GATE_QUESTION);
   await expect(question).toBeVisible();
-  const text = (await question.innerText()).replace(/‏|‎/g, '');
+  // Strip the invisible RLM / LRM direction marks (U+200F, U+200E) before parsing the digits.
+  const text = (await question.innerText()).replace(/\u{200f}|\u{200e}/gu, '');
   const m = text.match(/(\d+)\s*[×x*]\s*(\d+)/) ?? text.match(/(\d+)\D+(\d+)/);
   if (!m) throw new Error(`cannot parse the gate question: "${text}"`);
   return Number(m[1]) * Number(m[2]);
@@ -143,6 +144,40 @@ test.describe('parent long-press gate (profile select + map HUD)', () => {
     await shortPress(page);
     await expect(page.getByText(GATE_QUESTION)).toBeVisible();
     await expect(page.locator(SETTINGS_EXIT)).toHaveCount(0);
+  });
+
+  test('[AC-12] @single-orientation a second pointer landing off the button during a real hold cancels it: nothing opens after 3 s', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    await openProfileSelect(page);
+
+    const startedAt = await pressParentButton(page);
+    await waitUntilHeldFor(startedAt, 1000);
+
+    // A second finger / resting palm lands on the page, away from the button. A bubbling PointerEvent on
+    // <body> with a different pointerId (not a test hook): the page sees it like a real second touch.
+    await page.evaluate(() => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 42,
+          isPrimary: false,
+          pointerType: 'touch',
+          button: 0,
+          clientX: 5,
+          clientY: 5,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+
+    await waitUntilHeldFor(startedAt, 3500);
+    await page.waitForTimeout(300);
+    await expect(page.locator(SETTINGS_EXIT)).toHaveCount(0);
+    await expect(page.getByText(GATE_QUESTION)).toHaveCount(0);
+    await expect(page.locator(PROFILE_A)).toBeVisible();
+    await expect(page.locator(PROGRESS)).toHaveCount(0);
+
+    await page.mouse.up();
   });
 
   test('[AC-13] @single-orientation the same 3 s hold works on the map HUD button after picking a profile', async ({ page }, testInfo) => {

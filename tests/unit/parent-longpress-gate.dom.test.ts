@@ -95,11 +95,12 @@ describe('attachLongPress (DOM binder)', () => {
       firePointer(button, type);
 
       expect(progress()).toBeNull();
-      vi.advanceTimersByTime(10_000);
-      expect(onLongPress).not.toHaveBeenCalled();
-      // If the pointer comes back and is released on the button, the browser may still send a click: it must not open anything.
+      // If the pointer comes back and is released on the button, the browser may still send a click right away
+      // (inside the 300 ms suppression window): it must not open anything.
       fireClick(button);
       expect(onTap).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(10_000);
+      expect(onLongPress).not.toHaveBeenCalled();
     },
   );
 
@@ -112,6 +113,31 @@ describe('attachLongPress (DOM binder)', () => {
 
     expect(progress()).toBeNull();
     vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-03] blur on the button cancels the hold', () => {
+    const { button, onLongPress, progress } = setup();
+    firePointer(button, 'pointerdown');
+    vi.advanceTimersByTime(1000);
+
+    button.dispatchEvent(new Event('blur')); // focus moves away; blur does not bubble
+
+    expect(progress()).toBeNull();
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-03] after pointercancel with every pointer up, a keyboard or assistive click 400 ms later is a plain tap', () => {
+    const { button, onTap, onLongPress } = setup();
+    firePointer(button, 'pointerdown');
+    vi.advanceTimersByTime(1000);
+    firePointer(button, 'pointercancel');
+
+    vi.advanceTimersByTime(400);
+    fireClick(button);
+
+    expect(onTap).toHaveBeenCalledTimes(1);
     expect(onLongPress).not.toHaveBeenCalled();
   });
 
@@ -160,6 +186,69 @@ describe('attachLongPress (DOM binder)', () => {
     expect(progress()).not.toBeNull();
     vi.advanceTimersByTime(3000);
     expect(onLongPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('[AC-05] a second pointer going down OFF the button cancels the hold: it never completes and the trailing click is not a tap', () => {
+    const { button, onLongPress, onTap, progress } = setup();
+    firePointer(button, 'pointerdown', { pointerId: 1 });
+    vi.advanceTimersByTime(1000);
+
+    // A resting palm / second finger lands on the canvas, not on the button.
+    firePointer(document.body, 'pointerdown', { pointerId: 2, isPrimary: false });
+
+    expect(progress()).toBeNull();
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+
+    firePointer(document.body, 'pointerup', { pointerId: 2, isPrimary: false });
+    firePointer(button, 'pointerup', { pointerId: 1 });
+    fireClick(button);
+    expect(onTap).not.toHaveBeenCalled();
+  });
+
+  it('[AC-05] a pointer already down elsewhere (a resting palm) means a non-primary finger on the button never starts a hold', () => {
+    const { button, onLongPress, progress } = setup();
+    firePointer(document.body, 'pointerdown', { pointerId: 1 });
+    firePointer(button, 'pointerdown', { pointerId: 2, isPrimary: false });
+
+    expect(progress()).toBeNull();
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-05] a pointerdown with isPrimary false never starts a hold, even when it is the only pointer', () => {
+    const { button, onLongPress, progress } = setup();
+    firePointer(button, 'pointerdown', { pointerId: 1, isPrimary: false });
+
+    expect(progress()).toBeNull();
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-05] two-finger press: the trailing click is not a tap even when finger 1 lifts more than 300 ms after finger 2', () => {
+    const { button, onTap, onLongPress } = setup();
+    firePointer(button, 'pointerdown', { pointerId: 1 });
+    vi.advanceTimersByTime(1000);
+    firePointer(button, 'pointerdown', { pointerId: 2, isPrimary: false }); // cancels the hold and suppresses the click
+    firePointer(button, 'pointerup', { pointerId: 2, isPrimary: false });
+
+    vi.advanceTimersByTime(400); // finger 1 is still down: the suppression must outlive this delay
+    firePointer(button, 'pointerup', { pointerId: 1 });
+    fireClick(button);
+
+    expect(onTap).not.toHaveBeenCalled();
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-03] removing the button mid-hold (detach not called) cancels the hold: onLongPress never fires', () => {
+    const { button, onLongPress } = setup();
+    firePointer(button, 'pointerdown');
+    vi.advanceTimersByTime(1000);
+
+    button.remove(); // a re-render or screen change drops the button without calling detach()
+
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
   });
 
   it('[AC-06] after a completed hold the trailing click does not open the multiplication gate', () => {
@@ -262,6 +351,30 @@ describe('attachLongPress (DOM binder)', () => {
     vi.advanceTimersByTime(1000);
 
     firePointer(button, 'pointermove', { clientX: 100, clientY: 114 });
+
+    expect(progress()).toBeNull();
+    vi.advanceTimersByTime(10_000);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-08] move tolerance boundary: exactly 12 px does not cancel the hold', () => {
+    const { button, onLongPress, progress } = setup();
+    firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
+    vi.advanceTimersByTime(1000);
+
+    firePointer(button, 'pointermove', { clientX: 100, clientY: 112 });
+
+    expect(progress()).not.toBeNull();
+    vi.advanceTimersByTime(2000);
+    expect(onLongPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('[AC-08] move tolerance boundary: 13 px cancels the hold', () => {
+    const { button, onLongPress, progress } = setup();
+    firePointer(button, 'pointerdown', { clientX: 100, clientY: 100 });
+    vi.advanceTimersByTime(1000);
+
+    firePointer(button, 'pointermove', { clientX: 100, clientY: 113 });
 
     expect(progress()).toBeNull();
     vi.advanceTimersByTime(10_000);

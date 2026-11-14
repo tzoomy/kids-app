@@ -1,5 +1,6 @@
 // 3-second long-press for the parent-area button (docs/specs/parent-longpress-gate.md).
 // `createHoldTimer` is DOM-free (a hold state machine); `attachLongPress` binds it to a real button.
+import heStrings from '../content/i18n/he.json';
 
 export const HOLD_DURATION_MS = 3000;
 export const TAP_MAX_MS = 500;
@@ -159,6 +160,7 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
       progressEl.className = 'shell-hold-progress';
       progressEl.dataset.testid = 'parent-gate-progress';
       progressEl.setAttribute('role', 'progressbar');
+      progressEl.setAttribute('aria-label', heStrings.parentArea);
       progressEl.setAttribute('aria-valuemin', '0');
       progressEl.setAttribute('aria-valuemax', '100');
       fillEl = document.createElement('div');
@@ -197,9 +199,13 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   const timer = createHoldTimer({
     durationMs: options.durationMs,
     onProgress: (fraction) => {
+      // The button was removed mid-hold (re-render, screen change): stop. `detach` is idempotent, so the
+      // `onProgress(0)` it triggers through `timer.cancel` returns here without looping.
+      if (!button.isConnected) return detach();
       if (fraction > 0 || timer.isHolding) showProgress(fraction);
     },
     onComplete: () => {
+      if (!button.isConnected) return detach(); // never open the parent settings from a button that is gone
       removeProgress();
       suppress(); // the click that follows the release must not open the multiplication gate
       options.onLongPress();
@@ -220,8 +226,9 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
       timer.cancel('cancel');
       down.delete(e.pointerId);
     }
-    if (down.size > 0) {
-      // Another pointer is already down: never start, and cancel the hold in progress.
+    if (down.size > 0 || !e.isPrimary) {
+      // Another pointer is already down (on or off the button), or this is not a primary pointer: never start,
+      // and cancel the hold in progress.
       down.add(e.pointerId);
       timer.cancel('multi-touch');
       suppress();
@@ -239,11 +246,25 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
     if (Math.hypot(e.clientX - startX, e.clientY - startY) > tolerance) timer.cancel('moved');
   };
 
+  // Touch pointers are implicitly captured by the element they start on, so a second finger or a resting palm
+  // that lands elsewhere never reaches the button's own listeners. Watch the whole window in the capture phase.
+  const onWindowPointerDownCapture = (e: PointerEvent): void => {
+    if (!button.isConnected) return detach();
+    // A pointerdown on the button itself is owned by the button handler (it runs after this one).
+    if (e.target instanceof Node && button.contains(e.target)) return;
+    // Extra mouse buttons (right click) are not a second finger: do not track them, but they still end a hold.
+    if (e.button === 0) down.add(e.pointerId);
+    timer.cancel('multi-touch'); // no-op unless holding; a cancel also suppresses the trailing click
+  };
+
   const onPointerUp = (e: PointerEvent): void => {
     if (!down.delete(e.pointerId)) return;
-    if (e.pointerId === holdPointerId) timer.cancel('release');
-    holdPointerId = null;
-    armSuppressExpiry();
+    if (e.pointerId === holdPointerId) {
+      timer.cancel('release');
+      holdPointerId = null;
+    }
+    // Another finger is still down: the click (if any) comes only after the last one lifts.
+    if (down.size === 0) armSuppressExpiry();
   };
 
   const cancelWith = (reason: HoldCancelReason) => (): void => {
@@ -252,7 +273,9 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
 
   const onPointerCancel = (e: PointerEvent): void => {
     timer.cancel('pointercancel');
-    down.delete(e.pointerId); // a cancelled pointer sends no click; suppression ends at the next pointerdown
+    if (e.pointerId === holdPointerId) holdPointerId = null;
+    // A cancelled pointer sends no click. Once every pointer is up, a later keyboard or assistive click is a tap.
+    if (down.delete(e.pointerId) && down.size === 0) armSuppressExpiry();
   };
 
   const onContextMenu = (e: Event): void => {
@@ -272,8 +295,7 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   // The release may land outside the button (mouse) or the window may lose focus: clean up from the window.
   const onWindowPointerEnd = (e: PointerEvent): void => {
     if (!button.isConnected) return detach();
-    down.delete(e.pointerId);
-    if (e.type === 'pointerup') armSuppressExpiry();
+    if (down.delete(e.pointerId) && down.size === 0) armSuppressExpiry();
   };
 
   const onWindowBlur = (): void => {
@@ -300,6 +322,7 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   button.addEventListener('blur', onButtonBlur);
   button.addEventListener('contextmenu', onContextMenu);
   button.addEventListener('click', onClick);
+  window.addEventListener('pointerdown', onWindowPointerDownCapture, true);
   window.addEventListener('pointerup', onWindowPointerEnd);
   window.addEventListener('pointercancel', onWindowPointerEnd);
   window.addEventListener('blur', onWindowBlur);
@@ -319,6 +342,7 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
     button.removeEventListener('blur', onButtonBlur);
     button.removeEventListener('contextmenu', onContextMenu);
     button.removeEventListener('click', onClick);
+    window.removeEventListener('pointerdown', onWindowPointerDownCapture, true);
     window.removeEventListener('pointerup', onWindowPointerEnd);
     window.removeEventListener('pointercancel', onWindowPointerEnd);
     window.removeEventListener('blur', onWindowBlur);
@@ -326,4 +350,21 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   }
 
   return detach;
+}
+
+// Screens that rebuild their chrome (resize, profile switch) drop the parent button without keeping the
+// `detach` that `attachLongPress` returns. Track it per render root so the next render can release it.
+const detachByRoot = new WeakMap<HTMLElement, () => void>();
+
+/** Detaches the long-press bound by the previous render into `root`, if any. Call before clearing `root`. */
+export function releaseLongPress(root: HTMLElement): void {
+  const previous = detachByRoot.get(root);
+  detachByRoot.delete(root);
+  previous?.();
+}
+
+/** `attachLongPress` for a button rendered into `root`; the next `releaseLongPress(root)` detaches it. */
+export function attachLongPressInRoot(root: HTMLElement, button: HTMLElement, options: LongPressOptions): void {
+  releaseLongPress(root);
+  detachByRoot.set(root, attachLongPress(button, options));
 }

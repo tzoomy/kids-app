@@ -1,6 +1,6 @@
 import { el, formatClock, clear } from './dom';
 import heStrings from '../content/i18n/he.json';
-import { attachLongPress } from './longPress';
+import { attachLongPressInRoot, releaseLongPress } from './longPress';
 
 export interface MapPin {
   id: string;
@@ -27,11 +27,12 @@ export interface MapChromeOptions {
 }
 
 export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void {
+  releaseLongPress(root); // the previous render's parent button (if any) is about to disappear
   clear(root);
   const bar = el('div', 'shell-top-bar');
   const parentBtn = el('button', 'shell-pill', `🔒 ${heStrings.parentArea}`);
   parentBtn.dataset.testid = 'parent-gate-btn';
-  if (opts.onParentLongPress) attachLongPress(parentBtn, { onTap: opts.onParent, onLongPress: opts.onParentLongPress });
+  if (opts.onParentLongPress) attachLongPressInRoot(root, parentBtn, { onTap: opts.onParent, onLongPress: opts.onParentLongPress });
   else parentBtn.addEventListener('click', opts.onParent);
   bar.appendChild(parentBtn);
   bar.appendChild(el('span', 'shell-map-title', opts.title));
