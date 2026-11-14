@@ -103,7 +103,7 @@ export function findCardPointOverBuilding(
  *
  * To add coverage for another picker or new card in a future PR:
  *   1. Add `{ profile, worldId, cards }` to `PICKER_PRESS_THROUGH_CASES` in `tests/e2e/picker.press-through.spec.ts`
- *      (reusing `PICKER_GAMES` / `NATURE_LAB_PICKER_GAMES` / a new world's `*_PICKER_GAMES` array).
+ *      (use `stationsForWorld(worldId)` so new WORLD_GAMES entries are picked up automatically).
  *   2. Add any new game scene id to `GAME_SCENE` in `tests/e2e/helpers/journey.ts`.
  *   3. Add any new world id to `src/content/worlds.json` (read automatically by `DEFAULT_WORLD_IDS`).
  *

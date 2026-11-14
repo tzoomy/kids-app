@@ -11,13 +11,13 @@ import {
   waitForScene,
   type PageRect,
 } from './helpers/journey';
-import { PICKER_GAMES } from '../../src/ui/picker/pickerModel';
+import { stationsForWorld } from './helpers/worldStations';
 
 // Language House game picker (spec: kitchen-orchestra AC-16..AC-19, journey AC-01).
 // Both Playwright projects (1280x800 and 800x1280) run every test in this file, so each AC is checked in both orientations.
 
 const MIN_TAP = 64;
-const CARD_IDS = PICKER_GAMES.map((g) => g.testId);
+const CARD_IDS = stationsForWorld('language-house').map((g) => g.testId);
 const IMG_CARD_IDS = CARD_IDS.filter((id) => id === 'game-picker-animal-restaurant' || id === 'game-picker-kitchen-orchestra');
 
 function expectKnownViewport(page: Page): { landscape: boolean } {
@@ -146,7 +146,7 @@ test.describe('kitchen orchestra: map journey', () => {
   test('[AC-01] the game opens only from the Language House building: no other building opens it or the picker', async ({ page }) => {
     test.setTimeout(90_000);
     // Real taps on every other building, each from a fresh map. Art Studio is locked (toast only).
-    // Number Garden opens its own picker (Sorting Beds, Balloon Pop), Nature Lab opens Who's Hiding?, and Leisure Corner opens Bubbles
+    // Number Garden and Nature Lab open their own station-trail pickers (2 games each), and Leisure Corner opens its picker
     // only when the leisure balance is above 0, so those three may leave the map; whatever they do, they must never open
     // Kitchen Orchestra, Animal Restaurant or the picker.
     for (const worldId of ['art-studio', 'number-garden', 'nature-lab', 'leisure-corner']) {

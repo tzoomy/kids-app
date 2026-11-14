@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
-import { PICKER_CLOSE_TEST_ID, PICKER_GAMES } from '../../src/ui/picker/pickerModel';
+import { PICKER_CLOSE_TEST_ID, PICKER_GAMES, WORLD_GAMES } from '../../src/ui/picker/pickerModel';
 
 const PRESS_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const;
 
@@ -16,7 +16,9 @@ describe('renderGamePicker press propagation', () => {
   it('stops pointerdown, mousedown, and touchstart from bubbling to window while keeping card click working', () => {
     const onPick = vi.fn();
     const onClose = vi.fn();
-    const root = renderGamePicker({ onPick, onClose });
+    const suitcase = WORLD_GAMES.find((g) => g.gameId === 'travel-suitcase');
+    expect(suitcase).toBeDefined();
+    const root = renderGamePicker({ onPick, onClose, games: [suitcase!] });
     document.body.appendChild(root);
 
     const windowPress = vi.fn();
@@ -26,8 +28,6 @@ describe('renderGamePicker press propagation', () => {
       cleanups.push(() => window.removeEventListener(type, listener));
     }
 
-    const suitcase = PICKER_GAMES.find((g) => g.gameId === 'travel-suitcase');
-    expect(suitcase).toBeDefined();
     const suitcaseCard = root.querySelector<HTMLButtonElement>(`[data-testid="${suitcase!.testId}"]`);
     expect(suitcaseCard).not.toBeNull();
     const closeBtn = root.querySelector<HTMLButtonElement>(`[data-testid="${PICKER_CLOSE_TEST_ID}"]`);

@@ -163,11 +163,48 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/letter-monster.machine.test.ts'])).toEqual(expected);
   });
 
-  it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
+  it('seed to flower selects its journey only (the shared picker has its own mapping)', () => {
     expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
     expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
-    const natureLab = ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'];
-    expect(selectAffectedE2e(['src/ui/picker/pickerModel.ts'])).toEqual(expect.arrayContaining(natureLab));
+  });
+
+  it('src/ui/picker/** selects ALL picker-related specs (every world picker and the trail) plus smoke', () => {
+    const allPickerSpecs = [
+      'tests/e2e/balloon-pop.journey.spec.ts',
+      'tests/e2e/hiding.spec.ts',
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/letter-monster.journey.spec.ts',
+      'tests/e2e/magic-magnet.journey.spec.ts',
+      'tests/e2e/picker.press-through.spec.ts',
+      'tests/e2e/potion-lab.journey.spec.ts',
+      'tests/e2e/science-world.map.spec.ts',
+      'tests/e2e/seed-to-flower.journey.spec.ts',
+      'tests/e2e/sink-or-float.journey.spec.ts',
+      'tests/e2e/sorting-beds.journey.spec.ts',
+      'tests/e2e/sorting-beds.platform.spec.ts',
+      'tests/e2e/station-trail.spec.ts',
+      'tests/e2e/travel-suitcase.journey.spec.ts',
+      'tests/e2e/who-is-hiding.journey.spec.ts',
+    ];
+    const expected = [...allPickerSpecs, ...SMOKE].sort();
+    for (const f of [
+      'src/ui/picker/pickerModel.ts',
+      'src/ui/picker/trailModel.ts',
+      'src/ui/picker/gamePicker.ts',
+      'src/ui/picker/pickerAssets.ts',
+    ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(expected);
+    }
+  });
+
+  it('the picker mapping is one merged rule: no other rule also matches src/ui/picker/**', () => {
+    const rules = GAME_RULES.filter((r: { match: RegExp[] }) => r.match.some((re) => re.test('src/ui/picker/pickerModel.ts')));
+    expect(rules.map((r: { id: string }) => r.id)).toEqual(['picker']);
+  });
+
+  it('the station-trail unit tests and the world trail wiring select only the trail spec', () => {
+    expect(selectAffectedE2e(['tests/unit/station-trail.model.test.ts'])).toEqual(['tests/e2e/station-trail.spec.ts']);
+    expect(selectAffectedE2e(['src/worlds/worldTrail.ts'])).toEqual(['tests/e2e/station-trail.spec.ts']);
   });
 
   it('credits content and UI select the credits spec', () => {
@@ -217,11 +254,9 @@ describe('affected e2e selection', () => {
     ]);
   });
 
-  it('Balloon Pop changes select its journey; picker changes also select the Number Garden picker games', () => {
+  it('Balloon Pop changes select its journey only', () => {
     expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
-    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
-    expect(picker).toContain('tests/e2e/balloon-pop.journey.spec.ts');
-    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
+    expect(selectAffectedE2e(['src/content/games/balloon-pop.json'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
   });
 
   it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {

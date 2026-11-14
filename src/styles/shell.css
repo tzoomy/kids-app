@@ -543,7 +543,78 @@ body {
   line-height: 1.25;
 }
 
+/* Station trail (docs/specs/station-trail.md): picker cards become stations on a dotted trail. Placeholder CSS visuals. */
+.station-trail {
+  position: relative;
+}
+.station-trail::before {
+  content: '';
+  position: absolute;
+  inset-inline: 8%;
+  top: 50%;
+  border-top: 8px dotted #c9842a;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.station-trail > .picker-card {
+  z-index: 1; /* above the trail line */
+  /* N stations share the row; with the default of two this equals the original two-card size. */
+  width: min(calc((100cqw - 28px * (var(--picker-count, 2) - 1)) / var(--picker-count, 2)), 80cqh);
+}
+.station-star {
+  position: absolute;
+  top: 12px;
+  inset-inline-start: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffd24a;
+  border: 4px solid #3b2a22;
+  color: #3b2a22;
+  font-size: 34px;
+  line-height: 48px;
+  text-align: center;
+  box-shadow: 0 4px 0 rgba(59, 42, 34, 0.2);
+  pointer-events: none;
+}
+.station-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  border: 8px solid #c9842a;
+  pointer-events: none;
+  animation: station-pulse 2s ease-in-out infinite;
+}
+@keyframes station-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.985);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .station-pulse {
+    animation: none;
+    opacity: 0.9;
+  }
+}
+
 @media (orientation: portrait) {
+  .station-trail::before {
+    inset-inline: auto;
+    top: 8%;
+    bottom: 8%;
+    left: 50%;
+    border-top: 0;
+    border-left: 8px dotted #c9842a;
+  }
+  .station-trail > .picker-card {
+    width: min(100cqw, calc((100cqh - 20px * (var(--picker-count, 2) - 1)) / var(--picker-count, 2) * 0.8));
+  }
   .shell-game-picker {
     padding: 20px 16px;
   }

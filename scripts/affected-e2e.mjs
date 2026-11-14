@@ -36,8 +36,36 @@ const COLOURING_SPECS = [
   'tests/e2e/leisure-colouring.platform.spec.ts',
 ];
 
+/**
+ * Every spec that goes through a world picker or station trail (src/ui/picker/**): a change to the shared picker
+ * (model, trail, cards, art keys) can break any of them, so it selects all of them. One rule, not one per game.
+ */
+export const PICKER_SPECS = [
+  'tests/e2e/balloon-pop.journey.spec.ts',
+  'tests/e2e/hiding.spec.ts',
+  'tests/e2e/kitchen-orchestra.picker.spec.ts',
+  'tests/e2e/letter-monster.journey.spec.ts',
+  'tests/e2e/magic-magnet.journey.spec.ts',
+  'tests/e2e/picker.press-through.spec.ts',
+  'tests/e2e/potion-lab.journey.spec.ts',
+  'tests/e2e/science-world.map.spec.ts',
+  'tests/e2e/seed-to-flower.journey.spec.ts',
+  'tests/e2e/sink-or-float.journey.spec.ts',
+  'tests/e2e/sorting-beds.journey.spec.ts',
+  'tests/e2e/sorting-beds.platform.spec.ts',
+  'tests/e2e/station-trail.spec.ts',
+  'tests/e2e/travel-suitcase.journey.spec.ts',
+  'tests/e2e/who-is-hiding.journey.spec.ts',
+];
+
 /** Explicit map. Every tests/e2e/*.spec.ts must appear in some `specs` list or in SMOKE_SPECS. */
 export const GAME_RULES = [
+  {
+    // The shared picker and station trail are the way into every world with 2+ games (and the coming-soon picker for a world with none).
+    id: 'picker',
+    match: [/^src\/ui\/picker\//],
+    specs: PICKER_SPECS,
+  },
   {
     id: 'animal-restaurant',
     match: [
@@ -61,7 +89,6 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/orchestra\//,
       /^src\/content\/games\/kitchen-orchestra\.json$/,
-      /^src\/ui\/picker\//,
       /^public\/art\/instruments\//,
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
@@ -72,7 +99,6 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/travelSuitcase\//,
       /^src\/content\/games\/travel-suitcase\.json$/,
-      /^src\/ui\/picker\//,
       /^src\/anim\/sortPackMotion\.ts$/,
       /^public\/art\/props\/suitcase-(back|front)\.svg$/,
       /^tests\/e2e\/helpers\/journey\.ts$/,
@@ -83,10 +109,17 @@ export const GAME_RULES = [
   {
     id: 'picker-press-through',
     match: [
-      /^src\/ui\/picker\//,
       /^tests\/e2e\/helpers\/pickerPressThrough\.ts$/,
     ],
     specs: ['tests/e2e/picker.press-through.spec.ts'],
+  },
+  {
+    id: 'station-trail',
+    match: [
+      /^src\/worlds\/worldTrail\.ts$/,
+      /^tests\/unit\/station-trail[^/]*$/,
+    ],
+    specs: ['tests/e2e/station-trail.spec.ts'],
   },
   {
     id: 'letter-monster',
@@ -107,12 +140,6 @@ export const GAME_RULES = [
       /^tests\/unit\/seed-to-flower[^/]*$/,
     ],
     specs: ['tests/e2e/seed-to-flower.journey.spec.ts'],
-  },
-  {
-    // The Nature Lab picker (docs/specs/seed-to-flower.md) is the way into both Nature Lab games.
-    id: 'nature-lab-picker',
-    match: [/^src\/ui\/picker\//],
-    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
   },
   {
     id: 'leisure-colouring',
@@ -136,8 +163,6 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/sorting\//,
       /^src\/content\/games\/sorting-beds\.json$/,
-      // The Number Garden picker card is the Sorting Beds entry.
-      /^src\/ui\/picker\//,
       /^src\/anim\/(homesTrainMotion|sortPackMotion|trainLayout)\.ts$/,
       /^public\/art\/(homes|train)\//,
       /^tests\/unit\/(sorting-beds|sortPackMotion|homesTrainMotion|trainLayout)[^/]*$/,
@@ -146,10 +171,9 @@ export const GAME_RULES = [
   },
   {
     id: 'science-world',
-    // Science World map area: its building art and its (for now empty) picker. MapScene stays smoke-only.
+    // Science World map area: its building art and its entry (one game: direct; none: coming-soon picker). MapScene stays smoke-only.
     match: [
       /^public\/art\/buildings\//,
-      /^src\/ui\/picker\//,
       /^tests\/unit\/science-world[^/]*$/,
     ],
     specs: ['tests/e2e/science-world.map.spec.ts'],
@@ -190,7 +214,6 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/balloon\//,
       /^src\/content\/games\/balloon-pop\.json$/,
-      /^src\/ui\/picker\//,
       /^tests\/unit\/balloon-pop[^/]*$/,
     ],
     specs: ['tests/e2e/balloon-pop.journey.spec.ts'],

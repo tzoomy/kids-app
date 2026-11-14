@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { SkillSession, buildMeta } from '@/core/adaptive';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
-import { loadSeedToFlower, loadWorlds } from '@/content/loadContent';
+import { loadSeedToFlower, loadWhosHiding, loadWorlds } from '@/content/loadContent';
 import { SeedToFlowerContentSchema } from '@/content/schema';
 import type { StorageDriver } from '@/core/storage/store';
 import { applyTool, createPlant, type PlantEvent, type PlantState, type Tool } from '@/games/seedFlower/seedFlowerMachine';
 import { bloomFor, planForLevel, seedHeLine, speaksStage, stageLine, trialForGrowth } from '@/games/seedFlower/seedFlowerRound';
 import { nextRoundLanguage } from '@/games/restaurant/trialTracker';
-import { NATURE_LAB_PICKER_GAMES } from '@/ui/picker/pickerModel';
+import { WORLD_GAMES } from '@/ui/picker/pickerModel';
+import { collectTrailGames, stationGamesForWorld } from '@/ui/picker/trailModel';
 import seedJson from '@/content/games/seed-to-flower.json';
 import { resolvePickerAsset } from '@/ui/picker/pickerAssets';
 import heStrings from '@/content/i18n/he.json';
@@ -145,11 +146,12 @@ describe('Seed to Flower: levels, adaptive trials and content', () => {
   });
 
   it('[AC-01] the Nature Lab picker lists Who\'s Hiding? first and Seed to Flower second; bloom art cycles through existing blooms', () => {
-    expect(NATURE_LAB_PICKER_GAMES.map((g) => [g.gameId, g.testId, g.sceneKey])).toEqual([
+    const natureLab = stationGamesForWorld('nature-lab', WORLD_GAMES, collectTrailGames({ hiding: loadWhosHiding(), seed: content }));
+    expect(natureLab.map((g) => [g.gameId, g.testId, g.sceneKey])).toEqual([
       ['who-is-hiding', 'game-picker-who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'game-picker-seed-to-flower', 'SeedFlowerScene'],
     ]);
-    for (const g of NATURE_LAB_PICKER_GAMES) {
+    for (const g of natureLab) {
       expect(() => resolvePickerAsset(g.assetKey)).not.toThrow();
       expect((heStrings.gamePicker as Record<string, string>)[g.labelKey]).toBeTruthy();
     }

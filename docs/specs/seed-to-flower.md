@@ -112,7 +112,7 @@ Profile → tap the Nature Lab building → **Nature Lab game picker** (new: Who
 | `seed.stage.<stage>.<lang>` | en / fr | A seed! / Une graine ! · A sprout! / Une pousse ! · A bud! / Un bouton ! · A flower! / Une fleur ! | Plant start (seed) and each new stage on naming levels; flower only on bloom levels |
 | `he.praise.0` | he | existing recorded clip | Every bloom |
 
-- **World and PWA wiring:** Nature Lab keeps `entryGameId: who-is-hiding`, and its building now opens a picker (`NATURE_LAB_PICKER_GAMES`). New `AppScreen` `seed-flower` (not safe for a mid-game update).
+- **World and PWA wiring:** Nature Lab keeps `entryGameId: who-is-hiding`, and its building now opens the station trail picker (Who's Hiding? and Seed to Flower, from `WORLD_GAMES` plus content `world: nature-lab`). New `AppScreen` `seed-flower` (not safe for a mid-game update).
 
 ### Pass 2 — polish
 

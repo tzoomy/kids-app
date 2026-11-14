@@ -1,8 +1,7 @@
 // Table-driven press-through regression suite for DOM game pickers (src/ui/picker/gamePicker.ts).
-// Add a row to PICKER_PRESS_THROUGH_CASES when introducing a new picker-hosted world; new cards appended
-// to PICKER_GAMES or NATURE_LAB_PICKER_GAMES are picked up automatically.
+// Station-trail worlds take their cards from WORLD_GAMES + content via stationsForWorld.
 import { test } from '@playwright/test';
-import { NATURE_LAB_PICKER_GAMES, PICKER_GAMES } from '../../src/ui/picker/pickerModel';
+import { stationsForWorld } from './helpers/worldStations';
 import {
   expectPickerPressDoesNotReachMap,
   type PickerPressThroughOptions,
@@ -12,12 +11,12 @@ export const PICKER_PRESS_THROUGH_CASES: readonly PickerPressThroughOptions[] = 
   {
     profile: 'profile-a',
     worldId: 'language-house',
-    cards: PICKER_GAMES,
+    cards: stationsForWorld('language-house'),
   },
   {
     profile: 'profile-b',
     worldId: 'nature-lab',
-    cards: NATURE_LAB_PICKER_GAMES,
+    cards: stationsForWorld('nature-lab'),
   },
 ];
 
