@@ -2,6 +2,7 @@ import worldsJson from './worlds.json';
 import animalRestaurantJson from './games/animal-restaurant.json';
 import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
+import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
@@ -19,6 +20,7 @@ import {
   AnimalRestaurantContentSchema,
   KitchenOrchestraContentSchema,
   SortingBedsContentSchema,
+  PicnicTrainContentSchema,
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
@@ -33,6 +35,7 @@ import {
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
+  type PicnicTrainContent,
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
@@ -73,6 +76,10 @@ export function loadKitchenOrchestra(): KitchenOrchestraContent {
 
 export function loadSortingBeds(): SortingBedsContent {
   return SortingBedsContentSchema.parse(sortingBedsJson);
+}
+
+export function loadPicnicTrain(): PicnicTrainContent {
+  return PicnicTrainContentSchema.parse(picnicTrainJson);
 }
 
 export function loadLeisureColouring(): LeisureColouringContent {
