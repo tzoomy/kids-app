@@ -167,6 +167,7 @@ export class MapScene extends Phaser.Scene {
         balanceSec: profileState.balanceSec,
         showTime: context.isTimeEarningEnabled(),
         onParent: () => context.onRequestParent?.(),
+        onParentLongPress: () => context.onRequestParentSettings?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
         pins,
         canvas: this.game.canvas,
