@@ -1,7 +1,7 @@
 # `wardrobe` — Wardrobe
 
 Status: **draft — pending owner approval**
-Pass in progress: **1**
+Pass in progress: **2**
 
 > Written by Claude (logic lead) under the team lead's continuous-development mode (2026-11-14): take reversible defaults, list them as pending owner decisions, and keep building. The idea is owner-approved (`docs/WORLDS.md`, Rewards and creation, Wardrobe, 2026-11-13). The art contract is `docs/contracts/wardrobe-art.md` (PR #72). Every default below still needs Maor's approval; see [Open decisions for the owner](#open-decisions-for-the-owner) and `docs/PENDING-DECISIONS.md`.
 
@@ -59,6 +59,22 @@ Hats and accessories that the child earns by finishing rounds in any world dress
 
 **Unlock feedback.** On a new unlock: `SfxPlayer.yay()` plus a short Hebrew toast on top of the current screen, `data-testid="wardrobe-unlock-toast"`, with `data-items="<id>[,<id>]"`. It disappears by itself. No screenshots are needed to test it.
 
+## Pass 2: the outfit on the bear on the map and in games
+
+*Added 2026-11-14 (tests-first). Every default in this section is a **pending Maor decision**; see Open decisions and `docs/PENDING-DECISIONS.md` (2026-11-14, Wardrobe Pass 2).*
+
+The current profile's equipped outfit shows on the **bear** wherever the bear appears, through `Character.setAccessories` (Pass 1 added it; only the Wardrobe used it). The Wardrobe stays the only place where the child dresses or undresses the bear.
+
+- **Bear only.** Only a `Character` with `kind === 'bear'` wears the outfit. Rabbit, cat, dog, panda, lion, chef and the habitat animals stay undressed. The anchors for the other fitted kinds exist in `anchors.json` and stay unused on the map and in games.
+- **Which scenes:**
+  - `MapScene` gets a decorative, non-interactive bear mascot that wears the profile's outfit. It does not overlap any building hit target. It is not a second Wardrobe entry: the HUD `wardrobe-btn` stays the only one, and tapping the mascot does nothing.
+  - Every learning-game `Character` of kind bear wears it. Today that is Animal Restaurant (the customer, when the picked kind is bear) and Who's Hiding? (when a hiding animal is the bear). Kitchen Orchestra is the chef (no outfit). Colouring pages are not `Character` instances (no outfit). Leisure games are unchanged.
+- **Animation:** the outfit stays visible during every character animation (enter hop, talk, munch, and so on). It is never hidden during animation.
+- **Outfit source:** `wornItems(loadWardrobeState(localStorage, profileId), ageTrack)` for the current profile; the same profile and age-track rules as the Wardrobe (not-offered saved entries are not drawn). A change in the Wardrobe shows when the child returns to the map (the map reads the saved state when it is created); switching profiles shows that profile's outfit.
+- **Layering and input:** the accessory images go through `layoutOutfit` unchanged (bands `behindHead`, `head`, `front`; `slotOrder`; `headSide` at positive x with `flipX` false, no mirroring). The accessories are created with input disabled (never interactive, no `setInteractive`), so they cannot block taps or game hit areas.
+- **Lazy art:** the wardrobe SVGs load only when a dressed bear is about to be shown (the worn items' manifest entries only), never at boot, and not at all when the bear wears nothing.
+- **Planned code layout (minimal):** `src/core/wardrobe/dress.ts` (no Phaser import at runtime): `wearsOutfit(kind)`, `outfitPlacements(kind, items)` (`layoutOutfit` for the bear, `[]` for any other kind), `outfitArtEntries(kind, items)`, `currentOutfitItems(storage, profileId, track)` and `dressCharacter(scene, character, kind, items)` (builds the images from the placements, calls `character.setAccessories`, returns the mounted item ids). `src/worlds/mapBear.ts`: the map mascot. Call sites: `MapScene` (via `mapBear.ts`), `RestaurantScene`, `HidingScene`. `WardrobeScene` is not changed.
+
 ## Leisure
 
 Wardrobe has no leisure earning of its own and never changes the balance. Completed rounds still earn leisure exactly as in their own games. Unlocks never depend on the balance.
@@ -74,6 +90,11 @@ Profile → map → tap `wardrobe-btn` → Wardrobe (`WardrobeScene`) → tap it
   - `getWardrobeInfo()`: works on the map and in the scene. Returns `{ sceneActive, ageTrack, character, offered, unlocked, worn, rendered, lastUnlock }`: `offered` = item ids shown at this age, `unlocked` and `worn` from the saved state, `rendered` = item ids in draw order, `lastUnlock` = ids unlocked by the latest recorded round in this page session.
   - `recordCompletedRound(worldId, gameId)`: calls the public `AppContext.recordCompletedRound`, the same function the games call (it only records progress; it does not play a game). Returns the newly unlocked ids.
   - The types `WardrobeInfo` and `WardrobeSeed` live in `src/games/wardrobe/wardrobeTypes.ts` (type-only imports by `tests/e2e/helpers/journey.ts`).
+  - **Pass 2 hooks** (added 2026-11-14; seed or read only, `?e2e=1` only; minor spec-handle additions):
+    - `seedWardrobeStateForProfile(profileId, seed)`: like `seedWardrobeState` but for a named profile (`'a'` or `'b'`), and it works on the profile-select screen, so the outfit is saved before `MapScene` is created.
+    - `getVisibleBearOutfits()`: returns `{ scene, items, rect }[]`, one entry per visible bear `Character` in an active scene (`scene` is the scene key, for example `MapScene` or `RestaurantScene`; `rect` is its page-pixel bounds or `null`). `items` are the accessory item ids **actually mounted** on that Character, in draw order, read from the Character (display list or the ids it tracks), not from saved state. A bear with no outfit still gets an entry with `items: []`. Do not substitute `getWardrobeInfo().rendered`: it comes from the saved state even when nothing is drawn.
+    - `seedRestaurantKind(kind)`: call it on the map; the next Animal Restaurant `pickKind()` returns that kind once (then random as before).
+  - Pass 2 handles: no new `data-testid`. The map bear is not a test target (it is read by `getVisibleBearOutfits`, not tapped for navigation); tapping it must do nothing.
 - Planned code layout: `src/core/wardrobe/` (`model.ts`, `store.ts`, `layout.ts`; no Phaser), `src/games/wardrobe/` (`WardrobeScene.ts`, `wardrobeTypes.ts`), `src/ui/wardrobeChrome.ts` (item buttons, toast), `AppContext.recordCompletedRound`.
 
 ## Acceptance criteria
@@ -93,6 +114,10 @@ Profile → map → tap `wardrobe-btn` → Wardrobe (`WardrobeScene`) → tap it
 | AC-11 | Device check: touch, rotation inside the Wardrobe, visuals of every item on the bear | 1 | device | both | |
 | AC-12 | No purchases, ads or time gates: only the starter and completed rounds unlock anything; elapsed time unlocks nothing | 1 | unit | @single-orientation | |
 | AC-13 | `AppContext.recordCompletedRound(world, gameId)` records for the current profile and age track, persists, plays the yay sound only when something new unlocked, and returns the new ids | 1 | unit | @single-orientation | |
+| AC-14 | The saved outfit shows on the map bear (mounted accessories, read from the Character), the map bear overlaps no building and tapping it does nothing, and by real taps the outfit shows on the bear in Animal Restaurant (seeded kind bear) | 2 | e2e+seed | both | `seedWardrobeStateForProfile`, `getVisibleBearOutfits`, `seedRestaurantKind`, `getBuildingHit` |
+| AC-15 | A change made in the Wardrobe (put on, take off, replace) shows on the map bear when the child returns by `hud-back` | 2 | e2e+seed | @single-orientation | `seedWardrobeState`, `getVisibleBearOutfits` |
+| AC-16 | Switching profiles shows that profile's outfit on the map bear (a, then b, then a again); one profile's items never show for the other | 2 | e2e+seed | @single-orientation | `seedWardrobeStateForProfile`, `getVisibleBearOutfits` |
+| AC-17 | Dress helper and call sites: only the bear is dressed (other kinds are a no-op); placements are exactly `layoutOutfit` (slotOrder and bands, scarf last, `headSide` at +x with `flipX` false); accessories are never interactive; the current profile's worn items for the age track are dressed and an empty outfit draws nothing; art loads only for worn items; `MapScene`, `RestaurantScene` and `HidingScene` call the helper and the chef and leisure scenes do not | 2 | unit | @single-orientation | |
 
 By default, Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3).
 
@@ -104,17 +129,24 @@ By default, Pass-1 criteria do not require polished animation or new recorded cl
 - **Layout:** landscape and portrait. Item buttons are DOM buttons of at least 64 CSS px (**Decided by the owner (2026-11-13):** minimum 64 CSS px); if they do not fit they wrap or scroll, never shrink. The character stays visible in both orientations.
 - **RTL:** Hebrew chrome is RTL; the Wardrobe reuses the existing HUD back button.
 - **Animation:** basic only: a `popIn` of the item on the character (`src/anim/motion.ts`), Juice burst on unlock.
-- **Character rendering:** only in the Wardrobe in Pass 1. Showing the outfit on map or game characters (a hook in `src/anim/Character.ts`) is out of scope unless it proves cheap in the implementation session; note it in the progress file if done.
+- **Character rendering:** only in the Wardrobe in Pass 1. Pass 2 (this change, see the Pass 2 section) shows the outfit on the bear on the map and in games through the same `Character.setAccessories` hook.
 - **Voice:** none in Pass 1 (no new lines, no new clips). Unlock feedback is `SfxPlayer.yay()`, a Juice burst and the toast.
 
-### Pass 2 — polish
+### Pass 2 — the outfit on the bear (this change)
 
-Only after Maor approves Pass 1: item name voice lines in Hebrew and the learning language ("כובע", "hat"), polished animation, a character switch, outfit shown on the map characters.
+- **Art:** none new. The map mascot reuses the existing bear rig (`public/art/animals/bear/`) and the Pass 1 accessory SVGs. The mascot is a placeholder-level decoration (a small bear standing in free map space); polished placement is for Maor to review on a device.
+- **Animation:** the bear's own idle and character animations; the outfit is visible during all of them. No new animation.
+- **Voice:** none.
+- **Device check:** AC-18 is not added; the visual fit on the map and in games (mascot position in both orientations, the outfit during hop, talk and munch) is checked together with AC-11 on a device.
+
+### Later (not scheduled; only after Maor approves)
+
+Item name voice lines in Hebrew and the learning language ("כובע", "hat"), polished animation, a character switch, the outfit on the other characters.
 
 ## Out of scope
 
 - Purchases, ads, time gates, parent controls for unlocks.
-- Character switch (bear only in Pass 1), outfit on other screens, fitting the habitat animals, left-side or mirrored `headSide`.
+- Character switch (bear only in Pass 1 and Pass 2), the outfit on characters other than the bear (rabbit, cat, dog, panda, lion, chef, habitat animals), the outfit on Leisure Corner games, left-side or mirrored `headSide`. (The outfit on the map and in-game **bear** moved into scope in Pass 2.)
 - Unlocking Art Studio or adding any Art Studio game.
 - Spoken item names (Pass 2).
 
@@ -127,8 +159,14 @@ Only after Maor approves Pass 1: item name voice lines in Hebrew and the learnin
 - **Open decision for the owner:** one character (bear) in Pass 1, no character switch.
 - **Open decision for the owner:** the outfit is saved at both ages on every change (age 5 "saves an outfit"; for age 2 saving is harmless).
 - **Open decision for the owner:** an unlock celebrates with `SfxPlayer.yay()` and a Hebrew toast, with no spoken line.
+- **Open decision for the owner (Pass 2, pending Maor decision):** bear only on the map and in games; every other character stays undressed. To reverse: change `wearsOutfit` in `src/core/wardrobe/dress.ts` (the anchors for the other fitted kinds already exist).
+- **Open decision for the owner (Pass 2, pending Maor decision):** which scenes show the outfit: a decorative, non-interactive map bear mascot (not a second Wardrobe entry; tapping it does nothing) plus every learning-game bear (Animal Restaurant customer, Who's Hiding? animal). To reverse: remove the mascot from `MapScene` (`src/worlds/mapBear.ts`) and/or stop calling `dressCharacter` in `RestaurantScene` and `HidingScene`.
+- **Open decision for the owner (Pass 2, pending Maor decision):** the outfit stays visible during character animations (enter hop, talk, munch). To reverse: hide or detach the accessories while a Character action plays.
+- **Open decision for the owner (Pass 2, pending Maor decision):** wardrobe accessory art loads lazily when a dressed bear is about to be shown, never at boot (and not when the bear wears nothing).
+- **Open decision for the owner (Pass 2):** this spec reuses the name "Pass 2" for the outfit-in-the-world work. `docs/PROCESS.md` §3 defines Pass 2 as polish (art, animation, new clips), so the original Pass 2 polish list moved to "Later". Confirm or rename.
 - **Open decision for the owner:** approve this spec (built under continuous-development mode before approval).
 
 ## Changelog
 
 - `2026-11-14` — created (draft, Pass 1, tests-first) — substantive
+- `2026-11-14` — Pass 2 (tests-first): the bear wears the current profile's outfit on the map (new decorative mascot) and in learning games; bear only; outfit stays visible during animation; lazy art. Moved "outfit on map or game characters" out of Pass 1 out of scope; the old Pass 2 polish list is now "Later". Added AC-14 to AC-17. Added hooks `seedWardrobeStateForProfile`, `getVisibleBearOutfits`, `seedRestaurantKind` (minor handle additions). New defaults listed in Open decisions — substantive

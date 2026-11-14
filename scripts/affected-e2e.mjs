@@ -192,6 +192,9 @@ export const GAME_RULES = [
   {
     // Wardrobe (docs/specs/wardrobe.md): HUD entry, scene, pure model, content and art. hud.ts and
     // appContext.ts are shared and fall back to the smoke set on their own; they are not listed here.
+    // Pass 2 (outfit on the bear on the map and in games): the shared dress helper lives in
+    // src/core/wardrobe/ (already matched) and the map mascot in src/worlds/mapBear.ts. MapScene.ts,
+    // Character.ts and the game scenes are NOT listed: a MapScene-only change keeps selecting the smoke set.
     id: 'wardrobe',
     match: [
       /^src\/core\/wardrobe\//,
@@ -199,10 +202,11 @@ export const GAME_RULES = [
       /^src\/games\/wardrobe\//,
       /^src\/ui\/wardrobeChrome\.ts$/,
       /^src\/assets\/art\/wardrobeManifest\.ts$/,
+      /^src\/worlds\/mapBear\.ts$/,
       /^public\/art\/wardrobe\//,
       /^tests\/unit\/wardrobe[^/]*$/,
     ],
-    specs: ['tests/e2e/wardrobe.journey.spec.ts'],
+    specs: ['tests/e2e/wardrobe.journey.spec.ts', 'tests/e2e/wardrobe.pass2.spec.ts'],
   },
   {
     id: 'sink-or-float',

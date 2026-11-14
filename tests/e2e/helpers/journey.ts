@@ -168,6 +168,9 @@ type Hooks = {
   seedPotionLevel: (level: number) => void;
   getPotionInfo: () => PotionInfo | null;
   seedWardrobeState: (seed: WardrobeSeed) => void;
+  seedWardrobeStateForProfile: (profileId: string, seed: WardrobeSeed) => void;
+  getVisibleBearOutfits: () => VisibleBearOutfit[];
+  seedRestaurantKind: (kind: string) => void;
   getWardrobeInfo: () => WardrobeInfo | null;
   recordCompletedRound: (worldId: string, gameId: string) => string[];
   seedSinkFloatLevel: (level: number) => void;
@@ -225,6 +228,8 @@ export async function seedHidingLevel(page: Page, level: number): Promise<void> 
 
 /** Optional steps for a journey: `beforeEnter` runs on the map (after the profile tap), before the building tap. */
 export interface JourneyOptions {
+  /** Runs on the profile-select screen, before the profile tap (seeds that must exist when MapScene is created). */
+  beforeProfileTap?: () => Promise<void>;
   beforeEnter?: () => Promise<void>;
   /** Seeds settings.timeEarning.enabled before the profile tap (default true: existing tests exercise the earning UI). */
   timeEarningEnabled?: boolean;
@@ -257,6 +262,7 @@ export async function enterMapByTap(page: Page, profile: ProfileTestId, opts?: J
   // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
   await page.goto('./?e2e=1');
   await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
+  if (opts?.beforeProfileTap) await opts.beforeProfileTap();
   await page.locator(`[data-testid="${profile}"]`).click();
   await waitForScene(page, 'MapScene');
   if (opts?.beforeEnter) await opts.beforeEnter();
@@ -273,7 +279,11 @@ export async function tapWorldBuilding(
   opts?: JourneyOptions,
 ): Promise<void> {
   await enterMapByTap(page, profile, opts);
+  await tapBuildingOnMap(page, worldId);
+}
 
+/** Taps a world's building while the map is already showing (real pointer click at the centre of its hit rectangle). */
+export async function tapBuildingOnMap(page: Page, worldId: string): Promise<void> {
   // Wait for the building's pop-in to finish (its size stops changing), then tap its centre.
   let previous: PageRect | null = null;
   let rect: PageRect | null = null;
@@ -775,6 +785,56 @@ export async function seedWardrobeState(page: Page, seed: WardrobeSeed): Promise
 /** Wardrobe snapshot; works on the map (saved state only) and in the scene. */
 export function getWardrobeInfo(page: Page): Promise<WardrobeInfo | null> {
   return callHook<WardrobeInfo | null>(page, 'getWardrobeInfo');
+}
+
+/**
+ * One visible bear Character (Wardrobe Pass 2): the scene it lives in, the accessory item ids actually
+ * mounted on it in draw order (read from the Character, not from the saved state), and its page bounds.
+ * A bear with no outfit still gets an entry with `items: []`, so "the bear exists" is observable.
+ */
+export interface VisibleBearOutfit {
+  scene: string;
+  items: string[];
+  rect: PageRect | null;
+}
+
+/**
+ * Seeds a named profile's wardrobe state (seed only). Unlike `seedWardrobeState` it works on the
+ * profile-select screen, so the outfit is saved before MapScene is created.
+ */
+export async function seedWardrobeStateForProfile(page: Page, profileId: 'a' | 'b', seed: WardrobeSeed): Promise<void> {
+  await callHook<void>(page, 'seedWardrobeStateForProfile', [profileId, seed]);
+}
+
+/** Accessories actually mounted on the bear Characters of the active scenes (read only). */
+export function getVisibleBearOutfits(page: Page): Promise<VisibleBearOutfit[]> {
+  return callHook<VisibleBearOutfit[]>(page, 'getVisibleBearOutfits');
+}
+
+/** Seeds the kind the next Animal Restaurant round picks, once (seed only; call it on the map). */
+export async function seedRestaurantKind(page: Page, kind: string): Promise<void> {
+  await callHook<void>(page, 'seedRestaurantKind', [kind]);
+}
+
+/** Polls until the bear in `scene` shows exactly `items` (art loads lazily, so the accessories appear a moment later). */
+export async function waitForBearOutfit(
+  page: Page,
+  scene: string,
+  items: readonly string[],
+  timeout = 15_000,
+): Promise<VisibleBearOutfit> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const bears = await getVisibleBearOutfits(page);
+    const found = bears.find(
+      (b) => b.scene === scene && b.items.length === items.length && b.items.every((id, n) => id === items[n]),
+    );
+    if (found) return found;
+    if (Date.now() > deadline) {
+      throw new Error(`no bear in ${scene} wears ${JSON.stringify(items)}; visible bears: ${JSON.stringify(bears)}`);
+    }
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
 
 /** Records a completed round through the public AppContext.recordCompletedRound; returns the newly unlocked ids. */
