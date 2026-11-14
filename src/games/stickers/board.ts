@@ -181,6 +181,14 @@ export function clearBoard(board: Board): Board {
   return { backgroundId: board.backgroundId, stickers: [], strokes: [] };
 }
 
+/** Restores stickers and strokes from `previous` while keeping `current.backgroundId`. */
+export function undoKeepingBackground(current: Board, previous: Board): Board {
+  return {
+    ...cloneBoard(previous),
+    backgroundId: current.backgroundId,
+  };
+}
+
 /** In-memory undo stack storing deep-cloned Board snapshots up to `cap` (default UNDO_CAP = 30). */
 export class UndoStack {
   private readonly items: Board[] = [];

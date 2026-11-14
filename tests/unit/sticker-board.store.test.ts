@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ALBUM_CAP, addToAlbum, loadStickerBoardState, saveStickerBoardState, stickersKey } from '@/core/stickers/store';
-import { addSticker, createEmptyBoard, startStroke } from '@/games/stickers/board';
+import { addSticker, createEmptyBoard, startStroke, extendStroke } from '@/games/stickers/board';
+import { runTeardown } from '@/games/stickers/teardown';
 
 function memoryStorage(): Storage {
   const data = new Map<string, string>();
@@ -78,5 +79,55 @@ describe('sticker-board store', () => {
     const next = addToAlbum(state, live);
     live.stickers[0].stickerId = 'moon';
     expect(next.album[0].stickers[0].stickerId).toBe('rocket');
+  });
+
+  it('[AC-12] a throwing storage (QuotaExceededError) does not throw and returns false', () => {
+    const quotaError = Object.assign(new Error('QuotaExceededError'), { name: 'QuotaExceededError' });
+    const throwingStorage: Pick<Storage, 'setItem'> = {
+      setItem: () => {
+        throw quotaError;
+      },
+    };
+    const board = addSticker(createEmptyBoard('space'), 'rocket', { x: 0.5, y: 0.5 });
+    expect(saveStickerBoardState(throwingStorage, 'b', { v: 1, current: board, album: [] })).toBe(false);
+    expect(saveStickerBoardState(memoryStorage(), 'b', { v: 1, current: board, album: [] })).toBe(true);
+  });
+
+  it('[AC-12] rounds stored coordinates to 3 decimals on serialisation without mutating the in-memory board', () => {
+    const storage = memoryStorage();
+    let board = addSticker(createEmptyBoard('beach'), 'shell', { x: 0.123456, y: 0.65489 });
+    board = extendStroke(startStroke(board, 'blue', 0.11111, 0.22269), 0.99991, 0.0004);
+    expect(saveStickerBoardState(storage, 'b', { v: 1, current: board, album: [board] })).toBe(true);
+
+    // In-memory board remains untouched.
+    expect(board.stickers[0]).toEqual({ stickerId: 'shell', x: 0.123456, y: 0.65489 });
+    expect(board.strokes[0].points).toEqual([0.11111, 0.22269, 0.99991, 0.0004]);
+
+    const loaded = loadStickerBoardState(storage, 'b');
+    expect(loaded.current.stickers[0]).toEqual({ stickerId: 'shell', x: 0.123, y: 0.655 });
+    expect(loaded.current.strokes[0].points).toEqual([0.111, 0.223, 1, 0]);
+    expect(loaded.album[0].stickers[0]).toEqual({ stickerId: 'shell', x: 0.123, y: 0.655 });
+  });
+
+  it('[AC-12] runTeardown executes all steps and persist even when steps or persist throw', () => {
+    const ran: string[] = [];
+    expect(() =>
+      runTeardown(
+        [
+          () => ran.push('timer'),
+          () => {
+            ran.push('throwing-step');
+            throw new Error('boom');
+          },
+          () => ran.push('listeners'),
+          () => ran.push('chrome'),
+        ],
+        () => {
+          ran.push('persist');
+          throw new Error('QuotaExceededError');
+        },
+      ),
+    ).not.toThrow();
+    expect(ran).toEqual(['timer', 'throwing-step', 'listeners', 'chrome', 'persist']);
   });
 });

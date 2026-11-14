@@ -32,6 +32,7 @@ export interface StickerBoardChromeOptions {
   selectedBackground: string;
   selectedColor: string;
   undoEnabled: boolean;
+  saveEnabled: boolean;
   requestsEnabled: boolean;
   requestStickerArtKey: string | null;
   showTime: boolean;
@@ -56,7 +57,7 @@ export interface StickerBoardChromeOptions {
 
 export type StickerBoardChromeState = Pick<
   StickerBoardChromeOptions,
-  'selectedBackground' | 'selectedColor' | 'undoEnabled' | 'requestsEnabled' | 'requestStickerArtKey' | 'balanceSec'
+  'selectedBackground' | 'selectedColor' | 'undoEnabled' | 'saveEnabled' | 'requestsEnabled' | 'requestStickerArtKey' | 'balanceSec'
 >;
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -282,6 +283,7 @@ export class StickerBoardHud {
       setText(this.countdown, `⏳ ${formatClock(values.balanceSec)}`);
     }
     this.undoBtn.disabled = !values.undoEnabled;
+    if (this.saveBtn) this.saveBtn.disabled = !values.saveEnabled;
 
     for (const [id, b] of this.bgButtons) {
       const on = id === values.selectedBackground;

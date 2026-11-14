@@ -131,12 +131,42 @@ export function loadStickerBoardState(
   }
 }
 
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000;
+}
+
+function roundBoard(board: Board): Board {
+  return {
+    backgroundId: board.backgroundId,
+    stickers: board.stickers.map((s) => ({
+      stickerId: s.stickerId,
+      x: round3(s.x),
+      y: round3(s.y),
+    })),
+    strokes: board.strokes.map((st) => ({
+      colorId: st.colorId,
+      points: st.points.map(round3),
+    })),
+  };
+}
+
 export function saveStickerBoardState(
   storage: Pick<Storage, 'setItem'>,
   profileId: string,
   state: StickerBoardSave,
-): void {
-  storage.setItem(stickersKey(profileId), JSON.stringify(sanitizeSave(state)));
+): boolean {
+  try {
+    const sanitized = sanitizeSave(state);
+    const payload: StickerBoardSave = {
+      v: sanitized.v,
+      current: roundBoard(sanitized.current),
+      album: sanitized.album.map(roundBoard),
+    };
+    storage.setItem(stickersKey(profileId), JSON.stringify(payload));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Prepends a sanitised copy of `board` to the album (newest first, capped at ALBUM_CAP = 12). */

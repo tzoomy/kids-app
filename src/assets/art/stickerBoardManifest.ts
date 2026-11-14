@@ -7,7 +7,7 @@ export const STICKER_BOARD_ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'sticker-rocket', url: 'art/stickers/rocket.svg', width: 256, height: 256 },
   { key: 'sticker-planet', url: 'art/stickers/planet.svg', width: 256, height: 256 },
   { key: 'sticker-moon', url: 'art/stickers/moon.svg', width: 256, height: 256 },
-  { key: 'sticker-star', url: 'art/fx/star.svg', width: 64, height: 64 },
+  { key: 'sticker-star', url: 'art/fx/star.svg', width: 128, height: 128 },
   { key: 'sticker-palm-tree', url: 'art/stickers/palm-tree.svg', width: 256, height: 256 },
   { key: 'sticker-banana', url: 'art/foods/banana.svg', width: 256, height: 256 },
   { key: 'sticker-leaf', url: 'art/props/clue-icon-leaf.svg', width: 160, height: 160 },

@@ -13,6 +13,7 @@ import {
   moveSticker,
   nextSlot,
   startStroke,
+  undoKeepingBackground,
 } from '@/games/stickers/board';
 
 describe('sticker-board board logic', () => {
@@ -92,5 +93,21 @@ describe('sticker-board board logic', () => {
     stack.push(live);
     live.stickers[0].x = 0.99;
     expect(stack.pop()?.stickers[0].x).not.toBe(0.99);
+  });
+
+  it('[AC-07] undoKeepingBackground restores stickers and strokes onto the current background without aliasing', () => {
+    const previous = startStroke(addSticker(createEmptyBoard('space'), 'rocket', { x: 0.3, y: 0.4 }), 'red', 0.1, 0.2);
+    const current = {
+      ...addSticker(previous, 'moon', { x: 0.6, y: 0.7 }),
+      backgroundId: 'beach',
+    };
+    const undone = undoKeepingBackground(current, previous);
+    expect(undone.backgroundId).toBe('beach');
+    expect(undone.stickers).toEqual(previous.stickers);
+    expect(undone.strokes).toEqual(previous.strokes);
+    undone.stickers[0].x = 0.99;
+    undone.strokes[0].points.push(0.5, 0.5);
+    expect(previous.stickers[0].x).toBe(0.3);
+    expect(previous.strokes[0].points).toEqual([0.1, 0.2]);
   });
 });

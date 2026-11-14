@@ -27,9 +27,11 @@ import {
   moveSticker,
   startStroke,
   TAP_SLOP_CSS,
+  undoKeepingBackground,
   UndoStack,
   type Board,
 } from './board';
+import { runTeardown } from './teardown';
 import { computeStickerBoardLayout, type StickerBoardGeometry } from './layout';
 import { stickerLeisureMode } from './leisure';
 import { isRequestMet, pickRequest, requestLine, type StickerRequest } from './request';
@@ -167,14 +169,25 @@ export class StickerBoardScene extends Phaser.Scene {
   private cleanup(): void {
     this.alive = false;
     this.ready = false;
-    this.persistSave();
-    this.tickTimer?.remove();
-    this.nextRequestTimer?.remove();
-    this.learningSession?.exit();
-    this.learningSession = undefined;
-    this.context.audio.stopAll();
-    if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
-    if (this.resizeHandler) window.removeEventListener('resize', this.resizeHandler);
+    runTeardown(
+      [
+        () => this.tickTimer?.remove(),
+        () => this.nextRequestTimer?.remove(),
+        () => this.learningSession?.exit(),
+        () => {
+          this.learningSession = undefined;
+        },
+        () => this.context.audio.stopAll(),
+        () => {
+          if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
+        },
+        () => {
+          if (this.resizeHandler) window.removeEventListener('resize', this.resizeHandler);
+        },
+        () => this.context.shell.clearStickerBoardChrome(),
+      ],
+      () => this.persistSave(),
+    );
     this.stickerImages = [];
     this.bgImage = undefined;
     this.strokeGraphics = undefined;
@@ -278,6 +291,10 @@ export class StickerBoardScene extends Phaser.Scene {
     saveStickerBoardState(window.localStorage, this.profileId, this.save);
   }
 
+  private isBoardEmpty(): boolean {
+    return this.board.stickers.length === 0 && this.board.strokes.length === 0;
+  }
+
   private stickerArtKey(stickerId: string): string | null {
     return this.context.content.stickers.stickers.find((s) => s.id === stickerId)?.artKey ?? null;
   }
@@ -305,6 +322,7 @@ export class StickerBoardScene extends Phaser.Scene {
       selectedBackground: this.board.backgroundId,
       selectedColor: this.selectedColor,
       undoEnabled: !this.undoStack.isEmpty,
+      saveEnabled: !this.isBoardEmpty(),
       requestsEnabled: this.requestsEnabled,
       requestStickerArtKey: this.currentRequest ? this.stickerArtKey(this.currentRequest.stickerId) : null,
       showTime,
@@ -338,6 +356,7 @@ export class StickerBoardScene extends Phaser.Scene {
       selectedBackground: this.board.backgroundId,
       selectedColor: this.selectedColor,
       undoEnabled: !this.undoStack.isEmpty,
+      saveEnabled: !this.isBoardEmpty(),
       requestsEnabled: this.requestsEnabled,
       requestStickerArtKey: this.currentRequest ? this.stickerArtKey(this.currentRequest.stickerId) : null,
       balanceSec: this.currentBalanceSec(),
@@ -485,10 +504,9 @@ export class StickerBoardScene extends Phaser.Scene {
     this.learningSession?.reportInteraction();
     const previous = this.undoStack.pop();
     if (!previous) return;
-    this.board = previous;
+    this.board = undoKeepingBackground(this.board, previous);
     this.context.sfx.tap();
     this.persistSave();
-    this.renderBackground();
     this.renderStrokes();
     this.renderStickers();
     this.refreshChrome();
@@ -498,7 +516,7 @@ export class StickerBoardScene extends Phaser.Scene {
     if (!this.alive || !this.ready) return;
     this.learningSession?.reportInteraction();
     this.context.sfx.tap();
-    if (this.board.stickers.length === 0 && this.board.strokes.length === 0) return;
+    if (this.isBoardEmpty()) return;
     this.undoStack.push(this.board);
     this.board = clearBoard(this.board);
     this.persistSave();
@@ -508,7 +526,7 @@ export class StickerBoardScene extends Phaser.Scene {
   }
 
   private onSaveToAlbum(): void {
-    if (!this.alive || !this.ready || this.ageTrack !== 'age5') return;
+    if (!this.alive || !this.ready || this.ageTrack !== 'age5' || this.isBoardEmpty()) return;
     this.learningSession?.reportInteraction();
     this.save = addToAlbum(this.save, this.board);
     this.persistSave();

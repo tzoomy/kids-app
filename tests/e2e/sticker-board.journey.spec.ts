@@ -94,6 +94,109 @@ test.describe('sticker-board journeys', () => {
     expect(now.stickers.length).toBe(1);
   });
 
+  test('[AC-03] @single-orientation a drag under 8 CSS px is a tap: sticker does not move and no undo step is added', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterBoard(page, 'profile-b');
+    await tapTestId(page, 'sticker-tray-moon');
+    const before = (await info(page)) as StickerBoardInfo;
+    const moon = before.stickers[before.stickers.length - 1];
+    const undoBefore = before.undoCount;
+
+    await page.mouse.move(moon.center.x, moon.center.y);
+    await page.mouse.down();
+    for (let i = 1; i <= 4; i++) {
+      await page.mouse.move(moon.center.x + i, moon.center.y);
+    }
+    await page.mouse.up();
+
+    const after = (await info(page)) as StickerBoardInfo;
+    const same = after.stickers[after.stickers.length - 1];
+    expect(Math.abs(same.center.x - moon.center.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(same.center.y - moon.center.y)).toBeLessThanOrEqual(1);
+    expect(after.undoCount).toBe(undoBefore);
+    expect(after.strokes.length).toBe(0);
+  });
+
+  test('[AC-07] @single-orientation undo reverts add, stroke and clear step by step and is disabled when empty', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterBoard(page, 'profile-b');
+    const undoBtn = page.locator('[data-testid="sticker-undo"]');
+    await expect(undoBtn).toBeDisabled();
+
+    await tapTestId(page, 'sticker-tray-rocket');
+    let now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(1);
+    expect(now.undoCount).toBe(1);
+    await expect(undoBtn).toBeEnabled();
+
+    const r = now.boardRect;
+    await drag(page, { x: r.x + r.width * 0.12, y: r.y + r.height * 0.96 }, { x: r.x + r.width * 0.3, y: r.y + r.height * 0.97 });
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(1);
+    expect(now.strokes.length).toBe(1);
+    expect(now.undoCount).toBe(2);
+
+    await tapTestId(page, 'sticker-clear');
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(0);
+    expect(now.strokes.length).toBe(0);
+    expect(now.undoCount).toBe(3);
+
+    // Undo clear -> sticker and stroke back.
+    await tapTestId(page, 'sticker-undo');
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(1);
+    expect(now.strokes.length).toBe(1);
+    expect(now.undoCount).toBe(2);
+
+    // Undo stroke -> stroke gone, sticker stays.
+    await tapTestId(page, 'sticker-undo');
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(1);
+    expect(now.strokes.length).toBe(0);
+    expect(now.undoCount).toBe(1);
+
+    // Undo add -> sticker gone, undo empty and disabled.
+    await tapTestId(page, 'sticker-undo');
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(0);
+    expect(now.strokes.length).toBe(0);
+    expect(now.undoCount).toBe(0);
+    await expect(undoBtn).toBeDisabled();
+
+    // Another tap while disabled does nothing.
+    await tapTestId(page, 'sticker-undo');
+    now = (await info(page)) as StickerBoardInfo;
+    expect(now.stickers.length).toBe(0);
+    expect(now.strokes.length).toBe(0);
+    expect(now.undoCount).toBe(0);
+  });
+
+  test('[AC-07] @single-orientation undo after a background switch keeps the current background and the request stays satisfiable', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    const start = await enterBoard(page, 'profile-b', { lang: 'en' });
+    expect(start.backgroundId).toBe('space');
+
+    await tapTestId(page, 'sticker-tray-rocket');
+    await tapTestId(page, 'sticker-bg-beach');
+    await tapTestId(page, 'sticker-undo');
+
+    const afterUndo = (await info(page)) as StickerBoardInfo;
+    expect(afterUndo.backgroundId).toBe('beach');
+    expect(afterUndo.stickers.length).toBe(0);
+    const metBefore = afterUndo.requestsMet;
+    expect(afterUndo.request).not.toBeNull();
+    if (afterUndo.request) {
+      expect(afterUndo.request.backgroundId).toBe('beach');
+      await tapTestId(page, `sticker-tray-${afterUndo.request.stickerId}`);
+      const afterMet = (await info(page)) as StickerBoardInfo;
+      expect(afterMet.requestsMet).toBe(metBefore + 1);
+    }
+  });
+
   test('[AC-05] [AC-10] @single-orientation age 2: 4 crayons, no request, no save or album', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);
