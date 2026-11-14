@@ -968,6 +968,7 @@ export class MagnetScene extends Phaser.Scene {
 
   private awardStar(fxX: number, fxY: number): void {
     this.session.complete();
+    this.context.recordCompletedRound('science-world', 'magic-magnet');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

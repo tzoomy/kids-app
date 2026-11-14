@@ -190,6 +190,21 @@ export const GAME_RULES = [
     specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
   },
   {
+    // Wardrobe (docs/specs/wardrobe.md): HUD entry, scene, pure model, content and art. hud.ts and
+    // appContext.ts are shared and fall back to the smoke set on their own; they are not listed here.
+    id: 'wardrobe',
+    match: [
+      /^src\/core\/wardrobe\//,
+      /^src\/content\/wardrobe\//,
+      /^src\/games\/wardrobe\//,
+      /^src\/ui\/wardrobeChrome\.ts$/,
+      /^src\/assets\/art\/wardrobeManifest\.ts$/,
+      /^public\/art\/wardrobe\//,
+      /^tests\/unit\/wardrobe[^/]*$/,
+    ],
+    specs: ['tests/e2e/wardrobe.journey.spec.ts'],
+  },
+  {
     id: 'sink-or-float',
     match: [
       /^src\/games\/sinkFloat\//,

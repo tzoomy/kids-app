@@ -616,6 +616,7 @@ export class PotionScene extends Phaser.Scene {
 
     this.context.sfx.yay();
     this.session.complete();
+    this.context.recordCompletedRound('science-world', 'potion-lab');
     if (earnedStar) {
       const state = this.profileState();
       state.stars++;

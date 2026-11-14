@@ -691,6 +691,7 @@ export class SortingScene extends Phaser.Scene {
 
   private async finishRound(token: number): Promise<void> {
     this.session.complete();
+    this.context.recordCompletedRound('number-garden', 'sorting-beds');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();
