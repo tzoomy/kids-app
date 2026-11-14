@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   GAME_RULES,
+  PICKER_SPECS,
   SMOKE_SPECS,
   listSpecs,
   parseArgs,
@@ -208,24 +209,7 @@ describe('affected e2e selection', () => {
   });
 
   it('src/ui/picker/** selects ALL picker-related specs (every world picker and the trail) plus smoke', () => {
-    const allPickerSpecs = [
-      'tests/e2e/balloon-pop.journey.spec.ts',
-      'tests/e2e/hiding.spec.ts',
-      'tests/e2e/kitchen-orchestra.picker.spec.ts',
-      'tests/e2e/letter-monster.journey.spec.ts',
-      'tests/e2e/magic-magnet.journey.spec.ts',
-      'tests/e2e/picker.press-through.spec.ts',
-      'tests/e2e/potion-lab.journey.spec.ts',
-      'tests/e2e/science-world.map.spec.ts',
-      'tests/e2e/seed-to-flower.journey.spec.ts',
-      'tests/e2e/sink-or-float.journey.spec.ts',
-      'tests/e2e/sorting-beds.journey.spec.ts',
-      'tests/e2e/sorting-beds.platform.spec.ts',
-      'tests/e2e/station-trail.spec.ts',
-      'tests/e2e/travel-suitcase.journey.spec.ts',
-      'tests/e2e/who-is-hiding.journey.spec.ts',
-    ];
-    const expected = [...allPickerSpecs, ...SMOKE].sort();
+    const expected = [...PICKER_SPECS, ...SMOKE].sort();
     for (const f of [
       'src/ui/picker/pickerModel.ts',
       'src/ui/picker/trailModel.ts',

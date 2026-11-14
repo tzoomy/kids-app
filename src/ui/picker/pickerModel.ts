@@ -9,6 +9,7 @@ export type PickerGameId =
   | 'balloon-pop'
   | 'who-is-hiding'
   | 'seed-to-flower'
+  | 'who-lives-here'
   | 'potion-lab'
   | 'sink-or-float'
   | 'magic-magnet'
@@ -25,7 +26,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'stickerBoard' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'stickerBoard' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -100,6 +101,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'SeedFlowerScene',
     assetKey: 'picker-card-seed-to-flower',
     labelKey: 'seedToFlower',
+  },
+  {
+    gameId: 'who-lives-here',
+    testId: 'game-picker-who-lives-here',
+    sceneKey: 'HabitatScene',
+    assetKey: 'picker-card-who-lives-here',
+    labelKey: 'whoLivesHere',
   },
   // Science World.
   {

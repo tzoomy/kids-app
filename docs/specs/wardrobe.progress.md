@@ -11,7 +11,7 @@ GREEN session (2026-11-14), implementation:
 - `src/core/wardrobe/model.ts`: pure immutable unlock and equip model, `UNLOCK_RULES`.
 - `src/core/wardrobe/store.ts`: `kids-app-wardrobe:<profileId>` load, save (sanitised both ways), `recordRoundAndSave`.
 - `src/core/wardrobe/layout.ts`: `layoutOutfit`, `slotAnchor`, bands `behindHead` / `head` / `front`.
-- `AppContext.recordCompletedRound(worldId, gameId)` (browser localStorage, yay only on a new unlock, unlock toast, `lastWardrobeUnlock`); called next to `session.complete()` in the eight learning games (Restaurant, Orchestra, Letter Monster, Sorting, Balloon, Hiding, Seed to Flower, Potion). Bubbles and Colouring (Leisure Corner) are not hooked.
+- `AppContext.recordCompletedRound(worldId, gameId)` (browser localStorage, yay only on a new unlock, unlock toast, `lastWardrobeUnlock`); called next to `session.complete()` in every learning-game scene. Leisure Corner (Bubbles, Colouring) is not hooked.
 - `WardrobeScene` (`src/games/wardrobe/`), `wardrobeTypes.ts`, `wardrobeInfo.ts` (pure snapshot and seed helpers), `src/ui/wardrobeChrome.ts` (item buttons, back button, unlock toast), `AppShell.setWardrobeChrome / updateWardrobeChrome / showWardrobeUnlockToast` (the toast has its own `shell-toast-root`, so chrome repaints never remove it).
 - `wardrobe-btn` in `renderMapChrome` (`onWardrobe` option, wired in `MapScene` with a fade transition); `'wardrobe'` in `AppScreen` (unsafe for mid-screen updates) plus a case in `tests/unit/pwaUpdatePolicy.test.ts`.
 - `Character.setAccessories(...)`: a small hook that mounts accessory images between body and head, in the head group, or in front.

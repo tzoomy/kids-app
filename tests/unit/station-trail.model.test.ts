@@ -24,6 +24,7 @@ import {
   loadSeedToFlower,
   loadSortingBeds,
   loadStickerBoard,
+  loadWhoLivesHere,
   loadWhosHiding,
   loadWorlds,
 } from '../../src/content/loadContent';
@@ -41,6 +42,7 @@ const REAL_GAMES = collectTrailGames({
   balloon: loadBalloonPop(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
+  whoLivesHere: loadWhoLivesHere(),
   potion: loadPotionLab(),
   sinkOrFloat: loadSinkOrFloat(),
   magicMagnet: loadMagicMagnet(),
@@ -237,6 +239,7 @@ describe('station trail: data-driven station list', () => {
       expect(ids(world.id), world.id).toEqual(expected);
     }
     expect(ids('art-studio')).toEqual(['sticker-board']);
+    expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here']);
     expect(ids('leisure-corner')).toEqual([]);
   });
 

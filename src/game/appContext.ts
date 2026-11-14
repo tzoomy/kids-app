@@ -13,6 +13,7 @@ import type {
   KitchenOrchestraContent,
   SortingBedsContent,
   WhosHidingContent,
+  WhoLivesHereContent,
   LeisureColouringContent,
   StickerBoardContent,
   BalloonPopContent,
@@ -38,6 +39,7 @@ export interface ContentBundle {
   sorting: SortingBedsContent;
   balloon: BalloonPopContent;
   hiding: WhosHidingContent;
+  habitat: WhoLivesHereContent;
   seedToFlower: SeedToFlowerContent;
   potionLab: PotionLabContent;
   sinkOrFloat: SinkOrFloatContent;
