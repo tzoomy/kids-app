@@ -56,14 +56,17 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   // Number Garden.
   'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
   'picker-card-balloon-pop': { css: 'background:radial-gradient(circle at 35% 40%,#ff6fb5 0 14%,transparent 15%),radial-gradient(circle at 62% 30%,#ffd93d 0 13%,transparent 14%),radial-gradient(circle at 50% 62%,#4d96ff 0 14%,transparent 15%),linear-gradient(180deg,#b8e6ff,#e7f7ff)' },
+  'picker-card-picnic-train': { url: 'art/scenes/picnic-train/bg-landscape.svg' },
   // Nature Lab.
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
   'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
+  'picker-card-who-lives-here': { url: 'art/scenes/habitats/bg-landscape.svg' },
   // Science World, in science blue.
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
+
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {

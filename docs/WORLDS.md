@@ -192,11 +192,11 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 - **Inspiration pattern:** Tiger eAcademy (short voice-guided task, immediate feedback); Sago Mini (calm exploration, the world responds). The game reuses the choice/serve template (bushes instead of plates) and the existing animal art.
 - **Age 2:** Starts at Level 2: few bushes, a picture-and-audio request, a demonstration hint if she waits, large touch targets, can hear the request again.
 - **Age 5:** Starts at Level 5: more bushes, less visual support, a short sound word, a hint only after a mistake.
-- **World wiring:** Nature Lab is open on the map with `entryGameId` `who-is-hiding`. Tapping the building opens Who's Hiding? directly (no game picker in Pass 1).
+- **World wiring:** Nature Lab is open on the map with `entryGameId` `who-is-hiding`. Tapping the building opens the Nature Lab station trail (Who's Hiding?, Seed to Flower, Who Lives Here?; see `docs/specs/who-lives-here.md`).
 
 ### 2. Who Lives Here?
 
-- **Stage:** Vision (a later Nature Lab game; Who's Hiding? is the entry game, decided 2026-11-13).
+- **Stage:** Pass 1 in progress; spec [`docs/specs/who-lives-here.md`](specs/who-lives-here.md), approved for build by Maor (continuous mode, 2026-11-13). Who's Hiding? stays the first Nature Lab game; the building opens the station trail (Who's Hiding?, Seed to Flower, Who Lives Here?).
 
 - **Action:** The girl helps an animal go home (nest, cave, water, tree) according to a voice hint or a picture.
 - **Learning goal:** Matching a creature to a habitat, animal vocabulary.

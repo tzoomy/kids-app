@@ -22,8 +22,10 @@ const RESTAURANT = 'game-picker-animal-restaurant';
 const ORCHESTRA = 'game-picker-kitchen-orchestra';
 const SORTING = 'game-picker-sorting-beds';
 const BALLOON = 'game-picker-balloon-pop';
+const PICNIC = 'game-picker-picnic-train';
 const HIDING = 'game-picker-who-is-hiding';
 const SEED = 'game-picker-seed-to-flower';
+const HABITAT = 'game-picker-who-lives-here';
 const POTION = 'game-picker-potion-lab';
 const SINK = 'game-picker-sink-or-float';
 const MAGNET = 'game-picker-magic-magnet';
@@ -102,28 +104,32 @@ test.describe('station trail inside a world', () => {
     await waitForScene(page, 'RestaurantScene');
   });
 
-  test('[AC-11] Number Garden and Nature Lab each open a 2-station trail, and Science World opens a 3-station trail (one-game direct entry is covered by the AC-10 unit test) @single-orientation', async ({ page }, testInfo) => {
+  test('[AC-11] Number Garden, Nature Lab and Science World each open a 3-station trail (one-game direct entry is covered by the AC-10 unit test) @single-orientation', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await tapWorldBuilding(page, 'profile-b', 'number-garden');
     await page.locator(`[data-testid="${SORTING}"]`).waitFor({ state: 'visible', timeout: 10_000 });
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
-    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(2);
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
     await expect(page.locator(`[data-testid="${BALLOON}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${PICNIC}"]`)).toBeVisible();
     // Fresh profile: the first station is the suggested one, and the picker is the trail (not a plain list).
     await expect(page.locator(`[data-testid="${SORTING}"]`)).toHaveAttribute('data-suggested', 'true');
+    await expect(page.locator(`[data-testid="${PICNIC}"]`)).toHaveAttribute('data-suggested', 'false');
     expect(await getActiveScenes(page)).toEqual(['MapScene']);
-    await tapTestId(page, BALLOON);
-    await waitForScene(page, 'BalloonScene');
+    await tapTestId(page, PICNIC);
+    await waitForScene(page, 'PicnicScene');
 
     await tapWorldBuilding(page, 'profile-b', 'nature-lab');
     await page.locator(`[data-testid="${HIDING}"]`).waitFor({ state: 'visible', timeout: 10_000 });
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
-    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(2);
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
     await expect(page.locator(`[data-testid="${SEED}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${HABITAT}"]`)).toBeVisible();
     await expect(page.locator(`[data-testid="${HIDING}"]`)).toHaveAttribute('data-suggested', 'true');
+    await expect(page.locator(`[data-testid="${HABITAT}"]`)).toHaveAttribute('data-suggested', 'false');
     expect(await getActiveScenes(page)).toEqual(['MapScene']);
-    await tapTestId(page, SEED);
-    await waitForScene(page, 'SeedFlowerScene');
+    await tapTestId(page, HABITAT);
+    await waitForScene(page, 'HabitatScene');
 
     await tapWorldBuilding(page, 'profile-b', 'science-world');
     await page.locator(`[data-testid="${POTION}"]`).waitFor({ state: 'visible', timeout: 10_000 });

@@ -7,8 +7,10 @@ export type PickerGameId =
   | 'travel-suitcase'
   | 'sorting-beds'
   | 'balloon-pop'
+  | 'picnic-train'
   | 'who-is-hiding'
   | 'seed-to-flower'
+  | 'who-lives-here'
   | 'potion-lab'
   | 'sink-or-float'
   | 'magic-magnet'
@@ -24,7 +26,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'picnicTrain' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -85,6 +87,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     assetKey: 'picker-card-balloon-pop',
     labelKey: 'balloonPop',
   },
+  {
+    gameId: 'picnic-train',
+    testId: 'game-picker-picnic-train',
+    sceneKey: 'PicnicScene',
+    assetKey: 'picker-card-picnic-train',
+    labelKey: 'picnicTrain',
+  },
   // Nature Lab.
   {
     gameId: 'who-is-hiding',
@@ -99,6 +108,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'SeedFlowerScene',
     assetKey: 'picker-card-seed-to-flower',
     labelKey: 'seedToFlower',
+  },
+  {
+    gameId: 'who-lives-here',
+    testId: 'game-picker-who-lives-here',
+    sceneKey: 'HabitatScene',
+    assetKey: 'picker-card-who-lives-here',
+    labelKey: 'whoLivesHere',
   },
   // Science World.
   {
@@ -158,3 +174,4 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     labelKey: 'colouring',
   },
 ];
+

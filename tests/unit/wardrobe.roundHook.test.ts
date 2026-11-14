@@ -14,12 +14,15 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'travel-suitcase': 'src/games/travelSuitcase/SuitcaseScene.ts',
   'sorting-beds': 'src/games/sorting/SortingScene.ts',
   'balloon-pop': 'src/games/balloon/BalloonScene.ts',
+  'picnic-train': 'src/games/picnic/PicnicScene.ts',
   'who-is-hiding': 'src/games/hiding/HidingScene.ts',
   'seed-to-flower': 'src/games/seedFlower/SeedFlowerScene.ts',
+  'who-lives-here': 'src/games/habitat/HabitatScene.ts',
   'potion-lab': 'src/games/potionLab/PotionScene.ts',
   'sink-or-float': 'src/games/sinkFloat/SinkFloatScene.ts',
   'magic-magnet': 'src/games/magicMagnet/MagnetScene.ts',
-  // Leisure ids exist on PickerGameId; they are checked in the leisure contract, not here.
+  // Leisure ids exist on PickerGameId; they are not world games, so they are covered by the third test below
+  // ("Leisure Corner games do not call recordCompletedRound"), not by the world-hook test.
   bubbles: 'src/games/bubbles/BubblesScene.ts',
   'leisure-colouring': 'src/games/colouring/ColouringScene.ts',
 };
@@ -30,10 +33,15 @@ const LEISURE_IDS = new Set(LEISURE_PICKER_GAMES.map((g) => g.gameId));
 const HOOK_AFTER_COMPLETE =
   /this\.session\.complete\(\);\s*this\.context\.recordCompletedRound\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)/g;
 
+/** Drops block and line comments so a call mentioned only in a comment is not counted. */
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+}
+
 function readSource(rel: string): string {
   const abs = path.join(process.cwd(), rel);
   expect(existsSync(abs), `missing scene source ${rel}`).toBe(true);
-  return readFileSync(abs, 'utf8');
+  return stripComments(readFileSync(abs, 'utf8'));
 }
 
 function contentWorld(gameId: string): string {

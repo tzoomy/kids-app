@@ -5,6 +5,7 @@ export interface GameRule {
   specs: string[];
 }
 export declare const SMOKE_SPECS: string[];
+export declare const PICKER_SPECS: string[];
 export declare const GAME_RULES: GameRule[];
 export declare function parseChangedFiles(text: string): string[];
 export declare function listSpecs(root: string): string[];

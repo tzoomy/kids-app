@@ -1,0 +1,76 @@
+{
+  "id": "who-lives-here",
+  "world": "nature-lab",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "helpTextHe": "עזרי לכל חיה למצוא את הבית שלה. הקשי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
+  "homes": [
+    { "id": "pond", "family": "water", "name": { "en": "the pond", "fr": "la mare" } },
+    { "id": "nest", "family": "tree", "name": { "en": "the nest", "fr": "le nid" } },
+    { "id": "tree-hollow", "family": "tree", "name": { "en": "the hollow tree", "fr": "l'arbre creux" } },
+    { "id": "hive", "family": "tree", "name": { "en": "the beehive", "fr": "la ruche" } },
+    { "id": "burrow", "family": "ground", "name": { "en": "the burrow", "fr": "le terrier" } },
+    { "id": "kennel", "family": "ground", "name": { "en": "the doghouse", "fr": "la niche" } }
+  ],
+  "animals": [
+    {
+      "id": "frog",
+      "kind": "frog",
+      "home": "pond",
+      "name": { "en": "the frog", "fr": "la grenouille" },
+      "clue": { "en": "I am green and I love to swim and hop.", "fr": "Je suis verte et j'adore nager et sauter." }
+    },
+    {
+      "id": "bird",
+      "kind": "bird",
+      "home": "nest",
+      "name": { "en": "the bird", "fr": "l'oiseau" },
+      "clue": { "en": "I have feathers and I sing in the morning.", "fr": "J'ai des plumes et je chante le matin." }
+    },
+    {
+      "id": "owl",
+      "kind": "owl",
+      "home": "tree-hollow",
+      "name": { "en": "the owl", "fr": "la chouette" },
+      "clue": { "en": "I stay awake at night and I say hoo, hoo.", "fr": "Je veille la nuit et je fais hou, hou." }
+    },
+    {
+      "id": "bee",
+      "kind": "bee",
+      "home": "hive",
+      "name": { "en": "the bee", "fr": "l'abeille" },
+      "clue": { "en": "I buzz and I make honey.", "fr": "Je bourdonne et je fais du miel." }
+    },
+    {
+      "id": "rabbit",
+      "kind": "rabbit",
+      "home": "burrow",
+      "name": { "en": "the rabbit", "fr": "le lapin" },
+      "clue": { "en": "I have long ears and I love to dig.", "fr": "J'ai de longues oreilles et j'adore creuser." }
+    },
+    {
+      "id": "dog",
+      "kind": "dog",
+      "home": "kennel",
+      "name": { "en": "the dog", "fr": "le chien" },
+      "clue": { "en": "I wag my tail and I bark.", "fr": "Je remue la queue et j'aboie." }
+    }
+  ],
+  "adaptive": {
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 3, "max": 8 } },
+    "levels": [
+      { "choiceCount": 2, "distractor": "far", "request": "noun", "scaffold": "outline", "extra": { "clue": "none" } },
+      { "choiceCount": 2, "distractor": "far", "request": "noun", "extra": { "clue": "none" } },
+      { "choiceCount": 3, "distractor": "far", "request": "noun", "extra": { "clue": "none" } },
+      { "choiceCount": 3, "distractor": "near", "request": "noun", "extra": { "clue": "none" } },
+      { "choiceCount": 3, "distractor": "near", "request": "noun", "extra": { "clue": "after-miss" } },
+      { "choiceCount": 4, "distractor": "near", "request": "noun", "extra": { "clue": "after-miss" } },
+      { "choiceCount": 4, "distractor": "near", "request": "riddle", "extra": { "clue": "after-miss" } },
+      { "choiceCount": 4, "distractor": "near", "request": "riddle", "support": "audio-only", "extra": { "clue": "after-miss" } }
+    ]
+  }
+}

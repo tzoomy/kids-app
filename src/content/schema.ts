@@ -296,6 +296,52 @@ export const SortingBedsContentSchema = z
 
 export type SortingBedsContent = z.infer<typeof SortingBedsContentSchema>;
 
+/** Picnic Train tasks (docs/specs/picnic-train.md): one item for each friend, load N items, "how many are missing". */
+export const PICNIC_TASKS = ['one-each', 'load', 'missing'] as const;
+export type PicnicTask = (typeof PICNIC_TASKS)[number];
+export const PICNIC_LAYOUTS = ['rows', 'scattered'] as const;
+export type PicnicLayout = (typeof PICNIC_LAYOUTS)[number];
+
+/**
+ * Picnic Train (docs/specs/picnic-train.md): every level has `setSize` 2..10 (the largest train of the level),
+ * `extra.task` and `extra.layout`, and a `scaffold`. `request` is `quantity` for `load` levels, `two-step` for
+ * `missing` levels and absent for `one-each` levels.
+ */
+export const PicnicTrainContentSchema = z
+  .object({
+    id: z.literal('picnic-train'),
+    world: z.literal('number-garden'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    ageTracks: z.object({
+      age2: AgeTrackConfigSchema,
+      age5: AgeTrackConfigSchema,
+    }),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.setSize === undefined || level.setSize < 2 || level.setSize > 10) issue('picnic train levels require setSize within 2..10');
+      if (level.scaffold === undefined) issue('picnic train levels require a scaffold');
+      const task = level.extra?.task;
+      const layout = level.extra?.layout;
+      if (typeof task !== 'string' || !(PICNIC_TASKS as readonly string[]).includes(task)) {
+        issue(`picnic train levels require extra.task of ${PICNIC_TASKS.join(', ')}`);
+      }
+      if (typeof layout !== 'string' || !(PICNIC_LAYOUTS as readonly string[]).includes(layout)) {
+        issue(`picnic train levels require extra.layout of ${PICNIC_LAYOUTS.join(', ')}`);
+      }
+      const expectedRequest = task === 'load' ? 'quantity' : task === 'missing' ? 'two-step' : undefined;
+      if (level.request !== expectedRequest) {
+        issue(`picnic train ${String(task)} levels require request ${String(expectedRequest)}`);
+      }
+      if (level.support !== undefined || level.choiceCount !== undefined) issue('picnic train levels use only setSize, request, scaffold and extra');
+    });
+  });
+
+export type PicnicTrainContent = z.infer<typeof PicnicTrainContentSchema>;
+
 
 
 // ---------------------------------------------------------------------------
@@ -389,6 +435,90 @@ export const WhosHidingContentSchema = z
 
 export type HidingAnimal = z.infer<typeof HidingAnimalSchema>;
 export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;
+
+// ---------------------------------------------------------------------------
+// Who Lives Here? (Nature Lab, docs/specs/who-lives-here.md): an animal goes to its home. Items (animals) -> bins (homes),
+// data-driven, so more habitats and animals are content-only changes.
+// ---------------------------------------------------------------------------
+
+/** Distractor homes next to the right one: `far` = other families first, `near` = the same family first. */
+export const HABITAT_DISTRACTORS = ['far', 'near'] as const;
+/** What the spoken request contains: the animal's name, or a descriptive clue. */
+export const HABITAT_REQUESTS = ['noun', 'riddle'] as const;
+export const HABITAT_MAX_HOMES = 4;
+
+export const HabitatHomeSchema = z.object({
+  /** Art key suffix: `home-<id>-back` and `home-<id>-front` in the art manifest. */
+  id: z.string().min(1),
+  /** Look-alike group: `near` distractors come from the target's family first. */
+  family: z.string().min(1),
+  /** Noun phrase with its article ("the pond", "la mare"), spoken after a correct tap. */
+  name: LangPairSchema,
+});
+
+export const HabitatAnimalSchema = z.object({
+  id: z.string().min(1),
+  /** Registered animal rig / art kind (public/art/animals/<kind>). */
+  kind: z.string().min(1),
+  /** The id of the home this animal lives in. */
+  home: z.string().min(1),
+  /** Noun phrase with its article ("the frog", "la grenouille"), spoken at noun levels. */
+  name: LangPairSchema,
+  /** Descriptive clue ("I have feathers and I build a nest."), spoken at riddle levels and after a miss. */
+  clue: LangPairSchema,
+});
+
+export const WhoLivesHereContentSchema = z
+  .object({
+    id: z.literal('who-lives-here'),
+    world: z.literal('nature-lab'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    helpTextHe: z.string().min(1),
+    homes: z.array(HabitatHomeSchema).min(2),
+    animals: z.array(HabitatAnimalSchema).min(2),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const homeIds = new Set<string>();
+    value.homes.forEach((h, i) => {
+      if (homeIds.has(h.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['homes', i, 'id'], message: `duplicate home id "${h.id}"` });
+      homeIds.add(h.id);
+    });
+    const animalIds = new Set<string>();
+    value.animals.forEach((a, i) => {
+      if (animalIds.has(a.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'id'], message: `duplicate animal id "${a.id}"` });
+      animalIds.add(a.id);
+      if (!homeIds.has(a.home)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'home'], message: `animal "${a.id}" lives in unknown home "${a.home}"` });
+      }
+    });
+    const maxHomes = Math.min(HABITAT_MAX_HOMES, value.homes.length);
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2) issue('levels require choiceCount of at least 2');
+      else if (level.choiceCount > maxHomes) issue(`choiceCount cannot exceed ${maxHomes} (the homes in the content, at most ${HABITAT_MAX_HOMES})`);
+      if (level.distractor !== undefined && !(HABITAT_DISTRACTORS as readonly string[]).includes(level.distractor)) {
+        issue('who-lives-here supports distractor "far" or "near"');
+      }
+      if (level.request !== undefined && !(HABITAT_REQUESTS as readonly string[]).includes(level.request)) {
+        issue('who-lives-here supports request "noun" or "riddle"');
+      }
+      if (level.support !== undefined && level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('who-lives-here supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && level.request !== 'riddle') issue('an audio-only level speaks the descriptive clue (request "riddle")');
+      if (level.scaffold !== undefined && level.scaffold !== 'outline') issue('who-lives-here supports scaffold "outline" (the right home glows)');
+      const clue = level.extra?.clue;
+      if (clue !== undefined && clue !== 'after-miss' && clue !== 'none') issue('extra.clue must be "after-miss" or "none"');
+    });
+  });
+
+export type HabitatHome = z.infer<typeof HabitatHomeSchema>;
+export type HabitatAnimal = z.infer<typeof HabitatAnimalSchema>;
+export type WhoLivesHereContent = z.infer<typeof WhoLivesHereContentSchema>;
 
 
 /** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
