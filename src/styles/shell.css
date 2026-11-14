@@ -1001,6 +1001,8 @@ body {
   font-size: 22px;
   color: #6b6258;
   margin: 24px 0;
+}
+
 /* Empty picker (Science World before its games land): one gentle "coming soon" card. */
 .picker-empty {
   display: flex;
