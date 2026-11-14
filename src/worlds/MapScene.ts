@@ -6,7 +6,7 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES, NUMBER_GARDEN_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES, NUMBER_GARDEN_PICKER_GAMES, NATURE_LAB_PICKER_GAMES } from '../ui/picker/pickerModel';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -117,6 +117,23 @@ export class MapScene extends Phaser.Scene {
           context.shell.showGamePicker({
             games: NUMBER_GARDEN_PICKER_GAMES,
             title: context.content.he.gamePicker.numberGardenTitle,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          return;
+        }
+        if (world.id === 'nature-lab') {
+          // Nature Lab hosts Who's Hiding? (entry game) and Seed to Flower: the child picks one.
+          context.shell.showGamePicker({
+            games: NATURE_LAB_PICKER_GAMES,
+            title: context.content.he.gamePicker.natureLabTitle,
             onPick: (game) => {
               context.shell.hideGamePicker();
               context.sfx.tap();

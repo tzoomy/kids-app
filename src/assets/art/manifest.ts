@@ -346,4 +346,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   // Number Garden — Number Bridge (docs/specs/number-bridge.md)
   { key: 'prop-bridge-stone', url: 'art/props/bridge-stone.svg', width: 200, height: 140 },
   { key: 'prop-stone-pile', url: 'art/props/stone-pile.svg', width: 220, height: 160 },
+  // Seed to Flower (docs/specs/seed-to-flower.md) — Pass-1 plant stages and tools
+  { key: 'prop-seed', url: 'art/props/seed.svg', width: 160, height: 160 },
+  { key: 'prop-sprout', url: 'art/props/sprout.svg', width: 160, height: 200 },
+  { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
+  { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
+  { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
 ];

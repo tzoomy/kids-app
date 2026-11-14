@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'sorting-beds' | 'number-bridge';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'sorting-beds' | 'number-bridge' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'sortingBeds' | 'numberBridge';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'sortingBeds' | 'numberBridge' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -70,5 +70,26 @@ export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'NumberBridgeScene',
     assetKey: 'picker-card-number-bridge',
     labelKey: 'numberBridge',
+  },
+];
+
+/**
+ * Nature Lab picker (docs/specs/seed-to-flower.md): Who's Hiding? (the entry game) first, then Seed to Flower.
+ * Append later Nature Lab games here (additive registry).
+ */
+export const NATURE_LAB_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'who-is-hiding',
+    testId: 'game-picker-who-is-hiding',
+    sceneKey: 'HidingScene',
+    assetKey: 'picker-card-who-is-hiding',
+    labelKey: 'whoIsHiding',
+  },
+  {
+    gameId: 'seed-to-flower',
+    testId: 'game-picker-seed-to-flower',
+    sceneKey: 'SeedFlowerScene',
+    assetKey: 'picker-card-seed-to-flower',
+    labelKey: 'seedToFlower',
   },
 ];

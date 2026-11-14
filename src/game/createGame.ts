@@ -11,6 +11,9 @@ import { ColouringScene } from '../games/colouring/ColouringScene';
 import { NumberBridgeScene } from '../games/numberBridge/NumberBridgeScene';
 import type { NumberBridgeInfo } from '../games/numberBridge/numberBridgeTypes';
 import { loadNumberBridge } from '../content/loadContent';
+import { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
+import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
+import { loadSeedToFlower } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
 import type { AppContext } from './appContext';
@@ -26,7 +29,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'number-bridge') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'number-bridge' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -53,6 +56,10 @@ declare global {
       seedNumberBridgeLevel: (level: number) => void;
       /** Current Number Bridge state (null when NumberBridgeScene is not active); rectangles are page CSS px. */
       getNumberBridgeInfo: () => NumberBridgeInfo | null;
+      /** Seeds the persisted Seed to Flower level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedSeedFlowerLevel: (level: number) => void;
+      /** Current Seed to Flower plant (null when SeedFlowerScene is not active); rectangles are page CSS px. */
+      getSeedFlowerInfo: () => SeedFlowerInfo | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -119,6 +126,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
   game.scene.add('NumberBridgeScene', NumberBridgeScene, false);
+  game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
 
   game.registry.set('appContext', context);
 
@@ -136,6 +144,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'number-bridge' ? 'NumberBridgeScene'
+        : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
       game.scene.stop('MapScene');
@@ -146,6 +155,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('NumberBridgeScene');
+      game.scene.stop('SeedFlowerScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -232,6 +242,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getNumberBridgeInfo() {
       const scene = game.scene.getScene('NumberBridgeScene') as NumberBridgeScene | null;
       return scene && game.scene.isActive('NumberBridgeScene') ? scene.getNumberBridgeInfo() : null;
+    },
+    seedSeedFlowerLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSeedToFlower(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getSeedFlowerInfo() {
+      const scene = game.scene.getScene('SeedFlowerScene') as SeedFlowerScene | null;
+      return scene && game.scene.isActive('SeedFlowerScene') ? scene.getSeedFlowerInfo() : null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;
