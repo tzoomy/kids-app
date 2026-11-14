@@ -1,4 +1,5 @@
-import { Store, type StorageDriver } from '../core/storage/store';
+import { Store, browserStorage, type StorageDriver } from '../core/storage/store';
+import { recordRoundAndSave } from '../core/wardrobe/store';
 import { AdaptiveStore } from '../core/storage/adaptiveStore';
 import { localDayKey } from '../core/storage/dayKey';
 import { isTimeEarningEnabled, type AgeTrack } from '../core/storage/schema';
@@ -107,6 +108,28 @@ export class AppContext {
   /** Read-only listening flag of the current learning session, if any. */
   isListening(): boolean {
     return this.activeLearningSession?.isListening() ?? false;
+  }
+
+  /** Wardrobe items unlocked by the latest recorded round in this page session (read by the e2e hook). */
+  lastWardrobeUnlock: string[] = [];
+
+  /**
+   * Called next to `LearningSession.complete()` when a round completes successfully in a game.
+   * Records it for the current profile and age track, saves, celebrates a new unlock (yay + toast)
+   * and returns the newly unlocked item ids. Wardrobe state lives on its own localStorage key.
+   */
+  recordCompletedRound(worldId: string, gameId: string): string[] {
+    const profileId = this.requireProfileId();
+    const storage = browserStorage();
+    const newlyUnlocked = storage
+      ? recordRoundAndSave(storage, profileId, this.currentAgeTrack(), { worldId, gameId }).newlyUnlocked
+      : [];
+    this.lastWardrobeUnlock = newlyUnlocked;
+    if (newlyUnlocked.length > 0) {
+      this.sfx.yay();
+      this.shell.showWardrobeUnlockToast(newlyUnlocked);
+    }
+    return newlyUnlocked;
   }
 
   /** Whether the time-earning mechanic (earn, spend, balance UI) is active. Off by default. */

@@ -669,6 +669,7 @@ export class SinkFloatScene extends Phaser.Scene {
 
     this.context.sfx.yay();
     this.session.complete();
+    this.context.recordCompletedRound('science-world', 'sink-or-float');
     const juice = Juice.for(this);
     const burstY = this.layout.tank.y - 40;
     if (earnedStar) {

@@ -9,8 +9,9 @@ import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
+import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -162,6 +163,9 @@ type Hooks = {
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
   seedPotionLevel: (level: number) => void;
   getPotionInfo: () => PotionInfo | null;
+  seedWardrobeState: (seed: WardrobeSeed) => void;
+  getWardrobeInfo: () => WardrobeInfo | null;
+  recordCompletedRound: (worldId: string, gameId: string) => string[];
   seedSinkFloatLevel: (level: number) => void;
   getSinkFloatInfo: () => SinkFloatInfo | null;
   seedMagnetLevel: (level: number) => void;
@@ -242,6 +246,19 @@ export async function waitForSpokenLine(
 }
 
 /**
+ * Opens the app with ?e2e=1, taps the profile with a real click and waits for the map. Runs
+ * `opts.beforeEnter` (seed hooks) on the map. Shared by the building taps and the Wardrobe HUD button.
+ */
+export async function enterMapByTap(page: Page, profile: ProfileTestId, opts?: JourneyOptions): Promise<void> {
+  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
+  await page.goto('./?e2e=1');
+  await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
+  await page.locator(`[data-testid="${profile}"]`).click();
+  await waitForScene(page, 'MapScene');
+  if (opts?.beforeEnter) await opts.beforeEnter();
+}
+
+/**
  * Opens the app with ?e2e=1, taps the profile with a real click, waits for the map, then taps the
  * world's building (real pointer click at the centre of its hit rectangle). Returns right after the tap.
  */
@@ -251,12 +268,7 @@ export async function tapWorldBuilding(
   worldId: string,
   opts?: JourneyOptions,
 ): Promise<void> {
-  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
-  await page.goto('./?e2e=1');
-  await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
-  await page.locator(`[data-testid="${profile}"]`).click();
-  await waitForScene(page, 'MapScene');
-  if (opts?.beforeEnter) await opts.beforeEnter();
+  await enterMapByTap(page, profile, opts);
 
   // Wait for the building's pop-in to finish (its size stops changing), then tap its centre.
   let previous: PageRect | null = null;
@@ -711,6 +723,73 @@ export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Prom
     const info = await getSeedFlowerInfo(page);
     if (info?.ready) return info;
     if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Wardrobe (docs/specs/wardrobe.md). Entered from the map HUD button; item buttons are DOM.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's wardrobe state (seed only). Call on the map, before opening the Wardrobe. */
+export async function seedWardrobeState(page: Page, seed: WardrobeSeed): Promise<void> {
+  await callHook<void>(page, 'seedWardrobeState', [seed]);
+}
+
+/** Wardrobe snapshot; works on the map (saved state only) and in the scene. */
+export function getWardrobeInfo(page: Page): Promise<WardrobeInfo | null> {
+  return callHook<WardrobeInfo | null>(page, 'getWardrobeInfo');
+}
+
+/** Records a completed round through the public AppContext.recordCompletedRound; returns the newly unlocked ids. */
+export function recordCompletedRound(page: Page, worldId: string, gameId: string): Promise<string[]> {
+  return callHook<string[]>(page, 'recordCompletedRound', [worldId, gameId]);
+}
+
+/**
+ * Profile tap -> map -> real tap on the `wardrobe-btn` HUD button -> WardrobeScene active.
+ * `beforeEnter` runs on the map (seed hooks).
+ */
+export async function openWardrobeByTap(page: Page, profile: ProfileTestId, opts?: JourneyOptions): Promise<WardrobeInfo> {
+  await enterMapByTap(page, profile, opts);
+  return tapWardrobeButton(page);
+}
+
+/** Real tap on `wardrobe-btn` while on the map; waits for the Wardrobe scene and its info. */
+export async function tapWardrobeButton(page: Page): Promise<WardrobeInfo> {
+  await tapTestId(page, 'wardrobe-btn');
+  await waitForScene(page, 'WardrobeScene');
+  return waitForWardrobeReady(page);
+}
+
+/** Waits until the Wardrobe scene is active and its info is readable. */
+export async function waitForWardrobeReady(page: Page, timeout = 15_000): Promise<WardrobeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getWardrobeInfo(page);
+    if (info?.sceneActive) return info;
+    if (Date.now() > deadline) throw new Error(`Wardrobe never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Real tap on an item button. */
+export async function tapWardrobeItem(page: Page, itemId: string): Promise<void> {
+  await tapTestId(page, `wardrobe-item-${itemId}`);
+}
+
+/** Polls until the Wardrobe info satisfies `check`. */
+export async function waitForWardrobe(
+  page: Page,
+  check: (info: WardrobeInfo) => boolean,
+  what: string,
+  timeout = 10_000,
+): Promise<WardrobeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getWardrobeInfo(page);
+    if (info && check(info)) return info;
+    if (Date.now() > deadline) throw new Error(`${what}: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
   }
 }

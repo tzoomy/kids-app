@@ -51,6 +51,7 @@ describe('isSafeToApplyUpdate', () => {
     ['magic-magnet', false],
     ['seed-flower', false],
     ['potion-lab', false],
+    ['wardrobe', false],
     ['sink-or-float', false],
     ['parent', false],
     ['loading', false],
