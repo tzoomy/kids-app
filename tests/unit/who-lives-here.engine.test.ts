@@ -222,6 +222,11 @@ describe('who-lives-here: screen, update policy and picker (AC-20)', () => {
     expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
   });
 
+  it('[AC-20] HabitatScene records a completed Who Lives Here? round for the wardrobe unlock hook', () => {
+    const src = fs.readFileSync(path.join('src/games/habitat/HabitatScene.ts'), 'utf8');
+    expect(src).toContain("recordCompletedRound('nature-lab', 'who-lives-here')");
+  });
+
   it('[AC-20] picker cards have Hebrew labels, a Hebrew title, and placeholder art that exists on disk', () => {
     expect(he.gamePicker.natureLabTitle.length).toBeGreaterThan(0);
     for (const game of natureLabStations()) {

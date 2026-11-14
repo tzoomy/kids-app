@@ -591,6 +591,7 @@ export class HabitatScene extends Phaser.Scene {
 
   private async finishRound(token: number): Promise<void> {
     this.session.complete();
+    this.context.recordCompletedRound('nature-lab', 'who-lives-here');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();
