@@ -7,6 +7,8 @@ import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/Orch
 import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
+import { HabitatScene } from '../games/habitat/HabitatScene';
+import type { HabitatInfo } from '../games/habitat/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
 import { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
@@ -47,7 +49,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -64,6 +66,10 @@ declare global {
       seedTimeEarningEnabled: (enabled: boolean) => void;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
+      /** Seeds the active profile's persisted Who Lives Here? level (level, cleanStreak 0, recent []) for every language. Call before entering. */
+      seedHabitatLevel: (level: number) => void;
+      /** Current Who Lives Here? round (null when HabitatScene is not active or has no round); rectangles are page CSS px. */
+      getHabitatInfo: () => HabitatInfo | null;
       /** Writes the Colouring Time autosave key only. Call on the map, before entering. */
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
@@ -168,6 +174,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
+  game.scene.add('HabitatScene', HabitatScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
@@ -192,6 +199,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'hiding' ? 'HidingScene'
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
+        : screen === 'habitat' ? 'HabitatScene'
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
@@ -209,6 +217,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('OrchestraScene');
       game.scene.stop('SeedFlowerScene');
       game.scene.stop('SortingScene');
+      game.scene.stop('HabitatScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
@@ -262,6 +271,19 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         level,
         localDayKey(new Date(context.nowMs())),
       );
+    },
+    seedHabitatLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        context.content.habitat,
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    getHabitatInfo() {
+      const scene = game.scene.getScene('HabitatScene') as HabitatScene | null;
+      return scene && game.scene.isActive('HabitatScene') ? scene.getHabitatInfo() : null;
     },
     seedLanguageSetting(lang) {
       context.store.getState().settings.languages = lang;

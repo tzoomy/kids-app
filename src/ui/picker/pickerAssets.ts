@@ -59,11 +59,13 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   // Nature Lab.
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
   'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
+  'picker-card-who-lives-here': { url: 'art/scenes/habitats/bg-landscape.svg' },
   // Science World, in science blue.
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
+
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {

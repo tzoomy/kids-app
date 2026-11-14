@@ -390,6 +390,90 @@ export const WhosHidingContentSchema = z
 export type HidingAnimal = z.infer<typeof HidingAnimalSchema>;
 export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;
 
+// ---------------------------------------------------------------------------
+// Who Lives Here? (Nature Lab, docs/specs/who-lives-here.md): an animal goes to its home. Items (animals) -> bins (homes),
+// data-driven, so more habitats and animals are content-only changes.
+// ---------------------------------------------------------------------------
+
+/** Distractor homes next to the right one: `far` = other families first, `near` = the same family first. */
+export const HABITAT_DISTRACTORS = ['far', 'near'] as const;
+/** What the spoken request contains: the animal's name, or a descriptive clue. */
+export const HABITAT_REQUESTS = ['noun', 'riddle'] as const;
+export const HABITAT_MAX_HOMES = 4;
+
+export const HabitatHomeSchema = z.object({
+  /** Art key suffix: `home-<id>-back` and `home-<id>-front` in the art manifest. */
+  id: z.string().min(1),
+  /** Look-alike group: `near` distractors come from the target's family first. */
+  family: z.string().min(1),
+  /** Noun phrase with its article ("the pond", "la mare"), spoken after a correct tap. */
+  name: LangPairSchema,
+});
+
+export const HabitatAnimalSchema = z.object({
+  id: z.string().min(1),
+  /** Registered animal rig / art kind (public/art/animals/<kind>). */
+  kind: z.string().min(1),
+  /** The id of the home this animal lives in. */
+  home: z.string().min(1),
+  /** Noun phrase with its article ("the frog", "la grenouille"), spoken at noun levels. */
+  name: LangPairSchema,
+  /** Descriptive clue ("I have feathers and I build a nest."), spoken at riddle levels and after a miss. */
+  clue: LangPairSchema,
+});
+
+export const WhoLivesHereContentSchema = z
+  .object({
+    id: z.literal('who-lives-here'),
+    world: z.literal('nature-lab'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    helpTextHe: z.string().min(1),
+    homes: z.array(HabitatHomeSchema).min(2),
+    animals: z.array(HabitatAnimalSchema).min(2),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const homeIds = new Set<string>();
+    value.homes.forEach((h, i) => {
+      if (homeIds.has(h.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['homes', i, 'id'], message: `duplicate home id "${h.id}"` });
+      homeIds.add(h.id);
+    });
+    const animalIds = new Set<string>();
+    value.animals.forEach((a, i) => {
+      if (animalIds.has(a.id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'id'], message: `duplicate animal id "${a.id}"` });
+      animalIds.add(a.id);
+      if (!homeIds.has(a.home)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['animals', i, 'home'], message: `animal "${a.id}" lives in unknown home "${a.home}"` });
+      }
+    });
+    const maxHomes = Math.min(HABITAT_MAX_HOMES, value.homes.length);
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2) issue('levels require choiceCount of at least 2');
+      else if (level.choiceCount > maxHomes) issue(`choiceCount cannot exceed ${maxHomes} (the homes in the content, at most ${HABITAT_MAX_HOMES})`);
+      if (level.distractor !== undefined && !(HABITAT_DISTRACTORS as readonly string[]).includes(level.distractor)) {
+        issue('who-lives-here supports distractor "far" or "near"');
+      }
+      if (level.request !== undefined && !(HABITAT_REQUESTS as readonly string[]).includes(level.request)) {
+        issue('who-lives-here supports request "noun" or "riddle"');
+      }
+      if (level.support !== undefined && level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('who-lives-here supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && level.request !== 'riddle') issue('an audio-only level speaks the descriptive clue (request "riddle")');
+      if (level.scaffold !== undefined && level.scaffold !== 'outline') issue('who-lives-here supports scaffold "outline" (the right home glows)');
+      const clue = level.extra?.clue;
+      if (clue !== undefined && clue !== 'after-miss' && clue !== 'none') issue('extra.clue must be "after-miss" or "none"');
+    });
+  });
+
+export type HabitatHome = z.infer<typeof HabitatHomeSchema>;
+export type HabitatAnimal = z.infer<typeof HabitatAnimalSchema>;
+export type WhoLivesHereContent = z.infer<typeof WhoLivesHereContentSchema>;
+
 
 /** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
 export const ColouringRegionSchema = z.object({
