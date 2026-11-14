@@ -68,6 +68,17 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'travel-suitcase',
+    match: [
+      /^src\/games\/travelSuitcase\//,
+      /^src\/content\/games\/travel-suitcase\.json$/,
+      /^src\/anim\/sortPackMotion\.ts$/,
+      /^public\/art\/props\/suitcase-(back|front)\.svg$/,
+      /^tests\/unit\/travel-suitcase[^/]*$/,
+    ],
+    specs: ['tests/e2e/travel-suitcase.journey.spec.ts'],
+  },
+  {
     id: 'leisure-colouring',
     match: [
       /^src\/games\/colouring\//,

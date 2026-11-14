@@ -4,27 +4,53 @@ import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { PICKER_ASSET_KEYS, resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
 import { PICKER_GAMES } from '../../src/ui/picker/pickerModel';
-import { loadAnimalRestaurant, loadKitchenOrchestra } from '../../src/content/loadContent';
+import { loadAnimalRestaurant, loadKitchenOrchestra, loadTravelSuitcase } from '../../src/content/loadContent';
+import he from '../../src/content/i18n/he.json';
 
 const KEYS = ['picker-card-animal-restaurant', 'picker-card-kitchen-orchestra', 'picker-close', 'picker-bg'];
 
 describe('Language House picker data model', () => {
-  it('lists exactly two games, restaurant first (right in RTL landscape, top in portrait)', () => {
-    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra']);
+  it('lists the Language House games in display order (restaurant first, suitcase third)', () => {
+    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual([
+      'animal-restaurant',
+      'kitchen-orchestra',
+      'travel-suitcase',
+    ]);
   });
 
-  it('maps each card to its testid and game scene', () => {
-    expect(PICKER_GAMES.map((g) => g.testId)).toEqual(['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra']);
-    expect(PICKER_GAMES.map((g) => g.sceneKey)).toEqual(['RestaurantScene', 'OrchestraScene']);
-    expect(PICKER_GAMES.map((g) => g.assetKey)).toEqual(['picker-card-animal-restaurant', 'picker-card-kitchen-orchestra']);
+  it('maps each card to its testid, game scene, and Hebrew label', () => {
+    expect(PICKER_GAMES.map((g) => g.testId)).toEqual([
+      'game-picker-animal-restaurant',
+      'game-picker-kitchen-orchestra',
+      'game-picker-travel-suitcase',
+    ]);
+    expect(PICKER_GAMES.map((g) => g.sceneKey)).toEqual([
+      'RestaurantScene',
+      'OrchestraScene',
+      'SuitcaseScene',
+    ]);
+    expect(PICKER_GAMES.map((g) => g.assetKey)).toEqual([
+      'picker-card-animal-restaurant',
+      'picker-card-kitchen-orchestra',
+      'picker-card-travel-suitcase',
+    ]);
+    expect(he.gamePicker.travelSuitcase).toBe('מזוודת הטיול');
   });
 
-  it('only offers games whose content belongs to Language House', () => {
+  it('only offers games whose content belongs to Language House and resolves every card asset', () => {
     const worlds = new Map([
       ['animal-restaurant', loadAnimalRestaurant().world],
       ['kitchen-orchestra', loadKitchenOrchestra().world],
+      ['travel-suitcase', loadTravelSuitcase().world],
     ]);
-    for (const g of PICKER_GAMES) expect(worlds.get(g.gameId)).toBe('language-house');
+    for (const g of PICKER_GAMES) {
+      expect(worlds.get(g.gameId)).toBe('language-house');
+      const asset = resolvePickerAsset(g.assetKey);
+      expect(asset.key).toBe(g.assetKey);
+      if (asset.kind === 'manifest' || asset.kind === 'placeholder') {
+        expect(fs.existsSync(path.join('public', asset.url))).toBe(true);
+      }
+    }
   });
 });
 

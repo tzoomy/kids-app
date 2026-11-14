@@ -105,6 +105,20 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('travel suitcase selects its journey spec (and sortPackMotion also selects sorting beds)', () => {
+    const expected = ['tests/e2e/travel-suitcase.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/travelSuitcase/SuitcaseScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/travel-suitcase.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/suitcase-back.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/suitcase-front.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/travel-suitcase.round.test.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/anim/sortPackMotion.ts'])).toEqual([
+      'tests/e2e/sorting-beds.journey.spec.ts',
+      'tests/e2e/sorting-beds.platform.spec.ts',
+      'tests/e2e/travel-suitcase.journey.spec.ts',
+    ]);
+  });
+
   it('credits content and UI select the credits spec', () => {
     expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
     expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);

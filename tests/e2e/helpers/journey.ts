@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
 
-export type { SortingInfo };
+export type { SortingInfo, SuitcaseInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -18,6 +19,7 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
+  'travel-suitcase': 'SuitcaseScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -135,6 +137,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedSuitcaseLevel: (level: number) => void;
+  getSuitcaseInfo: () => SuitcaseInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -530,4 +534,36 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Travel Suitcase level for every content language (seed only). Call on the map, before entering. */
+export async function seedSuitcaseLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSuitcaseLevel', [level]);
+}
+
+export function getSuitcaseInfo(page: Page): Promise<SuitcaseInfo | null> {
+  return callHook<SuitcaseInfo | null>(page, 'getSuitcaseInfo');
+}
+
+/** Waits until Travel Suitcase accepts input and returns its state. */
+export async function waitForSuitcaseReady(page: Page, timeout = 15_000): Promise<SuitcaseInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSuitcaseInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Travel Suitcase never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Real pointer drag from the centre of `from` to the centre of `to` in page CSS px. */
+export async function dragRectTo(page: Page, from: PageRect, to: PageRect): Promise<void> {
+  const startX = from.x + from.width / 2;
+  const startY = from.y + from.height / 2;
+  const endX = to.x + to.width / 2;
+  const endY = to.y + to.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(endX, endY, { steps: 12 });
+  await page.mouse.up();
 }
