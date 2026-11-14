@@ -18,6 +18,7 @@ import {
   loadKitchenOrchestra,
   loadLetterMonster,
   loadPicnicTrain,
+  loadNumberBridge,
   loadTravelSuitcase,
   loadWordTrain,
   loadPotionLab,
@@ -45,6 +46,7 @@ const REAL_GAMES = collectTrailGames({
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
+  numberBridge: loadNumberBridge(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
@@ -246,7 +248,7 @@ describe('station trail: data-driven station list', () => {
     }
     expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase', 'word-train']);
     expect(ids('art-studio')).toEqual(['sticker-board']);
-    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train', 'number-bridge']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
     expect(ids('leisure-corner')).toEqual([]);
   });
@@ -302,6 +304,7 @@ describe('station trail: data-driven station list', () => {
       ['sorting-beds', 'SortingScene'],
       ['balloon-pop', 'BalloonScene'],
       ['picnic-train', 'PicnicScene'],
+      ['number-bridge', 'NumberBridgeScene'],
       ['who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'SeedFlowerScene'],
       ['who-lives-here', 'HabitatScene'],

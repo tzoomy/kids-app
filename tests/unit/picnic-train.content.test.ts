@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { loadBalloonPop, loadPicnicTrain, loadSortingBeds, loadWorlds } from '@/content/loadContent';
+import { loadBalloonPop, loadNumberBridge, loadPicnicTrain, loadSortingBeds, loadWorlds } from '@/content/loadContent';
 import { PicnicTrainContentSchema } from '@/content/schema';
 import { SkillSession, buildMeta } from '@/core/adaptive';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
@@ -141,14 +141,14 @@ describe('picnic-train: wiring (AC-27)', () => {
     expect(source).toMatch(/setAppScreen\(\s*'picnic'\s*\)/);
   });
 
-  it('[AC-27] the Number Garden trail (WORLD_GAMES + content) lists Sorting Beds, Balloon Pop, then Picnic Train; the Language House picker is unchanged', () => {
+  it('[AC-27] the Number Garden trail (WORLD_GAMES + content) lists Sorting Beds, Balloon Pop, Picnic Train, then Number Bridge; the Language House picker is unchanged', () => {
     const garden = stationGamesForWorld(
       'number-garden',
       WORLD_GAMES,
-      collectTrailGames({ sorting: loadSortingBeds(), balloon: loadBalloonPop(), picnic: content }),
+      collectTrailGames({ sorting: loadSortingBeds(), balloon: loadBalloonPop(), picnic: content, numberBridge: loadNumberBridge() }),
     );
-    expect(garden.map((g) => g.testId)).toEqual(['game-picker-sorting-beds', 'game-picker-balloon-pop', 'game-picker-picnic-train']);
-    expect(garden.map((g) => g.sceneKey)).toEqual(['SortingScene', 'BalloonScene', 'PicnicScene']);
+    expect(garden.map((g) => g.testId)).toEqual(['game-picker-sorting-beds', 'game-picker-balloon-pop', 'game-picker-picnic-train', 'game-picker-number-bridge']);
+    expect(garden.map((g) => g.sceneKey)).toEqual(['SortingScene', 'BalloonScene', 'PicnicScene', 'NumberBridgeScene']);
     expect(PICKER_GAMES.map((g) => g.testId)).toEqual([
       'game-picker-animal-restaurant',
       'game-picker-kitchen-orchestra',

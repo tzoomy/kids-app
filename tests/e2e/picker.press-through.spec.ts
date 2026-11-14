@@ -18,6 +18,11 @@ export const PICKER_PRESS_THROUGH_CASES: readonly PickerPressThroughOptions[] = 
     worldId: 'nature-lab',
     cards: stationsForWorld('nature-lab'),
   },
+  {
+    profile: 'profile-a',
+    worldId: 'number-garden',
+    cards: stationsForWorld('number-garden'),
+  },
 ];
 
 test.describe('game picker press-through prevention', () => {

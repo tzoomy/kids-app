@@ -9,6 +9,7 @@ export type PickerGameId =
   | 'sorting-beds'
   | 'balloon-pop'
   | 'picnic-train'
+  | 'number-bridge'
   | 'who-is-hiding'
   | 'seed-to-flower'
   | 'who-lives-here'
@@ -29,7 +30,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'wordTrain' | 'sortingBeds' | 'balloonPop' | 'picnicTrain' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'shadowMatch' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'stickerBoard' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'wordTrain' | 'sortingBeds' | 'balloonPop' | 'picnicTrain' | 'numberBridge' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'shadowMatch' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'stickerBoard' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -96,6 +97,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'PicnicScene',
     assetKey: 'picker-card-picnic-train',
     labelKey: 'picnicTrain',
+  },
+  {
+    gameId: 'number-bridge',
+    testId: 'game-picker-number-bridge',
+    sceneKey: 'NumberBridgeScene',
+    assetKey: 'picker-card-number-bridge',
+    labelKey: 'numberBridge',
   },
   // Nature Lab.
   {

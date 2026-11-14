@@ -350,6 +350,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'word-train-wagon', url: 'art/word-train/wagon.svg', width: 200, height: 260 },
   { key: 'word-train-sun', url: 'art/word-train/sun.svg', width: 256, height: 256 },
   { key: 'word-train-cup', url: 'art/word-train/cup.svg', width: 256, height: 256 },
+  // Number Garden — Number Bridge (docs/specs/number-bridge.md)
+  { key: 'prop-bridge-stone', url: 'art/props/bridge-stone.svg', width: 200, height: 140 },
+  { key: 'prop-stone-pile', url: 'art/props/stone-pile.svg', width: 220, height: 160 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
   // Science World — Magic Magnet (docs/specs/magic-magnet.md)

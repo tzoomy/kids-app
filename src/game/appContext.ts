@@ -19,6 +19,7 @@ import type {
   StickerBoardContent,
   ShadowMatchContent,
   BalloonPopContent,
+  NumberBridgeContent,
   LetterMonsterContent,
   TravelSuitcaseContent,
   WordTrainContent,
@@ -43,6 +44,7 @@ export interface ContentBundle {
   sorting: SortingBedsContent;
   picnic: PicnicTrainContent;
   balloon: BalloonPopContent;
+  numberBridge: NumberBridgeContent;
   hiding: WhosHidingContent;
   habitat: WhoLivesHereContent;
   seedToFlower: SeedToFlowerContent;

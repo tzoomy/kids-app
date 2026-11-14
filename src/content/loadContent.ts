@@ -11,6 +11,7 @@ import stickerBoardJson from './games/sticker-board.json';
 import shadowMatchJson from './games/shadow-match.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
+import numberBridgeJson from './games/number-bridge.json';
 import travelSuitcaseJson from './games/travel-suitcase.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
 import potionLabJson from './games/potion-lab.json';
@@ -32,6 +33,7 @@ import {
   ShadowMatchContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
+  NumberBridgeContentSchema,
   PotionLabContentSchema,
   SinkOrFloatContentSchema,
   TravelSuitcaseContentSchema,
@@ -50,6 +52,7 @@ import {
   type ShadowMatchContent,
   type LetterMonsterContent,
   type BalloonPopContent,
+  type NumberBridgeContent,
   type TravelSuitcaseContent,
   type SeedToFlowerContent,
   type PotionLabContent,
@@ -122,6 +125,10 @@ export function loadLetterMonster(): LetterMonsterContent {
 
 export function loadBalloonPop(): BalloonPopContent {
   return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadNumberBridge(): NumberBridgeContent {
+  return NumberBridgeContentSchema.parse(numberBridgeJson);
 }
 
 export function loadPotionLab(): PotionLabContent {

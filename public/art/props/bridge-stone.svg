@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" width="200" height="140">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft water/ground shadow under stone -->
+    <ellipse cx="100" cy="122" rx="82" ry="13" fill="#3B2A22" opacity="0.16"/>
+
+    <!-- Lower side edge of the flat stepping stone -->
+    <path d="M22 68 C20 96 36 118 68 122 L132 122 C164 118 180 96 178 68 L178 58 C180 86 164 106 132 108 L68 108 C36 106 20 86 22 58 Z" fill="#B2A898" stroke="#3B2A22" stroke-width="5"/>
+
+    <!-- Top surface of the stepping stone -->
+    <path d="M22 60 C20 30 46 16 100 16 C154 16 180 30 178 60 C176 92 152 106 100 106 C48 106 24 92 22 60 Z" fill="#EFE9DC" stroke="#3B2A22" stroke-width="5"/>
+
+    <!-- Warm top highlight -->
+    <path d="M40 44 C50 28 78 23 114 25 C84 29 58 36 46 52 Z" fill="#FFFBF2"/>
+
+    <!-- Subtle inner pebble speckles on the rim so the center stays clean for numbers -->
+    <ellipse cx="46" cy="72" rx="7" ry="4" fill="#D9D0C0"/>
+    <ellipse cx="152" cy="74" rx="8" ry="4.5" fill="#D9D0C0"/>
+  </g>
+</svg>

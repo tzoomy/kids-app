@@ -25,6 +25,7 @@ const ORCHESTRA = 'game-picker-kitchen-orchestra';
 const SORTING = 'game-picker-sorting-beds';
 const BALLOON = 'game-picker-balloon-pop';
 const PICNIC = 'game-picker-picnic-train';
+const BRIDGE = 'game-picker-number-bridge';
 const HIDING = 'game-picker-who-is-hiding';
 const SEED = 'game-picker-seed-to-flower';
 const HABITAT = 'game-picker-who-lives-here';
@@ -115,6 +116,7 @@ test.describe('station trail inside a world', () => {
     await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(stationCount('number-garden'));
     await expect(page.locator(`[data-testid="${BALLOON}"]`)).toBeVisible();
     await expect(page.locator(`[data-testid="${PICNIC}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${BRIDGE}"]`)).toBeVisible();
     // Fresh profile: the first station is the suggested one, and the picker is the trail (not a plain list).
     await expect(page.locator(`[data-testid="${SORTING}"]`)).toHaveAttribute('data-suggested', 'true');
     await expect(page.locator(`[data-testid="${PICNIC}"]`)).toHaveAttribute('data-suggested', 'false');
