@@ -77,8 +77,10 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   header.appendChild(title);
   panel.appendChild(header);
 
+  const games = opts.games ?? PICKER_GAMES;
   const cards = el('div', 'picker-cards');
-  for (const game of opts.games ?? PICKER_GAMES) {
+  cards.style.setProperty('--picker-count', String(games.length));
+  for (const game of games) {
     const label = t[game.labelKey];
     const card = el('button', 'picker-card');
     card.type = 'button';
