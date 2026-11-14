@@ -12,7 +12,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadLeisureColouring, loadBalloonPop, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
 
@@ -32,6 +32,7 @@ const context = new AppContext(store, audioManager, sfx, {
   sorting: loadSortingBeds(),
   hiding: loadWhosHiding(),
   colouring: loadLeisureColouring(),
+  balloon: loadBalloonPop(),
   he: loadHeStrings(),
 }, shell);
 
@@ -63,6 +64,12 @@ function openParentGate(onDone: () => void): void {
     () => openParentSettings(onDone),
     () => onDone(),
   );
+}
+
+/** The 3-second long-press path: straight to the parent settings, no multiplication question. */
+function openParentSettingsDirect(onDone: () => void): void {
+  setAppScreen('parent');
+  openParentSettings(onDone);
 }
 
 function openParentSettings(onDone: () => void): void {
@@ -141,6 +148,7 @@ function showProfileSelectScreen(): void {
     entries,
     (id) => pickProfile(id),
     () => openParentGate(() => showProfileSelectScreen()),
+    () => openParentSettingsDirect(() => showProfileSelectScreen()),
   );
   welcomeOnce();
 }
@@ -152,8 +160,11 @@ function returnToProfileSelect(): void {
   game?.scene.stop('HidingScene');
   game?.scene.stop('SortingScene');
   game?.scene.stop('ColouringScene');
+  game?.scene.stop('LetterMonsterScene');
   game?.scene.stop('SeedFlowerScene');
+  game?.scene.stop('PotionScene');
   game?.scene.stop('BubblesScene');
+  game?.scene.stop('BalloonScene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
   shell.clearChrome();
@@ -172,6 +183,11 @@ function pickProfile(profileId: string): void {
         shell.clearOverlay();
         game?.scene.getScene('MapScene')?.scene.restart();
       });
+    context.onRequestParentSettings = () =>
+      openParentSettingsDirect(() => {
+        shell.clearOverlay();
+        game?.scene.getScene('MapScene')?.scene.restart();
+      });
     context.onExitToProfileSelect = returnToProfileSelect;
     game = createGame(document.getElementById('game-root')!, context);
   } else {
@@ -179,8 +195,11 @@ function pickProfile(profileId: string): void {
     game.scene.stop('HidingScene');
     game.scene.stop('SortingScene');
     game.scene.stop('ColouringScene');
+    game.scene.stop('LetterMonsterScene');
     game.scene.stop('SeedFlowerScene');
+    game.scene.stop('PotionScene');
     game.scene.stop('BubblesScene');
+    game.scene.stop('BalloonScene');
     game.scene.start('MapScene');
   }
 }

@@ -105,6 +105,23 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('potion lab selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
+    expect(selectAffectedE2e(['src/games/potionLab/PotionScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/potion-lab.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/palette/pot-red.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/mixing-bowl.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
+  });
+
+  it('letter-monster changes select the letter-monster journey spec', () => {
+    const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/letter-monster.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/monster-closed.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/letter-monster.machine.test.ts'])).toEqual(expected);
+  });
+
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
     expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
     expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
@@ -154,13 +171,33 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('Balloon Pop changes select its journey; picker changes also select the Number Garden picker games', () => {
+    expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
+    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
+    expect(picker).toContain('tests/e2e/balloon-pop.journey.spec.ts');
+    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
+  });
+
   it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {
     expect(selectAffectedE2e(['src/ui/shell.ts'])).toEqual(['tests/e2e/help-card.shell.spec.ts', ...SMOKE]);
+  });
+
+  it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
+    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts', 'src/styles/shell.css']) {
+      expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
+    }
+  });
+
+  it('long-press gate unit tests select only the gate spec (no smoke)', () => {
+    for (const f of ['tests/unit/parent-longpress-gate.timer.test.ts', 'tests/unit/parent-longpress-gate.dom.test.ts']) {
+      expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
+    }
   });
 
   it('a changed spec file selects that spec only', () => {
     expect(selectAffectedE2e(['tests/e2e/sorting-beds.platform.spec.ts'])).toEqual(['tests/e2e/sorting-beds.platform.spec.ts']);
     expect(selectAffectedE2e(['tests/e2e/brand-new.spec.ts'])).toEqual(['tests/e2e/brand-new.spec.ts']);
+    expect(selectAffectedE2e(['tests/e2e/parent-longpress-gate.spec.ts'])).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
   });
 
   it('never selects the full suite for shared + every game folder touched at once is bounded by the map', () => {

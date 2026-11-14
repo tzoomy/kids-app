@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { colorOf, PALETTE } from './colors';
+import { buildingArtKey } from '../anim/artRegistry';
 
 const OUTLINE = 5;
 
@@ -440,6 +441,15 @@ export const ANIMAL_KINDS = Object.keys(ANIMAL_BODY_COLORS);
 
 /** Distinct building / landmark per world, same outline style. */
 export function drawWorldBuilding(scene: Phaser.Scene, worldId: string, locked: boolean, size = 200): Phaser.GameObjects.Container {
+  // Registered SVG building art (open buildings only; the lock overlay stays procedural).
+  const artKey = locked ? undefined : buildingArtKey(worldId);
+  if (artKey && scene.textures.exists(artKey)) {
+    const art = scene.make.image({ key: artKey, x: 0, y: 0, add: false });
+    art.setDisplaySize(size * 1.5, size * 1.5);
+    const box = scene.add.container(0, 0, [art]);
+    box.setSize(size, size);
+    return box;
+  }
   const key = `world-${worldId}-${locked ? 'locked' : 'open'}-${size}`;
   if (!scene.textures.exists(key)) {
     const pad = size * 0.75;
@@ -521,6 +531,19 @@ export function drawWorldBuilding(scene: Phaser.Scene, worldId: string, locked: 
         g.fillStyle(colorOf('green'), 1);
         g.fillEllipse(w * 0.1, -h * 0.55, 28, 16);
         g.strokeEllipse(w * 0.1, -h * 0.55, 28, 16);
+        break;
+      }
+      case 'science-world': {
+        // Fallback for public/art/buildings/science-world.svg: lab house, porthole, green flask.
+        house(0x6c8cff, 0xfff6e0);
+        g.fillStyle(0x9ad8ff, 1);
+        g.fillCircle(-w * 0.3, h * 0.36, 16);
+        g.strokeCircle(-w * 0.3, h * 0.36, 16);
+        g.fillStyle(0x7bd389, 1);
+        g.fillCircle(w * 0.3, h * 0.6, 18);
+        g.strokeCircle(w * 0.3, h * 0.6, 18);
+        g.fillRoundedRect(w * 0.3 - 7, h * 0.2, 14, 20, 4);
+        g.strokeRoundedRect(w * 0.3 - 7, h * 0.2, 14, 20, 4);
         break;
       }
       case 'art-studio': {

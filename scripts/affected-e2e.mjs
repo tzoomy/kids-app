@@ -68,6 +68,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'letter-monster',
+    match: [
+      /^src\/games\/letterMonster\//,
+      /^src\/content\/games\/letter-monster\.json$/,
+      /^public\/art\/props\/monster-[a-z]+\.svg$/,
+      /^tests\/unit\/letter-monster[^/]*$/,
+    ],
+    specs: ['tests/e2e/letter-monster.journey.spec.ts'],
+  },
+  {
     id: 'seed-to-flower',
     match: [
       /^src\/games\/seedFlower\//,
@@ -105,11 +115,44 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/sorting\//,
       /^src\/content\/games\/sorting-beds\.json$/,
+      // The Number Garden picker card is the Sorting Beds entry.
+      /^src\/ui\/picker\//,
       /^src\/anim\/(homesTrainMotion|sortPackMotion|trainLayout)\.ts$/,
       /^public\/art\/(homes|train)\//,
       /^tests\/unit\/(sorting-beds|sortPackMotion|homesTrainMotion|trainLayout)[^/]*$/,
     ],
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
+  },
+  {
+    id: 'science-world',
+    // Science World map area: its building art and its (for now empty) picker. MapScene stays smoke-only.
+    match: [
+      /^public\/art\/buildings\//,
+      /^src\/ui\/picker\//,
+      /^tests\/unit\/science-world[^/]*$/,
+    ],
+    specs: ['tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'potion-lab',
+    match: [
+      /^src\/games\/potionLab\//,
+      /^src\/content\/games\/potion-lab\.json$/,
+      /^public\/art\/props\/mixing-bowl\.svg$/,
+      /^public\/art\/palette\/pot-(red|yellow|blue)\.svg$/,
+      /^tests\/unit\/potion-lab[^/]*$/,
+    ],
+    specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'balloon-pop',
+    match: [
+      /^src\/games\/balloon\//,
+      /^src\/content\/games\/balloon-pop\.json$/,
+      /^src\/ui\/picker\//,
+      /^tests\/unit\/balloon-pop[^/]*$/,
+    ],
+    specs: ['tests/e2e/balloon-pop.journey.spec.ts'],
   },
   {
     id: 'credits',
@@ -137,6 +180,19 @@ export const GAME_RULES = [
     match: [/^src\/ui\/shell\.ts$/],
     specs: ['tests/e2e/help-card.shell.spec.ts'],
   },
+  {
+    id: 'parent-longpress-gate',
+    // The long-press binder is bound by the profile-select and map-HUD parent buttons: those shared files
+    // (and shell.css) also select the smoke set via ALSO_SMOKE. Its unit tests select only the gate spec.
+    match: [
+      /^src\/ui\/longPress\.ts$/,
+      /^src\/ui\/profileSelect\.ts$/,
+      /^src\/ui\/hud\.ts$/,
+      /^src\/styles\/shell\.css$/,
+      /^tests\/unit\/parent-longpress-gate[^/]*$/,
+    ],
+    specs: ['tests/e2e/parent-longpress-gate.spec.ts'],
+  },
 ];
 
 /**
@@ -153,7 +209,15 @@ const NO_E2E = [
 ];
 
 /** Directly mapped files that are also shared runtime code. */
-const ALSO_SMOKE = [/^src\/ui\/shell\.ts$/, /^src\/ui\/picker\//, /^src\/ui\/parent\.ts$/];
+const ALSO_SMOKE = [
+  /^src\/ui\/shell\.ts$/,
+  /^src\/ui\/picker\//,
+  /^src\/ui\/parent\.ts$/,
+  /^src\/ui\/longPress\.ts$/,
+  /^src\/ui\/profileSelect\.ts$/,
+  /^src\/ui\/hud\.ts$/,
+  /^src\/styles\/shell\.css$/,
+];
 
 const norm = (f) => f.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
