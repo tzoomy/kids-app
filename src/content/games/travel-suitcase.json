@@ -1,0 +1,177 @@
+{
+  "id": "travel-suitcase",
+  "world": "language-house",
+  "template": "choice-serve",
+  "skill": "travel-vocabulary",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "demonstrate", "hintDelayMs": 9000 }
+  },
+  "items": [
+    {
+      "id": "hat",
+      "art": "item-hat",
+      "he": "כובע",
+      "en": { "the": "the hat", "a": "a hat" },
+      "fr": { "the": "le chapeau", "a": "un chapeau" },
+      "colors": [
+        { "color": "red", "art": "item-hat", "en": "the red hat", "fr": "le chapeau rouge", "enOne": "the red one", "frOne": "le rouge" },
+        { "color": "yellow", "art": "item-hat-yellow", "en": "the yellow hat", "fr": "le chapeau jaune", "enOne": "the yellow one", "frOne": "le jaune" },
+        { "color": "blue", "art": "item-hat-blue", "en": "the blue hat", "fr": "le chapeau bleu", "enOne": "the blue one", "frOne": "le bleu" }
+      ]
+    },
+    {
+      "id": "shoes",
+      "art": "item-shoes",
+      "he": "נעליים",
+      "en": { "the": "the shoes", "a": "some shoes" },
+      "fr": { "the": "les chaussures", "a": "des chaussures" },
+      "colors": [
+        { "color": "blue", "art": "item-shoes", "en": "the blue shoes", "fr": "les chaussures bleues", "enOne": "the blue ones", "frOne": "les bleues" },
+        { "color": "red", "art": "item-shoes-red", "en": "the red shoes", "fr": "les chaussures rouges", "enOne": "the red ones", "frOne": "les rouges" },
+        { "color": "yellow", "art": "item-shoes-yellow", "en": "the yellow shoes", "fr": "les chaussures jaunes", "enOne": "the yellow ones", "frOne": "les jaunes" }
+      ]
+    },
+    {
+      "id": "sunglasses",
+      "art": "item-sunglasses",
+      "he": "משקפי שמש",
+      "en": { "the": "the sunglasses", "a": "some sunglasses" },
+      "fr": { "the": "les lunettes de soleil", "a": "des lunettes de soleil" }
+    },
+    {
+      "id": "ball",
+      "art": "item-ball",
+      "he": "כדור",
+      "en": { "the": "the ball", "a": "a ball" },
+      "fr": { "the": "le ballon", "a": "un ballon" },
+      "colors": [
+        { "color": "yellow", "art": "item-ball", "en": "the yellow ball", "fr": "le ballon jaune", "enOne": "the yellow one", "frOne": "le jaune" },
+        { "color": "red", "art": "item-ball-red", "en": "the red ball", "fr": "le ballon rouge", "enOne": "the red one", "frOne": "le rouge" },
+        { "color": "blue", "art": "item-ball-blue", "en": "the blue ball", "fr": "le ballon bleu", "enOne": "the blue one", "frOne": "le bleu" }
+      ]
+    },
+    {
+      "id": "book",
+      "art": "item-book",
+      "he": "ספר",
+      "en": { "the": "the book", "a": "a book" },
+      "fr": { "the": "le livre", "a": "un livre" }
+    },
+    {
+      "id": "coat",
+      "art": "item-coat",
+      "he": "מעיל",
+      "en": { "the": "the coat", "a": "a coat" },
+      "fr": { "the": "le manteau", "a": "un manteau" },
+      "colors": [
+        { "color": "yellow", "art": "item-coat", "en": "the yellow coat", "fr": "le manteau jaune", "enOne": "the yellow one", "frOne": "le jaune" },
+        { "color": "red", "art": "item-coat-red", "en": "the red coat", "fr": "le manteau rouge", "enOne": "the red one", "frOne": "le rouge" },
+        { "color": "blue", "art": "item-coat-blue", "en": "the blue coat", "fr": "le manteau bleu", "enOne": "the blue one", "frOne": "le bleu" }
+      ]
+    },
+    {
+      "id": "shirt",
+      "art": "item-shirt",
+      "he": "חולצה",
+      "en": { "the": "the shirt", "a": "a shirt" },
+      "fr": { "the": "la chemise", "a": "une chemise" },
+      "colors": [
+        { "color": "red", "art": "item-shirt", "en": "the red shirt", "fr": "la chemise rouge", "enOne": "the red one", "frOne": "la rouge" },
+        { "color": "yellow", "art": "item-shirt-yellow", "en": "the yellow shirt", "fr": "la chemise jaune", "enOne": "the yellow one", "frOne": "la jaune" },
+        { "color": "blue", "art": "item-shirt-blue", "en": "the blue shirt", "fr": "la chemise bleue", "enOne": "the blue one", "frOne": "la bleue" }
+      ]
+    },
+    {
+      "id": "socks",
+      "art": "item-socks",
+      "he": "גרביים",
+      "en": { "the": "the socks", "a": "some socks" },
+      "fr": { "the": "les chaussettes", "a": "des chaussettes" }
+    },
+    {
+      "id": "bottle",
+      "art": "item-bottle",
+      "he": "בקבוק",
+      "en": { "the": "the bottle", "a": "a bottle" },
+      "fr": { "the": "la bouteille", "a": "une bouteille" }
+    },
+    {
+      "id": "toothbrush",
+      "art": "item-toothbrush",
+      "he": "מברשת שיניים",
+      "en": { "the": "the toothbrush", "a": "a toothbrush" },
+      "fr": { "the": "la brosse à dents", "a": "une brosse à dents" }
+    },
+    {
+      "id": "teddy",
+      "art": "item-teddy",
+      "he": "דובי",
+      "en": { "the": "the teddy bear", "a": "a teddy bear" },
+      "fr": { "the": "le nounours", "a": "un nounours" }
+    },
+    {
+      "id": "umbrella",
+      "art": "item-umbrella",
+      "he": "מטריה",
+      "en": { "the": "the umbrella", "a": "an umbrella" },
+      "fr": { "the": "le parapluie", "a": "un parapluie" }
+    }
+  ],
+  "frames": {
+    "en": {
+      "put": "Put {the} in the suitcase!",
+      "two": "Put {a} and {b} in the suitcase!",
+      "not": "Put {a} in the suitcase, but not {one}!",
+      "name": "{The}!",
+      "other": "Oh, {the}!"
+    },
+    "fr": {
+      "put": "Mets {the} dans la valise !",
+      "two": "Mets {a} et {b} dans la valise !",
+      "not": "Mets {a} dans la valise, mais pas {one} !",
+      "name": "{The} !",
+      "other": "Oh, {the} !"
+    }
+  },
+  "linesHe": {
+    "intro": "בואי נארוז את המזוודה לטיול!",
+    "closed": "המזוודה מוכנה! יוצאים לטיול!"
+  },
+  "helpTextHe": "הקשיבי מה צריך לארוז ולחצי על החפץ המתאים כדי להכניס אותו למזוודה.",
+  "adaptive": {
+    "tracks": {
+      "age2": { "start": 1, "min": 1, "max": 2 },
+      "age5": { "start": 3, "min": 1, "max": 5 }
+    },
+    "levels": [
+      {
+        "choiceCount": 2,
+        "support": "picture-audio",
+        "extra": { "request": "noun", "requestsPerCase": 3 }
+      },
+      {
+        "choiceCount": 3,
+        "support": "picture-audio",
+        "extra": { "request": "noun", "requestsPerCase": 3 }
+      },
+      {
+        "choiceCount": 4,
+        "support": "picture-audio",
+        "extra": { "request": "two", "requestsPerCase": 2 }
+      },
+      {
+        "choiceCount": 4,
+        "support": "picture-audio",
+        "extra": { "request": "attribute", "requestsPerCase": 3 }
+      },
+      {
+        "choiceCount": 4,
+        "support": "audio-only",
+        "extra": { "request": "negation", "requestsPerCase": 3 }
+      }
+    ]
+  }
+}

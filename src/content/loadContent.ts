@@ -6,6 +6,7 @@ import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
+import travelSuitcaseJson from './games/travel-suitcase.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
 import potionLabJson from './games/potion-lab.json';
 import sinkOrFloatJson from './games/sink-or-float.json';
@@ -23,6 +24,7 @@ import {
   BalloonPopContentSchema,
   PotionLabContentSchema,
   SinkOrFloatContentSchema,
+  TravelSuitcaseContentSchema,
   SeedToFlowerContentSchema,
   MagicMagnetContentSchema,
   type WorldsFile,
@@ -33,6 +35,7 @@ import {
   type LeisureColouringContent,
   type LetterMonsterContent,
   type BalloonPopContent,
+  type TravelSuitcaseContent,
   type SeedToFlowerContent,
   type PotionLabContent,
   type SinkOrFloatContent,
@@ -83,6 +86,10 @@ export function loadPotionLab(): PotionLabContent {
 
 export function loadSinkOrFloat(): SinkOrFloatContent {
   return SinkOrFloatContentSchema.parse(sinkOrFloatJson);
+}
+
+export function loadTravelSuitcase(): TravelSuitcaseContent {
+  return TravelSuitcaseContentSchema.parse(travelSuitcaseJson);
 }
 
 export function loadSeedToFlower(): SeedToFlowerContent {

@@ -8,6 +8,8 @@ import {
   type PageRect,
   type ProfileTestId,
 } from './helpers/journey';
+import { PICKER_CLOSE_TEST_ID } from '../../src/ui/picker/pickerModel';
+import { stationsForWorld } from './helpers/worldStations';
 
 // Station trail (spec: docs/specs/station-trail.md). Every test enters through the real map building with real taps.
 // Hooks only SEED persisted adaptive state (seedRestaurantLevel) or READ state (getActiveScenes, getBuildingHit); no goToScreen.
@@ -18,7 +20,6 @@ const LANDSCAPE = 'landscape-1280x800';
 const MIN_TAP = 64;
 const RESTAURANT = 'game-picker-animal-restaurant';
 const ORCHESTRA = 'game-picker-kitchen-orchestra';
-const MONSTER = 'game-picker-letter-monster';
 const SORTING = 'game-picker-sorting-beds';
 const BALLOON = 'game-picker-balloon-pop';
 const HIDING = 'game-picker-who-is-hiding';
@@ -26,7 +27,9 @@ const SEED = 'game-picker-seed-to-flower';
 const POTION = 'game-picker-potion-lab';
 const SINK = 'game-picker-sink-or-float';
 const MAGNET = 'game-picker-magic-magnet';
-const CLOSE = 'game-picker-close';
+const CLOSE = PICKER_CLOSE_TEST_ID;
+const LANGUAGE_HOUSE_STATIONS = stationsForWorld('language-house');
+const LANGUAGE_HOUSE_CARD_IDS = LANGUAGE_HOUSE_STATIONS.map((g) => g.testId);
 
 /** @single-orientation tests run in the landscape project only (docs/PROCESS.md section 4). */
 function landscapeOnly(testInfo: TestInfo): void {
@@ -92,7 +95,7 @@ test.describe('station trail inside a world', () => {
   test('[AC-08] no locks: every station is enabled and a completed station opens its game @single-orientation', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await openLanguageHouse(page, 'profile-b', true);
-    for (const id of [RESTAURANT, ORCHESTRA, MONSTER]) {
+    for (const id of LANGUAGE_HOUSE_CARD_IDS) {
       await expect(page.locator(`[data-testid="${id}"]`)).toBeEnabled();
     }
     await tapTestId(page, RESTAURANT);
@@ -147,12 +150,16 @@ test.describe('station trail inside a world', () => {
     await expect(page.locator(`[data-testid="${RESTAURANT}"]`)).toHaveAttribute('data-suggested', 'true');
   });
 
-  test('[AC-14] smoke: the 3 Language House stations and the close button are at least 64 px, inside the viewport and do not overlap, in both orientations', async ({ page }) => {
+  test('[AC-14] smoke: every Language House station (from the registry) and the close button are at least 64 px, inside the viewport and do not overlap, in both orientations', async ({ page }) => {
     await openLanguageHouse(page, 'profile-a');
     const vp = page.viewportSize()!;
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
-    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
-    const ids = [RESTAURANT, ORCHESTRA, MONSTER, CLOSE];
+    expect(LANGUAGE_HOUSE_CARD_IDS.length, 'Language House trail has four stations after Travel Suitcase').toBe(4);
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(LANGUAGE_HOUSE_CARD_IDS.length);
+    for (const id of LANGUAGE_HOUSE_CARD_IDS) {
+      await expect(page.locator(`[data-testid="${id}"]`)).toBeVisible();
+    }
+    const ids = [...LANGUAGE_HOUSE_CARD_IDS, CLOSE];
     const boxes: PageRect[] = [];
     for (const id of ids) {
       const box = await getStableBox(page, id);
