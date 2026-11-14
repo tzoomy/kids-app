@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 270" width="270" height="270">
+  <!-- House body -->
+  <rect x="58.5" y="135" width="153" height="99" rx="16" ry="16" fill="#FFF6E0" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Triangular roof -->
+  <polygon points="44.5,139 135,41 225.5,139" fill="#6C8CFF" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Roof star sign -->
+  <polygon points="135,76 140.3,88.7 154,89.8 143.6,98.8 146.8,112.2 135,105 123.2,112.2 126.4,98.8 116,89.8 129.7,88.7" fill="#FFD43B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Front door -->
+  <rect x="116.6" y="169.6" width="36.8" height="64.4" rx="6" ry="6" fill="#A0632E" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Porthole window -->
+  <circle cx="86" cy="174" r="16" fill="#9AD8FF" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Round-bottom flask glass -->
+  <path d="M 177,158 L 189,158 L 189,178.9 A 20,20 0 1,1 177,178.9 Z" fill="#D8F3FF" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Flask green liquid -->
+  <path d="M 163.1,200 A 20,20 0 0,0 202.9,200 Z" fill="#7BD389" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Flask rim -->
+  <rect x="174" y="153" width="18" height="7" rx="3.5" ry="3.5" fill="#9AD8FF" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Potion bubbles -->
+  <circle cx="178" cy="190" r="5" fill="#7BD389" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="189" cy="182" r="4.5" fill="#7BD389" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

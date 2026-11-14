@@ -2,6 +2,7 @@ import { el } from './dom';
 import { formatClock } from './dom';
 import type { ProfileSettings, ProfileState } from '../core/storage/schema';
 import heStrings from '../content/i18n/he.json';
+import { attachLongPressInRoot, releaseLongPress } from './longPress';
 
 export interface ProfileSelectEntry {
   profile: ProfileSettings;
@@ -20,7 +21,10 @@ export function renderProfileSelect(
   entries: ProfileSelectEntry[],
   onPick: (profileId: string) => void,
   onParent: () => void,
+  /** A 3-second hold of the parent button opens the settings directly. Without it the button only taps. */
+  onParentLongPress?: () => void,
 ): void {
+  releaseLongPress(root); // the previous render's parent button (if any) is about to disappear
   const screen = el('div', 'shell-fullscreen');
   screen.appendChild(el('h1', 'shell-title', heStrings.appTitle));
   screen.appendChild(el('div', 'shell-title', heStrings.whoIsPlaying));
@@ -45,7 +49,8 @@ export function renderProfileSelect(
   parentBtn.style.position = 'absolute';
   parentBtn.style.insetInlineStart = 'max(2vmin, env(safe-area-inset-left))';
   parentBtn.style.bottom = 'max(2vmin, env(safe-area-inset-bottom))';
-  parentBtn.addEventListener('click', onParent);
+  if (onParentLongPress) attachLongPressInRoot(root, parentBtn, { onTap: onParent, onLongPress: onParentLongPress });
+  else parentBtn.addEventListener('click', onParent);
   screen.appendChild(parentBtn);
 
   root.replaceChildren(screen);
