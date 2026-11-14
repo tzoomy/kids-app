@@ -9,11 +9,12 @@ import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes'
 import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
+import type { NumberBridgeInfo } from '../../../src/games/numberBridge/numberBridgeTypes';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 import type { HabitatInfo } from '../../../src/games/habitat/types';
 import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, NumberBridgeInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -29,10 +30,11 @@ export const GAME_SCENE: Record<string, string> = {
   'seed-to-flower': 'SeedFlowerScene',
   'who-lives-here': 'HabitatScene',
   'leisure-colouring': 'ColouringScene',
-  // Number Garden opens a picker (Sorting Beds, Balloon Pop, and Picnic Train once registered); Sorting Beds is its default card.
+  // Number Garden opens a station trail (Sorting Beds, Balloon Pop, Picnic Train, Number Bridge); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
   'balloon-pop': 'BalloonScene',
   'picnic-train': 'PicnicScene',
+  'number-bridge': 'NumberBridgeScene',
   'potion-lab': 'PotionScene',
   'sink-or-float': 'SinkFloatScene',
   'magic-magnet': 'MagnetScene',
@@ -46,7 +48,6 @@ export const GAME_SCENE: Record<string, string> = {
  */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
-
 };
 
 /** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
@@ -165,6 +166,8 @@ type Hooks = {
   getLetterMonsterInfo: () => LetterMonsterInfo | null;
   getBalloonInfo: () => BalloonInfo | null;
   seedBalloonLevel: (level: number) => void;
+  seedNumberBridgeLevel: (level: number) => void;
+  getNumberBridgeInfo: () => NumberBridgeInfo | null;
   seedSuitcaseLevel: (level: number) => void;
   getSuitcaseInfo: () => SuitcaseInfo | null;
   seedSeedFlowerLevel: (level: number) => void;
@@ -660,6 +663,30 @@ export async function popCorrectBalloon(page: Page, timeout = 15_000): Promise<B
     if (info && info.ready && info.correctCount > before.correctCount) return before;
     if (Date.now() > deadline) throw new Error('the tap on the requested balloon did not start the next trial');
     await page.waitForTimeout(50);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Number Bridge (docs/specs/number-bridge.md). Hit rectangles from getNumberBridgeInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the persisted Number Bridge level for every language (seed only). Call on the map, before entering. */
+export async function seedNumberBridgeLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedNumberBridgeLevel', [level]);
+}
+
+export function getNumberBridgeInfo(page: Page): Promise<NumberBridgeInfo | null> {
+  return callHook<NumberBridgeInfo | null>(page, 'getNumberBridgeInfo');
+}
+
+/** Waits until Number Bridge stones have popped in and taps are accepted. */
+export async function waitForNumberBridgeReady(page: Page, timeout = 15_000): Promise<NumberBridgeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getNumberBridgeInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Number Bridge never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
   }
 }
 

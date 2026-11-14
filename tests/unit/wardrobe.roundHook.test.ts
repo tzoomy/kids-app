@@ -15,6 +15,7 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'sorting-beds': 'src/games/sorting/SortingScene.ts',
   'balloon-pop': 'src/games/balloon/BalloonScene.ts',
   'picnic-train': 'src/games/picnic/PicnicScene.ts',
+  'number-bridge': 'src/games/numberBridge/NumberBridgeScene.ts',
   'who-is-hiding': 'src/games/hiding/HidingScene.ts',
   'seed-to-flower': 'src/games/seedFlower/SeedFlowerScene.ts',
   'who-lives-here': 'src/games/habitat/HabitatScene.ts',

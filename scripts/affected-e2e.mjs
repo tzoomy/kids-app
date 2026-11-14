@@ -46,6 +46,7 @@ export const PICKER_SPECS = [
   'tests/e2e/kitchen-orchestra.picker.spec.ts',
   'tests/e2e/letter-monster.journey.spec.ts',
   'tests/e2e/magic-magnet.journey.spec.ts',
+  'tests/e2e/number-bridge.journey.spec.ts',
   'tests/e2e/picnic-train.journey.spec.ts',
   'tests/e2e/picnic-train.picker.spec.ts',
   'tests/e2e/picnic-train.platform.spec.ts',
@@ -261,6 +262,16 @@ export const GAME_RULES = [
       /^tests\/unit\/balloon-pop[^/]*$/,
     ],
     specs: ['tests/e2e/balloon-pop.journey.spec.ts'],
+  },
+  {
+    id: 'number-bridge',
+    match: [
+      /^src\/games\/numberBridge\//,
+      /^src\/content\/games\/number-bridge\.json$/,
+      /^public\/art\/props\/(bridge-stone|stone-pile)\.svg$/,
+      /^tests\/unit\/number-bridge[^/]*$/,
+    ],
+    specs: ['tests/e2e/number-bridge.journey.spec.ts'],
   },
   {
     id: 'credits',

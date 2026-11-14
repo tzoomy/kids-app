@@ -792,6 +792,95 @@ export type BalloonColor = z.infer<typeof BalloonColorSchema>;
 export type BalloonDigit = z.infer<typeof BalloonDigitSchema>;
 export type BalloonPopContent = z.infer<typeof BalloonPopContentSchema>;
 
+export const BRIDGE_NUMBER_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+export type BridgeNumberKey = (typeof BRIDGE_NUMBER_KEYS)[number];
+
+export const BridgeNumberEntrySchema = z.object({
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+/** Number Bridge (docs/specs/number-bridge.md): stepping-stones counting and missing-number game in Number Garden. */
+export const NumberBridgeContentSchema = z
+  .object({
+    id: z.literal('number-bridge'),
+    world: z.literal('number-garden'),
+    earnsLeisure: z.boolean(),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    numbers: z.object({
+      '1': BridgeNumberEntrySchema,
+      '2': BridgeNumberEntrySchema,
+      '3': BridgeNumberEntrySchema,
+      '4': BridgeNumberEntrySchema,
+      '5': BridgeNumberEntrySchema,
+      '6': BridgeNumberEntrySchema,
+      '7': BridgeNumberEntrySchema,
+      '8': BridgeNumberEntrySchema,
+      '9': BridgeNumberEntrySchema,
+      '10': BridgeNumberEntrySchema,
+    }),
+    oneMorePhrase: z.object({
+      en: nonBlankString,
+      fr: nonBlankString,
+    }),
+    linesHe: z.object({
+      introOneMore: nonBlankString,
+      introMissing: nonBlankString,
+      notThis: nonBlankString,
+      crossed: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'one-more' && mode !== 'missing') {
+        issue('extra.mode must be "one-more" or "missing"');
+      }
+      const stones = level.extra?.stones;
+      if (typeof stones !== 'number' || !Number.isInteger(stones) || stones < 2 || stones > 10) {
+        issue('extra.stones must be an integer between 2 and 10');
+      }
+      const gaps = level.extra?.gaps;
+      if (typeof gaps !== 'number' || !Number.isInteger(gaps) || gaps < 1 || (typeof stones === 'number' && gaps >= stones)) {
+        issue('extra.gaps must be a positive integer smaller than extra.stones');
+      }
+      const range = level.extra?.range;
+      if (
+        typeof range !== 'number' ||
+        !Number.isInteger(range) ||
+        range > 10 ||
+        (typeof stones === 'number' && range < stones)
+      ) {
+        issue('extra.range must be an integer between extra.stones and 10');
+      }
+      const dots = level.extra?.dots;
+      if (dots !== undefined && typeof dots !== 'boolean') {
+        issue('extra.dots must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('number-bridge supports support "picture-audio" or "audio-only"');
+      }
+      if (mode === 'missing' && gaps !== 1) {
+        issue('missing-number levels must have extra.gaps === 1');
+      }
+      if (mode === 'missing' && typeof range === 'number' && range < 5) {
+        issue('missing-number levels require extra.range >= 5 so 3 distinct choices exist');
+      }
+      if (level.support === 'audio-only' && mode !== 'missing') {
+        issue('audio-only number-bridge levels must use extra.mode "missing"');
+      }
+    });
+  });
+
+export type BridgeNumberEntry = z.infer<typeof BridgeNumberEntrySchema>;
+export type NumberBridgeContent = z.infer<typeof NumberBridgeContentSchema>;
+
 /** Seed to Flower (docs/specs/seed-to-flower.md): no-fail cause-and-effect game in Nature Lab. */
 export const SEED_FLOWER_STAGE_IDS = ['seed', 'sprout', 'bud', 'flower'] as const;
 

@@ -9,6 +9,7 @@ import {
   loadKitchenOrchestra,
   loadLetterMonster,
   loadPicnicTrain,
+  loadNumberBridge,
   loadTravelSuitcase,
   loadPotionLab,
   loadSeedToFlower,
@@ -27,6 +28,7 @@ const REAL_GAMES = collectTrailGames({
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
+  numberBridge: loadNumberBridge(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
@@ -101,7 +103,7 @@ describe('station trail picker render', () => {
     );
   });
 
-  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 3 in Number Garden)', () => {
+  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House and Number Garden from the registry)', () => {
     const languageHouse = stationGamesForWorld('language-house', WORLD_GAMES, REAL_GAMES);
     const root = renderGamePicker({
       stations: languageHouse.map((game, i) => ({
@@ -125,8 +127,10 @@ describe('station trail picker render', () => {
     expect(trail?.style.getPropertyValue('--picker-count')).toBe(String(languageHouse.length));
     expect(root.querySelectorAll('.picker-card')).toHaveLength(languageHouse.length);
 
+    const gardenCards = stationGamesForWorld('number-garden', WORLD_GAMES, REAL_GAMES);
+    expect(gardenCards.map((g) => g.gameId)).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train', 'number-bridge']);
     const garden = renderGamePicker({
-      stations: stationGamesForWorld('number-garden', WORLD_GAMES, REAL_GAMES).map((game) => ({
+      stations: gardenCards.map((game) => ({
         game,
         completed: false,
         suggested: game.gameId === 'sorting-beds',
@@ -136,12 +140,8 @@ describe('station trail picker render', () => {
       onPick: () => {},
       onClose: () => {},
     });
-    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('3');
-    expect([...garden.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
-      'game-picker-sorting-beds',
-      'game-picker-balloon-pop',
-      'game-picker-picnic-train',
-    ]);
+    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe(String(gardenCards.length));
+    expect([...garden.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual(gardenCards.map((g) => g.testId));
   });
 
   it('[AC-14] the picker has a close button next to the stations', () => {

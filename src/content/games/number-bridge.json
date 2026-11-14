@@ -1,0 +1,46 @@
+{
+  "id": "number-bridge",
+  "world": "number-garden",
+  "earnsLeisure": true,
+  "languages": ["en", "fr"],
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "numbers": {
+    "1": { "he": "אחת", "en": "one", "fr": "un" },
+    "2": { "he": "שתיים", "en": "two", "fr": "deux" },
+    "3": { "he": "שלוש", "en": "three", "fr": "trois" },
+    "4": { "he": "ארבע", "en": "four", "fr": "quatre" },
+    "5": { "he": "חמש", "en": "five", "fr": "cinq" },
+    "6": { "he": "שש", "en": "six", "fr": "six" },
+    "7": { "he": "שבע", "en": "seven", "fr": "sept" },
+    "8": { "he": "שמונה", "en": "eight", "fr": "huit" },
+    "9": { "he": "תשע", "en": "nine", "fr": "neuf" },
+    "10": { "he": "עשר", "en": "ten", "fr": "dix" }
+  },
+  "oneMorePhrase": {
+    "en": "One more!",
+    "fr": "Encore une !"
+  },
+  "linesHe": {
+    "introOneMore": "הארנב רוצה לעבור! בואי נוסיף עוד אבן.",
+    "introMissing": "איזה מספר חסר בגשר?",
+    "notThis": "הממ, בואי נספור שוב.",
+    "crossed": "הארנב עבר!"
+  },
+  "helpTextHe": "עזרי לארנב לחצות את הנחל! לחצי על האבנים כדי להשלים את הגשר.",
+  "adaptive": {
+    "tracks": {
+      "age2": { "start": 1, "min": 1, "max": 2 },
+      "age5": { "start": 3, "min": 2, "max": 5 }
+    },
+    "levels": [
+      { "support": "picture-audio", "extra": { "mode": "one-more", "stones": 3, "gaps": 1, "range": 5, "dots": false } },
+      { "support": "picture-audio", "extra": { "mode": "one-more", "stones": 4, "gaps": 2, "range": 5, "dots": false } },
+      { "support": "picture-audio", "extra": { "mode": "missing", "stones": 4, "gaps": 1, "range": 5, "dots": true } },
+      { "support": "picture-audio", "extra": { "mode": "missing", "stones": 5, "gaps": 1, "range": 10, "dots": false } },
+      { "support": "audio-only", "extra": { "mode": "missing", "stones": 5, "gaps": 1, "range": 10, "dots": false } }
+    ]
+  }
+}

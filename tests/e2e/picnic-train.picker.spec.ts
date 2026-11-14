@@ -1,11 +1,13 @@
 // Picnic Train Pass 1, TDD step 1: the Number Garden game picker (AC-16), in both orientations.
-// The building tap opens the Number Garden station trail: Sorting Beds, Balloon Pop, Picnic Train (registry order); all real taps.
+// The building tap opens the Number Garden station trail built from WORLD_GAMES + content; all real taps.
 import { test, expect, type Page } from '@playwright/test';
 import { getActiveScenes, getStableBox, tapTestId, tapWorldBuilding, waitForScene, type PageRect } from './helpers/journey';
+import { stationsForWorld } from './helpers/worldStations';
 
 const MIN_TAP = 64;
-// The Number Garden trail in registry order (WORLD_GAMES): Picnic Train is appended after Balloon Pop.
-const CARD_IDS = ['game-picker-sorting-beds', 'game-picker-balloon-pop', 'game-picker-picnic-train'] as const;
+// Registry order (WORLD_GAMES + content): Sorting Beds, Balloon Pop, Picnic Train, then Number Bridge.
+const GARDEN_STATIONS = stationsForWorld('number-garden');
+const CARD_IDS = GARDEN_STATIONS.map((g) => g.testId);
 
 async function openPicker(page: Page): Promise<void> {
   await tapWorldBuilding(page, 'profile-a', 'number-garden');
@@ -15,7 +17,13 @@ async function openPicker(page: Page): Promise<void> {
 const overlaps = (a: PageRect, b: PageRect) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 test.describe('number garden game picker', () => {
-  test('[AC-16] the Number Garden building opens a trail picker with three big cards (Sorting Beds, Balloon Pop, Picnic Train) and a close button, inside the screen and RTL', async ({ page }) => {
+  test('[AC-16] the Number Garden building opens a trail picker with registry cards (Sorting Beds, Balloon Pop, Picnic Train, Number Bridge) and a close button, inside the screen and RTL', async ({ page }) => {
+    expect(CARD_IDS).toEqual([
+      'game-picker-sorting-beds',
+      'game-picker-balloon-pop',
+      'game-picker-picnic-train',
+      'game-picker-number-bridge',
+    ]);
     await openPicker(page);
     const vp = page.viewportSize()!;
     const landscape = vp.width > vp.height;
@@ -33,19 +41,14 @@ test.describe('number garden game picker', () => {
     const rtl = await page.locator('[data-testid="game-picker-sorting-beds"]').evaluate((el) => el.closest('[dir="rtl"]') !== null);
     expect(rtl).toBe(true);
     await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(CARD_IDS.length);
-    // Registry order under RTL: Sorting Beds first (right in landscape, top in portrait), Balloon Pop in the middle,
-    // Picnic Train third (left in landscape, bottom in portrait).
-    const sorting = boxes['game-picker-sorting-beds'];
-    const balloon = boxes['game-picker-balloon-pop'];
-    const picnic = boxes['game-picker-picnic-train'];
-    if (landscape) {
-      expect(sorting.x).toBeGreaterThan(balloon.x);
-      expect(balloon.x).toBeGreaterThan(picnic.x);
-    } else {
-      expect(sorting.y).toBeLessThan(balloon.y);
-      expect(balloon.y).toBeLessThan(picnic.y);
+    // Registry order under RTL: first card is right in landscape / top in portrait; later cards go left / down.
+    for (let i = 0; i < CARD_IDS.length - 1; i++) {
+      const a = boxes[CARD_IDS[i]];
+      const b = boxes[CARD_IDS[i + 1]];
+      if (landscape) expect(a.x, `${CARD_IDS[i]} should be to the right of ${CARD_IDS[i + 1]}`).toBeGreaterThan(b.x);
+      else expect(a.y, `${CARD_IDS[i]} should be above ${CARD_IDS[i + 1]}`).toBeLessThan(b.y);
     }
-    const items = [...CARD_IDS, 'game-picker-close'] as const;
+    const items = [...CARD_IDS, 'game-picker-close'];
     for (let i = 0; i < items.length; i++) {
       for (let j = i + 1; j < items.length; j++) {
         expect(overlaps(boxes[items[i]], boxes[items[j]]), `${items[i]} overlaps ${items[j]}`).toBe(false);
@@ -62,6 +65,7 @@ test.describe('number garden game picker', () => {
     expect(await getActiveScenes(page)).toContain('MapScene');
     expect(await getActiveScenes(page)).not.toContain('SortingScene');
     expect(await getActiveScenes(page)).not.toContain('PicnicScene');
+    expect(await getActiveScenes(page)).not.toContain('NumberBridgeScene');
   });
 
   test('[AC-16] the Sorting Beds card opens Sorting Beds', async ({ page }) => {

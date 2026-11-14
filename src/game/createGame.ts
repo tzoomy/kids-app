@@ -14,6 +14,9 @@ import type { HabitatInfo } from '../games/habitat/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
 import { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
+import { NumberBridgeScene } from '../games/numberBridge/NumberBridgeScene';
+import type { NumberBridgeInfo } from '../games/numberBridge/numberBridgeTypes';
+import { loadNumberBridge } from '../content/loadContent';
 import { SuitcaseScene } from '../games/travelSuitcase/SuitcaseScene';
 import type { SuitcaseInfo } from '../games/travelSuitcase/suitcaseTypes';
 import { loadTravelSuitcase } from '../content/loadContent';
@@ -51,7 +54,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'number-bridge' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -88,6 +91,10 @@ declare global {
       seedBalloonLevel: (level: number) => void;
       /** Current Balloon Pop trial (null when BalloonScene is not active or between trials); rectangles are page CSS px. */
       getBalloonInfo: () => BalloonInfo | null;
+      /** Seeds the persisted Number Bridge level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedNumberBridgeLevel: (level: number) => void;
+      /** Current Number Bridge state (null when NumberBridgeScene is not active); rectangles are page CSS px. */
+      getNumberBridgeInfo: () => NumberBridgeInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
       /** Seeds the persisted Travel Suitcase level (cleanStreak 0, recent []) for every content language. Call on the map, before entering. */
@@ -185,6 +192,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('ColouringScene', ColouringScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
+  game.scene.add('NumberBridgeScene', NumberBridgeScene, false);
   game.scene.add('SuitcaseScene', SuitcaseScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
   game.scene.add('PotionScene', PotionScene, false);
@@ -215,6 +223,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'sink-or-float' ? 'SinkFloatScene'
         : screen === 'magic-magnet' ? 'MagnetScene'
         : screen === 'travel-suitcase' ? 'SuitcaseScene'
+        : screen === 'number-bridge' ? 'NumberBridgeScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
@@ -235,6 +244,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('WardrobeScene');
       game.scene.stop('MagnetScene');
       game.scene.stop('SuitcaseScene');
+      game.scene.stop('NumberBridgeScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -357,6 +367,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getBalloonInfo() {
       const scene = game.scene.getScene('BalloonScene') as BalloonScene | null;
       return scene && game.scene.isActive('BalloonScene') ? scene.getBalloonInfo() : null;
+    },
+    seedNumberBridgeLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadNumberBridge(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getNumberBridgeInfo() {
+      const scene = game.scene.getScene('NumberBridgeScene') as NumberBridgeScene | null;
+      return scene && game.scene.isActive('NumberBridgeScene') ? scene.getNumberBridgeInfo() : null;
     },
     seedHidingLevel(level) {
       const profileId = context.requireProfileId();

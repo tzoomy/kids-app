@@ -346,6 +346,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
   { key: 'picker-close', url: 'art/ui/picker/close.svg', width: 128, height: 128 },
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
+  // Number Garden — Number Bridge (docs/specs/number-bridge.md)
+  { key: 'prop-bridge-stone', url: 'art/props/bridge-stone.svg', width: 200, height: 140 },
+  { key: 'prop-stone-pile', url: 'art/props/stone-pile.svg', width: 220, height: 160 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
   // Science World — Magic Magnet (docs/specs/magic-magnet.md)

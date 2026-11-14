@@ -17,6 +17,7 @@ import type {
   WhoLivesHereContent,
   LeisureColouringContent,
   BalloonPopContent,
+  NumberBridgeContent,
   LetterMonsterContent,
   TravelSuitcaseContent,
   SeedToFlowerContent,
@@ -39,6 +40,7 @@ export interface ContentBundle {
   sorting: SortingBedsContent;
   picnic: PicnicTrainContent;
   balloon: BalloonPopContent;
+  numberBridge: NumberBridgeContent;
   hiding: WhosHidingContent;
   habitat: WhoLivesHereContent;
   seedToFlower: SeedToFlowerContent;

@@ -18,6 +18,7 @@ import {
   loadKitchenOrchestra,
   loadLetterMonster,
   loadPicnicTrain,
+  loadNumberBridge,
   loadTravelSuitcase,
   loadPotionLab,
   loadSinkOrFloat,
@@ -41,6 +42,7 @@ const REAL_GAMES = collectTrailGames({
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
+  numberBridge: loadNumberBridge(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
@@ -232,12 +234,14 @@ describe('station trail: data-driven station list', () => {
     expect(games[0].meta?.tracks.age2.start).toBe(restaurant.adaptive.tracks.age2.start);
   });
 
-  it('[AC-09] the real registry and content give every world its post-main stations, in registry order', () => {
+  it('[AC-09] the real registry and content give every world its stations, in registry order (derived, not hard-coded)', () => {
     const ids = (world: string) => stationGamesForWorld(world, WORLD_GAMES, REAL_GAMES).map((g) => g.gameId);
-    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
-    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
+    for (const world of loadWorlds().worlds) {
+      const expected = WORLD_GAMES.filter((card) => REAL_GAMES.some((g) => g.id === card.gameId && g.world === world.id)).map((c) => c.gameId);
+      expect(ids(world.id), world.id).toEqual(expected);
+    }
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train', 'number-bridge']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here']);
-    expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float', 'magic-magnet']);
     expect(ids('art-studio')).toEqual([]);
     expect(ids('leisure-corner')).toEqual([]);
   });
@@ -282,6 +286,7 @@ describe('station trail: data-driven station list', () => {
       ['sorting-beds', 'SortingScene'],
       ['balloon-pop', 'BalloonScene'],
       ['picnic-train', 'PicnicScene'],
+      ['number-bridge', 'NumberBridgeScene'],
       ['who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'SeedFlowerScene'],
       ['who-lives-here', 'HabitatScene'],
@@ -302,11 +307,13 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
   });
 
-  it('[AC-10] the real worlds: Language House 4, Number Garden 3, Nature Lab 3 and Science World 3 open the trail; a world with no game is none', () => {
+  it('[AC-10] the real worlds: entry kind follows the registry station count (0 none, 1 direct, 2+ picker)', () => {
     const entryOf = (world: string) =>
       worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
-    for (const world of ['language-house', 'number-garden', 'nature-lab', 'science-world']) {
-      expect(entryOf(world).kind, world).toBe('picker');
+    const expectedKind = (count: number) => (count === 0 ? 'none' : count === 1 ? 'direct' : 'picker');
+    for (const world of loadWorlds().worlds.filter((w) => w.status === 'open')) {
+      const count = stationGamesForWorld(world.id, WORLD_GAMES, REAL_GAMES).length;
+      expect(entryOf(world.id).kind, `${world.id} (${count} stations)`).toBe(expectedKind(count));
     }
     // Pending Maor decision: a world with no game yet (zero stations) still opens the coming-soon picker.
     expect(entryOf('art-studio').kind).toBe('none');

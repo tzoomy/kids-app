@@ -48,4 +48,12 @@ describe('station trail on the real runtime content bundle (src/main.ts)', () =>
     const stations = stationGamesForWorld('language-house', WORLD_GAMES, games).map((g) => g.gameId);
     expect(stations).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
   });
+
+  it('number-garden stations on the runtime bundle match the registry, with Number Bridge last', () => {
+    const games = collectTrailGames(buildRuntimeBundle());
+    const stations = stationGamesForWorld('number-garden', WORLD_GAMES, games).map((g) => g.gameId);
+    const expected = WORLD_GAMES.filter((card) => games.some((g) => g.id === card.gameId && g.world === 'number-garden')).map((c) => c.gameId);
+    expect(stations).toEqual(expected);
+    expect(stations).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train', 'number-bridge']);
+  });
 });
