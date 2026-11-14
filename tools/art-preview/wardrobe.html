@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wardrobe accessories preview</title>
+  <style>
+    body { margin: 0; padding: 16px; background: #fff4e6; font: 14px system-ui, sans-serif; color: #3b2a22; }
+    h1 { font-size: 18px; margin: 0 0 8px; }
+    table { border-collapse: collapse; }
+    th { font-weight: 600; padding: 4px; }
+    td { padding: 2px; }
+    .cell { position: relative; width: 168px; height: 200px; background: #fffdf9; border: 1px solid #ead7c0; border-radius: 10px; overflow: hidden; }
+    .stage { position: absolute; left: 0; top: 0; width: 400px; height: 480px; transform: scale(0.42); transform-origin: 0 0; }
+    .part-img, .acc { position: absolute; display: block; }
+    .head-group { position: absolute; width: 0; height: 0; }
+    .cell.big { width: 400px; height: 480px; }
+    .cell.big .stage { transform: none; }
+  </style>
+</head>
+<body>
+  <h1>Wardrobe accessories on the existing characters (Pass 1)</h1>
+  <div id="root"></div>
+  <script src="./rigs-data.js"></script>
+  <script src="./chef-rigs-data.js"></script>
+  <script>
+    // Composes each rig exactly like index.html (feet centre at 200,470) and adds accessories from
+    // src/content/wardrobe/{items,anchors}.json. Query: ?chars=bear,cat&items=crown&big=1
+    const FEET_X = 200;
+    const FEET_Y = 470;
+    const params = new URLSearchParams(location.search);
+
+    function partImg(dir, part, refX, refY, fileKey = part.key) {
+      const img = document.createElement('img');
+      img.className = 'part-img';
+      img.src = `../../public/art/${dir}/${fileKey}.svg`;
+      img.style.width = `${part.width}px`;
+      img.style.height = `${part.height}px`;
+      img.style.left = `${refX + part.x - part.originX * part.width}px`;
+      img.style.top = `${refY + part.y - part.originY * part.height}px`;
+      img.style.zIndex = String(part.depth);
+      if (part.flipX) img.style.transform = 'scaleX(-1)';
+      return img;
+    }
+
+    function accImg(item, anchor, z) {
+      const img = document.createElement('img');
+      img.className = 'acc';
+      img.dataset.item = item.id;
+      img.src = `../../public/${item.url}`;
+      img.style.width = `${item.width}px`;
+      img.style.height = `${item.height}px`;
+      img.style.left = `${anchor.x - item.pivot.x * item.width}px`;
+      img.style.top = `${anchor.y - item.pivot.y * item.height}px`;
+      img.style.transformOrigin = `${item.pivot.x * 100}% ${item.pivot.y * 100}%`;
+      img.style.transform = `rotate(${anchor.rotate || 0}deg) scale(${anchor.scale})`;
+      img.style.zIndex = String(z);
+      return img;
+    }
+
+    function buildStage(kind, rig, dir, item, anchors) {
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+      const head = rig.parts.head;
+      for (const [id, part] of Object.entries(rig.parts)) {
+        if (id === 'head' || part.parent === 'head') continue;
+        stage.appendChild(partImg(dir, part, FEET_X, FEET_Y));
+      }
+      const group = document.createElement('div');
+      group.className = 'head-group';
+      group.style.left = `${FEET_X + head.x}px`;
+      group.style.top = `${FEET_Y + head.y}px`;
+      group.style.zIndex = String(head.depth);
+      const children = Object.entries(rig.parts).filter(([id, p]) => id === 'head' || p.parent === 'head');
+      children.sort((a, b) => a[1].depth - b[1].depth);
+      for (const [, part] of children) group.appendChild(partImg(dir, part, -head.x, -head.y));
+      stage.appendChild(group);
+      if (item) {
+        const anchor = anchors.characters[kind]?.slots[item.slot];
+        if (anchor) {
+          if (anchor.attach === 'head') group.appendChild(accImg(item, anchor, 50));
+          // Body-level items (neck) draw above the body but under the head group.
+          else {
+            const z = anchor.layer === 'front' ? 60 : Math.max(0, head.depth - 0.5);
+            stage.appendChild(accImg(item, { ...anchor, x: FEET_X + anchor.x, y: FEET_Y + anchor.y }, z));
+          }
+        }
+      }
+      return stage;
+    }
+
+    async function main() {
+      const [itemsFile, anchors] = await Promise.all([
+        fetch('../../src/content/wardrobe/items.json').then((r) => r.json()),
+        fetch('../../src/content/wardrobe/anchors.json').then((r) => r.json()),
+      ]);
+      const rigs = { ...window.__RIGS_DATA__.ANIMAL_RIGS, ...window.__CHEF_RIGS_DATA__.CHARACTER_RIGS };
+      const chars = (params.get('chars') || Object.keys(anchors.characters).join(',')).split(',');
+      const itemIds = params.get('items') ? params.get('items').split(',') : null;
+      const items = itemsFile.items.filter((i) => !itemIds || itemIds.includes(i.id));
+      const big = params.get('big') === '1';
+      const table = document.createElement('table');
+      const head = document.createElement('tr');
+      head.appendChild(document.createElement('th'));
+      for (const label of ['none', ...items.map((i) => i.id)]) {
+        const th = document.createElement('th');
+        th.textContent = label;
+        head.appendChild(th);
+      }
+      table.appendChild(head);
+      for (const kind of chars) {
+        const rig = rigs[kind];
+        if (!rig) continue;
+        const dir = anchors.characters[kind]?.rig === 'character' ? `characters/${kind}` : `animals/${kind}`;
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.textContent = kind;
+        tr.appendChild(th);
+        for (const item of [null, ...items]) {
+          const td = document.createElement('td');
+          const cell = document.createElement('div');
+          cell.className = big ? 'cell big' : 'cell';
+          const wearable = !item || anchors.characters[kind]?.slots[item.slot];
+          if (wearable) cell.appendChild(buildStage(kind, rig, dir, item, anchors));
+          else cell.style.background = '#eee';
+          td.appendChild(cell);
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      document.getElementById('root').appendChild(table);
+      await Promise.all([...document.images].map((img) => (img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; }))));
+      window.__WARDROBE_READY__ = true;
+    }
+    main();
+  </script>
+</body>
+</html>

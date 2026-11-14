@@ -591,6 +591,7 @@ export class BalloonScene extends Phaser.Scene {
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();
     this.session.complete();
+    this.context.recordCompletedRound('number-garden', 'balloon-pop');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

@@ -589,6 +589,7 @@ export class LetterMonsterScene extends Phaser.Scene {
 
     this.context.sfx.yay();
     this.session.complete();
+    this.context.recordCompletedRound('language-house', 'letter-monster');
     const profile = this.profileState();
     profile.stars++;
     this.context.store.persist();
