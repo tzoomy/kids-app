@@ -17,6 +17,7 @@ import {
   loadBalloonPop,
   loadKitchenOrchestra,
   loadLetterMonster,
+  loadPicnicTrain,
   loadTravelSuitcase,
   loadPotionLab,
   loadSinkOrFloat,
@@ -25,6 +26,7 @@ import {
   loadSortingBeds,
   loadStickerBoard,
   loadWhoLivesHere,
+  loadShadowMatch,
   loadWhosHiding,
   loadWorlds,
 } from '../../src/content/loadContent';
@@ -32,7 +34,7 @@ import { GAME_SCENE, PICKER_WORLD_DEFAULT_GAME, WORLD_ENTRY_GAME } from '../e2e/
 
 // Spec: docs/specs/station-trail.md. Pure model only (no DOM, no Phaser).
 
-/** Every game content on main, as the app's content bundle holds it (world + adaptive metadata). */
+/** Every game content in the repo, as the app's content bundle holds it (world + adaptive metadata). */
 const REAL_GAMES = collectTrailGames({
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
@@ -40,9 +42,11 @@ const REAL_GAMES = collectTrailGames({
   suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
+  picnic: loadPicnicTrain(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
+  shadow: loadShadowMatch(),
   potion: loadPotionLab(),
   sinkOrFloat: loadSinkOrFloat(),
   magicMagnet: loadMagicMagnet(),
@@ -239,7 +243,8 @@ describe('station trail: data-driven station list', () => {
       expect(ids(world.id), world.id).toEqual(expected);
     }
     expect(ids('art-studio')).toEqual(['sticker-board']);
-    expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here']);
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
+    expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
     expect(ids('leisure-corner')).toEqual([]);
   });
 
@@ -284,6 +289,26 @@ describe('station trail: data-driven station list', () => {
       if (game.world === 'leisure-corner') continue;
       expect(registered.has(game.id as PickerGame['gameId']), `${game.id} registry`).toBe(true);
     }
+  });
+
+  it('[AC-09] the registry holds exactly the games whose scenes exist, each added with its own PR (Picnic Train is the third Number Garden station)', () => {
+    expect(WORLD_GAMES.map((g) => [g.gameId, g.sceneKey])).toEqual([
+      ['animal-restaurant', 'RestaurantScene'],
+      ['kitchen-orchestra', 'OrchestraScene'],
+      ['letter-monster', 'LetterMonsterScene'],
+      ['sorting-beds', 'SortingScene'],
+      ['balloon-pop', 'BalloonScene'],
+      ['picnic-train', 'PicnicScene'],
+      ['who-is-hiding', 'HidingScene'],
+      ['seed-to-flower', 'SeedFlowerScene'],
+      ['who-lives-here', 'HabitatScene'],
+      ['shadow-match', 'ShadowScene'],
+      ['potion-lab', 'PotionScene'],
+      ['sink-or-float', 'SinkFloatScene'],
+      ['magic-magnet', 'MagnetScene'],
+      ['travel-suitcase', 'SuitcaseScene'],
+      ['sticker-board', 'StickerBoardScene'],
+    ]);
   });
 });
 

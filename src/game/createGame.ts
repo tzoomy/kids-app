@@ -7,9 +7,13 @@ import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/Orch
 import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
+import { PicnicScene } from '../games/picnic/PicnicScene';
+import type { PicnicInfo } from '../games/picnic/types';
 import { HabitatScene } from '../games/habitat/HabitatScene';
 import type { HabitatInfo } from '../games/habitat/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
+import { ShadowScene } from '../games/hiding/ShadowScene';
+import type { ShadowInfo } from '../games/hiding/shadowTypes';
 import { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
 import { SuitcaseScene } from '../games/travelSuitcase/SuitcaseScene';
@@ -52,7 +56,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'habitat' | 'colouring' | 'stickers' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'stickers' | 'shadow' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -67,6 +71,10 @@ declare global {
       seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
       /** Writes settings.timeEarning = { enabled } and persists. Seed only: no navigation, no game action, no profile needed. */
       seedTimeEarningEnabled: (enabled: boolean) => void;
+      /** Seeds the active profile's persisted Picnic Train level (level, cleanStreak 0, recent []) for every language. Call before entering. */
+      seedPicnicLevel: (level: number) => void;
+      /** Current Picnic Train (null when PicnicScene is not active or has no train); rectangles are page CSS px. */
+      getPicnicInfo: () => PicnicInfo | null;
       /** Current Sorting Beds round (null when SortingScene is not active or has no round); rectangles are page CSS px. */
       getSortingInfo: () => SortingInfo | null;
       /** Seeds the active profile's persisted Who Lives Here? level (level, cleanStreak 0, recent []) for every language. Call before entering. */
@@ -81,6 +89,10 @@ declare global {
       seedStickerBoardState: (seed: StickerBoardSeed) => void;
       /** Current Sticker Board snapshot (null when StickerBoardScene is not active or not ready); rectangles are page CSS px. */
       getStickerBoardInfo: () => StickerBoardInfo | null;
+      /** Seeds the active profile's persisted Shadow Match level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedShadowLevel: (level: number) => void;
+      /** Current Shadow Match trial (null when ShadowScene is not active or between trials); rectangles are page CSS px. */
+      getShadowInfo: () => ShadowInfo | null;
       /** Seeds the active profile's persisted Letter Monster level. Call before entering. */
       seedLetterMonsterLevel: (level: number) => void;
       /** Current Letter Monster round (null when LetterMonsterScene is not active); rectangles are page CSS px. */
@@ -181,9 +193,11 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('BubblesScene', BubblesScene, false);
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
+  game.scene.add('PicnicScene', PicnicScene, false);
   game.scene.add('HabitatScene', HabitatScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
   game.scene.add('StickerBoardScene', StickerBoardScene, false);
+  game.scene.add('ShadowScene', ShadowScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SuitcaseScene', SuitcaseScene, false);
@@ -207,9 +221,11 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'hiding' ? 'HidingScene'
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
+        : screen === 'picnic' ? 'PicnicScene'
         : screen === 'habitat' ? 'HabitatScene'
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'stickers' ? 'StickerBoardScene'
+        : screen === 'shadow' ? 'ShadowScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'potion-lab' ? 'PotionScene'
@@ -226,10 +242,11 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('OrchestraScene');
       game.scene.stop('SeedFlowerScene');
       game.scene.stop('SortingScene');
+      game.scene.stop('PicnicScene');
       game.scene.stop('HabitatScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('StickerBoardScene');
-      game.scene.stop('SeedFlowerScene');
+      game.scene.stop('ShadowScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
       game.scene.stop('PotionScene');
@@ -308,6 +325,19 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       const scene = game.scene.getScene('SortingScene') as SortingScene | null;
       return scene && game.scene.isActive('SortingScene') ? scene.getSortingInfo() : null;
     },
+    seedPicnicLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        context.content.picnic,
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    getPicnicInfo() {
+      const scene = game.scene.getScene('PicnicScene') as PicnicScene | null;
+      return scene && game.scene.isActive('PicnicScene') ? scene.getPicnicInfo() : null;
+    },
     seedColouringState(seed) {
       writeColouringSeed(window.localStorage, context.requireProfileId(), seed);
     },
@@ -321,6 +351,25 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getStickerBoardInfo() {
       const scene = game.scene.getScene('StickerBoardScene') as StickerBoardScene | null;
       return scene && game.scene.isActive('StickerBoardScene') ? scene.getStickerBoardInfo() : null;
+    },
+    seedShadowLevel(level) {
+      const profileId = context.requireProfileId();
+      const { world, id, languages } = context.content.shadow;
+      for (const lang of languages) {
+        const key = skillKey(world, id, lang);
+        const stored = context.adaptive.getSkill(profileId, key);
+        context.adaptive.setSkill(profileId, key, {
+          ...(stored ?? { cleanStreak: 0, recent: [], afterDrop: false, lastPlayedDay: localDayKey(new Date(context.nowMs())), items: {} }),
+          level,
+          cleanStreak: 0,
+          recent: [],
+        });
+      }
+      context.adaptive.persist(profileId);
+    },
+    getShadowInfo() {
+      const scene = game.scene.getScene('ShadowScene') as ShadowScene | null;
+      return scene && game.scene.isActive('ShadowScene') ? scene.getShadowInfo() : null;
     },
     seedLetterMonsterLevel(level) {
       seedAdaptiveLevel(

@@ -12,10 +12,12 @@ import type {
   AnimalRestaurantContent,
   KitchenOrchestraContent,
   SortingBedsContent,
+  PicnicTrainContent,
   WhosHidingContent,
   WhoLivesHereContent,
   LeisureColouringContent,
   StickerBoardContent,
+  ShadowMatchContent,
   BalloonPopContent,
   LetterMonsterContent,
   TravelSuitcaseContent,
@@ -37,6 +39,7 @@ export interface ContentBundle {
   letterMonster: LetterMonsterContent;
   suitcase: TravelSuitcaseContent;
   sorting: SortingBedsContent;
+  picnic: PicnicTrainContent;
   balloon: BalloonPopContent;
   hiding: WhosHidingContent;
   habitat: WhoLivesHereContent;
@@ -46,6 +49,7 @@ export interface ContentBundle {
   magicMagnet: MagicMagnetContent;
   colouring: LeisureColouringContent;
   stickers: StickerBoardContent;
+  shadow: ShadowMatchContent;
   he: typeof heStrings;
 }
 

@@ -2,10 +2,12 @@ import worldsJson from './worlds.json';
 import animalRestaurantJson from './games/animal-restaurant.json';
 import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
+import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import stickerBoardJson from './games/sticker-board.json';
+import shadowMatchJson from './games/shadow-match.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import travelSuitcaseJson from './games/travel-suitcase.json';
@@ -20,10 +22,12 @@ import {
   AnimalRestaurantContentSchema,
   KitchenOrchestraContentSchema,
   SortingBedsContentSchema,
+  PicnicTrainContentSchema,
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
   StickerBoardContentSchema,
+  ShadowMatchContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
   PotionLabContentSchema,
@@ -35,10 +39,12 @@ import {
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
+  type PicnicTrainContent,
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
   type StickerBoardContent,
+  type ShadowMatchContent,
   type LetterMonsterContent,
   type BalloonPopContent,
   type TravelSuitcaseContent,
@@ -78,12 +84,29 @@ export function loadSortingBeds(): SortingBedsContent {
   return SortingBedsContentSchema.parse(sortingBedsJson);
 }
 
+export function loadPicnicTrain(): PicnicTrainContent {
+  return PicnicTrainContentSchema.parse(picnicTrainJson);
+}
+
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
 }
 
 export function loadStickerBoard(): StickerBoardContent {
   return StickerBoardContentSchema.parse(stickerBoardJson);
+}
+
+/** Shadow Match content. Its animals come from Who's Hiding? (`animalsFrom`); every animal needs a Hebrew name. */
+export function loadShadowMatch(): ShadowMatchContent {
+  const content = ShadowMatchContentSchema.parse(shadowMatchJson);
+  const animals = loadWhosHiding().animals;
+  for (const a of animals) {
+    if (!content.namesHe[a.id]) throw new Error(`shadow-match: missing Hebrew name for "${a.id}"`);
+  }
+  for (const level of content.adaptive.levels) {
+    if ((level.choiceCount ?? 0) > animals.length) throw new Error('shadow-match: choiceCount exceeds the number of animals');
+  }
+  return content;
 }
 
 export function loadLetterMonster(): LetterMonsterContent {

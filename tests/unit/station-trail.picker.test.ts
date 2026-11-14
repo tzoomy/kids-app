@@ -8,11 +8,13 @@ import {
   loadBalloonPop,
   loadKitchenOrchestra,
   loadLetterMonster,
+  loadPicnicTrain,
   loadTravelSuitcase,
   loadPotionLab,
   loadSeedToFlower,
   loadSortingBeds,
   loadWhoLivesHere,
+  loadShadowMatch,
   loadWhosHiding,
 } from '../../src/content/loadContent';
 
@@ -25,9 +27,11 @@ const REAL_GAMES = collectTrailGames({
   suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
+  picnic: loadPicnicTrain(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
+  shadow: loadShadowMatch(),
   potion: loadPotionLab(),
 });
 
@@ -99,7 +103,7 @@ describe('station trail picker render', () => {
     );
   });
 
-  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 2 in Number Garden)', () => {
+  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 3 in Number Garden)', () => {
     const languageHouse = stationGamesForWorld('language-house', WORLD_GAMES, REAL_GAMES);
     const root = renderGamePicker({
       stations: languageHouse.map((game, i) => ({
@@ -134,10 +138,11 @@ describe('station trail picker render', () => {
       onPick: () => {},
       onClose: () => {},
     });
-    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('2');
+    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('3');
     expect([...garden.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
       'game-picker-sorting-beds',
       'game-picker-balloon-pop',
+      'game-picker-picnic-train',
     ]);
   });
 
@@ -146,7 +151,7 @@ describe('station trail picker render', () => {
     expect(root.querySelector('[data-testid="game-picker-close"]')).not.toBeNull();
   });
 
-  it('[AC-09] each world\'s picker is built from WORLD_GAMES + content: Nature Lab shows Who\'s Hiding?, Seed to Flower, then Who Lives Here? with plain or state labels', () => {
+  it('[AC-09] each world\'s picker is built from WORLD_GAMES + content: Nature Lab cards and --picker-count follow the registry, with plain or state labels', () => {
     const t = heStrings.gamePicker;
     const cards = stationGamesForWorld('nature-lab', WORLD_GAMES, REAL_GAMES);
     const root = renderGamePicker({
@@ -155,15 +160,13 @@ describe('station trail picker render', () => {
       onPick: () => {},
       onClose: () => {},
     });
-    expect([...root.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
-      'game-picker-who-is-hiding',
-      'game-picker-seed-to-flower',
-      'game-picker-who-lives-here',
-    ]);
-    expect(root.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('3');
+    expect(cards.map((g) => g.gameId)).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
+    expect([...root.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual(cards.map((g) => g.testId));
+    expect(root.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe(String(cards.length));
     expect(root.querySelector('[data-testid="game-picker-who-is-hiding"]')?.getAttribute('aria-label')).toBe(`${t.whoIsHiding}, ${t.stationDone}`);
     expect(root.querySelector('[data-testid="game-picker-seed-to-flower"]')?.getAttribute('aria-label')).toBe(`${t.seedToFlower}, ${t.stationSuggested}`);
     expect(root.querySelector('[data-testid="game-picker-who-lives-here"]')?.getAttribute('aria-label')).toBe(t.whoLivesHere);
+    expect(root.querySelector('[data-testid="game-picker-shadow-match"]')?.getAttribute('aria-label')).toBe(t.shadowMatch);
   });
 
   it('[AC-16] the Leisure Corner picker (no stations) has no trail, star, pulse or station attributes', () => {
