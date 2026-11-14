@@ -827,6 +827,7 @@ export class SuitcaseScene extends Phaser.Scene {
 
   private awardStar(fxX: number, fxY: number): void {
     this.session.complete();
+    this.context.recordCompletedRound('language-house', 'travel-suitcase');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();
