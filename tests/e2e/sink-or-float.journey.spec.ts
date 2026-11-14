@@ -207,7 +207,71 @@ test.describe('sink or float', () => {
       .toBe(true);
   });
 
-  test('[AC-08] object, tank and prediction-button tap targets are at least 64 CSS px in both orientations', async ({
+  test('[AC-05] @single-orientation regression: taps before the pop-in finishes are ignored', async ({
+    page,
+  }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    await enterWorldByTap(page, 'profile-b', 'science-world', 'sink-or-float', {
+      beforeEnter: () => seedSinkFloatLevel(page, 2),
+    });
+
+    // Wait briefly so object 0 has scaled above 0 (so an unguarded tap would hit it) while
+    // the staggered pop-in (~580 ms) is still in progress and ready remains false.
+    await page.waitForTimeout(180);
+    const beforeTap = await getSinkFloatInfo(page);
+    expect(beforeTap).not.toBeNull();
+    // On a very slow runner the pop-in can finish before this point; the early tap would then
+    // prove nothing, so skip instead of failing or passing vacuously.
+    test.skip(beforeTap!.ready, 'pop-in already finished before the early tap (slow runner)');
+
+    const targetId = beforeTap!.offered[0];
+    await tapRect(page, beforeTap!.objects[targetId]!);
+
+    const afterEarlyTap = await getSinkFloatInfo(page);
+    expect(afterEarlyTap).not.toBeNull();
+    expect(afterEarlyTap!.phase).toBe('choosing');
+    expect(afterEarlyTap!.selected).toBeNull();
+
+    const readyInfo = await waitForSinkFloatReady(page);
+    expect(readyInfo.phase).toBe('choosing');
+    await tapRect(page, readyInfo.objects[targetId]!);
+
+    await waitForSinkFloat(
+      page,
+      (i) => i.phase === 'predicting' && i.selected === targetId,
+      'object tap after pop-in did not enter predicting phase',
+    );
+  });
+
+  test('[AC-05] @single-orientation regression: prediction buttons accept a tap right after choosing', async ({
+    page,
+  }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    const info = await enterSinkFloat(page, 'profile-b', 2);
+    const targetId = info.offered[0];
+    const guess = OBJECT_FLOATS[targetId] ? 'floats' : 'sinks';
+    const objRect = info.objects[targetId]!;
+    const btnRect = info.buttons[guess];
+
+    await tapRect(page, objRect);
+    // Tap the prediction button immediately with no polling in between: the buttons pulse
+    // in place rather than popping in from scale 0, so a fast tap must land.
+    await tapRect(page, btnRect);
+
+    await waitForSinkFloat(
+      page,
+      (i) => i.phase === 'watching' || i.lastOutcome !== null,
+      'immediate prediction tap after choosing did not register',
+    );
+    await waitForSinkFloat(
+      page,
+      (i) => i.ready && i.phase === 'choosing' && i.lastOutcome === guess && i.lastCorrect === true,
+      'immediate prediction did not reveal and settle',
+      15_000,
+    );
+  });
+
+  test('[AC-08] object and prediction-button tap targets and the tank layout area are at least 64 CSS px in both orientations', async ({
     page,
   }) => {
     const info = await enterSinkFloat(page, 'profile-b', 2);

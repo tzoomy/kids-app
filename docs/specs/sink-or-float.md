@@ -21,7 +21,7 @@ A water tank stands on the lab table with a shelf of everyday objects next to it
 
 ## Mechanic
 
-**Scene.** The same procedural lab wall and table as Potion Lab, a glass water tank in the middle, and a row of three objects next to it (in portrait: under the tank). Every object, the tank and the prediction buttons are tap targets of at least 64 CSS px.
+**Scene.** The same procedural lab wall and table as Potion Lab, a glass water tank layout area in the middle (at least 64 CSS px, non-interactive), and a row of three objects next to it (in portrait: under the tank). Every object and both prediction buttons are tap targets of at least 64 CSS px.
 
 **Objects** (Pass 1, content `objects`, each with Hebrew, English and French names and `floats: true|false`):
 
@@ -75,7 +75,7 @@ Profile → tap the Science World building → Science World picker (Sink or Flo
 
 - Map: `getBuildingHit('science-world')`; picker: `game-picker-sink-or-float`, `game-picker-close`
 - HUD: `hud-back`, `hud-help`, `star-count`, `leisure-balance`
-- Hooks under `?e2e=1`: `seedSinkFloatLevel(level)`, `getSinkFloatInfo()` (phase, mode, level, language, offered objects, last outcome, stars, ready, page rectangles of the objects, the tank and the two prediction buttons).
+- Hooks under `?e2e=1`: `goToScreen('sink-or-float')` (screenshot scripts only), `seedSinkFloatLevel(level)`, `getSinkFloatInfo()` (phase, mode, level, language, `audioOnly`, offered objects, last outcome, stars, `ready`, `hinted`, page rectangles of the objects, the tank layout area and the two prediction buttons).
 
 ## Acceptance criteria
 
@@ -88,7 +88,7 @@ Profile → tap the Science World building → Science World picker (Sink or Flo
 | AC-05 | Predict mode (age 5): a right and a wrong prediction both reveal and name the real outcome; a wrong one never reduces stars or the balance | 1 | unit, e2e+seed | @single-orientation | `seedSinkFloatLevel`, `getSinkFloatInfo` |
 | AC-06 | Adaptive steps: free drops are clean trials; predictions are clean only when right; age 2 stays at L1, age 5 starts at L2 and rises and drops with the engine rules | 1 | unit | @single-orientation | |
 | AC-07 | Content validates; every object has non-empty Hebrew, English and French names | 1 | unit | @single-orientation | |
-| AC-08 | Object, tank and prediction-button tap targets are at least 64 CSS px in both orientations | 1 | e2e | both | `getSinkFloatInfo` |
+| AC-08 | Object and prediction-button tap targets (and the tank layout area) are at least 64 CSS px in both orientations | 1 | e2e | both | `getSinkFloatInfo` |
 | AC-09 | Device check: touch, rotation mid-game, audible device-TTS voice, visuals | 1 | device | both | |
 
 ## Art, animation, and audio
@@ -108,6 +108,7 @@ Profile → tap the Science World building → Science World picker (Sink or Flo
 | `sinkFloat.result.<object>.he` | he | e.g. התפוח צף! / האבן שוקעת! | Each outcome |
 | `sinkFloat.result.<floats\|sinks>.<lang>` | en / fr | It floats! / It sinks! · Ça flotte ! / Ça coule ! | Each outcome, after the Hebrew |
 | `sinkFloat.letsSee.he` | he | בואי נראה... | Wrong prediction, before the outcome |
+| `sinkFloat.help.he` | he | בחרי חפץ והפילי אותו למים כדי לגלות אם הוא צף או שוקע. בגן של הגדולות מנחשים קודם אם החפץ יצוף או ישקע. | Help button (`hud-help`) |
 | `he.praise.0` | he | existing clip | Star |
 
 ### Pass 2 — polish
@@ -130,3 +131,4 @@ Only after Maor approves Pass 1: polished art, water ripples, picker card art an
 ## Changelog
 
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-14` — sync Pass 1 spec notes (`sinkFloat.help.he`, `hinted`/`audioOnly`, `goToScreen('sink-or-float')`, tank as layout area) and add tap-race regression tests
