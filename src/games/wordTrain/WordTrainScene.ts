@@ -859,6 +859,7 @@ export class WordTrainScene extends Phaser.Scene {
       const targetView = this.objectViews.find((v) => v.id === targetId);
       if (targetView) void hintPulse(this, targetView.container);
       void this.speakSequence([loadLine(c, targetId)], this.visitToken);
+      this.scheduleHint();
       return;
     }
 
@@ -866,6 +867,7 @@ export class WordTrainScene extends Phaser.Scene {
     if (nextSlot < 0) return;
     if (this.plan.audioOnly && this.currentWord) {
       void this.speakSequence([spellLine(c, this.currentWord.id)], this.visitToken);
+      this.scheduleHint();
       return;
     }
     const expectedLetter = this.state.word[nextSlot];
@@ -873,6 +875,7 @@ export class WordTrainScene extends Phaser.Scene {
     const tileView = tile ? this.tileViews.find((v) => v.index === tile.index) : undefined;
     if (tileView) void hintPulse(this, tileView.container);
     void this.speakSequence([letterLine(expectedLetter)], this.visitToken);
+    this.scheduleHint();
   }
 
   private async departTrain(token: number): Promise<void> {

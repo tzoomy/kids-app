@@ -1,7 +1,8 @@
 // Word Train preview (not a test): the scene at start and after one move, both orientations, both profiles.
 // Usage: npm run build && node tools/art-preview/shoot-word-train.mjs
-// Writes tools/art-preview/shots/word-train-<profile>-{start,move}-{landscape,portrait}.png (not committed).
+// Writes $SHOTS_DIR (default: <tmpdir>/word-train-shots)/word-train-<profile>-{start,move}-{landscape,portrait}.png (not committed).
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
@@ -9,7 +10,7 @@ import { chromium } from '@playwright/test';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../..');
-const shotsDir = process.env.SHOTS_DIR ?? path.join(__dirname, 'shots');
+const shotsDir = process.env.SHOTS_DIR ?? path.join(os.tmpdir(), 'word-train-shots');
 const port = Number(process.env.PREVIEW_PORT ?? 4180);
 
 async function waitFor(url, timeoutMs = 20000) {

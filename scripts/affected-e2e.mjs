@@ -62,6 +62,7 @@ export const GAME_RULES = [
       /^src\/games\/orchestra\//,
       /^src\/content\/games\/kitchen-orchestra\.json$/,
       /^src\/ui\/picker\//,
+      /^src\/styles\/shell\.css$/,
       /^public\/art\/instruments\//,
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
@@ -72,6 +73,7 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/wordTrain\//,
       /^src\/content\/games\/word-train\.json$/,
+      /^src\/ui\/picker\//,
       /^public\/art\/word-train\//,
       /^tests\/unit\/word-train[^/]*$/,
     ],

@@ -101,7 +101,10 @@ test.describe('word train', () => {
       .poll(
         async () => {
           const lines = await getSpokenLines(page, spokenBeforeOther);
-          return lines.some((l) => l.lineId === `wordtrain.other.${otherObj.id}.en` && l.lang === 'en');
+          return (
+            lines.some((l) => l.lineId === `wordtrain.other.${otherObj.id}.en` && l.lang === 'en') &&
+            lines.some((l) => l.lineId === `wordtrain.load.${targetId}.en` && l.lang === 'en')
+          );
         },
         { timeout: 10_000 },
       )
@@ -161,11 +164,10 @@ test.describe('word train', () => {
       const slot = info.slots[s];
       const tile = info.tiles.find((t) => !t.placed && t.letter === slot.letter)!;
       await dragRectTo(page, tile.rect, slot.rect);
-      const expectedKind = s === info.slots.length - 1 ? 'spelled' : 'placed';
       await waitForWordTrain(
         page,
-        (i) => i.lastEvent === expectedKind,
-        `slot ${s} did not produce ${expectedKind}`,
+        (i) => (s === info.slots.length - 1 ? i.lastEvent === 'spelled' : Boolean(i.slots[s]?.filled)),
+        `slot ${s} did not fill`,
       );
     }
 
@@ -194,35 +196,45 @@ test.describe('word train', () => {
       const slot = info.slots[s];
       const tile = info.tiles.find((t) => !t.placed && t.letter === slot.letter)!;
       await tapRect(page, tile.rect);
-      const expectedKind = s === info.slots.length - 1 ? 'spelled' : 'placed';
       await waitForWordTrain(
         page,
-        (i) => i.lastEvent === expectedKind,
-        `tapping block for slot ${s} did not produce ${expectedKind}`,
+        (i) => (s === info.slots.length - 1 ? i.lastEvent === 'spelled' : Boolean(i.slots[s]?.filled)),
+        `tapping block for slot ${s} did not fill`,
       );
     }
 
     await expect.poll(() => readStarCount(page), { timeout: 10_000 }).toBe(starsBefore + 1);
   });
 
-  test('[AC-07] @single-orientation English only even when language setting is French', async ({ page }, testInfo) => {
+  test('[AC-07] @single-orientation English only even when language setting is French or both', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
-    await enterWorldByTap(page, 'profile-a', 'language-house', 'word-train', {
-      beforeEnter: () => seedLanguageSetting(page, 'fr'),
-    });
-    const info = await waitForWordTrainReady(page);
-    expect(info.language).toBe('en');
-    expect(info.skillKey.endsWith('.en')).toBe(true);
+    test.setTimeout(60_000);
+    for (const lang of ['fr', 'both'] as const) {
+      await enterWorldByTap(page, 'profile-a', 'language-house', 'word-train', {
+        beforeEnter: () => seedLanguageSetting(page, lang),
+      });
+      await waitForWordTrainReady(page);
 
-    await expect
-      .poll(
-        async () => {
-          const lines = await getSpokenLines(page);
-          return lines.some((l) => l.lineId.startsWith('wordtrain.load.') && l.lang === 'en');
-        },
-        { timeout: 10_000 },
-      )
-      .toBe(true);
+      await expect
+        .poll(
+          async () => {
+            const lines = await getSpokenLines(page);
+            return lines.some((l) => l.lineId.startsWith('wordtrain.load.') && l.lang === 'en');
+          },
+          { timeout: 10_000 },
+        )
+        .toBe(true);
+
+      const wordTrainLines = (await getSpokenLines(page)).filter((l) => l.lineId.startsWith('wordtrain.'));
+      expect(wordTrainLines.length).toBeGreaterThan(0);
+      for (const line of wordTrainLines) {
+        if (line.lineId.startsWith('wordtrain.intro.') || line.lineId.startsWith('wordtrain.praise.')) {
+          expect(line.lang, `${lang}: ${line.lineId}`).toBe('he');
+        } else {
+          expect(line.lang, `${lang}: ${line.lineId}`).toBe('en');
+        }
+      }
+    }
   });
 
   test('[AC-09] object, block and wagon targets are at least 64 CSS px and on screen in both orientations and modes', async ({ page }) => {

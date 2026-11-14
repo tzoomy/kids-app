@@ -98,7 +98,7 @@ export class MapScene extends Phaser.Scene {
           return;
         }
         if (world.id === 'language-house') {
-          // Language House hosts two games: the child picks one (or closes the picker and stays on the map).
+          // Language House hosts three games: the child picks one (or closes the picker and stays on the map).
           context.shell.showGamePicker({
             onPick: (game) => {
               context.shell.hideGamePicker();

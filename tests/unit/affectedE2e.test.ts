@@ -99,18 +99,24 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/shared/leisureColouringPages.ts'])).toEqual(expected);
   });
 
-  it('orchestra game selects the orchestra picker spec', () => {
+  it('orchestra game and shell.css select the orchestra picker spec', () => {
     expect(selectAffectedE2e(['src/games/orchestra/orchestraGame.ts'])).toEqual([
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+    ]);
+    expect(selectAffectedE2e(['src/styles/shell.css'])).toEqual([
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
     ]);
   });
 
-  it('word train selects its journey spec', () => {
+  it('word train selects its journey spec, and picker files select word train too', () => {
     const expected = ['tests/e2e/word-train.journey.spec.ts'];
     expect(selectAffectedE2e(['src/games/wordTrain/WordTrainScene.ts'])).toEqual(expected);
     expect(selectAffectedE2e(['src/content/games/word-train.json'])).toEqual(expected);
     expect(selectAffectedE2e(['public/art/word-train/wagon.svg'])).toEqual(expected);
     expect(selectAffectedE2e(['tests/unit/word-train.machine.test.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/ui/picker/gamePicker.ts'])).toEqual(
+      expect.arrayContaining(['tests/e2e/word-train.journey.spec.ts']),
+    );
   });
 
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {

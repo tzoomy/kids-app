@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { SkillSession, buildMeta } from '@/core/adaptive';
+import { SkillSession, buildMeta, skillKey } from '@/core/adaptive';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
 import type { StorageDriver } from '@/core/storage/store';
 import { loadWordTrain, loadWorlds } from '@/content/loadContent';
@@ -225,6 +225,29 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
     expect(() => loadLine(content, 'unknown')).toThrow();
     expect(() => spellLine(content, 'unknown')).toThrow();
     expect(() => letterLine('1')).toThrow();
+  });
+
+  it('[AC-07] skill key is language-house.word-train.en and AdaptiveStore persists under .en without .fr', () => {
+    expect(skillKey(content.world, content.id, 'en')).toBe('language-house.word-train.en');
+
+    const driver = memoryDriver();
+    const store = new AdaptiveStore(driver);
+    const session = new SkillSession({
+      store,
+      profileId: 'p',
+      track: 'age5',
+      world: content.world,
+      gameId: content.id,
+      meta,
+      today: () => '2026-11-14',
+      random: () => 0.3,
+    });
+    session.record('en', trialForWord({ kind: 'spelled', word: 'hat', bounces: 0 }, false));
+    store.persist('p');
+
+    const reloaded = new AdaptiveStore(driver).getProfile('p');
+    expect(reloaded.skills['language-house.word-train.en']).toBeDefined();
+    expect(reloaded.skills['language-house.word-train.fr']).toBeUndefined();
   });
 
   it('[AC-08] content validates; words, objects, art keys and files exist; round selection never repeats and distractors are outside the word', () => {
