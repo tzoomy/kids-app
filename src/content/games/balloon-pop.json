@@ -1,0 +1,55 @@
+{
+  "id": "balloon-pop",
+  "world": "number-garden",
+  "template": "choice-serve",
+  "skill": "pop-the-named-balloon",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "promptFrames": {
+    "color": { "en": "Pop the {name} balloon!", "fr": "Éclate le ballon {name} !" },
+    "digit": { "en": "Pop the number {name}!", "fr": "Éclate le chiffre {name} !" }
+  },
+  "popped": {
+    "en": ["Pop!", "Hooray!", "Great popping!"],
+    "fr": ["Pop !", "Bravo !", "Super !"]
+  },
+  "introHe": "ברוכה הבאה לגן המספרים! בלונים עפים לשמיים. הקשיבי איזה בלון לפוצץ, ולחצי עליו.",
+  "helpTextHe": "הקשיבי לבלון שמבקשים ולחצי עליו כדי לפוצץ אותו. אפשר ללחוץ על הרמקול כדי לשמוע שוב.",
+  "colors": [
+    { "id": "red", "color": "red", "name": { "en": "red", "fr": "rouge" } },
+    { "id": "blue", "color": "blue", "name": { "en": "blue", "fr": "bleu" } },
+    { "id": "yellow", "color": "yellow", "name": { "en": "yellow", "fr": "jaune" } },
+    { "id": "green", "color": "green", "name": { "en": "green", "fr": "vert" } },
+    { "id": "orange", "color": "orange", "name": { "en": "orange", "fr": "orange" } },
+    { "id": "purple", "color": "purple", "name": { "en": "purple", "fr": "violet" } }
+  ],
+  "digits": [
+    { "value": 0, "name": { "en": "zero", "fr": "zéro" }, "near": [8, 6] },
+    { "value": 1, "name": { "en": "one", "fr": "un" }, "near": [7, 4] },
+    { "value": 2, "name": { "en": "two", "fr": "deux" }, "near": [5, 3] },
+    { "value": 3, "name": { "en": "three", "fr": "trois" }, "near": [8, 2] },
+    { "value": 4, "name": { "en": "four", "fr": "quatre" }, "near": [1, 7] },
+    { "value": 5, "name": { "en": "five", "fr": "cinq" }, "near": [2, 6] },
+    { "value": 6, "name": { "en": "six", "fr": "six" }, "near": [9, 0] },
+    { "value": 7, "name": { "en": "seven", "fr": "sept" }, "near": [1, 4] },
+    { "value": 8, "name": { "en": "eight", "fr": "huit" }, "near": [3, 0] },
+    { "value": 9, "name": { "en": "nine", "fr": "neuf" }, "near": [6, 8] }
+  ],
+  "adaptive": {
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 5, "max": 8 } },
+    "levels": [
+      { "choiceCount": 2, "distractor": "far", "extra": { "mode": "color" } },
+      { "choiceCount": 3, "distractor": "far", "extra": { "mode": "color" } },
+      { "choiceCount": 4, "distractor": "far", "extra": { "mode": "color" } },
+      { "choiceCount": 5, "distractor": "far", "extra": { "mode": "color" } },
+      { "choiceCount": 3, "distractor": "far", "extra": { "mode": "digit", "digitMin": 1, "digitMax": 5 } },
+      { "choiceCount": 4, "distractor": "far", "extra": { "mode": "digit", "digitMin": 1, "digitMax": 9 } },
+      { "choiceCount": 5, "distractor": "far", "extra": { "mode": "digit", "digitMin": 0, "digitMax": 9 } },
+      { "choiceCount": 6, "distractor": "near", "extra": { "mode": "digit", "digitMin": 0, "digitMax": 9 } }
+    ]
+  }
+}

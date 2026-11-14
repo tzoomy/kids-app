@@ -36,8 +36,41 @@ const COLOURING_SPECS = [
   'tests/e2e/leisure-colouring.platform.spec.ts',
 ];
 
+/**
+ * Every spec that goes through a world picker or station trail (src/ui/picker/**): a change to the shared picker
+ * (model, trail, cards, art keys) can break any of them, so it selects all of them. One rule, not one per game.
+ */
+export const PICKER_SPECS = [
+  'tests/e2e/balloon-pop.journey.spec.ts',
+  'tests/e2e/hiding.spec.ts',
+  'tests/e2e/kitchen-orchestra.picker.spec.ts',
+  'tests/e2e/letter-monster.journey.spec.ts',
+  'tests/e2e/magic-magnet.journey.spec.ts',
+  'tests/e2e/number-bridge.journey.spec.ts',
+  'tests/e2e/picnic-train.journey.spec.ts',
+  'tests/e2e/picnic-train.picker.spec.ts',
+  'tests/e2e/picnic-train.platform.spec.ts',
+  'tests/e2e/picker.press-through.spec.ts',
+  'tests/e2e/potion-lab.journey.spec.ts',
+  'tests/e2e/science-world.map.spec.ts',
+  'tests/e2e/seed-to-flower.journey.spec.ts',
+  'tests/e2e/sink-or-float.journey.spec.ts',
+  'tests/e2e/sorting-beds.journey.spec.ts',
+  'tests/e2e/sorting-beds.platform.spec.ts',
+  'tests/e2e/station-trail.spec.ts',
+  'tests/e2e/travel-suitcase.journey.spec.ts',
+  'tests/e2e/who-is-hiding.journey.spec.ts',
+  'tests/e2e/who-lives-here.journey.spec.ts',
+];
+
 /** Explicit map. Every tests/e2e/*.spec.ts must appear in some `specs` list or in SMOKE_SPECS. */
 export const GAME_RULES = [
+  {
+    // The shared picker and station trail are the way into every world with 2+ games (and the coming-soon picker for a world with none).
+    id: 'picker',
+    match: [/^src\/ui\/picker\//],
+    specs: PICKER_SPECS,
+  },
   {
     id: 'animal-restaurant',
     match: [
@@ -57,15 +90,62 @@ export const GAME_RULES = [
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
   },
   {
+    id: 'who-lives-here',
+    match: [
+      /^src\/games\/habitat\//,
+      /^src\/content\/games\/who-lives-here\.json$/,
+      /^src\/anim\/homesTrainMotion\.ts$/,
+      /^public\/art\/(homes|scenes\/habitats)\//,
+      /^tests\/unit\/who-lives-here[^/]*$/,
+    ],
+    specs: ['tests/e2e/who-lives-here.journey.spec.ts'],
+  },
+  {
     id: 'kitchen-orchestra',
     match: [
       /^src\/games\/orchestra\//,
       /^src\/content\/games\/kitchen-orchestra\.json$/,
-      /^src\/ui\/picker\//,
       /^public\/art\/instruments\//,
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
+  },
+  {
+    id: 'travel-suitcase',
+    match: [
+      /^src\/games\/travelSuitcase\//,
+      /^src\/content\/games\/travel-suitcase\.json$/,
+      /^src\/anim\/sortPackMotion\.ts$/,
+      /^public\/art\/props\/suitcase-(back|front)\.svg$/,
+      /^tests\/e2e\/helpers\/journey\.ts$/,
+      /^tests\/unit\/travel-suitcase[^/]*$/,
+    ],
+    specs: ['tests/e2e/travel-suitcase.journey.spec.ts'],
+  },
+  {
+    id: 'picker-press-through',
+    match: [
+      /^tests\/e2e\/helpers\/pickerPressThrough\.ts$/,
+    ],
+    specs: ['tests/e2e/picker.press-through.spec.ts'],
+  },
+  {
+    id: 'station-trail',
+    match: [
+      /^src\/worlds\/worldTrail\.ts$/,
+      /^tests\/unit\/station-trail[^/]*$/,
+    ],
+    specs: ['tests/e2e/station-trail.spec.ts'],
+  },
+  {
+    id: 'letter-monster',
+    match: [
+      /^src\/games\/letterMonster\//,
+      /^src\/content\/games\/letter-monster\.json$/,
+      /^public\/art\/props\/monster-[a-z]+\.svg$/,
+      /^tests\/unit\/letter-monster[^/]*$/,
+    ],
+    specs: ['tests/e2e/letter-monster.journey.spec.ts'],
   },
   {
     id: 'seed-to-flower',
@@ -76,12 +156,6 @@ export const GAME_RULES = [
       /^tests\/unit\/seed-to-flower[^/]*$/,
     ],
     specs: ['tests/e2e/seed-to-flower.journey.spec.ts'],
-  },
-  {
-    // The Nature Lab picker (docs/specs/seed-to-flower.md) is the way into both Nature Lab games.
-    id: 'nature-lab-picker',
-    match: [/^src\/ui\/picker\//],
-    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
   },
   {
     id: 'leisure-colouring',
@@ -105,8 +179,6 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/sorting\//,
       /^src\/content\/games\/sorting-beds\.json$/,
-      // The Number Garden picker card is the Sorting Beds entry.
-      /^src\/ui\/picker\//,
       /^src\/anim\/(homesTrainMotion|sortPackMotion|trainLayout)\.ts$/,
       /^public\/art\/(homes|train)\//,
       /^tests\/unit\/(sorting-beds|sortPackMotion|homesTrainMotion|trainLayout)[^/]*$/,
@@ -114,11 +186,88 @@ export const GAME_RULES = [
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
   },
   {
+    id: 'picnic-train',
+    match: [
+      /^src\/games\/picnic\//,
+      /^src\/content\/games\/picnic-train\.json$/,
+      /^tests\/e2e\/helpers\/picnic\.ts$/,
+      /^tests\/unit\/picnic-train[^/]*$/,
+    ],
+    specs: [
+      'tests/e2e/picnic-train.journey.spec.ts',
+      'tests/e2e/picnic-train.picker.spec.ts',
+      'tests/e2e/picnic-train.platform.spec.ts',
+    ],
+  },
+  {
+    id: 'science-world',
+    // Science World map area: its building art and its entry (one game: direct; none: coming-soon picker). MapScene stays smoke-only.
+    match: [
+      /^public\/art\/buildings\//,
+      /^tests\/unit\/science-world[^/]*$/,
+    ],
+    specs: ['tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'potion-lab',
+    match: [
+      /^src\/games\/potionLab\//,
+      /^src\/content\/games\/potion-lab\.json$/,
+      /^public\/art\/props\/mixing-bowl\.svg$/,
+      /^public\/art\/palette\/pot-(red|yellow|blue)\.svg$/,
+      /^tests\/unit\/potion-lab[^/]*$/,
+    ],
+    specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    // Wardrobe (docs/specs/wardrobe.md): HUD entry, scene, pure model, content and art. hud.ts and
+    // appContext.ts are shared and fall back to the smoke set on their own; they are not listed here.
+    id: 'wardrobe',
+    match: [
+      /^src\/core\/wardrobe\//,
+      /^src\/content\/wardrobe\//,
+      /^src\/games\/wardrobe\//,
+      /^src\/ui\/wardrobeChrome\.ts$/,
+      /^src\/assets\/art\/wardrobeManifest\.ts$/,
+      /^public\/art\/wardrobe\//,
+      /^tests\/unit\/wardrobe[^/]*$/,
+    ],
+    specs: ['tests/e2e/wardrobe.journey.spec.ts'],
+  },
+  {
+    id: 'sink-or-float',
+    match: [
+      /^src\/games\/sinkFloat\//,
+      /^src\/content\/games\/sink-or-float\.json$/,
+      /^public\/art\/props\/(water-tank|float-[a-z]+)\.svg$/,
+      /^tests\/unit\/sink-or-float[^/]*$/,
+    ],
+    specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'magic-magnet',
+    match: [
+      /^src\/games\/magicMagnet\//,
+      /^src\/content\/games\/magic-magnet\.json$/,
+      /^public\/art\/magnet\//,
+      /^tests\/unit\/magic-magnet[^/]*$/,
+    ],
+    specs: ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'balloon-pop',
+    match: [
+      /^src\/games\/balloon\//,
+      /^src\/content\/games\/balloon-pop\.json$/,
+      /^tests\/unit\/balloon-pop[^/]*$/,
+    ],
+    specs: ['tests/e2e/balloon-pop.journey.spec.ts'],
+  },
+  {
     id: 'number-bridge',
     match: [
       /^src\/games\/numberBridge\//,
       /^src\/content\/games\/number-bridge\.json$/,
-      /^src\/ui\/picker\//,
       /^public\/art\/props\/(bridge-stone|stone-pile)\.svg$/,
       /^tests\/unit\/number-bridge[^/]*$/,
     ],
@@ -183,6 +332,7 @@ const ALSO_SMOKE = [
   /^src\/ui\/shell\.ts$/,
   /^src\/ui\/picker\//,
   /^src\/ui\/parent\.ts$/,
+  /^tests\/e2e\/helpers\/journey\.ts$/,
   /^src\/ui\/longPress\.ts$/,
   /^src\/ui\/profileSelect\.ts$/,
   /^src\/ui\/hud\.ts$/,

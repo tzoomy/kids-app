@@ -3,10 +3,18 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
+import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
+import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
+import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
+import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
+import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { NumberBridgeInfo } from '../../../src/games/numberBridge/numberBridgeTypes';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
+import type { HabitatInfo } from '../../../src/games/habitat/types';
+import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, NumberBridgeInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, NumberBridgeInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -14,31 +22,46 @@ export type ProfileTestId = 'profile-a' | 'profile-b';
 export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
+  'letter-monster': 'LetterMonsterScene',
+  'travel-suitcase': 'SuitcaseScene',
   bubbles: 'BubblesScene',
-  // Nature Lab opens a picker (docs/specs/seed-to-flower.md): Who's Hiding? or Seed to Flower.
+  // Nature Lab opens a picker: Who's Hiding?, Seed to Flower, and (once registered) Who Lives Here?.
   'who-is-hiding': 'HidingScene',
   'seed-to-flower': 'SeedFlowerScene',
+  'who-lives-here': 'HabitatScene',
   'leisure-colouring': 'ColouringScene',
-  // Number Garden opens a picker (Sorting Beds, Number Bridge); Sorting Beds is its default card.
+  // Number Garden opens a station trail (Sorting Beds, Balloon Pop, Picnic Train, Number Bridge); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
+  'balloon-pop': 'BalloonScene',
+  'picnic-train': 'PicnicScene',
   'number-bridge': 'NumberBridgeScene',
+  'potion-lab': 'PotionScene',
+  'sink-or-float': 'SinkFloatScene',
+  'magic-magnet': 'MagnetScene',
 };
 
-/** Entry game of each single-game world. Art Studio is locked until its own game exists. */
+/**
+ * Entry game of each direct-entry world: a world with exactly one registered game opens it directly
+ * (docs/specs/station-trail.md AC-10, pending Maor decision). Art Studio is locked until its own game exists.
+ * Leisure Corner is listed here so a default tap still opens Bubbles; Colouring Time is an extra picker card.
+ * Mirrors WORLD_GAMES + content; tests/unit/station-trail.model.test.ts checks it against the registry.
+ */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
 };
 
-/** Worlds whose building opens the game picker; the value is the default game to pick. */
+/** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
   'number-garden': 'sorting-beds',
   'nature-lab': 'who-is-hiding',
+  'science-world': 'potion-lab',
 };
 
-/** Extra picker-card games on a world that still defaults to a direct entry game.
+/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another list).
  * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
- * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
+ * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building.
+ * Science World is a trail world (`PICKER_WORLD_DEFAULT_GAME`); Sink or Float and Magic Magnet are reached by passing their gameId. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
 };
@@ -139,10 +162,27 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedLetterMonsterLevel: (level: number) => void;
+  getLetterMonsterInfo: () => LetterMonsterInfo | null;
+  getBalloonInfo: () => BalloonInfo | null;
+  seedBalloonLevel: (level: number) => void;
   seedNumberBridgeLevel: (level: number) => void;
   getNumberBridgeInfo: () => NumberBridgeInfo | null;
+  seedSuitcaseLevel: (level: number) => void;
+  getSuitcaseInfo: () => SuitcaseInfo | null;
   seedSeedFlowerLevel: (level: number) => void;
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
+  seedPotionLevel: (level: number) => void;
+  getPotionInfo: () => PotionInfo | null;
+  seedWardrobeState: (seed: WardrobeSeed) => void;
+  getWardrobeInfo: () => WardrobeInfo | null;
+  recordCompletedRound: (worldId: string, gameId: string) => string[];
+  seedSinkFloatLevel: (level: number) => void;
+  getSinkFloatInfo: () => SinkFloatInfo | null;
+  seedMagnetLevel: (level: number) => void;
+  getMagnetInfo: () => MagnetInfo | null;
+  seedHabitatLevel: (level: number) => void;
+  getHabitatInfo: () => HabitatInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -219,6 +259,19 @@ export async function waitForSpokenLine(
 }
 
 /**
+ * Opens the app with ?e2e=1, taps the profile with a real click and waits for the map. Runs
+ * `opts.beforeEnter` (seed hooks) on the map. Shared by the building taps and the Wardrobe HUD button.
+ */
+export async function enterMapByTap(page: Page, profile: ProfileTestId, opts?: JourneyOptions): Promise<void> {
+  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
+  await page.goto('./?e2e=1');
+  await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
+  await page.locator(`[data-testid="${profile}"]`).click();
+  await waitForScene(page, 'MapScene');
+  if (opts?.beforeEnter) await opts.beforeEnter();
+}
+
+/**
  * Opens the app with ?e2e=1, taps the profile with a real click, waits for the map, then taps the
  * world's building (real pointer click at the centre of its hit rectangle). Returns right after the tap.
  */
@@ -228,12 +281,7 @@ export async function tapWorldBuilding(
   worldId: string,
   opts?: JourneyOptions,
 ): Promise<void> {
-  // Relative to baseURL (.../kids-app/): stays inside the service worker scope, so it also works offline.
-  await page.goto('./?e2e=1');
-  await seedTimeEarningEnabled(page, opts?.timeEarningEnabled ?? true);
-  await page.locator(`[data-testid="${profile}"]`).click();
-  await waitForScene(page, 'MapScene');
-  if (opts?.beforeEnter) await opts.beforeEnter();
+  await enterMapByTap(page, profile, opts);
 
   // Wait for the building's pop-in to finish (its size stops changing), then tap its centre.
   let previous: PageRect | null = null;
@@ -541,6 +589,83 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
   );
 }
 
+/** Seeds the persisted Letter Monster level for the active profile. Call before entering. */
+export async function seedLetterMonsterLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedLetterMonsterLevel', [level]);
+}
+
+/** Reads the live Letter Monster round snapshot (null when LetterMonsterScene is not active). */
+export async function getLetterMonsterInfo(page: Page): Promise<LetterMonsterInfo | null> {
+  return callHook<LetterMonsterInfo | null>(page, 'getLetterMonsterInfo');
+}
+
+/** Waits until Letter Monster is asking and ready for taps with all offered foods measured. */
+export async function waitForLetterMonsterReady(page: Page, timeout = 12_000): Promise<LetterMonsterInfo> {
+  const handle = await page.waitForFunction(
+    () => {
+      const hooks = (window as unknown as {
+        __testHooks__?: { getLetterMonsterInfo?: () => LetterMonsterInfo | null };
+      }).__testHooks__;
+      const info = hooks?.getLetterMonsterInfo?.();
+      if (!info || !info.ready || info.phase !== 'asking') return null;
+      if (info.offeredIds.length === 0 || Object.keys(info.foods).length !== info.offeredIds.length) return null;
+      return info;
+    },
+    undefined,
+    { timeout },
+  );
+  return (await handle.jsonValue()) as LetterMonsterInfo;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Balloon Pop (docs/specs/balloon-pop.md). Hit rectangles from getBalloonInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's persisted Balloon Pop level for every language. Call from `beforeEnter` (on the map). */
+export async function seedBalloonLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedBalloonLevel', [level]);
+}
+
+export function getBalloonInfo(page: Page): Promise<BalloonInfo | null> {
+  return callHook<BalloonInfo | null>(page, 'getBalloonInfo');
+}
+
+/** Waits until every balloon has risen into place and taps are accepted. */
+export async function waitForBalloonReady(page: Page, timeout = 12_000): Promise<BalloonInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getBalloonInfo();
+      return info !== null && info.ready;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getBalloonInfo(page);
+  if (!info) throw new Error('no active Balloon Pop trial');
+  return info;
+}
+
+/** Real tap on the balloon holding `itemId`, using a fresh read of its hit rectangle. */
+export async function tapBalloon(page: Page, itemId: string): Promise<void> {
+  const info = await getBalloonInfo(page);
+  const balloon = info?.balloons.find((b) => b.itemId === itemId);
+  if (!balloon) throw new Error(`no balloon "${itemId}" in the active trial`);
+  await tapRect(page, balloon.hit);
+}
+
+/** Waits for a ready trial, taps the requested balloon for real, and waits until the next trial is ready. Returns the info read before the tap. */
+export async function popCorrectBalloon(page: Page, timeout = 15_000): Promise<BalloonInfo> {
+  const before = await waitForBalloonReady(page, timeout);
+  await tapBalloon(page, before.targetItemId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getBalloonInfo(page);
+    if (info && info.ready && info.correctCount > before.correctCount) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the requested balloon did not start the next trial');
+    await page.waitForTimeout(50);
+  }
+}
+
 // ---------------------------------------------------------------------------------------------
 // Number Bridge (docs/specs/number-bridge.md). Hit rectangles from getNumberBridgeInfo are page CSS px.
 // ---------------------------------------------------------------------------------------------
@@ -565,6 +690,92 @@ export async function waitForNumberBridgeReady(page: Page, timeout = 15_000): Pr
   }
 }
 
+/** The persisted Balloon Pop skill of a profile (read-only localStorage read). */
+export async function readBalloonSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `number-garden.balloon-pop.${lang}`] as const,
+  );
+}
+
+/** Seeds the persisted Potion Lab level for every language (seed only). Call on the map, before entering. */
+export async function seedPotionLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedPotionLevel', [level]);
+}
+
+export function getPotionInfo(page: Page): Promise<PotionInfo | null> {
+  return callHook<PotionInfo | null>(page, 'getPotionInfo');
+}
+
+/** Waits until Potion Lab accepts pot taps and returns its state. */
+export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<PotionInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getPotionInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Sink or Float level for every language (seed only). Call on the map, before entering. */
+export async function seedSinkFloatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSinkFloatLevel', [level]);
+}
+
+export function getSinkFloatInfo(page: Page): Promise<SinkFloatInfo | null> {
+  return callHook<SinkFloatInfo | null>(page, 'getSinkFloatInfo');
+}
+
+/** Waits until Sink or Float accepts taps and returns its state. */
+export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promise<SinkFloatInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSinkFloatInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Travel Suitcase level for every content language (seed only). Call on the map, before entering. */
+export async function seedSuitcaseLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSuitcaseLevel', [level]);
+}
+
+export function getSuitcaseInfo(page: Page): Promise<SuitcaseInfo | null> {
+  return callHook<SuitcaseInfo | null>(page, 'getSuitcaseInfo');
+}
+
+/** Waits until Travel Suitcase accepts input and returns its state. */
+export async function waitForSuitcaseReady(page: Page, timeout = 15_000): Promise<SuitcaseInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSuitcaseInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Travel Suitcase never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Real pointer drag from the centre of `from` to the centre of `to` in page CSS px. */
+export async function dragRectTo(page: Page, from: PageRect, to: PageRect): Promise<void> {
+  const startX = from.x + from.width / 2;
+  const startY = from.y + from.height / 2;
+  const endX = to.x + to.width / 2;
+  const endY = to.y + to.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(endX, endY, { steps: 12 });
+  await page.mouse.up();
+}
+
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
 export async function seedSeedFlowerLevel(page: Page, level: number): Promise<void> {
   await callHook<void>(page, 'seedSeedFlowerLevel', [level]);
@@ -582,5 +793,171 @@ export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Prom
     if (info?.ready) return info;
     if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Wardrobe (docs/specs/wardrobe.md). Entered from the map HUD button; item buttons are DOM.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's wardrobe state (seed only). Call on the map, before opening the Wardrobe. */
+export async function seedWardrobeState(page: Page, seed: WardrobeSeed): Promise<void> {
+  await callHook<void>(page, 'seedWardrobeState', [seed]);
+}
+
+/** Wardrobe snapshot; works on the map (saved state only) and in the scene. */
+export function getWardrobeInfo(page: Page): Promise<WardrobeInfo | null> {
+  return callHook<WardrobeInfo | null>(page, 'getWardrobeInfo');
+}
+
+/** Records a completed round through the public AppContext.recordCompletedRound; returns the newly unlocked ids. */
+export function recordCompletedRound(page: Page, worldId: string, gameId: string): Promise<string[]> {
+  return callHook<string[]>(page, 'recordCompletedRound', [worldId, gameId]);
+}
+
+/**
+ * Profile tap -> map -> real tap on the `wardrobe-btn` HUD button -> WardrobeScene active.
+ * `beforeEnter` runs on the map (seed hooks).
+ */
+export async function openWardrobeByTap(page: Page, profile: ProfileTestId, opts?: JourneyOptions): Promise<WardrobeInfo> {
+  await enterMapByTap(page, profile, opts);
+  return tapWardrobeButton(page);
+}
+
+/** Real tap on `wardrobe-btn` while on the map; waits for the Wardrobe scene and its info. */
+export async function tapWardrobeButton(page: Page): Promise<WardrobeInfo> {
+  await tapTestId(page, 'wardrobe-btn');
+  await waitForScene(page, 'WardrobeScene');
+  return waitForWardrobeReady(page);
+}
+
+/** Waits until the Wardrobe scene is active and its info is readable. */
+export async function waitForWardrobeReady(page: Page, timeout = 15_000): Promise<WardrobeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getWardrobeInfo(page);
+    if (info?.sceneActive) return info;
+    if (Date.now() > deadline) throw new Error(`Wardrobe never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Real tap on an item button. */
+export async function tapWardrobeItem(page: Page, itemId: string): Promise<void> {
+  await tapTestId(page, `wardrobe-item-${itemId}`);
+}
+
+/** Polls until the Wardrobe info satisfies `check`. */
+export async function waitForWardrobe(
+  page: Page,
+  check: (info: WardrobeInfo) => boolean,
+  what: string,
+  timeout = 10_000,
+): Promise<WardrobeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getWardrobeInfo(page);
+    if (info && check(info)) return info;
+    if (Date.now() > deadline) throw new Error(`${what}: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Magic Magnet level for every language (seed only). Call on the map, before entering. */
+export async function seedMagnetLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedMagnetLevel', [level]);
+}
+
+export function getMagnetInfo(page: Page): Promise<MagnetInfo | null> {
+  return callHook<MagnetInfo | null>(page, 'getMagnetInfo');
+}
+
+/** Waits until Magic Magnet accepts input and returns its state. */
+export async function waitForMagnetReady(page: Page, timeout = 15_000): Promise<MagnetInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getMagnetInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Magic Magnet never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/**
+ * Drags the magnet from its centre to `(x, y)` in page CSS px, offset so the magnet touch point
+ * (pole tips) lands on `(x, y)`.
+ */
+export async function dragMagnetTo(page: Page, info: MagnetInfo, x: number, y: number): Promise<void> {
+  const startX = info.magnet.x + info.magnet.width / 2;
+  const startY = info.magnet.y + info.magnet.height / 2;
+  const tipOffsetX = info.tips.x - startX;
+  const tipOffsetY = info.tips.y - startY;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(x - tipOffsetX, y - tipOffsetY, { steps: 12 });
+  await page.mouse.up();
+}
+
+// ---------------------------------------------------------------------------------------------
+// Who Lives Here? (docs/specs/who-lives-here.md). Hit rectangles from getHabitatInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+export type ReadyHabitatInfo = HabitatInfo & { currentAnimal: NonNullable<HabitatInfo['currentAnimal']> };
+
+/** Seeds the active profile's persisted Who Lives Here? level. Call from `beforeEnter`. */
+export async function seedHabitatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedHabitatLevel', [level]);
+}
+
+export function getHabitatInfo(page: Page): Promise<HabitatInfo | null> {
+  return callHook<HabitatInfo | null>(page, 'getHabitatInfo');
+}
+
+/** Waits until the current animal is on the path and home taps are accepted. */
+export async function waitForHabitatReady(page: Page, timeout = 12_000): Promise<ReadyHabitatInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getHabitatInfo();
+      return info !== null && info.ready && info.currentAnimal !== null;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getHabitatInfo(page);
+  if (!info || !info.currentAnimal) throw new Error('no active Who Lives Here? round');
+  return info as ReadyHabitatInfo;
+}
+
+/** Real tap on a home, using a fresh read of its hit rectangle. */
+export async function tapHome(page: Page, homeId: string): Promise<void> {
+  const info = await getHabitatInfo(page);
+  const home = info?.homes.find((h) => h.id === homeId);
+  if (!home) throw new Error(`no home "${homeId}" in the active round`);
+  await tapRect(page, home.hit);
+}
+
+/** Id of a home that is NOT the current animal's home. */
+export function wrongHomeId(info: ReadyHabitatInfo): string {
+  const home = info.homes.find((h) => h.id !== info.currentAnimal.homeId);
+  if (!home) throw new Error('the round has no second home');
+  return home.id;
+}
+
+/** Waits for the current animal, taps its home for real, waits until the animal is consumed. Returns the info read before the tap. */
+export async function placeCurrentAnimalCorrectly(page: Page, timeout = 12_000): Promise<ReadyHabitatInfo> {
+  const before = await waitForHabitatReady(page, timeout);
+  await tapHome(page, before.currentAnimal.homeId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getHabitatInfo(page);
+    const changed =
+      info === null ||
+      info.currentAnimal === null ||
+      !info.ready ||
+      info.currentAnimal.id !== before.currentAnimal.id ||
+      info.round.index !== before.round.index;
+    if (changed) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the matching home did not change the Who Lives Here? state');
+    await page.waitForTimeout(50);
   }
 }

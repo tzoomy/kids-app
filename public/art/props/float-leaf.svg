@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stem -->
+    <path d="M26 118 Q44 102 58 92" fill="none"/>
+    <!-- Leaf blade -->
+    <path d="M46 98 C44 54 88 30 132 42 C134 88 94 126 46 98 Z" fill="#57C457"/>
+    <path d="M46 98 C94 126 134 88 132 42 C112 72 82 90 46 98 Z" fill="#3CA33C" stroke="none"/>
+    <!-- Highlight & midrib -->
+    <path d="M62 66 Q86 52 110 52" fill="none" stroke="#8AE07E" stroke-width="5"/>
+    <path d="M46 98 C44 54 88 30 132 42 C134 88 94 126 46 98 Z" fill="none"/>
+    <path d="M48 96 Q86 76 122 48" fill="none" stroke-width="4"/>
+  </g>
+</svg>

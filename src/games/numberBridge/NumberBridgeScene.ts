@@ -697,6 +697,7 @@ export class NumberBridgeScene extends Phaser.Scene {
     this.skills.record(lang, trialForBridge(this.bridge, this.stepHinted));
     this.stepHinted = false;
     this.session.complete();
+    this.context.recordCompletedRound('number-garden', 'number-bridge');
 
     // Rabbit hops stone by stone while each number is spoken in the learning language.
     for (let i = 0; i < this.bridge.sequence.length; i++) {
