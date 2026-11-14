@@ -1,10 +1,31 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
-import { LEISURE_PICKER_GAMES, PICKER_GAMES } from '../../src/ui/picker/pickerModel';
-import type { Station } from '../../src/ui/picker/trailModel';
+import { LEISURE_PICKER_GAMES, PICKER_GAMES, WORLD_GAMES } from '../../src/ui/picker/pickerModel';
+import { collectTrailGames, stationGamesForWorld, type Station } from '../../src/ui/picker/trailModel';
 import heStrings from '../../src/content/i18n/he.json';
+import {
+  loadAnimalRestaurant,
+  loadBalloonPop,
+  loadKitchenOrchestra,
+  loadLetterMonster,
+  loadPotionLab,
+  loadSeedToFlower,
+  loadSortingBeds,
+  loadWhosHiding,
+} from '../../src/content/loadContent';
 
 // Spec: docs/specs/station-trail.md. DOM render of the trail picker (jsdom, no Phaser).
+
+const REAL_GAMES = collectTrailGames({
+  restaurant: loadAnimalRestaurant(),
+  orchestra: loadKitchenOrchestra(),
+  letterMonster: loadLetterMonster(),
+  sorting: loadSortingBeds(),
+  balloon: loadBalloonPop(),
+  hiding: loadWhosHiding(),
+  seedToFlower: loadSeedToFlower(),
+  potion: loadPotionLab(),
+});
 
 function stations(opts: { completed?: string[]; suggested?: string }): Station[] {
   return PICKER_GAMES.map((game) => ({
@@ -46,7 +67,11 @@ describe('station trail picker render', () => {
       expect(button?.getAttribute('aria-disabled')).toBeNull();
       button?.click();
     }
-    expect(onPick.mock.calls.map((c) => (c[0] as { gameId: string }).gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra']);
+    expect(onPick.mock.calls.map((c) => (c[0] as { gameId: string }).gameId)).toEqual([
+      'animal-restaurant',
+      'kitchen-orchestra',
+      'letter-monster',
+    ]);
   });
 
   it('[AC-15] the card label says completed and suggested in Hebrew; a plain card keeps its plain name', () => {
@@ -70,11 +95,51 @@ describe('station trail picker render', () => {
     );
   });
 
-  it('[AC-14] the cards sit in a trail container that knows how many stations it holds', () => {
+  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (3 in Language House, 2 in Number Garden)', () => {
     const { root } = render(stations({ suggested: 'animal-restaurant' }));
     const trail = root.querySelector<HTMLElement>('[data-testid="station-trail"]');
     expect(trail).not.toBeNull();
-    expect(trail?.style.getPropertyValue('--picker-count')).toBe('2');
+    expect(trail?.style.getPropertyValue('--picker-count')).toBe('3');
+    expect(root.querySelectorAll('.picker-card')).toHaveLength(3);
+
+    const garden = renderGamePicker({
+      stations: stationGamesForWorld('number-garden', WORLD_GAMES, REAL_GAMES).map((game) => ({
+        game,
+        completed: false,
+        suggested: game.gameId === 'sorting-beds',
+        enabled: true as const,
+      })),
+      title: 'x',
+      onPick: () => {},
+      onClose: () => {},
+    });
+    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('2');
+    expect([...garden.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
+      'game-picker-sorting-beds',
+      'game-picker-balloon-pop',
+    ]);
+  });
+
+  it('[AC-14] the picker has a close button next to the stations', () => {
+    const { root } = render(stations({ suggested: 'animal-restaurant' }));
+    expect(root.querySelector('[data-testid="game-picker-close"]')).not.toBeNull();
+  });
+
+  it('[AC-09] each world\'s picker is built from WORLD_GAMES + content: Nature Lab shows Who\'s Hiding? then Seed to Flower with plain or state labels', () => {
+    const t = heStrings.gamePicker;
+    const cards = stationGamesForWorld('nature-lab', WORLD_GAMES, REAL_GAMES);
+    const root = renderGamePicker({
+      stations: cards.map((game, i) => ({ game, completed: i === 0, suggested: i === 1, enabled: true as const })),
+      title: t.natureLabTitle,
+      onPick: () => {},
+      onClose: () => {},
+    });
+    expect([...root.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
+      'game-picker-who-is-hiding',
+      'game-picker-seed-to-flower',
+    ]);
+    expect(root.querySelector('[data-testid="game-picker-who-is-hiding"]')?.getAttribute('aria-label')).toBe(`${t.whoIsHiding}, ${t.stationDone}`);
+    expect(root.querySelector('[data-testid="game-picker-seed-to-flower"]')?.getAttribute('aria-label')).toBe(`${t.seedToFlower}, ${t.stationSuggested}`);
   });
 
   it('[AC-16] the Leisure Corner picker (no stations) has no trail, star, pulse or station attributes', () => {

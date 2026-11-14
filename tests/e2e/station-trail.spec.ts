@@ -18,6 +18,12 @@ const LANDSCAPE = 'landscape-1280x800';
 const MIN_TAP = 64;
 const RESTAURANT = 'game-picker-animal-restaurant';
 const ORCHESTRA = 'game-picker-kitchen-orchestra';
+const MONSTER = 'game-picker-letter-monster';
+const SORTING = 'game-picker-sorting-beds';
+const BALLOON = 'game-picker-balloon-pop';
+const HIDING = 'game-picker-who-is-hiding';
+const SEED = 'game-picker-seed-to-flower';
+const CLOSE = 'game-picker-close';
 
 /** @single-orientation tests run in the landscape project only (docs/PROCESS.md section 4). */
 function landscapeOnly(testInfo: TestInfo): void {
@@ -83,22 +89,35 @@ test.describe('station trail inside a world', () => {
   test('[AC-08] no locks: every station is enabled and a completed station opens its game @single-orientation', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await openLanguageHouse(page, 'profile-b', true);
-    for (const id of [RESTAURANT, ORCHESTRA]) {
+    for (const id of [RESTAURANT, ORCHESTRA, MONSTER]) {
       await expect(page.locator(`[data-testid="${id}"]`)).toBeEnabled();
     }
     await tapTestId(page, RESTAURANT);
     await waitForScene(page, 'RestaurantScene');
   });
 
-  test('[AC-11] single-game worlds keep direct entry: Number Garden and Nature Lab open their game with no picker @single-orientation', async ({ page }, testInfo) => {
+  test('[AC-11] Number Garden and Nature Lab each open a 2-station trail (one-game direct entry is covered by the AC-10 unit test) @single-orientation', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await tapWorldBuilding(page, 'profile-b', 'number-garden');
-    await waitForScene(page, 'SortingScene');
-    await expect(page.locator('[data-testid="station-trail"]')).toHaveCount(0);
+    await page.locator(`[data-testid="${SORTING}"]`).waitFor({ state: 'visible', timeout: 10_000 });
+    await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(2);
+    await expect(page.locator(`[data-testid="${BALLOON}"]`)).toBeVisible();
+    // Fresh profile: the first station is the suggested one, and the picker is the trail (not a plain list).
+    await expect(page.locator(`[data-testid="${SORTING}"]`)).toHaveAttribute('data-suggested', 'true');
+    expect(await getActiveScenes(page)).toEqual(['MapScene']);
+    await tapTestId(page, BALLOON);
+    await waitForScene(page, 'BalloonScene');
 
     await tapWorldBuilding(page, 'profile-b', 'nature-lab');
-    await waitForScene(page, 'HidingScene');
-    await expect(page.locator('[data-testid="station-trail"]')).toHaveCount(0);
+    await page.locator(`[data-testid="${HIDING}"]`).waitFor({ state: 'visible', timeout: 10_000 });
+    await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(2);
+    await expect(page.locator(`[data-testid="${SEED}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${HIDING}"]`)).toHaveAttribute('data-suggested', 'true');
+    expect(await getActiveScenes(page)).toEqual(['MapScene']);
+    await tapTestId(page, SEED);
+    await waitForScene(page, 'SeedFlowerScene');
   });
 
   test('[AC-13] both profiles see the trail; progress seeded for the age-2 profile does not show for the age-5 profile @single-orientation', async ({ page }, testInfo) => {
@@ -114,24 +133,31 @@ test.describe('station trail inside a world', () => {
     await expect(page.locator(`[data-testid="${RESTAURANT}"]`)).toHaveAttribute('data-suggested', 'true');
   });
 
-  test('[AC-14] smoke: stations are at least 64 px, inside the viewport and do not overlap, in both orientations', async ({ page }) => {
+  test('[AC-14] smoke: the 3 Language House stations and the close button are at least 64 px, inside the viewport and do not overlap, in both orientations', async ({ page }) => {
     await openLanguageHouse(page, 'profile-a');
     const vp = page.viewportSize()!;
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
+    const ids = [RESTAURANT, ORCHESTRA, MONSTER, CLOSE];
     const boxes: PageRect[] = [];
-    for (const id of [RESTAURANT, ORCHESTRA]) {
+    for (const id of ids) {
       const box = await getStableBox(page, id);
       expect(box.width, `${id} width`).toBeGreaterThanOrEqual(MIN_TAP);
       expect(box.height, `${id} height`).toBeGreaterThanOrEqual(MIN_TAP);
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.y).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(vp.width + 0.5);
-      expect(box.y + box.height).toBeLessThanOrEqual(vp.height + 0.5);
+      expect(box.x, `${id} left`).toBeGreaterThanOrEqual(0);
+      expect(box.y, `${id} top`).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, `${id} right`).toBeLessThanOrEqual(vp.width + 0.5);
+      expect(box.y + box.height, `${id} bottom`).toBeLessThanOrEqual(vp.height + 0.5);
       boxes.push(box);
     }
-    const [a, b] = boxes;
-    const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-    expect(overlap).toBe(false);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const b = boxes[j];
+        const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+        expect(overlap, `${ids[i]} overlaps ${ids[j]}`).toBe(false);
+      }
+    }
   });
 
   test('[AC-15] labels name the state; the pulse animates normally and stops under reduced motion @single-orientation', async ({ page }, testInfo) => {

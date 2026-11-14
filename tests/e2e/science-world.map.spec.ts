@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import {
   getActiveScenes,
   getBuildingHit,
-  getStableBox,
   tapTestId,
   tapWorldBuilding,
   waitForScene,
@@ -29,34 +28,26 @@ test.describe('science world map area', () => {
     expect(hit.y + hit.height).toBeLessThanOrEqual(vp.height + 0.5);
   });
 
-  test('real tap opens the Science World picker with the Potion Lab card (no empty card), and close returns to the map', async ({ page }) => {
+  // Station trail entry rule (docs/specs/station-trail.md AC-10, pending Maor decision): Science World has one game
+  // (Potion Lab), so its building enters the game directly. There is no picker and no empty "coming soon" card.
+  // The empty picker for a world with no game is covered at unit level (tests/unit/station-trail.entry.test.ts).
+  test('real tap on the Science World building enters Potion Lab directly: no picker, no empty card', async ({ page }) => {
     await tapWorldBuilding(page, 'profile-a', 'science-world');
-
-    const card = page.locator('[data-testid="game-picker-potion-lab"]');
-    await card.waitFor({ state: 'visible', timeout: 10_000 });
-    await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
-    await expect(page.getByText('עולם המדע').first()).toBeVisible();
-    await expect(card).toContainText('מעבדת השיקויים');
-
-    const cardBox = await getStableBox(page, 'game-picker-potion-lab');
-    expect(cardBox.width).toBeGreaterThanOrEqual(MIN_TAP);
-    expect(cardBox.height).toBeGreaterThanOrEqual(MIN_TAP);
-
-    const close = await getStableBox(page, 'game-picker-close');
-    expect(close.width).toBeGreaterThanOrEqual(MIN_TAP);
-    expect(close.height).toBeGreaterThanOrEqual(MIN_TAP);
-    await tapTestId(page, 'game-picker-close');
-    await expect(card).toBeHidden();
-    expect(await getActiveScenes(page)).toContain('MapScene');
-  });
-
-  test('real tap on the Potion Lab card opens PotionScene', async ({ page }) => {
-    await tapWorldBuilding(page, 'profile-a', 'science-world');
-    await tapTestId(page, 'game-picker-potion-lab');
     await waitForScene(page, 'PotionScene');
-    // Regression: the press on the card must not also tap the map building under it (Number Garden in portrait).
+    // Regression: nothing else is tapped through to the map under the building (portrait: another building sits below it).
     await page.waitForTimeout(600);
     expect(await getActiveScenes(page)).toEqual(['PotionScene']);
     await expect(page.locator('[data-testid="game-picker-potion-lab"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="game-picker-close"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="station-trail"]')).toHaveCount(0);
+  });
+
+  test('leaving Potion Lab returns to the map', async ({ page }) => {
+    await tapWorldBuilding(page, 'profile-a', 'science-world');
+    await waitForScene(page, 'PotionScene');
+    await tapTestId(page, 'hud-back');
+    await waitForScene(page, 'MapScene');
+    expect(await getActiveScenes(page)).not.toContain('PotionScene');
   });
 });

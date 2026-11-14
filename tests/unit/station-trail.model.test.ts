@@ -10,9 +10,34 @@ import {
   worldEntry,
   type TrailGame,
 } from '../../src/ui/picker/trailModel';
-import { loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding } from '../../src/content/loadContent';
+import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
+import he from '../../src/content/i18n/he.json';
+import {
+  loadAnimalRestaurant,
+  loadBalloonPop,
+  loadKitchenOrchestra,
+  loadLetterMonster,
+  loadPotionLab,
+  loadSeedToFlower,
+  loadSortingBeds,
+  loadWhosHiding,
+  loadWorlds,
+} from '../../src/content/loadContent';
+import { GAME_SCENE, PICKER_WORLD_DEFAULT_GAME, WORLD_ENTRY_GAME } from '../e2e/helpers/journey';
 
 // Spec: docs/specs/station-trail.md. Pure model only (no DOM, no Phaser).
+
+/** Every game content on main, as the app's content bundle holds it (world + adaptive metadata). */
+const REAL_GAMES = collectTrailGames({
+  restaurant: loadAnimalRestaurant(),
+  orchestra: loadKitchenOrchestra(),
+  letterMonster: loadLetterMonster(),
+  sorting: loadSortingBeds(),
+  balloon: loadBalloonPop(),
+  hiding: loadWhosHiding(),
+  seedToFlower: loadSeedToFlower(),
+  potion: loadPotionLab(),
+});
 
 const META = buildMeta({
   levelCount: 8,
@@ -197,23 +222,59 @@ describe('station trail: data-driven station list', () => {
     expect(games[0].meta?.tracks.age2.start).toBe(restaurant.adaptive.tracks.age2.start);
   });
 
-  it('[AC-09] the real registry and content give Language House two stations and one station to each single-game world', () => {
-    const games = collectTrailGames({
-      restaurant: loadAnimalRestaurant(),
-      orchestra: loadKitchenOrchestra(),
-      sorting: loadSortingBeds(),
-      hiding: loadWhosHiding(),
-    });
-    const ids = (world: string) => stationGamesForWorld(world, WORLD_GAMES, games).map((g) => g.gameId);
-    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra']);
-    expect(ids('number-garden')).toEqual(['sorting-beds']);
-    expect(ids('nature-lab')).toEqual(['who-is-hiding']);
+  it('[AC-09] the real registry and content give every world its post-main stations, in registry order', () => {
+    const ids = (world: string) => stationGamesForWorld(world, WORLD_GAMES, REAL_GAMES).map((g) => g.gameId);
+    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop']);
+    expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower']);
+    expect(ids('science-world')).toEqual(['potion-lab']);
     expect(ids('art-studio')).toEqual([]);
+    expect(ids('leisure-corner')).toEqual([]);
   });
 
-  it('[AC-09] every registry card has a unique id, test id and a Hebrew label key', () => {
+  it('[AC-09] every content game of a world on the map is in the registry (no orphan content, no orphan card)', () => {
+    const registered = new Set(WORLD_GAMES.map((g) => g.gameId));
+    const worldIds = new Set(loadWorlds().worlds.map((w) => w.id));
+    for (const game of REAL_GAMES) {
+      // The leisure picker keeps its own list (LEISURE_PICKER_GAMES): leisure content is not a station.
+      if (game.world === 'leisure-corner') continue;
+      expect(worldIds.has(game.world), `${game.id} world`).toBe(true);
+      expect(registered.has(game.id as PickerGame['gameId']), `${game.id} registry`).toBe(true);
+    }
+    for (const card of WORLD_GAMES) {
+      expect(REAL_GAMES.some((g) => g.id === card.gameId), `${card.gameId} content`).toBe(true);
+    }
+  });
+
+  it('[AC-09] the per-world picker lists are gone: WORLD_GAMES is the only registry of world games', async () => {
+    const model = (await import('../../src/ui/picker/pickerModel')) as Record<string, unknown>;
+    for (const name of ['NUMBER_GARDEN_PICKER_GAMES', 'NATURE_LAB_PICKER_GAMES', 'SCIENCE_WORLD_PICKER_GAMES']) {
+      expect(model[name], name).toBeUndefined();
+    }
+  });
+
+  it('[AC-09] every registry card has a unique id, test id and a Hebrew label', () => {
     expect(new Set(WORLD_GAMES.map((g) => g.gameId)).size).toBe(WORLD_GAMES.length);
     expect(new Set(WORLD_GAMES.map((g) => g.testId)).size).toBe(WORLD_GAMES.length);
+    const labels = he.gamePicker as Record<string, string>;
+    for (const card of WORLD_GAMES) {
+      expect(card.testId).toBe(`game-picker-${card.gameId}`);
+      expect(labels[card.labelKey], card.labelKey).toBeTruthy();
+      expect(() => resolvePickerAsset(card.assetKey), card.assetKey).not.toThrow();
+    }
+  });
+
+  it('[AC-09] the registry holds exactly the games whose scenes are on main (open-PR games are added with their PR)', () => {
+    expect(WORLD_GAMES.map((g) => [g.gameId, g.sceneKey])).toEqual([
+      ['animal-restaurant', 'RestaurantScene'],
+      ['kitchen-orchestra', 'OrchestraScene'],
+      ['letter-monster', 'LetterMonsterScene'],
+      ['sorting-beds', 'SortingScene'],
+      ['balloon-pop', 'BalloonScene'],
+      ['who-is-hiding', 'HidingScene'],
+      ['seed-to-flower', 'SeedFlowerScene'],
+      ['potion-lab', 'PotionScene'],
+    ]);
   });
 });
 
@@ -224,6 +285,31 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(one)).toEqual({ kind: 'direct', game: one[0].game });
     const three = trail({});
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
+  });
+
+  it('[AC-10] the real worlds: Language House 3, Number Garden 2 and Nature Lab 2 open the trail; Science World (1 game) enters Potion Lab directly', () => {
+    const entryOf = (world: string) =>
+      worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
+    for (const world of ['language-house', 'number-garden', 'nature-lab']) expect(entryOf(world).kind, world).toBe('picker');
+    const science = entryOf('science-world');
+    expect(science.kind).toBe('direct');
+    expect(science.kind === 'direct' && science.game.gameId).toBe('potion-lab');
+    // Pending Maor decision: a world with no game yet (zero stations) still opens the coming-soon picker.
+    expect(entryOf('art-studio').kind).toBe('none');
+  });
+
+  it('[AC-10] the e2e journey helper agrees with the registry: trail worlds are picker worlds, one-game worlds are direct-entry worlds', () => {
+    for (const world of loadWorlds().worlds.filter((w) => w.status === 'open')) {
+      const stations = stationGamesForWorld(world.id, WORLD_GAMES, REAL_GAMES);
+      if (stations.length >= 2) {
+        expect(PICKER_WORLD_DEFAULT_GAME[world.id], `${world.id} picker default`).toBe(stations[0].gameId);
+        expect(WORLD_ENTRY_GAME[world.id], `${world.id} entry`).toBeUndefined();
+      } else if (stations.length === 1) {
+        expect(PICKER_WORLD_DEFAULT_GAME[world.id], `${world.id} picker default`).toBeUndefined();
+        expect(WORLD_ENTRY_GAME[world.id], `${world.id} entry`).toBe(stations[0].gameId);
+      }
+    }
+    for (const card of WORLD_GAMES) expect(GAME_SCENE[card.gameId], card.gameId).toBe(card.sceneKey);
   });
 });
 

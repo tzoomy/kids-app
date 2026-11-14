@@ -28,17 +28,21 @@ export const GAME_SCENE: Record<string, string> = {
   'potion-lab': 'PotionScene',
 };
 
-/** Entry game of each single-game world. Art Studio is locked until its own game exists. */
+/**
+ * Entry game of each direct-entry world: a world with exactly one registered game opens it directly
+ * (docs/specs/station-trail.md AC-10, pending Maor decision for Science World). Art Studio is locked until its own game exists.
+ * Mirrors WORLD_GAMES + content; tests/unit/station-trail.model.test.ts checks it against the registry.
+ */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
+  'science-world': 'potion-lab',
 };
 
-/** Worlds whose building opens the game picker; the value is the default game to pick. */
+/** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
   'number-garden': 'sorting-beds',
   'nature-lab': 'who-is-hiding',
-  'science-world': 'potion-lab',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
