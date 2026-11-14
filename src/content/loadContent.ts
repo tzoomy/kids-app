@@ -4,6 +4,7 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import seedToFlowerJson from './games/seed-to-flower.json';
 import potionLabJson from './games/potion-lab.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
@@ -15,12 +16,14 @@ import {
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
   PotionLabContentSchema,
+  SeedToFlowerContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
   type LeisureColouringContent,
+  type SeedToFlowerContent,
   type PotionLabContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
@@ -56,6 +59,10 @@ export function loadLeisureColouring(): LeisureColouringContent {
 
 export function loadPotionLab(): PotionLabContent {
   return PotionLabContentSchema.parse(potionLabJson);
+}
+
+export function loadSeedToFlower(): SeedToFlowerContent {
+  return SeedToFlowerContentSchema.parse(seedToFlowerJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

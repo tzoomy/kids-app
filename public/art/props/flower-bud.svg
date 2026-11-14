@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Closed pink tear-drop flower bud -->
+  <path d="M 80 20 C 106 50 120 82 120 108 C 120 132 102 148 80 148 C 58 148 40 132 40 108 C 40 82 54 50 80 20 Z" fill="#FF8FB1" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Bud right-side shadow -->
+  <path d="M 92 48 C 108 72 114 92 114 108 C 114 128 98 142 80 142 C 68 142 58 138 52 130 C 64 136 78 136 90 128 C 104 118 106 90 92 48 Z" fill="#E0607E"/>
+  <!-- Subtle petal fold line -->
+  <path d="M 80 26 C 72 58 70 94 76 126" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <!-- Clean bud outline -->
+  <path d="M 80 20 C 106 50 120 82 120 108 C 120 132 102 148 80 148 C 58 148 40 132 40 108 C 40 82 54 50 80 20 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left green calyx sepal -->
+  <path d="M 80 153 C 54 153 34 136 32 106 C 46 118 62 128 80 132 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Left sepal shadow -->
+  <path d="M 38 118 C 44 138 58 148 76 148 C 62 144 48 134 38 118 Z" fill="#3CA33C"/>
+  <path d="M 80 153 C 54 153 34 136 32 106 C 46 118 62 128 80 132 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right green calyx sepal -->
+  <path d="M 80 153 C 106 153 126 136 128 106 C 114 118 98 128 80 132 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right sepal shadow -->
+  <path d="M 122 118 C 116 138 102 148 84 148 C 98 144 112 134 122 118 Z" fill="#3CA33C"/>
+  <path d="M 80 153 C 106 153 126 136 128 106 C 114 118 98 128 80 132 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center calyx cup base at (80, 156) outer edge -->
+  <path d="M 64 148 C 68 130 74 120 80 116 C 86 120 92 130 96 148 C 90 153 70 153 64 148 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
