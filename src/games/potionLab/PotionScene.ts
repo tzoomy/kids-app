@@ -33,7 +33,6 @@ import {
 } from './potionMachine';
 import {
   colorLine,
-  introLine,
   namingLines,
   nextRequest,
   planForLevel,
@@ -41,6 +40,7 @@ import {
   trialForMix,
   trialForRequest,
   tryAgainLine,
+  visitStartLines,
   type PotionPlan,
 } from './potionRound';
 import type { PotionInfo } from './potionTypes';
@@ -201,7 +201,7 @@ export class PotionScene extends Phaser.Scene {
     PRIMARY_COLORS.forEach((color, idx) => this.buildPot(color, idx));
     this.buildHud();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
-    this.startVisit();
+    this.startVisit(true);
 
     window.__GAME_READY__ = true;
   }
@@ -426,7 +426,7 @@ export class PotionScene extends Phaser.Scene {
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
   }
 
-  private startVisit(): void {
+  private startVisit(fromCreate = false): void {
     const token = ++this.visitToken;
     const c = content();
     this.refreshRoundPlan();
@@ -439,14 +439,26 @@ export class PotionScene extends Phaser.Scene {
     this.renderBowlLiquid(null);
     this.renderTargetSwatch(true);
 
-    const intro = this.introPending ? introLine(c, this.plan.mode) : undefined;
-    this.introPending = false;
-    const lines: SpeechRequest[] = [];
-    if (intro) lines.push(intro);
-    if (req !== null && this.lang) {
-      lines.push(requestLine(c, req), colorLine(c, req, this.lang));
+    const startSpeech = () => {
+      if (token !== this.visitToken || !this.sys.isActive()) return;
+      const includeIntro = this.introPending;
+      this.introPending = false;
+      const lines = visitStartLines(c, {
+        includeIntro,
+        mode: this.plan.mode,
+        request: req,
+        learningLang: this.lang,
+      });
+      if (lines.length > 0) void this.speakSequence(lines, token);
+    };
+
+    // Phaser keeps the scene status CREATING during create() and only sets RUNNING (isActive() === true)
+    // right before emitting CREATE; deferring speech until CREATE stops speakSequence from returning early.
+    if (fromCreate) {
+      this.events.once(Phaser.Scenes.Events.CREATE, startSpeech);
+    } else {
+      startSpeech();
     }
-    if (lines.length > 0) void this.speakSequence(lines, token);
 
     if (this.bowlView) {
       void popIn(this, this.bowlView, 60).then(() => {

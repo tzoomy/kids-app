@@ -105,3 +105,23 @@ export function introLine(content: PotionLabContent, mode: PotionMode): SpeechRe
     ? { lineId: 'potion.intro.request.he', lang: 'he', text: content.linesHe.introRequest }
     : { lineId: 'potion.intro.free.he', lang: 'he', text: content.linesHe.introFree };
 }
+
+export interface VisitStartLinesInput {
+  includeIntro: boolean;
+  mode: PotionMode;
+  request: SecondaryColor | null;
+  learningLang: Lang | null;
+}
+
+/** Voice lines spoken when a visit/round begins: optional intro, then the request in Hebrew and the learning language. */
+export function visitStartLines(
+  content: PotionLabContent,
+  { includeIntro, mode, request, learningLang }: VisitStartLinesInput,
+): SpeechRequest[] {
+  const lines: SpeechRequest[] = [];
+  if (includeIntro) lines.push(introLine(content, mode));
+  if (request !== null && learningLang) {
+    lines.push(requestLine(content, request), colorLine(content, request, learningLang));
+  }
+  return lines;
+}

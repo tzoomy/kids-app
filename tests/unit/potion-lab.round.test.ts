@@ -25,6 +25,7 @@ import {
   trialForMix,
   trialForRequest,
   tryAgainLine,
+  visitStartLines,
 } from '@/games/potionLab/potionRound';
 import { nextRoundLanguage } from '@/games/restaurant/trialTracker';
 
@@ -107,6 +108,13 @@ describe('Potion Lab: levels, adaptive trials, voice lines and content', () => {
     expect(nextRoundLanguage(null, true, 'fr')).toBe('fr');
     expect(nextRoundLanguage(null, true, 'en')).toBe('en');
     expect(['en', 'fr']).toContain(nextRoundLanguage(null, true, 'both', () => 0.8));
+
+    expect(visitStartLines(content, { includeIntro: true, mode: 'free', request: null, learningLang: 'en' })).toEqual([
+      introLine(content, 'free'),
+    ]);
+    expect(visitStartLines(content, { includeIntro: false, mode: 'free', request: null, learningLang: 'en' })).toEqual(
+      [],
+    );
   });
 
   it('[AC-05] request mode helpers: nextRequest never repeats the previous color; requestLine and tryAgainLine carry Hebrew color names', () => {
@@ -123,6 +131,12 @@ describe('Potion Lab: levels, adaptive trials, voice lines and content', () => {
       lang: 'he',
       text: content.linesHe.introRequest,
     });
+    expect(
+      visitStartLines(content, { includeIntro: true, mode: 'request', request: 'green', learningLang: 'fr' }),
+    ).toEqual([introLine(content, 'request'), requestLine(content, 'green'), colorLine(content, 'green', 'fr')]);
+    expect(
+      visitStartLines(content, { includeIntro: false, mode: 'request', request: 'orange', learningLang: 'en' }),
+    ).toEqual([requestLine(content, 'orange'), colorLine(content, 'orange', 'en')]);
 
     for (const target of SECONDARY_COLORS) {
       const req = requestLine(content, target);

@@ -129,3 +129,4 @@ Only after Maor approves Pass 1: a lab background, polished pots, a pour/fizz an
 ## Changelog
 
 - `2026-11-13` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-14` — deferred first-visit speech in `PotionScene.startVisit` until `Phaser.Scenes.Events.CREATE` so the intro and initial request lines are not dropped while the scene is `CREATING`; added e2e intro speech-spy checks under AC-04 and AC-05 — minor

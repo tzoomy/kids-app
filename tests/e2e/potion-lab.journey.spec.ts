@@ -14,6 +14,7 @@ import {
   tapWorldBuilding,
   waitForPotionReady,
   waitForScene,
+  waitForSpokenLine,
   type PotionInfo,
 } from './helpers/journey';
 
@@ -65,6 +66,21 @@ test.describe('potion lab', () => {
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');
     expect(await getActiveScenes(page)).not.toContain('PotionScene');
+  });
+
+  test('[AC-04] @single-orientation free mode (age 2): entering speaks the free-mode intro line', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    const info = await enterPotionLab(page, 'profile-a');
+    expect(info.level).toBe(1);
+    expect(info.mode).toBe('free');
+
+    const intro = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === 'potion.intro.free.he' && l.lang === 'he',
+      10_000,
+    );
+    const lines = await getSpokenLines(page, intro.index);
+    expect(lines.some((l) => l.lineId === 'potion.intro.free.he' && l.lang === 'he')).toBe(true);
   });
 
   test('[AC-04] @single-orientation free mode (age 2): every mix is named in Hebrew and in the learning language', async ({ page }, testInfo) => {
@@ -146,6 +162,41 @@ test.describe('potion lab', () => {
       15_000,
     );
     expect(next.stars).toBe(starsBefore + 1);
+  });
+
+  test('[AC-05] @single-orientation request mode (age 5): entering speaks the request intro, the request line, and the color word in order before any tap', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    const info = await enterPotionLab(page, 'profile-b', 2);
+    expect(info.level).toBe(2);
+    expect(info.mode).toBe('request');
+    expect(info.request).not.toBeNull();
+    const req = info.request!;
+
+    const intro = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === 'potion.intro.request.he' && l.lang === 'he',
+      10_000,
+    );
+    const request = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === `potion.request.${req}.he` && l.lang === 'he',
+      10_000,
+      intro.index + 1,
+    );
+    const color = await waitForSpokenLine(
+      page,
+      (l) => l.lineId === `potion.color.${req}.${info.language}` && l.lang === info.language,
+      10_000,
+      request.index + 1,
+    );
+    const visitLines = (await getSpokenLines(page, intro.index)).filter((l) => l.lineId.startsWith('potion.'));
+    expect(visitLines.slice(0, 3).map((l) => ({ lineId: l.lineId, lang: l.lang }))).toEqual([
+      { lineId: 'potion.intro.request.he', lang: 'he' },
+      { lineId: `potion.request.${req}.he`, lang: 'he' },
+      { lineId: `potion.color.${req}.${info.language}`, lang: info.language },
+    ]);
+    expect(intro.index).toBeLessThan(request.index);
+    expect(request.index).toBeLessThan(color.index);
   });
 
   test('[AC-08] pot and bowl tap targets are at least 64 CSS px in both orientations', async ({ page }) => {
