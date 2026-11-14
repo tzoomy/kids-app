@@ -5,6 +5,7 @@ import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import balloonPopJson from './games/balloon-pop.json';
+import seedToFlowerJson from './games/seed-to-flower.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -15,6 +16,7 @@ import {
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
   BalloonPopContentSchema,
+  SeedToFlowerContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
@@ -22,6 +24,7 @@ import {
   type WhosHidingContent,
   type LeisureColouringContent,
   type BalloonPopContent,
+  type SeedToFlowerContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -56,6 +59,10 @@ export function loadLeisureColouring(): LeisureColouringContent {
 
 export function loadBalloonPop(): BalloonPopContent {
   return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadSeedToFlower(): SeedToFlowerContent {
+  return SeedToFlowerContentSchema.parse(seedToFlowerJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

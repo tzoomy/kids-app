@@ -153,6 +153,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('HidingScene');
   game?.scene.stop('SortingScene');
   game?.scene.stop('ColouringScene');
+  game?.scene.stop('SeedFlowerScene');
   game?.scene.stop('BubblesScene');
   game?.scene.stop('BalloonScene');
   game?.scene.stop('MapScene');
@@ -180,6 +181,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('HidingScene');
     game.scene.stop('SortingScene');
     game.scene.stop('ColouringScene');
+    game.scene.stop('SeedFlowerScene');
     game.scene.stop('BubblesScene');
     game.scene.stop('BalloonScene');
     game.scene.start('MapScene');
