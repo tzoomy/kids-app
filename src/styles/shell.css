@@ -492,9 +492,9 @@ body {
   display: flex;
   position: relative;
   flex: 0 0 auto;
-  /* Exactly 4:5 (the 640x800 card art), as large as fits: two side by side in landscape. */
+  /* Exactly 4:5 (the 640x800 card art), as large as fits: sized by --picker-count in landscape. */
   aspect-ratio: 4 / 5;
-  width: min(calc((100cqw - 28px) / 2), 80cqh);
+  width: min(calc((100cqw - (var(--picker-count, 2) - 1) * 28px) / var(--picker-count, 2)), 80cqh);
   min-height: 64px;
   box-shadow: 0 8px 0 rgba(59, 42, 34, 0.14);
   text-align: center;
@@ -566,8 +566,8 @@ body {
     gap: 20px;
   }
   .picker-card {
-    /* Stacked: each card gets half the height, and never more than the full width. */
-    width: min(100cqw, calc((100cqh - 20px) / 2 * 0.8));
+    /* Stacked: each card shares the height by --picker-count, and never more than the full width. */
+    width: min(100cqw, calc((100cqh - (var(--picker-count, 2) - 1) * 20px) / var(--picker-count, 2) * 0.8));
   }
   .picker-card-label {
     font-size: 24px;
