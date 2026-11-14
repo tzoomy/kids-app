@@ -17,6 +17,7 @@ import type {
   LetterMonsterContent,
   SeedToFlowerContent,
   PotionLabContent,
+  SinkOrFloatContent,
 } from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
@@ -34,6 +35,7 @@ export interface ContentBundle {
   hiding: WhosHidingContent;
   seedToFlower: SeedToFlowerContent;
   potionLab: PotionLabContent;
+  sinkOrFloat: SinkOrFloatContent;
   colouring: LeisureColouringContent;
   he: typeof heStrings;
 }

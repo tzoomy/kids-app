@@ -48,6 +48,7 @@ export const PICKER_SPECS = [
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
+  'tests/e2e/sink-or-float.journey.spec.ts',
   'tests/e2e/sorting-beds.journey.spec.ts',
   'tests/e2e/sorting-beds.platform.spec.ts',
   'tests/e2e/station-trail.spec.ts',
@@ -57,7 +58,7 @@ export const PICKER_SPECS = [
 /** Explicit map. Every tests/e2e/*.spec.ts must appear in some `specs` list or in SMOKE_SPECS. */
 export const GAME_RULES = [
   {
-    // The shared picker and station trail are the way into every world with 2+ games (and Science World's direct entry).
+    // The shared picker and station trail are the way into every world with 2+ games (and the coming-soon picker for a world with none).
     id: 'picker',
     match: [/^src\/ui\/picker\//],
     specs: PICKER_SPECS,
@@ -165,6 +166,16 @@ export const GAME_RULES = [
       /^tests\/unit\/potion-lab[^/]*$/,
     ],
     specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'sink-or-float',
+    match: [
+      /^src\/games\/sinkFloat\//,
+      /^src\/content\/games\/sink-or-float\.json$/,
+      /^public\/art\/props\/(water-tank|float-[a-z]+)\.svg$/,
+      /^tests\/unit\/sink-or-float[^/]*$/,
+    ],
+    specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
   },
   {
     id: 'balloon-pop',

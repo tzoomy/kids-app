@@ -18,6 +18,7 @@ import {
   loadKitchenOrchestra,
   loadLetterMonster,
   loadPotionLab,
+  loadSinkOrFloat,
   loadSeedToFlower,
   loadSortingBeds,
   loadWhosHiding,
@@ -37,6 +38,7 @@ const REAL_GAMES = collectTrailGames({
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   potion: loadPotionLab(),
+  sinkOrFloat: loadSinkOrFloat(),
 });
 
 const META = buildMeta({
@@ -227,7 +229,7 @@ describe('station trail: data-driven station list', () => {
     expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
     expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower']);
-    expect(ids('science-world')).toEqual(['potion-lab']);
+    expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float']);
     expect(ids('art-studio')).toEqual([]);
     expect(ids('leisure-corner')).toEqual([]);
   });
@@ -274,6 +276,7 @@ describe('station trail: data-driven station list', () => {
       ['who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'SeedFlowerScene'],
       ['potion-lab', 'PotionScene'],
+      ['sink-or-float', 'SinkFloatScene'],
     ]);
   });
 });
@@ -287,13 +290,12 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
   });
 
-  it('[AC-10] the real worlds: Language House 3, Number Garden 2 and Nature Lab 2 open the trail; Science World (1 game) enters Potion Lab directly', () => {
+  it('[AC-10] the real worlds: Language House 3, Number Garden 2, Nature Lab 2 and Science World 2 open the trail; a world with no game is none', () => {
     const entryOf = (world: string) =>
       worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
-    for (const world of ['language-house', 'number-garden', 'nature-lab']) expect(entryOf(world).kind, world).toBe('picker');
-    const science = entryOf('science-world');
-    expect(science.kind).toBe('direct');
-    expect(science.kind === 'direct' && science.game.gameId).toBe('potion-lab');
+    for (const world of ['language-house', 'number-garden', 'nature-lab', 'science-world']) {
+      expect(entryOf(world).kind, world).toBe('picker');
+    }
     // Pending Maor decision: a world with no game yet (zero stations) still opens the coming-soon picker.
     expect(entryOf('art-studio').kind).toBe('none');
   });

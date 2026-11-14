@@ -9,7 +9,7 @@ import { buildingArtKey, registerArtManifest, resetArtRegistry } from '../../src
 import { PICKER_EMPTY_TEST_ID, WORLD_GAMES } from '../../src/ui/picker/pickerModel';
 import { buildTrail, collectTrailGames, stationGamesForWorld, worldEntry } from '../../src/ui/picker/trailModel';
 import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
-import { loadPotionLab } from '../../src/content/loadContent';
+import { loadPotionLab, loadSinkOrFloat } from '../../src/content/loadContent';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
 import { selectAffectedE2e } from '../../scripts/affected-e2e.mjs';
 
@@ -58,24 +58,38 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     }
   });
 
-  it('the world has the potion-lab station (registry + content world), with a Hebrew label and resolvable asset', () => {
-    const potion = loadPotionLab();
-    expect(potion.world).toBe('science-world');
-    const stations = stationGamesForWorld('science-world', WORLD_GAMES, collectTrailGames({ potion }));
+  it('the world has potion-lab then sink-or-float stations (registry + content world), with Hebrew labels and resolvable assets', () => {
+    expect(loadPotionLab().world).toBe('science-world');
+    expect(loadSinkOrFloat().world).toBe('science-world');
+    const stations = stationGamesForWorld(
+      'science-world',
+      WORLD_GAMES,
+      collectTrailGames({ potion: loadPotionLab(), sink: loadSinkOrFloat() }),
+    );
     expect(stations.map((g) => [g.gameId, g.testId, g.sceneKey, g.assetKey, g.labelKey])).toEqual([
       ['potion-lab', 'game-picker-potion-lab', 'PotionScene', 'picker-card-potion-lab', 'potionLab'],
+      ['sink-or-float', 'game-picker-sink-or-float', 'SinkFloatScene', 'picker-card-sink-or-float', 'sinkOrFloat'],
     ]);
-    const entry = stations[0];
-    expect(() => resolvePickerAsset(entry.assetKey)).not.toThrow();
-    expect((he.gamePicker as Record<string, string>)[entry.labelKey]).toBe('מעבדת השיקויים');
+    const labels = he.gamePicker as Record<string, string>;
+    for (const entry of stations) {
+      expect(() => resolvePickerAsset(entry.assetKey)).not.toThrow();
+      expect(labels[entry.labelKey]).toBeTruthy();
+    }
+    expect(labels[stations[0].labelKey]).toBe('מעבדת השיקויים');
+    expect(labels[stations[1].labelKey]).toBe('צף או שוקע?');
   });
 
-  it('one game means direct entry to Potion Lab (AC-10, pending Maor decision); a world without games has no station', () => {
-    const games = collectTrailGames({ potion: loadPotionLab() });
-    const trail = buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games, skills: {}, track: 'age2' });
-    const entry = worldEntry(trail);
-    expect(entry.kind).toBe('direct');
-    expect(entry.kind === 'direct' && entry.game.gameId).toBe('potion-lab');
+  it('two Science World games open the trail picker; a world given only Potion Lab still enters it directly (AC-10)', () => {
+    const both = collectTrailGames({ potion: loadPotionLab(), sink: loadSinkOrFloat() });
+    const bothEntry = worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: both, skills: {}, track: 'age2' }));
+    expect(bothEntry.kind).toBe('picker');
+    expect(bothEntry.kind === 'picker' && bothEntry.stations.map((s) => s.game.gameId)).toEqual(['potion-lab', 'sink-or-float']);
+
+    // Synthetic one-game bundle: the entry rule itself is unchanged (pending Maor decision).
+    const one = collectTrailGames({ potion: loadPotionLab() });
+    const oneEntry = worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: one, skills: {}, track: 'age2' }));
+    expect(oneEntry.kind).toBe('direct');
+    expect(oneEntry.kind === 'direct' && oneEntry.game.gameId).toBe('potion-lab');
     expect(worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: [], skills: {}, track: 'age2' }))).toEqual({
       kind: 'none',
     });

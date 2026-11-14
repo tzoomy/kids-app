@@ -9,6 +9,7 @@ export type PickerGameId =
   | 'who-is-hiding'
   | 'seed-to-flower'
   | 'potion-lab'
+  | 'sink-or-float'
   | 'bubbles'
   | 'leisure-colouring';
 
@@ -21,7 +22,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'sinkOrFloat' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -105,6 +106,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     assetKey: 'picker-card-potion-lab',
     labelKey: 'potionLab',
   },
+  {
+    gameId: 'sink-or-float',
+    testId: 'game-picker-sink-or-float',
+    sceneKey: 'SinkFloatScene',
+    assetKey: 'picker-card-sink-or-float',
+    labelKey: 'sinkOrFloat',
+  },
 ];
 
 export const PICKER_CLOSE_TEST_ID = 'game-picker-close';
@@ -133,4 +141,3 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     labelKey: 'colouring',
   },
 ];
-

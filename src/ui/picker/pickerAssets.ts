@@ -60,6 +60,7 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
   // Science World, in science blue.
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
 };
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */

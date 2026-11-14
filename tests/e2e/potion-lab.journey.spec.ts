@@ -50,13 +50,12 @@ async function waitForPotion(
 }
 
 test.describe('potion lab', () => {
-  test('[AC-01] full real-tap journey: profile -> Science World (one game: direct entry, no picker) -> mix two colors -> back to the map', async ({ page }) => {
+  test('[AC-01] full real-tap journey: profile -> Science World -> trail card -> mix two colors -> back to the map', async ({ page }) => {
     test.setTimeout(60_000);
-    // Station trail entry rule (docs/specs/station-trail.md AC-10): a world with exactly one game enters it directly.
+    // Science World now has 2 games (Potion Lab, Sink or Float), so the station trail opens (AC-10).
     await tapWorldBuilding(page, 'profile-a', 'science-world');
+    await tapTestId(page, 'game-picker-potion-lab');
     await waitForScene(page, 'PotionScene');
-    await expect(page.locator('[data-testid="game-picker-potion-lab"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
     const info = await waitForPotionReady(page);
 
     await tapRect(page, info.pots.red);
