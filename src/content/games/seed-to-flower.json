@@ -1,0 +1,36 @@
+{
+  "id": "seed-to-flower",
+  "world": "nature-lab",
+  "template": "cause-effect",
+  "skill": "plant-growth-order",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "demonstrate", "hintDelayMs": 9000 }
+  },
+  "stageNames": {
+    "seed": { "en": "A seed!", "fr": "Une graine !" },
+    "sprout": { "en": "A sprout!", "fr": "Une pousse !" },
+    "bud": { "en": "A bud!", "fr": "Un bouton !" },
+    "flower": { "en": "A flower!", "fr": "Une fleur !" }
+  },
+  "linesHe": {
+    "introFree": "בואי נגדל פרח! לחצי על המים או על השמש, וראי איך הוא גדל.",
+    "introOrdered": "בואי נגדל פרח! קודם משקים במים, ואחר כך השמש מחממת.",
+    "needWater": "קודם מים!",
+    "needSun": "עכשיו השמש!"
+  },
+  "helpTextHe": "לחצי על המים ועל השמש, והפרח יגדל. בגן של הגדולות: קודם מים, ואחר כך שמש.",
+  "blooms": ["daisy-yellow", "tulip-red", "round-blue", "daisy-red", "tulip-yellow", "round-red"],
+  "adaptive": {
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 3 }, "age5": { "start": 4, "min": 1, "max": 5 } },
+    "levels": [
+      { "support": "picture-audio", "extra": { "stages": "seed,sprout,flower", "order": "free", "naming": "bloom" } },
+      { "support": "picture-audio", "extra": { "stages": "seed,sprout,bud,flower", "order": "free", "naming": "bloom" } },
+      { "support": "picture-audio", "extra": { "stages": "seed,sprout,bud,flower", "order": "free", "naming": "all" } },
+      { "support": "picture-audio", "extra": { "stages": "seed,sprout,bud,flower", "order": "water-then-sun", "naming": "all" } },
+      { "support": "audio-only", "extra": { "stages": "seed,sprout,bud,flower", "order": "water-then-sun", "naming": "all" } }
+    ]
+  }
+}

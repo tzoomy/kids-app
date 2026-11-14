@@ -347,4 +347,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'word-train-wagon', url: 'art/word-train/wagon.svg', width: 200, height: 260 },
   { key: 'word-train-sun', url: 'art/word-train/sun.svg', width: 256, height: 256 },
   { key: 'word-train-cup', url: 'art/word-train/cup.svg', width: 256, height: 256 },
+  // Seed to Flower (docs/specs/seed-to-flower.md) — Pass-1 plant stages and tools
+  { key: 'prop-seed', url: 'art/props/seed.svg', width: 160, height: 160 },
+  { key: 'prop-sprout', url: 'art/props/sprout.svg', width: 160, height: 200 },
+  { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
+  { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
+  { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
 ];

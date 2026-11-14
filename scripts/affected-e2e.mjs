@@ -78,6 +78,22 @@ export const GAME_RULES = [
     specs: ['tests/e2e/word-train.journey.spec.ts'],
   },
   {
+    id: 'seed-to-flower',
+    match: [
+      /^src\/games\/seedFlower\//,
+      /^src\/content\/games\/seed-to-flower\.json$/,
+      /^public\/art\/props\/(seed|sprout|flower-bud|watering-can|sun)\.svg$/,
+      /^tests\/unit\/seed-to-flower[^/]*$/,
+    ],
+    specs: ['tests/e2e/seed-to-flower.journey.spec.ts'],
+  },
+  {
+    // The Nature Lab picker (docs/specs/seed-to-flower.md) is the way into both Nature Lab games.
+    id: 'nature-lab-picker',
+    match: [/^src\/ui\/picker\//],
+    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
+  },
+  {
     id: 'leisure-colouring',
     match: [
       /^src\/games\/colouring\//,

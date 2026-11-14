@@ -4,8 +4,9 @@
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
 import type { WordTrainInfo } from '../../../src/games/wordTrain/wordTrainTypes';
+import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, WordTrainInfo };
+export type { SortingInfo, WordTrainInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -14,8 +15,9 @@ export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
   bubbles: 'BubblesScene',
-  // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
+  // Nature Lab opens a picker (docs/specs/seed-to-flower.md): Who's Hiding? or Seed to Flower.
   'who-is-hiding': 'HidingScene',
+  'seed-to-flower': 'SeedFlowerScene',
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
@@ -25,13 +27,13 @@ export const GAME_SCENE: Record<string, string> = {
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
-  'nature-lab': 'who-is-hiding',
   'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'nature-lab': 'who-is-hiding',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -139,6 +141,8 @@ type Hooks = {
   seedTimeEarningEnabled: (enabled: boolean) => void;
   seedWordTrainLevel: (level: number) => void;
   getWordTrainInfo: () => WordTrainInfo | null;
+  seedSeedFlowerLevel: (level: number) => void;
+  getSeedFlowerInfo: () => SeedFlowerInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -566,4 +570,24 @@ export async function dragRectTo(page: Page, from: PageRect, to: PageRect): Prom
   await page.mouse.down();
   await page.mouse.move(endX, endY, { steps: 12 });
   await page.mouse.up();
+}
+
+/** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
+export async function seedSeedFlowerLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSeedFlowerLevel', [level]);
+}
+
+export function getSeedFlowerInfo(page: Page): Promise<SeedFlowerInfo | null> {
+  return callHook<SeedFlowerInfo | null>(page, 'getSeedFlowerInfo');
+}
+
+/** Waits until the plant accepts tool taps and returns its state. */
+export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Promise<SeedFlowerInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSeedFlowerInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
