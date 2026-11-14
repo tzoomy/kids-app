@@ -18,6 +18,7 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'who-is-hiding': 'src/games/hiding/HidingScene.ts',
   'seed-to-flower': 'src/games/seedFlower/SeedFlowerScene.ts',
   'who-lives-here': 'src/games/habitat/HabitatScene.ts',
+  'shadow-match': 'src/games/hiding/ShadowScene.ts',
   'potion-lab': 'src/games/potionLab/PotionScene.ts',
   'sink-or-float': 'src/games/sinkFloat/SinkFloatScene.ts',
   'magic-magnet': 'src/games/magicMagnet/MagnetScene.ts',
