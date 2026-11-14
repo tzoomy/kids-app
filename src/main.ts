@@ -12,7 +12,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadBalloonPop, loadLetterMonster, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
 
@@ -30,6 +30,7 @@ const context = new AppContext(store, audioManager, sfx, {
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
+  suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   hiding: loadWhosHiding(),
@@ -169,6 +170,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('ColouringScene');
   game?.scene.stop('MagnetScene');
   game?.scene.stop('LetterMonsterScene');
+  game?.scene.stop('SuitcaseScene');
   game?.scene.stop('SeedFlowerScene');
   game?.scene.stop('PotionScene');
   game?.scene.stop('SinkFloatScene');
@@ -207,6 +209,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('ColouringScene');
     game.scene.stop('MagnetScene');
     game.scene.stop('LetterMonsterScene');
+    game.scene.stop('SuitcaseScene');
     game.scene.stop('SeedFlowerScene');
     game.scene.stop('PotionScene');
     game.scene.stop('SinkFloatScene');

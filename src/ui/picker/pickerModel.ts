@@ -4,6 +4,7 @@ export type PickerGameId =
   | 'animal-restaurant'
   | 'kitchen-orchestra'
   | 'letter-monster'
+  | 'travel-suitcase'
   | 'sorting-beds'
   | 'balloon-pop'
   | 'who-is-hiding'
@@ -24,7 +25,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -128,6 +129,14 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'MagnetScene',
     assetKey: 'picker-card-magic-magnet',
     labelKey: 'magicMagnet',
+  },
+  // Language House (appended; keep main's earlier Language House order and default).
+  {
+    gameId: 'travel-suitcase',
+    testId: 'game-picker-travel-suitcase',
+    sceneKey: 'SuitcaseScene',
+    assetKey: 'picker-card-travel-suitcase',
+    labelKey: 'travelSuitcase',
   },
 ];
 

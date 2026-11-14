@@ -17,6 +17,7 @@ import type {
   LeisureColouringContent,
   BalloonPopContent,
   LetterMonsterContent,
+  TravelSuitcaseContent,
   SeedToFlowerContent,
   PotionLabContent,
   SinkOrFloatContent,
@@ -33,6 +34,7 @@ export interface ContentBundle {
   restaurant: AnimalRestaurantContent;
   orchestra: KitchenOrchestraContent;
   letterMonster: LetterMonsterContent;
+  suitcase: TravelSuitcaseContent;
   sorting: SortingBedsContent;
   balloon: BalloonPopContent;
   hiding: WhosHidingContent;

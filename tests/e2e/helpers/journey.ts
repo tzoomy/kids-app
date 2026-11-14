@@ -3,6 +3,7 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
 import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
 import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
@@ -12,7 +13,7 @@ import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTyp
 import type { HabitatInfo } from '../../../src/games/habitat/types';
 import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, WardrobeInfo, WardrobeSeed };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -21,6 +22,7 @@ export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
   'letter-monster': 'LetterMonsterScene',
+  'travel-suitcase': 'SuitcaseScene',
   bubbles: 'BubblesScene',
   // Nature Lab opens a picker: Who's Hiding?, Seed to Flower, and (once registered) Who Lives Here?.
   'who-is-hiding': 'HidingScene',
@@ -161,6 +163,8 @@ type Hooks = {
   getLetterMonsterInfo: () => LetterMonsterInfo | null;
   getBalloonInfo: () => BalloonInfo | null;
   seedBalloonLevel: (level: number) => void;
+  seedSuitcaseLevel: (level: number) => void;
+  getSuitcaseInfo: () => SuitcaseInfo | null;
   seedSeedFlowerLevel: (level: number) => void;
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
   seedPotionLevel: (level: number) => void;
@@ -709,6 +713,38 @@ export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promi
     if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
   }
+}
+
+/** Seeds the persisted Travel Suitcase level for every content language (seed only). Call on the map, before entering. */
+export async function seedSuitcaseLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSuitcaseLevel', [level]);
+}
+
+export function getSuitcaseInfo(page: Page): Promise<SuitcaseInfo | null> {
+  return callHook<SuitcaseInfo | null>(page, 'getSuitcaseInfo');
+}
+
+/** Waits until Travel Suitcase accepts input and returns its state. */
+export async function waitForSuitcaseReady(page: Page, timeout = 15_000): Promise<SuitcaseInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSuitcaseInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Travel Suitcase never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Real pointer drag from the centre of `from` to the centre of `to` in page CSS px. */
+export async function dragRectTo(page: Page, from: PageRect, to: PageRect): Promise<void> {
+  const startX = from.x + from.width / 2;
+  const startY = from.y + from.height / 2;
+  const endX = to.x + to.width / 2;
+  const endY = to.y + to.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(endX, endY, { steps: 12 });
+  await page.mouse.up();
 }
 
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
