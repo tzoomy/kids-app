@@ -49,6 +49,12 @@ describe('station trail on the real runtime content bundle (src/main.ts)', () =>
     expect(stations).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
   });
 
+  it('every WORLD_GAMES id is a trail game in the runtime bundle', () => {
+    const trailIds = new Set(collectTrailGames(buildRuntimeBundle()).map((g) => g.id));
+    const missing = WORLD_GAMES.map((g) => g.gameId).filter((id) => !trailIds.has(id));
+    expect(missing, 'WORLD_GAMES ids with no loader in the src/main.ts content bundle').toEqual([]);
+  });
+
   it('nature-lab stations on the runtime bundle match the registry, with Shadow Match last', () => {
     const games = collectTrailGames(buildRuntimeBundle());
     const stations = stationGamesForWorld('nature-lab', WORLD_GAMES, games).map((g) => g.gameId);
