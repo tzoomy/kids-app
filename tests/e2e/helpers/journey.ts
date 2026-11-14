@@ -33,12 +33,17 @@ export const GAME_SCENE: Record<string, string> = {
   'magic-magnet': 'MagnetScene',
 };
 
-/** Entry game of each single-game world. Art Studio is locked until its own game exists. */
+/**
+ * Entry game of each direct-entry world: a world with exactly one registered game opens it directly
+ * (docs/specs/station-trail.md AC-10, pending Maor decision). Art Studio is locked until its own game exists.
+ * Leisure Corner is listed here so a default tap still opens Bubbles; Colouring Time is an extra picker card.
+ * Mirrors WORLD_GAMES + content; tests/unit/station-trail.model.test.ts checks it against the registry.
+ */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
 };
 
-/** Worlds whose building opens the game picker; the value is the default game to pick. */
+/** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
   'number-garden': 'sorting-beds',
@@ -46,13 +51,12 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'science-world': 'potion-lab',
 };
 
-/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another PR).
+/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another list).
  * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
  * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building.
- * Science World tests pass `'magic-magnet'` explicitly so Potion Lab can own the default slot. */
+ * Science World is a trail world (`PICKER_WORLD_DEFAULT_GAME`); Sink or Float and Magic Magnet are reached by passing their gameId. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
-  'science-world': ['sink-or-float', 'magic-magnet'],
 };
 
 export interface PageRect {

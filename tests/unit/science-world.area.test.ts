@@ -6,7 +6,8 @@ import worlds from '../../src/content/worlds.json';
 import he from '../../src/content/i18n/he.json';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { buildingArtKey, registerArtManifest, resetArtRegistry } from '../../src/anim/artRegistry';
-import { PICKER_EMPTY_TEST_ID, SCIENCE_WORLD_PICKER_GAMES } from '../../src/ui/picker/pickerModel';
+import { PICKER_EMPTY_TEST_ID, WORLD_GAMES } from '../../src/ui/picker/pickerModel';
+import { buildTrail, collectTrailGames, stationGamesForWorld, worldEntry } from '../../src/ui/picker/trailModel';
 import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
 import { loadPotionLab, loadSinkOrFloat, loadMagicMagnet } from '../../src/content/loadContent';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
@@ -26,7 +27,7 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     expect(sw!.nameHe).toBe('עולם המדע');
     expect(sw!.status).toBe('open');
     expect(sw!.earnsLeisure).toBe(true);
-    // No direct entry game: the building always opens its picker.
+    // No `entryGameId` hint needed: the registry (WORLD_GAMES + content) decides what the building does.
     expect(sw!.entryGameId).toBeUndefined();
     expect(ids.indexOf('science-world')).toBe(ids.indexOf('art-studio') - 1);
     expect(new Set(ids).size).toBe(ids.length);
@@ -57,46 +58,48 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     }
   });
 
-  it('picker list has potion-lab, sink-or-float and magic-magnet, looked up by gameId, with Hebrew labels and resolvable assets', () => {
-    const byId = (id: string) => SCIENCE_WORLD_PICKER_GAMES.find((g) => g.gameId === id);
-    const potionEntry = byId('potion-lab');
-    const sinkEntry = byId('sink-or-float');
-    const magnetEntry = byId('magic-magnet');
-    expect(potionEntry).toEqual({
-      gameId: 'potion-lab',
-      testId: 'game-picker-potion-lab',
-      sceneKey: 'PotionScene',
-      assetKey: 'picker-card-potion-lab',
-      labelKey: 'potionLab',
-    });
-    expect(sinkEntry).toEqual({
-      gameId: 'sink-or-float',
-      testId: 'game-picker-sink-or-float',
-      sceneKey: 'SinkFloatScene',
-      assetKey: 'picker-card-sink-or-float',
-      labelKey: 'sinkOrFloat',
-    });
-    expect(magnetEntry).toEqual({
-      gameId: 'magic-magnet',
-      testId: 'game-picker-magic-magnet',
-      sceneKey: 'MagnetScene',
-      assetKey: 'picker-card-magic-magnet',
-      labelKey: 'magicMagnet',
-    });
-    const ids = SCIENCE_WORLD_PICKER_GAMES.map((g) => g.gameId);
-    expect(ids.indexOf('potion-lab')).toBeGreaterThanOrEqual(0);
-    expect(ids.indexOf('sink-or-float')).toBeGreaterThan(ids.indexOf('potion-lab'));
-    expect(ids.indexOf('magic-magnet')).toBeGreaterThan(ids.indexOf('sink-or-float'));
+  it('the world has potion-lab, then sink-or-float, then magic-magnet stations (registry + content world), with Hebrew labels and resolvable assets', () => {
     expect(loadPotionLab().world).toBe('science-world');
     expect(loadSinkOrFloat().world).toBe('science-world');
     expect(loadMagicMagnet().world).toBe('science-world');
-    expect(() => resolvePickerAsset(potionEntry!.assetKey)).not.toThrow();
-    expect(() => resolvePickerAsset(sinkEntry!.assetKey)).not.toThrow();
-    expect(() => resolvePickerAsset(magnetEntry!.assetKey)).not.toThrow();
+    const stations = stationGamesForWorld(
+      'science-world',
+      WORLD_GAMES,
+      collectTrailGames({ potion: loadPotionLab(), sink: loadSinkOrFloat(), magnet: loadMagicMagnet() }),
+    );
+    expect(stations.map((g) => [g.gameId, g.testId, g.sceneKey, g.assetKey, g.labelKey])).toEqual([
+      ['potion-lab', 'game-picker-potion-lab', 'PotionScene', 'picker-card-potion-lab', 'potionLab'],
+      ['sink-or-float', 'game-picker-sink-or-float', 'SinkFloatScene', 'picker-card-sink-or-float', 'sinkOrFloat'],
+      ['magic-magnet', 'game-picker-magic-magnet', 'MagnetScene', 'picker-card-magic-magnet', 'magicMagnet'],
+    ]);
     const labels = he.gamePicker as Record<string, string>;
-    expect(labels[potionEntry!.labelKey]).toBe('מעבדת השיקויים');
-    expect(labels[sinkEntry!.labelKey]).toBe('צף או שוקע?');
-    expect(labels[magnetEntry!.labelKey]).toBe('המגנט הקסום');
+    for (const entry of stations) {
+      expect(() => resolvePickerAsset(entry.assetKey)).not.toThrow();
+      expect(labels[entry.labelKey]).toBeTruthy();
+    }
+    expect(labels[stations[0].labelKey]).toBe('מעבדת השיקויים');
+    expect(labels[stations[1].labelKey]).toBe('צף או שוקע?');
+    expect(labels[stations[2].labelKey]).toBe('המגנט הקסום');
+  });
+
+  it('three Science World games open the trail picker; a world given only Potion Lab still enters it directly (AC-10)', () => {
+    const all = collectTrailGames({ potion: loadPotionLab(), sink: loadSinkOrFloat(), magnet: loadMagicMagnet() });
+    const allEntry = worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: all, skills: {}, track: 'age2' }));
+    expect(allEntry.kind).toBe('picker');
+    expect(allEntry.kind === 'picker' && allEntry.stations.map((s) => s.game.gameId)).toEqual([
+      'potion-lab',
+      'sink-or-float',
+      'magic-magnet',
+    ]);
+
+    // Synthetic one-game bundle: the entry rule itself is unchanged (pending Maor decision).
+    const one = collectTrailGames({ potion: loadPotionLab() });
+    const oneEntry = worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: one, skills: {}, track: 'age2' }));
+    expect(oneEntry.kind).toBe('direct');
+    expect(oneEntry.kind === 'direct' && oneEntry.game.gameId).toBe('potion-lab');
+    expect(worldEntry(buildTrail({ worldId: 'science-world', registry: WORLD_GAMES, games: [], skills: {}, track: 'age2' }))).toEqual({
+      kind: 'none',
+    });
   });
 });
 

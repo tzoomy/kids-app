@@ -1,7 +1,7 @@
 // SortingScene: Sorting Beds (Number Garden). Spec: docs/specs/sorting-beds.md. Contract: docs/contracts/sorting-beds.md.
 //
 // CONTRACT (implemented against the tests; do not change these without a spec change):
-// - Scene key: 'SortingScene'. Started from MapScene when the world's `entryGameId` is 'sorting-beds'.
+// - Scene key: 'SortingScene'. Started from MapScene through the Number Garden station trail (the `sorting-beds` card).
 // - create() calls setAppScreen('sorting') and sets window.__GAME_READY__ = true.
 // - `getSortingInfo(): SortingInfo | null` (src/games/sorting/types.ts). Rectangles are page CSS px (see
 //   src/testing/pageRect.ts, `gameRectToPageRect`). Return null when no round exists; `ready` is true only
