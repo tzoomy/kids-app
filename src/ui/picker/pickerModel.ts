@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'magic-magnet';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'magic-magnet' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'magicMagnet';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'magicMagnet' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -32,6 +32,13 @@ export const PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'OrchestraScene',
     assetKey: 'picker-card-kitchen-orchestra',
     labelKey: 'kitchenOrchestra',
+  },
+  {
+    gameId: 'letter-monster',
+    testId: 'game-picker-letter-monster',
+    sceneKey: 'LetterMonsterScene',
+    assetKey: 'picker-card-letter-monster',
+    labelKey: 'letterMonster',
   },
 ];
 
@@ -58,12 +65,27 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
   },
 ];
 
+/** Number Garden picker: Sorting Beds (the original game) first, then Balloon Pop (docs/specs/balloon-pop.md). */
+export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'sorting-beds',
+    testId: 'game-picker-sorting-beds',
+    sceneKey: 'SortingScene',
+    assetKey: 'picker-card-sorting-beds',
+    labelKey: 'sortingBeds',
+  },
+  {
+    gameId: 'balloon-pop',
+    testId: 'game-picker-balloon-pop',
+    sceneKey: 'BalloonScene',
+    assetKey: 'picker-card-balloon-pop',
+    labelKey: 'balloonPop',
+  },
+];
+
 /**
  * Science World picker (separate map area, pending owner decision; docs/PENDING-DECISIONS.md).
- * Empty until its games land: the building then opens the picker's gentle "coming soon" state.
- * Append games here (additive registry), e.g. Potion Lab, Sink or Float, Magic Magnet:
- *   { gameId: 'potion-lab', testId: 'game-picker-potion-lab', sceneKey: 'PotionScene', assetKey: 'picker-card-potion-lab', labelKey: 'potionLab' }
- * (extend PickerGameId and labelKey, add the he.json label and a pickerAssets placeholder).
+ * This PR adds Magic Magnet via the additive registry (Potion Lab remains the default once it lands on main).
  */
 export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
   {
@@ -72,5 +94,26 @@ export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'MagnetScene',
     assetKey: 'picker-card-magic-magnet',
     labelKey: 'magicMagnet',
+  },
+];
+
+/**
+ * Nature Lab picker (docs/specs/seed-to-flower.md): Who's Hiding? (the entry game) first, then Seed to Flower.
+ * Append later Nature Lab games here (additive registry).
+ */
+export const NATURE_LAB_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'who-is-hiding',
+    testId: 'game-picker-who-is-hiding',
+    sceneKey: 'HidingScene',
+    assetKey: 'picker-card-who-is-hiding',
+    labelKey: 'whoIsHiding',
+  },
+  {
+    gameId: 'seed-to-flower',
+    testId: 'game-picker-seed-to-flower',
+    sceneKey: 'SeedFlowerScene',
+    assetKey: 'picker-card-seed-to-flower',
+    labelKey: 'seedToFlower',
   },
 ];

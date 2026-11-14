@@ -7,3 +7,6 @@ blob-report/
 *.local
 .DS_Store
 __pycache__/
+
+# art-preview boards are local-only output (scripts mkdir the folder)
+tools/art-preview/shots/

@@ -338,6 +338,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'flower-basket', url: 'art/props/flower-basket.svg', width: 520, height: 400 },
   { key: 'flower-basket-back', url: 'art/props/flower-basket-back.svg', width: 520, height: 400 },
   { key: 'flower-basket-front', url: 'art/props/flower-basket-front.svg', width: 520, height: 400 },
+  // Letter Monster (Language House)
+  { key: 'prop-monster-closed', url: 'art/props/monster-closed.svg', width: 300, height: 300 },
+  { key: 'prop-monster-open', url: 'art/props/monster-open.svg', width: 300, height: 300 },
   // Language House Game Picker
   { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
@@ -351,4 +354,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'magnet-nail', url: 'art/magnet/nail.svg', width: 256, height: 256 },
   { key: 'magnet-screw', url: 'art/magnet/screw.svg', width: 256, height: 256 },
   { key: 'magnet-bottle-cap', url: 'art/magnet/bottle-cap.svg', width: 256, height: 256 },
+  // Seed to Flower (docs/specs/seed-to-flower.md) — Pass-1 plant stages and tools
+  { key: 'prop-seed', url: 'art/props/seed.svg', width: 160, height: 160 },
+  { key: 'prop-sprout', url: 'art/props/sprout.svg', width: 160, height: 200 },
+  { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
+  { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
+  { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
 ];
