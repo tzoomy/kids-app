@@ -4,6 +4,7 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
 import heJson from './i18n/he.json';
@@ -15,6 +16,7 @@ import {
   SortingBedsContentSchema,
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
+  LetterMonsterContentSchema,
   BalloonPopContentSchema,
   SeedToFlowerContentSchema,
   type WorldsFile,
@@ -23,6 +25,7 @@ import {
   type SortingBedsContent,
   type WhosHidingContent,
   type LeisureColouringContent,
+  type LetterMonsterContent,
   type BalloonPopContent,
   type SeedToFlowerContent,
 } from './schema';
@@ -55,6 +58,10 @@ export function loadSortingBeds(): SortingBedsContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadLetterMonster(): LetterMonsterContent {
+  return LetterMonsterContentSchema.parse(letterMonsterJson);
 }
 
 export function loadBalloonPop(): BalloonPopContent {

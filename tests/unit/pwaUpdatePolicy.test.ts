@@ -46,6 +46,7 @@ describe('isSafeToApplyUpdate', () => {
     ['hiding', false],
     ['sorting', false],
     ['colouring', false],
+    ['letter-monster', false],
     ['seed-flower', false],
     ['parent', false],
     ['loading', false],
@@ -69,6 +70,7 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'hiding' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'sorting' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'colouring' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'letter-monster' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');
   });

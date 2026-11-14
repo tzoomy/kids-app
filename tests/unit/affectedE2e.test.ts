@@ -105,6 +105,14 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('letter-monster changes select the letter-monster journey spec', () => {
+    const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/letter-monster.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/monster-closed.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/letter-monster.machine.test.ts'])).toEqual(expected);
+  });
+
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
     expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
     expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);

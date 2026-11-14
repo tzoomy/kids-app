@@ -3,10 +3,11 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -14,6 +15,7 @@ export type ProfileTestId = 'profile-a' | 'profile-b';
 export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
+  'letter-monster': 'LetterMonsterScene',
   bubbles: 'BubblesScene',
   // Nature Lab opens a picker (docs/specs/seed-to-flower.md): Who's Hiding? or Seed to Flower.
   'who-is-hiding': 'HidingScene',
@@ -139,6 +141,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedLetterMonsterLevel: (level: number) => void;
+  getLetterMonsterInfo: () => LetterMonsterInfo | null;
   getBalloonInfo: () => BalloonInfo | null;
   seedBalloonLevel: (level: number) => void;
   seedSeedFlowerLevel: (level: number) => void;
@@ -539,6 +543,34 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Letter Monster level for the active profile. Call before entering. */
+export async function seedLetterMonsterLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedLetterMonsterLevel', [level]);
+}
+
+/** Reads the live Letter Monster round snapshot (null when LetterMonsterScene is not active). */
+export async function getLetterMonsterInfo(page: Page): Promise<LetterMonsterInfo | null> {
+  return callHook<LetterMonsterInfo | null>(page, 'getLetterMonsterInfo');
+}
+
+/** Waits until Letter Monster is asking and ready for taps with all offered foods measured. */
+export async function waitForLetterMonsterReady(page: Page, timeout = 12_000): Promise<LetterMonsterInfo> {
+  const handle = await page.waitForFunction(
+    () => {
+      const hooks = (window as unknown as {
+        __testHooks__?: { getLetterMonsterInfo?: () => LetterMonsterInfo | null };
+      }).__testHooks__;
+      const info = hooks?.getLetterMonsterInfo?.();
+      if (!info || !info.ready || info.phase !== 'asking') return null;
+      if (info.offeredIds.length === 0 || Object.keys(info.foods).length !== info.offeredIds.length) return null;
+      return info;
+    },
+    undefined,
+    { timeout },
+  );
+  return (await handle.jsonValue()) as LetterMonsterInfo;
 }
 
 // ---------------------------------------------------------------------------------------------

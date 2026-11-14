@@ -68,6 +68,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'letter-monster',
+    match: [
+      /^src\/games\/letterMonster\//,
+      /^src\/content\/games\/letter-monster\.json$/,
+      /^public\/art\/props\/monster-[a-z]+\.svg$/,
+      /^tests\/unit\/letter-monster[^/]*$/,
+    ],
+    specs: ['tests/e2e/letter-monster.journey.spec.ts'],
+  },
+  {
     id: 'seed-to-flower',
     match: [
       /^src\/games\/seedFlower\//,

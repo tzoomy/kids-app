@@ -15,6 +15,9 @@ import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
 import { loadSeedToFlower } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
+import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
+import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
+import { loadLetterMonster } from '../content/loadContent';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
 import { PreloadScene } from '../anim/PreloadScene';
@@ -28,7 +31,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'balloon' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -49,6 +52,10 @@ declare global {
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
       getColouringInfo: () => ColouringInfo | null;
+      /** Seeds the active profile's persisted Letter Monster level. Call before entering. */
+      seedLetterMonsterLevel: (level: number) => void;
+      /** Current Letter Monster round (null when LetterMonsterScene is not active); rectangles are page CSS px. */
+      getLetterMonsterInfo: () => LetterMonsterInfo | null;
       /** Seeds the active profile's persisted Balloon Pop level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
       seedBalloonLevel: (level: number) => void;
       /** Current Balloon Pop trial (null when BalloonScene is not active or between trials); rectangles are page CSS px. */
@@ -124,6 +131,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('OrchestraScene', OrchestraScene, false);
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
 
@@ -142,6 +150,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'orchestra' ? 'OrchestraScene'
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
@@ -153,6 +162,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('OrchestraScene');
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
+      game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
       game.scene.stop('SeedFlowerScene');
       game.scene.start(sceneKey);
@@ -219,6 +229,19 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getColouringInfo() {
       const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
       return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
+    },
+    seedLetterMonsterLevel(level) {
+      seedAdaptiveLevel(
+        context.adaptive,
+        context.requireProfileId(),
+        loadLetterMonster(),
+        level,
+        localDayKey(new Date(context.nowMs())),
+      );
+    },
+    getLetterMonsterInfo() {
+      const scene = game.scene.getScene('LetterMonsterScene') as LetterMonsterScene | null;
+      return scene && game.scene.isActive('LetterMonsterScene') ? scene.getLetterMonsterInfo() : null;
     },
     seedBalloonLevel(level) {
       const profileId = context.requireProfileId();
