@@ -17,6 +17,7 @@ import {
   loadBalloonPop,
   loadKitchenOrchestra,
   loadLetterMonster,
+  loadPicnicTrain,
   loadPotionLab,
   loadSinkOrFloat,
   loadMagicMagnet,
@@ -29,13 +30,14 @@ import { GAME_SCENE, PICKER_WORLD_DEFAULT_GAME, WORLD_ENTRY_GAME } from '../e2e/
 
 // Spec: docs/specs/station-trail.md. Pure model only (no DOM, no Phaser).
 
-/** Every game content on main, as the app's content bundle holds it (world + adaptive metadata). */
+/** Every game content in the repo, as the app's content bundle holds it (world + adaptive metadata). */
 const REAL_GAMES = collectTrailGames({
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
+  picnic: loadPicnicTrain(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   potion: loadPotionLab(),
@@ -229,7 +231,7 @@ describe('station trail: data-driven station list', () => {
   it('[AC-09] the real registry and content give every world its post-main stations, in registry order', () => {
     const ids = (world: string) => stationGamesForWorld(world, WORLD_GAMES, REAL_GAMES).map((g) => g.gameId);
     expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
-    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop']);
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower']);
     expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float', 'magic-magnet']);
     expect(ids('art-studio')).toEqual([]);
@@ -268,13 +270,14 @@ describe('station trail: data-driven station list', () => {
     }
   });
 
-  it('[AC-09] the registry holds exactly the games whose scenes are on main (open-PR games are added with their PR)', () => {
+  it('[AC-09] the registry holds exactly the games whose scenes exist, each added with its own PR (Picnic Train is the third Number Garden station)', () => {
     expect(WORLD_GAMES.map((g) => [g.gameId, g.sceneKey])).toEqual([
       ['animal-restaurant', 'RestaurantScene'],
       ['kitchen-orchestra', 'OrchestraScene'],
       ['letter-monster', 'LetterMonsterScene'],
       ['sorting-beds', 'SortingScene'],
       ['balloon-pop', 'BalloonScene'],
+      ['picnic-train', 'PicnicScene'],
       ['who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'SeedFlowerScene'],
       ['potion-lab', 'PotionScene'],
@@ -293,7 +296,7 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
   });
 
-  it('[AC-10] the real worlds: Language House 3, Number Garden 2, Nature Lab 2 and Science World 3 open the trail; a world with no game is none', () => {
+  it('[AC-10] the real worlds: Language House 3, Number Garden 3, Nature Lab 2 and Science World 3 open the trail; a world with no game is none', () => {
     const entryOf = (world: string) =>
       worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
     for (const world of ['language-house', 'number-garden', 'nature-lab', 'science-world']) {

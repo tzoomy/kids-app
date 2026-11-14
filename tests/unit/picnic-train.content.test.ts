@@ -1,14 +1,15 @@
 // Picnic Train Pass 1, TDD step 1: content, level table, scaffolds and wiring (ACs 07, 09, 22, 27).
-// Spec: docs/specs/picnic-train.md. These tests fail until src/content/games/picnic-train.json, the schema and the picker model exist.
+// Spec: docs/specs/picnic-train.md. The wiring tests stay red until the WORLD_GAMES entry (src/ui/picker/pickerModel.ts) exists.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { loadPicnicTrain, loadWorlds } from '@/content/loadContent';
+import { loadBalloonPop, loadPicnicTrain, loadSortingBeds, loadWorlds } from '@/content/loadContent';
 import { PicnicTrainContentSchema } from '@/content/schema';
 import { SkillSession, buildMeta } from '@/core/adaptive';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
 import type { StorageDriver } from '@/core/storage/store';
-import { NUMBER_GARDEN_PICKER_GAMES, PICKER_GAMES } from '@/ui/picker/pickerModel';
+import { PICKER_GAMES, WORLD_GAMES } from '@/ui/picker/pickerModel';
+import { collectTrailGames, stationGamesForWorld } from '@/ui/picker/trailModel';
 import { isSafeToApplyUpdate, type AppScreen } from '@/pwa/updatePolicy';
 import { levelLevers } from '@/games/picnic/picnicLogic';
 
@@ -140,10 +141,27 @@ describe('picnic-train: wiring (AC-27)', () => {
     expect(source).toMatch(/setAppScreen\(\s*'picnic'\s*\)/);
   });
 
-  it('[AC-27] the Number Garden picker lists Sorting Beds first and Picnic Train second, and the Language House picker is unchanged', () => {
-    expect(NUMBER_GARDEN_PICKER_GAMES.map((g) => g.testId)).toEqual(['game-picker-sorting-beds', 'game-picker-picnic-train']);
-    expect(NUMBER_GARDEN_PICKER_GAMES.map((g) => g.sceneKey)).toEqual(['SortingScene', 'PicnicScene']);
-    expect(PICKER_GAMES.map((g) => g.testId)).toEqual(['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra']);
+  it('[AC-27] the Number Garden trail (WORLD_GAMES + content) lists Sorting Beds, Balloon Pop, then Picnic Train; the Language House picker is unchanged', () => {
+    const garden = stationGamesForWorld(
+      'number-garden',
+      WORLD_GAMES,
+      collectTrailGames({ sorting: loadSortingBeds(), balloon: loadBalloonPop(), picnic: content }),
+    );
+    expect(garden.map((g) => g.testId)).toEqual(['game-picker-sorting-beds', 'game-picker-balloon-pop', 'game-picker-picnic-train']);
+    expect(garden.map((g) => g.sceneKey)).toEqual(['SortingScene', 'BalloonScene', 'PicnicScene']);
+    expect(PICKER_GAMES.map((g) => g.testId)).toEqual([
+      'game-picker-animal-restaurant',
+      'game-picker-kitchen-orchestra',
+      'game-picker-letter-monster',
+    ]);
+  });
+
+  it('[AC-27] Picnic Train is one WORLD_GAMES registry entry and no per-world picker list exists', async () => {
+    const entries = WORLD_GAMES.filter((g) => g.gameId === 'picnic-train');
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ testId: 'game-picker-picnic-train', sceneKey: 'PicnicScene', labelKey: 'picnicTrain' });
+    const model = (await import('@/ui/picker/pickerModel')) as Record<string, unknown>;
+    expect(model.NUMBER_GARDEN_PICKER_GAMES).toBeUndefined();
   });
 
   it('[AC-27] the Number Garden stays open and earns leisure; Sorting Beds remains its entry game', () => {

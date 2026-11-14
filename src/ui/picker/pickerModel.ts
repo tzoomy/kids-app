@@ -85,6 +85,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     assetKey: 'picker-card-balloon-pop',
     labelKey: 'balloonPop',
   },
+  {
+    gameId: 'picnic-train',
+    testId: 'game-picker-picnic-train',
+    sceneKey: 'PicnicScene',
+    assetKey: 'picker-card-picnic-train',
+    labelKey: 'picnicTrain',
+  },
   // Nature Lab.
   {
     gameId: 'who-is-hiding',

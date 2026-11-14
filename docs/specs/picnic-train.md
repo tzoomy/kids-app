@@ -81,9 +81,9 @@ The same as Sorting Beds, through the shared `LearningSession` and `earnParticip
 
 ## Player journey from the map
 
-Profile → tap the Number Garden building on the map → a game picker opens with two cards (Sorting Beds, Picnic Train) → tap the Picnic Train card → play a train → `hud-back` to the map.
+Profile → tap the Number Garden building on the map → the station trail picker opens with three cards (Sorting Beds, Balloon Pop, Picnic Train) → tap the Picnic Train card → play a train → `hud-back` to the map.
 
-**Open decision for the owner:** how the Number Garden chooses between its two games. Default: the same picker as the Language House and the Leisure Corner (big picture cards plus a close button), so a child who cannot read taps a picture. `number-garden.entryGameId` stays `sorting-beds` in `worlds.json` (the first game; existing tests still read it) but the picker takes precedence on the map. Reversible: remove the `number-garden` branch in `src/worlds/MapScene.ts`.
+**Open decision for the owner:** how the Number Garden chooses between its games. Default: the station trail of `docs/specs/station-trail.md`, built from the `WORLD_GAMES` registry. Number Garden is a 3-station trail (Sorting Beds, Balloon Pop, Picnic Train, in registry order) with big picture cards plus a close button, so a child who cannot read taps a picture. Picnic Train is one `WORLD_GAMES` entry in `src/ui/picker/pickerModel.ts`; its content JSON carries `"world": "number-garden"`. `number-garden.entryGameId` stays `sorting-beds` in `worlds.json` as a fallback hint (existing tests still read it), but the registry-driven entry rule takes precedence on the map. Reversible: remove the `picnic-train` entry from `WORLD_GAMES` (there is no `MapScene` branch).
 
 Frozen test handles:
 
@@ -147,7 +147,7 @@ Test titles start with the id, in `tests/**/picnic-train*` files.
 | AC-13 | The parent area stays gated (test runs without `?e2e=1`) | 1 | e2e | @single-orientation | |
 | AC-14 | Device check: touch, rotation mid-game, audible voice, visuals | 1 | device | both | |
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
-| AC-16 | The Number Garden building opens a picker with a Sorting Beds card and a Picnic Train card (both at least 64 CSS px, inside the screen, RTL); the Sorting Beds card opens Sorting Beds; the close button returns to the map | 1 | e2e | both | `getBuildingHit` |
+| AC-16 | The Number Garden building opens the three-station trail picker (Sorting Beds, Balloon Pop, Picnic Train, in registry order; all cards at least 64 CSS px, inside the screen, not overlapping, RTL); the Sorting Beds card opens Sorting Beds; the close button returns to the map | 1 | e2e | both | `getBuildingHit` |
 | AC-17 | Train ready: after the last give the passengers cheer, `picnic.ready.he` is spoken, the star count rises by 1, and a new train arrives | 1 | e2e | @single-orientation | `getBuildingHit`, `getPicnicInfo`, `getSpokenLines` |
 | AC-18 | Round plan: train size is within `{setSize − 1, setSize}`; passengers are distinct animals; `rows` has `size` seats, `scattered` has `min(10, size + 2)`; `missing` has `1 ≤ k < n` served and `m = n − k` | 1 | unit | @single-orientation | |
 | AC-19 | Load task: a basket tap loads one item and speaks the count; a loaded-item tap takes it back; go with N items makes the train ready; go with another count records one miss, returns the cargo and speaks `picnic.wrong.count.he` | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedPicnicLevel`, `getPicnicInfo`, `getSpokenLines` |
@@ -158,7 +158,7 @@ Test titles start with the id, in `tests/**/picnic-train*` files.
 | AC-24 | One miss per train: the first wrong tap records the `miss`, later wrong taps and the finish record nothing; an idle hint before the result makes a clean finish `assisted`; a hint after a miss changes nothing; a replay is not a hint | 1 | unit | @single-orientation | |
 | AC-25 | Age-2 idle hint: with no tap for 6 s the next free passenger is shown, `hinted` becomes true and the instruction is requested again; an age-5 profile gets no idle hint | 1 | e2e | @single-orientation | `getBuildingHit`, `getPicnicInfo`, `getSpokenLines` |
 | AC-26 | 400 ms lock: after a wrong tap, taps are ignored for 400 ms (`tries` unchanged) | 1 | unit | @single-orientation | |
-| AC-27 | Wiring: `AppScreen` includes `'picnic'` and it is unsafe for mid-game updates; the picker model lists both Number Garden games; `worlds.json` keeps `number-garden` open with `earnsLeisure: true` | 1 | unit | @single-orientation | |
+| AC-27 | Wiring: `AppScreen` includes `'picnic'` and it is unsafe for mid-game updates; the `WORLD_GAMES` registry holds one Picnic Train entry and, with content, gives the Number Garden trail Sorting Beds, Balloon Pop, Picnic Train; `worlds.json` keeps `number-garden` open with `earnsLeisure: true` | 1 | unit | @single-orientation | |
 
 By default Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3).
 
@@ -190,7 +190,7 @@ Existing approved art only; no new SVG and no new recording.
 
 The Hebrew number words are masculine (`שניים, שלושה, ארבעה, חמישה, שישה, שבעה, שמונה, תשעה, עשרה`) because the noun is `פריטים`. **Open decision for the owner:** EN/FR number voicing. The repo already speaks EN/FR learning tokens in Number Garden (Sorting Beds colour and size words, per-language skills, the parent's `settings.languages`), so Pass 1 counts aloud in the round language and keeps all instructions in Hebrew. If Maor prefers Hebrew-only numbers, set `languages` to `['he']` content-side and replace the number lines; reversible.
 
-- **World and PWA wiring:** `number-garden` keeps `earnsLeisure: true`; new `AppScreen` `'picnic'` marked unsafe for mid-game updates in `src/pwa/updatePolicy.ts`; scene `PicnicScene` registered in `src/game/createGame.ts`; `main.ts` stops it when returning to the profile screen; `src/ui/picker/pickerModel.ts` gets `NUMBER_GARDEN_PICKER_GAMES`.
+- **World and PWA wiring:** `number-garden` keeps `earnsLeisure: true`; new `AppScreen` `'picnic'` marked unsafe for mid-game updates in `src/pwa/updatePolicy.ts`; scene `PicnicScene` registered in `src/game/createGame.ts`; `main.ts` stops it when returning to the profile screen; `src/ui/picker/pickerModel.ts` gets one `WORLD_GAMES` entry after Balloon Pop (no per-world picker list).
 
 ### Pass 2 — polish
 
