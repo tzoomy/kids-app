@@ -19,6 +19,7 @@ import {
   loadLetterMonster,
   loadPotionLab,
   loadSinkOrFloat,
+  loadMagicMagnet,
   loadSeedToFlower,
   loadSortingBeds,
   loadWhosHiding,
@@ -39,6 +40,7 @@ const REAL_GAMES = collectTrailGames({
   seedToFlower: loadSeedToFlower(),
   potion: loadPotionLab(),
   sinkOrFloat: loadSinkOrFloat(),
+  magicMagnet: loadMagicMagnet(),
 });
 
 const META = buildMeta({
@@ -229,7 +231,7 @@ describe('station trail: data-driven station list', () => {
     expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
     expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower']);
-    expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float']);
+    expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float', 'magic-magnet']);
     expect(ids('art-studio')).toEqual([]);
     expect(ids('leisure-corner')).toEqual([]);
   });
@@ -277,6 +279,7 @@ describe('station trail: data-driven station list', () => {
       ['seed-to-flower', 'SeedFlowerScene'],
       ['potion-lab', 'PotionScene'],
       ['sink-or-float', 'SinkFloatScene'],
+      ['magic-magnet', 'MagnetScene'],
     ]);
   });
 });
@@ -290,7 +293,7 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
   });
 
-  it('[AC-10] the real worlds: Language House 3, Number Garden 2, Nature Lab 2 and Science World 2 open the trail; a world with no game is none', () => {
+  it('[AC-10] the real worlds: Language House 3, Number Garden 2, Nature Lab 2 and Science World 3 open the trail; a world with no game is none', () => {
     const entryOf = (world: string) =>
       worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
     for (const world of ['language-house', 'number-garden', 'nature-lab', 'science-world']) {

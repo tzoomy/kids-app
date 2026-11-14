@@ -45,6 +45,7 @@ export const PICKER_SPECS = [
   'tests/e2e/hiding.spec.ts',
   'tests/e2e/kitchen-orchestra.picker.spec.ts',
   'tests/e2e/letter-monster.journey.spec.ts',
+  'tests/e2e/magic-magnet.journey.spec.ts',
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
@@ -176,6 +177,16 @@ export const GAME_RULES = [
       /^tests\/unit\/sink-or-float[^/]*$/,
     ],
     specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'magic-magnet',
+    match: [
+      /^src\/games\/magicMagnet\//,
+      /^src\/content\/games\/magic-magnet\.json$/,
+      /^public\/art\/magnet\//,
+      /^tests\/unit\/magic-magnet[^/]*$/,
+    ],
+    specs: ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
   },
   {
     id: 'balloon-pop',

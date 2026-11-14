@@ -18,6 +18,7 @@ import type {
   SeedToFlowerContent,
   PotionLabContent,
   SinkOrFloatContent,
+  MagicMagnetContent,
 } from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
@@ -36,6 +37,7 @@ export interface ContentBundle {
   seedToFlower: SeedToFlowerContent;
   potionLab: PotionLabContent;
   sinkOrFloat: SinkOrFloatContent;
+  magicMagnet: MagicMagnetContent;
   colouring: LeisureColouringContent;
   he: typeof heStrings;
 }

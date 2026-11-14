@@ -23,6 +23,9 @@ const SORTING = 'game-picker-sorting-beds';
 const BALLOON = 'game-picker-balloon-pop';
 const HIDING = 'game-picker-who-is-hiding';
 const SEED = 'game-picker-seed-to-flower';
+const POTION = 'game-picker-potion-lab';
+const SINK = 'game-picker-sink-or-float';
+const MAGNET = 'game-picker-magic-magnet';
 const CLOSE = 'game-picker-close';
 
 /** @single-orientation tests run in the landscape project only (docs/PROCESS.md section 4). */
@@ -96,7 +99,7 @@ test.describe('station trail inside a world', () => {
     await waitForScene(page, 'RestaurantScene');
   });
 
-  test('[AC-11] Number Garden and Nature Lab each open a 2-station trail (one-game direct entry is covered by the AC-10 unit test) @single-orientation', async ({ page }, testInfo) => {
+  test('[AC-11] Number Garden and Nature Lab each open a 2-station trail, and Science World opens a 3-station trail (one-game direct entry is covered by the AC-10 unit test) @single-orientation', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await tapWorldBuilding(page, 'profile-b', 'number-garden');
     await page.locator(`[data-testid="${SORTING}"]`).waitFor({ state: 'visible', timeout: 10_000 });
@@ -118,6 +121,17 @@ test.describe('station trail inside a world', () => {
     expect(await getActiveScenes(page)).toEqual(['MapScene']);
     await tapTestId(page, SEED);
     await waitForScene(page, 'SeedFlowerScene');
+
+    await tapWorldBuilding(page, 'profile-b', 'science-world');
+    await page.locator(`[data-testid="${POTION}"]`).waitFor({ state: 'visible', timeout: 10_000 });
+    await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
+    await expect(page.locator(`[data-testid="${SINK}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${MAGNET}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${POTION}"]`)).toHaveAttribute('data-suggested', 'true');
+    expect(await getActiveScenes(page)).toEqual(['MapScene']);
+    await tapTestId(page, MAGNET);
+    await waitForScene(page, 'MagnetScene');
   });
 
   test('[AC-13] both profiles see the trail; progress seeded for the age-2 profile does not show for the age-5 profile @single-orientation', async ({ page }, testInfo) => {

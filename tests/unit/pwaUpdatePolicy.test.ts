@@ -48,6 +48,7 @@ describe('isSafeToApplyUpdate', () => {
     ['colouring', false],
     ['letter-monster', false],
     ['balloon', false],
+    ['magic-magnet', false],
     ['seed-flower', false],
     ['potion-lab', false],
     ['sink-or-float', false],
@@ -77,6 +78,7 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'balloon' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'potion-lab' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'sink-or-float' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'magic-magnet' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');
   });

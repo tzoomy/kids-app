@@ -61,6 +61,7 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   // Science World, in science blue.
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */

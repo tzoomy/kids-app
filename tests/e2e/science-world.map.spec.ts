@@ -11,7 +11,7 @@ import {
 // Science World map area (separate map area: pending Maor decision, docs/PENDING-DECISIONS.md).
 // Both Playwright projects (1280x800 and 800x1280) run every test, so both orientations are covered.
 // Real taps only; hooks just read state. No screenshots in committed specs (use tools/art-preview locally).
-// After Sink or Float landed, Science World has 2 games, so the station trail opens (AC-10).
+// After Sink or Float and Magic Magnet landed, Science World has 3 games, so the station trail opens (AC-10).
 
 const MIN_TAP = 64;
 
@@ -30,21 +30,24 @@ test.describe('science world map area', () => {
     expect(hit.y + hit.height).toBeLessThanOrEqual(vp.height + 0.5);
   });
 
-  test('real tap opens the Science World trail with Potion Lab and Sink or Float cards (no empty card), and close returns to the map', async ({ page }) => {
+  test('real tap opens the Science World trail with Potion Lab, Sink or Float and Magic Magnet cards (no empty card), and close returns to the map', async ({ page }) => {
     await tapWorldBuilding(page, 'profile-a', 'science-world');
 
     const potion = page.locator('[data-testid="game-picker-potion-lab"]');
     const sink = page.locator('[data-testid="game-picker-sink-or-float"]');
+    const magnet = page.locator('[data-testid="game-picker-magic-magnet"]');
     await potion.waitFor({ state: 'visible', timeout: 10_000 });
     await sink.waitFor({ state: 'visible', timeout: 10_000 });
+    await magnet.waitFor({ state: 'visible', timeout: 10_000 });
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
-    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(2);
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
     await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
     await expect(page.getByText('עולם המדע').first()).toBeVisible();
     await expect(potion).toContainText('מעבדת השיקויים');
     await expect(sink).toContainText('צף או שוקע?');
+    await expect(magnet).toContainText('המגנט הקסום');
 
-    for (const testId of ['game-picker-potion-lab', 'game-picker-sink-or-float', 'game-picker-close'] as const) {
+    for (const testId of ['game-picker-potion-lab', 'game-picker-sink-or-float', 'game-picker-magic-magnet', 'game-picker-close'] as const) {
       const box = await getStableBox(page, testId);
       expect(box.width, `${testId} width`).toBeGreaterThanOrEqual(MIN_TAP);
       expect(box.height, `${testId} height`).toBeGreaterThanOrEqual(MIN_TAP);
@@ -53,6 +56,7 @@ test.describe('science world map area', () => {
     await tapTestId(page, 'game-picker-close');
     await expect(potion).toBeHidden();
     await expect(sink).toBeHidden();
+    await expect(magnet).toBeHidden();
     expect(await getActiveScenes(page)).toContain('MapScene');
   });
 
@@ -84,5 +88,15 @@ test.describe('science world map area', () => {
     await page.waitForTimeout(600);
     expect(await getActiveScenes(page)).toEqual(['SinkFloatScene']);
     await expect(page.locator('[data-testid="game-picker-sink-or-float"]')).toHaveCount(0);
+  });
+
+  test('real tap on the Magic Magnet card opens MagnetScene', async ({ page }) => {
+    await tapWorldBuilding(page, 'profile-a', 'science-world');
+    await tapTestId(page, 'game-picker-magic-magnet');
+    await waitForScene(page, 'MagnetScene');
+    // Regression: the press on the card must not also tap the map building under it (Number Garden in portrait).
+    await page.waitForTimeout(600);
+    expect(await getActiveScenes(page)).toEqual(['MagnetScene']);
+    await expect(page.locator('[data-testid="game-picker-magic-magnet"]')).toHaveCount(0);
   });
 });

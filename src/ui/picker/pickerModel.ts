@@ -10,6 +10,7 @@ export type PickerGameId =
   | 'seed-to-flower'
   | 'potion-lab'
   | 'sink-or-float'
+  | 'magic-magnet'
   | 'bubbles'
   | 'leisure-colouring';
 
@@ -22,7 +23,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'sinkOrFloat' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -112,6 +113,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'SinkFloatScene',
     assetKey: 'picker-card-sink-or-float',
     labelKey: 'sinkOrFloat',
+  },
+  {
+    gameId: 'magic-magnet',
+    testId: 'game-picker-magic-magnet',
+    sceneKey: 'MagnetScene',
+    assetKey: 'picker-card-magic-magnet',
+    labelKey: 'magicMagnet',
   },
 ];
 
