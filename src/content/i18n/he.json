@@ -24,7 +24,10 @@
     "bubbles": "בועות וחלומות",
     "colouring": "זמן צביעה",
     "scienceWorldTitle": "עולם המדע",
-    "scienceWorldEmpty": "הניסויים בדרך! נבקר כאן בקרוב."
+    "scienceWorldEmpty": "הניסויים בדרך! נבקר כאן בקרוב.",
+    "natureLabTitle": "מעבדת הטבע",
+    "whoIsHiding": "מי מתחבא?",
+    "seedToFlower": "מזרע לפרח"
   },
   "restaurant": {
     "helpButton": "עזרה",

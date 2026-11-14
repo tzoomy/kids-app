@@ -105,6 +105,13 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
+    expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
+    expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
+    const natureLab = ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/ui/picker/pickerModel.ts'])).toEqual(expect.arrayContaining(natureLab));
+  });
+
   it('credits content and UI select the credits spec', () => {
     expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
     expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);
@@ -151,9 +158,22 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['src/ui/shell.ts'])).toEqual(['tests/e2e/help-card.shell.spec.ts', ...SMOKE]);
   });
 
+  it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
+    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts', 'src/styles/shell.css']) {
+      expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
+    }
+  });
+
+  it('long-press gate unit tests select only the gate spec (no smoke)', () => {
+    for (const f of ['tests/unit/parent-longpress-gate.timer.test.ts', 'tests/unit/parent-longpress-gate.dom.test.ts']) {
+      expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
+    }
+  });
+
   it('a changed spec file selects that spec only', () => {
     expect(selectAffectedE2e(['tests/e2e/sorting-beds.platform.spec.ts'])).toEqual(['tests/e2e/sorting-beds.platform.spec.ts']);
     expect(selectAffectedE2e(['tests/e2e/brand-new.spec.ts'])).toEqual(['tests/e2e/brand-new.spec.ts']);
+    expect(selectAffectedE2e(['tests/e2e/parent-longpress-gate.spec.ts'])).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
   });
 
   it('never selects the full suite for shared + every game folder touched at once is bounded by the map', () => {

@@ -345,4 +345,10 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
   // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
   { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
+  // Seed to Flower (docs/specs/seed-to-flower.md) — Pass-1 plant stages and tools
+  { key: 'prop-seed', url: 'art/props/seed.svg', width: 160, height: 160 },
+  { key: 'prop-sprout', url: 'art/props/sprout.svg', width: 160, height: 200 },
+  { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
+  { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
+  { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
 ];
