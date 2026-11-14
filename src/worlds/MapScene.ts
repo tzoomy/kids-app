@@ -6,6 +6,10 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
+import { Character } from '../anim/Character';
+import { loadOutfitArt } from '../core/wardrobe/outfitArt';
+import { currentOutfitItems, dressCharacter } from '../core/wardrobe/dress';
+import { computeMapBearPlacement } from './mapBear';
 import { LEISURE_PICKER_GAMES } from '../ui/picker/pickerModel';
 import { worldEntry } from '../ui/picker/trailModel';
 import { stationsForActiveProfile, worldPickerOptions } from './worldTrail';
@@ -148,6 +152,11 @@ export class MapScene extends Phaser.Scene {
       });
     });
 
+    this.spawnMascot(
+      context,
+      worlds.map((_, i) => ({ x: startX + (i % cols) * spacingX, y: startY + Math.floor(i / cols) * spacingY })),
+    );
+
     const paintChrome = () => {
       const profileState = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));
       context.shell.setMapChrome({
@@ -191,5 +200,20 @@ export class MapScene extends Phaser.Scene {
     });
 
     window.__GAME_READY__ = true;
+  }
+
+  /**
+   * Decorative bear in a free margin (src/worlds/mapBear.ts). It wears the current profile's outfit, read afresh every
+   * time the map is created, so a profile switch or a change made in the Wardrobe shows on return (AC-15, AC-16).
+   * It is never interactive: the HUD wardrobe button is the only way into the Wardrobe.
+   */
+  private spawnMascot(context: AppContext, buildings: ReadonlyArray<{ x: number; y: number }>): void {
+    const spot = computeMapBearPlacement({ width: this.scale.width, height: this.scale.height, buildings, buildingSize: 180 });
+    const character = new Character(this, { kind: 'bear', x: spot.x, y: spot.y, displayHeight: spot.displayHeight });
+    const items = currentOutfitItems(window.localStorage, context.requireProfileId(), context.currentAgeTrack());
+    dressCharacter(this, character, 'bear', items);
+    loadOutfitArt(this, 'bear', items, () => {
+      dressCharacter(this, character, 'bear', items);
+    });
   }
 }

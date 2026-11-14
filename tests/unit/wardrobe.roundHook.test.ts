@@ -19,9 +19,11 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'who-is-hiding': 'src/games/hiding/HidingScene.ts',
   'seed-to-flower': 'src/games/seedFlower/SeedFlowerScene.ts',
   'who-lives-here': 'src/games/habitat/HabitatScene.ts',
+  'shadow-match': 'src/games/hiding/ShadowScene.ts',
   'potion-lab': 'src/games/potionLab/PotionScene.ts',
   'sink-or-float': 'src/games/sinkFloat/SinkFloatScene.ts',
   'magic-magnet': 'src/games/magicMagnet/MagnetScene.ts',
+  'sticker-board': 'src/games/stickers/StickerBoardScene.ts',
   // Leisure ids exist on PickerGameId; they are not world games, so they are covered by the third test below
   // ("Leisure Corner games do not call recordCompletedRound"), not by the world-hook test.
   bubbles: 'src/games/bubbles/BubblesScene.ts',
@@ -34,9 +36,38 @@ const LEISURE_IDS = new Set(LEISURE_PICKER_GAMES.map((g) => g.gameId));
 const HOOK_AFTER_COMPLETE =
   /this\.session\.complete\(\);\s*this\.context\.recordCompletedRound\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)/g;
 
-/** Drops block and line comments so a call mentioned only in a comment is not counted. */
+/**
+ * Drops block and line comments so a call mentioned only in a comment is not counted.
+ * String-aware: `//` or `/*` inside '...', "..." or `...` literals (e.g. a URL) is kept.
+ * Handles backslash escapes. Not a full lexer: regex literals and `${...}` nesting are not modelled.
+ */
 function stripComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  const len = source.length;
+  let out = '';
+  let i = 0;
+  while (i < len) {
+    const c = source[i];
+    const next = source[i + 1];
+    if (c === "'" || c === '"' || c === '`') {
+      let j = i + 1;
+      while (j < len && source[j] !== c) {
+        if (source[j] === '\\') j += 1; // skip the escaped character
+        else if (source[j] === '\n' && c !== '`') break; // unterminated ' or " literal ends at the line break
+        j += 1;
+      }
+      out += source.slice(i, j + 1);
+      i = j + 1;
+    } else if (c === '/' && next === '/') {
+      while (i < len && source[i] !== '\n') i += 1;
+    } else if (c === '/' && next === '*') {
+      const end = source.indexOf('*/', i + 2);
+      i = end === -1 ? len : end + 2;
+    } else {
+      out += c;
+      i += 1;
+    }
+  }
+  return out;
 }
 
 function readSource(rel: string): string {
@@ -52,6 +83,59 @@ function contentWorld(gameId: string): string {
   expect(data.world, `${gameId} content world`).toBeTruthy();
   return data.world;
 }
+
+describe('stripComments (test helper)', () => {
+  it('keeps // inside a string literal, so a URL does not eat the rest of the line', () => {
+    const src = "const assetUrl = 'https://cdn.example.com/star.png'; this.session.complete();";
+    const out = stripComments(src);
+    expect(out).toContain('this.session.complete()');
+    expect(out).toContain('https://cdn.example.com/star.png');
+    expect(stripComments('const u = "http://x.test/a"; this.session.complete();')).toContain(
+      'this.session.complete()',
+    );
+  });
+
+  it('keeps /* inside a string literal and does not swallow code up to a later */', () => {
+    const src = "const g = '/* not a comment'; this.session.complete(); const h = 'x */';";
+    const out = stripComments(src);
+    expect(out).toContain("'/* not a comment'");
+    expect(out).toContain('this.session.complete()');
+    expect(out).toContain("'x */'");
+  });
+
+  it('still strips real line and block comments', () => {
+    expect(stripComments('a(); // this.session.complete();\nb();')).not.toContain('session.complete');
+    expect(stripComments('a(); /* this.session.complete(); */ b();')).not.toContain('session.complete');
+    expect(stripComments('a(); /* multi\nline this.session.complete(); */ b();')).not.toContain('session.complete');
+    expect(stripComments('a(); // c\nb();')).toBe('a(); \nb();');
+  });
+
+  it('honours escapes: \\\', \\", and \\\\ before a closing quote', () => {
+    // \' does not end the string, so the // after it is still inside the string.
+    expect(stripComments("const a = 'it\\'s // fine'; keep1();")).toContain('keep1()');
+    expect(stripComments('const a = "say \\"//\\" now"; keep2();')).toContain('keep2()');
+    // '\\' ends the string (escaped backslash), so the // that follows is a real comment.
+    const out = stripComments("const a = '\\\\'; // gone\nkeep3();");
+    expect(out).toContain('keep3()');
+    expect(out).not.toContain('gone');
+  });
+
+  it('keeps comment markers inside template literals but strips real comments after them', () => {
+    const out = stripComments('const t = `http://x/${1}`; this.session.complete(); // gone');
+    expect(out).toContain('this.session.complete()');
+    expect(out).toContain('http://x/');
+    expect(out).not.toContain('gone');
+  });
+
+  it('a commented-out call is not counted, a real one next to a URL is', () => {
+    const src = [
+      "const u = 'https://cdn.example.com/a.png'; this.session.complete();",
+      '// this.session.complete();',
+      '/* this.session.complete(); */',
+    ].join('\n');
+    expect(stripComments(src).match(/this\.session\.complete\(\)/g)).toHaveLength(1);
+  });
+});
 
 describe('wardrobe round-completion hook in WORLD_GAMES scenes', () => {
   it('the explicit scene map covers every WORLD_GAMES id and no unknown world id', () => {

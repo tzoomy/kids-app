@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Back half of tilted ring -->
+    <g transform="rotate(-22 128 128)">
+      <path d="M22 128 A106 32 0 0 1 234 128 L198 128 A70 16 0 0 0 58 128 Z" fill="#9775FA"/>
+      <path d="M22 128 A106 32 0 0 1 234 128" fill="none"/>
+      <path d="M58 128 A70 16 0 0 1 198 128" fill="none"/>
+    </g>
+
+    <!-- Planet body -->
+    <circle cx="128" cy="128" r="62" fill="#FF922B"/>
+    <!-- Planet shadow -->
+    <path d="M166 78 A62 62 0 0 1 78 166 A62 62 0 0 0 166 78 Z" fill="#E67700" stroke="none"/>
+    <!-- Planet highlight -->
+    <ellipse cx="102" cy="96" rx="18" ry="10" transform="rotate(-35 102 96)" fill="#FFC078" stroke="none"/>
+    <!-- Planet outline -->
+    <circle cx="128" cy="128" r="62" fill="none"/>
+
+    <!-- Front half of tilted ring -->
+    <g transform="rotate(-22 128 128)">
+      <path d="M22 128 A106 32 0 0 0 234 128 L198 128 A70 16 0 0 1 58 128 Z" fill="#9775FA" stroke="none"/>
+      <!-- Ring shadow -->
+      <path d="M22 128 A106 32 0 0 0 234 128 L218 128 A92 25 0 0 1 38 128 Z" fill="#7950F2" stroke="none"/>
+      <!-- Ring highlight -->
+      <path d="M44 134 A88 22 0 0 0 138 148 A88 22 0 0 1 56 130 Z" fill="#D0BFFF" stroke="none"/>
+      <!-- Front ring outlines -->
+      <path d="M22 128 A106 32 0 0 0 234 128" fill="none"/>
+      <path d="M58 128 A70 16 0 0 0 198 128" fill="none"/>
+    </g>
+  </g>
+</svg>

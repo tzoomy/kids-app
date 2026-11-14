@@ -53,6 +53,7 @@ export const PICKER_SPECS = [
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
+  'tests/e2e/shadow-match.journey.spec.ts',
   'tests/e2e/sink-or-float.journey.spec.ts',
   'tests/e2e/sorting-beds.journey.spec.ts',
   'tests/e2e/sorting-beds.platform.spec.ts',
@@ -88,6 +89,17 @@ export const GAME_RULES = [
       /^tests\/unit\/(hiding|who-is-hiding)[^/]*$/,
     ],
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
+  },
+  {
+    // Shadow Match is the silhouette variant of Who's Hiding? (same folder, so hiding changes select both).
+    id: 'shadow-match',
+    match: [
+      /^src\/games\/hiding\//,
+      /^src\/anim\/silhouette\.ts$/,
+      /^src\/content\/games\/(shadow-match|who-is-hiding)\.json$/,
+      /^tests\/unit\/shadow-match[^/]*$/,
+    ],
+    specs: ['tests/e2e/shadow-match.journey.spec.ts'],
   },
   {
     id: 'who-lives-here',
@@ -210,6 +222,19 @@ export const GAME_RULES = [
     ],
   },
   {
+    id: 'sticker-board',
+    match: [
+      /^src\/games\/stickers\//,
+      /^src\/core\/stickers\//,
+      /^src\/content\/games\/sticker-board\.json$/,
+      /^src\/ui\/stickerBoardChrome\.ts$/,
+      /^src\/assets\/art\/stickerBoardManifest\.ts$/,
+      /^public\/art\/(stickers|scenes\/sticker-board)\//,
+      /^tests\/unit\/sticker-board[^/]*$/,
+    ],
+    specs: ['tests/e2e/sticker-board.journey.spec.ts'],
+  },
+  {
     id: 'science-world',
     // Science World map area: its building art and its entry (one game: direct; none: coming-soon picker). MapScene stays smoke-only.
     match: [
@@ -232,6 +257,9 @@ export const GAME_RULES = [
   {
     // Wardrobe (docs/specs/wardrobe.md): HUD entry, scene, pure model, content and art. hud.ts and
     // appContext.ts are shared and fall back to the smoke set on their own; they are not listed here.
+    // Pass 2 (outfit on the bear on the map and in games): the shared dress helper lives in
+    // src/core/wardrobe/ (already matched) and the map mascot in src/worlds/mapBear.ts. MapScene.ts,
+    // Character.ts and the game scenes are NOT listed: a MapScene-only change keeps selecting the smoke set.
     id: 'wardrobe',
     match: [
       /^src\/core\/wardrobe\//,
@@ -239,10 +267,11 @@ export const GAME_RULES = [
       /^src\/games\/wardrobe\//,
       /^src\/ui\/wardrobeChrome\.ts$/,
       /^src\/assets\/art\/wardrobeManifest\.ts$/,
+      /^src\/worlds\/mapBear\.ts$/,
       /^public\/art\/wardrobe\//,
       /^tests\/unit\/wardrobe[^/]*$/,
     ],
-    specs: ['tests/e2e/wardrobe.journey.spec.ts'],
+    specs: ['tests/e2e/wardrobe.journey.spec.ts', 'tests/e2e/wardrobe.pass2.spec.ts'],
   },
   {
     id: 'sink-or-float',

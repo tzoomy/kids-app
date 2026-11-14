@@ -18,6 +18,19 @@ import type { SpeechRequest } from '../../core/audio/types';
 import { crossedWholeMinute, shouldPraise, shouldSayRetry, showsPromptBubble } from './voiceRules';
 import { DEPTH, addCounterFront, buildPlate, detachFood, paintBackground, type PlateView } from './restaurantArt';
 import { setAppScreen } from '../../pwa';
+import { loadOutfitArt } from '../../core/wardrobe/outfitArt';
+import { currentOutfitItems, dressCharacter, wearsOutfit } from '../../core/wardrobe/dress';
+
+/** ?e2e=1 seed (hook `seedRestaurantKind`): the next customer is this kind, once; then the random pick resumes. */
+let seededKind: string | undefined;
+export function seedRestaurantKind(kind: string): void {
+  seededKind = ANIMAL_KINDS.includes(kind) ? kind : undefined;
+}
+function takeSeededRestaurantKind(): string | undefined {
+  const kind = seededKind;
+  seededKind = undefined;
+  return kind;
+}
 
 export interface RoundInfo {
   /** First requested plate that is not served yet (-1 if none). */
@@ -259,7 +272,22 @@ export class RestaurantScene extends Phaser.Scene {
     });
   }
 
+  /** The bear wears the profile's outfit (no-op for the other animals); the art loads lazily and re-dresses on arrival. */
+  private dressBear(character: Character, kind: string): void {
+    if (!wearsOutfit(kind)) return;
+    const items = currentOutfitItems(window.localStorage, this.context.requireProfileId(), this.context.currentAgeTrack());
+    dressCharacter(this, character, kind, items);
+    loadOutfitArt(this, kind, items, () => {
+      dressCharacter(this, character, kind, items);
+    });
+  }
+
   private pickKind(): string {
+    const seeded = takeSeededRestaurantKind();
+    if (seeded) {
+      this.lastKind = seeded;
+      return seeded;
+    }
     const options = ANIMAL_KINDS.filter((k) => k !== this.lastKind);
     const kind = options[Math.floor(Math.random() * options.length)] ?? ANIMAL_KINDS[0];
     this.lastKind = kind;
@@ -309,14 +337,16 @@ export class RestaurantScene extends Phaser.Scene {
     };
 
     const a = this.layout.animal;
+    const kind = this.pickKind();
     const character = new Character(this, {
-      kind: this.pickKind(),
+      kind,
       x: a.x,
       y: a.feetY,
       displayHeight: a.displayHeight,
       depth: DEPTH.animal,
     });
     this.character = character;
+    this.dressBear(character, kind);
     void character.enter(a.enterFromX).then(() => {
       if (token !== this.roundToken || !this.round || this.round.done) return;
       // The intro plays once per visit, before the very first food request.

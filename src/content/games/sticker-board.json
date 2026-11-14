@@ -1,0 +1,51 @@
+{
+  "id": "sticker-board",
+  "world": "art-studio",
+  "earnsLeisure": false,
+  "defaultBackground": "space",
+  "defaultColor": "red",
+  "backgrounds": [
+    {
+      "id": "space",
+      "he": "חלל",
+      "name": { "en": "Space", "fr": "Espace" },
+      "place": { "en": "in space", "fr": "dans l'espace" }
+    },
+    {
+      "id": "jungle",
+      "he": "ג׳ונגל",
+      "name": { "en": "Jungle", "fr": "Jungle" },
+      "place": { "en": "in the jungle", "fr": "dans la jungle" }
+    },
+    {
+      "id": "beach",
+      "he": "חוף הים",
+      "name": { "en": "Beach", "fr": "Plage" },
+      "place": { "en": "on the beach", "fr": "sur la plage" }
+    }
+  ],
+  "stickers": [
+    { "id": "rocket", "theme": "space", "artKey": "sticker-rocket", "name": { "en": "the rocket", "fr": "la fusée" } },
+    { "id": "planet", "theme": "space", "artKey": "sticker-planet", "name": { "en": "the planet", "fr": "la planète" } },
+    { "id": "moon", "theme": "space", "artKey": "sticker-moon", "name": { "en": "the moon", "fr": "la lune" } },
+    { "id": "star", "theme": "space", "artKey": "sticker-star", "name": { "en": "the star", "fr": "l'étoile" } },
+    { "id": "palm-tree", "theme": "jungle", "artKey": "sticker-palm-tree", "name": { "en": "the palm tree", "fr": "le palmier" } },
+    { "id": "banana", "theme": "jungle", "artKey": "sticker-banana", "name": { "en": "the banana", "fr": "la banane" } },
+    { "id": "leaf", "theme": "jungle", "artKey": "sticker-leaf", "name": { "en": "the leaf", "fr": "la feuille" } },
+    { "id": "flower", "theme": "jungle", "artKey": "sticker-flower", "name": { "en": "the flower", "fr": "la fleur" } },
+    { "id": "shell", "theme": "beach", "artKey": "sticker-shell", "name": { "en": "the shell", "fr": "le coquillage" } },
+    { "id": "starfish", "theme": "beach", "artKey": "sticker-starfish", "name": { "en": "the starfish", "fr": "l'étoile de mer" } },
+    { "id": "umbrella", "theme": "beach", "artKey": "sticker-umbrella", "name": { "en": "the umbrella", "fr": "le parasol" } },
+    { "id": "ball", "theme": "beach", "artKey": "sticker-ball", "name": { "en": "the ball", "fr": "le ballon" } }
+  ],
+  "crayons": [
+    { "id": "red", "hex": "#E2554F", "age2": true, "age5": true },
+    { "id": "yellow", "hex": "#FFD93D", "age2": true, "age5": true },
+    { "id": "blue", "hex": "#4D96FF", "age2": true, "age5": true },
+    { "id": "green", "hex": "#6BCB77", "age2": true, "age5": true },
+    { "id": "purple", "hex": "#9B5DE5", "age2": false, "age5": true },
+    { "id": "orange", "hex": "#FF9F43", "age2": false, "age5": true },
+    { "id": "brown", "hex": "#A97155", "age2": false, "age5": true },
+    { "id": "white", "hex": "#FEF6E4", "age2": false, "age5": true }
+  ]
+}

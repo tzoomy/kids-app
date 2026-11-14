@@ -17,11 +17,11 @@ describe('Kitchen Orchestra moves to Language House', () => {
     expect(house).not.toHaveProperty('entryGameId');
   });
 
-  it('locks Art Studio again, with no entry game, until it has its own game', () => {
+  it('Art Studio no longer hosts the orchestra: it opens its own game, Sticker Board', () => {
     const studio = loadWorlds().worlds.find((w) => w.id === 'art-studio');
     expect(studio).toBeDefined();
-    expect(studio?.status).toBe('locked');
-    expect(studio?.entryGameId).toBeUndefined();
+    expect(studio?.status).toBe('open');
+    expect(studio?.entryGameId).toBe('sticker-board');
     expect(studio?.earnsLeisure).toBe(true);
   });
 });
