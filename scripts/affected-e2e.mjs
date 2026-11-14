@@ -155,6 +155,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
   },
   {
+    id: 'magic-magnet',
+    match: [
+      /^src\/games\/magicMagnet\//,
+      /^src\/content\/games\/magic-magnet\.json$/,
+      /^public\/art\/magnet\//,
+      /^tests\/unit\/magic-magnet[^/]*$/,
+    ],
+    specs: ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'balloon-pop',
     match: [
       /^src\/games\/balloon\//,

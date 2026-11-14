@@ -5,11 +5,12 @@ import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
 import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
+import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -28,6 +29,7 @@ export const GAME_SCENE: Record<string, string> = {
   'balloon-pop': 'BalloonScene',
   'potion-lab': 'PotionScene',
   'sink-or-float': 'SinkFloatScene',
+  'magic-magnet': 'MagnetScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -43,12 +45,13 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'science-world': 'potion-lab',
 };
 
-/** Extra picker-card games on a world that still defaults to a direct entry game.
+/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another PR).
  * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
- * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
+ * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building.
+ * Science World tests pass `'magic-magnet'` explicitly so Potion Lab can own the default slot. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
-  'science-world': ['sink-or-float'],
+  'science-world': ['sink-or-float', 'magic-magnet'],
 };
 
 export interface PageRect {
@@ -157,6 +160,8 @@ type Hooks = {
   getPotionInfo: () => PotionInfo | null;
   seedSinkFloatLevel: (level: number) => void;
   getSinkFloatInfo: () => SinkFloatInfo | null;
+  seedMagnetLevel: (level: number) => void;
+  getMagnetInfo: () => MagnetInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -704,4 +709,39 @@ export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Prom
     if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
   }
+}
+
+/** Seeds the persisted Magic Magnet level for every language (seed only). Call on the map, before entering. */
+export async function seedMagnetLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedMagnetLevel', [level]);
+}
+
+export function getMagnetInfo(page: Page): Promise<MagnetInfo | null> {
+  return callHook<MagnetInfo | null>(page, 'getMagnetInfo');
+}
+
+/** Waits until Magic Magnet accepts input and returns its state. */
+export async function waitForMagnetReady(page: Page, timeout = 15_000): Promise<MagnetInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getMagnetInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Magic Magnet never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/**
+ * Drags the magnet from its centre to `(x, y)` in page CSS px, offset so the magnet touch point
+ * (pole tips) lands on `(x, y)`.
+ */
+export async function dragMagnetTo(page: Page, info: MagnetInfo, x: number, y: number): Promise<void> {
+  const startX = info.magnet.x + info.magnet.width / 2;
+  const startY = info.magnet.y + info.magnet.height / 2;
+  const tipOffsetX = info.tips.x - startX;
+  const tipOffsetY = info.tips.y - startY;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(x - tipOffsetX, y - tipOffsetY, { steps: 12 });
+  await page.mouse.up();
 }

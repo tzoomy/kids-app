@@ -8,7 +8,7 @@ import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { buildingArtKey, registerArtManifest, resetArtRegistry } from '../../src/anim/artRegistry';
 import { PICKER_EMPTY_TEST_ID, SCIENCE_WORLD_PICKER_GAMES } from '../../src/ui/picker/pickerModel';
 import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
-import { loadPotionLab, loadSinkOrFloat } from '../../src/content/loadContent';
+import { loadPotionLab, loadSinkOrFloat, loadMagicMagnet } from '../../src/content/loadContent';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
 import { selectAffectedE2e } from '../../scripts/affected-e2e.mjs';
 
@@ -57,10 +57,11 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     }
   });
 
-  it('picker list has potion-lab then sink-or-float, looked up by gameId, with Hebrew labels and resolvable assets', () => {
+  it('picker list has potion-lab, sink-or-float and magic-magnet, looked up by gameId, with Hebrew labels and resolvable assets', () => {
     const byId = (id: string) => SCIENCE_WORLD_PICKER_GAMES.find((g) => g.gameId === id);
     const potionEntry = byId('potion-lab');
     const sinkEntry = byId('sink-or-float');
+    const magnetEntry = byId('magic-magnet');
     expect(potionEntry).toEqual({
       gameId: 'potion-lab',
       testId: 'game-picker-potion-lab',
@@ -75,16 +76,27 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
       assetKey: 'picker-card-sink-or-float',
       labelKey: 'sinkOrFloat',
     });
+    expect(magnetEntry).toEqual({
+      gameId: 'magic-magnet',
+      testId: 'game-picker-magic-magnet',
+      sceneKey: 'MagnetScene',
+      assetKey: 'picker-card-magic-magnet',
+      labelKey: 'magicMagnet',
+    });
     const ids = SCIENCE_WORLD_PICKER_GAMES.map((g) => g.gameId);
     expect(ids.indexOf('potion-lab')).toBeGreaterThanOrEqual(0);
     expect(ids.indexOf('sink-or-float')).toBeGreaterThan(ids.indexOf('potion-lab'));
+    expect(ids.indexOf('magic-magnet')).toBeGreaterThan(ids.indexOf('sink-or-float'));
     expect(loadPotionLab().world).toBe('science-world');
     expect(loadSinkOrFloat().world).toBe('science-world');
+    expect(loadMagicMagnet().world).toBe('science-world');
     expect(() => resolvePickerAsset(potionEntry!.assetKey)).not.toThrow();
     expect(() => resolvePickerAsset(sinkEntry!.assetKey)).not.toThrow();
+    expect(() => resolvePickerAsset(magnetEntry!.assetKey)).not.toThrow();
     const labels = he.gamePicker as Record<string, string>;
     expect(labels[potionEntry!.labelKey]).toBe('מעבדת השיקויים');
     expect(labels[sinkEntry!.labelKey]).toBe('צף או שוקע?');
+    expect(labels[magnetEntry!.labelKey]).toBe('המגנט הקסום');
   });
 });
 
