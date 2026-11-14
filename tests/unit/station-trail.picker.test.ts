@@ -8,6 +8,7 @@ import {
   loadBalloonPop,
   loadKitchenOrchestra,
   loadLetterMonster,
+  loadPicnicTrain,
   loadTravelSuitcase,
   loadPotionLab,
   loadSeedToFlower,
@@ -26,6 +27,7 @@ const REAL_GAMES = collectTrailGames({
   suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
+  picnic: loadPicnicTrain(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
@@ -101,7 +103,7 @@ describe('station trail picker render', () => {
     );
   });
 
-  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 2 in Number Garden)', () => {
+  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 3 in Number Garden)', () => {
     const languageHouse = stationGamesForWorld('language-house', WORLD_GAMES, REAL_GAMES);
     const root = renderGamePicker({
       stations: languageHouse.map((game, i) => ({
@@ -136,10 +138,11 @@ describe('station trail picker render', () => {
       onPick: () => {},
       onClose: () => {},
     });
-    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('2');
+    expect(garden.querySelector<HTMLElement>('[data-testid="station-trail"]')?.style.getPropertyValue('--picker-count')).toBe('3');
     expect([...garden.querySelectorAll('.picker-card')].map((c) => c.getAttribute('data-testid'))).toEqual([
       'game-picker-sorting-beds',
       'game-picker-balloon-pop',
+      'game-picker-picnic-train',
     ]);
   });
 

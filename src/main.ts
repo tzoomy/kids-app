@@ -12,7 +12,7 @@ import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
-import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadShadowMatch, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
+import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadPicnicTrain, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadShadowMatch, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
 import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
 
@@ -32,6 +32,7 @@ const context = new AppContext(store, audioManager, sfx, {
   letterMonster: loadLetterMonster(),
   suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
+  picnic: loadPicnicTrain(),
   balloon: loadBalloonPop(),
   hiding: loadWhosHiding(),
   habitat: loadWhoLivesHere(),
@@ -167,6 +168,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('RestaurantScene');
   game?.scene.stop('HidingScene');
   game?.scene.stop('SortingScene');
+  game?.scene.stop('PicnicScene');
   game?.scene.stop('HabitatScene');
   game?.scene.stop('ColouringScene');
   game?.scene.stop('ShadowScene');
@@ -207,6 +209,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('RestaurantScene');
     game.scene.stop('HidingScene');
     game.scene.stop('SortingScene');
+    game.scene.stop('PicnicScene');
     game.scene.stop('HabitatScene');
     game.scene.stop('ColouringScene');
     game.scene.stop('ShadowScene');

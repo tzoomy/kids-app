@@ -17,6 +17,7 @@ import {
   loadBalloonPop,
   loadKitchenOrchestra,
   loadLetterMonster,
+  loadPicnicTrain,
   loadTravelSuitcase,
   loadPotionLab,
   loadSinkOrFloat,
@@ -32,7 +33,7 @@ import { GAME_SCENE, PICKER_WORLD_DEFAULT_GAME, WORLD_ENTRY_GAME } from '../e2e/
 
 // Spec: docs/specs/station-trail.md. Pure model only (no DOM, no Phaser).
 
-/** Every game content on main, as the app's content bundle holds it (world + adaptive metadata). */
+/** Every game content in the repo, as the app's content bundle holds it (world + adaptive metadata). */
 const REAL_GAMES = collectTrailGames({
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
@@ -40,6 +41,7 @@ const REAL_GAMES = collectTrailGames({
   suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
+  picnic: loadPicnicTrain(),
   hiding: loadWhosHiding(),
   seedToFlower: loadSeedToFlower(),
   whoLivesHere: loadWhoLivesHere(),
@@ -238,6 +240,7 @@ describe('station trail: data-driven station list', () => {
       const expected = WORLD_GAMES.filter((card) => REAL_GAMES.some((g) => g.id === card.gameId && g.world === world.id)).map((c) => c.gameId);
       expect(ids(world.id), world.id).toEqual(expected);
     }
+    expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
     expect(ids('art-studio')).toEqual([]);
     expect(ids('leisure-corner')).toEqual([]);
@@ -275,13 +278,14 @@ describe('station trail: data-driven station list', () => {
     }
   });
 
-  it('[AC-09] the registry holds exactly the games whose scenes are on main (open-PR games are added with their PR)', () => {
+  it('[AC-09] the registry holds exactly the games whose scenes exist, each added with its own PR (Picnic Train is the third Number Garden station)', () => {
     expect(WORLD_GAMES.map((g) => [g.gameId, g.sceneKey])).toEqual([
       ['animal-restaurant', 'RestaurantScene'],
       ['kitchen-orchestra', 'OrchestraScene'],
       ['letter-monster', 'LetterMonsterScene'],
       ['sorting-beds', 'SortingScene'],
       ['balloon-pop', 'BalloonScene'],
+      ['picnic-train', 'PicnicScene'],
       ['who-is-hiding', 'HidingScene'],
       ['seed-to-flower', 'SeedFlowerScene'],
       ['who-lives-here', 'HabitatScene'],

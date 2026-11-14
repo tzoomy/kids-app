@@ -56,6 +56,7 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   // Number Garden.
   'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
   'picker-card-balloon-pop': { css: 'background:radial-gradient(circle at 35% 40%,#ff6fb5 0 14%,transparent 15%),radial-gradient(circle at 62% 30%,#ffd93d 0 13%,transparent 14%),radial-gradient(circle at 50% 62%,#4d96ff 0 14%,transparent 15%),linear-gradient(180deg,#b8e6ff,#e7f7ff)' },
+  'picker-card-picnic-train': { url: 'art/scenes/picnic-train/bg-landscape.svg' },
   // Nature Lab.
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
   'picker-card-shadow-match': { css: 'background:radial-gradient(ellipse at 50% 70%,#2e2a3a 0 22%,transparent 23%),linear-gradient(180deg,#ffd38a,#b8e6ff)' },
