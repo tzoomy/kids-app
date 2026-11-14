@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Ground contact shadow -->
+    <ellipse cx="160" cy="300" rx="118" ry="12" fill="#8C5230" opacity="0.2"/>
+    <!-- Glass back interior -->
+    <rect x="42" y="34" width="236" height="260" rx="22" fill="#E6F4F9"/>
+    <!-- Water volume (y 90..290) -->
+    <path d="M46 90 Q103 82 160 90 Q217 98 274 90 L274 276 Q274 290 260 290 L60 290 Q46 290 46 276 Z" fill="#8BD3F7" opacity="0.82"/>
+    <!-- Water top meniscus -->
+    <path d="M46 90 Q103 82 160 90 Q217 98 274 90" fill="none" stroke="#FFFFFF" stroke-width="5" opacity="0.85"/>
+    <!-- Glass highlights -->
+    <path d="M64 56 L64 264" fill="none" stroke="#FFFFFF" stroke-width="8" opacity="0.75"/>
+    <path d="M84 52 L144 52" fill="none" stroke="#FFFFFF" stroke-width="5" opacity="0.75"/>
+    <!-- Outer glass rim & outline -->
+    <rect x="42" y="34" width="236" height="260" rx="22" fill="none" stroke="#3B2A22" stroke-width="6"/>
+    <path d="M42 46 Q160 56 278 46" fill="none" stroke="#3B2A22" stroke-width="5"/>
+  </g>
+</svg>

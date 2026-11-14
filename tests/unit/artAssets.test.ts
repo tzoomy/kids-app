@@ -6,6 +6,7 @@ import path from 'node:path';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { COLOURING_ART_MANIFEST } from '../../src/assets/art/colouringManifest';
 import { STICKER_BOARD_ART_MANIFEST } from '@/assets/art/stickerBoardManifest';
+import { WARDROBE_ART_MANIFEST } from '@/assets/art/wardrobeManifest';
 import { ANIMAL_RIGS, ANIMAL_ART_KINDS, CHARACTER_RIGS, HABITAT_ANIMAL_RIGS, HABITAT_ANIMAL_KINDS } from '../../src/assets/art/rigs';
 import { registerAnimalRigs, registerArtManifest, resetArtRegistry, getArtManifest, rigTextureKeys, foodArtKey, propArtKey, sceneArtKey, fxArtKey, instrumentArtKey, flowerArtKey, itemArtKey, homeArtKey, trainArtKey, puppetArtKey, coloringArtKey, paletteArtKey } from '../../src/anim/artRegistry';
 import { PUPPET_LAYER_ORDER, COLORING_PAGES, CRAYON_IDS, POT_IDS, MIX_RECIPES } from '../../src/assets/art/puppetColor';
@@ -44,7 +45,9 @@ describe('real art manifest', () => {
     const lazyColouring = COLOURING_ART_MANIFEST.map((e) => e.url);
     // Sticker Board art is lazy-loaded when its scene opens (docs/specs/sticker-board.md).
     const lazyStickers = STICKER_BOARD_ART_MANIFEST.map((e) => e.url);
-    const listed = new Set([...ART_MANIFEST.map((e) => e.url), ...lazyColouring, ...lazyStickers]);
+    // Wardrobe accessories are lazy-loaded too (docs/contracts/wardrobe-art.md).
+    const lazyWardrobe = WARDROBE_ART_MANIFEST.map((e) => e.url);
+    const listed = new Set([...ART_MANIFEST.map((e) => e.url), ...lazyColouring, ...lazyStickers, ...lazyWardrobe]);
     const walk = (dir: string): string[] =>
       fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));
     for (const f of walk(path.join(PUBLIC_DIR, 'art')).filter((f) => f.endsWith('.svg'))) {

@@ -1,5 +1,6 @@
 import { el, formatClock, clear } from './dom';
 import heStrings from '../content/i18n/he.json';
+import { attachLongPressInRoot, releaseLongPress } from './longPress';
 
 export interface MapPin {
   id: string;
@@ -16,7 +17,11 @@ export interface MapChromeOptions {
   /** False while time earning is paused: no balance chip. Defaults to true. */
   showTime?: boolean;
   onParent: () => void;
+  /** A 3-second hold of the parent button opens the settings directly. Without it the button only taps. */
+  onParentLongPress?: () => void;
   onSwitchProfile: () => void;
+  /** Opens the Wardrobe (docs/specs/wardrobe.md). The button is hidden when it is not given. */
+  onWardrobe?: () => void;
   pins: MapPin[];
   canvas: HTMLCanvasElement;
   gameWidth: number;
@@ -24,15 +29,23 @@ export interface MapChromeOptions {
 }
 
 export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void {
+  releaseLongPress(root); // the previous render's parent button (if any) is about to disappear
   clear(root);
   const bar = el('div', 'shell-top-bar');
   const parentBtn = el('button', 'shell-pill', `🔒 ${heStrings.parentArea}`);
   parentBtn.dataset.testid = 'parent-gate-btn';
-  parentBtn.addEventListener('click', opts.onParent);
+  if (opts.onParentLongPress) attachLongPressInRoot(root, parentBtn, { onTap: opts.onParent, onLongPress: opts.onParentLongPress });
+  else parentBtn.addEventListener('click', opts.onParent);
   bar.appendChild(parentBtn);
   bar.appendChild(el('span', 'shell-map-title', opts.title));
   const right = el('div', 'shell-row');
   right.style.gap = '1vmin';
+  if (opts.onWardrobe) {
+    const wardrobeBtn = el('button', 'shell-pill', `👗 ${heStrings.wardrobe.button}`);
+    wardrobeBtn.dataset.testid = 'wardrobe-btn';
+    wardrobeBtn.addEventListener('click', opts.onWardrobe);
+    right.appendChild(wardrobeBtn);
+  }
   const homeBtn = el('button', 'shell-pill', `🏠 ${heStrings.home}`);
   homeBtn.dataset.testid = 'switch-profile-btn';
   homeBtn.addEventListener('click', opts.onSwitchProfile);

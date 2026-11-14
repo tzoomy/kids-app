@@ -18,7 +18,7 @@ Repo rules in `GEMINI.md`, `AGENTS.md`, and `docs/PROCESS.md` still apply. This 
 
 - Fresh page per orientation, native size, `deviceScaleFactor: 1`: `1280×800` and `800×1280`. Do not resize one page to the other.
 - Capture the same state before and after the change (same screen, level, and action).
-- Write files under `tools/art-preview/shots/`, with names that mark before/after and orientation.
+- Write files under `tools/art-preview/shots/` (gitignored; never commit them), with names that mark before/after and orientation.
 
 ## Throwaway merges
 

@@ -21,6 +21,7 @@ import {
 import { ColouringHud, renderColouringEndScreen, type ColouringChromeOptions } from './colouringChrome';
 import { StickerBoardHud, type StickerBoardChromeOptions } from './stickerBoardChrome';
 import { renderGamePicker, type GamePickerOptions } from './picker/gamePicker';
+import { WardrobeHud, showWardrobeUnlockToast, type WardrobeChromeOptions } from './wardrobeChrome';
 import type { AppState } from '../core/storage/schema';
 
 /**
@@ -31,17 +32,42 @@ export class AppShell {
   private readonly overlayRoot: HTMLElement;
   private readonly chromeRoot: HTMLElement;
   private readonly pickerRoot: HTMLElement;
+  /** Own root, so chrome repaints and scene changes never wipe the wardrobe unlock toast. */
+  private readonly toastRoot: HTMLElement;
   private restaurantHud?: RestaurantHud;
   private bubblesHud?: BubblesHud;
   private colouringHud?: ColouringHud;
   private stickerBoardHud?: StickerBoardHud;
+  private wardrobeHud?: WardrobeHud;
 
   constructor(private readonly root: HTMLElement) {
     this.overlayRoot = el('div', 'shell-overlay');
     this.chromeRoot = el('div', 'shell-chrome');
     // Own root, so map-chrome repaints (resize) never wipe an open picker.
     this.pickerRoot = el('div', 'shell-picker-root');
-    this.root.replaceChildren(this.overlayRoot, this.chromeRoot, this.pickerRoot);
+    this.toastRoot = el('div', 'shell-toast-root');
+    this.root.replaceChildren(this.overlayRoot, this.chromeRoot, this.pickerRoot, this.toastRoot);
+  }
+
+  /** Wardrobe chrome (back button and item buttons). Replaces any other chrome. */
+  setWardrobeChrome(opts: WardrobeChromeOptions): WardrobeHud {
+    this.clearOverlay();
+    this.restaurantHud = undefined;
+    this.bubblesHud = undefined;
+    this.colouringHud = undefined;
+    this.stickerBoardHud = undefined;
+    this.wardrobeHud = new WardrobeHud(this.chromeRoot, opts);
+    return this.wardrobeHud;
+  }
+
+  /** In-place update of the item buttons' locked and worn flags. */
+  updateWardrobeChrome(items: Parameters<WardrobeHud['update']>[0]): void {
+    this.wardrobeHud?.update(items);
+  }
+
+  /** "You got a new item!" toast for newly unlocked wardrobe items. */
+  showWardrobeUnlockToast(itemIds: readonly string[]): void {
+    showWardrobeUnlockToast(this.toastRoot, itemIds);
   }
 
   /** Opens the Language House game picker over the map. Replaces any picker already open. */
@@ -63,12 +89,18 @@ export class AppShell {
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
     this.stickerBoardHud = undefined;
+    this.wardrobeHud = undefined;
     this.chromeRoot.replaceChildren();
   }
 
-  showProfileSelect(entries: ProfileSelectEntry[], onPick: (id: string) => void, onParent: () => void): void {
+  showProfileSelect(
+    entries: ProfileSelectEntry[],
+    onPick: (id: string) => void,
+    onParent: () => void,
+    onParentLongPress?: () => void,
+  ): void {
     this.clearChrome();
-    renderProfileSelect(this.overlayRoot, entries, onPick, onParent);
+    renderProfileSelect(this.overlayRoot, entries, onPick, onParent, onParentLongPress);
   }
 
   showParentGate(onSuccess: () => void, onCancel: () => void): void {
@@ -91,6 +123,7 @@ export class AppShell {
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
     this.stickerBoardHud = undefined;
+    this.wardrobeHud = undefined;
     this.clearOverlay();
     renderMapChrome(this.chromeRoot, opts);
   }
@@ -172,6 +205,7 @@ export class AppShell {
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
+    this.wardrobeHud = undefined;
     this.stickerBoardHud = new StickerBoardHud(this.chromeRoot, opts);
     return this.stickerBoardHud;
   }

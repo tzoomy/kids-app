@@ -624,6 +624,10 @@ export class StickerBoardScene extends Phaser.Scene {
     this.currentRequest = null;
     this.refreshChrome();
 
+    // A met age-5 request is a completed Art Studio round (wardrobe hair-bow, docs/specs/wardrobe.md).
+    this.learningSession?.complete();
+    this.context.recordCompletedRound('art-studio', 'sticker-board');
+
     const b = this.geometry.board;
     Juice.for(this).burst('sparkle', b.x + normX * b.width, b.y + normY * b.height);
     this.context.sfx.yay();

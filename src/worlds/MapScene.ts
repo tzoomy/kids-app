@@ -6,7 +6,9 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES, NATURE_LAB_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { worldEntry } from '../ui/picker/trailModel';
+import { stationsForActiveProfile, worldPickerOptions } from './worldTrail';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -97,9 +99,20 @@ export class MapScene extends Phaser.Scene {
           }
           return;
         }
-        if (world.id === 'language-house') {
-          // Language House hosts two games: the child picks one (or closes the picker and stays on the map).
+        // Registry-driven entry for every open learning world (docs/specs/station-trail.md): 2+ games open the
+        // station trail picker, exactly one game is entered directly, and a world with no game yet opens the empty
+        // coming-soon picker. No station is ever locked.
+        const entry = worldEntry(stationsForActiveProfile(context, world.id));
+        const t = context.content.he.gamePicker;
+        const options = worldPickerOptions(entry, {
+          title: world.id === 'science-world' ? t.scienceWorldTitle : world.nameHe,
+          // Science World has its own gentle text; a future empty world falls back to the generic "coming soon".
+          emptyText: world.id === 'science-world' ? t.scienceWorldEmpty : context.content.he.worldMap.comingSoon,
+        });
+        if (options) {
+          // The child picks a station (or closes the picker and stays on the map).
           context.shell.showGamePicker({
+            ...options,
             onPick: (game) => {
               context.shell.hideGamePicker();
               context.sfx.tap();
@@ -110,45 +123,17 @@ export class MapScene extends Phaser.Scene {
               context.sfx.tap();
             },
           });
+          if (entry.kind === 'none') void context.audio.play(heLine('map.comingSoon'));
           return;
         }
-        if (world.id === 'nature-lab') {
-          // Nature Lab hosts Who's Hiding? (entry game) and Seed to Flower: the child picks one.
-          context.shell.showGamePicker({
-            games: NATURE_LAB_PICKER_GAMES,
-            title: context.content.he.gamePicker.natureLabTitle,
-            onPick: (game) => {
-              context.shell.hideGamePicker();
-              context.sfx.tap();
-              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
-            },
-            onClose: () => {
-              context.shell.hideGamePicker();
-              context.sfx.tap();
-            },
-          });
-          return;
-        }
-        if (world.entryGameId === 'animal-restaurant') {
-          transitionTo(this, 'RestaurantScene', { style: 'iris', originX: x, originY: y });
-        } else if (world.entryGameId === 'who-is-hiding') {
-          transitionTo(this, 'HidingScene', { style: 'iris', originX: x, originY: y });
-        }
-        if (world.entryGameId === 'kitchen-orchestra') {
-          transitionTo(this, 'OrchestraScene', { style: 'iris', originX: x, originY: y });
-        }
-        if (world.entryGameId === 'sorting-beds') {
-          transitionTo(this, 'SortingScene', { style: 'iris', originX: x, originY: y });
-        }
-        if (world.entryGameId === 'sticker-board') {
-          transitionTo(this, 'StickerBoardScene', { style: 'iris', originX: x, originY: y });
-        }
+        if (entry.kind === 'direct') transitionTo(this, entry.game.sceneKey, { style: 'iris', originX: x, originY: y });
       });
 
       const labels: Record<string, string> = {
         'language-house': context.content.he.worldMap.languageHouse,
         'number-garden': context.content.he.worldMap.numberGarden,
         'nature-lab': context.content.he.worldMap.natureLab,
+        'science-world': context.content.he.worldMap.scienceWorld,
         'art-studio': context.content.he.worldMap.artStudio,
         'leisure-corner': context.content.he.worldMap.leisureCorner,
       };
@@ -170,7 +155,14 @@ export class MapScene extends Phaser.Scene {
         balanceSec: profileState.balanceSec,
         showTime: context.isTimeEarningEnabled(),
         onParent: () => context.onRequestParent?.(),
+        onParentLongPress: () => context.onRequestParentSettings?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
+        onWardrobe: () => {
+          context.sfx.tap();
+          context.audio.stopAll();
+          context.shell.hideGamePicker();
+          transitionTo(this, 'WardrobeScene', { style: 'fade' });
+        },
         pins,
         canvas: this.game.canvas,
         gameWidth: this.scale.width,

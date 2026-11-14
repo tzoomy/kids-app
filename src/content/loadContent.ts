@@ -5,7 +5,12 @@ import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import stickerBoardJson from './games/sticker-board.json';
+import letterMonsterJson from './games/letter-monster.json';
+import balloonPopJson from './games/balloon-pop.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
+import potionLabJson from './games/potion-lab.json';
+import sinkOrFloatJson from './games/sink-or-float.json';
+import magicMagnetJson from './games/magic-magnet.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -16,7 +21,12 @@ import {
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
   StickerBoardContentSchema,
+  LetterMonsterContentSchema,
+  BalloonPopContentSchema,
+  PotionLabContentSchema,
+  SinkOrFloatContentSchema,
   SeedToFlowerContentSchema,
+  MagicMagnetContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
@@ -24,7 +34,12 @@ import {
   type WhosHidingContent,
   type LeisureColouringContent,
   type StickerBoardContent,
+  type LetterMonsterContent,
+  type BalloonPopContent,
   type SeedToFlowerContent,
+  type PotionLabContent,
+  type SinkOrFloatContent,
+  type MagicMagnetContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -61,8 +76,28 @@ export function loadStickerBoard(): StickerBoardContent {
   return StickerBoardContentSchema.parse(stickerBoardJson);
 }
 
+export function loadLetterMonster(): LetterMonsterContent {
+  return LetterMonsterContentSchema.parse(letterMonsterJson);
+}
+
+export function loadBalloonPop(): BalloonPopContent {
+  return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadPotionLab(): PotionLabContent {
+  return PotionLabContentSchema.parse(potionLabJson);
+}
+
+export function loadSinkOrFloat(): SinkOrFloatContent {
+  return SinkOrFloatContentSchema.parse(sinkOrFloatJson);
+}
+
 export function loadSeedToFlower(): SeedToFlowerContent {
   return SeedToFlowerContentSchema.parse(seedToFlowerJson);
+}
+
+export function loadMagicMagnet(): MagicMagnetContent {
+  return MagicMagnetContentSchema.parse(magicMagnetJson);
 }
 
 export function loadAudioManifest(): AudioManifest {
