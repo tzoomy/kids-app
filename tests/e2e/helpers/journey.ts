@@ -4,8 +4,9 @@
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
 import type { ShadowInfo } from '../../../src/games/hiding/shadowTypes';
+import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, ShadowInfo };
+export type { SortingInfo, ShadowInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -14,9 +15,10 @@ export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
   bubbles: 'BubblesScene',
-  // Nature Lab opens a picker: Who's Hiding? or Shadow Match.
+  // Nature Lab opens a picker: Who's Hiding?, Shadow Match, or Seed to Flower.
   'who-is-hiding': 'HidingScene',
   'shadow-match': 'ShadowScene',
+  'seed-to-flower': 'SeedFlowerScene',
   'leisure-colouring': 'ColouringScene',
   // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
   'sorting-beds': 'SortingScene',
@@ -139,6 +141,8 @@ type Hooks = {
   seedTimeEarningEnabled: (enabled: boolean) => void;
   getShadowInfo: () => ShadowInfo | null;
   seedShadowLevel: (level: number) => void;
+  seedSeedFlowerLevel: (level: number) => void;
+  getSeedFlowerInfo: () => SeedFlowerInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -598,4 +602,24 @@ export async function readShadowSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `nature-lab.shadow-match.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
+export async function seedSeedFlowerLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSeedFlowerLevel', [level]);
+}
+
+export function getSeedFlowerInfo(page: Page): Promise<SeedFlowerInfo | null> {
+  return callHook<SeedFlowerInfo | null>(page, 'getSeedFlowerInfo');
+}
+
+/** Waits until the plant accepts tool taps and returns its state. */
+export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Promise<SeedFlowerInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSeedFlowerInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }

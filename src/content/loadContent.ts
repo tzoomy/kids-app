@@ -5,6 +5,7 @@ import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import shadowMatchJson from './games/shadow-match.json';
+import seedToFlowerJson from './games/seed-to-flower.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -15,6 +16,7 @@ import {
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
   ShadowMatchContentSchema,
+  SeedToFlowerContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
@@ -22,6 +24,7 @@ import {
   type WhosHidingContent,
   type LeisureColouringContent,
   type ShadowMatchContent,
+  type SeedToFlowerContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -65,6 +68,10 @@ export function loadShadowMatch(): ShadowMatchContent {
     if ((level.choiceCount ?? 0) > animals.length) throw new Error('shadow-match: choiceCount exceeds the number of animals');
   }
   return content;
+}
+
+export function loadSeedToFlower(): SeedToFlowerContent {
+  return SeedToFlowerContentSchema.parse(seedToFlowerJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

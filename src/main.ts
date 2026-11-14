@@ -66,6 +66,12 @@ function openParentGate(onDone: () => void): void {
   );
 }
 
+/** The 3-second long-press path: straight to the parent settings, no multiplication question. */
+function openParentSettingsDirect(onDone: () => void): void {
+  setAppScreen('parent');
+  openParentSettings(onDone);
+}
+
 function openParentSettings(onDone: () => void): void {
   shell.showParentSettings(store.getState(), {
     onSave: (settings, edits) => {
@@ -142,6 +148,7 @@ function showProfileSelectScreen(): void {
     entries,
     (id) => pickProfile(id),
     () => openParentGate(() => showProfileSelectScreen()),
+    () => openParentSettingsDirect(() => showProfileSelectScreen()),
   );
   welcomeOnce();
 }
@@ -153,6 +160,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('HidingScene');
   game?.scene.stop('SortingScene');
   game?.scene.stop('ColouringScene');
+  game?.scene.stop('SeedFlowerScene');
   game?.scene.stop('BubblesScene');
   game?.scene.stop('ShadowScene');
   game?.scene.stop('MapScene');
@@ -173,6 +181,11 @@ function pickProfile(profileId: string): void {
         shell.clearOverlay();
         game?.scene.getScene('MapScene')?.scene.restart();
       });
+    context.onRequestParentSettings = () =>
+      openParentSettingsDirect(() => {
+        shell.clearOverlay();
+        game?.scene.getScene('MapScene')?.scene.restart();
+      });
     context.onExitToProfileSelect = returnToProfileSelect;
     game = createGame(document.getElementById('game-root')!, context);
   } else {
@@ -180,6 +193,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('HidingScene');
     game.scene.stop('SortingScene');
     game.scene.stop('ColouringScene');
+    game.scene.stop('SeedFlowerScene');
     game.scene.stop('BubblesScene');
     game.scene.stop('ShadowScene');
     game.scene.start('MapScene');

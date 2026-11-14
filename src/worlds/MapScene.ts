@@ -113,7 +113,7 @@ export class MapScene extends Phaser.Scene {
           return;
         }
         if (world.id === 'nature-lab') {
-          // Nature Lab hosts Who's Hiding? (entry game) and Shadow Match: the child picks one.
+          // Nature Lab hosts Who's Hiding? (entry game), Shadow Match and Seed to Flower: the child picks one.
           context.shell.showGamePicker({
             games: NATURE_LAB_PICKER_GAMES,
             title: context.content.he.gamePicker.natureLabTitle,
@@ -167,6 +167,7 @@ export class MapScene extends Phaser.Scene {
         balanceSec: profileState.balanceSec,
         showTime: context.isTimeEarningEnabled(),
         onParent: () => context.onRequestParent?.(),
+        onParentLongPress: () => context.onRequestParentSettings?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
         pins,
         canvas: this.game.canvas,

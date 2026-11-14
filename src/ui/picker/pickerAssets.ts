@@ -50,6 +50,7 @@ const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = 
 const NATURE_LAB_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
   'picker-card-shadow-match': { css: 'background:radial-gradient(ellipse at 50% 70%,#2e2a3a 0 22%,transparent 23%),linear-gradient(180deg,#ffd38a,#b8e6ff)' },
+  'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
 };
 
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */

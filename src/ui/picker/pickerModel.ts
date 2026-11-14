@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'who-is-hiding' | 'shadow-match';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'who-is-hiding' | 'shadow-match' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'whoIsHiding' | 'shadowMatch';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'whoIsHiding' | 'shadowMatch' | 'seedToFlower';
 }
 
 /**
@@ -56,7 +56,7 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
 ];
 
 /**
- * Nature Lab picker (docs/specs/shadow-match.md): Who's Hiding? (the entry game) first, then Shadow Match.
+ * Nature Lab picker: Who's Hiding? (the entry game) first, then Shadow Match, then Seed to Flower.
  * Append later Nature Lab games here (additive registry).
  */
 export const NATURE_LAB_PICKER_GAMES: readonly PickerGame[] = [
@@ -73,5 +73,12 @@ export const NATURE_LAB_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'ShadowScene',
     assetKey: 'picker-card-shadow-match',
     labelKey: 'shadowMatch',
+  },
+  {
+    gameId: 'seed-to-flower',
+    testId: 'game-picker-seed-to-flower',
+    sceneKey: 'SeedFlowerScene',
+    assetKey: 'picker-card-seed-to-flower',
+    labelKey: 'seedToFlower',
   },
 ];

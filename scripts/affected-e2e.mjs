@@ -80,6 +80,22 @@ export const GAME_RULES = [
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
   },
   {
+    id: 'seed-to-flower',
+    match: [
+      /^src\/games\/seedFlower\//,
+      /^src\/content\/games\/seed-to-flower\.json$/,
+      /^public\/art\/props\/(seed|sprout|flower-bud|watering-can|sun)\.svg$/,
+      /^tests\/unit\/seed-to-flower[^/]*$/,
+    ],
+    specs: ['tests/e2e/seed-to-flower.journey.spec.ts'],
+  },
+  {
+    // The Nature Lab picker (docs/specs/seed-to-flower.md) is the way into both Nature Lab games.
+    id: 'nature-lab-picker',
+    match: [/^src\/ui\/picker\//],
+    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/seed-to-flower.journey.spec.ts'],
+  },
+  {
     id: 'leisure-colouring',
     match: [
       /^src\/games\/colouring\//,
@@ -133,6 +149,19 @@ export const GAME_RULES = [
     match: [/^src\/ui\/shell\.ts$/],
     specs: ['tests/e2e/help-card.shell.spec.ts'],
   },
+  {
+    id: 'parent-longpress-gate',
+    // The long-press binder is bound by the profile-select and map-HUD parent buttons: those shared files
+    // (and shell.css) also select the smoke set via ALSO_SMOKE. Its unit tests select only the gate spec.
+    match: [
+      /^src\/ui\/longPress\.ts$/,
+      /^src\/ui\/profileSelect\.ts$/,
+      /^src\/ui\/hud\.ts$/,
+      /^src\/styles\/shell\.css$/,
+      /^tests\/unit\/parent-longpress-gate[^/]*$/,
+    ],
+    specs: ['tests/e2e/parent-longpress-gate.spec.ts'],
+  },
 ];
 
 /**
@@ -149,7 +178,15 @@ const NO_E2E = [
 ];
 
 /** Directly mapped files that are also shared runtime code. */
-const ALSO_SMOKE = [/^src\/ui\/shell\.ts$/, /^src\/ui\/picker\//, /^src\/ui\/parent\.ts$/];
+const ALSO_SMOKE = [
+  /^src\/ui\/shell\.ts$/,
+  /^src\/ui\/picker\//,
+  /^src\/ui\/parent\.ts$/,
+  /^src\/ui\/longPress\.ts$/,
+  /^src\/ui\/profileSelect\.ts$/,
+  /^src\/ui\/hud\.ts$/,
+  /^src\/styles\/shell\.css$/,
+];
 
 const norm = (f) => f.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 
