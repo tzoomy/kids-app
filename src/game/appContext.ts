@@ -14,6 +14,7 @@ import type {
   SortingBedsContent,
   PicnicTrainContent,
   WhosHidingContent,
+  WhoLivesHereContent,
   LeisureColouringContent,
   BalloonPopContent,
   LetterMonsterContent,
@@ -39,6 +40,7 @@ export interface ContentBundle {
   picnic: PicnicTrainContent;
   balloon: BalloonPopContent;
   hiding: WhosHidingContent;
+  habitat: WhoLivesHereContent;
   seedToFlower: SeedToFlowerContent;
   potionLab: PotionLabContent;
   sinkOrFloat: SinkOrFloatContent;

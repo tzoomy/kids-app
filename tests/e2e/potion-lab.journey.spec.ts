@@ -52,7 +52,7 @@ async function waitForPotion(
 test.describe('potion lab', () => {
   test('[AC-01] full real-tap journey: profile -> Science World -> trail card -> mix two colors -> back to the map', async ({ page }) => {
     test.setTimeout(60_000);
-    // Science World now has 2 games (Potion Lab, Sink or Float), so the station trail opens (AC-10).
+    // Science World is a 3-station trail (Potion Lab, Sink or Float, Magic Magnet), so the station trail opens (AC-10).
     await tapWorldBuilding(page, 'profile-a', 'science-world');
     await tapTestId(page, 'game-picker-potion-lab');
     await waitForScene(page, 'PotionScene');

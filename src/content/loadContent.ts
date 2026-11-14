@@ -4,6 +4,7 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
+import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
@@ -21,6 +22,7 @@ import {
   SortingBedsContentSchema,
   PicnicTrainContentSchema,
   WhosHidingContentSchema,
+  WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
@@ -35,6 +37,7 @@ import {
   type SortingBedsContent,
   type PicnicTrainContent,
   type WhosHidingContent,
+  type WhoLivesHereContent,
   type LeisureColouringContent,
   type LetterMonsterContent,
   type BalloonPopContent,
@@ -57,6 +60,10 @@ export function loadAnimalRestaurant(): AnimalRestaurantContent {
 
 export function loadWhosHiding(): WhosHidingContent {
   return WhosHidingContentSchema.parse(whosHidingJson);
+}
+
+export function loadWhoLivesHere(): WhoLivesHereContent {
+  return WhoLivesHereContentSchema.parse(whoLivesHereJson);
 }
 
 export function loadHeStrings(): typeof heJson {

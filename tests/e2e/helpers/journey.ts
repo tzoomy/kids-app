@@ -10,9 +10,10 @@ import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
+import type { HabitatInfo } from '../../../src/games/habitat/types';
 import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -23,9 +24,10 @@ export const GAME_SCENE: Record<string, string> = {
   'letter-monster': 'LetterMonsterScene',
   'travel-suitcase': 'SuitcaseScene',
   bubbles: 'BubblesScene',
-  // Nature Lab opens a picker (docs/specs/seed-to-flower.md): Who's Hiding? or Seed to Flower.
+  // Nature Lab opens a picker: Who's Hiding?, Seed to Flower, and (once registered) Who Lives Here?.
   'who-is-hiding': 'HidingScene',
   'seed-to-flower': 'SeedFlowerScene',
+  'who-lives-here': 'HabitatScene',
   'leisure-colouring': 'ColouringScene',
   // Number Garden opens a picker (Sorting Beds, Balloon Pop, and Picnic Train once registered); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
@@ -176,6 +178,8 @@ type Hooks = {
   getSinkFloatInfo: () => SinkFloatInfo | null;
   seedMagnetLevel: (level: number) => void;
   getMagnetInfo: () => MagnetInfo | null;
+  seedHabitatLevel: (level: number) => void;
+  getHabitatInfo: () => HabitatInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -865,4 +869,68 @@ export async function dragMagnetTo(page: Page, info: MagnetInfo, x: number, y: n
   await page.mouse.down();
   await page.mouse.move(x - tipOffsetX, y - tipOffsetY, { steps: 12 });
   await page.mouse.up();
+}
+
+// ---------------------------------------------------------------------------------------------
+// Who Lives Here? (docs/specs/who-lives-here.md). Hit rectangles from getHabitatInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+export type ReadyHabitatInfo = HabitatInfo & { currentAnimal: NonNullable<HabitatInfo['currentAnimal']> };
+
+/** Seeds the active profile's persisted Who Lives Here? level. Call from `beforeEnter`. */
+export async function seedHabitatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedHabitatLevel', [level]);
+}
+
+export function getHabitatInfo(page: Page): Promise<HabitatInfo | null> {
+  return callHook<HabitatInfo | null>(page, 'getHabitatInfo');
+}
+
+/** Waits until the current animal is on the path and home taps are accepted. */
+export async function waitForHabitatReady(page: Page, timeout = 12_000): Promise<ReadyHabitatInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getHabitatInfo();
+      return info !== null && info.ready && info.currentAnimal !== null;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getHabitatInfo(page);
+  if (!info || !info.currentAnimal) throw new Error('no active Who Lives Here? round');
+  return info as ReadyHabitatInfo;
+}
+
+/** Real tap on a home, using a fresh read of its hit rectangle. */
+export async function tapHome(page: Page, homeId: string): Promise<void> {
+  const info = await getHabitatInfo(page);
+  const home = info?.homes.find((h) => h.id === homeId);
+  if (!home) throw new Error(`no home "${homeId}" in the active round`);
+  await tapRect(page, home.hit);
+}
+
+/** Id of a home that is NOT the current animal's home. */
+export function wrongHomeId(info: ReadyHabitatInfo): string {
+  const home = info.homes.find((h) => h.id !== info.currentAnimal.homeId);
+  if (!home) throw new Error('the round has no second home');
+  return home.id;
+}
+
+/** Waits for the current animal, taps its home for real, waits until the animal is consumed. Returns the info read before the tap. */
+export async function placeCurrentAnimalCorrectly(page: Page, timeout = 12_000): Promise<ReadyHabitatInfo> {
+  const before = await waitForHabitatReady(page, timeout);
+  await tapHome(page, before.currentAnimal.homeId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getHabitatInfo(page);
+    const changed =
+      info === null ||
+      info.currentAnimal === null ||
+      !info.ready ||
+      info.currentAnimal.id !== before.currentAnimal.id ||
+      info.round.index !== before.round.index;
+    if (changed) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the matching home did not change the Who Lives Here? state');
+    await page.waitForTimeout(50);
+  }
 }

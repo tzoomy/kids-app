@@ -59,6 +59,7 @@ export const PICKER_SPECS = [
   'tests/e2e/station-trail.spec.ts',
   'tests/e2e/travel-suitcase.journey.spec.ts',
   'tests/e2e/who-is-hiding.journey.spec.ts',
+  'tests/e2e/who-lives-here.journey.spec.ts',
 ];
 
 /** Explicit map. Every tests/e2e/*.spec.ts must appear in some `specs` list or in SMOKE_SPECS. */
@@ -86,6 +87,17 @@ export const GAME_RULES = [
       /^tests\/unit\/(hiding|who-is-hiding)[^/]*$/,
     ],
     specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
+  },
+  {
+    id: 'who-lives-here',
+    match: [
+      /^src\/games\/habitat\//,
+      /^src\/content\/games\/who-lives-here\.json$/,
+      /^src\/anim\/homesTrainMotion\.ts$/,
+      /^public\/art\/(homes|scenes\/habitats)\//,
+      /^tests\/unit\/who-lives-here[^/]*$/,
+    ],
+    specs: ['tests/e2e/who-lives-here.journey.spec.ts'],
   },
   {
     id: 'kitchen-orchestra',
