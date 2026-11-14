@@ -29,6 +29,9 @@ export default defineConfig({
         // Precache the app shell plus the voice clips (~1.5 MB of 48 kbps mono MP3) so the
         // restaurant speaks offline from the first launch. Other world assets are cached at runtime
         // as they are requested, so first install does not pull the whole library.
+        // The combined shell JS is just over Workbox's 2 MiB default once Sticker Board,
+        // Shadow Match and Picnic Train are in the same bundle.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,woff,woff2,json,svg,png,webmanifest,ico,mp3}'],
         runtimeCaching: [
           {
