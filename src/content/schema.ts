@@ -706,11 +706,6 @@ export const SeedToFlowerContentSchema = z
 
 export type SeedToFlowerContent = z.infer<typeof SeedToFlowerContentSchema>;
 
-const nonBlankString = z
-  .string()
-  .min(1)
-  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
-
 /** Potion Lab (docs/specs/potion-lab.md): no-fail color mixing game in Science World. */
 export const POTION_COLOR_IDS = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'] as const;
 
