@@ -1,48 +1,49 @@
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
-import { RestaurantScene, seedRestaurantKind, type RoundInfo } from '../games/restaurant/RestaurantScene';
-import { HidingScene, type HidingRoundInfo } from '../games/hiding/HidingScene';
-import { BubblesScene } from '../games/bubbles/BubblesScene';
-import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
-import { SortingScene } from '../games/sorting/SortingScene';
+// Game scenes are lazily loaded chunks (./sceneLoaders): import them as types only, never as values.
+import type { RestaurantScene, RoundInfo } from '../games/restaurant/RestaurantScene';
+import { seedRestaurantKind } from '../games/restaurant/seedKind';
+import type { HidingScene, HidingRoundInfo } from '../games/hiding/HidingScene';
+import type { OrchestraScene, OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
+import type { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
-import { PicnicScene } from '../games/picnic/PicnicScene';
+import type { PicnicScene } from '../games/picnic/PicnicScene';
 import type { PicnicInfo } from '../games/picnic/types';
-import { HabitatScene } from '../games/habitat/HabitatScene';
+import type { HabitatScene } from '../games/habitat/HabitatScene';
 import type { HabitatInfo } from '../games/habitat/types';
-import { ColouringScene } from '../games/colouring/ColouringScene';
-import { ShadowScene } from '../games/hiding/ShadowScene';
+import type { ColouringScene } from '../games/colouring/ColouringScene';
+import type { ShadowScene } from '../games/hiding/ShadowScene';
 import type { ShadowInfo } from '../games/hiding/shadowTypes';
-import { BalloonScene } from '../games/balloon/BalloonScene';
+import type { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
-import { SuitcaseScene } from '../games/travelSuitcase/SuitcaseScene';
+import type { SuitcaseScene } from '../games/travelSuitcase/SuitcaseScene';
 import type { SuitcaseInfo } from '../games/travelSuitcase/suitcaseTypes';
 import { loadTravelSuitcase } from '../content/loadContent';
-import { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
+import type { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
 import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
 import { loadSeedToFlower } from '../content/loadContent';
-import { PotionScene } from '../games/potionLab/PotionScene';
+import type { PotionScene } from '../games/potionLab/PotionScene';
 import type { PotionInfo } from '../games/potionLab/potionTypes';
 import { loadPotionLab } from '../content/loadContent';
-import { SinkFloatScene } from '../games/sinkFloat/SinkFloatScene';
+import type { SinkFloatScene } from '../games/sinkFloat/SinkFloatScene';
 import type { SinkFloatInfo } from '../games/sinkFloat/sinkFloatTypes';
 import { loadSinkOrFloat } from '../content/loadContent';
-import { MagnetScene } from '../games/magicMagnet/MagnetScene';
+import type { MagnetScene } from '../games/magicMagnet/MagnetScene';
 import type { MagnetInfo } from '../games/magicMagnet/magnetTypes';
 import { loadMagicMagnet } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
-import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
+import type { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
 import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
 import { loadLetterMonster } from '../content/loadContent';
-import { WardrobeScene } from '../games/wardrobe/WardrobeScene';
 import type { VisibleBearOutfit, WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
 import { listDressedBears } from '../core/wardrobe/dress';
 import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobeInfo';
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import type { AppContext } from './appContext';
-import type { Store } from '../core/storage/store';
+import { isE2e, seedWardrobeStateForProfile } from './e2eBoot';
+import { startSceneLazily } from './sceneLoaders';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
 import { skillKey } from '../core/adaptive';
@@ -144,33 +145,9 @@ declare global {
   }
 }
 
-export function isE2e(): boolean {
-  return new URLSearchParams(window.location.search).get('e2e') === '1';
-}
-
 function pickBaseSize(): { width: number; height: number } {
   // Landscape 1280x800, portrait 800x1280 — matches the two supported tablet orientations.
   return window.innerWidth >= window.innerHeight ? { width: 1280, height: 800 } : { width: 800, height: 1280 };
-}
-
-/** ?e2e=1 only. Installs seedTimeEarningEnabled before the Phaser game exists (profile-select). */
-export function installEarlyTimeEarningHook(store: Store): void {
-  if (!isE2e()) return;
-  const current = window.__testHooks__;
-  const seedTimeEarningEnabled = (enabled: boolean): void => {
-    store.getState().settings.timeEarning = { enabled };
-    store.persist();
-  };
-  window.__testHooks__ = {
-    ...(current ?? {}),
-    seedTimeEarningEnabled,
-    seedWardrobeStateForProfile,
-  } as NonNullable<Window['__testHooks__']>;
-}
-
-/** ?e2e=1 only: writes a named profile's wardrobe state; needs no active profile (works on the profile-select screen). */
-function seedWardrobeStateForProfile(profileId: string, seed: WardrobeSeed): void {
-  saveWardrobeState(window.localStorage, profileId, applyWardrobeSeed(seed));
 }
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
@@ -188,29 +165,12 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     // Only PreloadScene auto-starts (it loads registered art, then starts MapScene).
-    // Map/Restaurant/Bubbles are added inactive and started explicitly on navigation,
-    // so their create() doesn't fire until entered.
+    // MapScene is added inactive and started by PreloadScene. Every game scene is a lazily loaded chunk:
+    // ./sceneLoaders adds it (inactive) the first time it is about to start, so its create() doesn't fire until entered.
     scene: [PreloadScene],
   });
 
   game.scene.add('MapScene', MapScene, false);
-  game.scene.add('RestaurantScene', RestaurantScene, false);
-  game.scene.add('HidingScene', HidingScene, false);
-  game.scene.add('BubblesScene', BubblesScene, false);
-  game.scene.add('OrchestraScene', OrchestraScene, false);
-  game.scene.add('SortingScene', SortingScene, false);
-  game.scene.add('PicnicScene', PicnicScene, false);
-  game.scene.add('HabitatScene', HabitatScene, false);
-  game.scene.add('ColouringScene', ColouringScene, false);
-  game.scene.add('ShadowScene', ShadowScene, false);
-  game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
-  game.scene.add('BalloonScene', BalloonScene, false);
-  game.scene.add('SuitcaseScene', SuitcaseScene, false);
-  game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
-  game.scene.add('PotionScene', PotionScene, false);
-  game.scene.add('WardrobeScene', WardrobeScene, false);
-  game.scene.add('SinkFloatScene', SinkFloatScene, false);
-  game.scene.add('MagnetScene', MagnetScene, false);
 
   game.registry.set('appContext', context);
 
@@ -257,7 +217,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('WardrobeScene');
       game.scene.stop('MagnetScene');
       game.scene.stop('SuitcaseScene');
-      game.scene.start(sceneKey);
+      // scene.stop on a scene that was never added is a no-op in Phaser; the target loads first if it is a lazy chunk.
+      startSceneLazily(game, sceneKey);
     },
     seedBalanceSec(sec) {
       const state = context.store.getProfileState(context.requireProfileId(), new Date(context.nowMs()));

@@ -66,7 +66,8 @@ export const PICKER_GAMES: readonly PickerGame[] = [
  * `MapScene` has no per-world list or branch. The WORLD of a game is not stored here: it comes from the game's
  * content JSON (`"world": "<id>"`), which the trail reads. (Some content schemas still pin `world` to one literal
  * in `src/content/schema.ts`; moving such a game to another world also means relaxing that schema.)
- * To add a game: append one entry here (scene, card art key, label key), ship its content JSON with
+ * To add a game: append one entry here (scene, card art key, label key), add one loader line for its scene to
+ * `SCENE_LOADERS` in `src/game/sceneLoaders.ts` (scenes are lazily loaded chunks; key = `sceneKey`), ship its content JSON with
  * `"world": "<id>"`, add its Hebrew label under `gamePicker` in `he.json` and a card placeholder in
  * `pickerAssets.ts`; its station then appears with no trail or `MapScene` change. Trail order = array order, so a
  * world's first game here is its first station. Only games whose scene is on main belong here.

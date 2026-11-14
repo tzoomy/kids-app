@@ -18,6 +18,7 @@ const CREATE_GAME_SOURCE = 'src/game/createGame.ts';
 
 interface ManifestChunk {
   file: string;
+  name?: string;
   src?: string;
   isEntry?: boolean;
   isDynamicEntry?: boolean;
@@ -36,6 +37,19 @@ function normalizeSrc(src: string): string {
 
 function chunkForSource(repoRelSource: string): ManifestChunk | undefined {
   return Object.entries(manifest).find(([key, chunk]) => normalizeSrc(chunk.src ?? key) === repoRelSource)?.[1];
+}
+
+/**
+ * The engine chunk. createGame shares modules (transitions, anim helpers, MapScene) with the lazily loaded scenes, so
+ * Rollup may keep it as a dynamic entry without a facade: the manifest entry then has no `src` and is keyed
+ * `_createGame-<hash>.js`. Match by `src` first, then by a dynamic-entry chunk named after the module.
+ */
+function engineChunk(): ManifestChunk | undefined {
+  const bySource = chunkForSource(CREATE_GAME_SOURCE);
+  if (bySource) return bySource;
+  return Object.entries(manifest).find(
+    ([key, chunk]) => chunk.isDynamicEntry === true && (chunk.name === 'createGame' || key.includes('createGame') || chunk.file.includes('createGame')),
+  )?.[1];
 }
 
 function entryChunk(): ManifestChunk {
@@ -142,8 +156,8 @@ describe('build code-splitting guard', () => {
 
   it('the game engine (createGame, with Phaser) is a dynamic-entry chunk, not part of the shell entry', () => {
     const entry = entryChunk();
-    const chunk = chunkForSource(CREATE_GAME_SOURCE);
-    expect(chunk, `${CREATE_GAME_SOURCE} is not emitted as its own chunk (profile select would pull Phaser)`).toBeDefined();
+    const chunk = engineChunk();
+    expect(chunk, `${CREATE_GAME_SOURCE} is not emitted as a dynamic-entry chunk (profile select would pull Phaser)`).toBeDefined();
     expect(chunk?.isDynamicEntry).toBe(true);
     expect(chunk?.file).not.toBe(entry.file);
     expect(staticallyReachableFiles(entry).has(chunk?.file ?? ''), 'createGame chunk is statically reachable from the entry').toBe(false);
