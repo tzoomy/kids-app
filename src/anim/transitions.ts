@@ -6,6 +6,7 @@ import Phaser from 'phaser';
 import { ANIM_PROFILE as P } from './profiles';
 import { isReducedMotion } from './motion';
 import { halfDurationFor } from './transitionTiming';
+import { ensureSceneLoaded } from '../game/sceneLoaders';
 
 export type TransitionStyle = 'fade' | 'iris' | 'slide';
 
@@ -71,11 +72,28 @@ export function transitionTo(from: Phaser.Scene, key: string, opts: TransitionOp
     from.input.enabled = true;
   });
 
-  const target = from.scene.get(key);
-  const go = () => {
+  // Game scenes are lazily loaded chunks (src/game/sceneLoaders.ts). Start the fetch now so it overlaps the
+  // fade-out; `go` waits for it. `pending` is null when the target is already added (MapScene, a visited game).
+  const pending = ensureSceneLoaded(from.sys.game, key);
+  const start = () => {
     if (!from.sys.isActive() && !from.sys.isPaused()) return;
+    const target = from.scene.get(key);
     target?.events.once(Phaser.Scenes.Events.CREATE, () => playIn(target, style, ox, oy));
     from.scene.start(key, opts.data);
+  };
+  pending?.catch(() => undefined); // `go` handles the failure; this only avoids an unhandled-rejection warning if `go` never runs
+  let cover: Phaser.GameObjects.Shape | undefined;
+  const failed = (err: unknown) => {
+    console.error(`Could not load scene ${key}`, err);
+    // Stay on the current scene: undo the cover and allow another tap.
+    leaving.delete(from);
+    from.input.enabled = true;
+    cover?.destroy();
+    if (from.sys.isActive() && style === 'fade') from.cameras.main.fadeIn(dur);
+  };
+  const go = () => {
+    if (!pending) start();
+    else pending.then(start, failed);
   };
 
   if (style === 'fade') {
@@ -87,9 +105,11 @@ export function transitionTo(from: Phaser.Scene, key: string, opts: TransitionOp
   if (style === 'iris') {
     const radius = coverRadius(w, h, ox, oy);
     const dot = from.add.circle(ox, oy, radius, P.transition.color).setDepth(OVERLAY_DEPTH).setScrollFactor(0).setScale(0);
+    cover = dot;
     from.tweens.add({ targets: dot, scale: 1, duration: dur, ease: 'Cubic.easeOut', onComplete: go });
     return;
   }
   const panel = from.add.rectangle(w * 1.5, h / 2, w, h, P.transition.color).setDepth(OVERLAY_DEPTH).setScrollFactor(0);
+  cover = panel;
   from.tweens.add({ targets: panel, x: w / 2, duration: dur, ease: 'Cubic.easeOut', onComplete: go });
 }

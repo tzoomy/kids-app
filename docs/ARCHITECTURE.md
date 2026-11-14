@@ -261,6 +261,17 @@ Targets to test on the family tablet (device model not yet provided):
 - Shut down inactive scenes, limit heavy effects, and keep a game resolution that fits the screen without rendering unnecessary 4K.
 - Test in battery-saver mode and in Chrome on the tablet, including TTS and touch.
 
+### Code splitting
+
+Pending Maor decision (see `docs/PENDING-DECISIONS.md`, 2026-11-14).
+
+- **Shell entry** (`src/main.ts`): profile select, parent area and content bundle only. It is DOM-only and imports no Phaser and no scene. Boot helpers it needs live in the Phaser-free `src/game/e2eBoot.ts`.
+- **Engine chunk** (`src/game/createGame.ts`): Phaser, `PreloadScene`, `MapScene`. `main.ts` loads it with `import('./game/createGame')` when a profile is picked (the profile screen stays up and further taps are ignored until it arrives; `PreloadScene` is the loading screen).
+- **Game scenes**: one chunk each, loaded by the registry `src/game/sceneLoaders.ts`. `transitionTo` (`src/anim/transitions.ts`) and the `goToScreen` hook call `ensureSceneLoaded`, which imports the scene and runs `game.scene.add(key, Cls, false)` once (cached promise, a failed import retries) before the scene starts. `game.scene.stop(key)` on a never-added scene is a no-op in Phaser. Scene types are imported with `import type` only; never import a scene class as a value outside `sceneLoaders.ts`.
+- **To add a game:** add one loader line to `SCENE_LOADERS` in `src/game/sceneLoaders.ts` (`MyScene: () => import('../games/my/MyScene').then((m) => m.MyScene),`, on one line, key = the scene's Phaser key = `PickerGame.sceneKey`) next to the `WORLD_GAMES` entry, and add the scene to `tests/unit/helpers/worldSceneSource.ts`.
+- **Offline:** every emitted chunk is precached by the service worker at install (`vite-plugin-pwa` `generateSW`, `globPatterns` include `**/*.js`).
+- **Guards:** `tests/unit/buildSize.guard.test.ts` (real build: entry at most 1 MiB, every scene and the engine a dynamic-entry chunk not statically reachable from the entry, all JS chunks in the `sw.js` precache), `tests/unit/codeSplit.static.test.ts` (no static scene imports in `main.ts` / `createGame.ts`), `tests/unit/codeSplit.loaders.test.ts` (one loader per scene).
+
 ---
 
 ## 12. Roadmap

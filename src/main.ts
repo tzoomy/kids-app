@@ -10,7 +10,8 @@ import { Store } from './core/storage/store';
 import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from './core/audio';
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
-import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
+// Phaser-free boot helpers only: createGame (Phaser, MapScene) is imported dynamically in pickProfile.
+import { installEarlyTimeEarningHook, isE2e } from './game/e2eBoot';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadPicnicTrain, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadShadowMatch, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
@@ -46,6 +47,8 @@ const context = new AppContext(store, audioManager, sfx, {
 }, shell);
 
 let game: Phaser.Game | null = null;
+/** True while the engine chunk (Phaser + MapScene) is being fetched; further profile taps are ignored. */
+let gameLoading = false;
 let warmedUp = false;
 function warmupAudioOnce(): void {
   if (warmedUp) return;
@@ -162,24 +165,21 @@ function showProfileSelectScreen(): void {
   welcomeOnce();
 }
 
+/** Stops every game scene. Phaser's scene.stop is a no-op for a lazily loaded scene that was never added. */
+function stopAllGameScenes(): void {
+  for (const key of [
+    'RestaurantScene', 'HidingScene', 'SortingScene', 'PicnicScene', 'HabitatScene', 'ColouringScene', 'ShadowScene',
+    'MagnetScene', 'LetterMonsterScene', 'SuitcaseScene', 'SeedFlowerScene', 'PotionScene', 'SinkFloatScene',
+    'BubblesScene', 'BalloonScene',
+  ]) {
+    game?.scene.stop(key);
+  }
+}
+
 function returnToProfileSelect(): void {
   store.persist();
   audioManager.stopAll();
-  game?.scene.stop('RestaurantScene');
-  game?.scene.stop('HidingScene');
-  game?.scene.stop('SortingScene');
-  game?.scene.stop('PicnicScene');
-  game?.scene.stop('HabitatScene');
-  game?.scene.stop('ColouringScene');
-  game?.scene.stop('ShadowScene');
-  game?.scene.stop('MagnetScene');
-  game?.scene.stop('LetterMonsterScene');
-  game?.scene.stop('SuitcaseScene');
-  game?.scene.stop('SeedFlowerScene');
-  game?.scene.stop('PotionScene');
-  game?.scene.stop('SinkFloatScene');
-  game?.scene.stop('BubblesScene');
-  game?.scene.stop('BalloonScene');
+  stopAllGameScenes();
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
   shell.clearChrome();
@@ -187,42 +187,45 @@ function returnToProfileSelect(): void {
 }
 
 function pickProfile(profileId: string): void {
+  if (gameLoading) return; // the engine chunk is still loading: ignore a second tap
   setAppScreen('loading');
   context.currentProfileId = profileId;
   audioManager.stopAll();
   warmupAudioOnce();
 
   if (!game) {
-    context.onRequestParent = () =>
-      openParentGate(() => {
-        shell.clearOverlay();
-        game?.scene.getScene('MapScene')?.scene.restart();
-      });
-    context.onRequestParentSettings = () =>
-      openParentSettingsDirect(() => {
-        shell.clearOverlay();
-        game?.scene.getScene('MapScene')?.scene.restart();
-      });
-    context.onExitToProfileSelect = returnToProfileSelect;
-    game = createGame(document.getElementById('game-root')!, context);
+    gameLoading = true;
+    import('./game/createGame').then(
+      ({ createGame }) => {
+        gameLoading = false;
+        startGame(createGame);
+      },
+      (err: unknown) => {
+        gameLoading = false;
+        console.error('Could not load the game engine', err);
+        context.currentProfileId = null;
+        showProfileSelectScreen();
+      },
+    );
   } else {
-    game.scene.stop('RestaurantScene');
-    game.scene.stop('HidingScene');
-    game.scene.stop('SortingScene');
-    game.scene.stop('PicnicScene');
-    game.scene.stop('HabitatScene');
-    game.scene.stop('ColouringScene');
-    game.scene.stop('ShadowScene');
-    game.scene.stop('MagnetScene');
-    game.scene.stop('LetterMonsterScene');
-    game.scene.stop('SuitcaseScene');
-    game.scene.stop('SeedFlowerScene');
-    game.scene.stop('PotionScene');
-    game.scene.stop('SinkFloatScene');
-    game.scene.stop('BubblesScene');
-    game.scene.stop('BalloonScene');
+    stopAllGameScenes();
     game.scene.start('MapScene');
   }
+}
+
+function startGame(createGame: (parent: HTMLElement, ctx: AppContext) => Phaser.Game): void {
+  context.onRequestParent = () =>
+    openParentGate(() => {
+      shell.clearOverlay();
+      game?.scene.getScene('MapScene')?.scene.restart();
+    });
+  context.onRequestParentSettings = () =>
+    openParentSettingsDirect(() => {
+      shell.clearOverlay();
+      game?.scene.getScene('MapScene')?.scene.restart();
+    });
+  context.onExitToProfileSelect = returnToProfileSelect;
+  game = createGame(document.getElementById('game-root')!, context);
 }
 
 showProfileSelectScreen();

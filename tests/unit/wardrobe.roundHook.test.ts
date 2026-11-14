@@ -5,29 +5,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { LEISURE_PICKER_GAMES, WORLD_GAMES, type PickerGameId } from '../../src/ui/picker/pickerModel';
+import { WORLD_SCENE_SOURCE } from './helpers/worldSceneSource';
 
-/** Scene source of every world game. The test fails if WORLD_GAMES gains an id that is not listed here. */
-const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
-  'animal-restaurant': 'src/games/restaurant/RestaurantScene.ts',
-  'kitchen-orchestra': 'src/games/orchestra/OrchestraScene.ts',
-  'letter-monster': 'src/games/letterMonster/LetterMonsterScene.ts',
-  'travel-suitcase': 'src/games/travelSuitcase/SuitcaseScene.ts',
-  'sorting-beds': 'src/games/sorting/SortingScene.ts',
-  'balloon-pop': 'src/games/balloon/BalloonScene.ts',
-  'picnic-train': 'src/games/picnic/PicnicScene.ts',
-  'who-is-hiding': 'src/games/hiding/HidingScene.ts',
-  'seed-to-flower': 'src/games/seedFlower/SeedFlowerScene.ts',
-  'who-lives-here': 'src/games/habitat/HabitatScene.ts',
-  'shadow-match': 'src/games/hiding/ShadowScene.ts',
-  'potion-lab': 'src/games/potionLab/PotionScene.ts',
-  'sink-or-float': 'src/games/sinkFloat/SinkFloatScene.ts',
-  'magic-magnet': 'src/games/magicMagnet/MagnetScene.ts',
-  // Leisure ids exist on PickerGameId; they are not world games, so they are covered by the third test below
-  // ("Leisure Corner games do not call recordCompletedRound"), not by the world-hook test.
-  bubbles: 'src/games/bubbles/BubblesScene.ts',
-  'leisure-colouring': 'src/games/colouring/ColouringScene.ts',
-};
-
+// WORLD_SCENE_SOURCE (gameId -> scene source) is shared; the test fails if WORLD_GAMES gains an id not listed there.
 const WORLD_IDS = new Set(WORLD_GAMES.map((g) => g.gameId));
 const LEISURE_IDS = new Set(LEISURE_PICKER_GAMES.map((g) => g.gameId));
 

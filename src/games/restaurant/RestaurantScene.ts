@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
+import { takeSeededRestaurantKind } from './seedKind';
 import { buildRound, eligibleTargetIds, isRequestedChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
 import { TrialTracker, nextRoundLanguage } from './trialTracker';
 import { buildMeta, type SkillSession } from '../../core/adaptive';
@@ -21,16 +22,7 @@ import { setAppScreen } from '../../pwa';
 import { loadOutfitArt } from '../../core/wardrobe/outfitArt';
 import { currentOutfitItems, dressCharacter, wearsOutfit } from '../../core/wardrobe/dress';
 
-/** ?e2e=1 seed (hook `seedRestaurantKind`): the next customer is this kind, once; then the random pick resumes. */
-let seededKind: string | undefined;
-export function seedRestaurantKind(kind: string): void {
-  seededKind = ANIMAL_KINDS.includes(kind) ? kind : undefined;
-}
-function takeSeededRestaurantKind(): string | undefined {
-  const kind = seededKind;
-  seededKind = undefined;
-  return kind;
-}
+// The `seedRestaurantKind` e2e seed lives in ./seedKind (createGame must reach it without loading this scene).
 
 export interface RoundInfo {
   /** First requested plate that is not served yet (-1 if none). */
