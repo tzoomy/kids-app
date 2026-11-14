@@ -158,9 +158,22 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['src/ui/shell.ts'])).toEqual(['tests/e2e/help-card.shell.spec.ts', ...SMOKE]);
   });
 
+  it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
+    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts', 'src/styles/shell.css']) {
+      expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
+    }
+  });
+
+  it('long-press gate unit tests select only the gate spec (no smoke)', () => {
+    for (const f of ['tests/unit/parent-longpress-gate.timer.test.ts', 'tests/unit/parent-longpress-gate.dom.test.ts']) {
+      expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
+    }
+  });
+
   it('a changed spec file selects that spec only', () => {
     expect(selectAffectedE2e(['tests/e2e/sorting-beds.platform.spec.ts'])).toEqual(['tests/e2e/sorting-beds.platform.spec.ts']);
     expect(selectAffectedE2e(['tests/e2e/brand-new.spec.ts'])).toEqual(['tests/e2e/brand-new.spec.ts']);
+    expect(selectAffectedE2e(['tests/e2e/parent-longpress-gate.spec.ts'])).toEqual(['tests/e2e/parent-longpress-gate.spec.ts']);
   });
 
   it('never selects the full suite for shared + every game folder touched at once is bounded by the map', () => {
