@@ -21,6 +21,12 @@
       "entryGameId": "who-is-hiding"
     },
     {
+      "id": "science-world",
+      "nameHe": "עולם המדע",
+      "status": "open",
+      "earnsLeisure": true
+    },
+    {
       "id": "art-studio",
       "nameHe": "סטודיו האמנות",
       "status": "locked",

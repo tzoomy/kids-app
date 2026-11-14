@@ -46,8 +46,13 @@ describe('isSafeToApplyUpdate', () => {
     ['hiding', false],
     ['sorting', false],
     ['colouring', false],
+    ['letter-monster', false],
+    ['balloon', false],
+    ['magic-magnet', false],
     ['travel-suitcase', false],
     ['seed-flower', false],
+    ['potion-lab', false],
+    ['sink-or-float', false],
     ['parent', false],
     ['loading', false],
   ];
@@ -70,6 +75,11 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'hiding' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'sorting' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'colouring' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'letter-monster' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'balloon' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'potion-lab' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'sink-or-float' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'magic-magnet' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'travel-suitcase' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'parent' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'loading' })).toBe('defer');

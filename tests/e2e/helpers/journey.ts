@@ -4,10 +4,14 @@
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
 import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
-
+import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
+import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
+import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
+import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
+import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, SuitcaseInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, SuitcaseInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -15,33 +19,41 @@ export type ProfileTestId = 'profile-a' | 'profile-b';
 export const GAME_SCENE: Record<string, string> = {
   'animal-restaurant': 'RestaurantScene',
   'kitchen-orchestra': 'OrchestraScene',
+  'letter-monster': 'LetterMonsterScene',
+  'travel-suitcase': 'SuitcaseScene',
   bubbles: 'BubblesScene',
   // Nature Lab opens a picker (docs/specs/seed-to-flower.md): Who's Hiding? or Seed to Flower.
   'who-is-hiding': 'HidingScene',
   'seed-to-flower': 'SeedFlowerScene',
   'leisure-colouring': 'ColouringScene',
-  // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
+  // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
-  'travel-suitcase': 'SuitcaseScene',
+  'balloon-pop': 'BalloonScene',
+  'potion-lab': 'PotionScene',
+  'sink-or-float': 'SinkFloatScene',
+  'magic-magnet': 'MagnetScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
-  'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'number-garden': 'sorting-beds',
   'nature-lab': 'who-is-hiding',
+  'science-world': 'potion-lab',
 };
 
-/** Extra picker-card games on a world that still defaults to a direct entry game.
+/** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another PR).
  * Leisure Corner keeps opening Bubbles when no gameId is passed, so existing tests stay green.
- * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
+ * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building.
+ * Science World tests pass `'magic-magnet'` explicitly so Potion Lab can own the default slot. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
+  'science-world': ['sink-or-float', 'magic-magnet'],
 };
 
 export interface PageRect {
@@ -140,10 +152,20 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedLetterMonsterLevel: (level: number) => void;
+  getLetterMonsterInfo: () => LetterMonsterInfo | null;
+  getBalloonInfo: () => BalloonInfo | null;
+  seedBalloonLevel: (level: number) => void;
   seedSuitcaseLevel: (level: number) => void;
   getSuitcaseInfo: () => SuitcaseInfo | null;
   seedSeedFlowerLevel: (level: number) => void;
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
+  seedPotionLevel: (level: number) => void;
+  getPotionInfo: () => PotionInfo | null;
+  seedSinkFloatLevel: (level: number) => void;
+  getSinkFloatInfo: () => SinkFloatInfo | null;
+  seedMagnetLevel: (level: number) => void;
+  getMagnetInfo: () => MagnetInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -288,7 +310,8 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
 
 /**
  * Taps the world's building and returns when the world's game scene is active.
- * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
+ * Language House and Number Garden open a game picker first: then `game-picker-<gameId>` is tapped
+ * (defaults: animal-restaurant, sorting-beds).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
 export async function enterWorldByTap(
@@ -541,6 +564,137 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
   );
 }
 
+/** Seeds the persisted Letter Monster level for the active profile. Call before entering. */
+export async function seedLetterMonsterLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedLetterMonsterLevel', [level]);
+}
+
+/** Reads the live Letter Monster round snapshot (null when LetterMonsterScene is not active). */
+export async function getLetterMonsterInfo(page: Page): Promise<LetterMonsterInfo | null> {
+  return callHook<LetterMonsterInfo | null>(page, 'getLetterMonsterInfo');
+}
+
+/** Waits until Letter Monster is asking and ready for taps with all offered foods measured. */
+export async function waitForLetterMonsterReady(page: Page, timeout = 12_000): Promise<LetterMonsterInfo> {
+  const handle = await page.waitForFunction(
+    () => {
+      const hooks = (window as unknown as {
+        __testHooks__?: { getLetterMonsterInfo?: () => LetterMonsterInfo | null };
+      }).__testHooks__;
+      const info = hooks?.getLetterMonsterInfo?.();
+      if (!info || !info.ready || info.phase !== 'asking') return null;
+      if (info.offeredIds.length === 0 || Object.keys(info.foods).length !== info.offeredIds.length) return null;
+      return info;
+    },
+    undefined,
+    { timeout },
+  );
+  return (await handle.jsonValue()) as LetterMonsterInfo;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Balloon Pop (docs/specs/balloon-pop.md). Hit rectangles from getBalloonInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's persisted Balloon Pop level for every language. Call from `beforeEnter` (on the map). */
+export async function seedBalloonLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedBalloonLevel', [level]);
+}
+
+export function getBalloonInfo(page: Page): Promise<BalloonInfo | null> {
+  return callHook<BalloonInfo | null>(page, 'getBalloonInfo');
+}
+
+/** Waits until every balloon has risen into place and taps are accepted. */
+export async function waitForBalloonReady(page: Page, timeout = 12_000): Promise<BalloonInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getBalloonInfo();
+      return info !== null && info.ready;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getBalloonInfo(page);
+  if (!info) throw new Error('no active Balloon Pop trial');
+  return info;
+}
+
+/** Real tap on the balloon holding `itemId`, using a fresh read of its hit rectangle. */
+export async function tapBalloon(page: Page, itemId: string): Promise<void> {
+  const info = await getBalloonInfo(page);
+  const balloon = info?.balloons.find((b) => b.itemId === itemId);
+  if (!balloon) throw new Error(`no balloon "${itemId}" in the active trial`);
+  await tapRect(page, balloon.hit);
+}
+
+/** Waits for a ready trial, taps the requested balloon for real, and waits until the next trial is ready. Returns the info read before the tap. */
+export async function popCorrectBalloon(page: Page, timeout = 15_000): Promise<BalloonInfo> {
+  const before = await waitForBalloonReady(page, timeout);
+  await tapBalloon(page, before.targetItemId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getBalloonInfo(page);
+    if (info && info.ready && info.correctCount > before.correctCount) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the requested balloon did not start the next trial');
+    await page.waitForTimeout(50);
+  }
+}
+
+/** The persisted Balloon Pop skill of a profile (read-only localStorage read). */
+export async function readBalloonSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `number-garden.balloon-pop.${lang}`] as const,
+  );
+}
+
+/** Seeds the persisted Potion Lab level for every language (seed only). Call on the map, before entering. */
+export async function seedPotionLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedPotionLevel', [level]);
+}
+
+export function getPotionInfo(page: Page): Promise<PotionInfo | null> {
+  return callHook<PotionInfo | null>(page, 'getPotionInfo');
+}
+
+/** Waits until Potion Lab accepts pot taps and returns its state. */
+export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<PotionInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getPotionInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Sink or Float level for every language (seed only). Call on the map, before entering. */
+export async function seedSinkFloatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSinkFloatLevel', [level]);
+}
+
+export function getSinkFloatInfo(page: Page): Promise<SinkFloatInfo | null> {
+  return callHook<SinkFloatInfo | null>(page, 'getSinkFloatInfo');
+}
+
+/** Waits until Sink or Float accepts taps and returns its state. */
+export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promise<SinkFloatInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSinkFloatInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
 /** Seeds the persisted Travel Suitcase level for every content language (seed only). Call on the map, before entering. */
 export async function seedSuitcaseLevel(page: Page, level: number): Promise<void> {
   await callHook<void>(page, 'seedSuitcaseLevel', [level]);
@@ -572,6 +726,7 @@ export async function dragRectTo(page: Page, from: PageRect, to: PageRect): Prom
   await page.mouse.move(endX, endY, { steps: 12 });
   await page.mouse.up();
 }
+
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
 export async function seedSeedFlowerLevel(page: Page, level: number): Promise<void> {
   await callHook<void>(page, 'seedSeedFlowerLevel', [level]);
@@ -590,4 +745,39 @@ export async function waitForSeedFlowerReady(page: Page, timeout = 15_000): Prom
     if (Date.now() > deadline) throw new Error(`Seed to Flower never became ready: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
   }
+}
+
+/** Seeds the persisted Magic Magnet level for every language (seed only). Call on the map, before entering. */
+export async function seedMagnetLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedMagnetLevel', [level]);
+}
+
+export function getMagnetInfo(page: Page): Promise<MagnetInfo | null> {
+  return callHook<MagnetInfo | null>(page, 'getMagnetInfo');
+}
+
+/** Waits until Magic Magnet accepts input and returns its state. */
+export async function waitForMagnetReady(page: Page, timeout = 15_000): Promise<MagnetInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getMagnetInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Magic Magnet never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/**
+ * Drags the magnet from its centre to `(x, y)` in page CSS px, offset so the magnet touch point
+ * (pole tips) lands on `(x, y)`.
+ */
+export async function dragMagnetTo(page: Page, info: MagnetInfo, x: number, y: number): Promise<void> {
+  const startX = info.magnet.x + info.magnet.width / 2;
+  const startY = info.magnet.y + info.magnet.height / 2;
+  const tipOffsetX = info.tips.x - startX;
+  const tipOffsetY = info.tips.y - startY;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(x - tipOffsetX, y - tipOffsetY, { steps: 12 });
+  await page.mouse.up();
 }

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Red horseshoe magnet body -->
+    <path d="M 60 98 L 60 220 Q 60 228 68 228 L 100 228 Q 108 228 108 220 L 108 98 A 20 20 0 0 1 148 98 L 148 220 Q 148 228 156 228 L 188 228 Q 196 228 196 220 L 196 98 A 68 68 0 0 0 60 98 Z" fill="#F24C4C"/>
+
+    <!-- Flat shadow on right leg and inner arch -->
+    <path d="M 128 30 A 68 68 0 0 1 196 98 L 196 188 L 178 188 L 178 98 A 50 50 0 0 0 128 48 Z" fill="#CC3333" stroke="none"/>
+    <path d="M 108 98 A 20 20 0 0 1 148 98 L 148 188 L 160 188 L 160 98 A 32 32 0 0 0 108 98 Z" fill="#CC3333" stroke="none"/>
+
+    <!-- Flat highlight on upper-left arch and left leg -->
+    <path d="M 70 98 A 58 58 0 0 1 124 40 C 128 40 130 48 124 51 A 46 46 0 0 0 82 98 L 82 174 C 82 180 70 180 70 174 Z" fill="#FF8585" stroke="none"/>
+
+    <!-- Silver-grey pole tips (bottom 40 px: y=188 to y=228) -->
+    <path d="M 60 188 L 108 188 L 108 220 Q 108 228 100 228 L 68 228 Q 60 228 60 220 Z" fill="#C9CED6"/>
+    <path d="M 148 188 L 196 188 L 196 220 Q 196 228 188 228 L 156 228 Q 148 228 148 220 Z" fill="#C9CED6"/>
+
+    <!-- Pole tip shadows -->
+    <path d="M 92 188 L 108 188 L 108 220 Q 108 228 100 228 L 92 228 Z" fill="#A3AAB5" stroke="none"/>
+    <path d="M 180 188 L 196 188 L 196 220 Q 196 228 188 228 L 180 228 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Pole tip highlights -->
+    <rect x="66" y="194" width="10" height="28" rx="4" fill="#F2F4F7" stroke="none"/>
+    <rect x="154" y="194" width="10" height="28" rx="4" fill="#F2F4F7" stroke="none"/>
+
+    <!-- Re-stroke outer contour and tip seams -->
+    <path d="M 60 98 L 60 220 Q 60 228 68 228 L 100 228 Q 108 228 108 220 L 108 98 A 20 20 0 0 1 148 98 L 148 220 Q 148 228 156 228 L 188 228 Q 196 228 196 220 L 196 98 A 68 68 0 0 0 60 98 Z" fill="none"/>
+    <line x1="60" y1="188" x2="108" y2="188"/>
+    <line x1="148" y1="188" x2="196" y2="188"/>
+  </g>
+</svg>

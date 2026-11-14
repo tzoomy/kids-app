@@ -127,6 +127,42 @@ describe('affected e2e selection', () => {
     );
   });
 
+
+  it('potion lab selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
+    expect(selectAffectedE2e(['src/games/potionLab/PotionScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/potion-lab.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/palette/pot-red.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/mixing-bowl.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
+  });
+
+  it('sink or float selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/science-world.map.spec.ts', 'tests/e2e/sink-or-float.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/sinkFloat/SinkFloatScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/sink-or-float.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/water-tank.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/float-apple.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/sink-or-float.machine.test.ts'])).toEqual(expected);
+  });
+
+  it('magic magnet selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
+    expect(selectAffectedE2e(['src/games/magicMagnet/MagnetScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/magic-magnet.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/magnet/magnet.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/magnet/nail.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/magic-magnet.machine.test.ts'])).toEqual(expected);
+  });
+
+  it('letter-monster changes select the letter-monster journey spec', () => {
+    const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/letter-monster.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/monster-closed.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/letter-monster.machine.test.ts'])).toEqual(expected);
+  });
+
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
     expect(selectAffectedE2e(['src/games/seedFlower/seedFlowerMachine.ts'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
     expect(selectAffectedE2e(['src/content/games/seed-to-flower.json'])).toEqual(['tests/e2e/seed-to-flower.journey.spec.ts']);
@@ -179,6 +215,13 @@ describe('affected e2e selection', () => {
       'tests/e2e/journey.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
     ]);
+  });
+
+  it('Balloon Pop changes select its journey; picker changes also select the Number Garden picker games', () => {
+    expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
+    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
+    expect(picker).toContain('tests/e2e/balloon-pop.journey.spec.ts');
+    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
   });
 
   it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {

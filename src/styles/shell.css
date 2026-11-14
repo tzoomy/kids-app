@@ -643,6 +643,24 @@ body {
   padding-top: 8vmin;
 }
 
+/* Empty picker (Science World before its games land): one gentle "coming soon" card. */
+.picker-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  max-width: 520px;
+  padding: 32px;
+  border-radius: 28px;
+  border: 6px dashed #3b2a22;
+  background: #eef3ff;
+  color: #3b2a22;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* Parent-area button: 3-second long-press (docs/specs/parent-longpress-gate.md). */
 .shell-holdable {
   touch-action: none;
@@ -674,4 +692,5 @@ body {
 /* The fill grows from the inline start (right in RTL); keep the gradient running the same way. */
 [dir='rtl'] .shell-hold-progress > div {
   background: linear-gradient(270deg, #ffd93d, #ff6b6b);
+}
 }

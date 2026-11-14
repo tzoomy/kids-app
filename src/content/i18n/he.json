@@ -10,6 +10,7 @@
     "languageHouse": "בית השפות",
     "numberGarden": "גן המספרים",
     "natureLab": "מעבדת הטבע",
+    "scienceWorld": "עולם המדע",
     "artStudio": "סטודיו האמנות",
     "leisureCorner": "פינת הכיף",
     "comingSoon": "בקרוב"
@@ -23,9 +24,18 @@
     "leisureTitle": "פינת הכיף",
     "bubbles": "בועות וחלומות",
     "colouring": "זמן צביעה",
+    "letterMonster": "מפלצת האותיות",
+    "numberGardenTitle": "גן המספרים",
+    "sortingBeds": "ערוגות המיון",
+    "balloonPop": "פיצוץ בלונים",
+    "scienceWorldTitle": "עולם המדע",
+    "scienceWorldEmpty": "הניסויים בדרך! נבקר כאן בקרוב.",
     "natureLabTitle": "מעבדת הטבע",
     "whoIsHiding": "מי מתחבא?",
-    "seedToFlower": "מזרע לפרח"
+    "seedToFlower": "מזרע לפרח",
+    "potionLab": "מעבדת השיקויים",
+    "sinkOrFloat": "צף או שוקע?",
+    "magicMagnet": "המגנט הקסום"
   },
   "restaurant": {
     "helpButton": "עזרה",

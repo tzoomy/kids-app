@@ -44,11 +44,22 @@ const PLACEHOLDERS: Record<PickerAssetKey, { url: string } | { css: string }> = 
 const LEISURE_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-bubbles': { css: 'background:linear-gradient(180deg,#a1c4fd,#c2e9fb)' },
   'picker-card-colouring': { url: 'art/colouring/pages/cat.svg' },
+  // Number Garden picker cards (Pass 1 placeholders: existing scene art and a CSS sky).
+  'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
+  'picker-card-balloon-pop': { css: 'background:radial-gradient(circle at 35% 40%,#ff6fb5 0 14%,transparent 15%),radial-gradient(circle at 62% 30%,#ffd93d 0 13%,transparent 14%),radial-gradient(circle at 50% 62%,#4d96ff 0 14%,transparent 15%),linear-gradient(180deg,#b8e6ff,#e7f7ff)' },
 };
 
 /** Extra Language House picker cards added after #40 (additive; keeps PICKER_ASSET_KEYS unchanged). */
 const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-letter-monster': { css: 'background:linear-gradient(180deg,#dcd6ff,#f3ecff)' },
   'picker-card-travel-suitcase': { url: 'art/props/suitcase-front.svg' },
+};
+
+/** Science World picker cards (additive). Pass-1 placeholders; real card art is Pass 2. */
+const SCIENCE_WORLD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
 
 /** Nature Lab picker cards (additive). Pass-1 placeholders from existing art; real card art is Pass 2. */
@@ -62,10 +73,11 @@ export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEn
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
   const placeholder =
-    PLACEHOLDERS[key as PickerAssetKey] ??
-    LEISURE_PLACEHOLDERS[key] ??
-    LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key] ??
-    NATURE_LAB_PLACEHOLDERS[key];
+    PLACEHOLDERS[key as PickerAssetKey]
+    ?? LEISURE_PLACEHOLDERS[key]
+    ?? LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key]
+    ?? SCIENCE_WORLD_PLACEHOLDERS[key]
+    ?? NATURE_LAB_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }

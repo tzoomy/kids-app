@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
 import { PICKER_CLOSE_TEST_ID, PICKER_GAMES } from '../../src/ui/picker/pickerModel';
@@ -25,7 +26,9 @@ describe('renderGamePicker press propagation', () => {
       cleanups.push(() => window.removeEventListener(type, listener));
     }
 
-    const suitcaseCard = root.querySelector<HTMLButtonElement>('[data-testid="game-picker-travel-suitcase"]');
+    const suitcase = PICKER_GAMES.find((g) => g.gameId === 'travel-suitcase');
+    expect(suitcase).toBeDefined();
+    const suitcaseCard = root.querySelector<HTMLButtonElement>(`[data-testid="${suitcase!.testId}"]`);
     expect(suitcaseCard).not.toBeNull();
     const closeBtn = root.querySelector<HTMLButtonElement>(`[data-testid="${PICKER_CLOSE_TEST_ID}"]`);
     expect(closeBtn).not.toBeNull();
@@ -40,9 +43,26 @@ describe('renderGamePicker press propagation', () => {
 
     suitcaseCard!.click();
     expect(onPick).toHaveBeenCalledTimes(1);
-    expect(onPick).toHaveBeenCalledWith(PICKER_GAMES.find((g) => g.gameId === 'travel-suitcase'));
+    expect(onPick).toHaveBeenCalledWith(suitcase);
 
     closeBtn!.click();
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  // Phaser also listens for presses on window, so a press on a picker card that sits over a map
+  // building must not reach window (it would tap that building too). Same fix as PR #73.
+  it('keeps pointerdown, mousedown and touchstart on the last Language House card from reaching window listeners', () => {
+    const root = renderGamePicker({ onPick: () => {}, onClose: () => {} });
+    document.body.appendChild(root);
+    const seen: string[] = [];
+    const spy = (e: Event) => seen.push(e.type);
+    const types = ['pointerdown', 'mousedown', 'touchstart'];
+    for (const t of types) window.addEventListener(t, spy);
+    const last = PICKER_GAMES[PICKER_GAMES.length - 1];
+    const card = root.querySelector(`[data-testid="${last.testId}"]`)!;
+    for (const t of types) card.dispatchEvent(new Event(t, { bubbles: true }));
+    for (const t of types) window.removeEventListener(t, spy);
+    root.remove();
+    expect(seen).toEqual([]);
   });
 });

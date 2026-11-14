@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240">
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft ground contact shadow -->
+    <ellipse cx="160" cy="218" rx="76" ry="12" fill="#8C5230" opacity="0.2"/>
+
+    <!-- Short glass foot -->
+    <path d="M114 178 L102 208 C118 220 202 220 218 208 L206 178 Z" fill="#CFE8F3"/>
+    <path d="M118 182 L108 206 C116 211 128 214 140 215 L144 182 Z" fill="#E6F4F9"/>
+    <path d="M186 182 L192 214 C202 212 210 209 214 206 L203 182 Z" fill="#B5DAEC"/>
+    <path d="M114 178 L102 208 C118 220 202 220 218 208 L206 178 Z" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Glass bowl back interior and body -->
+    <ellipse cx="160" cy="64" rx="134" ry="30" fill="#E6F4F9"/>
+    <path d="M26 64 C28 142 78 184 160 184 C242 184 292 142 294 64 C294 86 234 94 160 94 C86 94 26 86 26 64 Z" fill="#DDF1FA"/>
+
+    <!-- Pure white liquid inside (game draws the real color over this) -->
+    <path id="liquid" d="M40 94 C40 76 280 76 280 94 C276 144 226 176 160 176 C94 176 44 144 40 94 Z" fill="#FFFFFF"/>
+
+    <!-- Glass rim inner lip -->
+    <ellipse cx="160" cy="64" rx="134" ry="30" fill="none" stroke="#3B2A22" stroke-width="6"/>
+
+    <!-- Simple light highlights on the glass -->
+    <path d="M52 104 C56 130 70 152 94 164" fill="none" stroke="#FFFFFF" stroke-width="8" opacity="0.8"/>
+    <path d="M56 50 C78 40 112 36 146 36" fill="none" stroke="#FFFFFF" stroke-width="5" opacity="0.85"/>
+
+    <!-- Glass bowl outer outline -->
+    <path d="M26 64 C28 142 78 184 160 184 C242 184 292 142 294 64" fill="none" stroke="#3B2A22" stroke-width="6"/>
+  </g>
+</svg>
