@@ -20,6 +20,8 @@ export interface MapChromeOptions {
   /** A 3-second hold of the parent button opens the settings directly. Without it the button only taps. */
   onParentLongPress?: () => void;
   onSwitchProfile: () => void;
+  /** Opens the Wardrobe (docs/specs/wardrobe.md). The button is hidden when it is not given. */
+  onWardrobe?: () => void;
   pins: MapPin[];
   canvas: HTMLCanvasElement;
   gameWidth: number;
@@ -38,6 +40,12 @@ export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void
   bar.appendChild(el('span', 'shell-map-title', opts.title));
   const right = el('div', 'shell-row');
   right.style.gap = '1vmin';
+  if (opts.onWardrobe) {
+    const wardrobeBtn = el('button', 'shell-pill', `👗 ${heStrings.wardrobe.button}`);
+    wardrobeBtn.dataset.testid = 'wardrobe-btn';
+    wardrobeBtn.addEventListener('click', opts.onWardrobe);
+    right.appendChild(wardrobeBtn);
+  }
   const homeBtn = el('button', 'shell-pill', `🏠 ${heStrings.home}`);
   homeBtn.dataset.testid = 'switch-profile-btn';
   homeBtn.addEventListener('click', opts.onSwitchProfile);

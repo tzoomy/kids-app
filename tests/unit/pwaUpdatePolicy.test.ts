@@ -50,6 +50,7 @@ describe('isSafeToApplyUpdate', () => {
     ['balloon', false],
     ['seed-flower', false],
     ['potion-lab', false],
+    ['wardrobe', false],
     ['parent', false],
     ['loading', false],
   ];

@@ -330,7 +330,7 @@ Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker
 - **Inspiration pattern:** Sago Mini (dressing up characters in a play world); Lingokids (fixed characters).
 - **Age 2:** Tap an item to put it on a character.
 - **Age 5:** Choose items and save an outfit.
-- **Open question:** Which progress unlocks which item: pending owner decision.
+- **Open question:** Which progress unlocks which item: pending owner decision. The default unlock rules are in the draft spec [`docs/specs/wardrobe.md`](specs/wardrobe.md) and `docs/PENDING-DECISIONS.md` (2026-11-14).
 
 ---
 

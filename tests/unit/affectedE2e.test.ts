@@ -114,6 +114,27 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
   });
 
+  it('wardrobe source, content, art and unit tests select the wardrobe journey only, not the whole suite', () => {
+    const expected = ['tests/e2e/wardrobe.journey.spec.ts'];
+    for (const f of [
+      'src/core/wardrobe/model.ts',
+      'src/core/wardrobe/store.ts',
+      'src/core/wardrobe/layout.ts',
+      'src/content/wardrobe/items.json',
+      'src/content/wardrobe/anchors.json',
+      'src/games/wardrobe/WardrobeScene.ts',
+      'src/ui/wardrobeChrome.ts',
+      'src/assets/art/wardrobeManifest.ts',
+      'public/art/wardrobe/crown.svg',
+      'tests/unit/wardrobe.model.test.ts',
+      'tests/unit/wardrobeArt.test.ts',
+      'tests/e2e/wardrobe.journey.spec.ts',
+    ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(expected);
+    }
+    expect(expected.length).toBeLessThan(specsOnDisk.length);
+  });
+
   it('letter-monster changes select the letter-monster journey spec', () => {
     const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
     expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);

@@ -208,6 +208,12 @@ export class MapScene extends Phaser.Scene {
         onParent: () => context.onRequestParent?.(),
         onParentLongPress: () => context.onRequestParentSettings?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
+        onWardrobe: () => {
+          context.sfx.tap();
+          context.audio.stopAll();
+          context.shell.hideGamePicker();
+          transitionTo(this, 'WardrobeScene', { style: 'fade' });
+        },
         pins,
         canvas: this.game.canvas,
         gameWidth: this.scale.width,
