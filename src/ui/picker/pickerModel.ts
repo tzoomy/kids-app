@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'potion-lab' | 'who-is-hiding' | 'seed-to-flower';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'potion-lab' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'potionLab' | 'whoIsHiding' | 'seedToFlower';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'potionLab' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -32,6 +32,13 @@ export const PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'OrchestraScene',
     assetKey: 'picker-card-kitchen-orchestra',
     labelKey: 'kitchenOrchestra',
+  },
+  {
+    gameId: 'letter-monster',
+    testId: 'game-picker-letter-monster',
+    sceneKey: 'LetterMonsterScene',
+    assetKey: 'picker-card-letter-monster',
+    labelKey: 'letterMonster',
   },
 ];
 
@@ -58,9 +65,27 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
   },
 ];
 
+/** Number Garden picker: Sorting Beds (the original game) first, then Balloon Pop (docs/specs/balloon-pop.md). */
+export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'sorting-beds',
+    testId: 'game-picker-sorting-beds',
+    sceneKey: 'SortingScene',
+    assetKey: 'picker-card-sorting-beds',
+    labelKey: 'sortingBeds',
+  },
+  {
+    gameId: 'balloon-pop',
+    testId: 'game-picker-balloon-pop',
+    sceneKey: 'BalloonScene',
+    assetKey: 'picker-card-balloon-pop',
+    labelKey: 'balloonPop',
+  },
+];
+
 /**
  * Science World picker (separate map area, pending owner decision; docs/PENDING-DECISIONS.md).
- * Append games here (additive registry), e.g. Sink or Float, Magic Magnet.
+ * Potion Lab is the default entry game. Append later games here (additive registry), e.g. Sink or Float, Magic Magnet.
  */
 export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
   {

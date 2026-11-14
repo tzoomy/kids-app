@@ -6,7 +6,7 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES, SCIENCE_WORLD_PICKER_GAMES, NATURE_LAB_PICKER_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES, NUMBER_GARDEN_PICKER_GAMES, SCIENCE_WORLD_PICKER_GAMES, NATURE_LAB_PICKER_GAMES } from '../ui/picker/pickerModel';
 
 /** Module scope = once per page load / app session. */
 let mapGuidancePlayed = false;
@@ -131,6 +131,23 @@ export class MapScene extends Phaser.Scene {
             },
           });
           if (SCIENCE_WORLD_PICKER_GAMES.length === 0) void context.audio.play(heLine('map.comingSoon'));
+          return;
+        }
+        if (world.id === 'number-garden') {
+          // Number Garden hosts Sorting Beds and Balloon Pop: the child picks one (or closes the picker).
+          context.shell.showGamePicker({
+            games: NUMBER_GARDEN_PICKER_GAMES,
+            title: context.content.he.gamePicker.numberGardenTitle,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
           return;
         }
         if (world.id === 'nature-lab') {

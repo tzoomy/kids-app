@@ -159,7 +159,7 @@ Goal: a sense of quantity, one-to-one matching, sorting, and comparison. Instruc
 
 ### 4. Balloon Pop
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** Pass 1 built (draft spec `docs/specs/balloon-pop.md`, pending owner approval); idea owner-approved 2026-11-13.
 
 - **Action:** Balloons float up; the girl pops the one that was named.
 - **Learning goal:** Color names (age 2) and recognizing digits by ear (age 5); numbers may be voiced in English or French as a deliberate counting-language skill, consistent with the Number Garden intro.
