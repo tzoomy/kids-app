@@ -66,6 +66,12 @@ function openParentGate(onDone: () => void): void {
   );
 }
 
+/** The 3-second long-press path: straight to the parent settings, no multiplication question. */
+function openParentSettingsDirect(onDone: () => void): void {
+  setAppScreen('parent');
+  openParentSettings(onDone);
+}
+
 function openParentSettings(onDone: () => void): void {
   shell.showParentSettings(store.getState(), {
     onSave: (settings, edits) => {
@@ -142,6 +148,7 @@ function showProfileSelectScreen(): void {
     entries,
     (id) => pickProfile(id),
     () => openParentGate(() => showProfileSelectScreen()),
+    () => openParentSettingsDirect(() => showProfileSelectScreen()),
   );
   welcomeOnce();
 }
@@ -171,6 +178,11 @@ function pickProfile(profileId: string): void {
   if (!game) {
     context.onRequestParent = () =>
       openParentGate(() => {
+        shell.clearOverlay();
+        game?.scene.getScene('MapScene')?.scene.restart();
+      });
+    context.onRequestParentSettings = () =>
+      openParentSettingsDirect(() => {
         shell.clearOverlay();
         game?.scene.getScene('MapScene')?.scene.restart();
       });
