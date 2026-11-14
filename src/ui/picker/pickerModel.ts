@@ -13,6 +13,7 @@ export type PickerGameId =
   | 'potion-lab'
   | 'sink-or-float'
   | 'magic-magnet'
+  | 'sticker-board'
   | 'bubbles'
   | 'leisure-colouring';
 
@@ -25,7 +26,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'stickerBoard' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -137,6 +138,14 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'SuitcaseScene',
     assetKey: 'picker-card-travel-suitcase',
     labelKey: 'travelSuitcase',
+  },
+  // Art Studio.
+  {
+    gameId: 'sticker-board',
+    testId: 'game-picker-sticker-board',
+    sceneKey: 'StickerBoardScene',
+    assetKey: 'picker-card-sticker-board',
+    labelKey: 'stickerBoard',
   },
 ];
 

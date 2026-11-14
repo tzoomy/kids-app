@@ -19,6 +19,7 @@ import {
   type RestaurantHudValues,
 } from './hud';
 import { ColouringHud, renderColouringEndScreen, type ColouringChromeOptions } from './colouringChrome';
+import { StickerBoardHud, type StickerBoardChromeOptions } from './stickerBoardChrome';
 import { renderGamePicker, type GamePickerOptions } from './picker/gamePicker';
 import { WardrobeHud, showWardrobeUnlockToast, type WardrobeChromeOptions } from './wardrobeChrome';
 import type { AppState } from '../core/storage/schema';
@@ -36,6 +37,7 @@ export class AppShell {
   private restaurantHud?: RestaurantHud;
   private bubblesHud?: BubblesHud;
   private colouringHud?: ColouringHud;
+  private stickerBoardHud?: StickerBoardHud;
   private wardrobeHud?: WardrobeHud;
 
   constructor(private readonly root: HTMLElement) {
@@ -53,6 +55,7 @@ export class AppShell {
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
+    this.stickerBoardHud = undefined;
     this.wardrobeHud = new WardrobeHud(this.chromeRoot, opts);
     return this.wardrobeHud;
   }
@@ -85,6 +88,7 @@ export class AppShell {
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
+    this.stickerBoardHud = undefined;
     this.wardrobeHud = undefined;
     this.chromeRoot.replaceChildren();
   }
@@ -118,6 +122,7 @@ export class AppShell {
     this.restaurantHud = undefined;
     this.bubblesHud = undefined;
     this.colouringHud = undefined;
+    this.stickerBoardHud = undefined;
     this.wardrobeHud = undefined;
     this.clearOverlay();
     renderMapChrome(this.chromeRoot, opts);
@@ -192,6 +197,23 @@ export class AppShell {
 
   showColouringEndScreen(onHome: () => void): void {
     renderColouringEndScreen(this.overlayRoot, onHome);
+  }
+
+  /** Sticker Board chrome (top bar, board overlay, tray, backgrounds, crayons, tools, album). */
+  setStickerBoardChrome(opts: StickerBoardChromeOptions): StickerBoardHud {
+    this.clearOverlay();
+    this.restaurantHud = undefined;
+    this.bubblesHud = undefined;
+    this.colouringHud = undefined;
+    this.wardrobeHud = undefined;
+    this.stickerBoardHud = new StickerBoardHud(this.chromeRoot, opts);
+    return this.stickerBoardHud;
+  }
+
+  /** Removes the Sticker Board chrome. */
+  clearStickerBoardChrome(): void {
+    this.stickerBoardHud?.destroy();
+    this.stickerBoardHud = undefined;
   }
 
   showToast(text: string): void {

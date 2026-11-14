@@ -145,8 +145,8 @@ test.describe('language house game picker', () => {
 test.describe('kitchen orchestra: map journey', () => {
   test('[AC-01] the game opens only from the Language House building: no other building opens it or the picker', async ({ page }) => {
     test.setTimeout(90_000);
-    // Real taps on every other building, each from a fresh map. Art Studio is locked (toast only).
-    // Number Garden and Nature Lab open their own station-trail pickers (2 games each), and Leisure Corner opens its picker
+    // Real taps on every other building, each from a fresh map. Art Studio opens Sticker Board directly (one station).
+    // Number Garden, Nature Lab and Science World open their station-trail pickers, and Leisure Corner opens its picker
     // only when the leisure balance is above 0, so those three may leave the map; whatever they do, they must never open
     // Kitchen Orchestra, Animal Restaurant or the picker.
     for (const worldId of ['art-studio', 'number-garden', 'nature-lab', 'leisure-corner']) {
@@ -156,7 +156,6 @@ test.describe('kitchen orchestra: map journey', () => {
       expect(scenes, `${worldId} must not open Kitchen Orchestra`).not.toContain('OrchestraScene');
       expect(scenes, `${worldId} must not open Animal Restaurant`).not.toContain('RestaurantScene');
       await expect(page.locator('[data-testid="game-picker-kitchen-orchestra"]'), `${worldId} must not open the picker`).toHaveCount(0);
-      if (worldId === 'art-studio') expect(scenes, `${worldId} stays on the map`).toContain('MapScene');
     }
 
     // Only the Language House building opens the picker, and only its card opens the game.

@@ -15,6 +15,7 @@ import type {
   WhosHidingContent,
   WhoLivesHereContent,
   LeisureColouringContent,
+  StickerBoardContent,
   BalloonPopContent,
   LetterMonsterContent,
   TravelSuitcaseContent,
@@ -44,6 +45,7 @@ export interface ContentBundle {
   sinkOrFloat: SinkOrFloatContent;
   magicMagnet: MagicMagnetContent;
   colouring: LeisureColouringContent;
+  stickers: StickerBoardContent;
   he: typeof heStrings;
 }
 

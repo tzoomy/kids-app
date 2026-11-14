@@ -29,6 +29,9 @@ import type { MagnetInfo } from '../games/magicMagnet/magnetTypes';
 import { loadMagicMagnet } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
+import { StickerBoardScene } from '../games/stickers/StickerBoardScene';
+import type { StickerBoardInfo, StickerBoardSeed } from '../games/stickers/types';
+import { writeStickerBoardSeed } from '../core/stickers/seed';
 import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
 import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
 import { loadLetterMonster } from '../content/loadContent';
@@ -49,7 +52,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'habitat' | 'colouring' | 'stickers' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -74,6 +77,10 @@ declare global {
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
       getColouringInfo: () => ColouringInfo | null;
+      /** Writes the Sticker Board autosave key only. Call on the map, before entering. */
+      seedStickerBoardState: (seed: StickerBoardSeed) => void;
+      /** Current Sticker Board snapshot (null when StickerBoardScene is not active or not ready); rectangles are page CSS px. */
+      getStickerBoardInfo: () => StickerBoardInfo | null;
       /** Seeds the active profile's persisted Letter Monster level. Call before entering. */
       seedLetterMonsterLevel: (level: number) => void;
       /** Current Letter Monster round (null when LetterMonsterScene is not active); rectangles are page CSS px. */
@@ -176,6 +183,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('HabitatScene', HabitatScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('StickerBoardScene', StickerBoardScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SuitcaseScene', SuitcaseScene, false);
@@ -201,6 +209,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'habitat' ? 'HabitatScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'stickers' ? 'StickerBoardScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'potion-lab' ? 'PotionScene'
@@ -219,6 +228,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('SortingScene');
       game.scene.stop('HabitatScene');
       game.scene.stop('ColouringScene');
+      game.scene.stop('StickerBoardScene');
+      game.scene.stop('SeedFlowerScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
       game.scene.stop('PotionScene');
@@ -303,6 +314,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getColouringInfo() {
       const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
       return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
+    },
+    seedStickerBoardState(seed) {
+      writeStickerBoardSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getStickerBoardInfo() {
+      const scene = game.scene.getScene('StickerBoardScene') as StickerBoardScene | null;
+      return scene && game.scene.isActive('StickerBoardScene') ? scene.getStickerBoardInfo() : null;
     },
     seedLetterMonsterLevel(level) {
       seedAdaptiveLevel(

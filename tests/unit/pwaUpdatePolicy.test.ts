@@ -47,6 +47,7 @@ describe('isSafeToApplyUpdate', () => {
     ['sorting', false],
     ['habitat', false],
     ['colouring', false],
+    ['stickers', false],
     ['letter-monster', false],
     ['balloon', false],
     ['magic-magnet', false],

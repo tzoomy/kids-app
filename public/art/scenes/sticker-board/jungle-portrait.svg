@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Calm pale sky -->
+  <rect width="800" height="1280" fill="#D8F0E6" />
+  <path d="M 0 0 H 800 V 450 Q 400 510 0 450 Z" fill="#E6F6EF" />
+
+  <!-- Distant soft foliage silhouettes at edges and bottom -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M -20 790 C 36 784 74 824 68 886 C 102 896 128 944 114 1012 L 210 1120 Q 400 1094 590 1120 L 686 1012 C 672 944 698 896 732 886 C 726 824 764 784 820 790 V 1300 H -20 Z" fill="#98D886" />
+
+    <!-- Mid-layer foliage along edges and bottom -->
+    <path d="M -20 938 C 30 930 68 962 66 1014 C 102 1020 130 1064 122 1138 Q 400 1118 678 1138 C 670 1064 698 1020 734 1014 C 732 962 770 930 820 938 V 1300 H -20 Z" fill="#57C457" />
+
+    <!-- Foreground corner leaves -->
+    <path d="M -20 1096 C 34 1084 84 1114 94 1172 C 132 1176 164 1214 164 1300 H -20 Z" fill="#3CA33C" />
+    <path d="M 820 1096 C 766 1084 716 1114 706 1172 C 668 1176 636 1214 636 1300 H 820 Z" fill="#3CA33C" />
+  </g>
+
+  <!-- Gentle vine at the top-left corner -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M -10 46 Q 88 74 164 160" fill="none" />
+    <path d="M 44 64 C 24 90 32 124 62 128 C 80 108 74 78 44 64 Z" fill="#57C457" />
+    <path d="M 88 92 C 116 80 144 92 142 120 C 118 126 96 114 88 92 Z" fill="#8AE07E" />
+    <path d="M 116 118 C 92 142 98 174 126 178 C 144 158 140 132 116 118 Z" fill="#57C457" />
+    <path d="M 164 160 C 158 190 176 214 200 208 C 208 184 190 162 164 160 Z" fill="#8AE07E" />
+  </g>
+</svg>

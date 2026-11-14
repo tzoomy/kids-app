@@ -20,6 +20,7 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'potion-lab': 'src/games/potionLab/PotionScene.ts',
   'sink-or-float': 'src/games/sinkFloat/SinkFloatScene.ts',
   'magic-magnet': 'src/games/magicMagnet/MagnetScene.ts',
+  'sticker-board': 'src/games/stickers/StickerBoardScene.ts',
   // Leisure ids exist on PickerGameId; they are not world games, so they are covered by the third test below
   // ("Leisure Corner games do not call recordCompletedRound"), not by the world-hook test.
   bubbles: 'src/games/bubbles/BubblesScene.ts',

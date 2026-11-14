@@ -138,7 +138,25 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
   });
 
+  it('sticker-board source, content, art and unit tests select the sticker-board journey only', () => {
+    const expected = ['tests/e2e/sticker-board.journey.spec.ts'];
+    for (const f of [
+      'src/games/stickers/StickerBoardScene.ts',
+      'src/core/stickers/seed.ts',
+      'src/content/games/sticker-board.json',
+      'src/ui/stickerBoardChrome.ts',
+      'src/assets/art/stickerBoardManifest.ts',
+      'public/art/stickers/rocket.svg',
+      'public/art/scenes/sticker-board/space-landscape.svg',
+      'tests/unit/sticker-board.content.test.ts',
+      'tests/e2e/sticker-board.journey.spec.ts',
+    ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(expected);
+    }
+  });
+
   it('wardrobe source, content, art and unit tests select the wardrobe journey only, not the whole suite', () => {
+
     const expected = ['tests/e2e/wardrobe.journey.spec.ts'];
     for (const f of [
       'src/core/wardrobe/model.ts',

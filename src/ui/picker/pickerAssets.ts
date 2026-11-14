@@ -64,6 +64,8 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
+  // Art Studio.
+  'picker-card-sticker-board': { url: 'art/scenes/sticker-board/space-landscape.svg' },
 };
 
 

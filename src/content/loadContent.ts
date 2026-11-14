@@ -5,6 +5,7 @@ import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import stickerBoardJson from './games/sticker-board.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import travelSuitcaseJson from './games/travel-suitcase.json';
@@ -22,6 +23,7 @@ import {
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
+  StickerBoardContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
   PotionLabContentSchema,
@@ -36,6 +38,7 @@ import {
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
+  type StickerBoardContent,
   type LetterMonsterContent,
   type BalloonPopContent,
   type TravelSuitcaseContent,
@@ -77,6 +80,10 @@ export function loadSortingBeds(): SortingBedsContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadStickerBoard(): StickerBoardContent {
+  return StickerBoardContentSchema.parse(stickerBoardJson);
 }
 
 export function loadLetterMonster(): LetterMonsterContent {

@@ -31,6 +31,8 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
+  // Sticker Board is the only Art Studio game, so the building opens it directly (worldEntry kind "direct").
+  'sticker-board': 'StickerBoardScene',
   'balloon-pop': 'BalloonScene',
   'potion-lab': 'PotionScene',
   'sink-or-float': 'SinkFloatScene',
@@ -39,12 +41,13 @@ export const GAME_SCENE: Record<string, string> = {
 
 /**
  * Entry game of each direct-entry world: a world with exactly one registered game opens it directly
- * (docs/specs/station-trail.md AC-10, pending Maor decision). Art Studio is locked until its own game exists.
- * Leisure Corner is listed here so a default tap still opens Bubbles; Colouring Time is an extra picker card.
+ * (docs/specs/station-trail.md AC-10, pending Maor decision). Art Studio is open and its only game is
+ * Sticker Board. Leisure Corner is listed here so a default tap still opens Bubbles; Colouring Time is an extra picker card.
  * Mirrors WORLD_GAMES + content; tests/unit/station-trail.model.test.ts checks it against the registry.
  */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
+  'art-studio': 'sticker-board',
 };
 
 /** Worlds whose building opens the station-trail picker (2+ games); the value is the default (first) game to pick. */
