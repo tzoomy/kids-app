@@ -152,6 +152,7 @@ function returnToProfileSelect(): void {
   game?.scene.stop('HidingScene');
   game?.scene.stop('SortingScene');
   game?.scene.stop('ColouringScene');
+  game?.scene.stop('NumberBridgeScene');
   game?.scene.stop('BubblesScene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
@@ -178,6 +179,7 @@ function pickProfile(profileId: string): void {
     game.scene.stop('HidingScene');
     game.scene.stop('SortingScene');
     game.scene.stop('ColouringScene');
+    game.scene.stop('NumberBridgeScene');
     game.scene.stop('BubblesScene');
     game.scene.start('MapScene');
   }

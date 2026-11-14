@@ -105,6 +105,18 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('Number Bridge changes select its journey; picker changes also select the Number Garden picker games', () => {
+    const expected = ['tests/e2e/number-bridge.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/numberBridge/NumberBridgeScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/number-bridge.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/bridge-stone.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/stone-pile.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/number-bridge.machine.test.ts'])).toEqual(expected);
+    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
+    expect(picker).toContain('tests/e2e/number-bridge.journey.spec.ts');
+    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
+  });
+
   it('credits content and UI select the credits spec', () => {
     expect(selectAffectedE2e(['src/content/credits.json'])).toEqual(['tests/e2e/credits.spec.ts']);
     expect(selectAffectedE2e(['src/content/credits.ts'])).toEqual(['tests/e2e/credits.spec.ts']);

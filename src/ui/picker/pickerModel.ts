@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'sorting-beds' | 'number-bridge';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'sortingBeds' | 'numberBridge';
 }
 
 /**
@@ -52,5 +52,23 @@ export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'ColouringScene',
     assetKey: 'picker-card-colouring',
     labelKey: 'colouring',
+  },
+];
+
+/** Number Garden picker: Sorting Beds (the original game) first, then Number Bridge (docs/specs/number-bridge.md). */
+export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'sorting-beds',
+    testId: 'game-picker-sorting-beds',
+    sceneKey: 'SortingScene',
+    assetKey: 'picker-card-sorting-beds',
+    labelKey: 'sortingBeds',
+  },
+  {
+    gameId: 'number-bridge',
+    testId: 'game-picker-number-bridge',
+    sceneKey: 'NumberBridgeScene',
+    assetKey: 'picker-card-number-bridge',
+    labelKey: 'numberBridge',
   },
 ];

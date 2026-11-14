@@ -89,11 +89,24 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/sorting\//,
       /^src\/content\/games\/sorting-beds\.json$/,
+      // The Number Garden picker card is the Sorting Beds entry.
+      /^src\/ui\/picker\//,
       /^src\/anim\/(homesTrainMotion|sortPackMotion|trainLayout)\.ts$/,
       /^public\/art\/(homes|train)\//,
       /^tests\/unit\/(sorting-beds|sortPackMotion|homesTrainMotion|trainLayout)[^/]*$/,
     ],
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
+  },
+  {
+    id: 'number-bridge',
+    match: [
+      /^src\/games\/numberBridge\//,
+      /^src\/content\/games\/number-bridge\.json$/,
+      /^src\/ui\/picker\//,
+      /^public\/art\/props\/(bridge-stone|stone-pile)\.svg$/,
+      /^tests\/unit\/number-bridge[^/]*$/,
+    ],
+    specs: ['tests/e2e/number-bridge.journey.spec.ts'],
   },
   {
     id: 'credits',

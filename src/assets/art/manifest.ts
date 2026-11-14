@@ -343,4 +343,7 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
   { key: 'picker-close', url: 'art/ui/picker/close.svg', width: 128, height: 128 },
   { key: 'picker-bg', url: 'art/ui/picker/bg.svg', width: 1280, height: 800 },
+  // Number Garden — Number Bridge (docs/specs/number-bridge.md)
+  { key: 'prop-bridge-stone', url: 'art/props/bridge-stone.svg', width: 200, height: 140 },
+  { key: 'prop-stone-pile', url: 'art/props/stone-pile.svg', width: 220, height: 160 },
 ];

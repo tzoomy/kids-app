@@ -3,8 +3,9 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { NumberBridgeInfo } from '../../../src/games/numberBridge/numberBridgeTypes';
 
-export type { SortingInfo };
+export type { SortingInfo, NumberBridgeInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -16,20 +17,21 @@ export const GAME_SCENE: Record<string, string> = {
   // Who's Hiding? lives in Nature Lab; tapping the building opens HidingScene (no game picker in Pass 1).
   'who-is-hiding': 'HidingScene',
   'leisure-colouring': 'ColouringScene',
-  // Sorting Beds is the only Number Garden game in Pass 1, so the building opens it directly (no picker).
+  // Number Garden opens a picker (Sorting Beds, Number Bridge); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
+  'number-bridge': 'NumberBridgeScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
 export const WORLD_ENTRY_GAME: Record<string, string> = {
   'leisure-corner': 'bubbles',
   'nature-lab': 'who-is-hiding',
-  'number-garden': 'sorting-beds',
 };
 
 /** Worlds whose building opens the game picker; the value is the default game to pick. */
 export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
+  'number-garden': 'sorting-beds',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -135,6 +137,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedNumberBridgeLevel: (level: number) => void;
+  getNumberBridgeInfo: () => NumberBridgeInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -279,7 +283,8 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
 
 /**
  * Taps the world's building and returns when the world's game scene is active.
- * Language House opens a game picker first: then `game-picker-<gameId>` is tapped (default: animal-restaurant).
+ * Language House and Number Garden open a game picker first: then `game-picker-<gameId>` is tapped
+ * (defaults: animal-restaurant, sorting-beds).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
 export async function enterWorldByTap(
@@ -530,4 +535,28 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+// ---------------------------------------------------------------------------------------------
+// Number Bridge (docs/specs/number-bridge.md). Hit rectangles from getNumberBridgeInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the persisted Number Bridge level for every language (seed only). Call on the map, before entering. */
+export async function seedNumberBridgeLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedNumberBridgeLevel', [level]);
+}
+
+export function getNumberBridgeInfo(page: Page): Promise<NumberBridgeInfo | null> {
+  return callHook<NumberBridgeInfo | null>(page, 'getNumberBridgeInfo');
+}
+
+/** Waits until Number Bridge stones have popped in and taps are accepted. */
+export async function waitForNumberBridgeReady(page: Page, timeout = 15_000): Promise<NumberBridgeInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getNumberBridgeInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Number Bridge never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
