@@ -8,6 +8,8 @@ import { SortingScene } from '../games/sorting/SortingScene';
 import type { SortingInfo } from '../games/sorting/types';
 import { seedAdaptiveLevel } from '../games/sorting/seedLevel';
 import { ColouringScene } from '../games/colouring/ColouringScene';
+import { BalloonScene } from '../games/balloon/BalloonScene';
+import type { BalloonInfo } from '../games/balloon/types';
 import { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
 import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
 import { loadSeedToFlower } from '../content/loadContent';
@@ -29,7 +31,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -54,6 +56,10 @@ declare global {
       seedLetterMonsterLevel: (level: number) => void;
       /** Current Letter Monster round (null when LetterMonsterScene is not active); rectangles are page CSS px. */
       getLetterMonsterInfo: () => LetterMonsterInfo | null;
+      /** Seeds the active profile's persisted Balloon Pop level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedBalloonLevel: (level: number) => void;
+      /** Current Balloon Pop trial (null when BalloonScene is not active or between trials); rectangles are page CSS px. */
+      getBalloonInfo: () => BalloonInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
       /** Seeds the persisted Seed to Flower level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
@@ -126,6 +132,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('SortingScene', SortingScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
+  game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
 
   game.registry.set('appContext', context);
@@ -144,6 +151,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'sorting' ? 'SortingScene'
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
+        : screen === 'balloon' ? 'BalloonScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
@@ -155,6 +163,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('LetterMonsterScene');
+      game.scene.stop('BalloonScene');
       game.scene.stop('SeedFlowerScene');
       game.scene.start(sceneKey);
     },
@@ -233,6 +242,25 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getLetterMonsterInfo() {
       const scene = game.scene.getScene('LetterMonsterScene') as LetterMonsterScene | null;
       return scene && game.scene.isActive('LetterMonsterScene') ? scene.getLetterMonsterInfo() : null;
+    },
+    seedBalloonLevel(level) {
+      const profileId = context.requireProfileId();
+      const { world, id, languages } = context.content.balloon;
+      for (const lang of languages) {
+        const key = skillKey(world, id, lang);
+        const stored = context.adaptive.getSkill(profileId, key);
+        context.adaptive.setSkill(profileId, key, {
+          ...(stored ?? { cleanStreak: 0, recent: [], afterDrop: false, lastPlayedDay: localDayKey(new Date(context.nowMs())), items: {} }),
+          level,
+          cleanStreak: 0,
+          recent: [],
+        });
+      }
+      context.adaptive.persist(profileId);
+    },
+    getBalloonInfo() {
+      const scene = game.scene.getScene('BalloonScene') as BalloonScene | null;
+      return scene && game.scene.isActive('BalloonScene') ? scene.getBalloonInfo() : null;
     },
     seedHidingLevel(level) {
       const profileId = context.requireProfileId();
