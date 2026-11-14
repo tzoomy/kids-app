@@ -72,11 +72,21 @@ export const GAME_RULES = [
     match: [
       /^src\/games\/travelSuitcase\//,
       /^src\/content\/games\/travel-suitcase\.json$/,
+      /^src\/ui\/picker\//,
       /^src\/anim\/sortPackMotion\.ts$/,
       /^public\/art\/props\/suitcase-(back|front)\.svg$/,
+      /^tests\/e2e\/helpers\/journey\.ts$/,
       /^tests\/unit\/travel-suitcase[^/]*$/,
     ],
     specs: ['tests/e2e/travel-suitcase.journey.spec.ts'],
+  },
+  {
+    id: 'picker-press-through',
+    match: [
+      /^src\/ui\/picker\//,
+      /^tests\/e2e\/helpers\/pickerPressThrough\.ts$/,
+    ],
+    specs: ['tests/e2e/picker.press-through.spec.ts'],
   },
   {
     id: 'seed-to-flower',
@@ -164,7 +174,12 @@ const NO_E2E = [
 ];
 
 /** Directly mapped files that are also shared runtime code. */
-const ALSO_SMOKE = [/^src\/ui\/shell\.ts$/, /^src\/ui\/picker\//, /^src\/ui\/parent\.ts$/];
+const ALSO_SMOKE = [
+  /^src\/ui\/shell\.ts$/,
+  /^src\/ui\/picker\//,
+  /^src\/ui\/parent\.ts$/,
+  /^tests\/e2e\/helpers\/journey\.ts$/,
+];
 
 const norm = (f) => f.trim().replace(/\\/g, '/').replace(/^\.\//, '');
 

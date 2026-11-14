@@ -3,11 +3,12 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { loadTravelSuitcase } from '../../src/content/loadContent';
-import { TravelSuitcaseContentSchema } from '../../src/content/schema';
+import { TravelSuitcaseContentSchema, type TravelSuitcaseContent } from '../../src/content/schema';
 import { buildMeta, SkillSession } from '../../src/core/adaptive';
 import { AdaptiveStore } from '../../src/core/storage/adaptiveStore';
 import type { StorageDriver } from '../../src/core/storage/store';
 import { nextRoundLanguage } from '../../src/games/restaurant/trialTracker';
+import { createCase, pick } from '../../src/games/travelSuitcase/suitcaseMachine';
 import {
   artKeyForChoice,
   buildCase,
@@ -34,6 +35,36 @@ function makeRng(seed = 17): () => number {
     state = (state * 1664525 + 1013904223) >>> 0;
     return state / 0x100000000;
   };
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function extractFrameSlots(text: string, template: string, placeholders: readonly string[]): string[] {
+  let pattern = escapeRegExp(template);
+  for (const ph of placeholders) {
+    pattern = pattern.replace(escapeRegExp(ph), '(.+?)');
+  }
+  const match = text.match(new RegExp(`^${pattern}$`));
+  expect(match, `line "${text}" did not match frame "${template}"`).not.toBeNull();
+  return match!.slice(1);
+}
+
+function findItemByThe(content: TravelSuitcaseContent, lang: 'en' | 'fr', phrase: string) {
+  const item = content.items.find((i) => i[lang].the === phrase);
+  expect(item, `no item with ${lang}.the="${phrase}"`).toBeDefined();
+  return item!;
+}
+
+function findVariantByThe(content: TravelSuitcaseContent, lang: 'en' | 'fr', phrase: string) {
+  for (const item of content.items) {
+    if (!item.colors) continue;
+    for (const variant of item.colors) {
+      if (variant[lang] === phrase) return { item, variant };
+    }
+  }
+  throw new Error(`No colour variant with ${lang}="${phrase}"`);
 }
 
 describe('suitcaseRound', () => {
@@ -366,5 +397,103 @@ describe('suitcaseRound', () => {
       choiceCount: 20,
     };
     expect(TravelSuitcaseContentSchema.safeParse(impossibleChoiceCount).success).toBe(false);
+  });
+
+  it('[AC-04] [AC-08] seeded sweep L1..L5 verifies buildRequest targets, choices, exclusions, spoken text, and createCase acceptance', () => {
+    const seeds = [1, 7, 17, 42, 99, 123, 555, 2026];
+    const exclusions: readonly (readonly string[])[] = [[], ['hat'], ['shoes', 'ball']];
+    const langs: readonly ('en' | 'fr')[] = ['en', 'fr'];
+
+    for (const lvl of content.adaptive.levels) {
+      const plan = planForLevel(lvl);
+      for (const lang of langs) {
+        const frames = content.frames[lang];
+        for (const packedItemIds of exclusions) {
+          for (const seed of seeds) {
+            const built = buildRequest(content, plan, null, makeRng(seed), packedItemIds, lang);
+            const choiceIds = built.choices.map((c) => c.id);
+
+            expect(built.choices).toHaveLength(plan.choiceCount);
+            expect(new Set(choiceIds).size).toBe(plan.choiceCount);
+            for (const target of built.request.targets) {
+              expect(choiceIds).toContain(target);
+            }
+            for (const packedId of packedItemIds) {
+              expect(built.request.targetItemIds).not.toContain(packedId);
+              expect(built.request.targets).not.toContain(packedId);
+              expect(built.choices.some((c) => c.itemId === packedId)).toBe(false);
+            }
+
+            const spoken = requestLine(content, built.request, lang);
+            expect(built.lineText).toBe(spoken.text);
+
+            const state = createCase({
+              choices: built.choices,
+              request: {
+                kind: built.request.kind,
+                targets: built.request.targets,
+                needed: built.request.needed,
+              },
+              requestsPerCase: plan.requestsPerCase,
+            });
+
+            if (plan.request === 'noun') {
+              const [thePhrase] = extractFrameSlots(spoken.text, frames.put, ['{the}']);
+              const namedItem = findItemByThe(content, lang, thePhrase);
+              expect(built.request.targets).toEqual([namedItem.id]);
+            } else if (plan.request === 'two') {
+              const [aPhrase, bPhrase] = extractFrameSlots(spoken.text, frames.two, ['{a}', '{b}']);
+              const itemA = findItemByThe(content, lang, aPhrase);
+              const itemB = findItemByThe(content, lang, bPhrase);
+              expect(built.request.targets).toEqual([itemA.id, itemB.id]);
+            } else if (plan.request === 'attribute') {
+              const [thePhrase] = extractFrameSlots(spoken.text, frames.put, ['{the}']);
+              const { item, variant } = findVariantByThe(content, lang, thePhrase);
+              const expectedTarget = `${item.id}-${variant.color}`;
+              expect(built.request.targets).toEqual([expectedTarget]);
+
+              const expectedVariantIds = item.colors!.map((v) => `${item.id}-${v.color}`).sort();
+              const itemChoices = built.choices.filter((c) => c.itemId === item.id);
+              const otherChoices = built.choices.filter((c) => c.itemId !== item.id);
+              expect(itemChoices.map((c) => c.id).sort()).toEqual(expectedVariantIds);
+              expect(otherChoices).toHaveLength(1);
+              expect(otherChoices[0].color).toBeNull();
+            } else {
+              const [aPhrase, onePhrase] = extractFrameSlots(spoken.text, frames.not, ['{a}', '{one}']);
+              const item = content.items.find((i) => i[lang].a === aPhrase);
+              expect(item, `no item with ${lang}.a="${aPhrase}"`).toBeDefined();
+              const excludedVariant = item!.colors!.find((v) => (lang === 'en' ? v.enOne : v.frOne) === onePhrase);
+              expect(excludedVariant, `no ${lang} one-phrase "${onePhrase}" on ${item!.id}`).toBeDefined();
+
+              const excludedId = `${item!.id}-${excludedVariant!.color}`;
+              const expectedTargets = item!
+                .colors!.filter((v) => v.color !== excludedVariant!.color)
+                .map((v) => `${item!.id}-${v.color}`)
+                .sort();
+              const expectedVariantIds = item!.colors!.map((v) => `${item!.id}-${v.color}`).sort();
+
+              const itemChoices = built.choices.filter((c) => c.itemId === item!.id);
+              const otherChoices = built.choices.filter((c) => c.itemId !== item!.id);
+              expect(itemChoices.map((c) => c.id).sort()).toEqual(expectedVariantIds);
+              expect(otherChoices).toHaveLength(1);
+              expect(otherChoices[0].color).toBeNull();
+
+              expect(choiceIds).toContain(excludedId);
+              expect(built.request.targets).not.toContain(excludedId);
+              expect([...built.request.targets].sort()).toEqual(expectedTargets);
+              expect(pick(state, excludedId).event).toEqual({ kind: 'other', choiceId: excludedId });
+              for (const rightId of expectedTargets) {
+                expect(pick(state, rightId).event).toEqual({
+                  kind: 'packed',
+                  choiceId: rightId,
+                  requestDone: true,
+                  caseDone: false,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
   });
 });

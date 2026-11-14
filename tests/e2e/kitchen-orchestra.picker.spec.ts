@@ -16,7 +16,7 @@ import {
 // Both Playwright projects (1280x800 and 800x1280) run every test in this file, so each AC is checked in both orientations.
 
 const MIN_TAP = 64;
-const CARD_IDS = ['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra'] as const;
+const CARD_IDS = ['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra', 'game-picker-travel-suitcase'] as const;
 
 function expectKnownViewport(page: Page): { landscape: boolean } {
   const vp = page.viewportSize();
@@ -32,7 +32,7 @@ async function openPicker(page: Page): Promise<void> {
 }
 
 test.describe('language house game picker', () => {
-  test('[AC-16] real tap on the Language House building opens the picker with two big cards and a close button', async ({ page }) => {
+  test('[AC-16] real tap on the Language House building opens the picker with three big cards and a close button', async ({ page }) => {
     const { landscape } = expectKnownViewport(page);
     await openPicker(page);
 
@@ -49,20 +49,29 @@ test.describe('language house game picker', () => {
       expect(box.y + box.height, `${id} inside viewport (bottom)`).toBeLessThanOrEqual(vp.height + 0.5);
     }
 
-    // The picker is RTL DOM chrome; the restaurant card comes first: right in landscape, top in portrait.
+    // The picker is RTL DOM chrome; cards follow DOM order: right-to-left in landscape, top-to-bottom in portrait.
     const rtl = await page.locator('[data-testid="game-picker-animal-restaurant"]').evaluate((el) => el.closest('[dir="rtl"]') !== null);
     expect(rtl).toBe(true);
     const restaurant = boxes['game-picker-animal-restaurant'];
     const orchestra = boxes['game-picker-kitchen-orchestra'];
-    if (landscape) expect(restaurant.x).toBeGreaterThan(orchestra.x);
-    else expect(restaurant.y).toBeLessThan(orchestra.y);
+    const suitcase = boxes['game-picker-travel-suitcase'];
+    if (landscape) {
+      expect(restaurant.x).toBeGreaterThan(orchestra.x);
+      expect(orchestra.x).toBeGreaterThan(suitcase.x);
+    } else {
+      expect(restaurant.y).toBeLessThan(orchestra.y);
+      expect(orchestra.y).toBeLessThan(suitcase.y);
+    }
 
-    // Cards do not overlap each other or the close button.
+    // Every card pair is disjoint, and no card overlaps the close button.
     const overlaps = (a: PageRect, b: PageRect) =>
       a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-    expect(overlaps(restaurant, orchestra)).toBe(false);
-    expect(overlaps(restaurant, boxes['game-picker-close'])).toBe(false);
-    expect(overlaps(orchestra, boxes['game-picker-close'])).toBe(false);
+    for (let i = 0; i < CARD_IDS.length; i++) {
+      expect(overlaps(boxes[CARD_IDS[i]], boxes['game-picker-close']), `${CARD_IDS[i]} vs close`).toBe(false);
+      for (let j = i + 1; j < CARD_IDS.length; j++) {
+        expect(overlaps(boxes[CARD_IDS[i]], boxes[CARD_IDS[j]]), `${CARD_IDS[i]} vs ${CARD_IDS[j]}`).toBe(false);
+      }
+    }
 
     // Each card (the whole button) is exactly 4:5, like the 640x800 art, and the art fills it: no letterbox gaps.
     const BORDER = 6;
@@ -81,14 +90,30 @@ test.describe('language house game picker', () => {
         expect(Math.abs(card.y + card.height - (inner.y + inner.height)), `${id} ${name} bottom gap`).toBeLessThanOrEqual(tol);
       }
     }
-    // Both cards have the same size.
-    expect(Math.abs(restaurant.width - orchestra.width)).toBeLessThanOrEqual(1);
-    expect(Math.abs(restaurant.height - orchestra.height)).toBeLessThanOrEqual(1);
+    // All cards have the same size.
+    for (const id of CARD_IDS.slice(1)) {
+      expect(Math.abs(restaurant.width - boxes[id].width), `${id} width`).toBeLessThanOrEqual(1);
+      expect(Math.abs(restaurant.height - boxes[id].height), `${id} height`).toBeLessThanOrEqual(1);
+    }
+
+    // A tap at each card's centre (including the 3rd card) hits that card, not something covering it.
+    for (const id of CARD_IDS) {
+      const card = boxes[id];
+      const hitTarget = await page.evaluate(
+        ({ x, y, testId }) => {
+          const el = document.elementFromPoint(x, y);
+          return el !== null && el.closest(`[data-testid="${testId}"]`) !== null;
+        },
+        { x: card.x + card.width / 2, y: card.y + card.height / 2, testId: id },
+      );
+      expect(hitTarget, `${id} centre is the top hit target`).toBe(true);
+    }
 
     // No game was opened by the building tap.
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
+    expect(scenes).not.toContain('SuitcaseScene');
   });
 
   test('[AC-17] real tap on the restaurant card opens Animal Restaurant', async ({ page }) => {
@@ -98,6 +123,7 @@ test.describe('language house game picker', () => {
     await waitForScene(page, 'RestaurantScene');
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('OrchestraScene');
+    expect(scenes).not.toContain('SuitcaseScene');
     await expect(page.locator('[data-testid="game-picker-animal-restaurant"]')).toHaveCount(0);
   });
 
@@ -108,6 +134,7 @@ test.describe('language house game picker', () => {
     await waitForScene(page, 'OrchestraScene');
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
+    expect(scenes).not.toContain('SuitcaseScene');
     await expect(page.locator('[data-testid="game-picker-kitchen-orchestra"]')).toHaveCount(0);
     await expect.poll(async () => (await getOrchestraInfo(page)) !== null, { timeout: 15_000 }).toBe(true);
   });
@@ -121,6 +148,7 @@ test.describe('language house game picker', () => {
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
+    expect(scenes).not.toContain('SuitcaseScene');
   });
 });
 

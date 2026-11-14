@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { loadTravelSuitcase } from '../../src/content/loadContent';
+import { buildRequest, planForLevel } from '../../src/games/travelSuitcase/suitcaseRound';
 import {
   SUITCASE_PHASES,
   createCase,
@@ -8,6 +10,14 @@ import {
   type SuitcaseRequestInput,
   type SuitcaseState,
 } from '../../src/games/travelSuitcase/suitcaseMachine';
+
+function makeRng(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === 'object') {
@@ -202,6 +212,69 @@ describe('suitcaseMachine', () => {
       // Once needed=1 is met, the other valid colour is busy until nextRequest.
       const otherValid = acceptedId === 'hat-yellow' ? 'hat-blue' : 'hat-yellow';
       expect(pick(negPacked.state, otherValid).event).toEqual({ kind: 'busy' });
+    }
+  });
+
+  it('[AC-04] createCase and pick accept real buildRequest outputs for L4 attribute and L5 negation', () => {
+    const content = loadTravelSuitcase();
+    const attrPlan = planForLevel(content.adaptive.levels[3]);
+    const negPlan = planForLevel(content.adaptive.levels[4]);
+
+    for (const lang of ['en', 'fr'] as const) {
+      for (const seed of [3, 19, 77]) {
+        const attrBuilt = buildRequest(content, attrPlan, null, makeRng(seed), ['hat'], lang);
+        const attrState = createCase({
+          choices: attrBuilt.choices,
+          request: {
+            kind: attrBuilt.request.kind,
+            targets: attrBuilt.request.targets,
+            needed: attrBuilt.request.needed,
+          },
+          requestsPerCase: attrPlan.requestsPerCase,
+        });
+        expect(attrBuilt.request.targets).toHaveLength(1);
+        const attrTarget = attrBuilt.request.targets[0];
+        for (const c of attrState.choices) {
+          if (c.id === attrTarget) {
+            expect(pick(attrState, c.id).event).toEqual({
+              kind: 'packed',
+              choiceId: c.id,
+              requestDone: true,
+              caseDone: false,
+            });
+          } else {
+            expect(pick(attrState, c.id).event).toEqual({ kind: 'other', choiceId: c.id });
+          }
+        }
+
+        const negBuilt = buildRequest(content, negPlan, null, makeRng(seed), ['shoes'], lang);
+        const negState = createCase({
+          choices: negBuilt.choices,
+          request: {
+            kind: negBuilt.request.kind,
+            targets: negBuilt.request.targets,
+            needed: negBuilt.request.needed,
+          },
+          requestsPerCase: negPlan.requestsPerCase,
+        });
+        expect(negBuilt.request.targets).toHaveLength(2);
+        const excludedId = negBuilt.request.key;
+        expect(negState.choices.some((c) => c.id === excludedId)).toBe(true);
+        expect(negBuilt.request.targets).not.toContain(excludedId);
+        expect(pick(negState, excludedId).event).toEqual({ kind: 'other', choiceId: excludedId });
+        for (const c of negState.choices) {
+          if (negBuilt.request.targets.includes(c.id)) {
+            expect(pick(negState, c.id).event).toEqual({
+              kind: 'packed',
+              choiceId: c.id,
+              requestDone: true,
+              caseDone: false,
+            });
+          } else {
+            expect(pick(negState, c.id).event).toEqual({ kind: 'other', choiceId: c.id });
+          }
+        }
+      }
     }
   });
 

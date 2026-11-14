@@ -117,6 +117,14 @@ describe('affected e2e selection', () => {
       'tests/e2e/sorting-beds.platform.spec.ts',
       'tests/e2e/travel-suitcase.journey.spec.ts',
     ]);
+    expect(selectAffectedE2e(['src/ui/picker/gamePicker.ts'])).toEqual(
+      expect.arrayContaining([
+        'tests/e2e/kitchen-orchestra.picker.spec.ts',
+        'tests/e2e/picker.press-through.spec.ts',
+        'tests/e2e/travel-suitcase.journey.spec.ts',
+        ...SMOKE,
+      ]),
+    );
   });
 
   it('seed to flower selects its journey; the shared picker also selects both Nature Lab journeys', () => {
@@ -150,8 +158,13 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['src/games/bubbles/BubblesScene.ts'])).toEqual(SMOKE);
   });
 
-  it('shared e2e helpers select the smoke set, game helpers select their game', () => {
-    expect(selectAffectedE2e(['tests/e2e/helpers/journey.ts'])).toEqual(SMOKE);
+  it('shared e2e helpers select smoke plus mapped consumers, game/picker helpers select their specs', () => {
+    expect(selectAffectedE2e(['tests/e2e/helpers/journey.ts'])).toEqual(
+      [...SMOKE, 'tests/e2e/travel-suitcase.journey.spec.ts'].sort(),
+    );
+    expect(selectAffectedE2e(['tests/e2e/helpers/pickerPressThrough.ts'])).toEqual([
+      'tests/e2e/picker.press-through.spec.ts',
+    ]);
     expect(selectAffectedE2e(['tests/e2e/helpers/colouringArtCheck.ts'])).toEqual([
       'tests/e2e/leisure-colouring.art.spec.ts',
       'tests/e2e/leisure-colouring.journey.spec.ts',

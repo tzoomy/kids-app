@@ -67,11 +67,12 @@ test.describe('travel suitcase', () => {
     expect(targetChoice).toBeDefined();
 
     await tapRect(page, targetChoice!.rect);
-    await waitForSuitcase(
+    const packed = await waitForSuitcase(
       page,
-      (i) => i.lastEvent === 'packed' || i.packedCount >= 1 || i.requestIndex >= 1,
+      (i) => i.choices.some((c) => c.id === rightId && c.packed),
       'tapping asked-for item did not pack it',
     );
+    expect(packed.packedCount).toBe(1);
 
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');
@@ -116,11 +117,12 @@ test.describe('travel suitcase', () => {
 
     const spokenBeforeRight = (await getSpokenLines(page)).length;
     await tapRect(page, rightChoice.rect);
-    await waitForSuitcase(
+    const packed = await waitForSuitcase(
       page,
-      (i) => i.lastEvent === 'packed' || i.packedCount >= 1 || i.requestIndex >= 1,
+      (i) => i.choices.some((c) => c.id === rightId && c.packed),
       'tapping right item did not pack it',
     );
+    expect(packed.packedCount).toBe(1);
     await expect
       .poll(
         async () => {
@@ -150,11 +152,21 @@ test.describe('travel suitcase', () => {
     );
 
     info = (await getSuitcaseInfo(page))!;
-    const secondChoice = info.choices.find((c) => c.id === secondTarget && !c.packed)!;
+    // Already-packed item inside the suitcase cannot be packed a second time.
+    const packedFirst = info.choices.find((c) => c.id === firstTarget && c.packed);
+    expect(packedFirst).toBeDefined();
+    await tapRect(page, packedFirst!.rect);
+    await page.waitForTimeout(250);
+    const afterPackedTap = (await getSuitcaseInfo(page))!;
+    expect(afterPackedTap.packedCount).toBe(1);
+    expect(afterPackedTap.rightIds).toEqual([secondTarget]);
+    expect(afterPackedTap.requestIndex).toBe(0);
+
+    const secondChoice = afterPackedTap.choices.find((c) => c.id === secondTarget && !c.packed)!;
     await tapRect(page, secondChoice.rect);
     await waitForSuitcase(
       page,
-      (i) => i.packedCount >= 2 || i.requestIndex === 1,
+      (i) => i.choices.some((c) => c.id === secondTarget && c.packed) && i.packedCount >= 2,
       'packing remaining target did not complete the two-item request',
     );
   });
@@ -209,7 +221,7 @@ test.describe('travel suitcase', () => {
       .toBe(true);
   });
 
-  test('[AC-09] @single-orientation dragging a right item onto the case packs it (age 5, L4)', async ({ page }, testInfo) => {
+  test('[AC-09] @single-orientation dragging a right item onto the case packs it; dropping away slides back without packing (age 5, L4)', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     const info = await enterSuitcase(page, 'profile-b', 4);
     expect(info.level).toBe(4);
@@ -218,12 +230,31 @@ test.describe('travel suitcase', () => {
 
     const rightId = info.rightIds[0];
     const rightChoice = info.choices.find((c) => c.id === rightId && !c.packed)!;
-    await dragRectTo(page, rightChoice.rect, info.caseRect!);
-    await waitForSuitcase(
+    const vp = page.viewportSize()!;
+
+    // Negative control: drag past the drag threshold and release away from the case -> slides back, nothing packed.
+    const awayRect = {
+      x: Math.min(vp.width - 40, Math.max(info.caseRect!.x + info.caseRect!.width + 120, rightChoice.rect.x + 60)),
+      y: Math.max(90, rightChoice.rect.y - 60),
+      width: 20,
+      height: 20,
+    };
+    await dragRectTo(page, rightChoice.rect, awayRect);
+    await page.waitForTimeout(350);
+    const afterMiss = await getSuitcaseInfo(page);
+    expect(afterMiss?.packedCount).toBe(0);
+    expect(afterMiss?.lastEvent).toBeNull();
+    expect(afterMiss?.choices.find((c) => c.id === rightId)?.packed).toBe(false);
+
+    // Positive drag: release onto the suitcase -> packs the right item.
+    const freshRight = afterMiss!.choices.find((c) => c.id === rightId && !c.packed)!;
+    await dragRectTo(page, freshRight.rect, afterMiss!.caseRect!);
+    const packed = await waitForSuitcase(
       page,
-      (i) => i.lastEvent === 'packed' || i.packedCount >= 1 || i.requestIndex >= 1,
+      (i) => i.choices.some((c) => c.id === rightId && c.packed),
       'dragging right item onto case did not pack it',
     );
+    expect(packed.packedCount).toBe(1);
   });
 
   test('[AC-10] choice and case targets are at least 64 CSS px and inside viewport in both orientations', async ({ page }) => {
