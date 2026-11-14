@@ -372,6 +372,38 @@ test.describe('balloon pop: hints and help (review fixes)', () => {
     await waitForSpokenLine(page, (l) => l.lineId === `balloon.${info.targetItemId}.en`, 10_000, again.index + 1);
   });
 
+  test('[AC-17] @single-orientation help opened during the pop-in keeps the intro for when the card closes', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await installE2eTts(page, 600);
+    await enter(page, 'profile-a', { lang: 'en' });
+    // Hit the short pop-in window (RISE_MS = 700 + stagger) before ready becomes true.
+    await page.waitForFunction(
+      () => {
+        const info = (window as unknown as { __testHooks__?: { getBalloonInfo?: () => { ready: boolean } | null } }).__testHooks__?.getBalloonInfo?.();
+        return info !== null && info !== undefined && !info.ready;
+      },
+      undefined,
+      { timeout: 5_000, polling: 'raf' },
+    );
+    const helpBtn = page.locator('[data-testid="hud-help"]');
+    await expect(helpBtn).toBeVisible();
+    await helpBtn.click();
+    await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
+    // Wait for the pop-in to finish while help is open so rises.then runs under helpOpen.
+    const info = await waitForBalloonReady(page);
+    const help = await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.help', 8_000);
+    const spokenWhileOpen = await getSpokenLines(page);
+    expect(spokenWhileOpen.some((l) => l.lineId === 'he.balloon.intro')).toBe(false);
+    expect(spokenWhileOpen.some((l) => l.lineId === `balloon.${info.targetItemId}.en`)).toBe(false);
+    await closeHelpCard(page);
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'he.balloon.intro', 10_000, help.index + 1);
+    await waitForSpokenLine(page, (l) => l.lineId === `balloon.${info.targetItemId}.en`, 10_000, intro.index + 1);
+    await waitForBalloonReady(page);
+    await popCorrectBalloon(page);
+    await expect.poll(() => readStarCount(page), { timeout: 8_000 }).toBe(1);
+  });
+
   test('[AC-17] @single-orientation age 5: the first wrong tap keeps its retry line when help opens right after it', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(60_000);
