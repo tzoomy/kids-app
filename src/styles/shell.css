@@ -642,3 +642,36 @@ body {
   justify-content: flex-start;
   padding-top: 8vmin;
 }
+
+/* Parent-area button: 3-second long-press (docs/specs/parent-longpress-gate.md). */
+.shell-holdable {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  position: relative;
+}
+
+.shell-hold-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  border-top: 2px solid rgba(122, 92, 72, 0.25);
+  box-sizing: border-box;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shell-hold-progress > div {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #ffd93d, #ff6b6b);
+  transition: none;
+}
+
+/* The fill grows from the inline start (right in RTL); keep the gradient running the same way. */
+[dir='rtl'] .shell-hold-progress > div {
+  background: linear-gradient(270deg, #ffd93d, #ff6b6b);
+}

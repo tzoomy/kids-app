@@ -340,7 +340,7 @@ Goal: supporting features, not learning games.
 
 ### 1. Parent gate by 3-second long-press
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** In progress (spec: [`docs/specs/parent-longpress-gate.md`](specs/parent-longpress-gate.md), draft PR #70; owner-approved idea 2026-11-13; add-vs-replace pending owner decision, see `docs/PENDING-DECISIONS.md`).
 
 - **Action:** The parent enters the parent area by pressing and holding for 3 seconds. Whether it replaces or is added to the current parent gate: pending owner decision.
 - **Learning goal:** Not a learning game; keeps the parent area out of the girls' reach.
