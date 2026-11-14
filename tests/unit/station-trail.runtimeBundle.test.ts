@@ -48,4 +48,12 @@ describe('station trail on the real runtime content bundle (src/main.ts)', () =>
     const stations = stationGamesForWorld('language-house', WORLD_GAMES, games).map((g) => g.gameId);
     expect(stations).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
   });
+
+  it('nature-lab stations on the runtime bundle match the registry, with Shadow Match last', () => {
+    const games = collectTrailGames(buildRuntimeBundle());
+    const stations = stationGamesForWorld('nature-lab', WORLD_GAMES, games).map((g) => g.gameId);
+    const expected = WORLD_GAMES.filter((card) => games.some((g) => g.id === card.gameId && g.world === 'nature-lab')).map((c) => c.gameId);
+    expect(stations).toEqual(expected);
+    expect(stations).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
+  });
 });

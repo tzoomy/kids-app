@@ -3,6 +3,7 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { ShadowInfo } from '../../../src/games/hiding/shadowTypes';
 import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
 import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
@@ -13,7 +14,7 @@ import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTyp
 import type { HabitatInfo } from '../../../src/games/habitat/types';
 import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
+export type { SortingInfo, ShadowInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -24,10 +25,11 @@ export const GAME_SCENE: Record<string, string> = {
   'letter-monster': 'LetterMonsterScene',
   'travel-suitcase': 'SuitcaseScene',
   bubbles: 'BubblesScene',
-  // Nature Lab opens a picker: Who's Hiding?, Seed to Flower, and (once registered) Who Lives Here?.
+  // Nature Lab opens a picker: Who's Hiding?, Seed to Flower, Who Lives Here?, then Shadow Match.
   'who-is-hiding': 'HidingScene',
   'seed-to-flower': 'SeedFlowerScene',
   'who-lives-here': 'HabitatScene',
+  'shadow-match': 'ShadowScene',
   'leisure-colouring': 'ColouringScene',
   // Number Garden opens a picker (Sorting Beds, Balloon Pop, and Picnic Train once registered); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
@@ -157,6 +159,8 @@ type Hooks = {
   seedBalanceSec: (sec: number) => void;
   seedColouringState: (seed: ColouringSeed) => void;
   getColouringInfo: () => ColouringInfo | null;
+  getShadowInfo: () => ShadowInfo | null;
+  seedShadowLevel: (level: number) => void;
   getSortingInfo: () => SortingInfo | null;
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
@@ -332,8 +336,8 @@ export async function tapTestId(page: Page, testId: string): Promise<void> {
 
 /**
  * Taps the world's building and returns when the world's game scene is active.
- * Language House and Number Garden open a game picker first: then `game-picker-<gameId>` is tapped
- * (defaults: animal-restaurant, sorting-beds).
+ * Language House, Number Garden and Nature Lab open a game picker first: then `game-picker-<gameId>` is tapped
+ * (defaults: animal-restaurant, sorting-beds, who-is-hiding).
  * Single-game worlds take their entry game; passing another game id for them is an error.
  */
 export async function enterWorldByTap(
@@ -872,6 +876,68 @@ export async function dragMagnetTo(page: Page, info: MagnetInfo, x: number, y: n
 }
 
 // ---------------------------------------------------------------------------------------------
+// Shadow Match (docs/specs/shadow-match.md). Hit rectangles from getShadowInfo are page CSS px.
+// ---------------------------------------------------------------------------------------------
+
+/** Seeds the active profile's persisted Shadow Match level for every language. Call from `beforeEnter` (on the map). */
+export async function seedShadowLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedShadowLevel', [level]);
+}
+
+export function getShadowInfo(page: Page): Promise<ShadowInfo | null> {
+  return callHook<ShadowInfo | null>(page, 'getShadowInfo');
+}
+
+/** Waits until every silhouette has popped in and taps are accepted. */
+export async function waitForShadowReady(page: Page, timeout = 12_000): Promise<ShadowInfo> {
+  await page.waitForFunction(
+    () => {
+      const info = (window as unknown as { __testHooks__: Hooks }).__testHooks__.getShadowInfo();
+      return info !== null && info.ready && !info.done;
+    },
+    undefined,
+    { timeout },
+  );
+  const info = await getShadowInfo(page);
+  if (!info) throw new Error('no active Shadow Match trial');
+  return info;
+}
+
+/** Real tap on the silhouette of `animalId`, using a fresh read of its hit rectangle. */
+export async function tapShadow(page: Page, animalId: string): Promise<void> {
+  const info = await getShadowInfo(page);
+  const shadow = info?.shadows.find((s) => s.animalId === animalId);
+  if (!shadow) throw new Error(`no silhouette "${animalId}" in the active trial`);
+  await page.mouse.click(shadow.hit.x + shadow.hit.width / 2, shadow.hit.y + shadow.hit.height / 2);
+}
+
+/** Waits for a ready trial, taps the requested silhouette for real, and waits until the next trial is ready. Returns the info read before the tap. */
+export async function matchCorrectShadow(page: Page, timeout = 20_000): Promise<ShadowInfo> {
+  const before = await waitForShadowReady(page, timeout);
+  await tapShadow(page, before.targetId);
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getShadowInfo(page);
+    if (info && info.ready && !info.done && info.correctCount > before.correctCount) return before;
+    if (Date.now() > deadline) throw new Error('the tap on the requested silhouette did not start the next trial');
+    await page.waitForTimeout(50);
+  }
+}
+
+/** The persisted Shadow Match skill of a profile (read-only localStorage read). */
+export async function readShadowSkill(page: Page, profile: ProfileTestId, lang: string): Promise<StoredSkill | null> {
+  const profileId = profile === 'profile-a' ? 'a' : 'b';
+  return page.evaluate(
+    ([id, skill]) => {
+      const raw = window.localStorage.getItem(`kids-app-adaptive:${id}`);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { skills?: Record<string, StoredSkill> };
+      return parsed.skills?.[skill] ?? null;
+    },
+    [profileId, `nature-lab.shadow-match.${lang}`] as const,
+  );
+}
+
 // Who Lives Here? (docs/specs/who-lives-here.md). Hit rectangles from getHabitatInfo are page CSS px.
 // ---------------------------------------------------------------------------------------------
 

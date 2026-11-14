@@ -59,6 +59,7 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-picnic-train': { url: 'art/scenes/picnic-train/bg-landscape.svg' },
   // Nature Lab.
   'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
+  'picker-card-shadow-match': { css: 'background:radial-gradient(ellipse at 50% 70%,#2e2a3a 0 22%,transparent 23%),linear-gradient(180deg,#ffd38a,#b8e6ff)' },
   'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
   'picker-card-who-lives-here': { url: 'art/scenes/habitats/bg-landscape.svg' },
   // Science World, in science blue.

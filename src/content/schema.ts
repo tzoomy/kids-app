@@ -520,6 +520,67 @@ export type HabitatHome = z.infer<typeof HabitatHomeSchema>;
 export type HabitatAnimal = z.infer<typeof HabitatAnimalSchema>;
 export type WhoLivesHereContent = z.infer<typeof WhoLivesHereContentSchema>;
 
+// Shadow Match (Nature Lab, docs/specs/shadow-match.md): a variant of Who's Hiding? that reuses its
+// animals (names, sounds, groups) and round builder. Choices are silhouettes of the approved animal
+// art; the cue is the sound or the name. Per-level extras: `speak` (sound | name), optional `soundMs`.
+// ---------------------------------------------------------------------------
+
+export const SHADOW_SPEAK_MODES = ['sound', 'name'] as const;
+export type ShadowSpeakMode = (typeof SHADOW_SPEAK_MODES)[number];
+
+export const ShadowMatchContentSchema = z
+  .object({
+    id: z.literal('shadow-match'),
+    world: z.literal('nature-lab'),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    /** Animals (names, sounds, look-alike groups, art kinds) come from this game's content. */
+    animalsFrom: z.literal('who-is-hiding'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Request frames per cue: `{sound}` or `{name}` is replaced from the animal. */
+    promptFrames: z.object({ sound: LangPairSchema, name: LangPairSchema }),
+    /** Spoken after the silhouette is revealed, in the round's learning language (`{name}`). */
+    revealFrame: LangPairSchema,
+    /** Then in Hebrew (`{nameHe}`), spoken by device TTS in Pass 1. */
+    revealFrameHe: z.string().min(1),
+    /** Hebrew animal names by animal id. */
+    namesHe: z.record(z.string().min(1)),
+    introHe: z.string().min(1),
+    helpTextHe: z.string().min(1),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    for (const mode of SHADOW_SPEAK_MODES) {
+      for (const lang of ['en', 'fr'] as const) {
+        const token = mode === 'sound' ? '{sound}' : '{name}';
+        if (!value.promptFrames[mode][lang].includes(token)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', mode, lang], message: `frame needs ${token}` });
+        }
+      }
+    }
+    for (const lang of ['en', 'fr'] as const) {
+      if (!value.revealFrame[lang].includes('{name}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrame', lang], message: 'frame needs {name}' });
+    }
+    if (!value.revealFrameHe.includes('{nameHe}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrameHe'], message: 'frame needs {nameHe}' });
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2 || level.choiceCount > 6) issue('levels require choiceCount within 2..6');
+      if (level.distractor !== undefined && level.distractor !== 'far' && level.distractor !== 'same-category') {
+        issue('shadow-match supports distractor "far" or "same-category"');
+      }
+      const speak = level.extra?.speak;
+      if (typeof speak !== 'string' || !(SHADOW_SPEAK_MODES as readonly string[]).includes(speak)) {
+        issue(`levels require extra.speak, one of ${SHADOW_SPEAK_MODES.join(', ')}`);
+      }
+      const soundMs = level.extra?.soundMs;
+      if (soundMs !== undefined && (typeof soundMs !== 'number' || soundMs <= 0)) issue('extra.soundMs must be a positive number');
+    });
+  });
+
+export type ShadowMatchContent = z.infer<typeof ShadowMatchContentSchema>;
 
 /** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
 export const ColouringRegionSchema = z.object({
