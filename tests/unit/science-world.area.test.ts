@@ -8,7 +8,7 @@ import { ART_MANIFEST } from '../../src/assets/art/manifest';
 import { buildingArtKey, registerArtManifest, resetArtRegistry } from '../../src/anim/artRegistry';
 import { PICKER_EMPTY_TEST_ID, SCIENCE_WORLD_PICKER_GAMES } from '../../src/ui/picker/pickerModel';
 import { resolvePickerAsset } from '../../src/ui/picker/pickerAssets';
-import { loadSinkOrFloat } from '../../src/content/loadContent';
+import { loadPotionLab, loadSinkOrFloat } from '../../src/content/loadContent';
 import { renderGamePicker } from '../../src/ui/picker/gamePicker';
 import { selectAffectedE2e } from '../../scripts/affected-e2e.mjs';
 
@@ -57,15 +57,34 @@ describe('Science World map area (separate area: pending Maor decision)', () => 
     }
   });
 
-  it('picker list has the sink-or-float entry, whose content world is science-world, with a Hebrew label and resolvable asset', () => {
-    expect(SCIENCE_WORLD_PICKER_GAMES.map((g) => [g.gameId, g.testId, g.sceneKey, g.assetKey, g.labelKey])).toEqual([
-      ['sink-or-float', 'game-picker-sink-or-float', 'SinkFloatScene', 'picker-card-sink-or-float', 'sinkOrFloat'],
-    ]);
-    const sinkFloat = loadSinkOrFloat();
-    expect(sinkFloat.world).toBe('science-world');
-    const entry = SCIENCE_WORLD_PICKER_GAMES[0];
-    expect(() => resolvePickerAsset(entry.assetKey)).not.toThrow();
-    expect((he.gamePicker as Record<string, string>)[entry.labelKey]).toBe('צף או שוקע?');
+  it('picker list has potion-lab then sink-or-float, looked up by gameId, with Hebrew labels and resolvable assets', () => {
+    const byId = (id: string) => SCIENCE_WORLD_PICKER_GAMES.find((g) => g.gameId === id);
+    const potionEntry = byId('potion-lab');
+    const sinkEntry = byId('sink-or-float');
+    expect(potionEntry).toEqual({
+      gameId: 'potion-lab',
+      testId: 'game-picker-potion-lab',
+      sceneKey: 'PotionScene',
+      assetKey: 'picker-card-potion-lab',
+      labelKey: 'potionLab',
+    });
+    expect(sinkEntry).toEqual({
+      gameId: 'sink-or-float',
+      testId: 'game-picker-sink-or-float',
+      sceneKey: 'SinkFloatScene',
+      assetKey: 'picker-card-sink-or-float',
+      labelKey: 'sinkOrFloat',
+    });
+    const ids = SCIENCE_WORLD_PICKER_GAMES.map((g) => g.gameId);
+    expect(ids.indexOf('potion-lab')).toBeGreaterThanOrEqual(0);
+    expect(ids.indexOf('sink-or-float')).toBeGreaterThan(ids.indexOf('potion-lab'));
+    expect(loadPotionLab().world).toBe('science-world');
+    expect(loadSinkOrFloat().world).toBe('science-world');
+    expect(() => resolvePickerAsset(potionEntry!.assetKey)).not.toThrow();
+    expect(() => resolvePickerAsset(sinkEntry!.assetKey)).not.toThrow();
+    const labels = he.gamePicker as Record<string, string>;
+    expect(labels[potionEntry!.labelKey]).toBe('מעבדת השיקויים');
+    expect(labels[sinkEntry!.labelKey]).toBe('צף או שוקע?');
   });
 });
 

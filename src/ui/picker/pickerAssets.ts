@@ -56,6 +56,7 @@ const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css:
 
 /** Science World picker cards (additive). Pass-1 placeholder in science blue; real card art is Pass 2. */
 const SCIENCE_WORLD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
 };
 

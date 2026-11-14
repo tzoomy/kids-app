@@ -7,6 +7,7 @@ import leisureColouringJson from './games/leisure-colouring.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
+import potionLabJson from './games/potion-lab.json';
 import sinkOrFloatJson from './games/sink-or-float.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
@@ -19,6 +20,7 @@ import {
   LeisureColouringContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
+  PotionLabContentSchema,
   SinkOrFloatContentSchema,
   SeedToFlowerContentSchema,
   type WorldsFile,
@@ -30,6 +32,7 @@ import {
   type LetterMonsterContent,
   type BalloonPopContent,
   type SeedToFlowerContent,
+  type PotionLabContent,
   type SinkOrFloatContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
@@ -69,6 +72,10 @@ export function loadLetterMonster(): LetterMonsterContent {
 
 export function loadBalloonPop(): BalloonPopContent {
   return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadPotionLab(): PotionLabContent {
+  return PotionLabContentSchema.parse(potionLabJson);
 }
 
 export function loadSinkOrFloat(): SinkOrFloatContent {
