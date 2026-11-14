@@ -49,6 +49,7 @@ export const PICKER_SPECS = [
   'tests/e2e/picnic-train.journey.spec.ts',
   'tests/e2e/picnic-train.picker.spec.ts',
   'tests/e2e/picnic-train.platform.spec.ts',
+  'tests/e2e/picker.press-through.spec.ts',
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
@@ -56,6 +57,7 @@ export const PICKER_SPECS = [
   'tests/e2e/sorting-beds.journey.spec.ts',
   'tests/e2e/sorting-beds.platform.spec.ts',
   'tests/e2e/station-trail.spec.ts',
+  'tests/e2e/travel-suitcase.journey.spec.ts',
   'tests/e2e/who-is-hiding.journey.spec.ts',
 ];
 
@@ -94,6 +96,25 @@ export const GAME_RULES = [
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
+  },
+  {
+    id: 'travel-suitcase',
+    match: [
+      /^src\/games\/travelSuitcase\//,
+      /^src\/content\/games\/travel-suitcase\.json$/,
+      /^src\/anim\/sortPackMotion\.ts$/,
+      /^public\/art\/props\/suitcase-(back|front)\.svg$/,
+      /^tests\/e2e\/helpers\/journey\.ts$/,
+      /^tests\/unit\/travel-suitcase[^/]*$/,
+    ],
+    specs: ['tests/e2e/travel-suitcase.journey.spec.ts'],
+  },
+  {
+    id: 'picker-press-through',
+    match: [
+      /^tests\/e2e\/helpers\/pickerPressThrough\.ts$/,
+    ],
+    specs: ['tests/e2e/picker.press-through.spec.ts'],
   },
   {
     id: 'station-trail',
@@ -288,6 +309,7 @@ const ALSO_SMOKE = [
   /^src\/ui\/shell\.ts$/,
   /^src\/ui\/picker\//,
   /^src\/ui\/parent\.ts$/,
+  /^tests\/e2e\/helpers\/journey\.ts$/,
   /^src\/ui\/longPress\.ts$/,
   /^src\/ui\/profileSelect\.ts$/,
   /^src\/ui\/hud\.ts$/,

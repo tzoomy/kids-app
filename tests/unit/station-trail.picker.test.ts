@@ -9,6 +9,7 @@ import {
   loadKitchenOrchestra,
   loadLetterMonster,
   loadPicnicTrain,
+  loadTravelSuitcase,
   loadPotionLab,
   loadSeedToFlower,
   loadSortingBeds,
@@ -21,6 +22,7 @@ const REAL_GAMES = collectTrailGames({
   restaurant: loadAnimalRestaurant(),
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
+  suitcase: loadTravelSuitcase(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
@@ -97,12 +99,29 @@ describe('station trail picker render', () => {
     );
   });
 
-  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (3 in Language House, 3 in Number Garden)', () => {
-    const { root } = render(stations({ suggested: 'animal-restaurant' }));
+  it('[AC-14] the cards sit in a trail container that knows how many stations it holds (Language House from the registry, 3 in Number Garden)', () => {
+    const languageHouse = stationGamesForWorld('language-house', WORLD_GAMES, REAL_GAMES);
+    const root = renderGamePicker({
+      stations: languageHouse.map((game, i) => ({
+        game,
+        completed: false,
+        suggested: i === 0,
+        enabled: true as const,
+      })),
+      title: 'x',
+      onPick: () => {},
+      onClose: () => {},
+    });
     const trail = root.querySelector<HTMLElement>('[data-testid="station-trail"]');
     expect(trail).not.toBeNull();
-    expect(trail?.style.getPropertyValue('--picker-count')).toBe('3');
-    expect(root.querySelectorAll('.picker-card')).toHaveLength(3);
+    expect(languageHouse.map((g) => g.gameId)).toEqual([
+      'animal-restaurant',
+      'kitchen-orchestra',
+      'letter-monster',
+      'travel-suitcase',
+    ]);
+    expect(trail?.style.getPropertyValue('--picker-count')).toBe(String(languageHouse.length));
+    expect(root.querySelectorAll('.picker-card')).toHaveLength(languageHouse.length);
 
     const garden = renderGamePicker({
       stations: stationGamesForWorld('number-garden', WORLD_GAMES, REAL_GAMES).map((game) => ({
