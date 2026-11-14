@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
-import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantScene';
+import { RestaurantScene, seedRestaurantKind, type RoundInfo } from '../games/restaurant/RestaurantScene';
 import { HidingScene, type HidingRoundInfo } from '../games/hiding/HidingScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
@@ -35,7 +35,8 @@ import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
 import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
 import { loadLetterMonster } from '../content/loadContent';
 import { WardrobeScene } from '../games/wardrobe/WardrobeScene';
-import type { WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
+import type { VisibleBearOutfit, WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
+import { listDressedBears } from '../core/wardrobe/dress';
 import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobeInfo';
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import type { AppContext } from './appContext';
@@ -104,6 +105,12 @@ declare global {
       getPotionInfo: () => PotionInfo | null;
       /** Writes the active profile's wardrobe state (seed only; merged over the defaults, the starter is kept). Call on the map. */
       seedWardrobeState: (seed: WardrobeSeed) => void;
+      /** Writes a named profile's wardrobe state (seed only). Also installed on the profile-select screen, before the game exists. */
+      seedWardrobeStateForProfile: (profileId: string, seed: WardrobeSeed) => void;
+      /** Accessories actually mounted on the visible bear Characters of the active scenes (a bear with no outfit has `items: []`); rect is page CSS px. */
+      getVisibleBearOutfits: () => VisibleBearOutfit[];
+      /** The next Animal Restaurant customer is this kind, once (seed only; call on the map). */
+      seedRestaurantKind: (kind: string) => void;
       /** Wardrobe snapshot of the current profile; works on the map and in WardrobeScene (null before a profile is picked). */
       getWardrobeInfo: () => WardrobeInfo | null;
       /** Records a completed round through the same AppContext call the games use; returns the newly unlocked item ids. */
@@ -151,7 +158,13 @@ export function installEarlyTimeEarningHook(store: Store): void {
   window.__testHooks__ = {
     ...(current ?? {}),
     seedTimeEarningEnabled,
+    seedWardrobeStateForProfile,
   } as NonNullable<Window['__testHooks__']>;
+}
+
+/** ?e2e=1 only: writes a named profile's wardrobe state; needs no active profile (works on the profile-select screen). */
+function seedWardrobeStateForProfile(profileId: string, seed: WardrobeSeed): void {
+  saveWardrobeState(window.localStorage, profileId, applyWardrobeSeed(seed));
 }
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
@@ -403,6 +416,23 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     },
     seedWardrobeState(seed) {
       saveWardrobeState(window.localStorage, context.requireProfileId(), applyWardrobeSeed(seed));
+    },
+    seedWardrobeStateForProfile,
+    seedRestaurantKind,
+    getVisibleBearOutfits() {
+      const box = game.canvas.getBoundingClientRect();
+      const canvasRect = { x: box.left, y: box.top, width: box.width, height: box.height };
+      const gameSize = { width: game.scale.width, height: game.scale.height };
+      return listDressedBears()
+        .filter((bear) => game.scene.isActive(bear.sceneKey))
+        .map((bear) => {
+          const bounds = bear.bounds();
+          return {
+            scene: bear.sceneKey,
+            items: [...bear.items],
+            rect: bounds ? gameRectToPageRect(bounds, canvasRect, gameSize) : null,
+          };
+        });
     },
     getWardrobeInfo() {
       const profileId = context.currentProfileId;
