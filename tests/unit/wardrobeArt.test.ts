@@ -3,7 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import anchors from '@/content/wardrobe/anchors.json';
-import { WARDROBE_ART_MANIFEST, WARDROBE_ITEMS, wardrobeArtKey } from '@/assets/art/wardrobeManifest';
+import {
+  WARDROBE_ART_MANIFEST,
+  WARDROBE_EXCLUSIVE_SLOTS,
+  WARDROBE_ITEMS,
+  WARDROBE_SLOT_ORDER,
+  wardrobeArtKey,
+} from '@/assets/art/wardrobeManifest';
 import { ANIMAL_ART_KINDS, ANIMAL_RIGS, CHARACTER_RIGS } from '@/assets/art/rigs';
 
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
@@ -66,5 +72,37 @@ describe('wardrobe accessory art', () => {
   it('the chef keeps the approved chef hat: no head-slot items on the chef', () => {
     expect(characters.chef.slots.head).toBeNull();
     expect(WARDROBE_ITEMS.some((i) => i.id === 'chef-hat')).toBe(false);
+  });
+
+  it('items conform to additive contract: valid id, url matches id, ages, starter, and active slot', () => {
+    for (const item of WARDROBE_ITEMS) {
+      expect(item.id).toMatch(/^[a-z0-9-]+$/);
+      expect(item.url).toBe(`art/wardrobe/${item.id}.svg`);
+      expect(item.ages.length).toBeGreaterThan(0);
+      for (const age of item.ages) {
+        expect([2, 5]).toContain(age);
+      }
+      const hasNonNullSlot = Object.values(characters).some((c) => c.slots[item.slot] !== null);
+      expect(hasNonNullSlot).toBe(true);
+    }
+
+    const age2Items = WARDROBE_ITEMS.filter((i) => i.ages.includes(2));
+    expect(age2Items.length).toBeGreaterThanOrEqual(3);
+    expect(age2Items.some((i) => i.slot === 'head')).toBe(true);
+    expect(age2Items.some((i) => i.slot !== 'head')).toBe(true);
+
+    const starterItems = WARDROBE_ITEMS.filter((i) => i.starter === true);
+    expect(starterItems).toHaveLength(1);
+    expect(starterItems[0].ages).toContain(2);
+  });
+
+  it('slotOrder and exclusiveSlots are deterministic draw order and exclusion arrays', () => {
+    expect(WARDROBE_SLOT_ORDER).toEqual(['neck', 'eyes', 'head', 'headSide']);
+    // slotOrder contains every known slot exactly once in order
+    expect(new Set(WARDROBE_SLOT_ORDER).size).toBe(SLOTS.length);
+    for (const slot of SLOTS) {
+      expect(WARDROBE_SLOT_ORDER).toContain(slot);
+    }
+    expect(WARDROBE_EXCLUSIVE_SLOTS).toEqual([]);
   });
 });

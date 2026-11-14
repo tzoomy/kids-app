@@ -14,7 +14,12 @@ export interface WardrobeItem {
   height: number;
   /** Point of the item (0..1 of its width/height) placed on the slot anchor. */
   pivot: { x: number; y: number };
+  ages: (2 | 5)[];
+  starter?: boolean;
 }
+
+export const WARDROBE_SLOT_ORDER = wardrobeItems.slotOrder as WardrobeSlot[];
+export const WARDROBE_EXCLUSIVE_SLOTS = wardrobeItems.exclusiveSlots as WardrobeSlot[][];
 
 export const WARDROBE_ITEMS = wardrobeItems.items as WardrobeItem[];
 
