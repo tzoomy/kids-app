@@ -74,7 +74,7 @@ export class StickerBoardScene extends Phaser.Scene {
   private undoStack = new UndoStack();
   private hud?: StickerBoardHud;
   private geometry!: StickerBoardGeometry;
-  private learningSession?: LearningSession;
+  private session!: LearningSession;
 
   private bgImage?: Phaser.GameObjects.Image;
   private strokeGraphics?: Phaser.GameObjects.Graphics;
@@ -128,21 +128,20 @@ export class StickerBoardScene extends Phaser.Scene {
     this.strokeGraphics = undefined;
     this.hud = undefined;
 
+    this.session = this.context.createLearningSession();
     const leisureMode = stickerLeisureMode(content.earnsLeisure, this.context.isTimeEarningEnabled());
     if (leisureMode === 'earn') {
-      this.learningSession = this.context.createLearningSession();
-      this.learningSession.start();
+      this.session.start();
       this.tickTimer = this.time.addEvent({
         delay: 1000,
         loop: true,
         callback: () => {
-          this.learningSession?.tick(1);
+          this.session.tick(1);
           this.context.store.persist();
           this.refreshChrome();
         },
       });
     } else {
-      this.learningSession = undefined;
       this.tickTimer = undefined;
     }
 
@@ -150,7 +149,7 @@ export class StickerBoardScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#243B6B');
 
     this.visibilityHandler = () => {
-      this.learningSession?.setHidden(document.hidden);
+      this.session?.setHidden(document.hidden);
       if (document.hidden) this.context.audio.stopAll();
     };
     document.addEventListener('visibilitychange', this.visibilityHandler);
@@ -173,10 +172,7 @@ export class StickerBoardScene extends Phaser.Scene {
       [
         () => this.tickTimer?.remove(),
         () => this.nextRequestTimer?.remove(),
-        () => this.learningSession?.exit(),
-        () => {
-          this.learningSession = undefined;
-        },
+        () => this.session?.exit(),
         () => this.context.audio.stopAll(),
         () => {
           if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
@@ -232,7 +228,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private async playIntroAndFirstRequest(): Promise<void> {
     const seq = ++this.speakSeq;
-    this.learningSession?.reportListening(true);
+    this.session?.reportListening(true);
     try {
       await this.say(STICKER_VOICE.intro);
       if (!this.alive || seq !== this.speakSeq) return;
@@ -240,7 +236,7 @@ export class StickerBoardScene extends Phaser.Scene {
         await this.say(requestLine(this.currentRequest, this.context.content.stickers));
       }
     } finally {
-      if (seq === this.speakSeq) this.learningSession?.reportListening(false);
+      if (seq === this.speakSeq) this.session?.reportListening(false);
     }
   }
 
@@ -370,7 +366,7 @@ export class StickerBoardScene extends Phaser.Scene {
   }
 
   private showHelp(): void {
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     const seq = ++this.speakSeq;
     this.context.shell.showHelp(this.context.content.he.stickerBoard.helpText, () => {
@@ -464,7 +460,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onTrayStickerTap(stickerId: string): void {
     if (!this.alive || !this.ready) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.undoStack.push(this.board);
     this.board = addSticker(this.board, stickerId);
     this.context.sfx.pop();
@@ -478,7 +474,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onSelectBackground(backgroundId: string): void {
     if (!this.alive || !this.ready) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     if (this.board.backgroundId === backgroundId) return;
     this.board = { ...this.board, backgroundId };
@@ -493,7 +489,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onSelectCrayon(colorId: string): void {
     if (!this.alive || !this.ready) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     this.selectedColor = colorId;
     this.refreshChrome();
@@ -501,7 +497,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onUndo(): void {
     if (!this.alive || !this.ready || this.undoStack.isEmpty) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     const previous = this.undoStack.pop();
     if (!previous) return;
     this.board = undoKeepingBackground(this.board, previous);
@@ -514,7 +510,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onClear(): void {
     if (!this.alive || !this.ready) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     if (this.isBoardEmpty()) return;
     this.undoStack.push(this.board);
@@ -527,7 +523,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onSaveToAlbum(): void {
     if (!this.alive || !this.ready || this.ageTrack !== 'age5' || this.isBoardEmpty()) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.save = addToAlbum(this.save, this.board);
     this.persistSave();
     const b = this.geometry.board;
@@ -539,7 +535,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onOpenAlbum(): void {
     if (!this.alive || !this.ready || this.ageTrack !== 'age5') return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     this.hud?.showAlbum(this.save.album);
   }
@@ -548,7 +544,7 @@ export class StickerBoardScene extends Phaser.Scene {
     if (!this.alive || !this.ready || this.ageTrack !== 'age5') return;
     const item = this.save.album[index];
     if (!item) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.undoStack.push(this.board);
     this.board = cloneBoard(item);
     this.context.sfx.tap();
@@ -569,7 +565,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onToggleRequests(): void {
     if (!this.alive || !this.ready || this.ageTrack !== 'age5') return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     this.requestsEnabled = !this.requestsEnabled;
     this.nextRequestTimer?.remove();
@@ -586,7 +582,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onRepeatRequest(): void {
     if (!this.alive || !this.ready || !this.currentRequest) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     this.context.sfx.tap();
     this.speakSingle(requestLine(this.currentRequest, this.context.content.stickers));
   }
@@ -610,9 +606,9 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private speakSingle(line: SpeechRequest): void {
     const seq = ++this.speakSeq;
-    this.learningSession?.reportListening(true);
+    this.session?.reportListening(true);
     void this.say(line).finally(() => {
-      if (seq === this.speakSeq) this.learningSession?.reportListening(false);
+      if (seq === this.speakSeq) this.session?.reportListening(false);
     });
   }
 
@@ -625,7 +621,7 @@ export class StickerBoardScene extends Phaser.Scene {
     this.refreshChrome();
 
     // A met age-5 request is a completed Art Studio round (wardrobe hair-bow, docs/specs/wardrobe.md).
-    this.learningSession?.complete();
+    this.session.complete();
     this.context.recordCompletedRound('art-studio', 'sticker-board');
 
     const b = this.geometry.board;
@@ -644,7 +640,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onBoardPointerDown(offsetX: number, offsetY: number, cssWidth: number, cssHeight: number): void {
     if (!this.alive || !this.ready || cssWidth <= 0 || cssHeight <= 0) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     const nx = Math.max(0, Math.min(1, offsetX / cssWidth));
     const ny = Math.max(0, Math.min(1, offsetY / cssHeight));
     const b = this.geometry.board;
@@ -677,7 +673,7 @@ export class StickerBoardScene extends Phaser.Scene {
 
   private onBoardPointerMove(offsetX: number, offsetY: number, cssWidth: number, cssHeight: number): void {
     if (!this.alive || !this.ready || !this.dragState || cssWidth <= 0 || cssHeight <= 0) return;
-    this.learningSession?.reportInteraction();
+    this.session?.reportInteraction();
     const nx = Math.max(0, Math.min(1, offsetX / cssWidth));
     const ny = Math.max(0, Math.min(1, offsetY / cssHeight));
 

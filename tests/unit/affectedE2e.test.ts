@@ -105,6 +105,29 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('travel suitcase selects its journey spec (and sortPackMotion also selects sorting beds)', () => {
+    const expected = ['tests/e2e/travel-suitcase.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/travelSuitcase/SuitcaseScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/travel-suitcase.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/suitcase-back.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/suitcase-front.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/travel-suitcase.round.test.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/anim/sortPackMotion.ts'])).toEqual([
+      'tests/e2e/sorting-beds.journey.spec.ts',
+      'tests/e2e/sorting-beds.platform.spec.ts',
+      'tests/e2e/travel-suitcase.journey.spec.ts',
+    ]);
+    expect(selectAffectedE2e(['src/ui/picker/gamePicker.ts'])).toEqual(
+      expect.arrayContaining([
+        'tests/e2e/kitchen-orchestra.picker.spec.ts',
+        'tests/e2e/picker.press-through.spec.ts',
+        'tests/e2e/travel-suitcase.journey.spec.ts',
+        ...SMOKE,
+      ]),
+    );
+  });
+
+
   it('potion lab selects its journey and the science world map spec', () => {
     const expected = ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
     expect(selectAffectedE2e(['src/games/potionLab/PotionScene.ts'])).toEqual(expected);
@@ -191,6 +214,7 @@ describe('affected e2e selection', () => {
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
       'tests/e2e/letter-monster.journey.spec.ts',
       'tests/e2e/magic-magnet.journey.spec.ts',
+      'tests/e2e/picker.press-through.spec.ts',
       'tests/e2e/potion-lab.journey.spec.ts',
       'tests/e2e/science-world.map.spec.ts',
       'tests/e2e/seed-to-flower.journey.spec.ts',
@@ -198,6 +222,7 @@ describe('affected e2e selection', () => {
       'tests/e2e/sorting-beds.journey.spec.ts',
       'tests/e2e/sorting-beds.platform.spec.ts',
       'tests/e2e/station-trail.spec.ts',
+      'tests/e2e/travel-suitcase.journey.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
     ];
     const expected = [...allPickerSpecs, ...SMOKE].sort();
@@ -245,8 +270,13 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['src/games/bubbles/BubblesScene.ts'])).toEqual(SMOKE);
   });
 
-  it('shared e2e helpers select the smoke set, game helpers select their game', () => {
-    expect(selectAffectedE2e(['tests/e2e/helpers/journey.ts'])).toEqual(SMOKE);
+  it('shared e2e helpers select smoke plus mapped consumers, game/picker helpers select their specs', () => {
+    expect(selectAffectedE2e(['tests/e2e/helpers/journey.ts'])).toEqual(
+      [...SMOKE, 'tests/e2e/travel-suitcase.journey.spec.ts'].sort(),
+    );
+    expect(selectAffectedE2e(['tests/e2e/helpers/pickerPressThrough.ts'])).toEqual([
+      'tests/e2e/picker.press-through.spec.ts',
+    ]);
     expect(selectAffectedE2e(['tests/e2e/helpers/colouringArtCheck.ts'])).toEqual([
       'tests/e2e/leisure-colouring.art.spec.ts',
       'tests/e2e/leisure-colouring.journey.spec.ts',

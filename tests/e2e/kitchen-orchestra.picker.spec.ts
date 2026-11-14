@@ -11,13 +11,14 @@ import {
   waitForScene,
   type PageRect,
 } from './helpers/journey';
+import { stationsForWorld } from './helpers/worldStations';
 
 // Language House game picker (spec: kitchen-orchestra AC-16..AC-19, journey AC-01).
 // Both Playwright projects (1280x800 and 800x1280) run every test in this file, so each AC is checked in both orientations.
 
 const MIN_TAP = 64;
-const IMG_CARD_IDS = ['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra'] as const;
-const CARD_IDS = [...IMG_CARD_IDS, 'game-picker-letter-monster'] as const;
+const CARD_IDS = stationsForWorld('language-house').map((g) => g.testId);
+const IMG_CARD_IDS = CARD_IDS.filter((id) => id === 'game-picker-animal-restaurant' || id === 'game-picker-kitchen-orchestra');
 
 function expectKnownViewport(page: Page): { landscape: boolean } {
   const vp = page.viewportSize();
@@ -54,14 +55,14 @@ test.describe('language house game picker', () => {
     const rtl = await page.locator('[data-testid="game-picker-animal-restaurant"]').evaluate((el) => el.closest('[dir="rtl"]') !== null);
     expect(rtl).toBe(true);
     const restaurant = boxes['game-picker-animal-restaurant'];
-    const orchestra = boxes['game-picker-kitchen-orchestra'];
-    const monster = boxes['game-picker-letter-monster'];
     if (landscape) {
-      expect(restaurant.x).toBeGreaterThan(orchestra.x);
-      expect(orchestra.x).toBeGreaterThan(monster.x);
+      for (let i = 0; i < CARD_IDS.length - 1; i++) {
+        expect(boxes[CARD_IDS[i]].x, `${CARD_IDS[i]} should sit to the right of ${CARD_IDS[i + 1]}`).toBeGreaterThan(boxes[CARD_IDS[i + 1]].x);
+      }
     } else {
-      expect(restaurant.y).toBeLessThan(orchestra.y);
-      expect(orchestra.y).toBeLessThan(monster.y);
+      for (let i = 0; i < CARD_IDS.length - 1; i++) {
+        expect(boxes[CARD_IDS[i]].y, `${CARD_IDS[i]} should sit above ${CARD_IDS[i + 1]}`).toBeLessThan(boxes[CARD_IDS[i + 1]].y);
+      }
     }
 
     // Cards do not overlap each other or the close button.
@@ -105,6 +106,7 @@ test.describe('language house game picker', () => {
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
     expect(scenes).not.toContain('LetterMonsterScene');
+    expect(scenes).not.toContain('SuitcaseScene');
   });
 
   test('[AC-17] real tap on the restaurant card opens Animal Restaurant', async ({ page }) => {

@@ -1075,3 +1075,174 @@ export const MagicMagnetContentSchema = z
 
 export type MagnetObject = z.infer<typeof MagnetObjectSchema>;
 export type MagicMagnetContent = z.infer<typeof MagicMagnetContentSchema>;
+
+const suitcaseNonBlank = z
+  .string()
+  .min(1)
+  .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
+
+export const SUITCASE_REQUESTS = ['noun', 'two', 'attribute', 'negation'] as const;
+export type SuitcaseRequestKind = (typeof SUITCASE_REQUESTS)[number];
+
+export const SuitcaseColorVariantSchema = z.object({
+  color: suitcaseNonBlank,
+  art: suitcaseNonBlank,
+  en: suitcaseNonBlank,
+  fr: suitcaseNonBlank,
+  enOne: suitcaseNonBlank,
+  frOne: suitcaseNonBlank,
+});
+
+export const SuitcaseItemSchema = z.object({
+  id: suitcaseNonBlank,
+  art: suitcaseNonBlank,
+  he: suitcaseNonBlank,
+  en: z.object({ the: suitcaseNonBlank, a: suitcaseNonBlank }),
+  fr: z.object({ the: suitcaseNonBlank, a: suitcaseNonBlank }),
+  colors: z.array(SuitcaseColorVariantSchema).optional(),
+});
+
+const SuitcaseLangFramesSchema = z.object({
+  put: suitcaseNonBlank,
+  two: suitcaseNonBlank,
+  not: suitcaseNonBlank,
+  name: suitcaseNonBlank,
+  other: suitcaseNonBlank,
+});
+
+/** Travel Suitcase (docs/specs/travel-suitcase.md): EN/FR packing & vocabulary game in Language House. */
+export const TravelSuitcaseContentSchema = z
+  .object({
+    id: z.literal('travel-suitcase'),
+    world: suitcaseNonBlank,
+    template: z.literal('choice-serve'),
+    skill: suitcaseNonBlank,
+    languages: z.tuple([z.literal('en'), z.literal('fr')]),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    items: z.array(SuitcaseItemSchema).min(2),
+    frames: z.object({ en: SuitcaseLangFramesSchema, fr: SuitcaseLangFramesSchema }),
+    linesHe: z.object({ intro: suitcaseNonBlank, closed: suitcaseNonBlank }),
+    helpTextHe: suitcaseNonBlank,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const itemIds = new Set<string>();
+    let coloredCount = 0;
+
+    value.items.forEach((item, i) => {
+      if (itemIds.has(item.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['items', i, 'id'],
+          message: `duplicate item id "${item.id}"`,
+        });
+      }
+      itemIds.add(item.id);
+
+      if (item.colors !== undefined) {
+        if (item.colors.length !== 3) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['items', i, 'colors'],
+            message: `item "${item.id}" colors must have exactly 3 colour variants`,
+          });
+        } else {
+          coloredCount++;
+        }
+        const seenColors = new Set<string>();
+        const seenArts = new Set<string>();
+        item.colors.forEach((variant, j) => {
+          if (seenColors.has(variant.color)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['items', i, 'colors', j, 'color'],
+              message: `duplicate colour "${variant.color}" on item "${item.id}"`,
+            });
+          }
+          if (seenArts.has(variant.art)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['items', i, 'colors', j, 'art'],
+              message: `duplicate colour art "${variant.art}" on item "${item.id}"`,
+            });
+          }
+          seenColors.add(variant.color);
+          seenArts.add(variant.art);
+        });
+      }
+    });
+
+    for (const lang of ['en', 'fr'] as const) {
+      const f = value.frames[lang];
+      if (!f.put.includes('{the}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'put'], message: 'put frame must include {the}' });
+      }
+      if (!f.two.includes('{a}') || !f.two.includes('{b}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'two'], message: 'two frame must include {a} and {b}' });
+      }
+      if (!f.not.includes('{a}') || !f.not.includes('{one}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'not'], message: 'not frame must include {a} and {one}' });
+      }
+      if (!f.name.includes('{The}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'name'], message: 'name frame must include {The}' });
+      }
+      if (!f.other.includes('{the}')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'other'], message: 'other frame must include {the}' });
+      }
+    }
+
+    const levelCount = value.adaptive.levels.length;
+    for (const trackName of ['age2', 'age5'] as const) {
+      const tr = value.adaptive.tracks[trackName];
+      if (tr.min < 1 || tr.max > levelCount || tr.start < tr.min || tr.start > tr.max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adaptive', 'tracks', trackName],
+          message: `track ${trackName} bounds must lie within 1..${levelCount}`,
+        });
+      }
+    }
+
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('travel-suitcase supports support "picture-audio" or "audio-only"');
+      }
+
+      const choiceCount = level.choiceCount;
+      if (
+        typeof choiceCount !== 'number' ||
+        !Number.isInteger(choiceCount) ||
+        choiceCount < 2 ||
+        choiceCount > value.items.length
+      ) {
+        issue(`choiceCount must be an integer between 2 and ${value.items.length}`);
+      }
+
+      const req = level.extra?.request;
+      if (typeof req !== 'string' || !(SUITCASE_REQUESTS as readonly string[]).includes(req)) {
+        issue(`extra.request must be one of ${SUITCASE_REQUESTS.join(', ')}`);
+      }
+
+      const requestsPerCase = level.extra?.requestsPerCase;
+      if (typeof requestsPerCase !== 'number' || !Number.isInteger(requestsPerCase) || requestsPerCase < 1) {
+        issue('extra.requestsPerCase must be a positive integer');
+      }
+
+      if (req === 'attribute' || req === 'negation') {
+        if (coloredCount < 2) {
+          issue(`${req} request requires at least 2 coloured items`);
+        }
+        if (choiceCount !== 4) {
+          issue(`${req} request requires choiceCount 4 (3 colours + 1 other item)`);
+        }
+      }
+    });
+  });
+
+export type SuitcaseColorVariant = z.infer<typeof SuitcaseColorVariantSchema>;
+export type SuitcaseItem = z.infer<typeof SuitcaseItemSchema>;
+export type TravelSuitcaseContent = z.infer<typeof TravelSuitcaseContentSchema>;
