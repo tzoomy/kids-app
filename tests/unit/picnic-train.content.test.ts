@@ -164,6 +164,11 @@ describe('picnic-train: wiring (AC-27)', () => {
     expect(model.NUMBER_GARDEN_PICKER_GAMES).toBeUndefined();
   });
 
+  it('[AC-27] PicnicScene records a completed Picnic Train round for the wardrobe unlock hook', () => {
+    const src = readFileSync(resolve('src/games/picnic/PicnicScene.ts'), 'utf8');
+    expect(src).toContain("recordCompletedRound('number-garden', 'picnic-train')");
+  });
+
   it('[AC-27] the Number Garden stays open and earns leisure; Sorting Beds remains its entry game', () => {
     const garden = loadWorlds().worlds.find((w) => w.id === 'number-garden');
     expect(garden).toMatchObject({ status: 'open', earnsLeisure: true, entryGameId: 'sorting-beds' });

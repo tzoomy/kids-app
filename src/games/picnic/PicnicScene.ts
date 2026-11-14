@@ -844,6 +844,7 @@ export class PicnicScene extends Phaser.Scene {
     const result = this.tracker?.onComplete();
     if (result) this.skills.record(this.roundLang, result);
     this.session.complete();
+    this.context.recordCompletedRound('number-garden', 'picnic-train');
     this.session.reportCelebrating(true);
     const state = this.profileState();
     state.stars++;
