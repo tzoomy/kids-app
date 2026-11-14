@@ -63,9 +63,14 @@ export class AppShell {
     this.chromeRoot.replaceChildren();
   }
 
-  showProfileSelect(entries: ProfileSelectEntry[], onPick: (id: string) => void, onParent: () => void): void {
+  showProfileSelect(
+    entries: ProfileSelectEntry[],
+    onPick: (id: string) => void,
+    onParent: () => void,
+    onParentLongPress?: () => void,
+  ): void {
     this.clearChrome();
-    renderProfileSelect(this.overlayRoot, entries, onPick, onParent);
+    renderProfileSelect(this.overlayRoot, entries, onPick, onParent, onParentLongPress);
   }
 
   showParentGate(onSuccess: () => void, onCancel: () => void): void {

@@ -205,7 +205,7 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
   - Motion helpers in `src/anim/worldMotion.ts`: `tapInstrument(scene, instrument)` (delegates to `pressSquash`), `glowInstrument(scene, glow, on)`, and `pulseInstrumentGlow(scene, glow)` (looping yoyo tween between `alpha: 1` and `0.45`).
   - Reuses shared `Character` animations (`breath`, `sway`, `blink`, `happy`, `hmm`), `popIn`, `Juice.burst('sparkle', ...)`, and `transitionTo(..., { style: 'iris' })`.
   - Utensil notes are synthesized with Web Audio oscillators in `src/games/orchestra/orchestraSounds.ts` (`OrchestraSounds`, `INSTRUMENT_PITCH_HZ`), not TTS. Unit tests import pure modules only (`orchestraGame.ts`, `orchestraLayout.ts`, `orchestraSounds.ts`), never Phaser.
-- **Voice table** (device TTS in Pass 1 through `AudioManager.play({ lineId, lang, text })`). Strings match `src/content/games/kitchen-orchestra.json` except the French pan name, decided 2026-11-12: target `pan.name.fr` is `poêle` and `orchestra.play.pan.fr` is `Joue sur la poêle !` (same `Joue sur la … !` pattern as `Joue sur la casserole !`). Done on `main` (`6791ea9`): the JSON has `poêle` / `Joue sur la poêle !`. Voice assertions use `getSpokenLines` `lineId`s (PR #37).
+- **Voice table** (device TTS in Pass 1 through `AudioManager.play({ lineId, lang, text })`). Strings match `src/content/games/kitchen-orchestra.json`, including the French pan name decided 2026-11-12: `pan.name.fr` is `poêle` and `orchestra.play.pan.fr` is `Joue sur la poêle !` (same `Joue sur la … !` pattern as `Joue sur la casserole !`). Landed on `main` (`6791ea9`); there is no exception any more. Voice assertions use `getSpokenLines` `lineId`s (PR #37).
 
 | lineId | lang (`en` / `fr` / `he`) | Text | Trigger |
 |---|---|---|---|
@@ -260,3 +260,4 @@ None remaining. Owner decisions of 2026-11-12 are recorded in the sections above
 - 2026-11-12 — created (retroactive spec of the game on main, plus proposed Language House move) — substantive
 - 2026-11-12 — Owner decisions: Language House move and picker (PR #36), including Art Studio lock and skill-key migration; French pan name `poêle` / `Joue sur la poêle !` (content change later); tap target 64 CSS px; age 5 has no idle hint (hint only after a mistake). Shared e2e handles and `enterWorldByTap` from PR #37 (pending merge). Added picker ACs AC-16–AC-19. — substantive
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (none were labelled open in the spec; the 2026-11-12 decisions stand unchanged); 0 ACs added — substantive
+- 2026-11-14 — voice-table intro reworded: strings match the JSON with no exception, as the French pan name `poêle` is already on `main` (`6791ea9`); no behaviour or AC change — minor

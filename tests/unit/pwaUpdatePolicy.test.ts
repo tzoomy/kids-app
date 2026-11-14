@@ -46,6 +46,7 @@ describe('isSafeToApplyUpdate', () => {
     ['hiding', false],
     ['sorting', false],
     ['colouring', false],
+    ['seed-flower', false],
     ['sink-or-float', false],
     ['parent', false],
     ['loading', false],
