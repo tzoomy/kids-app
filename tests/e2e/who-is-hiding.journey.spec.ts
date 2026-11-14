@@ -3,6 +3,7 @@ import {
   clickGame,
   enterWorldByTap,
   seedHidingLevel,
+  tapTestId,
   getBuildingHit,
   getGameSize,
   getRoundInfo,
@@ -164,7 +165,7 @@ async function enterNatureLabFromMap(page: Page): Promise<void> {
   const hit = (await getBuildingHit(page, 'nature-lab')) ?? rect;
   if (!hit) throw new Error('Nature Lab building has no hit rectangle');
   await page.mouse.click(hit.x + hit.width / 2, hit.y + hit.height / 2);
-  // Nature Lab opens its game picker: Who's Hiding? is the first card.
+  // Nature Lab opens its station trail; Who's Hiding? is a card.
   await tapTestId(page, 'game-picker-who-is-hiding');
   await waitForScene(page, 'HidingScene');
 }

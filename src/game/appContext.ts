@@ -6,16 +6,40 @@ import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
 import type { AppShell } from '../ui/shell';
-import type { WorldsFile, AnimalRestaurantContent, KitchenOrchestraContent, SortingBedsContent, WhosHidingContent, WhoLivesHereContent, LeisureColouringContent } from '../content/schema';
+import type {
+  WorldsFile,
+  AnimalRestaurantContent,
+  KitchenOrchestraContent,
+  SortingBedsContent,
+  WhosHidingContent,
+  WhoLivesHereContent,
+  LeisureColouringContent,
+  BalloonPopContent,
+  LetterMonsterContent,
+  SeedToFlowerContent,
+  PotionLabContent,
+  SinkOrFloatContent,
+  MagicMagnetContent,
+} from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
+/**
+ * Every game's content. The station trail (`collectTrailGames`) reads the `id` and `world` of each game object here,
+ * so a game must be in this bundle for its station to appear.
+ */
 export interface ContentBundle {
   worlds: WorldsFile;
   restaurant: AnimalRestaurantContent;
   orchestra: KitchenOrchestraContent;
+  letterMonster: LetterMonsterContent;
   sorting: SortingBedsContent;
+  balloon: BalloonPopContent;
   hiding: WhosHidingContent;
   habitat: WhoLivesHereContent;
+  seedToFlower: SeedToFlowerContent;
+  potionLab: PotionLabContent;
+  sinkOrFloat: SinkOrFloatContent;
+  magicMagnet: MagicMagnetContent;
   colouring: LeisureColouringContent;
   he: typeof heStrings;
 }
@@ -28,6 +52,8 @@ export class AppContext {
   currentProfileId: string | null = null;
   /** Set by main.ts; lets Phaser scenes ask the DOM shell to open the parent gate. */
   onRequestParent: (() => void) | null = null;
+  /** Set by main.ts; a 3-second hold of the map's parent button opens the parent settings directly. */
+  onRequestParentSettings: (() => void) | null = null;
   /** Set by main.ts; lets Phaser scenes return to the profile-select screen. */
   onExitToProfileSelect: (() => void) | null = null;
 

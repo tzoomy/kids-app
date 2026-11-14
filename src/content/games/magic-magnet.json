@@ -1,0 +1,120 @@
+{
+  "id": "magic-magnet",
+  "world": "science-world",
+  "template": "cause-effect",
+  "skill": "magnetism",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "demonstrate", "hintDelayMs": 9000 }
+  },
+  "objects": [
+    {
+      "id": "paperclip",
+      "metal": true,
+      "art": "magnet-paperclip",
+      "he": "מהדק",
+      "en": "paperclip",
+      "fr": "trombone",
+      "reactHe": "המהדק נדבק!",
+      "askHe": "האם המהדק יידבק למגנט?"
+    },
+    {
+      "id": "nail",
+      "metal": true,
+      "art": "magnet-nail",
+      "he": "מסמר",
+      "en": "nail",
+      "fr": "clou",
+      "reactHe": "המסמר נדבק!",
+      "askHe": "האם המסמר יידבק למגנט?"
+    },
+    {
+      "id": "screw",
+      "metal": true,
+      "art": "magnet-screw",
+      "he": "בורג",
+      "en": "screw",
+      "fr": "vis",
+      "reactHe": "הבורג נדבק!",
+      "askHe": "האם הבורג יידבק למגנט?"
+    },
+    {
+      "id": "bottle-cap",
+      "metal": true,
+      "art": "magnet-bottle-cap",
+      "he": "פקק",
+      "en": "bottle cap",
+      "fr": "capsule",
+      "reactHe": "הפקק נדבק!",
+      "askHe": "האם הפקק יידבק למגנט?"
+    },
+    {
+      "id": "ball",
+      "metal": false,
+      "art": "item-ball",
+      "he": "כדור",
+      "en": "ball",
+      "fr": "balle",
+      "reactHe": "הכדור לא נדבק.",
+      "askHe": "האם הכדור יידבק למגנט?"
+    },
+    {
+      "id": "leaf",
+      "metal": false,
+      "art": "clue-icon-leaf",
+      "he": "עלה",
+      "en": "leaf",
+      "fr": "feuille",
+      "reactHe": "העלה לא נדבק.",
+      "askHe": "האם העלה יידבק למגנט?"
+    },
+    {
+      "id": "feather",
+      "metal": false,
+      "art": "clue-icon-feather",
+      "he": "נוצה",
+      "en": "feather",
+      "fr": "plume",
+      "reactHe": "הנוצה לא נדבקת.",
+      "askHe": "האם הנוצה תידבק למגנט?"
+    },
+    {
+      "id": "apple",
+      "metal": false,
+      "art": "food-apple",
+      "he": "תפוח",
+      "en": "apple",
+      "fr": "pomme",
+      "reactHe": "התפוח לא נדבק.",
+      "askHe": "האם התפוח יידבק למגנט?"
+    }
+  ],
+  "resultWords": {
+    "sticks": { "en": "It sticks!", "fr": "Ça colle !" },
+    "notSticks": { "en": "It doesn't stick.", "fr": "Ça ne colle pas." }
+  },
+  "linesHe": {
+    "introFree": "בואי נגלה מה נדבק למגנט! גררי את המגנט.",
+    "introPredict": "בואי ננחש מה יידבק למגנט, ואז נבדוק!",
+    "test": "בואי נבדוק! קרבי את המגנט.",
+    "right": "ניחשת נכון!",
+    "surprise": "וואו, הפתעה!",
+    "buttonSticks": "נדבק",
+    "buttonNotSticks": "לא נדבק"
+  },
+  "helpTextHe": "גררי את המגנט אל החפצים שעל השולחן כדי לגלות מה נדבק, ובגן של הגדולות ננחש קודם ואז נבדוק.",
+  "adaptive": {
+    "tracks": {
+      "age2": { "start": 1, "min": 1, "max": 1 },
+      "age5": { "start": 2, "min": 1, "max": 4 }
+    },
+    "levels": [
+      { "support": "picture-audio", "extra": { "mode": "free", "objectCount": 4, "naming": "he+learning", "hintPulse": true } },
+      { "support": "picture-audio", "extra": { "mode": "predict", "objectCount": 4, "naming": "he+learning", "hintPulse": true } },
+      { "support": "picture-audio", "extra": { "mode": "predict", "objectCount": 5, "naming": "he+learning", "hintPulse": false } },
+      { "support": "audio-only", "extra": { "mode": "predict", "objectCount": 5, "naming": "he+learning", "hintPulse": false } }
+    ]
+  }
+}

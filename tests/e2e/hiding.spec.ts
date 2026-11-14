@@ -90,8 +90,10 @@ async function openFromMap(page: Page): Promise<void> {
   // Wait for the staggered pop-in of the buildings to finish before tapping.
   await page.waitForTimeout(900);
   await page.mouse.click(labelBox.x + labelBox.width / 2, labelBox.y - 88 * scale);
-  // Nature Lab opens its game picker: Who's Hiding? is the first card.
-  await tapTestId(page, 'game-picker-who-is-hiding');
+  // Nature Lab opens its station trail; Who's Hiding? is a card.
+  const card = page.locator('[data-testid="game-picker-who-is-hiding"]');
+  await card.waitFor({ state: 'visible', timeout: 8000 });
+  await card.click();
   await page.waitForFunction(() => (window as unknown as { __testHooks__: Hooks }).__testHooks__.getActiveScenes().includes('HidingScene'), undefined, {
     timeout: 8000,
   });

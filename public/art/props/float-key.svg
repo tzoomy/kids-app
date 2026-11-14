@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Key shaft and teeth -->
+    <path d="M68 72 L134 72 L134 88 L120 88 L120 104 L106 104 L106 88 L96 88 L96 100 L84 100 L84 88 L68 88 Z" fill="#F4B942"/>
+    <!-- Key bow -->
+    <circle cx="48" cy="80" r="28" fill="#FFD166"/>
+    <circle cx="48" cy="80" r="10" fill="#D9F0FF"/>
+    <!-- Highlight -->
+    <path d="M32 64 Q44 54 58 58" fill="none" stroke="#FFF3B0" stroke-width="4"/>
+  </g>
+</svg>
