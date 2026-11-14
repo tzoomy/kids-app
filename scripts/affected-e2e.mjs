@@ -134,6 +134,17 @@ export const GAME_RULES = [
     specs: ['tests/e2e/science-world.map.spec.ts'],
   },
   {
+    id: 'potion-lab',
+    match: [
+      /^src\/games\/potionLab\//,
+      /^src\/content\/games\/potion-lab\.json$/,
+      /^public\/art\/props\/mixing-bowl\.svg$/,
+      /^public\/art\/palette\/pot-(red|yellow|blue)\.svg$/,
+      /^tests\/unit\/potion-lab[^/]*$/,
+    ],
+    specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'balloon-pop',
     match: [
       /^src\/games\/balloon\//,

@@ -705,3 +705,89 @@ export const SeedToFlowerContentSchema = z
   });
 
 export type SeedToFlowerContent = z.infer<typeof SeedToFlowerContentSchema>;
+
+/** Potion Lab (docs/specs/potion-lab.md): no-fail color mixing game in Science World. */
+export const POTION_COLOR_IDS = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'] as const;
+
+export const PotionColorEntrySchema = z.object({
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  he: nonBlankString,
+  en: nonBlankString,
+  fr: nonBlankString,
+});
+
+export const PotionLabContentSchema = z
+  .object({
+    id: z.literal('potion-lab'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    colors: z.object({
+      red: PotionColorEntrySchema,
+      yellow: PotionColorEntrySchema,
+      blue: PotionColorEntrySchema,
+      orange: PotionColorEntrySchema,
+      green: PotionColorEntrySchema,
+      purple: PotionColorEntrySchema,
+    }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no new recordings). */
+    linesHe: z.object({
+      introFree: nonBlankString,
+      introRequest: nonBlankString,
+      requestFrame: nonBlankString,
+      tryAgainFrame: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.linesHe.requestFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'requestFrame'],
+        message: 'requestFrame must include {color}',
+      });
+    }
+    if (!value.linesHe.tryAgainFrame.includes('{color}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesHe', 'tryAgainFrame'],
+        message: 'tryAgainFrame must include {color}',
+      });
+    }
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'free' && mode !== 'request') {
+        issue('extra.mode must be "free" or "request"');
+      }
+      const mixesPerStar = level.extra?.mixesPerStar;
+      if (
+        mixesPerStar !== undefined &&
+        (typeof mixesPerStar !== 'number' || !Number.isInteger(mixesPerStar) || mixesPerStar < 1)
+      ) {
+        issue('extra.mixesPerStar must be a positive integer');
+      }
+      const naming = level.extra?.naming;
+      if (naming !== undefined && naming !== 'he+learning') {
+        issue('extra.naming must be "he+learning"');
+      }
+      const hintPulse = level.extra?.hintPulse;
+      if (hintPulse !== undefined && typeof hintPulse !== 'boolean') {
+        issue('extra.hintPulse must be a boolean');
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('potion-lab supports support "picture-audio" or "audio-only"');
+      }
+      if (level.support === 'audio-only' && mode !== 'request') {
+        issue('audio-only potion-lab levels must use extra.mode "request"');
+      }
+    });
+  });
+
+export type PotionColorEntry = z.infer<typeof PotionColorEntrySchema>;
+export type PotionLabContent = z.infer<typeof PotionLabContentSchema>;

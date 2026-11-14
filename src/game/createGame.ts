@@ -13,6 +13,9 @@ import type { BalloonInfo } from '../games/balloon/types';
 import { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
 import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
 import { loadSeedToFlower } from '../content/loadContent';
+import { PotionScene } from '../games/potionLab/PotionScene';
+import type { PotionInfo } from '../games/potionLab/potionTypes';
+import { loadPotionLab } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
 import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
@@ -31,7 +34,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -66,6 +69,10 @@ declare global {
       seedSeedFlowerLevel: (level: number) => void;
       /** Current Seed to Flower plant (null when SeedFlowerScene is not active); rectangles are page CSS px. */
       getSeedFlowerInfo: () => SeedFlowerInfo | null;
+      /** Seeds the persisted Potion Lab level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedPotionLevel: (level: number) => void;
+      /** Current Potion Lab state (null when PotionScene is not active); rectangles are page CSS px. */
+      getPotionInfo: () => PotionInfo | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -134,6 +141,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
+  game.scene.add('PotionScene', PotionScene, false);
 
   game.registry.set('appContext', context);
 
@@ -152,6 +160,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
+        : screen === 'potion-lab' ? 'PotionScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
@@ -160,11 +169,12 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('HidingScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('SeedFlowerScene');
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
-      game.scene.stop('SeedFlowerScene');
+      game.scene.stop('PotionScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -276,6 +286,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedPotionLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadPotionLab(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getPotionInfo() {
+      const scene = game.scene.getScene('PotionScene') as PotionScene | null;
+      return scene && game.scene.isActive('PotionScene') ? scene.getPotionInfo() : null;
     },
     seedSeedFlowerLevel(level) {
       seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSeedToFlower(), level, localDayKey(new Date(context.nowMs())));

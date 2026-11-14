@@ -354,4 +354,6 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
   { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
   { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
+  // Science World — Potion Lab (docs/specs/potion-lab.md)
+  { key: 'prop-mixing-bowl', url: 'art/props/mixing-bowl.svg', width: 320, height: 240 },
 ];

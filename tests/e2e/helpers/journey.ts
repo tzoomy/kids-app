@@ -3,11 +3,12 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -24,6 +25,7 @@ export const GAME_SCENE: Record<string, string> = {
   // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
   'balloon-pop': 'BalloonScene',
+  'potion-lab': 'PotionScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -36,6 +38,7 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
   'number-garden': 'sorting-beds',
   'nature-lab': 'who-is-hiding',
+  'science-world': 'potion-lab',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game.
@@ -147,6 +150,8 @@ type Hooks = {
   seedBalloonLevel: (level: number) => void;
   seedSeedFlowerLevel: (level: number) => void;
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
+  seedPotionLevel: (level: number) => void;
+  getPotionInfo: () => PotionInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -634,6 +639,26 @@ export async function readBalloonSkill(page: Page, profile: ProfileTestId, lang:
     },
     [profileId, `number-garden.balloon-pop.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Potion Lab level for every language (seed only). Call on the map, before entering. */
+export async function seedPotionLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedPotionLevel', [level]);
+}
+
+export function getPotionInfo(page: Page): Promise<PotionInfo | null> {
+  return callHook<PotionInfo | null>(page, 'getPotionInfo');
+}
+
+/** Waits until Potion Lab accepts pot taps and returns its state. */
+export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<PotionInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getPotionInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
 
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */
