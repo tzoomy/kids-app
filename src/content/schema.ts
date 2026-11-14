@@ -518,3 +518,46 @@ export type StickerBoardBackground = z.infer<typeof StickerBoardBackgroundSchema
 export type StickerBoardSticker = z.infer<typeof StickerBoardStickerSchema>;
 export type StickerBoardCrayon = z.infer<typeof StickerBoardCrayonSchema>;
 export type StickerBoardContent = z.infer<typeof StickerBoardContentSchema>;
+/** Seed to Flower (docs/specs/seed-to-flower.md): no-fail cause-and-effect game in Nature Lab. */
+export const SEED_FLOWER_STAGE_IDS = ['seed', 'sprout', 'bud', 'flower'] as const;
+
+export const SeedToFlowerContentSchema = z
+  .object({
+    id: z.literal('seed-to-flower'),
+    world: z.string().min(1),
+    template: z.literal('cause-effect'),
+    skill: z.string().min(1),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Spoken when a stage appears, in the round's learning language. */
+    stageNames: z.object({ seed: LangPairSchema, sprout: LangPairSchema, bud: LangPairSchema, flower: LangPairSchema }),
+    /** Hebrew guidance spoken with device TTS in Pass 1 (no recorded clips). */
+    linesHe: z.object({
+      introFree: z.string().min(1),
+      introOrdered: z.string().min(1),
+      needWater: z.string().min(1),
+      needSun: z.string().min(1),
+    }),
+    helpTextHe: z.string().min(1),
+    /** Existing bloom art per plant, `art/flowers/bloom-<id>.svg`, used in turn. */
+    blooms: z.array(z.string().regex(/^[a-z]+-[a-z]+$/)).min(1),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const stages = level.extra?.stages;
+      const ids = typeof stages === 'string' ? stages.split(',') : [];
+      const order = ids.map((id) => (SEED_FLOWER_STAGE_IDS as readonly string[]).indexOf(id));
+      const increasing = order.every((n, k) => n >= 0 && (k === 0 || n > order[k - 1]));
+      if (ids.length < 2 || ids[0] !== 'seed' || ids[ids.length - 1] !== 'flower' || !increasing) {
+        issue('extra.stages must be an increasing comma list of seed,sprout,bud,flower from seed to flower');
+      }
+      if (level.extra?.order !== 'free' && level.extra?.order !== 'water-then-sun') issue('extra.order must be "free" or "water-then-sun"');
+      if (level.extra?.naming !== 'bloom' && level.extra?.naming !== 'all') issue('extra.naming must be "bloom" or "all"');
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') issue('seed-to-flower supports support "picture-audio" or "audio-only"');
+    });
+  });
+
+export type SeedToFlowerContent = z.infer<typeof SeedToFlowerContentSchema>;
