@@ -154,6 +154,13 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('Balloon Pop changes select its journey; picker changes also select the Number Garden picker games', () => {
+    expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
+    const picker = selectAffectedE2e(['src/ui/picker/pickerModel.ts']);
+    expect(picker).toContain('tests/e2e/balloon-pop.journey.spec.ts');
+    expect(picker).toContain('tests/e2e/sorting-beds.journey.spec.ts');
+  });
+
   it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {
     expect(selectAffectedE2e(['src/ui/shell.ts'])).toEqual(['tests/e2e/help-card.shell.spec.ts', ...SMOKE]);
   });
