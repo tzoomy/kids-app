@@ -50,6 +50,14 @@ describe('wardrobe round-completion hook', () => {
     expect(saved.completed['language-house']).toEqual(['animal-restaurant']);
   });
 
+  it('[AC-13] age 5 unlocks hair-bow after a completed Sticker Board (Art Studio) round', () => {
+    const { context } = makeContext(new MemoryStorage());
+    context.currentProfileId = 'b'; // age5
+    expect(context.recordCompletedRound('art-studio', 'sticker-board')).toEqual(['hair-bow']);
+    expect(loadWardrobeState(localStorage, 'b').unlocked).toContain('hair-bow');
+    expect(loadWardrobeState(localStorage, 'b').completed['art-studio']).toEqual(['sticker-board']);
+  });
+
   it('[AC-13] uses the current profile age track: age 2 does not get age-5 items from the same event', () => {
     const { context } = makeContext(new MemoryStorage());
     context.currentProfileId = 'a'; // age2

@@ -13,6 +13,8 @@ import { revealFromBush, rustleBush } from '../../anim/worldMotion';
 import { propArtKey, sceneArtKey } from '../../anim/artRegistry';
 import { heLine, heVariant } from '../../content/voiceLines';
 import { setAppScreen } from '../../pwa';
+import { loadOutfitArt } from '../../core/wardrobe/outfitArt';
+import { currentOutfitItems, dressCharacter, wearsOutfit } from '../../core/wardrobe/dress';
 import { TrialTracker, nextRoundLanguage } from '../restaurant/trialTracker';
 import { crossedWholeMinute, shouldPraise, shouldSayRetry, showsPromptBubble } from '../restaurant/voiceRules';
 import { type Lang } from '../templates/choiceServe';
@@ -382,12 +384,23 @@ export class HidingScene extends Phaser.Scene {
     return e;
   }
 
+  /** The bear wears the profile's outfit (no-op for the other animals); the art loads lazily and re-dresses on arrival. */
+  private dressBear(character: Character, kind: string): void {
+    if (!wearsOutfit(kind)) return;
+    const items = currentOutfitItems(window.localStorage, this.context.requireProfileId(), this.context.currentAgeTrack());
+    dressCharacter(this, character, kind, items);
+    loadOutfitArt(this, kind, items, () => {
+      dressCharacter(this, character, kind, items);
+    });
+  }
+
   /** One bush with its hiding animal; resolves once everything has popped in. */
   private buildBush(animal: HidingAnimal, slot: BushSlot, spec: HidingRoundSpec, index: number): Promise<void> {
     const back = this.bushImage(slot.shape, 'back', slot).setDepth(slot.depth + 1);
     const front = this.bushImage(slot.shape, 'front', slot).setDepth(slot.depth + 3);
     const hiddenY = animalFeetY(slot.topY, slot.animalHeight, spec.level.reveal);
     const character = new Character(this, { kind: animal.kind, x: slot.x, y: hiddenY, displayHeight: slot.animalHeight, depth: slot.depth + 2 });
+    this.dressBear(character, animal.kind);
     // Low reveals leave the animal's lower body below the hedge; clip everything under the front
     // foliage's lower edge (about 12% of the bush height above the art's bottom). The mask is removed
     // when the animal pops out in front of the bush.

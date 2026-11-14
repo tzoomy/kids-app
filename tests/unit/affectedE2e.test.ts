@@ -165,12 +165,33 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
   });
 
-  it('wardrobe source, content, art and unit tests select the wardrobe journey only, not the whole suite', () => {
-    const expected = ['tests/e2e/wardrobe.journey.spec.ts'];
+  it('sticker-board source, content, art and unit tests select the sticker-board journey only', () => {
+    const expected = ['tests/e2e/sticker-board.journey.spec.ts'];
+    for (const f of [
+      'src/games/stickers/StickerBoardScene.ts',
+      'src/core/stickers/seed.ts',
+      'src/content/games/sticker-board.json',
+      'src/ui/stickerBoardChrome.ts',
+      'src/assets/art/stickerBoardManifest.ts',
+      'public/art/stickers/rocket.svg',
+      'public/art/scenes/sticker-board/space-landscape.svg',
+      'tests/unit/sticker-board.content.test.ts',
+      'tests/e2e/sticker-board.journey.spec.ts',
+    ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(expected);
+    }
+  });
+
+  it('wardrobe source, content, art, dress helper, map mascot and unit tests select both wardrobe specs only, not the whole suite', () => {
+    const expected = ['tests/e2e/wardrobe.journey.spec.ts', 'tests/e2e/wardrobe.pass2.spec.ts'];
     for (const f of [
       'src/core/wardrobe/model.ts',
       'src/core/wardrobe/store.ts',
       'src/core/wardrobe/layout.ts',
+      'src/core/wardrobe/dress.ts',
+      'src/worlds/mapBear.ts',
+      'tests/unit/wardrobe.dress.test.ts',
+      'tests/unit/wardrobe.dressSites.test.ts',
       'src/content/wardrobe/items.json',
       'src/content/wardrobe/anchors.json',
       'src/games/wardrobe/WardrobeScene.ts',
@@ -179,11 +200,24 @@ describe('affected e2e selection', () => {
       'public/art/wardrobe/crown.svg',
       'tests/unit/wardrobe.model.test.ts',
       'tests/unit/wardrobeArt.test.ts',
-      'tests/e2e/wardrobe.journey.spec.ts',
     ]) {
       expect(selectAffectedE2e([f]), f).toEqual(expected);
     }
     expect(expected.length).toBeLessThan(specsOnDisk.length);
+  });
+
+  it('a changed wardrobe spec selects itself', () => {
+    expect(selectAffectedE2e(['tests/e2e/wardrobe.journey.spec.ts'])).toEqual(['tests/e2e/wardrobe.journey.spec.ts']);
+    expect(selectAffectedE2e(['tests/e2e/wardrobe.pass2.spec.ts'])).toEqual(['tests/e2e/wardrobe.pass2.spec.ts']);
+  });
+
+  it('wardrobe Pass 2 does not widen MapScene or Character: they keep selecting the smoke set, not the wardrobe specs', () => {
+    expect(selectAffectedE2e(['src/worlds/MapScene.ts'])).toEqual(SMOKE);
+    for (const f of ['src/worlds/MapScene.ts', 'src/anim/Character.ts']) {
+      const picked = selectAffectedE2e([f]);
+      expect(picked, f).not.toContain('tests/e2e/wardrobe.journey.spec.ts');
+      expect(picked, f).not.toContain('tests/e2e/wardrobe.pass2.spec.ts');
+    }
   });
 
   it('sink or float selects its journey and the science world map spec', () => {
@@ -282,7 +316,15 @@ describe('affected e2e selection', () => {
       'tests/e2e/hiding.spec.ts',
       'tests/e2e/hud.spec.ts',
       'tests/e2e/journey.spec.ts',
+      // Shadow Match lives in src/games/hiding/, so hiding changes also select its journey.
+      'tests/e2e/shadow-match.journey.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
+    ]);
+  });
+
+  it('Shadow Match content and silhouette changes select only the Shadow Match journey', () => {
+    expect(selectAffectedE2e(['src/content/games/shadow-match.json', 'src/anim/silhouette.ts'])).toEqual([
+      'tests/e2e/shadow-match.journey.spec.ts',
     ]);
   });
 

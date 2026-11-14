@@ -16,6 +16,8 @@ import type {
   WhosHidingContent,
   WhoLivesHereContent,
   LeisureColouringContent,
+  StickerBoardContent,
+  ShadowMatchContent,
   BalloonPopContent,
   NumberBridgeContent,
   LetterMonsterContent,
@@ -48,6 +50,8 @@ export interface ContentBundle {
   sinkOrFloat: SinkOrFloatContent;
   magicMagnet: MagicMagnetContent;
   colouring: LeisureColouringContent;
+  stickers: StickerBoardContent;
+  shadow: ShadowMatchContent;
   he: typeof heStrings;
 }
 

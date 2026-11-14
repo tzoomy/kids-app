@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
-import { RestaurantScene, type RoundInfo } from '../games/restaurant/RestaurantScene';
+import { RestaurantScene, seedRestaurantKind, type RoundInfo } from '../games/restaurant/RestaurantScene';
 import { HidingScene, type HidingRoundInfo } from '../games/hiding/HidingScene';
 import { BubblesScene } from '../games/bubbles/BubblesScene';
 import { OrchestraScene, type OrchestraRoundInfo } from '../games/orchestra/OrchestraScene';
@@ -12,6 +12,8 @@ import type { PicnicInfo } from '../games/picnic/types';
 import { HabitatScene } from '../games/habitat/HabitatScene';
 import type { HabitatInfo } from '../games/habitat/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
+import { ShadowScene } from '../games/hiding/ShadowScene';
+import type { ShadowInfo } from '../games/hiding/shadowTypes';
 import { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
 import { NumberBridgeScene } from '../games/numberBridge/NumberBridgeScene';
@@ -34,11 +36,15 @@ import type { MagnetInfo } from '../games/magicMagnet/magnetTypes';
 import { loadMagicMagnet } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
+import { StickerBoardScene } from '../games/stickers/StickerBoardScene';
+import type { StickerBoardInfo, StickerBoardSeed } from '../games/stickers/types';
+import { writeStickerBoardSeed } from '../core/stickers/seed';
 import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
 import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
 import { loadLetterMonster } from '../content/loadContent';
 import { WardrobeScene } from '../games/wardrobe/WardrobeScene';
-import type { WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
+import type { VisibleBearOutfit, WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
+import { listDressedBears } from '../core/wardrobe/dress';
 import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobeInfo';
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import type { AppContext } from './appContext';
@@ -54,7 +60,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'number-bridge' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'stickers' | 'shadow' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'number-bridge' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -83,6 +89,14 @@ declare global {
       seedColouringState: (seed: ColouringSeed) => void;
       /** Current Colouring Time page (null when ColouringScene is not active or has no page); rectangles are page CSS px. */
       getColouringInfo: () => ColouringInfo | null;
+      /** Writes the Sticker Board autosave key only. Call on the map, before entering. */
+      seedStickerBoardState: (seed: StickerBoardSeed) => void;
+      /** Current Sticker Board snapshot (null when StickerBoardScene is not active or not ready); rectangles are page CSS px. */
+      getStickerBoardInfo: () => StickerBoardInfo | null;
+      /** Seeds the active profile's persisted Shadow Match level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedShadowLevel: (level: number) => void;
+      /** Current Shadow Match trial (null when ShadowScene is not active or between trials); rectangles are page CSS px. */
+      getShadowInfo: () => ShadowInfo | null;
       /** Seeds the active profile's persisted Letter Monster level. Call before entering. */
       seedLetterMonsterLevel: (level: number) => void;
       /** Current Letter Monster round (null when LetterMonsterScene is not active); rectangles are page CSS px. */
@@ -111,6 +125,12 @@ declare global {
       getPotionInfo: () => PotionInfo | null;
       /** Writes the active profile's wardrobe state (seed only; merged over the defaults, the starter is kept). Call on the map. */
       seedWardrobeState: (seed: WardrobeSeed) => void;
+      /** Writes a named profile's wardrobe state (seed only). Also installed on the profile-select screen, before the game exists. */
+      seedWardrobeStateForProfile: (profileId: string, seed: WardrobeSeed) => void;
+      /** Accessories actually mounted on the visible bear Characters of the active scenes (a bear with no outfit has `items: []`); rect is page CSS px. */
+      getVisibleBearOutfits: () => VisibleBearOutfit[];
+      /** The next Animal Restaurant customer is this kind, once (seed only; call on the map). */
+      seedRestaurantKind: (kind: string) => void;
       /** Wardrobe snapshot of the current profile; works on the map and in WardrobeScene (null before a profile is picked). */
       getWardrobeInfo: () => WardrobeInfo | null;
       /** Records a completed round through the same AppContext call the games use; returns the newly unlocked item ids. */
@@ -158,7 +178,13 @@ export function installEarlyTimeEarningHook(store: Store): void {
   window.__testHooks__ = {
     ...(current ?? {}),
     seedTimeEarningEnabled,
+    seedWardrobeStateForProfile,
   } as NonNullable<Window['__testHooks__']>;
+}
+
+/** ?e2e=1 only: writes a named profile's wardrobe state; needs no active profile (works on the profile-select screen). */
+function seedWardrobeStateForProfile(profileId: string, seed: WardrobeSeed): void {
+  saveWardrobeState(window.localStorage, profileId, applyWardrobeSeed(seed));
 }
 
 export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
@@ -190,6 +216,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('PicnicScene', PicnicScene, false);
   game.scene.add('HabitatScene', HabitatScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('StickerBoardScene', StickerBoardScene, false);
+  game.scene.add('ShadowScene', ShadowScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('NumberBridgeScene', NumberBridgeScene, false);
@@ -217,6 +245,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'picnic' ? 'PicnicScene'
         : screen === 'habitat' ? 'HabitatScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'stickers' ? 'StickerBoardScene'
+        : screen === 'shadow' ? 'ShadowScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'potion-lab' ? 'PotionScene'
@@ -237,6 +267,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('PicnicScene');
       game.scene.stop('HabitatScene');
       game.scene.stop('ColouringScene');
+      game.scene.stop('StickerBoardScene');
+      game.scene.stop('ShadowScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
       game.scene.stop('PotionScene');
@@ -336,6 +368,32 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       const scene = game.scene.getScene('ColouringScene') as ColouringScene | null;
       return scene && game.scene.isActive('ColouringScene') ? scene.getColouringInfo() : null;
     },
+    seedStickerBoardState(seed) {
+      writeStickerBoardSeed(window.localStorage, context.requireProfileId(), seed);
+    },
+    getStickerBoardInfo() {
+      const scene = game.scene.getScene('StickerBoardScene') as StickerBoardScene | null;
+      return scene && game.scene.isActive('StickerBoardScene') ? scene.getStickerBoardInfo() : null;
+    },
+    seedShadowLevel(level) {
+      const profileId = context.requireProfileId();
+      const { world, id, languages } = context.content.shadow;
+      for (const lang of languages) {
+        const key = skillKey(world, id, lang);
+        const stored = context.adaptive.getSkill(profileId, key);
+        context.adaptive.setSkill(profileId, key, {
+          ...(stored ?? { cleanStreak: 0, recent: [], afterDrop: false, lastPlayedDay: localDayKey(new Date(context.nowMs())), items: {} }),
+          level,
+          cleanStreak: 0,
+          recent: [],
+        });
+      }
+      context.adaptive.persist(profileId);
+    },
+    getShadowInfo() {
+      const scene = game.scene.getScene('ShadowScene') as ShadowScene | null;
+      return scene && game.scene.isActive('ShadowScene') ? scene.getShadowInfo() : null;
+    },
     seedLetterMonsterLevel(level) {
       seedAdaptiveLevel(
         context.adaptive,
@@ -420,6 +478,23 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     },
     seedWardrobeState(seed) {
       saveWardrobeState(window.localStorage, context.requireProfileId(), applyWardrobeSeed(seed));
+    },
+    seedWardrobeStateForProfile,
+    seedRestaurantKind,
+    getVisibleBearOutfits() {
+      const box = game.canvas.getBoundingClientRect();
+      const canvasRect = { x: box.left, y: box.top, width: box.width, height: box.height };
+      const gameSize = { width: game.scale.width, height: game.scale.height };
+      return listDressedBears()
+        .filter((bear) => game.scene.isActive(bear.sceneKey))
+        .map((bear) => {
+          const bounds = bear.bounds();
+          return {
+            scene: bear.sceneKey,
+            items: [...bear.items],
+            rect: bounds ? gameRectToPageRect(bounds, canvasRect, gameSize) : null,
+          };
+        });
     },
     getWardrobeInfo() {
       const profileId = context.currentProfileId;

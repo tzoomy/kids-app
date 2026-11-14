@@ -32,6 +32,7 @@ const HABITAT = 'game-picker-who-lives-here';
 const POTION = 'game-picker-potion-lab';
 const SINK = 'game-picker-sink-or-float';
 const MAGNET = 'game-picker-magic-magnet';
+const SHADOW = 'game-picker-shadow-match';
 const CLOSE = PICKER_CLOSE_TEST_ID;
 const LANGUAGE_HOUSE_STATIONS = stationsForWorld('language-house');
 const LANGUAGE_HOUSE_CARD_IDS = LANGUAGE_HOUSE_STATIONS.map((g) => g.testId);
@@ -129,6 +130,7 @@ test.describe('station trail inside a world', () => {
     await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(stationCount('nature-lab'));
     await expect(page.locator(`[data-testid="${SEED}"]`)).toBeVisible();
     await expect(page.locator(`[data-testid="${HABITAT}"]`)).toBeVisible();
+    await expect(page.locator(`[data-testid="${SHADOW}"]`)).toBeVisible();
     await expect(page.locator(`[data-testid="${HIDING}"]`)).toHaveAttribute('data-suggested', 'true');
     await expect(page.locator(`[data-testid="${HABITAT}"]`)).toHaveAttribute('data-suggested', 'false');
     expect(await getActiveScenes(page)).toEqual(['MapScene']);

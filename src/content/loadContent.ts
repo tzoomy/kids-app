@@ -6,6 +6,8 @@ import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import stickerBoardJson from './games/sticker-board.json';
+import shadowMatchJson from './games/shadow-match.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import numberBridgeJson from './games/number-bridge.json';
@@ -25,6 +27,8 @@ import {
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
+  StickerBoardContentSchema,
+  ShadowMatchContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
   NumberBridgeContentSchema,
@@ -41,6 +45,8 @@ import {
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
+  type StickerBoardContent,
+  type ShadowMatchContent,
   type LetterMonsterContent,
   type BalloonPopContent,
   type NumberBridgeContent,
@@ -87,6 +93,23 @@ export function loadPicnicTrain(): PicnicTrainContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadStickerBoard(): StickerBoardContent {
+  return StickerBoardContentSchema.parse(stickerBoardJson);
+}
+
+/** Shadow Match content. Its animals come from Who's Hiding? (`animalsFrom`); every animal needs a Hebrew name. */
+export function loadShadowMatch(): ShadowMatchContent {
+  const content = ShadowMatchContentSchema.parse(shadowMatchJson);
+  const animals = loadWhosHiding().animals;
+  for (const a of animals) {
+    if (!content.namesHe[a.id]) throw new Error(`shadow-match: missing Hebrew name for "${a.id}"`);
+  }
+  for (const level of content.adaptive.levels) {
+    if ((level.choiceCount ?? 0) > animals.length) throw new Error('shadow-match: choiceCount exceeds the number of animals');
+  }
+  return content;
 }
 
 export function loadLetterMonster(): LetterMonsterContent {

@@ -48,6 +48,8 @@ describe('isSafeToApplyUpdate', () => {
     ['picnic', false],
     ['habitat', false],
     ['colouring', false],
+    ['stickers', false],
+    ['shadow', false],
     ['letter-monster', false],
     ['balloon', false],
     ['magic-magnet', false],

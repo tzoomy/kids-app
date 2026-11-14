@@ -520,6 +520,67 @@ export type HabitatHome = z.infer<typeof HabitatHomeSchema>;
 export type HabitatAnimal = z.infer<typeof HabitatAnimalSchema>;
 export type WhoLivesHereContent = z.infer<typeof WhoLivesHereContentSchema>;
 
+// Shadow Match (Nature Lab, docs/specs/shadow-match.md): a variant of Who's Hiding? that reuses its
+// animals (names, sounds, groups) and round builder. Choices are silhouettes of the approved animal
+// art; the cue is the sound or the name. Per-level extras: `speak` (sound | name), optional `soundMs`.
+// ---------------------------------------------------------------------------
+
+export const SHADOW_SPEAK_MODES = ['sound', 'name'] as const;
+export type ShadowSpeakMode = (typeof SHADOW_SPEAK_MODES)[number];
+
+export const ShadowMatchContentSchema = z
+  .object({
+    id: z.literal('shadow-match'),
+    world: z.literal('nature-lab'),
+    template: z.literal('choice-serve'),
+    skill: z.string().min(1),
+    /** Animals (names, sounds, look-alike groups, art kinds) come from this game's content. */
+    animalsFrom: z.literal('who-is-hiding'),
+    languages: z.array(z.enum(['en', 'fr'])).min(1),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    /** Request frames per cue: `{sound}` or `{name}` is replaced from the animal. */
+    promptFrames: z.object({ sound: LangPairSchema, name: LangPairSchema }),
+    /** Spoken after the silhouette is revealed, in the round's learning language (`{name}`). */
+    revealFrame: LangPairSchema,
+    /** Then in Hebrew (`{nameHe}`), spoken by device TTS in Pass 1. */
+    revealFrameHe: z.string().min(1),
+    /** Hebrew animal names by animal id. */
+    namesHe: z.record(z.string().min(1)),
+    introHe: z.string().min(1),
+    helpTextHe: z.string().min(1),
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    for (const mode of SHADOW_SPEAK_MODES) {
+      for (const lang of ['en', 'fr'] as const) {
+        const token = mode === 'sound' ? '{sound}' : '{name}';
+        if (!value.promptFrames[mode][lang].includes(token)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', mode, lang], message: `frame needs ${token}` });
+        }
+      }
+    }
+    for (const lang of ['en', 'fr'] as const) {
+      if (!value.revealFrame[lang].includes('{name}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrame', lang], message: 'frame needs {name}' });
+    }
+    if (!value.revealFrameHe.includes('{nameHe}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrameHe'], message: 'frame needs {nameHe}' });
+    value.adaptive.levels.forEach((level, i) => {
+      const path = ['adaptive', 'levels', i];
+      const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+      if (level.choiceCount === undefined || level.choiceCount < 2 || level.choiceCount > 6) issue('levels require choiceCount within 2..6');
+      if (level.distractor !== undefined && level.distractor !== 'far' && level.distractor !== 'same-category') {
+        issue('shadow-match supports distractor "far" or "same-category"');
+      }
+      const speak = level.extra?.speak;
+      if (typeof speak !== 'string' || !(SHADOW_SPEAK_MODES as readonly string[]).includes(speak)) {
+        issue(`levels require extra.speak, one of ${SHADOW_SPEAK_MODES.join(', ')}`);
+      }
+      const soundMs = level.extra?.soundMs;
+      if (soundMs !== undefined && (typeof soundMs !== 'number' || soundMs <= 0)) issue('extra.soundMs must be a positive number');
+    });
+  });
+
+export type ShadowMatchContent = z.infer<typeof ShadowMatchContentSchema>;
 
 /** Colouring Time (docs/specs/leisure-colouring.md): leisure-game schema, no adaptive block. */
 export const ColouringRegionSchema = z.object({
@@ -568,6 +629,86 @@ export type ColouringPage = z.infer<typeof ColouringPageSchema>;
 export type ColouringPaletteColor = z.infer<typeof ColouringPaletteColorSchema>;
 export type LeisureColouringContent = z.infer<typeof LeisureColouringContentSchema>;
 
+/** Sticker Board (docs/specs/sticker-board.md): free-creation Art Studio game, no adaptive block. */
+export const StickerBoardBackgroundSchema = z.object({
+  id: z.string().min(1),
+  he: z.string().min(1),
+  name: LangPairSchema,
+  place: LangPairSchema,
+});
+
+export const StickerBoardStickerSchema = z.object({
+  id: z.string().min(1),
+  theme: z.string().min(1),
+  artKey: z.string().min(1),
+  name: LangPairSchema,
+});
+
+export const StickerBoardCrayonSchema = z.object({
+  id: z.string().min(1),
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  age2: z.boolean(),
+  age5: z.boolean(),
+});
+
+export const StickerBoardContentSchema = z
+  .object({
+    id: z.literal('sticker-board'),
+    world: z.literal('art-studio'),
+    earnsLeisure: z.boolean(),
+    defaultBackground: z.string().min(1),
+    defaultColor: z.string().min(1),
+    backgrounds: z.array(StickerBoardBackgroundSchema).length(3),
+    stickers: z.array(StickerBoardStickerSchema).length(12),
+    crayons: z.array(StickerBoardCrayonSchema).min(4),
+  })
+  .superRefine((value, ctx) => {
+    const bgIds = new Set(value.backgrounds.map((b) => b.id));
+    if (bgIds.size !== value.backgrounds.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['backgrounds'], message: 'background ids must be unique' });
+    }
+    if (!bgIds.has(value.defaultBackground)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultBackground'], message: 'defaultBackground must exist in backgrounds' });
+    }
+    const stickerIds = new Set<string>();
+    const themeCounts = new Map<string, number>();
+    value.stickers.forEach((s, i) => {
+      if (stickerIds.has(s.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers', i, 'id'], message: `duplicate sticker id "${s.id}"` });
+      }
+      stickerIds.add(s.id);
+      if (!bgIds.has(s.theme)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers', i, 'theme'], message: `unknown sticker theme "${s.theme}"` });
+      }
+      themeCounts.set(s.theme, (themeCounts.get(s.theme) ?? 0) + 1);
+    });
+    for (const bg of value.backgrounds) {
+      if ((themeCounts.get(bg.id) ?? 0) !== 4) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['stickers'], message: `theme "${bg.id}" must have 4 stickers` });
+      }
+    }
+    const crayonIds = new Set(value.crayons.map((c) => c.id));
+    if (crayonIds.size !== value.crayons.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'crayon ids must be unique' });
+    }
+    const defaultCrayon = value.crayons.find((c) => c.id === value.defaultColor);
+    if (!defaultCrayon || !defaultCrayon.age2 || !defaultCrayon.age5) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultColor'], message: 'defaultColor must exist and be enabled for age2 and age5' });
+    }
+    const age2 = value.crayons.filter((c) => c.age2);
+    const age5 = value.crayons.filter((c) => c.age5);
+    if (age2.length !== 4) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'age-2 crayons must have 4 colours' });
+    }
+    if (age5.length !== 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['crayons'], message: 'age-5 crayons must have 8 colours' });
+    }
+  });
+
+export type StickerBoardBackground = z.infer<typeof StickerBoardBackgroundSchema>;
+export type StickerBoardSticker = z.infer<typeof StickerBoardStickerSchema>;
+export type StickerBoardCrayon = z.infer<typeof StickerBoardCrayonSchema>;
+export type StickerBoardContent = z.infer<typeof StickerBoardContentSchema>;
 const nonBlankString = z
   .string()
   .min(1)

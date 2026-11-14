@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Crescent moon body -->
+    <path d="M168 32 C100 32 48 76 48 130 C48 184 100 226 168 224 C178 224 182 214 174 208 C136 192 114 164 114 130 C114 96 136 66 174 48 C182 44 178 32 168 32 Z" fill="#FFF099"/>
+
+    <!-- Flat shadow along bottom and inner curve -->
+    <path d="M174 208 C136 192 114 164 114 130 C114 120 116 110 120 102 C102 122 98 154 116 182 C132 204 156 216 174 218 C178 216 178 210 174 208 Z" fill="#F2C94C" stroke="none"/>
+
+    <!-- Flat highlight along upper-left curve -->
+    <path d="M142 44 C98 52 66 86 64 128 C64 134 72 134 74 128 C78 92 104 62 144 52 C148 50 146 44 142 44 Z" fill="#FFFBE0" stroke="none"/>
+
+    <!-- Craters -->
+    <circle cx="92" cy="94" r="14" fill="#E6BC40" stroke-width="4"/>
+    <circle cx="78" cy="148" r="10" fill="#E6BC40" stroke-width="4"/>
+    <circle cx="116" cy="182" r="8" fill="#E6BC40" stroke-width="4"/>
+
+    <!-- Outer outline -->
+    <path d="M168 32 C100 32 48 76 48 130 C48 184 100 226 168 224 C178 224 182 214 174 208 C136 192 114 164 114 130 C114 96 136 66 174 48 C182 44 178 32 168 32 Z" fill="none"/>
+  </g>
+</svg>
