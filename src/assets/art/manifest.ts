@@ -360,4 +360,14 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
   { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
   { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
+  // Science World — Potion Lab (docs/specs/potion-lab.md)
+  { key: 'prop-mixing-bowl', url: 'art/props/mixing-bowl.svg', width: 320, height: 240 },
+  // Science World — Sink or Float (docs/specs/sink-or-float.md)
+  { key: 'prop-water-tank', url: 'art/props/water-tank.svg', width: 320, height: 320 },
+  { key: 'prop-float-ball', url: 'art/props/float-ball.svg', width: 160, height: 160 },
+  { key: 'prop-float-leaf', url: 'art/props/float-leaf.svg', width: 160, height: 160 },
+  { key: 'prop-float-apple', url: 'art/props/float-apple.svg', width: 160, height: 160 },
+  { key: 'prop-float-stone', url: 'art/props/float-stone.svg', width: 160, height: 160 },
+  { key: 'prop-float-key', url: 'art/props/float-key.svg', width: 160, height: 160 },
+  { key: 'prop-float-spoon', url: 'art/props/float-spoon.svg', width: 160, height: 160 },
 ];

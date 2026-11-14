@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'magic-magnet' | 'who-is-hiding' | 'seed-to-flower';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'magicMagnet' | 'whoIsHiding' | 'seedToFlower';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -85,9 +85,23 @@ export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
 
 /**
  * Science World picker (separate map area, pending owner decision; docs/PENDING-DECISIONS.md).
- * This PR adds Magic Magnet via the additive registry (Potion Lab remains the default once it lands on main).
+ * Potion Lab is the default entry game. Append later games here (additive registry), e.g. Sink or Float, Magic Magnet.
  */
 export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
+  {
+    gameId: 'potion-lab',
+    testId: 'game-picker-potion-lab',
+    sceneKey: 'PotionScene',
+    assetKey: 'picker-card-potion-lab',
+    labelKey: 'potionLab',
+  },
+  {
+    gameId: 'sink-or-float',
+    testId: 'game-picker-sink-or-float',
+    sceneKey: 'SinkFloatScene',
+    assetKey: 'picker-card-sink-or-float',
+    labelKey: 'sinkOrFloat',
+  },
   {
     gameId: 'magic-magnet',
     testId: 'game-picker-magic-magnet',

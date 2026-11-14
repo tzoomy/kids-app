@@ -13,6 +13,12 @@ import type { BalloonInfo } from '../games/balloon/types';
 import { SeedFlowerScene } from '../games/seedFlower/SeedFlowerScene';
 import type { SeedFlowerInfo } from '../games/seedFlower/seedFlowerTypes';
 import { loadSeedToFlower } from '../content/loadContent';
+import { PotionScene } from '../games/potionLab/PotionScene';
+import type { PotionInfo } from '../games/potionLab/potionTypes';
+import { loadPotionLab } from '../content/loadContent';
+import { SinkFloatScene } from '../games/sinkFloat/SinkFloatScene';
+import type { SinkFloatInfo } from '../games/sinkFloat/sinkFloatTypes';
+import { loadSinkOrFloat } from '../content/loadContent';
 import { MagnetScene } from '../games/magicMagnet/MagnetScene';
 import type { MagnetInfo } from '../games/magicMagnet/magnetTypes';
 import { loadMagicMagnet } from '../content/loadContent';
@@ -34,7 +40,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'magic-magnet' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -69,6 +75,14 @@ declare global {
       seedSeedFlowerLevel: (level: number) => void;
       /** Current Seed to Flower plant (null when SeedFlowerScene is not active); rectangles are page CSS px. */
       getSeedFlowerInfo: () => SeedFlowerInfo | null;
+      /** Seeds the persisted Potion Lab level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedPotionLevel: (level: number) => void;
+      /** Current Potion Lab state (null when PotionScene is not active); rectangles are page CSS px. */
+      getPotionInfo: () => PotionInfo | null;
+      /** Seeds the persisted Sink or Float level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedSinkFloatLevel: (level: number) => void;
+      /** Current Sink or Float state (null when SinkFloatScene is not active); rectangles are page CSS px. */
+      getSinkFloatInfo: () => SinkFloatInfo | null;
       /** Seeds the persisted Magic Magnet level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
       seedMagnetLevel: (level: number) => void;
       /** Current Magic Magnet state (null when MagnetScene is not active); rectangles are page CSS px. */
@@ -141,6 +155,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
+  game.scene.add('PotionScene', PotionScene, false);
+  game.scene.add('SinkFloatScene', SinkFloatScene, false);
   game.scene.add('MagnetScene', MagnetScene, false);
 
   game.registry.set('appContext', context);
@@ -160,6 +176,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'colouring' ? 'ColouringScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
+        : screen === 'potion-lab' ? 'PotionScene'
+        : screen === 'sink-or-float' ? 'SinkFloatScene'
         : screen === 'magic-magnet' ? 'MagnetScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
@@ -169,11 +187,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('HidingScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('SeedFlowerScene');
       game.scene.stop('SortingScene');
       game.scene.stop('ColouringScene');
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
-      game.scene.stop('SeedFlowerScene');
+      game.scene.stop('PotionScene');
+      game.scene.stop('SinkFloatScene');
       game.scene.stop('MagnetScene');
       game.scene.start(sceneKey);
     },
@@ -286,6 +306,20 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedPotionLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadPotionLab(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getPotionInfo() {
+      const scene = game.scene.getScene('PotionScene') as PotionScene | null;
+      return scene && game.scene.isActive('PotionScene') ? scene.getPotionInfo() : null;
+    },
+    seedSinkFloatLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSinkOrFloat(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getSinkFloatInfo() {
+      const scene = game.scene.getScene('SinkFloatScene') as SinkFloatScene | null;
+      return scene && game.scene.isActive('SinkFloatScene') ? scene.getSinkFloatInfo() : null;
     },
     seedSeedFlowerLevel(level) {
       seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSeedToFlower(), level, localDayKey(new Date(context.nowMs())));

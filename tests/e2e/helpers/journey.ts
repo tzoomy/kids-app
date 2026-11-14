@@ -3,12 +3,14 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
+import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
 import type { MagnetInfo } from '../../../src/games/magicMagnet/magnetTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -25,6 +27,8 @@ export const GAME_SCENE: Record<string, string> = {
   // Number Garden opens a picker (Sorting Beds, Balloon Pop); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
   'balloon-pop': 'BalloonScene',
+  'potion-lab': 'PotionScene',
+  'sink-or-float': 'SinkFloatScene',
   'magic-magnet': 'MagnetScene',
 };
 
@@ -38,6 +42,7 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
   'language-house': 'animal-restaurant',
   'number-garden': 'sorting-beds',
   'nature-lab': 'who-is-hiding',
+  'science-world': 'potion-lab',
 };
 
 /** Extra picker-card games on a world that still defaults to a direct entry game (or whose default lives in another PR).
@@ -46,7 +51,7 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
  * Science World tests pass `'magic-magnet'` explicitly so Potion Lab can own the default slot. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
-  'science-world': ['magic-magnet'],
+  'science-world': ['sink-or-float', 'magic-magnet'],
 };
 
 export interface PageRect {
@@ -151,6 +156,10 @@ type Hooks = {
   seedBalloonLevel: (level: number) => void;
   seedSeedFlowerLevel: (level: number) => void;
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
+  seedPotionLevel: (level: number) => void;
+  getPotionInfo: () => PotionInfo | null;
+  seedSinkFloatLevel: (level: number) => void;
+  getSinkFloatInfo: () => SinkFloatInfo | null;
   seedMagnetLevel: (level: number) => void;
   getMagnetInfo: () => MagnetInfo | null;
 };
@@ -640,6 +649,46 @@ export async function readBalloonSkill(page: Page, profile: ProfileTestId, lang:
     },
     [profileId, `number-garden.balloon-pop.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Potion Lab level for every language (seed only). Call on the map, before entering. */
+export async function seedPotionLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedPotionLevel', [level]);
+}
+
+export function getPotionInfo(page: Page): Promise<PotionInfo | null> {
+  return callHook<PotionInfo | null>(page, 'getPotionInfo');
+}
+
+/** Waits until Potion Lab accepts pot taps and returns its state. */
+export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<PotionInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getPotionInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Sink or Float level for every language (seed only). Call on the map, before entering. */
+export async function seedSinkFloatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSinkFloatLevel', [level]);
+}
+
+export function getSinkFloatInfo(page: Page): Promise<SinkFloatInfo | null> {
+  return callHook<SinkFloatInfo | null>(page, 'getSinkFloatInfo');
+}
+
+/** Waits until Sink or Float accepts taps and returns its state. */
+export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promise<SinkFloatInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSinkFloatInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
 
 /** Seeds the persisted Seed to Flower level for every language (seed only). Call on the map, before entering. */

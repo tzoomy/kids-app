@@ -134,6 +134,27 @@ export const GAME_RULES = [
     specs: ['tests/e2e/science-world.map.spec.ts'],
   },
   {
+    id: 'potion-lab',
+    match: [
+      /^src\/games\/potionLab\//,
+      /^src\/content\/games\/potion-lab\.json$/,
+      /^public\/art\/props\/mixing-bowl\.svg$/,
+      /^public\/art\/palette\/pot-(red|yellow|blue)\.svg$/,
+      /^tests\/unit\/potion-lab[^/]*$/,
+    ],
+    specs: ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
+    id: 'sink-or-float',
+    match: [
+      /^src\/games\/sinkFloat\//,
+      /^src\/content\/games\/sink-or-float\.json$/,
+      /^public\/art\/props\/(water-tank|float-[a-z]+)\.svg$/,
+      /^tests\/unit\/sink-or-float[^/]*$/,
+    ],
+    specs: ['tests/e2e/sink-or-float.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'magic-magnet',
     match: [
       /^src\/games\/magicMagnet\//,

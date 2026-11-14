@@ -105,6 +105,24 @@ describe('affected e2e selection', () => {
     ]);
   });
 
+  it('potion lab selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/potion-lab.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
+    expect(selectAffectedE2e(['src/games/potionLab/PotionScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/potion-lab.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/palette/pot-red.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/mixing-bowl.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
+  });
+
+  it('sink or float selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/science-world.map.spec.ts', 'tests/e2e/sink-or-float.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/sinkFloat/SinkFloatScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/sink-or-float.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/water-tank.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/float-apple.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/sink-or-float.machine.test.ts'])).toEqual(expected);
+  });
+
   it('magic magnet selects its journey and the science world map spec', () => {
     const expected = ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
     expect(selectAffectedE2e(['src/games/magicMagnet/MagnetScene.ts'])).toEqual(expected);

@@ -295,6 +295,9 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   // The release may land outside the button (mouse) or the window may lose focus: clean up from the window.
   const onWindowPointerEnd = (e: PointerEvent): void => {
     if (!button.isConnected) return detach();
+    // Now that this runs in the capture phase it fires BEFORE the button's own pointerup / pointercancel handler.
+    // Leave events on the button to that handler: it needs to find the pointer still in `down` to end the hold.
+    if (e.target instanceof Node && button.contains(e.target)) return;
     if (down.delete(e.pointerId) && down.size === 0) armSuppressExpiry();
   };
 
@@ -323,8 +326,10 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
   button.addEventListener('contextmenu', onContextMenu);
   button.addEventListener('click', onClick);
   window.addEventListener('pointerdown', onWindowPointerDownCapture, true);
-  window.addEventListener('pointerup', onWindowPointerEnd);
-  window.addEventListener('pointercancel', onWindowPointerEnd);
+  // Capture phase, like pointerdown: if any element calls stopPropagation() on a pointerup / pointercancel, a
+  // bubble-phase window listener never sees it and the pointerId would stay stuck in `down` (touch ids are not reused).
+  window.addEventListener('pointerup', onWindowPointerEnd, true);
+  window.addEventListener('pointercancel', onWindowPointerEnd, true);
   window.addEventListener('blur', onWindowBlur);
 
   function detach(): void {
@@ -343,8 +348,8 @@ export function attachLongPress(button: HTMLElement, options: LongPressOptions):
     button.removeEventListener('contextmenu', onContextMenu);
     button.removeEventListener('click', onClick);
     window.removeEventListener('pointerdown', onWindowPointerDownCapture, true);
-    window.removeEventListener('pointerup', onWindowPointerEnd);
-    window.removeEventListener('pointercancel', onWindowPointerEnd);
+    window.removeEventListener('pointerup', onWindowPointerEnd, true);
+    window.removeEventListener('pointercancel', onWindowPointerEnd, true);
     window.removeEventListener('blur', onWindowBlur);
     button.classList.remove('shell-holdable');
   }
