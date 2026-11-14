@@ -133,3 +133,4 @@ Not applicable beyond the progress bar. No new art, voice lines, recorded clips,
 
 - `2026-11-13` — created from the approved idea (`docs/WORLDS.md` Infrastructure §1); tests-first slice, RED step — substantive
 - `2026-11-14` — e2e spec `tests/e2e/parent-longpress-gate.spec.ts` (AC-09 to AC-13, RED), `scripts/affected-e2e.mjs` mapping for the gate, add-vs-replace logged in `docs/PENDING-DECISIONS.md`; no AC or hook changes — minor
+- `2026-11-14` — Pass 1 implemented: `src/ui/longPress.ts` (`createHoldTimer`, `attachLongPress`), wiring in `hud.ts`, `profileSelect.ts`, `shell.ts`, `main.ts` (`openParentSettingsDirect`), `AppContext.onRequestParentSettings` (passed by `MapScene` as `onParentLongPress`), `shell.css`; AC-01 to AC-13 green, AC-14 (device) pending; no AC or hook changes — minor

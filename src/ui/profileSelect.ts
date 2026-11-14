@@ -2,6 +2,7 @@ import { el } from './dom';
 import { formatClock } from './dom';
 import type { ProfileSettings, ProfileState } from '../core/storage/schema';
 import heStrings from '../content/i18n/he.json';
+import { attachLongPress } from './longPress';
 
 export interface ProfileSelectEntry {
   profile: ProfileSettings;
@@ -20,6 +21,8 @@ export function renderProfileSelect(
   entries: ProfileSelectEntry[],
   onPick: (profileId: string) => void,
   onParent: () => void,
+  /** A 3-second hold of the parent button opens the settings directly. Without it the button only taps. */
+  onParentLongPress?: () => void,
 ): void {
   const screen = el('div', 'shell-fullscreen');
   screen.appendChild(el('h1', 'shell-title', heStrings.appTitle));
@@ -45,7 +48,8 @@ export function renderProfileSelect(
   parentBtn.style.position = 'absolute';
   parentBtn.style.insetInlineStart = 'max(2vmin, env(safe-area-inset-left))';
   parentBtn.style.bottom = 'max(2vmin, env(safe-area-inset-bottom))';
-  parentBtn.addEventListener('click', onParent);
+  if (onParentLongPress) attachLongPress(parentBtn, { onTap: onParent, onLongPress: onParentLongPress });
+  else parentBtn.addEventListener('click', onParent);
   screen.appendChild(parentBtn);
 
   root.replaceChildren(screen);
