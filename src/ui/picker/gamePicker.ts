@@ -1,6 +1,6 @@
 import { el } from '../dom';
 import heStrings from '../../content/i18n/he.json';
-import { PICKER_CLOSE_TEST_ID, PICKER_GAMES, type PickerGame } from './pickerModel';
+import { PICKER_CLOSE_TEST_ID, PICKER_EMPTY_TEST_ID, PICKER_GAMES, type PickerGame } from './pickerModel';
 import { resolvePickerAsset } from './pickerAssets';
 
 export interface GamePickerOptions {
@@ -8,6 +8,8 @@ export interface GamePickerOptions {
   games?: readonly PickerGame[];
   /** Picker title; defaults to the Language House title. */
   title?: string;
+  /** Shown instead of the cards when `games` is empty (a gentle "coming soon" state). */
+  emptyText?: string;
   onPick: (game: PickerGame) => void;
   onClose: () => void;
 }
@@ -90,6 +92,11 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
     card.appendChild(el('span', 'picker-card-label', label));
     card.addEventListener('click', () => opts.onPick(game));
     cards.appendChild(card);
+  }
+  if ((opts.games ?? PICKER_GAMES).length === 0) {
+    const empty = el('div', 'picker-empty', opts.emptyText ?? '');
+    empty.dataset.testid = PICKER_EMPTY_TEST_ID;
+    cards.appendChild(empty);
   }
   panel.appendChild(cards);
   root.appendChild(panel);

@@ -44,6 +44,9 @@ export const PICKER_GAMES: readonly PickerGame[] = [
 
 export const PICKER_CLOSE_TEST_ID = 'game-picker-close';
 
+/** `data-testid` of the empty-state message of a picker with no games yet. */
+export const PICKER_EMPTY_TEST_ID = 'game-picker-empty';
+
 /** Leisure Corner picker: two cards (Bubbles first, then Colouring Time). Opened only with a balance above 0. */
 export const LEISURE_PICKER_GAMES: readonly PickerGame[] = [
   {
@@ -79,6 +82,15 @@ export const NUMBER_GARDEN_PICKER_GAMES: readonly PickerGame[] = [
     labelKey: 'balloonPop',
   },
 ];
+
+/**
+ * Science World picker (separate map area, pending owner decision; docs/PENDING-DECISIONS.md).
+ * Empty until its games land: the building then opens the picker's gentle "coming soon" state.
+ * Append games here (additive registry), e.g. Potion Lab, Sink or Float, Magic Magnet:
+ *   { gameId: 'potion-lab', testId: 'game-picker-potion-lab', sceneKey: 'PotionScene', assetKey: 'picker-card-potion-lab', labelKey: 'potionLab' }
+ * (extend PickerGameId and labelKey, add the he.json label and a pickerAssets placeholder).
+ */
+export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [];
 
 /**
  * Nature Lab picker (docs/specs/seed-to-flower.md): Who's Hiding? (the entry game) first, then Seed to Flower.

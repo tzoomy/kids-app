@@ -124,6 +124,16 @@ export const GAME_RULES = [
     specs: ['tests/e2e/sorting-beds.journey.spec.ts', 'tests/e2e/sorting-beds.platform.spec.ts'],
   },
   {
+    id: 'science-world',
+    // Science World map area: its building art and its (for now empty) picker. MapScene stays smoke-only.
+    match: [
+      /^public\/art\/buildings\//,
+      /^src\/ui\/picker\//,
+      /^tests\/unit\/science-world[^/]*$/,
+    ],
+    specs: ['tests/e2e/science-world.map.spec.ts'],
+  },
+  {
     id: 'balloon-pop',
     match: [
       /^src\/games\/balloon\//,
