@@ -1,33 +1,18 @@
-/** Language House (and other world) stations derived from WORLD_GAMES + content, for e2e. */
-import {
-  loadAnimalRestaurant,
-  loadBalloonPop,
-  loadKitchenOrchestra,
-  loadLetterMonster,
-  loadMagicMagnet,
-  loadPotionLab,
-  loadSeedToFlower,
-  loadSinkOrFloat,
-  loadSortingBeds,
-  loadTravelSuitcase,
-  loadWhosHiding,
-} from '../../../src/content/loadContent';
+/** Language House (and other world) stations derived from WORLD_GAMES + content, for e2e.
+ * Reads game JSON with fs so Playwright's Node loader does not need Vite's JSON import. */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { WORLD_GAMES, type PickerGame } from '../../../src/ui/picker/pickerModel';
-import { collectTrailGames, stationGamesForWorld } from '../../../src/ui/picker/trailModel';
+import { stationGamesForWorld, type TrailGame } from '../../../src/ui/picker/trailModel';
 
-const TRAIL_GAMES = collectTrailGames({
-  restaurant: loadAnimalRestaurant(),
-  orchestra: loadKitchenOrchestra(),
-  letterMonster: loadLetterMonster(),
-  suitcase: loadTravelSuitcase(),
-  sorting: loadSortingBeds(),
-  balloon: loadBalloonPop(),
-  hiding: loadWhosHiding(),
-  seedToFlower: loadSeedToFlower(),
-  potion: loadPotionLab(),
-  sinkOrFloat: loadSinkOrFloat(),
-  magicMagnet: loadMagicMagnet(),
-});
+const gamesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../src/content/games');
+const TRAIL_GAMES: TrailGame[] = fs.readdirSync(gamesDir)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => {
+    const data = JSON.parse(fs.readFileSync(path.join(gamesDir, file), 'utf8')) as { id: string; world: string };
+    return { id: data.id, world: data.world };
+  });
 
 /** Stations of a world, in registry order. Counts and ids come from the registry, not a hardcoded list. */
 export function stationsForWorld(worldId: string): readonly PickerGame[] {
