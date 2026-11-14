@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- Slightly tilted plump brown seed centred near bottom y=150 -->
+  <g transform="rotate(-18 80 96)">
+    <!-- Seed body -->
+    <path d="M 80 36 C 102 58 118 88 118 114 C 118 136 101 150 80 150 C 59 150 42 136 42 114 C 42 88 58 58 80 36 Z" fill="#A0632E" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right-bottom seed shadow -->
+    <path d="M 92 60 C 108 82 114 100 114 114 C 114 134 99 146 80 146 C 68 146 58 141 52 134 C 64 140 78 140 88 134 C 102 126 106 102 92 60 Z" fill="#7A4B2A"/>
+    <!-- Top-left seed highlight -->
+    <path d="M 54 112 C 52 92 62 70 75 50 C 66 72 62 94 64 112 C 64 118 55 118 54 112 Z" fill="#D9A066"/>
+    <!-- Glossy highlight dot -->
+    <ellipse cx="62" cy="96" rx="5" ry="11" transform="rotate(10 62 96)" fill="#D9A066"/>
+    <!-- Gentle center seed ridge -->
+    <path d="M 80 54 C 84 82 84 112 80 134" fill="none" stroke="#7A4B2A" stroke-width="4" stroke-linecap="round"/>
+    <!-- Clean outer seed outline -->
+    <path d="M 80 36 C 102 58 118 88 118 114 C 118 136 101 150 80 150 C 59 150 42 136 42 114 C 42 88 58 58 80 36 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

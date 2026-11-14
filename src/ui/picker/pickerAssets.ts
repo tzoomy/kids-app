@@ -51,12 +51,21 @@ const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css:
   'picker-card-travel-suitcase': { url: 'art/props/suitcase-front.svg' },
 };
 
+/** Nature Lab picker cards (additive). Pass-1 placeholders from existing art; real card art is Pass 2. */
+const NATURE_LAB_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
+  'picker-card-who-is-hiding': { url: 'art/scenes/hiding/bg-landscape.svg' },
+  'picker-card-seed-to-flower': { url: 'art/flowers/bloom-daisy-yellow.svg' },
+};
+
 /** Real manifest entry first, then the placeholder. Urls are relative to the app base, like the manifest. */
 export function resolvePickerAsset(key: string, manifest: readonly ArtManifestEntry[] = ART_MANIFEST): PickerAsset {
   const real = manifest.find((e) => e.key === key);
   if (real) return { key, kind: 'manifest', url: real.url };
   const placeholder =
-    PLACEHOLDERS[key as PickerAssetKey] ?? LEISURE_PLACEHOLDERS[key] ?? LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key];
+    PLACEHOLDERS[key as PickerAssetKey] ??
+    LEISURE_PLACEHOLDERS[key] ??
+    LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS[key] ??
+    NATURE_LAB_PLACEHOLDERS[key];
   if (!placeholder) throw new Error(`Unknown picker asset key: ${key}`);
   return 'url' in placeholder ? { key, kind: 'placeholder', url: placeholder.url } : { key, kind: 'css', css: placeholder.css };
 }

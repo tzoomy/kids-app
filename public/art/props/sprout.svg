@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200">
+  <!-- Short green stem with foot at bottom centre (80, 200) -->
+  <path d="M 71 90 L 89 90 L 91 192 C 91 196 86 197 80 197 C 74 197 69 196 69 192 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Stem right-side shadow -->
+  <path d="M 82 92 L 87 92 L 88 193 C 85 195 83 195 81 195 Z" fill="#3CA33C"/>
+  <!-- Stem left-side highlight -->
+  <path d="M 73 94 L 77 94 L 76 184 L 72 184 Z" fill="#8AE07E"/>
+  <!-- Clean stem outline -->
+  <path d="M 71 90 L 89 90 L 91 192 C 91 196 86 197 80 197 C 74 197 69 196 69 192 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left rounded seed leaf -->
+  <path d="M 78 96 C 50 98 24 80 28 56 C 32 38 62 44 78 78 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Left leaf bottom shadow -->
+  <path d="M 32 72 C 42 88 60 94 74 92 C 60 88 46 80 34 66 Z" fill="#3CA33C"/>
+  <!-- Left leaf top highlight -->
+  <path d="M 34 56 C 40 46 56 48 68 64 C 56 54 44 54 34 60 Z" fill="#8AE07E"/>
+  <!-- Left leaf vein -->
+  <path d="M 72 86 C 60 76 48 68 40 62" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <!-- Clean left leaf outline -->
+  <path d="M 78 96 C 50 98 24 80 28 56 C 32 38 62 44 78 78 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right rounded seed leaf -->
+  <path d="M 82 96 C 110 98 136 80 132 56 C 128 38 98 44 82 78 Z" fill="#57C457" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right leaf bottom shadow -->
+  <path d="M 128 72 C 118 88 100 94 86 92 C 100 88 114 80 126 66 Z" fill="#3CA33C"/>
+  <!-- Right leaf top highlight -->
+  <path d="M 126 56 C 120 46 104 48 92 64 C 104 54 116 54 126 60 Z" fill="#8AE07E"/>
+  <!-- Right leaf vein -->
+  <path d="M 88 86 C 100 76 112 68 120 62" fill="none" stroke="#3B2A22" stroke-width="4" stroke-linecap="round"/>
+  <!-- Clean right leaf outline -->
+  <path d="M 82 96 C 110 98 136 80 132 56 C 128 38 98 44 82 78 Z" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

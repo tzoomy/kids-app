@@ -331,7 +331,7 @@ window.__RIGS_DATA__ = {
         "earL": {
           "key": "ear-left",
           "x": -86,
-          "y": -298,
+          "y": -340,
           "originX": 0.72,
           "originY": 0.22,
           "width": 88,
@@ -342,7 +342,7 @@ window.__RIGS_DATA__ = {
         "earR": {
           "key": "ear-right",
           "x": 86,
-          "y": -298,
+          "y": -340,
           "originX": 0.28,
           "originY": 0.22,
           "width": 88,
