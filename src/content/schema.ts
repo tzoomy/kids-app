@@ -573,6 +573,176 @@ const nonBlankString = z
   .min(1)
   .refine((s) => s.trim().length > 0, { message: 'string must not be blank' });
 
+/** Word Train (docs/specs/word-train.md): English-only receptive load & spelling game in Language House. */
+export const WordTrainObjectSchema = z.object({
+  id: nonBlankString,
+  art: nonBlankString,
+  en: nonBlankString,
+  he: nonBlankString,
+});
+
+export const WordTrainWordSchema = z.object({
+  id: nonBlankString,
+  word: z.string().regex(/^[a-z]{3,4}$/, { message: 'word must be 3-4 lowercase a-z letters' }),
+  art: nonBlankString,
+  he: nonBlankString,
+});
+
+export const WordTrainContentSchema = z
+  .object({
+    id: z.literal('word-train'),
+    world: z.string().min(1),
+    template: z.literal('spell'),
+    skill: z.string().min(1),
+    languages: z.tuple([z.literal('en')]),
+    earnsLeisure: z.boolean(),
+    ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
+    objects: z.array(WordTrainObjectSchema).min(2),
+    words: z.array(WordTrainWordSchema).min(2),
+    distractorLetters: z.string().regex(/^[a-z]+$/, { message: 'distractorLetters must be lowercase a-z letters' }),
+    linesEn: z.object({
+      loadFrame: nonBlankString,
+      nameFrame: nonBlankString,
+      otherFrame: nonBlankString,
+      spellFrame: nonBlankString,
+      wordFrame: nonBlankString,
+    }),
+    linesHe: z.object({
+      introLoad: nonBlankString,
+      introSpell: nonBlankString,
+    }),
+    helpTextHe: nonBlankString,
+    adaptive: GameAdaptiveSchema,
+  })
+  .superRefine((value, ctx) => {
+    const objIds = new Set<string>();
+    value.objects.forEach((obj, i) => {
+      if (objIds.has(obj.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['objects', i, 'id'],
+          message: `duplicate object id "${obj.id}"`,
+        });
+      }
+      objIds.add(obj.id);
+    });
+
+    const wordIds = new Set<string>();
+    const wordTexts = new Set<string>();
+    const wordsByLength = new Map<number, number>();
+    value.words.forEach((w, i) => {
+      if (wordIds.has(w.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['words', i, 'id'],
+          message: `duplicate word id "${w.id}"`,
+        });
+      }
+      if (wordTexts.has(w.word)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['words', i, 'word'],
+          message: `duplicate word "${w.word}"`,
+        });
+      }
+      wordIds.add(w.id);
+      wordTexts.add(w.word);
+      wordsByLength.set(w.word.length, (wordsByLength.get(w.word.length) ?? 0) + 1);
+    });
+
+    if (!value.linesEn.loadFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesEn', 'loadFrame'], message: 'loadFrame must include {word}' });
+    }
+    if (!value.linesEn.nameFrame.includes('{Word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesEn', 'nameFrame'], message: 'nameFrame must include {Word}' });
+    }
+    if (!value.linesEn.otherFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesEn', 'otherFrame'], message: 'otherFrame must include {word}' });
+    }
+    if (!value.linesEn.spellFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesEn', 'spellFrame'], message: 'spellFrame must include {word}' });
+    }
+    if (!value.linesEn.wordFrame.includes('{letters}') || !value.linesEn.wordFrame.includes('{word}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesEn', 'wordFrame'],
+        message: 'wordFrame must include {letters} and {word}',
+      });
+    }
+
+    const levelCount = value.adaptive.levels.length;
+    for (const trackName of ['age2', 'age5'] as const) {
+      const tr = value.adaptive.tracks[trackName];
+      if (tr.min < 1 || tr.max > levelCount || tr.start < tr.min || tr.start > tr.max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['adaptive', 'tracks', trackName],
+          message: `track ${trackName} bounds must lie within 1..${levelCount}`,
+        });
+      }
+    }
+
+    const distractorSet = new Set(value.distractorLetters.split(''));
+
+    value.adaptive.levels.forEach((level, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
+      const mode = level.extra?.mode;
+      if (mode !== 'load' && mode !== 'spell') {
+        issue('extra.mode must be "load" or "spell"');
+        return;
+      }
+      if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
+        issue('word-train supports support "picture-audio" or "audio-only"');
+      }
+      if (mode === 'load') {
+        const choiceCount = level.extra?.choiceCount;
+        if (
+          typeof choiceCount !== 'number' ||
+          !Number.isInteger(choiceCount) ||
+          choiceCount < 2 ||
+          choiceCount > value.objects.length
+        ) {
+          issue(`extra.choiceCount must be an integer between 2 and ${value.objects.length}`);
+        }
+        const loadsPerStar = level.extra?.loadsPerStar;
+        if (typeof loadsPerStar !== 'number' || !Number.isInteger(loadsPerStar) || loadsPerStar < 1) {
+          issue('extra.loadsPerStar must be a positive integer');
+        }
+      } else {
+        const wordLength = level.extra?.wordLength;
+        if (wordLength !== 3 && wordLength !== 4) {
+          issue('extra.wordLength must be 3 or 4');
+        } else {
+          const matching = wordsByLength.get(wordLength) ?? 0;
+          if (matching < 2) {
+            issue(`words must include at least 2 words of length ${wordLength}`);
+          }
+        }
+        const ghost = level.extra?.ghost;
+        if (typeof ghost !== 'boolean') {
+          issue('extra.ghost must be a boolean');
+        }
+        const distractors = level.extra?.distractors;
+        if (distractors !== 0 && distractors !== 1) {
+          issue('extra.distractors must be 0 or 1');
+        } else if (distractors > 0 && (wordLength === 3 || wordLength === 4)) {
+          for (const w of value.words) {
+            if (w.word.length !== wordLength) continue;
+            const available = [...distractorSet].filter((ch) => !w.word.includes(ch));
+            if (available.length < distractors) {
+              issue(`distractorLetters has fewer than ${distractors} letters outside word "${w.word}"`);
+            }
+          }
+        }
+      }
+    });
+  });
+
+export type WordTrainObject = z.infer<typeof WordTrainObjectSchema>;
+export type WordTrainWord = z.infer<typeof WordTrainWordSchema>;
+export type WordTrainContent = z.infer<typeof WordTrainContentSchema>;
+
 /** Letter Monster (docs/specs/letter-monster.md): no-fail color & initial-letter game in Language House. */
 export const LETTER_MONSTER_COLOR_IDS = ['red', 'yellow', 'orange', 'purple', 'green', 'brown', 'white', 'blue'] as const;
 export type LetterMonsterColorId = (typeof LETTER_MONSTER_COLOR_IDS)[number];

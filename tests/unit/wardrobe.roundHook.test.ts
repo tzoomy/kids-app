@@ -12,6 +12,7 @@ const WORLD_SCENE_SOURCE: Record<PickerGameId, string> = {
   'kitchen-orchestra': 'src/games/orchestra/OrchestraScene.ts',
   'letter-monster': 'src/games/letterMonster/LetterMonsterScene.ts',
   'travel-suitcase': 'src/games/travelSuitcase/SuitcaseScene.ts',
+  'word-train': 'src/games/wordTrain/WordTrainScene.ts',
   'sorting-beds': 'src/games/sorting/SortingScene.ts',
   'balloon-pop': 'src/games/balloon/BalloonScene.ts',
   'picnic-train': 'src/games/picnic/PicnicScene.ts',

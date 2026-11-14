@@ -6,6 +6,7 @@ import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import wordTrainJson from './games/word-train.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
 import travelSuitcaseJson from './games/travel-suitcase.json';
@@ -24,6 +25,7 @@ import {
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
+  WordTrainContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
   PotionLabContentSchema,
@@ -39,6 +41,7 @@ import {
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
+  type WordTrainContent,
   type LetterMonsterContent,
   type BalloonPopContent,
   type TravelSuitcaseContent,
@@ -84,6 +87,10 @@ export function loadPicnicTrain(): PicnicTrainContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadWordTrain(): WordTrainContent {
+  return WordTrainContentSchema.parse(wordTrainJson);
 }
 
 export function loadLetterMonster(): LetterMonsterContent {

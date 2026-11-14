@@ -4,7 +4,7 @@
  */
 
 /** Screens the child (or parent) can be on. */
-export type AppScreen = 'profile' | 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower' | 'wardrobe' | 'parent' | 'loading';
+export type AppScreen = 'profile' | 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'word-train' | 'seed-flower' | 'wardrobe' | 'parent' | 'loading';
 
 /** sessionStorage key written just before a PWA-driven reload, to prevent a reload loop. */
 export const PWA_RELOAD_GUARD_KEY = 'kids-app-pwa-reloaded';

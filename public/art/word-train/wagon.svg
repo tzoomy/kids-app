@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Left and Right coupler stubs at exact engine/car coupler height -->
+  <rect x="3" y="196" width="20" height="18" rx="6" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="177" y="196" width="20" height="18" rx="6" fill="#3D3532" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Interior back rim of the open cargo wagon (top at y=114, leaving y=20..110 empty) -->
+  <rect x="24" y="114" width="152" height="18" rx="8" fill="#D99B26" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Low open cargo box body in warm yellow -->
+  <rect x="18" y="120" width="164" height="76" rx="14" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+  <!-- One flat highlight and one flat shadow on box body -->
+  <path d="M32 132 H168" stroke="#FFF2A6" stroke-width="7"/>
+  <rect x="22" y="176" width="156" height="16" rx="6" fill="#EAA814"/>
+
+  <!-- Warm yellow top rail trim on the wagon box -->
+  <rect x="14" y="114" width="172" height="12" rx="6" fill="#FFD166" stroke="#3B2A22" stroke-width="6"/>
+
+  <!-- Chassis base beam (matches car-single.svg and engine.svg y=192..216) -->
+  <rect x="16" y="192" width="168" height="24" rx="10" fill="#FFF8EE" stroke="#3B2A22" stroke-width="6"/>
+  <rect x="24" y="204" width="152" height="9" rx="4" fill="#F0DEC2"/>
+
+  <!-- Big plain cream panel on front face (130x88, centred at x=100, y=164) -->
+  <rect x="35" y="120" width="130" height="88" rx="12" fill="#FFF8EE" stroke="#3B2A22" stroke-width="5"/>
+
+  <!-- Two chunky wheels with bottom edge at y=260 (cy=225, r=32, stroke=6) -->
+  <g stroke="#3B2A22" stroke-width="6">
+    <!-- Left wheel -->
+    <circle cx="58" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="58" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="58" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+
+    <!-- Right wheel -->
+    <circle cx="142" cy="225" r="32" fill="#3D3532"/>
+    <circle cx="142" cy="225" r="18" fill="#EE6C62" stroke-width="5"/>
+    <circle cx="142" cy="225" r="7" fill="#FFD166" stroke-width="4"/>
+  </g>
+</svg>

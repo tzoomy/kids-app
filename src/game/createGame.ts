@@ -12,6 +12,9 @@ import type { PicnicInfo } from '../games/picnic/types';
 import { HabitatScene } from '../games/habitat/HabitatScene';
 import type { HabitatInfo } from '../games/habitat/types';
 import { ColouringScene } from '../games/colouring/ColouringScene';
+import { WordTrainScene } from '../games/wordTrain/WordTrainScene';
+import type { WordTrainInfo } from '../games/wordTrain/wordTrainTypes';
+import { loadWordTrain } from '../content/loadContent';
 import { BalloonScene } from '../games/balloon/BalloonScene';
 import type { BalloonInfo } from '../games/balloon/types';
 import { SuitcaseScene } from '../games/travelSuitcase/SuitcaseScene';
@@ -51,7 +54,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'picnic' | 'habitat' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'magic-magnet' | 'travel-suitcase' | 'word-train' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -90,6 +93,10 @@ declare global {
       getBalloonInfo: () => BalloonInfo | null;
       /** Same for Who's Hiding?. Call before entering it. */
       seedHidingLevel: (level: number) => void;
+      /** Seeds the persisted Word Train level (cleanStreak 0, recent []) for English. Call on the map, before entering. */
+      seedWordTrainLevel: (level: number) => void;
+      /** Current Word Train state (null when WordTrainScene is not active); rectangles are page CSS px. */
+      getWordTrainInfo: () => WordTrainInfo | null;
       /** Seeds the persisted Travel Suitcase level (cleanStreak 0, recent []) for every content language. Call on the map, before entering. */
       seedSuitcaseLevel: (level: number) => void;
       /** Current Travel Suitcase state (null when SuitcaseScene is not active); rectangles are page CSS px. */
@@ -183,6 +190,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('PicnicScene', PicnicScene, false);
   game.scene.add('HabitatScene', HabitatScene, false);
   game.scene.add('ColouringScene', ColouringScene, false);
+  game.scene.add('WordTrainScene', WordTrainScene, false);
   game.scene.add('LetterMonsterScene', LetterMonsterScene, false);
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SuitcaseScene', SuitcaseScene, false);
@@ -209,6 +217,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'picnic' ? 'PicnicScene'
         : screen === 'habitat' ? 'HabitatScene'
         : screen === 'colouring' ? 'ColouringScene'
+        : screen === 'word-train' ? 'WordTrainScene'
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'potion-lab' ? 'PotionScene'
@@ -223,6 +232,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('HidingScene');
       game.scene.stop('BubblesScene');
       game.scene.stop('OrchestraScene');
+      game.scene.stop('WordTrainScene');
       game.scene.stop('SeedFlowerScene');
       game.scene.stop('SortingScene');
       game.scene.stop('PicnicScene');
@@ -372,6 +382,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         });
       }
       context.adaptive.persist(profileId);
+    },
+    seedWordTrainLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadWordTrain(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getWordTrainInfo() {
+      const scene = game.scene.getScene('WordTrainScene') as WordTrainScene | null;
+      return scene && game.scene.isActive('WordTrainScene') ? scene.getWordTrainInfo() : null;
     },
     seedPotionLevel(level) {
       seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadPotionLab(), level, localDayKey(new Date(context.nowMs())));

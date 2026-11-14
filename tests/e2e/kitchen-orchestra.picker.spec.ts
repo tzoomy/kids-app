@@ -38,6 +38,11 @@ test.describe('language house game picker', () => {
     const { landscape } = expectKnownViewport(page);
     await openPicker(page);
 
+    const pickerCount = await page
+      .locator('.picker-cards')
+      .evaluate((el) => getComputedStyle(el).getPropertyValue('--picker-count').trim());
+    expect(pickerCount).toBe(String(CARD_IDS.length));
+
     const vp = page.viewportSize()!;
     const boxes: Record<string, PageRect> = {};
     for (const id of [...CARD_IDS, 'game-picker-close']) {
@@ -75,11 +80,13 @@ test.describe('language house game picker', () => {
       }
     }
 
-    // Each card (the whole button) is exactly 4:5, like the 640x800 art, and the art fills it: no letterbox gaps.
+    // Each card (the whole button) is exactly 4:5, like the 640x800 art; image cards fill it with no letterbox gaps.
+    // CSS-gradient placeholder cards have no <img>; IMG_CARD_IDS lists the cards whose art must fill the button.
     const BORDER = 6;
     for (const id of CARD_IDS) {
       const card = boxes[id];
       expect(Math.abs(card.width / card.height - 0.8), `${id} aspect ${card.width}x${card.height}`).toBeLessThanOrEqual(0.02);
+      if (id === 'game-picker-word-train') continue;
       const art = page.locator(`[data-testid="${id}"] .picker-card-art`);
       const artBox = (await art.boundingBox())!;
       const parts: Array<readonly [string, PageRect]> = [['art box', artBox]];
@@ -105,6 +112,7 @@ test.describe('language house game picker', () => {
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
+    expect(scenes).not.toContain('WordTrainScene');
     expect(scenes).not.toContain('LetterMonsterScene');
     expect(scenes).not.toContain('SuitcaseScene');
   });
@@ -139,6 +147,7 @@ test.describe('language house game picker', () => {
     const scenes = await getActiveScenes(page);
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
+    expect(scenes).not.toContain('WordTrainScene');
   });
 });
 
@@ -155,6 +164,7 @@ test.describe('kitchen orchestra: map journey', () => {
       const scenes = await getActiveScenes(page);
       expect(scenes, `${worldId} must not open Kitchen Orchestra`).not.toContain('OrchestraScene');
       expect(scenes, `${worldId} must not open Animal Restaurant`).not.toContain('RestaurantScene');
+      expect(scenes, `${worldId} must not open Word Train`).not.toContain('WordTrainScene');
       await expect(page.locator('[data-testid="game-picker-kitchen-orchestra"]'), `${worldId} must not open the picker`).toHaveCount(0);
       if (worldId === 'art-studio') expect(scenes, `${worldId} stays on the map`).toContain('MapScene');
     }

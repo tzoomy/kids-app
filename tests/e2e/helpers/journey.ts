@@ -3,6 +3,7 @@
 // Hooks are used only to READ state (hit rectangles, round info, speech log) or to seed it.
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
+import type { WordTrainInfo } from '../../../src/games/wordTrain/wordTrainTypes';
 import type { SuitcaseInfo } from '../../../src/games/travelSuitcase/suitcaseTypes';
 import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
 import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
@@ -13,7 +14,7 @@ import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTyp
 import type { HabitatInfo } from '../../../src/games/habitat/types';
 import type { WardrobeInfo, WardrobeSeed } from '../../../src/games/wardrobe/wardrobeTypes';
 
-export type { SortingInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
+export type { SortingInfo, WordTrainInfo, PotionInfo, SinkFloatInfo, MagnetInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo, HabitatInfo, SuitcaseInfo, WardrobeInfo, WardrobeSeed };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -31,6 +32,7 @@ export const GAME_SCENE: Record<string, string> = {
   'leisure-colouring': 'ColouringScene',
   // Number Garden opens a picker (Sorting Beds, Balloon Pop, and Picnic Train once registered); Sorting Beds is its default card.
   'sorting-beds': 'SortingScene',
+  'word-train': 'WordTrainScene',
   'balloon-pop': 'BalloonScene',
   'picnic-train': 'PicnicScene',
   'potion-lab': 'PotionScene',
@@ -161,6 +163,8 @@ type Hooks = {
   seedSortingLevel: (level: number) => void;
   seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
   seedTimeEarningEnabled: (enabled: boolean) => void;
+  seedWordTrainLevel: (level: number) => void;
+  getWordTrainInfo: () => WordTrainInfo | null;
   seedLetterMonsterLevel: (level: number) => void;
   getLetterMonsterInfo: () => LetterMonsterInfo | null;
   getBalloonInfo: () => BalloonInfo | null;
@@ -584,6 +588,26 @@ export async function readStoredSkill(page: Page, profile: ProfileTestId, lang: 
     },
     [profileId, `number-garden.sorting-beds.${lang}`] as const,
   );
+}
+
+/** Seeds the persisted Word Train level for English (seed only). Call on the map, before entering. */
+export async function seedWordTrainLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedWordTrainLevel', [level]);
+}
+
+export function getWordTrainInfo(page: Page): Promise<WordTrainInfo | null> {
+  return callHook<WordTrainInfo | null>(page, 'getWordTrainInfo');
+}
+
+/** Waits until Word Train accepts input and returns its state. */
+export async function waitForWordTrainReady(page: Page, timeout = 15_000): Promise<WordTrainInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getWordTrainInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Word Train never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
 }
 
 /** Seeds the persisted Letter Monster level for the active profile. Call before entering. */

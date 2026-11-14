@@ -19,6 +19,7 @@ import {
   loadLetterMonster,
   loadPicnicTrain,
   loadTravelSuitcase,
+  loadWordTrain,
   loadPotionLab,
   loadSinkOrFloat,
   loadMagicMagnet,
@@ -38,6 +39,7 @@ const REAL_GAMES = collectTrailGames({
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
   suitcase: loadTravelSuitcase(),
+  wordTrain: loadWordTrain(),
   sorting: loadSortingBeds(),
   balloon: loadBalloonPop(),
   picnic: loadPicnicTrain(),
@@ -234,7 +236,7 @@ describe('station trail: data-driven station list', () => {
 
   it('[AC-09] the real registry and content give every world its post-main stations, in registry order', () => {
     const ids = (world: string) => stationGamesForWorld(world, WORLD_GAMES, REAL_GAMES).map((g) => g.gameId);
-    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
+    expect(ids('language-house')).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase', 'word-train']);
     expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here']);
     expect(ids('science-world')).toEqual(['potion-lab', 'sink-or-float', 'magic-magnet']);
@@ -289,6 +291,7 @@ describe('station trail: data-driven station list', () => {
       ['sink-or-float', 'SinkFloatScene'],
       ['magic-magnet', 'MagnetScene'],
       ['travel-suitcase', 'SuitcaseScene'],
+      ['word-train', 'WordTrainScene'],
     ]);
   });
 });
@@ -302,7 +305,7 @@ describe('station trail: world entry rule', () => {
     expect(worldEntry(three)).toEqual({ kind: 'picker', stations: three });
   });
 
-  it('[AC-10] the real worlds: Language House 4, Number Garden 3, Nature Lab 3 and Science World 3 open the trail; a world with no game is none', () => {
+  it('[AC-10] the real worlds: Language House, Number Garden, Nature Lab and Science World open the trail; a world with no game is none', () => {
     const entryOf = (world: string) =>
       worldEntry(buildTrail({ worldId: world, registry: WORLD_GAMES, games: REAL_GAMES, skills: {}, track: 'age5' }));
     for (const world of ['language-house', 'number-garden', 'nature-lab', 'science-world']) {

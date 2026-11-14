@@ -48,6 +48,7 @@ describe('isSafeToApplyUpdate', () => {
     ['picnic', false],
     ['habitat', false],
     ['colouring', false],
+    ['word-train', false],
     ['letter-monster', false],
     ['balloon', false],
     ['magic-magnet', false],
@@ -80,6 +81,7 @@ describe('decidePwaUpdate', () => {
     expect(decidePwaUpdate({ ...base, screen: 'picnic' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'habitat' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'colouring' })).toBe('defer');
+    expect(decidePwaUpdate({ ...base, screen: 'word-train' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'letter-monster' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'balloon' })).toBe('defer');
     expect(decidePwaUpdate({ ...base, screen: 'potion-lab' })).toBe('defer');

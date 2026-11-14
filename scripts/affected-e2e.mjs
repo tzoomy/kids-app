@@ -60,6 +60,7 @@ export const PICKER_SPECS = [
   'tests/e2e/travel-suitcase.journey.spec.ts',
   'tests/e2e/who-is-hiding.journey.spec.ts',
   'tests/e2e/who-lives-here.journey.spec.ts',
+  'tests/e2e/word-train.journey.spec.ts',
 ];
 
 /** Explicit map. Every tests/e2e/*.spec.ts must appear in some `specs` list or in SMOKE_SPECS. */
@@ -108,6 +109,16 @@ export const GAME_RULES = [
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
     specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
+  },
+  {
+    id: 'word-train',
+    match: [
+      /^src\/games\/wordTrain\//,
+      /^src\/content\/games\/word-train\.json$/,
+      /^public\/art\/word-train\//,
+      /^tests\/unit\/word-train[^/]*$/,
+    ],
+    specs: ['tests/e2e/word-train.journey.spec.ts'],
   },
   {
     id: 'travel-suitcase',

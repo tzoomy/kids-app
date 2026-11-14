@@ -160,7 +160,10 @@ test.describe('station trail inside a world', () => {
     await openLanguageHouse(page, 'profile-a');
     const vp = page.viewportSize()!;
     await expect(page.locator('[data-testid="station-trail"]')).toBeVisible();
-    expect(LANGUAGE_HOUSE_CARD_IDS.length, 'Language House trail has four stations after Travel Suitcase').toBe(4);
+    expect(LANGUAGE_HOUSE_CARD_IDS.map((id) => id.replace('game-picker-', ''))).toEqual(
+      stationsForWorld('language-house').map((g) => g.gameId),
+    );
+    expect(LANGUAGE_HOUSE_CARD_IDS, 'Language House trail includes Word Train as the fifth station').toContain('game-picker-word-train');
     await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(LANGUAGE_HOUSE_CARD_IDS.length);
     for (const id of LANGUAGE_HOUSE_CARD_IDS) {
       await expect(page.locator(`[data-testid="${id}"]`)).toBeVisible();

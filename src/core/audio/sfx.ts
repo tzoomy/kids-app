@@ -48,4 +48,9 @@ export class SfxPlayer {
   end(): void {
     [784, 659, 523].forEach((f, i) => this.tone(f, 0.35, 'sine', i * 0.25));
   }
+
+  toot(): void {
+    this.tone(523, 0.14, 'triangle', 0, 0.2);
+    this.tone(659, 0.22, 'triangle', 0.16, 0.22);
+  }
 }

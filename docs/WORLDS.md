@@ -113,7 +113,7 @@ Goal: understand a request or a word in the learning language and act in the wor
 
 ### 6. Kitchen Orchestra
 
-- **Stage:** Built (on `main`). Moved here from Art Studio by the owner's decision of 2026-11-12; reached through the Language House game picker (Animal Restaurant or Kitchen Orchestra). Full spec: [docs/specs/kitchen-orchestra.md](specs/kitchen-orchestra.md).
+- **Stage:** Built (on `main`). Moved here from Art Studio by the owner's decision of 2026-11-12; reached through the Language House station trail. Full spec: [docs/specs/kitchen-orchestra.md](specs/kitchen-orchestra.md).
 
 - **Action:** A chef plays a short pattern on kitchen utensils (pot, pan, water glasses) and names them in the learning language; the girl echoes the pattern by tapping the utensils.
 - **Learning goal:** Kitchen utensil words and simple requests in English or French ("Play the pot!", "Listen!", "Your turn!"); listening to a pattern and imitating a short sequence.

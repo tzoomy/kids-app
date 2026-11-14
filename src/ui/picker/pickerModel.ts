@@ -5,6 +5,7 @@ export type PickerGameId =
   | 'kitchen-orchestra'
   | 'letter-monster'
   | 'travel-suitcase'
+  | 'word-train'
   | 'sorting-beds'
   | 'balloon-pop'
   | 'picnic-train'
@@ -26,7 +27,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'sortingBeds' | 'balloonPop' | 'picnicTrain' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'letterMonster' | 'travelSuitcase' | 'wordTrain' | 'sortingBeds' | 'balloonPop' | 'picnicTrain' | 'whoIsHiding' | 'seedToFlower' | 'whoLivesHere' | 'potionLab' | 'sinkOrFloat' | 'magicMagnet' | 'bubbles' | 'colouring';
 }
 
 /**
@@ -145,6 +146,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     sceneKey: 'SuitcaseScene',
     assetKey: 'picker-card-travel-suitcase',
     labelKey: 'travelSuitcase',
+  },
+  {
+    gameId: 'word-train',
+    testId: 'game-picker-word-train',
+    sceneKey: 'WordTrainScene',
+    assetKey: 'picker-card-word-train',
+    labelKey: 'wordTrain',
   },
 ];
 
