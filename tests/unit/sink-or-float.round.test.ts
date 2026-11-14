@@ -23,6 +23,7 @@ import {
   resultLearningLine,
   trialForDrop,
   trialForPrediction,
+  visitStartLines,
 } from '@/games/sinkFloat/sinkFloatRound';
 import { nextRoundLanguage } from '@/games/restaurant/trialTracker';
 
@@ -81,6 +82,8 @@ describe('Sink or Float: levels, adaptive trials, voice lines and content', () =
       lang: 'he',
       text: content.linesHe.introFree,
     });
+    expect(visitStartLines(content, { includeIntro: true, mode: 'free' })).toEqual([introLine(content, 'free')]);
+    expect(visitStartLines(content, { includeIntro: false, mode: 'free' })).toEqual([]);
 
     for (const id of FLOAT_OBJECT_IDS) {
       const outcome = OBJECT_FLOATS[id] ? 'floats' : 'sinks';
@@ -111,6 +114,8 @@ describe('Sink or Float: levels, adaptive trials, voice lines and content', () =
       lang: 'he',
       text: content.linesHe.introPredict,
     });
+    expect(visitStartLines(content, { includeIntro: true, mode: 'predict' })).toEqual([introLine(content, 'predict')]);
+    expect(visitStartLines(content, { includeIntro: false, mode: 'predict' })).toEqual([]);
     expect(askLine(content)).toEqual({
       lineId: 'sinkFloat.ask.he',
       lang: 'he',

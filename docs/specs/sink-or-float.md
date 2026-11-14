@@ -132,3 +132,4 @@ Only after Maor approves Pass 1: polished art, water ripples, picker card art an
 
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
 - `2026-11-14` — sync Pass 1 spec notes (`sinkFloat.help.he`, `hinted`/`audioOnly`, `goToScreen('sink-or-float')`, tank as layout area) and add tap-race regression tests
+- `2026-11-14` — defer visit-start intro speech to `Phaser.Scenes.Events.CREATE` so first-entry intro plays, with e2e intro tests

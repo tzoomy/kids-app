@@ -32,12 +32,12 @@ import {
 } from './sinkFloatMachine';
 import {
   askLine,
-  introLine,
   letsSeeLine,
   namingLines,
   planForLevel,
   trialForDrop,
   trialForPrediction,
+  visitStartLines,
   type SinkFloatPlan,
 } from './sinkFloatRound';
 import type { SinkFloatInfo } from './sinkFloatTypes';
@@ -193,7 +193,7 @@ export class SinkFloatScene extends Phaser.Scene {
     this.buildPredictionButtons();
     this.buildHud();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
-    this.startVisit();
+    this.startVisit(true);
 
     window.__GAME_READY__ = true;
   }
@@ -470,7 +470,7 @@ export class SinkFloatScene extends Phaser.Scene {
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
   }
 
-  private startVisit(): void {
+  private startVisit(fromCreate = false): void {
     const token = ++this.visitToken;
     const c = content();
     this.refreshRoundPlan();
@@ -482,9 +482,19 @@ export class SinkFloatScene extends Phaser.Scene {
     const objectsIn = this.buildOfferedObjects(true);
     this.syncButtonVisibility();
 
-    if (this.introPending) {
+    const startSpeech = (): void => {
+      if (token !== this.visitToken || !this.sys.isActive()) return;
+      const includeIntro = this.introPending;
       this.introPending = false;
-      void this.speakSequence([introLine(c, this.plan.mode)], token);
+      const lines = visitStartLines(c, { includeIntro, mode: this.plan.mode });
+      if (lines.length > 0) void this.speakSequence(lines, token);
+    };
+    if (fromCreate) {
+      // Phaser keeps scene status CREATING during create() and sets RUNNING (sys.isActive() === true)
+      // only right before emitting CREATE; starting speech synchronously aborts on !this.sys.isActive().
+      this.events.once(Phaser.Scenes.Events.CREATE, startSpeech);
+    } else {
+      startSpeech();
     }
 
     const tankIn = this.tankView ? popIn(this, this.tankView, 40) : Promise.resolve();

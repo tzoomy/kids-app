@@ -58,6 +58,14 @@ export function introLine(content: SinkOrFloatContent, mode: SinkFloatMode): Spe
     : { lineId: 'sinkFloat.intro.free.he', lang: 'he', text: content.linesHe.introFree };
 }
 
+/** Lines spoken when starting a visit: the mode-specific Hebrew intro when pending, empty otherwise. */
+export function visitStartLines(
+  content: SinkOrFloatContent,
+  opts: { includeIntro: boolean; mode: SinkFloatMode },
+): SpeechRequest[] {
+  return opts.includeIntro ? [introLine(content, opts.mode)] : [];
+}
+
 /** Hebrew question spoken after selecting an object in predict mode. */
 export function askLine(content: SinkOrFloatContent): SpeechRequest {
   return {

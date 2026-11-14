@@ -4,6 +4,7 @@ import { OBJECT_FLOATS } from '../../src/games/sinkFloat/sinkFloatMachine';
 import {
   enterWorldByTap,
   getActiveScenes,
+  getBuildingHit,
   getSinkFloatInfo,
   getSpokenLines,
   readBalanceSec,
@@ -14,6 +15,8 @@ import {
   tapWorldBuilding,
   waitForScene,
   waitForSinkFloatReady,
+  waitForSpokenLine,
+  type PageRect,
   type SinkFloatInfo,
 } from './helpers/journey';
 
@@ -52,6 +55,28 @@ async function waitForSinkFloat(
   }
 }
 
+/** Taps a building on an already-active MapScene once its pop-in hit rectangle has settled. */
+async function tapMapBuilding(page: Page, worldId: string): Promise<void> {
+  let previous: PageRect | null = null;
+  let rect: PageRect | null = null;
+  await expect
+    .poll(
+      async () => {
+        const current = await getBuildingHit(page, worldId);
+        const settled =
+          current !== null && previous !== null && current.width > 0 && Math.abs(current.width - previous.width) < 0.5;
+        previous = current;
+        rect = current;
+        return settled;
+      },
+      { timeout: 15_000, intervals: [100] },
+    )
+    .toBe(true);
+  const fresh = (await getBuildingHit(page, worldId)) ?? rect;
+  if (!fresh) throw new Error(`building "${worldId}" has no hit rectangle`);
+  await tapRect(page, fresh);
+}
+
 test.describe('sink or float', () => {
   test('[AC-01] full real-tap journey: profile -> Science World -> picker card -> drop one object -> back to the map', async ({
     page,
@@ -82,6 +107,53 @@ test.describe('sink or float', () => {
     await tapTestId(page, 'hud-back');
     await waitForScene(page, 'MapScene');
     expect(await getActiveScenes(page)).not.toContain('SinkFloatScene');
+  });
+
+  test('[AC-04] @single-orientation free mode (age 2): speaks the free-mode intro line on entry and once more after re-entry from the map', async ({
+    page,
+  }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    const info = await enterSinkFloat(page, 'profile-a');
+    expect(info.level).toBe(1);
+    expect(info.mode).toBe('free');
+
+    await waitForSpokenLine(page, (l) => l.lineId === 'sinkFloat.intro.free.he' && l.lang === 'he');
+    const firstVisitLines = await getSpokenLines(page);
+    expect(firstVisitLines.filter((l) => l.lineId === 'sinkFloat.intro.free.he')).toHaveLength(1);
+
+    const spokenBeforeReentry = firstVisitLines.length;
+    await tapTestId(page, 'hud-back');
+    await waitForScene(page, 'MapScene');
+
+    await tapMapBuilding(page, 'science-world');
+    await tapTestId(page, 'game-picker-sink-or-float');
+    await waitForScene(page, 'SinkFloatScene');
+    await waitForSinkFloatReady(page);
+
+    await waitForSpokenLine(
+      page,
+      (l) => l.lineId === 'sinkFloat.intro.free.he' && l.lang === 'he',
+      10_000,
+      spokenBeforeReentry,
+    );
+    const reentryLines = await getSpokenLines(page, spokenBeforeReentry);
+    expect(reentryLines.filter((l) => l.lineId === 'sinkFloat.intro.free.he')).toHaveLength(1);
+  });
+
+  test('[AC-05] @single-orientation predict mode (age 5): speaks the predict-mode intro line on entry before any tap', async ({
+    page,
+  }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    const info = await enterSinkFloat(page, 'profile-b', 2);
+    expect(info.level).toBe(2);
+    expect(info.mode).toBe('predict');
+    expect(info.phase).toBe('choosing');
+
+    await waitForSpokenLine(page, (l) => l.lineId === 'sinkFloat.intro.predict.he' && l.lang === 'he');
+    const lines = await getSpokenLines(page);
+    expect(lines.filter((l) => l.lineId === 'sinkFloat.intro.predict.he')).toHaveLength(1);
+    expect(lines.some((l) => l.lineId === 'sinkFloat.ask.he')).toBe(false);
   });
 
   test('[AC-04] @single-orientation free mode (age 2): each drop names the outcome in Hebrew and in the learning language', async ({
