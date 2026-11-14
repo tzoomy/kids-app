@@ -5,7 +5,7 @@ Pass in progress: **1**
 
 ## Summary
 
-In Who Lives Here? (`מי גר כאן?`), a friendly animal stands on the path and the child taps the home where it lives (pond, nest, tree hollow, burrow, doghouse, or beehive). Each correct tap walks the animal home with a warm reaction, a round is 3 animals, and a finished round earns a star. The child learns to match a creature to its habitat and picks up English and French animal and home words. The game sits in Nature Lab next to Who's Hiding?, and Nature Lab's building opens a two-card game picker.
+In Who Lives Here? (`מי גר כאן?`), a friendly animal stands on the path and the child taps the home where it lives (pond, nest, tree hollow, burrow, doghouse, or beehive). Each correct tap walks the animal home with a warm reaction, a round is 3 animals, and a finished round earns a star. The child learns to match a creature to its habitat and picks up English and French animal and home words. The game sits in Nature Lab next to Who's Hiding?, and Nature Lab's building opens the three-station trail picker (Who's Hiding?, Seed to Flower, Who Lives Here?).
 
 ## Learning goals
 
@@ -15,7 +15,7 @@ In Who Lives Here? (`מי גר כאן?`), a friendly animal stands on the path a
 ## World and why
 
 - **World** (Language House, Number Garden, Nature Lab, Art Studio, or Leisure Corner): Nature Lab (`nature-lab`, `מעבדת הטבע`).
-- **Why this game belongs there:** `docs/WORLDS.md` (§ "Nature Lab → 2. Who Lives Here?") places it in Nature Lab as the second game: matching a creature to a habitat and animal vocabulary. Who's Hiding? stays the first game (first picker card).
+- **Why this game belongs there:** `docs/WORLDS.md` (§ "Nature Lab → 2. Who Lives Here?") places it in Nature Lab as a game of its own: matching a creature to a habitat and animal vocabulary. In the station trail it is the third Nature Lab station, appended after Who's Hiding? and Seed to Flower (registry order); Who's Hiding? stays the first station.
 
 ## Mechanic
 
@@ -59,12 +59,12 @@ Tapping the animal replays the request (a voluntary replay is never a hint). The
 
 ## Player journey from the map
 
-Profile → tap the Nature Lab building on the map → the Nature Lab game picker opens (two cards: Who's Hiding? first, Who Lives Here? second; a close button stays on the map) → tap the Who Lives Here? card → `HabitatScene` opens with an iris transition → play a round → back button → map. Nature Lab's `entryGameId` stays `who-is-hiding` (the first picker card and the default for helpers).
+Profile → tap the Nature Lab building on the map → the Nature Lab trail picker opens (three stations: Who's Hiding? first, Seed to Flower second, Who Lives Here? third; a close button stays on the map) → tap the Who Lives Here? card → `HabitatScene` opens with an iris transition → play a round → back button → map. Nature Lab is a 3-station trail built from `WORLD_GAMES` in registry order (Who's Hiding?, Seed to Flower, Who Lives Here?). Its `entryGameId` may stay `who-is-hiding` as a fallback hint and the default for helpers; the building opens the trail, not a game.
 
 Handles (frozen at approval):
 
 - Map building hit target: `getBuildingHit('nature-lab')`
-- `data-testid`s: `game-picker-who-is-hiding`, `game-picker-who-lives-here`, `game-picker-close`, `hud-back`, `hud-help`, `star-count`, `leisure-balance`, `prompt-bubble`, `help-card`, `help-card-close`.
+- `data-testid`s: `game-picker-who-is-hiding`, `game-picker-seed-to-flower`, `game-picker-who-lives-here`, `game-picker-close`, `hud-back`, `hud-help`, `star-count`, `leisure-balance`, `prompt-bubble`, `help-card`, `help-card-close`.
 - Seed and read hooks under `?e2e=1` (seed or read only; no game actions, no scene navigation):
   - `getHabitatInfo(): HabitatInfo | null` (read; types in `src/games/habitat/types.ts`): `level`, `lang`, `request` (`noun` or `riddle`), `textBubble` (false on the audio-only level), `ready`, `homes[]` (`id`, `family`, `count`, `glowing`, `hit` in page CSS px), `currentAnimal` (`id`, `homeId`, `tries`, `hinted`, `hit` in page CSS px) or `null`, `round` (`index`, `total`, `placed`).
   - `seedHabitatLevel(level)` (seed): writes the active profile's adaptive level for every language, call on the map before the game opens.
@@ -89,11 +89,11 @@ Handles (frozen at approval):
 | AC-13 | The parent area stays gated (test runs without `?e2e=1`) | 1 | e2e | @single-orientation | |
 | AC-14 | Device check: touch, rotation mid-game, audible voice, visuals | 1 | device | both | |
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
-| AC-16 | The Nature Lab building opens a picker with two cards (Who's Hiding? first, then Who Lives Here?), each at least 64 CSS px, with a close button that returns to the map; the first card still opens Who's Hiding? | 1 | e2e | both | `getBuildingHit` |
+| AC-16 | The Nature Lab building opens a 3-station trail (Who's Hiding? first, Seed to Flower, then Who Lives Here?), each card at least 64 CSS px, inside the viewport and not overlapping, with a close button that returns to the map; the first card still opens Who's Hiding? | 1 | e2e | both | `getBuildingHit` |
 | AC-17 | Round building: homes shown equal the level's choiceCount and always include the first animal's home; every animal's home is on screen; 3 animals per round, never the same animal twice in a row; at least two different target homes; `far` distractors come from other families, `near` from the same family first | 1 | unit | @single-orientation | |
 | AC-18 | Layout: homes and the animal stand inside the canvas in both orientations, homes do not overlap, and every tap target is at least 64 px | 1 | unit | @single-orientation | |
 | AC-19 | At age 5, after a wrong tap on a clue-after-miss level the descriptive clue is spoken in the round language; age 2 has an idle hint and age 5 does not | 1 | e2e+seed | @single-orientation | `seedHabitatLevel`, `getHabitatInfo`, `getSpokenLines` |
-| AC-20 | Habitat screen is an `AppScreen` and a waiting update is deferred while the game is open; the picker lists the games with their scenes and card ids | 1 | unit | @single-orientation | |
+| AC-20 | Habitat screen is an `AppScreen` and a waiting update is deferred while the game is open; Who Lives Here? is exactly one `WORLD_GAMES` entry and the third Nature Lab station (after Who's Hiding? and Seed to Flower) with its scene and card id, and no per-world picker list exists | 1 | unit | @single-orientation | |
 
 By default, Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3).
 
@@ -121,7 +121,7 @@ Basic animation and device TTS only. All art already exists on `main`; nothing n
 | `habitat.wrong.he` | he | כמעט! נסי בית אחר. | Wrong tap |
 | `habitat.help.he` | he | עזרי לכל חיה למצוא את הבית שלה. הקשי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב. | Help button |
 
-- **World and PWA wiring:** `worlds.json` keeps `nature-lab` `open`, `earnsLeisure: true`, `entryGameId: "who-is-hiding"`; the building opens the picker. `src/pwa/updatePolicy.ts`: new `AppScreen` `'habitat'`, unsafe for mid-game updates.
+- **World and PWA wiring:** `worlds.json` keeps `nature-lab` `open`, `earnsLeisure: true`, `entryGameId: "who-is-hiding"` (a fallback hint only); the building opens the station trail. The only wiring in the picker is one `WORLD_GAMES` entry in `src/ui/picker/pickerModel.ts` (`who-lives-here` / `HabitatScene`, appended after `seed-to-flower`) plus the content JSON `"world": "nature-lab"`; there is no per-world list and no `MapScene` branch (station-trail "How to add a game"). `src/pwa/updatePolicy.ts`: new `AppScreen` `'habitat'`, unsafe for mid-game updates.
 
 ### Pass 2 — polish
 
@@ -138,7 +138,7 @@ Only after Maor approves the finished Pass 1.
 
 ## Open decisions for the owner
 
-- **Open decision for the owner:** Nature Lab opens a two-card picker (Who's Hiding? first) instead of opening Who's Hiding? directly. Reversible default taken in continuous mode.
+- **Open decision for the owner:** Nature Lab opens a 3-station trail (Who's Hiding?, Seed to Flower, Who Lives Here?) instead of opening Who's Hiding? directly. Reversible default taken in continuous mode: remove the `who-lives-here` entry from `WORLD_GAMES` (not a `MapScene` branch).
 - **Open decision for the owner:** Pass 1 uses the six habitats and animals that already have approved art (pond/frog, nest/bird, tree hollow/owl, burrow/rabbit, doghouse/dog, beehive/bee), one animal per home, instead of the farm / sea / jungle / sky set.
 - **Open decision for the owner:** Age 2 is capped at level 4 (three homes, no riddles).
 
@@ -146,3 +146,4 @@ Only after Maor approves the finished Pass 1.
 
 - `2026-11-13` — created and approved for build by Maor (continuous mode) — substantive
 - `2026-11-13` — AC-05 clarified: the language is pinned with `seedLanguageSetting` because the adaptive level is per language; no change in meaning — minor
+- `2026-11-14` — after the station trail (#69) landed on main: the Nature Lab picker is the 3-station trail built from `WORLD_GAMES` (Who's Hiding?, Seed to Flower, Who Lives Here?); AC-16 and AC-20 reworded to match; no new hook — minor

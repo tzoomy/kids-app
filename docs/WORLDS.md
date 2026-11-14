@@ -196,7 +196,7 @@ Goal: curiosity, naming in Hebrew and in the learning languages as needed, cause
 
 ### 2. Who Lives Here?
 
-- **Stage:** Pass 1 in progress; spec [`docs/specs/who-lives-here.md`](specs/who-lives-here.md), approved for build by Maor (continuous mode, 2026-11-13). Who's Hiding? stays the first Nature Lab game; the building opens a two-card picker.
+- **Stage:** Pass 1 in progress; spec [`docs/specs/who-lives-here.md`](specs/who-lives-here.md), approved for build by Maor (continuous mode, 2026-11-13). Who's Hiding? stays the first Nature Lab game; the building opens the station trail (Who's Hiding?, Seed to Flower, Who Lives Here?).
 
 - **Action:** The girl helps an animal go home (nest, cave, water, tree) according to a voice hint or a picture.
 - **Learning goal:** Matching a creature to a habitat, animal vocabulary.

@@ -91,10 +91,11 @@ test.describe('who lives here: map, picker and journey', () => {
     await waitForScene(page, 'HabitatScene');
   });
 
-  test('[AC-16] the Nature Lab building opens a picker with two big cards (Who\'s Hiding? first) and a close button', async ({ page }) => {
+  test('[AC-16] the Nature Lab building opens a 3-station trail (Who\'s Hiding? first, Seed to Flower, Who Lives Here? third) and a close button', async ({ page }) => {
     test.setTimeout(60_000);
     await tapWorldBuilding(page, 'profile-a', 'nature-lab');
-    const ids = ['game-picker-who-is-hiding', 'game-picker-who-lives-here', 'game-picker-close'];
+    const ids = ['game-picker-who-is-hiding', 'game-picker-seed-to-flower', 'game-picker-who-lives-here', 'game-picker-close'];
+    await expect(page.locator('[data-testid="station-trail"] .picker-card')).toHaveCount(3);
     const vp = page.viewportSize()!;
     const landscape = vp.width > vp.height;
     const boxes: Record<string, PageRect> = {};
@@ -109,10 +110,26 @@ test.describe('who lives here: map, picker and journey', () => {
       expect(box.y + box.height).toBeLessThanOrEqual(vp.height + 0.5);
     }
     const hiding = boxes['game-picker-who-is-hiding'];
+    const seed = boxes['game-picker-seed-to-flower'];
     const lives = boxes['game-picker-who-lives-here'];
-    // RTL chrome: the first card is on the right in landscape and on top in portrait.
-    if (landscape) expect(hiding.x).toBeGreaterThan(lives.x);
-    else expect(hiding.y).toBeLessThan(lives.y);
+    // RTL chrome: the first card is on the right in landscape and on top in portrait; Who Lives Here? is third
+    // (left in landscape, bottom in portrait) with Seed to Flower in the middle.
+    if (landscape) {
+      expect(hiding.x).toBeGreaterThan(seed.x);
+      expect(seed.x).toBeGreaterThan(lives.x);
+    } else {
+      expect(hiding.y).toBeLessThan(seed.y);
+      expect(seed.y).toBeLessThan(lives.y);
+    }
+    // No two targets overlap (cards and the close button).
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const a = boxes[ids[i]];
+        const b = boxes[ids[j]];
+        const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+        expect(overlap, `${ids[i]} overlaps ${ids[j]}`).toBe(false);
+      }
+    }
     expect(await page.locator('[data-testid="game-picker-who-is-hiding"]').evaluate((el) => el.closest('[dir="rtl"]') !== null)).toBe(true);
 
     // Close: stays on the map, no game opens.

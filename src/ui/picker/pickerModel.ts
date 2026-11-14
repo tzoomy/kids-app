@@ -100,6 +100,13 @@ export const WORLD_GAMES: readonly PickerGame[] = [
     assetKey: 'picker-card-seed-to-flower',
     labelKey: 'seedToFlower',
   },
+  {
+    gameId: 'who-lives-here',
+    testId: 'game-picker-who-lives-here',
+    sceneKey: 'HabitatScene',
+    assetKey: 'picker-card-who-lives-here',
+    labelKey: 'whoLivesHere',
+  },
   // Science World.
   {
     gameId: 'potion-lab',

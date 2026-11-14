@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { enterWorldByTap, seedHidingLevel, seedTimeEarningEnabled, tapTestId } from './helpers/journey';
+import { enterWorldByTap, seedHidingLevel, seedTimeEarningEnabled } from './helpers/journey';
 
 type Hooks = {
   getRoundInfo: () => HidingInfo | null;

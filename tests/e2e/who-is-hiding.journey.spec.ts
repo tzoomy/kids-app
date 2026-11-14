@@ -9,7 +9,6 @@ import {
   getRoundInfo,
   getSpokenLines,
   isListening,
-  tapTestId,
   waitForRoundReady,
   waitForScene,
   waitForSpokenLine,

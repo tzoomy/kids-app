@@ -1,7 +1,7 @@
 // Who Lives Here? Pass 1: adaptive engine, leisure, update policy and picker contract
 // (docs/specs/who-lives-here.md AC-04, AC-07, AC-08, AC-16 data model, AC-20).
 import { describe, expect, it } from 'vitest';
-import { loadWhoLivesHere } from '@/content/loadContent';
+import { loadSeedToFlower, loadWhoLivesHere, loadWhosHiding } from '@/content/loadContent';
 import { DEFAULT_RULES, SkillSession, buildMeta, skillKey } from '@/core/adaptive';
 import { LearningSession } from '@/core/leisure';
 import { AdaptiveStore } from '@/core/storage/adaptiveStore';
@@ -10,7 +10,8 @@ import { Store, type StorageDriver } from '@/core/storage/store';
 import { seedAdaptiveLevel } from '@/games/sorting/seedLevel';
 import { SortingTrialTracker } from '@/games/sorting/sortingLogic';
 import { decidePwaUpdate, isSafeToApplyUpdate, type AppScreen } from '@/pwa/updatePolicy';
-import { NATURE_LAB_PICKER_GAMES, PICKER_GAMES } from '@/ui/picker/pickerModel';
+import { PICKER_GAMES, WORLD_GAMES } from '@/ui/picker/pickerModel';
+import { collectTrailGames, stationGamesForWorld } from '@/ui/picker/trailModel';
 import { resolvePickerAsset } from '@/ui/picker/pickerAssets';
 import he from '@/content/i18n/he.json';
 import fs from 'node:fs';
@@ -18,6 +19,12 @@ import path from 'node:path';
 
 const content = loadWhoLivesHere();
 const TODAY = '2026-11-13';
+
+/** Nature Lab stations as the app builds them: WORLD_GAMES registry order, filtered by content world. */
+function natureLabStations() {
+  const games = collectTrailGames({ hiding: loadWhosHiding(), seedToFlower: loadSeedToFlower(), whoLivesHere: content });
+  return stationGamesForWorld('nature-lab', WORLD_GAMES, games);
+}
 
 function memoryDriver() {
   const map = new Map<string, string>();
@@ -194,19 +201,30 @@ describe('who-lives-here: screen, update policy and picker (AC-20)', () => {
     expect(decidePwaUpdate({ updateAvailable: true, screen, startupGuardActive: false, applyInFlight: false })).toBe('defer');
   });
 
-  it('[AC-20] the Nature Lab picker lists Who\'s Hiding? first, then Who Lives Here?, with their scenes and card ids', () => {
-    expect(NATURE_LAB_PICKER_GAMES.map((g) => g.gameId)).toEqual(['who-is-hiding', 'who-lives-here']);
-    expect(NATURE_LAB_PICKER_GAMES.map((g) => g.testId)).toEqual(['game-picker-who-is-hiding', 'game-picker-who-lives-here']);
-    expect(NATURE_LAB_PICKER_GAMES.map((g) => g.sceneKey)).toEqual(['HidingScene', 'HabitatScene']);
+  it('[AC-20] Who Lives Here? is one WORLD_GAMES entry, the third Nature Lab station after Who\'s Hiding? and Seed to Flower, with scenes and card ids', () => {
+    expect(WORLD_GAMES.filter((g) => g.gameId === 'who-lives-here')).toHaveLength(1);
+    const stations = natureLabStations();
+    expect(stations.map((g) => g.gameId)).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here']);
+    expect(stations.map((g) => g.testId)).toEqual([
+      'game-picker-who-is-hiding',
+      'game-picker-seed-to-flower',
+      'game-picker-who-lives-here',
+    ]);
+    expect(stations.map((g) => g.sceneKey)).toEqual(['HidingScene', 'SeedFlowerScene', 'HabitatScene']);
   });
 
-  it('[AC-20] the Language House picker is unchanged and has no Nature Lab game', () => {
-    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra']);
+  it('[AC-20] there is no per-world picker list: NATURE_LAB_PICKER_GAMES stays undefined', async () => {
+    const model = (await import('@/ui/picker/pickerModel')) as Record<string, unknown>;
+    expect(model.NATURE_LAB_PICKER_GAMES).toBeUndefined();
+  });
+
+  it('[AC-20] the Language House picker keeps its three games and has no Nature Lab game', () => {
+    expect(PICKER_GAMES.map((g) => g.gameId)).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster']);
   });
 
   it('[AC-20] picker cards have Hebrew labels, a Hebrew title, and placeholder art that exists on disk', () => {
     expect(he.gamePicker.natureLabTitle.length).toBeGreaterThan(0);
-    for (const game of NATURE_LAB_PICKER_GAMES) {
+    for (const game of natureLabStations()) {
       expect(he.gamePicker[game.labelKey].length).toBeGreaterThan(0);
       const asset = resolvePickerAsset(game.assetKey);
       if (asset.kind !== 'css') expect(fs.existsSync(path.join('public', asset.url)), game.assetKey).toBe(true);
