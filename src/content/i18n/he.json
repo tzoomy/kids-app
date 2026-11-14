@@ -10,6 +10,7 @@
     "languageHouse": "בית השפות",
     "numberGarden": "גן המספרים",
     "natureLab": "מעבדת הטבע",
+    "scienceWorld": "עולם המדע",
     "artStudio": "סטודיו האמנות",
     "leisureCorner": "פינת הכיף",
     "comingSoon": "בקרוב"
@@ -19,13 +20,27 @@
     "animalRestaurant": "מסעדת החיות",
     "kitchenOrchestra": "תזמורת המטבח",
     "wordTrain": "רכבת המילים",
+    "travelSuitcase": "מזוודת הטיול",
+    "stationDone": "הושלם",
+    "stationSuggested": "מומלץ",
     "close": "סגירה",
     "leisureTitle": "פינת הכיף",
     "bubbles": "בועות וחלומות",
     "colouring": "זמן צביעה",
+    "letterMonster": "מפלצת האותיות",
+    "numberGardenTitle": "גן המספרים",
+    "sortingBeds": "ערוגות המיון",
+    "balloonPop": "פיצוץ בלונים",
+    "picnicTrain": "רכבת הפיקניק",
+    "scienceWorldTitle": "עולם המדע",
+    "scienceWorldEmpty": "הניסויים בדרך! נבקר כאן בקרוב.",
     "natureLabTitle": "מעבדת הטבע",
     "whoIsHiding": "מי מתחבא?",
-    "seedToFlower": "מזרע לפרח"
+    "seedToFlower": "מזרע לפרח",
+    "whoLivesHere": "מי גר כאן?",
+    "potionLab": "מעבדת השיקויים",
+    "sinkOrFloat": "צף או שוקע?",
+    "magicMagnet": "המגנט הקסום"
   },
   "restaurant": {
     "helpButton": "עזרה",
@@ -85,5 +100,21 @@
     "endMessage": "הציור שלך שמור. נתראה בפעם הבאה!",
     "goHome": "בית",
     "helpText": "בחרי צבע, ואז לחצי על חלק בציור כדי לצבוע אותו. אפשר לבטל, לנקות ולעבור לדף הבא. הציור נשמר."
+  },
+  "wardrobe": {
+    "button": "ארון הבגדים",
+    "title": "ארון הבגדים",
+    "locked": "נעול",
+    "unlockToast": "קיבלת פריט חדש!",
+    "items": {
+      "party-hat": "כובע מסיבה",
+      "sun-hat": "כובע שמש",
+      "crown": "כתר",
+      "beanie": "כובע צמר",
+      "glasses": "משקפיים",
+      "scarf": "צעיף",
+      "hair-bow": "פפיון",
+      "flower-clip": "קליפס פרח"
+    }
   }
 }

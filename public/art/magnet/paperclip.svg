@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke-linecap="round" stroke-linejoin="round" transform="rotate(-24 128 128)">
+    <!-- Outer dark-brown outline of the thick paperclip loop -->
+    <path d="M 112 154 L 112 84 A 18 18 0 0 1 148 84 L 148 178 A 36 36 0 0 1 76 178 L 76 86 A 52 52 0 0 1 180 86 L 180 162" fill="none" stroke="#3B2A22" stroke-width="28"/>
+
+    <!-- Main silver-grey wire fill -->
+    <path d="M 112 154 L 112 84 A 18 18 0 0 1 148 84 L 148 178 A 36 36 0 0 1 76 178 L 76 86 A 52 52 0 0 1 180 86 L 180 162" fill="none" stroke="#C9CED6" stroke-width="16"/>
+
+    <!-- Flat shadow along lower-right curve -->
+    <path d="M 180 86 L 180 162 M 148 110 L 148 178 A 36 36 0 0 1 92 208" fill="none" stroke="#A3AAB5" stroke-width="6"/>
+
+    <!-- Flat highlight along upper-left curve -->
+    <path d="M 76 146 L 76 86 A 52 52 0 0 1 148 38 M 112 126 L 112 84 A 18 18 0 0 1 130 66" fill="none" stroke="#F2F4F7" stroke-width="5"/>
+  </g>
+</svg>

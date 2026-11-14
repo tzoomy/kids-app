@@ -11,12 +11,14 @@ import {
   waitForScene,
   type PageRect,
 } from './helpers/journey';
+import { stationsForWorld } from './helpers/worldStations';
 
 // Language House game picker (spec: kitchen-orchestra AC-16..AC-19, journey AC-01).
 // Both Playwright projects (1280x800 and 800x1280) run every test in this file, so each AC is checked in both orientations.
 
 const MIN_TAP = 64;
-const CARD_IDS = ['game-picker-animal-restaurant', 'game-picker-kitchen-orchestra', 'game-picker-word-train'] as const;
+const CARD_IDS = stationsForWorld('language-house').map((g) => g.testId);
+const IMG_CARD_IDS = CARD_IDS.filter((id) => id === 'game-picker-animal-restaurant' || id === 'game-picker-kitchen-orchestra');
 
 function expectKnownViewport(page: Page): { landscape: boolean } {
   const vp = page.viewportSize();
@@ -32,14 +34,14 @@ async function openPicker(page: Page): Promise<void> {
 }
 
 test.describe('language house game picker', () => {
-  test('[AC-16] real tap on the Language House building opens the picker with three big cards and a close button', async ({ page }) => {
+  test('[AC-16] real tap on the Language House building opens the picker with big cards and a close button', async ({ page }) => {
     const { landscape } = expectKnownViewport(page);
     await openPicker(page);
 
     const pickerCount = await page
       .locator('.picker-cards')
       .evaluate((el) => getComputedStyle(el).getPropertyValue('--picker-count').trim());
-    expect(pickerCount).toBe('3');
+    expect(pickerCount).toBe(String(CARD_IDS.length));
 
     const vp = page.viewportSize()!;
     const boxes: Record<string, PageRect> = {};
@@ -54,43 +56,45 @@ test.describe('language house game picker', () => {
       expect(box.y + box.height, `${id} inside viewport (bottom)`).toBeLessThanOrEqual(vp.height + 0.5);
     }
 
-    // The picker is RTL DOM chrome; order is restaurant -> orchestra -> word train:
-    // descending x in landscape, ascending y in portrait.
+    // The picker is RTL DOM chrome; the restaurant card comes first: right-to-left in landscape, top-to-bottom in portrait.
     const rtl = await page.locator('[data-testid="game-picker-animal-restaurant"]').evaluate((el) => el.closest('[dir="rtl"]') !== null);
     expect(rtl).toBe(true);
     const restaurant = boxes['game-picker-animal-restaurant'];
-    const orchestra = boxes['game-picker-kitchen-orchestra'];
-    const wordTrain = boxes['game-picker-word-train'];
     if (landscape) {
-      expect(restaurant.x).toBeGreaterThan(orchestra.x);
-      expect(orchestra.x).toBeGreaterThan(wordTrain.x);
+      for (let i = 0; i < CARD_IDS.length - 1; i++) {
+        expect(boxes[CARD_IDS[i]].x, `${CARD_IDS[i]} should sit to the right of ${CARD_IDS[i + 1]}`).toBeGreaterThan(boxes[CARD_IDS[i + 1]].x);
+      }
     } else {
-      expect(restaurant.y).toBeLessThan(orchestra.y);
-      expect(orchestra.y).toBeLessThan(wordTrain.y);
+      for (let i = 0; i < CARD_IDS.length - 1; i++) {
+        expect(boxes[CARD_IDS[i]].y, `${CARD_IDS[i]} should sit above ${CARD_IDS[i + 1]}`).toBeLessThan(boxes[CARD_IDS[i + 1]].y);
+      }
     }
 
     // Cards do not overlap each other or the close button.
     const overlaps = (a: PageRect, b: PageRect) =>
       a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-    for (let i = 0; i < CARD_IDS.length; i++) {
-      expect(overlaps(boxes[CARD_IDS[i]], boxes['game-picker-close'])).toBe(false);
-      for (let j = i + 1; j < CARD_IDS.length; j++) {
-        expect(overlaps(boxes[CARD_IDS[i]], boxes[CARD_IDS[j]])).toBe(false);
+    const allItems = [...CARD_IDS, 'game-picker-close'] as const;
+    for (let i = 0; i < allItems.length; i++) {
+      for (let j = i + 1; j < allItems.length; j++) {
+        expect(overlaps(boxes[allItems[i]], boxes[allItems[j]]), `${allItems[i]} overlaps ${allItems[j]}`).toBe(false);
       }
     }
 
     // Each card (the whole button) is exactly 4:5, like the 640x800 art; image cards fill it with no letterbox gaps.
-    // Word Train currently uses a CSS-gradient placeholder (no <img>), so skip the img letterbox check for it.
+    // CSS-gradient placeholder cards have no <img>; IMG_CARD_IDS lists the cards whose art must fill the button.
     const BORDER = 6;
     for (const id of CARD_IDS) {
       const card = boxes[id];
       expect(Math.abs(card.width / card.height - 0.8), `${id} aspect ${card.width}x${card.height}`).toBeLessThanOrEqual(0.02);
       if (id === 'game-picker-word-train') continue;
       const art = page.locator(`[data-testid="${id}"] .picker-card-art`);
-      const img = page.locator(`[data-testid="${id}"] .picker-card-art img`);
       const artBox = (await art.boundingBox())!;
-      const imgBox = (await img.boundingBox())!;
-      for (const [name, inner] of [['art box', artBox], ['img', imgBox]] as const) {
+      const parts: Array<readonly [string, PageRect]> = [['art box', artBox]];
+      if ((IMG_CARD_IDS as readonly string[]).includes(id)) {
+        const imgBox = (await page.locator(`[data-testid="${id}"] .picker-card-art img`).boundingBox())!;
+        parts.push(['img', imgBox]);
+      }
+      for (const [name, inner] of parts) {
         const tol = BORDER + 2;
         expect(Math.abs(inner.x - card.x), `${id} ${name} left gap`).toBeLessThanOrEqual(tol);
         expect(Math.abs(inner.y - card.y), `${id} ${name} top gap`).toBeLessThanOrEqual(tol);
@@ -98,10 +102,10 @@ test.describe('language house game picker', () => {
         expect(Math.abs(card.y + card.height - (inner.y + inner.height)), `${id} ${name} bottom gap`).toBeLessThanOrEqual(tol);
       }
     }
-    // All three cards have the same size.
+    // All cards have the same size.
     for (const id of CARD_IDS.slice(1)) {
-      expect(Math.abs(restaurant.width - boxes[id].width)).toBeLessThanOrEqual(1);
-      expect(Math.abs(restaurant.height - boxes[id].height)).toBeLessThanOrEqual(1);
+      expect(Math.abs(restaurant.width - boxes[id].width), `${id} width matches restaurant`).toBeLessThanOrEqual(1);
+      expect(Math.abs(restaurant.height - boxes[id].height), `${id} height matches restaurant`).toBeLessThanOrEqual(1);
     }
 
     // No game was opened by the building tap.
@@ -109,6 +113,8 @@ test.describe('language house game picker', () => {
     expect(scenes).not.toContain('RestaurantScene');
     expect(scenes).not.toContain('OrchestraScene');
     expect(scenes).not.toContain('WordTrainScene');
+    expect(scenes).not.toContain('LetterMonsterScene');
+    expect(scenes).not.toContain('SuitcaseScene');
   });
 
   test('[AC-17] real tap on the restaurant card opens Animal Restaurant', async ({ page }) => {
@@ -149,7 +155,7 @@ test.describe('kitchen orchestra: map journey', () => {
   test('[AC-01] the game opens only from the Language House building: no other building opens it or the picker', async ({ page }) => {
     test.setTimeout(90_000);
     // Real taps on every other building, each from a fresh map. Art Studio is locked (toast only).
-    // Number Garden opens its own game (Sorting Beds), Nature Lab opens Who's Hiding?, and Leisure Corner opens Bubbles
+    // Number Garden and Nature Lab open their own station-trail pickers, and Leisure Corner opens its picker
     // only when the leisure balance is above 0, so those three may leave the map; whatever they do, they must never open
     // Kitchen Orchestra, Animal Restaurant or the picker.
     for (const worldId of ['art-studio', 'number-garden', 'nature-lab', 'leisure-corner']) {

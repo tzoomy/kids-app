@@ -1,0 +1,23 @@
+{
+  "id": "picnic-train",
+  "world": "number-garden",
+  "languages": ["en", "fr"],
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
+  },
+  "adaptive": {
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 8 } },
+    "rules": { "trialsPerRound": 1 },
+    "levels": [
+      { "setSize": 2, "scaffold": "outline", "extra": { "task": "one-each", "layout": "rows" } },
+      { "setSize": 3, "scaffold": "outline", "extra": { "task": "one-each", "layout": "rows" } },
+      { "setSize": 3, "scaffold": "symbol", "extra": { "task": "one-each", "layout": "rows" } },
+      { "setSize": 4, "request": "quantity", "scaffold": "symbol", "extra": { "task": "load", "layout": "rows" } },
+      { "setSize": 5, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered" } },
+      { "setSize": 6, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered" } },
+      { "setSize": 8, "request": "two-step", "scaffold": "none", "extra": { "task": "missing", "layout": "scattered" } },
+      { "setSize": 10, "request": "two-step", "scaffold": "none", "extra": { "task": "missing", "layout": "scattered" } }
+    ]
+  }
+}

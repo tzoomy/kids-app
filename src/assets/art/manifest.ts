@@ -338,6 +338,9 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'flower-basket', url: 'art/props/flower-basket.svg', width: 520, height: 400 },
   { key: 'flower-basket-back', url: 'art/props/flower-basket-back.svg', width: 520, height: 400 },
   { key: 'flower-basket-front', url: 'art/props/flower-basket-front.svg', width: 520, height: 400 },
+  // Letter Monster (Language House)
+  { key: 'prop-monster-closed', url: 'art/props/monster-closed.svg', width: 300, height: 300 },
+  { key: 'prop-monster-open', url: 'art/props/monster-open.svg', width: 300, height: 300 },
   // Language House Game Picker
   { key: 'picker-card-animal-restaurant', url: 'art/ui/picker/card-animal-restaurant.svg', width: 640, height: 800 },
   { key: 'picker-card-kitchen-orchestra', url: 'art/ui/picker/card-kitchen-orchestra.svg', width: 640, height: 800 },
@@ -347,10 +350,28 @@ export const ART_MANIFEST: ArtManifestEntry[] = [
   { key: 'word-train-wagon', url: 'art/word-train/wagon.svg', width: 200, height: 260 },
   { key: 'word-train-sun', url: 'art/word-train/sun.svg', width: 256, height: 256 },
   { key: 'word-train-cup', url: 'art/word-train/cup.svg', width: 256, height: 256 },
+  // Map buildings (SVG art; drawWorldBuilding falls back to procedural art). 270 = 1.5 x the 180 map size.
+  { key: 'building-science-world', url: 'art/buildings/science-world.svg', width: 270, height: 270 },
+  // Science World — Magic Magnet (docs/specs/magic-magnet.md)
+  { key: 'magnet-magnet', url: 'art/magnet/magnet.svg', width: 256, height: 256 },
+  { key: 'magnet-paperclip', url: 'art/magnet/paperclip.svg', width: 256, height: 256 },
+  { key: 'magnet-nail', url: 'art/magnet/nail.svg', width: 256, height: 256 },
+  { key: 'magnet-screw', url: 'art/magnet/screw.svg', width: 256, height: 256 },
+  { key: 'magnet-bottle-cap', url: 'art/magnet/bottle-cap.svg', width: 256, height: 256 },
   // Seed to Flower (docs/specs/seed-to-flower.md) — Pass-1 plant stages and tools
   { key: 'prop-seed', url: 'art/props/seed.svg', width: 160, height: 160 },
   { key: 'prop-sprout', url: 'art/props/sprout.svg', width: 160, height: 200 },
   { key: 'prop-flower-bud', url: 'art/props/flower-bud.svg', width: 160, height: 160 },
   { key: 'prop-watering-can', url: 'art/props/watering-can.svg', width: 256, height: 256 },
   { key: 'prop-sun', url: 'art/props/sun.svg', width: 256, height: 256 },
+  // Science World — Potion Lab (docs/specs/potion-lab.md)
+  { key: 'prop-mixing-bowl', url: 'art/props/mixing-bowl.svg', width: 320, height: 240 },
+  // Science World — Sink or Float (docs/specs/sink-or-float.md)
+  { key: 'prop-water-tank', url: 'art/props/water-tank.svg', width: 320, height: 320 },
+  { key: 'prop-float-ball', url: 'art/props/float-ball.svg', width: 160, height: 160 },
+  { key: 'prop-float-leaf', url: 'art/props/float-leaf.svg', width: 160, height: 160 },
+  { key: 'prop-float-apple', url: 'art/props/float-apple.svg', width: 160, height: 160 },
+  { key: 'prop-float-stone', url: 'art/props/float-stone.svg', width: 160, height: 160 },
+  { key: 'prop-float-key', url: 'art/props/float-key.svg', width: 160, height: 160 },
+  { key: 'prop-float-spoon', url: 'art/props/float-spoon.svg', width: 160, height: 160 },
 ];

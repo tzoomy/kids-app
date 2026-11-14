@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" transform="rotate(30 128 128)">
+    <!-- Screw shaft tapering to a tip -->
+    <path d="M 110 80 L 146 80 L 142 192 L 128 228 L 114 192 Z" fill="#C9CED6"/>
+
+    <!-- Flat shadow on right side of shaft -->
+    <path d="M 132 80 L 146 80 L 142 192 L 128 228 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Flat highlight on left side of shaft -->
+    <path d="M 115 88 L 122 88 L 122 186 L 117 186 Z" fill="#F2F4F7" stroke="none"/>
+
+    <!-- Re-stroke shaft -->
+    <path d="M 110 80 L 146 80 L 142 192 L 128 228 L 114 192 Z" fill="none"/>
+
+    <!-- Screw thread lines -->
+    <line x1="108" y1="106" x2="148" y2="96"/>
+    <line x1="108" y1="132" x2="148" y2="122"/>
+    <line x1="110" y1="158" x2="146" y2="148"/>
+    <line x1="112" y1="184" x2="144" y2="174"/>
+
+    <!-- Round domed screw head -->
+    <ellipse cx="128" cy="56" rx="44" ry="30" fill="#C9CED6"/>
+
+    <!-- Flat shadow on lower-right of head -->
+    <path d="M 168 44 A 44 30 0 0 1 92 72 A 44 26 0 0 0 168 44 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Flat highlight on upper-left of head -->
+    <ellipse cx="108" cy="42" rx="18" ry="8" transform="rotate(-18 108 42)" fill="#F2F4F7" stroke="none"/>
+
+    <!-- Re-stroke screw head -->
+    <ellipse cx="128" cy="56" rx="44" ry="30" fill="none"/>
+
+    <!-- Cross slot on round head -->
+    <line x1="112" y1="48" x2="144" y2="64"/>
+    <line x1="142" y1="46" x2="114" y2="66"/>
+  </g>
+</svg>

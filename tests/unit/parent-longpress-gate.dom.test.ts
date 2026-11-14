@@ -225,6 +225,41 @@ describe('attachLongPress (DOM binder)', () => {
     expect(onLongPress).not.toHaveBeenCalled();
   });
 
+  it.each(['pointerup', 'pointercancel'])(
+    '[AC-05] hardening: an off-button %s whose bubble is stopped still untracks its pointer, so a later tap and a fresh 3 s hold both work',
+    (endType) => {
+      const { button, onTap, onLongPress, progress } = setup();
+
+      // Some element between the target and window swallows the end event's bubble (stopPropagation).
+      const swallowBubble = (e: Event): void => e.stopPropagation();
+      document.body.addEventListener(endType, swallowBubble);
+      try {
+        // A touch lands off the button: the capture-phase window tracker records its pointerId in `down`.
+        firePointer(document.body, 'pointerdown', { pointerId: 2 });
+        // It lifts (or is cancelled) off the button, but the bubble stops at body and never reaches window.
+        // Only a capture-phase window listener can still see this event and untrack pointer 2.
+        firePointer(document.body, endType, { pointerId: 2 });
+        vi.advanceTimersByTime(400); // let any click suppression expire
+
+        // Touch pointer ids are never reused. If id 2 is stuck in `down`, every later press looks like multi-touch.
+        firePointer(button, 'pointerdown', { pointerId: 3 });
+        vi.advanceTimersByTime(100);
+        firePointer(button, 'pointerup', { pointerId: 3 });
+        fireClick(button);
+        expect(onTap).toHaveBeenCalledTimes(1);
+        expect(onLongPress).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(400); // let click suppression expire
+
+        firePointer(button, 'pointerdown', { pointerId: 4 });
+        expect(progress()).not.toBeNull();
+        vi.advanceTimersByTime(3000);
+        expect(onLongPress).toHaveBeenCalledTimes(1);
+      } finally {
+        document.body.removeEventListener(endType, swallowBubble);
+      }
+    },
+  );
+
   it('[AC-05] two-finger press: the trailing click is not a tap even when finger 1 lifts more than 300 ms after finger 2', () => {
     const { button, onTap, onLongPress } = setup();
     firePointer(button, 'pointerdown', { pointerId: 1 });

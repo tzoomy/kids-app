@@ -1,0 +1,42 @@
+{
+  "id": "sink-or-float",
+  "world": "science-world",
+  "template": "cause-effect",
+  "skill": "sink-or-float",
+  "languages": ["en", "fr"],
+  "earnsLeisure": true,
+  "ageTracks": {
+    "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
+    "age5": { "hintMode": "demonstrate", "hintDelayMs": 9000 }
+  },
+  "objects": [
+    { "id": "ball", "floats": true, "he": "כדור", "en": "ball", "fr": "ballon", "resultHe": "הכדור צף!" },
+    { "id": "leaf", "floats": true, "he": "עלה", "en": "leaf", "fr": "feuille", "resultHe": "העלה צף!" },
+    { "id": "apple", "floats": true, "he": "תפוח", "en": "apple", "fr": "pomme", "resultHe": "התפוח צף!" },
+    { "id": "stone", "floats": false, "he": "אבן", "en": "stone", "fr": "caillou", "resultHe": "האבן שוקעת!" },
+    { "id": "key", "floats": false, "he": "מפתח", "en": "key", "fr": "clé", "resultHe": "המפתח שוקע!" },
+    { "id": "spoon", "floats": false, "he": "כפית", "en": "spoon", "fr": "cuillère", "resultHe": "הכפית שוקעת!" }
+  ],
+  "outcomes": {
+    "floats": { "en": "It floats!", "fr": "Ça flotte !" },
+    "sinks": { "en": "It sinks!", "fr": "Ça coule !" }
+  },
+  "linesHe": {
+    "introFree": "בואי נבדוק מה צף ומה שוקע! לחצי על חפץ.",
+    "introPredict": "בואי ננחש: זה יצוף או ישקע?",
+    "ask": "מה את חושבת? יצוף או ישקע?",
+    "letsSee": "בואי נראה..."
+  },
+  "helpTextHe": "בחרי חפץ והפילי אותו למים כדי לגלות אם הוא צף או שוקע. בגן של הגדולות מנחשים קודם אם החפץ יצוף או ישקע.",
+  "adaptive": {
+    "tracks": {
+      "age2": { "start": 1, "min": 1, "max": 1 },
+      "age5": { "start": 2, "min": 1, "max": 3 }
+    },
+    "levels": [
+      { "support": "picture-audio", "extra": { "mode": "free", "dropsPerStar": 3, "naming": "he+learning", "hintPulse": true } },
+      { "support": "picture-audio", "extra": { "mode": "predict", "dropsPerStar": 3, "naming": "he+learning", "hintPulse": true } },
+      { "support": "audio-only", "extra": { "mode": "predict", "dropsPerStar": 3, "naming": "he+learning", "hintPulse": false } }
+    ]
+  }
+}
