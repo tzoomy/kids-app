@@ -132,3 +132,4 @@ Not applicable beyond the progress bar. No new art, voice lines, recorded clips,
 ## Changelog
 
 - `2026-11-13` — created from the approved idea (`docs/WORLDS.md` Infrastructure §1); tests-first slice, RED step — substantive
+- `2026-11-14` — e2e spec `tests/e2e/parent-longpress-gate.spec.ts` (AC-09 to AC-13, RED), `scripts/affected-e2e.mjs` mapping for the gate, add-vs-replace logged in `docs/PENDING-DECISIONS.md`; no AC or hook changes — minor
