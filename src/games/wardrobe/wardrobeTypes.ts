@@ -26,3 +26,13 @@ export interface WardrobeInfo {
   /** Ids unlocked by the latest recorded round in this page session. */
   lastUnlock: string[];
 }
+
+/** A bear Character visible in an active scene, as read by `getVisibleBearOutfits` (mounted accessories, not saved state). */
+export interface VisibleBearOutfit {
+  /** Scene key, e.g. `MapScene` or `RestaurantScene`. */
+  scene: string;
+  /** Item ids mounted on the bear, in draw order (empty when it wears nothing). */
+  items: string[];
+  /** Bounds in page CSS px (top-left + size); null when the Character cannot report them. */
+  rect: { x: number; y: number; width: number; height: number } | null;
+}
