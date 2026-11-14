@@ -6,6 +6,7 @@ import picnicTrainJson from './games/picnic-train.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import whoLivesHereJson from './games/who-lives-here.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import stickerBoardJson from './games/sticker-board.json';
 import shadowMatchJson from './games/shadow-match.json';
 import letterMonsterJson from './games/letter-monster.json';
 import balloonPopJson from './games/balloon-pop.json';
@@ -25,6 +26,7 @@ import {
   WhosHidingContentSchema,
   WhoLivesHereContentSchema,
   LeisureColouringContentSchema,
+  StickerBoardContentSchema,
   ShadowMatchContentSchema,
   LetterMonsterContentSchema,
   BalloonPopContentSchema,
@@ -41,6 +43,7 @@ import {
   type WhosHidingContent,
   type WhoLivesHereContent,
   type LeisureColouringContent,
+  type StickerBoardContent,
   type ShadowMatchContent,
   type LetterMonsterContent,
   type BalloonPopContent,
@@ -87,6 +90,10 @@ export function loadPicnicTrain(): PicnicTrainContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadStickerBoard(): StickerBoardContent {
+  return StickerBoardContentSchema.parse(stickerBoardJson);
 }
 
 /** Shadow Match content. Its animals come from Who's Hiding? (`animalsFrom`); every animal needs a Hebrew name. */

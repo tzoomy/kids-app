@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1280" width="800" height="1280">
+  <!-- Calm pale sky -->
+  <rect width="800" height="1280" fill="#CFEFFF" />
+  <path d="M 0 0 H 800 V 440 Q 400 490 0 440 Z" fill="#E2F6FF" />
+
+  <!-- One small puffy cloud in upper-left -->
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 96 172 H 246 C 268 172 282 156 276 138 C 270 124 254 118 242 122 C 230 98 202 90 180 102 C 162 86 130 90 120 114 C 100 114 82 130 84 150 C 86 162 90 172 96 172 Z" fill="#FFFDF9" />
+    <path d="M 102 166 H 242 C 256 166 266 158 266 148 C 242 156 146 158 102 166 Z" fill="#FFF6E8" stroke="none" />
+  </g>
+
+  <!-- Calm sea band -->
+  <path d="M -20 718 H 820 V 890 H -20 Z" fill="#82CEE8" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 0 744 Q 200 734 400 744 T 800 744 V 764 Q 600 754 400 764 T 0 764 Z" fill="#A8E0F2" />
+
+  <!-- Warm sand in the lower third -->
+  <path d="M -20 854 Q 210 836 420 852 T 820 848 V 1300 H -20 Z" fill="#F7E3BE" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 0 860 Q 210 842 420 858 T 800 854 V 874 Q 600 878 420 874 T 0 878 Z" fill="#E8C994" />
+  <path d="M -20 1212 Q 400 1192 820 1212 V 1300 H -20 Z" fill="#EDD2A4" />
+</svg>

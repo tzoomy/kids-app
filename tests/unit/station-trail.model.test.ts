@@ -24,6 +24,7 @@ import {
   loadMagicMagnet,
   loadSeedToFlower,
   loadSortingBeds,
+  loadStickerBoard,
   loadWhoLivesHere,
   loadShadowMatch,
   loadWhosHiding,
@@ -49,6 +50,7 @@ const REAL_GAMES = collectTrailGames({
   potion: loadPotionLab(),
   sinkOrFloat: loadSinkOrFloat(),
   magicMagnet: loadMagicMagnet(),
+  stickers: loadStickerBoard(),
 });
 
 const META = buildMeta({
@@ -240,9 +242,9 @@ describe('station trail: data-driven station list', () => {
       const expected = WORLD_GAMES.filter((card) => REAL_GAMES.some((g) => g.id === card.gameId && g.world === world.id)).map((c) => c.gameId);
       expect(ids(world.id), world.id).toEqual(expected);
     }
+    expect(ids('art-studio')).toEqual(['sticker-board']);
     expect(ids('number-garden')).toEqual(['sorting-beds', 'balloon-pop', 'picnic-train']);
     expect(ids('nature-lab')).toEqual(['who-is-hiding', 'seed-to-flower', 'who-lives-here', 'shadow-match']);
-    expect(ids('art-studio')).toEqual([]);
     expect(ids('leisure-corner')).toEqual([]);
   });
 
@@ -278,6 +280,17 @@ describe('station trail: data-driven station list', () => {
     }
   });
 
+  it('[AC-09] every registry card has a scene in the journey map, and every content game in a learning world is registered', () => {
+    for (const card of WORLD_GAMES) {
+      expect(GAME_SCENE[card.gameId], card.gameId).toBe(card.sceneKey);
+    }
+    const registered = new Set(WORLD_GAMES.map((g) => g.gameId));
+    for (const game of REAL_GAMES) {
+      if (game.world === 'leisure-corner') continue;
+      expect(registered.has(game.id as PickerGame['gameId']), `${game.id} registry`).toBe(true);
+    }
+  });
+
   it('[AC-09] the registry holds exactly the games whose scenes exist, each added with its own PR (Picnic Train is the third Number Garden station)', () => {
     expect(WORLD_GAMES.map((g) => [g.gameId, g.sceneKey])).toEqual([
       ['animal-restaurant', 'RestaurantScene'],
@@ -294,6 +307,7 @@ describe('station trail: data-driven station list', () => {
       ['sink-or-float', 'SinkFloatScene'],
       ['magic-magnet', 'MagnetScene'],
       ['travel-suitcase', 'SuitcaseScene'],
+      ['sticker-board', 'StickerBoardScene'],
     ]);
   });
 });
@@ -315,8 +329,7 @@ describe('station trail: world entry rule', () => {
       const count = stationGamesForWorld(world.id, WORLD_GAMES, REAL_GAMES).length;
       expect(entryOf(world.id).kind, `${world.id} (${count} stations)`).toBe(expectedKind(count));
     }
-    // Pending Maor decision: a world with no game yet (zero stations) still opens the coming-soon picker.
-    expect(entryOf('art-studio').kind).toBe('none');
+    expect(entryOf('art-studio').kind).toBe('direct');
   });
 
   it('[AC-10] the e2e journey helper agrees with the registry: trail worlds are picker worlds, one-game worlds are direct-entry worlds', () => {

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Curved trunk -->
+    <path d="M96 226 C98 180 112 138 132 100 L148 104 C136 144 130 184 134 226 Z" fill="#B87D56"/>
+    <!-- Trunk shadow -->
+    <path d="M138 102 L148 104 C136 144 130 184 134 226 L120 226 C120 184 126 144 138 102 Z" fill="#9E6540" stroke="none"/>
+    <!-- Trunk highlight -->
+    <path d="M104 220 C106 182 118 144 134 110 L138 112 C124 146 112 182 110 220 Z" fill="#D49B74" stroke="none"/>
+    <!-- Trunk outline and bark lines -->
+    <path d="M96 226 C98 180 112 138 132 100 L148 104 C136 144 130 184 134 226 Z" fill="none"/>
+    <path d="M114 152 Q126 150 135 154" fill="none" stroke-width="4"/>
+    <path d="M106 180 Q120 178 132 182" fill="none" stroke-width="4"/>
+    <path d="M100 206 Q116 204 132 208" fill="none" stroke-width="4"/>
+
+    <!-- Back fronds (5 total) -->
+    <!-- Frond 1: top-left -->
+    <path d="M136 94 C112 64 70 54 36 74 C60 88 94 94 136 94 Z" fill="#51CF66"/>
+    <!-- Frond 2: upper-left -->
+    <path d="M138 94 C128 56 102 32 72 30 C84 54 106 76 138 94 Z" fill="#51CF66"/>
+    <!-- Frond 3: upper-right -->
+    <path d="M140 94 C154 54 182 32 212 38 C194 60 168 78 140 94 Z" fill="#51CF66"/>
+    <!-- Frond 4: right -->
+    <path d="M142 96 C178 78 212 86 226 116 C198 114 168 108 142 96 Z" fill="#51CF66"/>
+    <path d="M142 96 C176 96 202 102 226 116 C198 114 168 108 142 96 Z" fill="#2F9E44" stroke="none"/>
+    <path d="M142 96 C178 78 212 86 226 116 C198 114 168 108 142 96 Z" fill="none"/>
+
+    <!-- Frond 5: lower-left -->
+    <path d="M136 98 C102 98 68 110 52 138 C82 132 112 118 136 98 Z" fill="#51CF66"/>
+    <path d="M136 98 C112 112 82 126 52 138 C82 132 112 118 136 98 Z" fill="#2F9E44" stroke="none"/>
+    <path d="M136 98 C102 98 68 110 52 138 C82 132 112 118 136 98 Z" fill="none"/>
+
+    <!-- Highlight on top frond -->
+    <path d="M144 86 C158 58 180 42 204 42 C186 52 164 68 144 86 Z" fill="#8CE99A" stroke="none"/>
+
+    <!-- Two coconuts -->
+    <circle cx="122" cy="108" r="14" fill="#7A4B2A"/>
+    <path d="M130 98 A14 14 0 0 1 114 118 A14 14 0 0 0 130 98 Z" fill="#5C361C" stroke="none"/>
+    <circle cx="117" cy="103" r="3.5" fill="#9E6540" stroke="none"/>
+    <circle cx="122" cy="108" r="14" fill="none" stroke-width="5"/>
+
+    <circle cx="146" cy="112" r="14" fill="#7A4B2A"/>
+    <path d="M154 102 A14 14 0 0 1 138 122 A14 14 0 0 0 154 102 Z" fill="#5C361C" stroke="none"/>
+    <circle cx="141" cy="107" r="3.5" fill="#9E6540" stroke="none"/>
+    <circle cx="146" cy="112" r="14" fill="none" stroke-width="5"/>
+  </g>
+</svg>

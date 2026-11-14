@@ -307,7 +307,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 
 ### 3. Sticker Board and Finger Drawing
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** Pass 1 in PR #66 (draft spec docs/specs/sticker-board.md).
 
 - **Action:** Placing stickers and drawing with a finger on a background (space, jungle, or beach). Whether it earns leisure follows the Art Studio content mark.
 - **Learning goal:** Expression, motor skills, choice; secondary vocabulary when a request is given.
@@ -319,7 +319,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 
 ## Rewards and creation
 
-Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 3).
+Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 4).
 
 ### 1. Wardrobe
 

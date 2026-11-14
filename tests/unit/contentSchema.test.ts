@@ -3,11 +3,11 @@ import { loadWorlds, loadAnimalRestaurant, loadAudioManifest } from '@/content/l
 import { AnimalRestaurantContentSchema, WorldsFileSchema } from '@/content/schema';
 
 describe('content schema validation', () => {
-  it('worlds.json validates and includes an open Language House plus locked worlds', () => {
+  it('worlds.json validates and includes an open Language House and an open Art Studio (Sticker Board)', () => {
     const worlds = loadWorlds();
     const languageHouse = worlds.worlds.find((w) => w.id === 'language-house');
     expect(languageHouse?.status).toBe('open');
-    expect(worlds.worlds.some((w) => w.status === 'locked')).toBe(true);
+    expect(worlds.worlds.find((w) => w.id === 'art-studio')?.status).toBe('open');
   });
 
   it('animal-restaurant.json validates and has at least 10 complete-sentence items', () => {
