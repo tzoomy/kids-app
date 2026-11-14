@@ -29,24 +29,30 @@ test.describe('science world map area', () => {
     expect(hit.y + hit.height).toBeLessThanOrEqual(vp.height + 0.5);
   });
 
-  test('real tap opens the Science World picker with the Potion Lab card (no empty card), and close returns to the map', async ({ page }) => {
+  test('real tap opens the Science World picker with Potion Lab and Sink or Float cards (no empty card), and close returns to the map', async ({ page }) => {
     await tapWorldBuilding(page, 'profile-a', 'science-world');
 
-    const card = page.locator('[data-testid="game-picker-potion-lab"]');
-    await card.waitFor({ state: 'visible', timeout: 10_000 });
+    const potion = page.locator('[data-testid="game-picker-potion-lab"]');
+    const sink = page.locator('[data-testid="game-picker-sink-or-float"]');
+    await potion.waitFor({ state: 'visible', timeout: 10_000 });
+    await sink.waitFor({ state: 'visible', timeout: 10_000 });
     await expect(page.locator('[data-testid="game-picker-empty"]')).toHaveCount(0);
     await expect(page.getByText('עולם המדע').first()).toBeVisible();
-    await expect(card).toContainText('מעבדת השיקויים');
+    await expect(potion).toContainText('מעבדת השיקויים');
+    await expect(sink).toContainText('צף או שוקע?');
 
-    const cardBox = await getStableBox(page, 'game-picker-potion-lab');
-    expect(cardBox.width).toBeGreaterThanOrEqual(MIN_TAP);
-    expect(cardBox.height).toBeGreaterThanOrEqual(MIN_TAP);
+    for (const testId of ['game-picker-potion-lab', 'game-picker-sink-or-float'] as const) {
+      const cardBox = await getStableBox(page, testId);
+      expect(cardBox.width).toBeGreaterThanOrEqual(MIN_TAP);
+      expect(cardBox.height).toBeGreaterThanOrEqual(MIN_TAP);
+    }
 
     const close = await getStableBox(page, 'game-picker-close');
     expect(close.width).toBeGreaterThanOrEqual(MIN_TAP);
     expect(close.height).toBeGreaterThanOrEqual(MIN_TAP);
     await tapTestId(page, 'game-picker-close');
-    await expect(card).toBeHidden();
+    await expect(potion).toBeHidden();
+    await expect(sink).toBeHidden();
     expect(await getActiveScenes(page)).toContain('MapScene');
   });
 
@@ -58,5 +64,15 @@ test.describe('science world map area', () => {
     await page.waitForTimeout(600);
     expect(await getActiveScenes(page)).toEqual(['PotionScene']);
     await expect(page.locator('[data-testid="game-picker-potion-lab"]')).toHaveCount(0);
+  });
+
+  test('real tap on the Sink or Float card opens SinkFloatScene', async ({ page }) => {
+    await tapWorldBuilding(page, 'profile-a', 'science-world');
+    await tapTestId(page, 'game-picker-sink-or-float');
+    await waitForScene(page, 'SinkFloatScene');
+    // Regression: the press on the card must not also tap the map building under it (Number Garden in portrait).
+    await page.waitForTimeout(600);
+    expect(await getActiveScenes(page)).toEqual(['SinkFloatScene']);
+    await expect(page.locator('[data-testid="game-picker-sink-or-float"]')).toHaveCount(0);
   });
 });

@@ -4,11 +4,12 @@
 import type { Page } from '@playwright/test';
 import type { SortingInfo } from '../../../src/games/sorting/types';
 import type { PotionInfo } from '../../../src/games/potionLab/potionTypes';
+import type { SinkFloatInfo } from '../../../src/games/sinkFloat/sinkFloatTypes';
 import type { LetterMonsterInfo } from '../../../src/games/letterMonster/letterMonsterTypes';
 import type { BalloonInfo } from '../../../src/games/balloon/types';
 import type { SeedFlowerInfo } from '../../../src/games/seedFlower/seedFlowerTypes';
 
-export type { SortingInfo, PotionInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
+export type { SortingInfo, PotionInfo, SinkFloatInfo, LetterMonsterInfo, BalloonInfo, SeedFlowerInfo };
 
 export type ProfileTestId = 'profile-a' | 'profile-b';
 
@@ -26,6 +27,7 @@ export const GAME_SCENE: Record<string, string> = {
   'sorting-beds': 'SortingScene',
   'balloon-pop': 'BalloonScene',
   'potion-lab': 'PotionScene',
+  'sink-or-float': 'SinkFloatScene',
 };
 
 /** Entry game of each single-game world. Art Studio is locked until its own game exists. */
@@ -46,6 +48,7 @@ export const PICKER_WORLD_DEFAULT_GAME: Record<string, string> = {
  * Passing 'leisure-colouring' taps `game-picker-leisure-colouring` after the building. */
 export const PICKER_WORLD_EXTRA_GAMES: Record<string, string[]> = {
   'leisure-corner': ['leisure-colouring'],
+  'science-world': ['sink-or-float'],
 };
 
 export interface PageRect {
@@ -152,6 +155,8 @@ type Hooks = {
   getSeedFlowerInfo: () => SeedFlowerInfo | null;
   seedPotionLevel: (level: number) => void;
   getPotionInfo: () => PotionInfo | null;
+  seedSinkFloatLevel: (level: number) => void;
+  getSinkFloatInfo: () => SinkFloatInfo | null;
 };
 
 type HookName = keyof Hooks;
@@ -657,6 +662,26 @@ export async function waitForPotionReady(page: Page, timeout = 15_000): Promise<
     const info = await getPotionInfo(page);
     if (info?.ready) return info;
     if (Date.now() > deadline) throw new Error(`Potion Lab never became ready: ${JSON.stringify(info)}`);
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
+/** Seeds the persisted Sink or Float level for every language (seed only). Call on the map, before entering. */
+export async function seedSinkFloatLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedSinkFloatLevel', [level]);
+}
+
+export function getSinkFloatInfo(page: Page): Promise<SinkFloatInfo | null> {
+  return callHook<SinkFloatInfo | null>(page, 'getSinkFloatInfo');
+}
+
+/** Waits until Sink or Float accepts taps and returns its state. */
+export async function waitForSinkFloatReady(page: Page, timeout = 15_000): Promise<SinkFloatInfo> {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    const info = await getSinkFloatInfo(page);
+    if (info?.ready) return info;
+    if (Date.now() > deadline) throw new Error(`Sink or Float never became ready: ${JSON.stringify(info)}`);
     await new Promise((r) => setTimeout(r, 100));
   }
 }

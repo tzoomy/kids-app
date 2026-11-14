@@ -1,6 +1,6 @@
 /** Pure data model of the Language House game picker (no DOM, no Phaser). */
 
-export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'potion-lab' | 'who-is-hiding' | 'seed-to-flower';
+export type PickerGameId = 'animal-restaurant' | 'kitchen-orchestra' | 'bubbles' | 'leisure-colouring' | 'letter-monster' | 'sorting-beds' | 'balloon-pop' | 'potion-lab' | 'sink-or-float' | 'who-is-hiding' | 'seed-to-flower';
 
 export interface PickerGame {
   gameId: PickerGameId;
@@ -11,7 +11,7 @@ export interface PickerGame {
   /** Art asset key of the card picture (see pickerAssets.ts). */
   assetKey: string;
   /** Key of the Hebrew card label in `he.json` under `gamePicker`. */
-  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'potionLab' | 'whoIsHiding' | 'seedToFlower';
+  labelKey: 'animalRestaurant' | 'kitchenOrchestra' | 'bubbles' | 'colouring' | 'letterMonster' | 'sortingBeds' | 'balloonPop' | 'potionLab' | 'sinkOrFloat' | 'whoIsHiding' | 'seedToFlower';
 }
 
 /**
@@ -94,6 +94,13 @@ export const SCIENCE_WORLD_PICKER_GAMES: readonly PickerGame[] = [
     sceneKey: 'PotionScene',
     assetKey: 'picker-card-potion-lab',
     labelKey: 'potionLab',
+  },
+  {
+    gameId: 'sink-or-float',
+    testId: 'game-picker-sink-or-float',
+    sceneKey: 'SinkFloatScene',
+    assetKey: 'picker-card-sink-or-float',
+    labelKey: 'sinkOrFloat',
   },
 ];
 
