@@ -527,6 +527,7 @@ export class RestaurantScene extends Phaser.Scene {
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();
     this.session.complete();
+    this.context.recordCompletedRound('language-house', 'animal-restaurant');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

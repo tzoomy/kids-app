@@ -420,6 +420,7 @@ export class SeedFlowerScene extends Phaser.Scene {
     this.hintTimer?.remove();
     this.context.sfx.yay();
     this.session.complete();
+    this.context.recordCompletedRound('nature-lab', 'seed-to-flower');
     // Watching the bloom celebration counts as participation until the next seed (also set by complete()).
     this.session.reportCelebrating(true);
     const state = this.profileState();

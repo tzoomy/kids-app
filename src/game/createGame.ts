@@ -29,6 +29,10 @@ import { writeColouringSeed } from '../core/colouring/seed';
 import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
 import type { LetterMonsterInfo } from '../games/letterMonster/letterMonsterTypes';
 import { loadLetterMonster } from '../content/loadContent';
+import { WardrobeScene } from '../games/wardrobe/WardrobeScene';
+import type { WardrobeInfo, WardrobeSeed } from '../games/wardrobe/wardrobeTypes';
+import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobeInfo';
+import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
 import { PreloadScene } from '../anim/PreloadScene';
@@ -85,6 +89,12 @@ declare global {
       seedPotionLevel: (level: number) => void;
       /** Current Potion Lab state (null when PotionScene is not active); rectangles are page CSS px. */
       getPotionInfo: () => PotionInfo | null;
+      /** Writes the active profile's wardrobe state (seed only; merged over the defaults, the starter is kept). Call on the map. */
+      seedWardrobeState: (seed: WardrobeSeed) => void;
+      /** Wardrobe snapshot of the current profile; works on the map and in WardrobeScene (null before a profile is picked). */
+      getWardrobeInfo: () => WardrobeInfo | null;
+      /** Records a completed round through the same AppContext call the games use; returns the newly unlocked item ids. */
+      recordCompletedRound: (worldId: string, gameId: string) => string[];
       /** Seeds the persisted Sink or Float level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
       seedSinkFloatLevel: (level: number) => void;
       /** Current Sink or Float state (null when SinkFloatScene is not active); rectangles are page CSS px. */
@@ -163,6 +173,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('BalloonScene', BalloonScene, false);
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
   game.scene.add('PotionScene', PotionScene, false);
+  game.scene.add('WardrobeScene', WardrobeScene, false);
   game.scene.add('SinkFloatScene', SinkFloatScene, false);
   game.scene.add('MagnetScene', MagnetScene, false);
 
@@ -203,6 +214,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('BalloonScene');
       game.scene.stop('PotionScene');
       game.scene.stop('SinkFloatScene');
+      game.scene.stop('WardrobeScene');
       game.scene.stop('MagnetScene');
       game.scene.start(sceneKey);
     },
@@ -349,6 +361,22 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getSeedFlowerInfo() {
       const scene = game.scene.getScene('SeedFlowerScene') as SeedFlowerScene | null;
       return scene && game.scene.isActive('SeedFlowerScene') ? scene.getSeedFlowerInfo() : null;
+    },
+    seedWardrobeState(seed) {
+      saveWardrobeState(window.localStorage, context.requireProfileId(), applyWardrobeSeed(seed));
+    },
+    getWardrobeInfo() {
+      const profileId = context.currentProfileId;
+      if (!profileId) return null;
+      return buildWardrobeInfo(
+        loadWardrobeState(window.localStorage, profileId),
+        context.currentAgeTrack(),
+        context.lastWardrobeUnlock,
+        game.scene.isActive('WardrobeScene'),
+      );
+    },
+    recordCompletedRound(worldId, gameId) {
+      return context.recordCompletedRound(worldId, gameId);
     },
     seedMagnetLevel(level) {
       seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadMagicMagnet(), level, localDayKey(new Date(context.nowMs())));

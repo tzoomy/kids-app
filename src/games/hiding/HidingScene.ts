@@ -617,6 +617,7 @@ export class HidingScene extends Phaser.Scene {
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();
     this.session.complete();
+    this.context.recordCompletedRound('nature-lab', 'who-is-hiding');
     const state = this.profileState();
     state.stars++;
     this.context.store.persist();

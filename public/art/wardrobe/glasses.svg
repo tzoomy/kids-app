@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80" width="220" height="80">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Short side arms -->
+    <path d="M 32 36 L 10 34 C 6 34 6 44 10 44 L 32 46 Z" fill="#C04232"/>
+    <path d="M 188 36 L 210 34 C 214 34 214 44 210 44 L 188 46 Z" fill="#C04232"/>
+
+    <!-- Nose bridge -->
+    <path d="M 90 38 C 100 30 120 30 130 38 L 130 48 C 120 42 100 42 90 48 Z" fill="#E85D4A"/>
+
+    <!-- Left round frame with transparent lens -->
+    <path d="M 62 12 A 32 32 0 1 0 62 76 A 32 32 0 1 0 62 12 Z M 62 22 A 22 22 0 1 1 62 66 A 22 22 0 1 1 62 22 Z" fill="#E85D4A" fill-rule="evenodd"/>
+    <!-- Left frame flat highlight -->
+    <path d="M 38 30 C 44 20 56 16 68 18" fill="none" stroke="#FF8B7A" stroke-width="4"/>
+    <!-- Left frame flat shadow -->
+    <path d="M 44 66 C 54 74 70 74 80 66" fill="none" stroke="#C04232" stroke-width="4"/>
+    <!-- Re-stroke left frame -->
+    <circle cx="62" cy="44" r="32" fill="none"/>
+    <circle cx="62" cy="44" r="22" fill="none"/>
+    <!-- Left lens white glint -->
+    <path d="M 48 36 L 56 29" fill="none" stroke="#FFFDF9" stroke-width="5"/>
+
+    <!-- Right round frame with transparent lens -->
+    <path d="M 158 12 A 32 32 0 1 0 158 76 A 32 32 0 1 0 158 12 Z M 158 22 A 22 22 0 1 1 158 66 A 22 22 0 1 1 158 22 Z" fill="#E85D4A" fill-rule="evenodd"/>
+    <!-- Right frame flat highlight -->
+    <path d="M 134 30 C 140 20 152 16 164 18" fill="none" stroke="#FF8B7A" stroke-width="4"/>
+    <!-- Right frame flat shadow -->
+    <path d="M 140 66 C 150 74 166 74 176 66" fill="none" stroke="#C04232" stroke-width="4"/>
+    <!-- Re-stroke right frame -->
+    <circle cx="158" cy="44" r="32" fill="none"/>
+    <circle cx="158" cy="44" r="22" fill="none"/>
+    <!-- Right lens white glint -->
+    <path d="M 144 36 L 152 29" fill="none" stroke="#FFFDF9" stroke-width="5"/>
+  </g>
+</svg>
