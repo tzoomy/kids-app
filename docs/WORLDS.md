@@ -29,9 +29,9 @@ Thirteen ideas were approved by the owner as vision-stage entries. Build order a
 - **Word Train** (Language House) — load named objects, or drag letters to spell short English words.
 - **Shadow Match** (Nature Lab) — identify an animal by its silhouette and its sound.
 - **Seed to Flower** (Nature Lab) — water and sun make the plant grow, with no failure.
-- **Potion Lab** (Science World) — mix two colors and hear the new color's name.
-- **Sink or Float** (Science World) — drop an object, or predict first, and watch.
-- **Magic Magnet** (Science World) — drag a magnet and see what sticks.
+- **Potion Lab** (Science World; placement pending: default separate map area, **pending Maor decision**) — mix two colors and hear the new color's name.
+- **Sink or Float** (Science World; placement pending: default separate map area, **pending Maor decision**) — drop an object, or predict first, and watch.
+- **Magic Magnet** (Science World; placement pending: default separate map area, **pending Maor decision**) — drag a magnet and see what sticks.
 - **Wardrobe** (Rewards and creation) — hats and accessories earned through progress, to dress the existing world characters.
 - **Sticker Board and Finger Drawing** (Art Studio) — stickers and finger drawing on backgrounds.
 - **Parent gate by 3-second long-press** (Infrastructure) — a simple gate for the parent area.
@@ -111,6 +111,16 @@ Goal: understand a request or a word in the learning language and act in the wor
 - **Age 2:** Load a named object onto the train.
 - **Age 5:** Drag letters to spell a short English word (for example cat, sun).
 
+### 6. Kitchen Orchestra
+
+- **Stage:** Built (on `main`). Moved here from Art Studio by the owner's decision of 2026-11-12; reached through the Language House game picker (Animal Restaurant or Kitchen Orchestra). Full spec: [docs/specs/kitchen-orchestra.md](specs/kitchen-orchestra.md).
+
+- **Action:** A chef plays a short pattern on kitchen utensils (pot, pan, water glasses) and names them in the learning language; the girl echoes the pattern by tapping the utensils.
+- **Learning goal:** Kitchen utensil words and simple requests in English or French ("Play the pot!", "Listen!", "Your turn!"); listening to a pattern and imitating a short sequence.
+- **Inspiration pattern:** Sago Mini (free exploration); Tiger eAcademy (a short guided sequence, in the older-girl version).
+- **Age 2:** One lit note at a time with a demonstration hint after idle time; free playing while listening never counts as a mistake.
+- **Age 5:** Repeat a sequence of three or more sounds, moving from lit to flash to audio-only cues.
+
 ---
 
 ## Number Garden
@@ -149,7 +159,7 @@ Goal: a sense of quantity, one-to-one matching, sorting, and comparison. Instruc
 
 ### 4. Balloon Pop
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** Pass 1 built (draft spec `docs/specs/balloon-pop.md`, pending owner approval); idea owner-approved 2026-11-13.
 
 - **Action:** Balloons float up; the girl pops the one that was named.
 - **Learning goal:** Color names (age 2) and recognizing digits by ear (age 5); numbers may be voiced in English or French as a deliberate counting-language skill, consistent with the Number Garden intro.
@@ -286,17 +296,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 - **Age 2:** Fill by touch, a few large colors, "going outside the line" is not treated as a mistake.
 - **Age 5:** More areas, an optional request ("color the apple red"), saving the creation in a local album.
 
-### 2. Kitchen Orchestra / Sound Lab
-
-- **Stage:** Vision.
-
-- **Action:** Touching utensils or creatures plays sounds; a short pattern can be repeated.
-- **Learning goal:** Cause and effect, listening to a pattern, imitating a short sequence.
-- **Inspiration pattern:** Sago Mini (free exploration); Tiger eAcademy (a short guided sequence, in the older-girl version).
-- **Age 2:** Free playing with no failure.
-- **Age 5:** Repeat a sequence of two or three sounds, or choose an instrument by name in the learning language.
-
-### 3. Bubbles and Dreams (also as leisure)
+### 2. Bubbles and Dreams (also as leisure)
 
 - **Stage:** P0 as the leisure corner.
 
@@ -305,7 +305,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 - **Inspiration pattern:** Leisure inside the app, like a free-play corner and not like a lesson.
 - **Age 2 and 5:** The same activity, with different density and complexity. If this is a leisure corner — it does not earn new time.
 
-### 4. Sticker Board and Finger Drawing
+### 3. Sticker Board and Finger Drawing
 
 - **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
 
@@ -319,7 +319,7 @@ Goal: expression, motor skills, choice. Marked educational creation can earn lei
 
 ## Rewards and creation
 
-Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 4).
+Goal: a reward on top of leisure-time earning, not a replacement for it. Sticker Board and Finger Drawing lives in Art Studio (see Art Studio, game 3).
 
 ### 1. Wardrobe
 
@@ -340,7 +340,7 @@ Goal: supporting features, not learning games.
 
 ### 1. Parent gate by 3-second long-press
 
-- **Stage:** Vision / approved idea (owner-approved 2026-11-13; build order pending owner decision).
+- **Stage:** In progress (spec: [`docs/specs/parent-longpress-gate.md`](specs/parent-longpress-gate.md), draft PR #70; owner-approved idea 2026-11-13; add-vs-replace pending owner decision, see `docs/PENDING-DECISIONS.md`).
 
 - **Action:** The parent enters the parent area by pressing and holding for 3 seconds. Whether it replaces or is added to the current parent gate: pending owner decision.
 - **Learning goal:** Not a learning game; keeps the parent area out of the girls' reach.

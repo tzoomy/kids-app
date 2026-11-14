@@ -6,7 +6,7 @@ import { heLine } from '../content/voiceLines';
 import { transitionTo } from '../anim/transitions';
 import { popIn, floatIdle, pressSquash } from '../anim/tweens';
 import { setAppScreen } from '../pwa';
-import { LEISURE_PICKER_GAMES, WORLD_GAMES } from '../ui/picker/pickerModel';
+import { LEISURE_PICKER_GAMES, NUMBER_GARDEN_PICKER_GAMES, SCIENCE_WORLD_PICKER_GAMES, NATURE_LAB_PICKER_GAMES, WORLD_GAMES } from '../ui/picker/pickerModel';
 import { worldEntry } from '../ui/picker/trailModel';
 import { stationsForActiveProfile } from './worldTrail';
 
@@ -99,6 +99,63 @@ export class MapScene extends Phaser.Scene {
           }
           return;
         }
+        // Temporary per-world pickers from main (Balloon Pop, Seed to Flower, Potion Lab / Science World).
+        // The follow-up rework deletes these branches and moves every list into WORLD_GAMES.
+        if (world.id === 'science-world') {
+          // Science World is its own map area; its games are listed in SCIENCE_WORLD_PICKER_GAMES.
+          // Until the first game lands, the picker shows a gentle "coming soon" card.
+          const t = context.content.he.gamePicker;
+          context.shell.showGamePicker({
+            games: SCIENCE_WORLD_PICKER_GAMES,
+            title: t.scienceWorldTitle,
+            emptyText: t.scienceWorldEmpty,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          if (SCIENCE_WORLD_PICKER_GAMES.length === 0) void context.audio.play(heLine('map.comingSoon'));
+          return;
+        }
+        if (world.id === 'number-garden') {
+          // Number Garden hosts Sorting Beds and Balloon Pop: the child picks one (or closes the picker).
+          context.shell.showGamePicker({
+            games: NUMBER_GARDEN_PICKER_GAMES,
+            title: context.content.he.gamePicker.numberGardenTitle,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          return;
+        }
+        if (world.id === 'nature-lab') {
+          // Nature Lab hosts Who's Hiding? (entry game) and Seed to Flower: the child picks one.
+          context.shell.showGamePicker({
+            games: NATURE_LAB_PICKER_GAMES,
+            title: context.content.he.gamePicker.natureLabTitle,
+            onPick: (game) => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+              transitionTo(this, game.sceneKey, { style: 'iris', originX: x, originY: y });
+            },
+            onClose: () => {
+              context.shell.hideGamePicker();
+              context.sfx.tap();
+            },
+          });
+          return;
+        }
         // Registry-driven entry (docs/specs/station-trail.md): 2+ games open the station trail picker, exactly one
         // game is entered directly, and a world with no registered game falls back to its `entryGameId`.
         const entry = worldEntry(stationsForActiveProfile(context, world.id));
@@ -121,12 +178,14 @@ export class MapScene extends Phaser.Scene {
         }
         const target = entry.kind === 'direct' ? entry.game : WORLD_GAMES.find((g) => g.gameId === world.entryGameId);
         if (target) transitionTo(this, target.sceneKey, { style: 'iris', originX: x, originY: y });
+
       });
 
       const labels: Record<string, string> = {
         'language-house': context.content.he.worldMap.languageHouse,
         'number-garden': context.content.he.worldMap.numberGarden,
         'nature-lab': context.content.he.worldMap.natureLab,
+        'science-world': context.content.he.worldMap.scienceWorld,
         'art-studio': context.content.he.worldMap.artStudio,
         'leisure-corner': context.content.he.worldMap.leisureCorner,
       };
@@ -148,6 +207,7 @@ export class MapScene extends Phaser.Scene {
         balanceSec: profileState.balanceSec,
         showTime: context.isTimeEarningEnabled(),
         onParent: () => context.onRequestParent?.(),
+        onParentLongPress: () => context.onRequestParentSettings?.(),
         onSwitchProfile: () => context.onExitToProfileSelect?.(),
         pins,
         canvas: this.game.canvas,

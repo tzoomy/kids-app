@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- 8 rounded triangular sun rays -->
+  <g fill="#FFB627" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(45 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(90 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(135 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(180 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(225 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(270 128 128)"/>
+    <path d="M 108 72 L 122 24 C 125 14 131 14 134 24 L 148 72 Z" transform="rotate(315 128 128)"/>
+  </g>
+
+  <!-- Round friendly sun face (no eyes or mouth) -->
+  <circle cx="128" cy="128" r="64" fill="#FFD43B" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Bottom-right rim shadow -->
+  <path d="M 74 148 C 84 176 106 188 128 188 C 160 188 186 162 186 128 C 186 116 183 106 178 96 C 178 126 158 168 118 172 C 98 174 84 164 74 148 Z" fill="#F5A623"/>
+  <!-- Clean sun outline -->
+  <circle cx="128" cy="128" r="64" fill="none" stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

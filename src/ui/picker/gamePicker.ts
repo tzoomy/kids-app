@@ -2,6 +2,7 @@ import { el } from '../dom';
 import heStrings from '../../content/i18n/he.json';
 import {
   PICKER_CLOSE_TEST_ID,
+  PICKER_EMPTY_TEST_ID,
   PICKER_GAMES,
   STATION_TRAIL_TEST_ID,
   stationPulseTestId,
@@ -18,6 +19,8 @@ export interface GamePickerOptions {
   stations?: readonly Station[];
   /** Picker title; defaults to the Language House title. */
   title?: string;
+  /** Shown instead of the cards when `games` is empty (a gentle "coming soon" state). */
+  emptyText?: string;
   onPick: (game: PickerGame) => void;
   onClose: () => void;
 }
@@ -47,6 +50,11 @@ function applyArt(node: HTMLElement, key: string): void {
 export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   const t = heStrings.gamePicker;
   const root = el('div', 'shell-game-picker');
+  // Phaser also listens for presses on window: keep picker presses from reaching the map
+  // underneath (a card over a building would otherwise tap that building too).
+  for (const type of ['pointerdown', 'mousedown', 'touchstart'] as const) {
+    root.addEventListener(type, (event) => event.stopPropagation());
+  }
   root.dir = 'rtl';
   root.lang = 'he';
 
@@ -80,14 +88,16 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
   header.appendChild(title);
   panel.appendChild(header);
 
+  const games = opts.games ?? PICKER_GAMES;
   const cards = el('div', 'picker-cards');
   const entries: readonly { game: PickerGame; station?: Station }[] = opts.stations
     ? opts.stations.map((station) => ({ game: station.game, station }))
-    : (opts.games ?? PICKER_GAMES).map((game) => ({ game }));
+    : games.map((game) => ({ game }));
+  // 3+ card sizing uses --picker-count for every picker, including the station trail.
+  cards.style.setProperty('--picker-count', String(entries.length));
   if (opts.stations) {
     cards.dataset.testid = STATION_TRAIL_TEST_ID;
     cards.classList.add('station-trail');
-    cards.style.setProperty('--picker-count', String(Math.max(1, entries.length)));
   }
   for (const { game, station } of entries) {
     const label = t[game.labelKey];
@@ -121,6 +131,11 @@ export function renderGamePicker(opts: GamePickerOptions): HTMLElement {
     }
     card.addEventListener('click', () => opts.onPick(game));
     cards.appendChild(card);
+  }
+  if (!opts.stations && games.length === 0) {
+    const empty = el('div', 'picker-empty', opts.emptyText ?? '');
+    empty.dataset.testid = PICKER_EMPTY_TEST_ID;
+    cards.appendChild(empty);
   }
   panel.appendChild(cards);
   root.appendChild(panel);

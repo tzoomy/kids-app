@@ -4,6 +4,10 @@ import kitchenOrchestraJson from './games/kitchen-orchestra.json';
 import sortingBedsJson from './games/sorting-beds.json';
 import whosHidingJson from './games/who-is-hiding.json';
 import leisureColouringJson from './games/leisure-colouring.json';
+import letterMonsterJson from './games/letter-monster.json';
+import balloonPopJson from './games/balloon-pop.json';
+import seedToFlowerJson from './games/seed-to-flower.json';
+import potionLabJson from './games/potion-lab.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -13,12 +17,20 @@ import {
   SortingBedsContentSchema,
   WhosHidingContentSchema,
   LeisureColouringContentSchema,
+  LetterMonsterContentSchema,
+  BalloonPopContentSchema,
+  PotionLabContentSchema,
+  SeedToFlowerContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
   type SortingBedsContent,
   type WhosHidingContent,
   type LeisureColouringContent,
+  type LetterMonsterContent,
+  type BalloonPopContent,
+  type SeedToFlowerContent,
+  type PotionLabContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -49,6 +61,22 @@ export function loadSortingBeds(): SortingBedsContent {
 
 export function loadLeisureColouring(): LeisureColouringContent {
   return LeisureColouringContentSchema.parse(leisureColouringJson);
+}
+
+export function loadLetterMonster(): LetterMonsterContent {
+  return LetterMonsterContentSchema.parse(letterMonsterJson);
+}
+
+export function loadBalloonPop(): BalloonPopContent {
+  return BalloonPopContentSchema.parse(balloonPopJson);
+}
+
+export function loadPotionLab(): PotionLabContent {
+  return PotionLabContentSchema.parse(potionLabJson);
+}
+
+export function loadSeedToFlower(): SeedToFlowerContent {
+  return SeedToFlowerContentSchema.parse(seedToFlowerJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

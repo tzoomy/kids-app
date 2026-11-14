@@ -6,7 +6,7 @@ import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
 import type { AppShell } from '../ui/shell';
-import type { WorldsFile, AnimalRestaurantContent, KitchenOrchestraContent, SortingBedsContent, WhosHidingContent, LeisureColouringContent } from '../content/schema';
+import type { WorldsFile, AnimalRestaurantContent, KitchenOrchestraContent, SortingBedsContent, WhosHidingContent, LeisureColouringContent, BalloonPopContent } from '../content/schema';
 import heStrings from '../content/i18n/he.json';
 
 export interface ContentBundle {
@@ -16,6 +16,7 @@ export interface ContentBundle {
   sorting: SortingBedsContent;
   hiding: WhosHidingContent;
   colouring: LeisureColouringContent;
+  balloon: BalloonPopContent;
   he: typeof heStrings;
 }
 
@@ -27,6 +28,8 @@ export class AppContext {
   currentProfileId: string | null = null;
   /** Set by main.ts; lets Phaser scenes ask the DOM shell to open the parent gate. */
   onRequestParent: (() => void) | null = null;
+  /** Set by main.ts; a 3-second hold of the map's parent button opens the parent settings directly. */
+  onRequestParentSettings: (() => void) | null = null;
   /** Set by main.ts; lets Phaser scenes return to the profile-select screen. */
   onExitToProfileSelect: (() => void) | null = null;
 
