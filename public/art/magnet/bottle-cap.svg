@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g stroke="#3B2A22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Crimped silver-grey metal skirt seen at a slight angle -->
+    <path d="M 228 134 C 232 142 228 152 220 156 C 220 166 212 174 202 176 C 198 186 188 192 178 192 C 170 202 158 206 146 202 C 136 210 120 210 110 202 C 98 206 86 202 78 192 C 68 192 58 186 54 176 C 44 174 36 166 36 156 C 28 152 24 142 28 134 C 24 124 28 114 36 110 C 36 100 44 92 54 90 C 58 80 68 74 78 74 C 86 64 98 60 110 64 C 120 56 136 56 146 64 C 158 60 170 64 178 74 C 188 74 198 80 202 90 C 212 92 220 100 220 110 C 228 114 232 124 228 134 Z" fill="#C9CED6"/>
+
+    <!-- Flat shadow on lower-right crimped edge -->
+    <path d="M 220 134 C 220 172 176 202 128 202 C 96 202 68 190 50 170 C 66 196 96 210 128 210 C 182 210 228 176 228 134 Z" fill="#A3AAB5" stroke="none"/>
+
+    <!-- Re-stroke crimped outer edge -->
+    <path d="M 228 134 C 232 142 228 152 220 156 C 220 166 212 174 202 176 C 198 186 188 192 178 192 C 170 202 158 206 146 202 C 136 210 120 210 110 202 C 98 206 86 202 78 192 C 68 192 58 186 54 176 C 44 174 36 166 36 156 C 28 152 24 142 28 134 C 24 124 28 114 36 110 C 36 100 44 92 54 90 C 58 80 68 74 78 74 C 86 64 98 60 110 64 C 120 56 136 56 146 64 C 158 60 170 64 178 74 C 188 74 198 80 202 90 C 212 92 220 100 220 110 C 228 114 232 124 228 134 Z" fill="none"/>
+
+    <!-- Warm blue top with a light rim -->
+    <ellipse cx="128" cy="124" rx="76" ry="60" fill="#4A9BE8"/>
+
+    <!-- Flat shadow on lower-right of blue top -->
+    <path d="M 192 100 A 76 60 0 0 1 72 164 A 76 56 0 0 0 192 100 Z" fill="#3178C6" stroke="none"/>
+
+    <!-- Light rim ring inside the top edge -->
+    <ellipse cx="128" cy="124" rx="68" ry="52" fill="none" stroke="#B8DCFF" stroke-width="6"/>
+
+    <!-- Flat highlight on upper-left of blue top -->
+    <ellipse cx="96" cy="100" rx="24" ry="12" transform="rotate(-24 96 100)" fill="#8AC4FF" stroke="none"/>
+
+    <!-- Re-stroke blue top outline -->
+    <ellipse cx="128" cy="124" rx="76" ry="60" fill="none"/>
+  </g>
+</svg>

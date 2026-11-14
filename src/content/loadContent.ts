@@ -9,6 +9,7 @@ import balloonPopJson from './games/balloon-pop.json';
 import seedToFlowerJson from './games/seed-to-flower.json';
 import potionLabJson from './games/potion-lab.json';
 import sinkOrFloatJson from './games/sink-or-float.json';
+import magicMagnetJson from './games/magic-magnet.json';
 import heJson from './i18n/he.json';
 import audioManifestJson from './audio-manifest.json';
 import {
@@ -23,6 +24,7 @@ import {
   PotionLabContentSchema,
   SinkOrFloatContentSchema,
   SeedToFlowerContentSchema,
+  MagicMagnetContentSchema,
   type WorldsFile,
   type AnimalRestaurantContent,
   type KitchenOrchestraContent,
@@ -34,6 +36,7 @@ import {
   type SeedToFlowerContent,
   type PotionLabContent,
   type SinkOrFloatContent,
+  type MagicMagnetContent,
 } from './schema';
 import type { AudioManifest } from '../core/audio/types';
 
@@ -84,6 +87,10 @@ export function loadSinkOrFloat(): SinkOrFloatContent {
 
 export function loadSeedToFlower(): SeedToFlowerContent {
   return SeedToFlowerContentSchema.parse(seedToFlowerJson);
+}
+
+export function loadMagicMagnet(): MagicMagnetContent {
+  return MagicMagnetContentSchema.parse(magicMagnetJson);
 }
 
 export function loadAudioManifest(): AudioManifest {

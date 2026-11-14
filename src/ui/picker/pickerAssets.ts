@@ -54,10 +54,11 @@ const LANGUAGE_HOUSE_EXTRA_PLACEHOLDERS: Record<string, { url: string } | { css:
   'picker-card-letter-monster': { css: 'background:linear-gradient(180deg,#dcd6ff,#f3ecff)' },
 };
 
-/** Science World picker cards (additive). Pass-1 placeholder in science blue; real card art is Pass 2. */
+/** Science World picker cards (additive). Pass-1 placeholders; real card art is Pass 2. */
 const SCIENCE_WORLD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   'picker-card-potion-lab': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
   'picker-card-sink-or-float': { css: 'background:linear-gradient(180deg,#cfeaff,#7ec8ff)' },
+  'picker-card-magic-magnet': { css: 'background:linear-gradient(180deg,#ffe3e0,#ff8f84)' },
 };
 
 /** Nature Lab picker cards (additive). Pass-1 placeholders from existing art; real card art is Pass 2. */

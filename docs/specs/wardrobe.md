@@ -41,7 +41,7 @@ Hats and accessories that the child earns by finishing rounds in any world dress
 - No purchases, ads, countdowns or time gates. The only unlock sources are the starter and completed rounds.
 - **Reachability notes for the owner:**
   - `hair-bow` needs `art-studio`, which is locked and has no game yet, so `hair-bow` and therefore `crown` cannot be earned in real play until Art Studio opens. The unit and e2e tests exercise the rules against the world id `art-studio` through seeds; this change does not unlock Art Studio.
-  - `sun-hat` needs 3 different games in one world. Today only `language-house` (Animal Restaurant, Kitchen Orchestra, Letter Monster) has 3; Number Garden and Nature Lab have 2 each, Science World 1.
+  - `sun-hat` needs 3 different games in one world. Today `language-house` (Animal Restaurant, Kitchen Orchestra, Letter Monster) and `science-world` (Potion Lab, Sink or Float, Magic Magnet) each have 3; Number Garden and Nature Lab have 2 each.
 
 **Offered items.** Items carry `ages` in `src/content/wardrobe/items.json`. Age 2 sees only items whose `ages` include 2; age 5 sees all 8. Items that are offered but locked are shown as locked (greyed, with a lock) and tapping them does nothing. Items not offered for the age are not shown at all.
 
@@ -121,7 +121,7 @@ Only after Maor approves Pass 1: item name voice lines in Hebrew and the learnin
 ## Open decisions for the owner
 
 - **Open decision for the owner:** the unlock rules in the table above (team-lead-approved default; pending Maor decision): flower-clip free; beanie, scarf, party-hat on the first round in Language House, Number Garden, Nature Lab; hair-bow after an Art Studio round; sun-hat after rounds at 3 different games in one world; glasses after a Nature Lab or Science World round; crown after all the others. To reverse: edit `UNLOCK_RULES` in `src/core/wardrobe/model.ts` and AC-03.
-- **Open decision for the owner:** `hair-bow` and `crown` cannot be earned until Art Studio has a game, and `sun-hat` is reachable only in Language House today (see Reachability notes). Default: leave as written.
+- **Open decision for the owner:** `hair-bow` and `crown` cannot be earned until Art Studio has a game, and `sun-hat` is reachable in Language House and Science World today (see Reachability notes). Default: leave as written.
 - **Open decision for the owner:** age-2 and age-5 item subsets and the starter item (`items.json` `ages`, `starter`); see `docs/PENDING-DECISIONS.md` (2026-11-14).
 - **Open decision for the owner:** entry point is a map HUD button `wardrobe-btn` "ארון הבגדים" (not a map building, not Leisure Corner). To reverse: remove the button from `renderMapChrome` and open `WardrobeScene` from another place.
 - **Open decision for the owner:** one character (bear) in Pass 1, no character switch.

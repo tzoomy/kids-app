@@ -144,6 +144,15 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/sink-or-float.machine.test.ts'])).toEqual(expected);
   });
 
+  it('magic magnet selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/magic-magnet.journey.spec.ts', 'tests/e2e/science-world.map.spec.ts'];
+    expect(selectAffectedE2e(['src/games/magicMagnet/MagnetScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/magic-magnet.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/magnet/magnet.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/magnet/nail.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/magic-magnet.machine.test.ts'])).toEqual(expected);
+  });
+
   it('letter-monster changes select the letter-monster journey spec', () => {
     const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
     expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
