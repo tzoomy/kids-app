@@ -103,8 +103,11 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['src/games/orchestra/orchestraGame.ts'])).toEqual([
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
     ]);
+    // shell.css is also shared (smoke + long-press gate from #70).
     expect(selectAffectedE2e(['src/styles/shell.css'])).toEqual([
+      ...SMOKE,
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/parent-longpress-gate.spec.ts',
     ]);
   });
 
@@ -173,9 +176,15 @@ describe('affected e2e selection', () => {
   });
 
   it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
-    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts', 'src/styles/shell.css']) {
+    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts']) {
       expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
     }
+    // shell.css also matches the kitchen-orchestra --picker-count rule on this branch.
+    expect(selectAffectedE2e(['src/styles/shell.css'])).toEqual([
+      ...SMOKE,
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/parent-longpress-gate.spec.ts',
+    ]);
   });
 
   it('long-press gate unit tests select only the gate spec (no smoke)', () => {
