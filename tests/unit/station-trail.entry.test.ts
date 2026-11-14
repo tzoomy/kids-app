@@ -7,7 +7,7 @@ import { buildTrail, collectTrailGames, worldEntry } from '../../src/ui/picker/t
 import type { GamePickerOptions } from '../../src/ui/picker/gamePicker';
 import type { WorldEntry } from '../../src/ui/picker/trailModel';
 import * as worldTrail from '../../src/worlds/worldTrail';
-import { loadAnimalRestaurant, loadKitchenOrchestra, loadLetterMonster, loadPotionLab, loadTravelSuitcase } from '../../src/content/loadContent';
+import { loadAnimalRestaurant, loadKitchenOrchestra, loadLetterMonster, loadPotionLab, loadTravelSuitcase, loadWordTrain } from '../../src/content/loadContent';
 
 /** Contract of the helper the implementation step adds to src/worlds/worldTrail.ts. Looked up by name so this file type-checks (and fails at runtime) until it exists. */
 type WorldPickerOptions = Pick<GamePickerOptions, 'games' | 'stations' | 'title' | 'emptyText'>;
@@ -28,6 +28,7 @@ const GAMES = collectTrailGames({
   orchestra: loadKitchenOrchestra(),
   letterMonster: loadLetterMonster(),
   suitcase: loadTravelSuitcase(),
+  wordTrain: loadWordTrain(),
   potion: loadPotionLab(),
 });
 
@@ -67,7 +68,7 @@ describe('station trail: map entry path per entry kind', () => {
     const options = worldPickerOptions(entry, { title: 'בית השפה', emptyText: t.scienceWorldEmpty });
     expect(options?.title).toBe('בית השפה');
     const stationIds = options?.stations?.map((s) => s.game.gameId) ?? [];
-    expect(stationIds).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
+    expect(stationIds).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase', 'word-train']);
     expect(options?.games).toBeUndefined();
 
     const root = renderGamePicker({ ...options!, onPick: () => {}, onClose: () => {} });

@@ -53,6 +53,7 @@ const CARD_PLACEHOLDERS: Record<string, { url: string } | { css: string }> = {
   // Language House (after #40).
   'picker-card-letter-monster': { css: 'background:linear-gradient(180deg,#dcd6ff,#f3ecff)' },
   'picker-card-travel-suitcase': { url: 'art/props/suitcase-front.svg' },
+  'picker-card-word-train': { css: 'background:linear-gradient(180deg,#fff1c1,#ffc857)' },
   // Number Garden.
   'picker-card-sorting-beds': { url: 'art/scenes/number-garden/bg-landscape.svg' },
   'picker-card-balloon-pop': { css: 'background:radial-gradient(circle at 35% 40%,#ff6fb5 0 14%,transparent 15%),radial-gradient(circle at 62% 30%,#ffd93d 0 13%,transparent 14%),radial-gradient(circle at 50% 62%,#4d96ff 0 14%,transparent 15%),linear-gradient(180deg,#b8e6ff,#e7f7ff)' },

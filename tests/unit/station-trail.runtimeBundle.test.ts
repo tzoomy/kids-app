@@ -43,10 +43,10 @@ function buildRuntimeBundle(): Record<string, unknown> {
 }
 
 describe('station trail on the real runtime content bundle (src/main.ts)', () => {
-  it('language-house has exactly the four stations in registry order', () => {
+  it('language-house has the registry stations in order, including Word Train', () => {
     const games = collectTrailGames(buildRuntimeBundle());
     const stations = stationGamesForWorld('language-house', WORLD_GAMES, games).map((g) => g.gameId);
-    expect(stations).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase']);
+    expect(stations).toEqual(['animal-restaurant', 'kitchen-orchestra', 'letter-monster', 'travel-suitcase', 'word-train']);
   });
 
   it('number-garden stations on the runtime bundle match the registry, with Number Bridge last', () => {
