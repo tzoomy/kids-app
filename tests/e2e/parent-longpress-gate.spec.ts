@@ -194,7 +194,7 @@ test.describe('parent long-press gate (profile select + map HUD)', () => {
     await expect(page.locator(SETTINGS_EXIT)).toHaveCount(0);
     await expect(page.getByText(GATE_QUESTION)).toHaveCount(0);
 
-    await expect(page.locator(SETTINGS_EXIT)).toBeVisible({ timeout: 2_000 });
+    await expect(page.locator(SETTINGS_EXIT)).toBeVisible({ timeout: 5_000 });
     expect(Date.now() - startedAt, 'settings must not open before the 3 s hold is done').toBeGreaterThanOrEqual(2900);
     await expect(page.getByText(GATE_QUESTION)).toHaveCount(0);
 

@@ -16,6 +16,9 @@ import { loadSeedToFlower } from '../content/loadContent';
 import { PotionScene } from '../games/potionLab/PotionScene';
 import type { PotionInfo } from '../games/potionLab/potionTypes';
 import { loadPotionLab } from '../content/loadContent';
+import { SinkFloatScene } from '../games/sinkFloat/SinkFloatScene';
+import type { SinkFloatInfo } from '../games/sinkFloat/sinkFloatTypes';
+import { loadSinkOrFloat } from '../content/loadContent';
 import type { ColouringInfo, ColouringSeed } from '../games/colouring/types';
 import { writeColouringSeed } from '../core/colouring/seed';
 import { LetterMonsterScene } from '../games/letterMonster/LetterMonsterScene';
@@ -38,7 +41,7 @@ declare global {
   interface Window {
     __GAME_READY__?: boolean;
     __testHooks__?: {
-      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'seed-flower') => void;
+      goToScreen: (screen: 'map' | 'restaurant' | 'hiding' | 'bubbles' | 'orchestra' | 'sorting' | 'colouring' | 'letter-monster' | 'balloon' | 'potion-lab' | 'sink-or-float' | 'seed-flower') => void;
       seedBalanceSec: (sec: number) => void;
       /** Sets the stored restaurant level (1-based, clamped to the track) for every language. Call before entering the restaurant. */
       seedRestaurantLevel: (level: number) => void;
@@ -83,6 +86,10 @@ declare global {
       getWardrobeInfo: () => WardrobeInfo | null;
       /** Records a completed round through the same AppContext call the games use; returns the newly unlocked item ids. */
       recordCompletedRound: (worldId: string, gameId: string) => string[];
+      /** Seeds the persisted Sink or Float level (cleanStreak 0, recent []) for every language. Call on the map, before entering. */
+      seedSinkFloatLevel: (level: number) => void;
+      /** Current Sink or Float state (null when SinkFloatScene is not active); rectangles are page CSS px. */
+      getSinkFloatInfo: () => SinkFloatInfo | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -153,6 +160,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('SeedFlowerScene', SeedFlowerScene, false);
   game.scene.add('PotionScene', PotionScene, false);
   game.scene.add('WardrobeScene', WardrobeScene, false);
+  game.scene.add('SinkFloatScene', SinkFloatScene, false);
 
   game.registry.set('appContext', context);
 
@@ -172,6 +180,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
         : screen === 'letter-monster' ? 'LetterMonsterScene'
         : screen === 'balloon' ? 'BalloonScene'
         : screen === 'potion-lab' ? 'PotionScene'
+        : screen === 'sink-or-float' ? 'SinkFloatScene'
         : screen === 'seed-flower' ? 'SeedFlowerScene'
         : 'BubblesScene';
       game.scene.stop('PreloadScene');
@@ -186,6 +195,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       game.scene.stop('LetterMonsterScene');
       game.scene.stop('BalloonScene');
       game.scene.stop('PotionScene');
+      game.scene.stop('SinkFloatScene');
+      game.scene.stop('WardrobeScene');
       game.scene.start(sceneKey);
     },
     seedBalanceSec(sec) {
@@ -304,6 +315,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getPotionInfo() {
       const scene = game.scene.getScene('PotionScene') as PotionScene | null;
       return scene && game.scene.isActive('PotionScene') ? scene.getPotionInfo() : null;
+    },
+    seedSinkFloatLevel(level) {
+      seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSinkOrFloat(), level, localDayKey(new Date(context.nowMs())));
+    },
+    getSinkFloatInfo() {
+      const scene = game.scene.getScene('SinkFloatScene') as SinkFloatScene | null;
+      return scene && game.scene.isActive('SinkFloatScene') ? scene.getSinkFloatInfo() : null;
     },
     seedSeedFlowerLevel(level) {
       seedAdaptiveLevel(context.adaptive, context.requireProfileId(), loadSeedToFlower(), level, localDayKey(new Date(context.nowMs())));

@@ -135,6 +135,15 @@ describe('affected e2e selection', () => {
     expect(expected.length).toBeLessThan(specsOnDisk.length);
   });
 
+  it('sink or float selects its journey and the science world map spec', () => {
+    const expected = ['tests/e2e/science-world.map.spec.ts', 'tests/e2e/sink-or-float.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/sinkFloat/SinkFloatScene.ts'])).toEqual(expected);
+    expect(selectAffectedE2e(['src/content/games/sink-or-float.json'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/water-tank.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['public/art/props/float-apple.svg'])).toEqual(expected);
+    expect(selectAffectedE2e(['tests/unit/sink-or-float.machine.test.ts'])).toEqual(expected);
+  });
+
   it('letter-monster changes select the letter-monster journey spec', () => {
     const expected = ['tests/e2e/letter-monster.journey.spec.ts'];
     expect(selectAffectedE2e(['src/games/letterMonster/LetterMonsterScene.ts'])).toEqual(expected);
