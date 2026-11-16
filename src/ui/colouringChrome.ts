@@ -3,7 +3,17 @@
 import { el, formatClock } from './dom';
 import heStrings from '../content/i18n/he.json';
 import { COLOURING_ARIA_LABELS, COLOURING_TEST_IDS, swatchTestId } from '../games/colouring/chrome';
-import { chromeBand, isPhonePortrait, packToolsAndGrid, type CssRect } from './phoneChromeLayout';
+import {
+  chromeBand,
+  isPhoneLandscape,
+  isPhonePortrait,
+  isTabletPortrait,
+  packRegions,
+  packToolsAndGrid,
+  respaceGrid,
+  sideRegions,
+  type CssRect,
+} from './phoneChromeLayout';
 
 export interface UnitRect {
   x: number;
@@ -167,21 +177,11 @@ export class ColouringHud {
 
     // Phone portrait (audit H2): the 64 px minimum above keeps the ~0.45x game spacing, so palette rows sit 32 px
     // apart and a tap on one swatch's centre picks its neighbour. Re-lay out tools and swatches from the CSS viewport
-    // in the band under the page. Landscape and tablets return above unchanged.
+    // in the band under the page. Landscape tablets keep the game layout unchanged.
     const tools = (['undo', 'clear', 'prev', 'next'] as const).map((kind) => this.toolButtons[kind]);
     const swatches = this.palette.map((c) => this.swatchButtons.get(c.id)).filter((b): b is HTMLButtonElement => Boolean(b));
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    if (!isPhonePortrait(vw, vh)) {
-      if (this.layer.dataset.phoneChrome) {
-        // Rotated away from phone portrait: drop the inline minimum overrides so the CSS 64 px minimum applies again.
-        for (const node of [...tools, ...swatches]) node.style.minWidth = node.style.minHeight = '';
-        delete this.layer.dataset.phoneChrome;
-      }
-      return;
-    }
-    const pageBottom = canvasBox.top + (geometry.page.y + geometry.page.height) * k;
-    const pack = packToolsAndGrid(chromeBand(pageBottom, vw, vh), tools.length, swatches.length);
     const setRect = (node: HTMLElement, r: CssRect) => {
       node.style.left = `${r.x - rootBox.left}px`;
       node.style.top = `${r.y - rootBox.top}px`;
@@ -191,17 +191,72 @@ export class ColouringHud {
       node.style.minWidth = `${r.width}px`;
       node.style.minHeight = `${r.height}px`;
     };
-    tools.forEach((b, i) => setRect(b, pack.tools[i]));
-    swatches.forEach((b, i) => setRect(b, pack.grid[i]));
     // The palette box is a non-interactive group frame (no CSS minimum): keep it around the swatches.
-    if (pack.grid.length > 0) {
-      const gridLeft = Math.min(...pack.grid.map((r) => r.x));
-      const gridTop = Math.min(...pack.grid.map((r) => r.y));
+    const framePalette = (grid: readonly CssRect[]) => {
+      if (grid.length === 0) return;
+      const gridLeft = Math.min(...grid.map((r) => r.x));
+      const gridTop = Math.min(...grid.map((r) => r.y));
       this.paletteBox.style.left = `${gridLeft - rootBox.left}px`;
       this.paletteBox.style.top = `${gridTop - rootBox.top}px`;
-      this.paletteBox.style.width = `${Math.max(...pack.grid.map((r) => r.x + r.width)) - gridLeft}px`;
-      this.paletteBox.style.height = `${Math.max(...pack.grid.map((r) => r.y + r.height)) - gridTop}px`;
+      this.paletteBox.style.width = `${Math.max(...grid.map((r) => r.x + r.width)) - gridLeft}px`;
+      this.paletteBox.style.height = `${Math.max(...grid.map((r) => r.y + r.height)) - gridTop}px`;
+    };
+    if (isPhoneLandscape(vw, vh)) {
+      // Phone landscape: the game layout's tool and palette columns overflow the bottom edge and the top bar. Move
+      // them into the free regions beside the page (RTL: right side first), around the top-bar buttons: the tools
+      // by the back button, the palette in the wider region.
+      const page: CssRect = {
+        x: canvasBox.left + geometry.page.x * k,
+        y: canvasBox.top + geometry.page.y * k,
+        width: geometry.page.width * k,
+        height: geometry.page.height * k,
+      };
+      const obstacles = [...this.layer.querySelectorAll<HTMLElement>('.shell-top-bar > *')]
+        .map((n) => n.getBoundingClientRect())
+        .filter((b) => b.width > 0 && b.height > 0)
+        .map((b) => ({ x: b.left, y: b.top, width: b.width, height: b.height }));
+      const pack = packRegions(sideRegions(page, vw, vh), [tools.length, swatches.length], obstacles);
+      tools.forEach((b, i) => pack.groups[0][i] && setRect(b, pack.groups[0][i]));
+      swatches.forEach((b, i) => pack.groups[1][i] && setRect(b, pack.groups[1][i]));
+      framePalette(pack.groups[1]);
+      this.layer.dataset.phoneChrome = String(pack.size);
+      this.layer.dataset.phoneLandscape = pack.mode;
+      return;
     }
+    delete this.layer.dataset.phoneLandscape;
+    if (!isPhonePortrait(vw, vh)) {
+      if (this.layer.dataset.phoneChrome) {
+        // Rotated away from a phone: drop the inline minimum overrides so the CSS 64 px minimum applies again.
+        for (const node of [...tools, ...swatches]) node.style.minWidth = node.style.minHeight = '';
+        delete this.layer.dataset.phoneChrome;
+      }
+      if (isTabletPortrait(vw, vh)) {
+        // Tablet portrait (e.g. 768x1024, scale 0.8): the 64 px minimum grows each button from its top-left corner
+        // while the game spacing shrinks, so neighbouring swatches overlap by ~6 px and the tools touch. Re-space only
+        // what is closer than 8 px, around the same centres; at 800x1280 nothing is closer, so nothing moves.
+        const box = (n: HTMLElement): CssRect => ({
+          x: rootBox.left + parseFloat(n.style.left),
+          y: rootBox.top + parseFloat(n.style.top),
+          width: parseFloat(n.style.width),
+          height: parseFloat(n.style.height),
+        });
+        for (const group of [tools, swatches]) {
+          const before = group.map(box);
+          const after = respaceGrid(before, 0, vw);
+          group.forEach((n, i) => {
+            if (Math.abs(after[i].x - before[i].x) > 1e-6) n.style.left = `${after[i].x - rootBox.left}px`;
+            if (Math.abs(after[i].y - before[i].y) > 1e-6) n.style.top = `${after[i].y - rootBox.top}px`;
+          });
+          if (group === swatches && after.some((r, i) => r.x !== before[i].x || r.y !== before[i].y)) framePalette(after);
+        }
+      }
+      return;
+    }
+    const pageBottom = canvasBox.top + (geometry.page.y + geometry.page.height) * k;
+    const pack = packToolsAndGrid(chromeBand(pageBottom, vw, vh), tools.length, swatches.length);
+    tools.forEach((b, i) => setRect(b, pack.tools[i]));
+    swatches.forEach((b, i) => setRect(b, pack.grid[i]));
+    framePalette(pack.grid);
     this.layer.dataset.phoneChrome = String(pack.size);
   }
 

@@ -161,3 +161,223 @@ function packGroupsAtSize(band: CssRect, groupCounts: readonly number[], size: n
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Phone landscape (follow-up to the portrait audit): on a phone turned sideways (short side <= 600 CSS px) the
+// 1280x800 canvas is FIT-scaled to ~0.45-0.52, so the game layout's tool, tray and palette columns sit ~33-48 px apart
+// while each button is forced to 64 px: 8-14 controls run off the bottom edge or under the top bar. The drawing
+// surface stays where the canvas draws it; the controls move into the free side regions left and right of it.
+
+/** True for a phone turned sideways: the only landscape case that reflows. Tablets (short side > 600) are unchanged. */
+export function isPhoneLandscape(viewportWidth: number, viewportHeight: number): boolean {
+  return viewportWidth > viewportHeight && viewportHeight <= PHONE_MAX_WIDTH;
+}
+
+/**
+ * The free regions beside the drawing surface, in RTL reading order (right side first, then left), each inset by
+ * CHROME_GAP from the surface and from the viewport edges. Regions narrower than MIN_TAP are dropped.
+ */
+export function sideRegions(surface: CssRect, viewportWidth: number, viewportHeight: number): CssRect[] {
+  const y = CHROME_GAP;
+  const height = Math.max(0, viewportHeight - 2 * CHROME_GAP);
+  const rightX = surface.x + surface.width + CHROME_GAP;
+  const right = { x: rightX, y, width: viewportWidth - CHROME_GAP - rightX, height };
+  const left = { x: CHROME_GAP, y, width: surface.x - CHROME_GAP - CHROME_GAP, height };
+  return [right, left].filter((r) => r.width >= MIN_TAP && r.height >= MIN_TAP);
+}
+
+const overlapsAny = (r: CssRect, obstacles: readonly CssRect[]): boolean =>
+  obstacles.some(
+    (o) =>
+      r.x < o.x + o.width + CHROME_GAP &&
+      o.x < r.x + r.width + CHROME_GAP &&
+      r.y < o.y + o.height + CHROME_GAP &&
+      o.y < r.y + r.height + CHROME_GAP,
+  );
+
+/**
+ * The free cells of one region at `size`: a grid with CHROME_GAP gutters, centred horizontally and top-aligned,
+ * minus every cell within CHROME_GAP of an obstacle (top-bar buttons, the request bubble). Rows in order; with `rtl`
+ * each row runs right to left (item 0 is the top-right cell), otherwise left to right.
+ */
+export function regionCells(region: CssRect, size: number, obstacles: readonly CssRect[] = [], rtl = true): CssRect[][] {
+  if (size > region.width || size > region.height) return [];
+  const cols = colsFor(region.width, size);
+  const rows = colsFor(region.height, size);
+  const blockW = cols * size + (cols - 1) * CHROME_GAP;
+  const left = region.x + (region.width - blockW) / 2;
+  const out: CssRect[][] = [];
+  for (let r = 0; r < rows; r++) {
+    const row: CssRect[] = [];
+    for (let i = 0; i < cols; i++) {
+      const c = rtl ? cols - 1 - i : i;
+      const cell = { x: left + c * (size + CHROME_GAP), y: region.y + r * (size + CHROME_GAP), width: size, height: size };
+      if (!overlapsAny(cell, obstacles)) row.push(cell);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+export interface RegionPack {
+  size: number;
+  /** One array per input group, in input order. */
+  groups: CssRect[][];
+  /**
+   * 'grouped': each group starts on a new row and stays in one region; 'rows': each group starts on a new row but
+   * may continue in the next region; 'flow': one continuous fill across regions (groups stay contiguous, in order).
+   */
+  mode: RegionMode;
+}
+
+export type RegionMode = 'grouped' | 'rows' | 'flow';
+/** A more structured mode is kept when its size is at most this much smaller than the largest size any mode reaches. */
+export const MODE_TOLERANCE = 4;
+
+function packRegionsAtSize(
+  regions: readonly CssRect[],
+  groupCounts: readonly number[],
+  size: number,
+  obstacles: readonly CssRect[],
+  mode: RegionMode,
+  rtl: boolean,
+): CssRect[][] | null {
+  const grids = regions.map((r) => regionCells(r, size, obstacles, rtl));
+  const out: CssRect[][] = [];
+  if (mode === 'flow') {
+    const flat = grids.flatMap((rows) => rows.flat());
+    const total = groupCounts.reduce((a, b) => a + b, 0);
+    if (flat.length < total) return null;
+    let at = 0;
+    for (const n of groupCounts) {
+      out.push(flat.slice(at, at + n));
+      at += n;
+    }
+    return out;
+  }
+  let region = 0;
+  let row = 0;
+  for (const n of groupCounts) {
+    const placed: CssRect[] = [];
+    while (placed.length < n && region < grids.length) {
+      const free = grids[region].slice(row).flat();
+      if (free.length === 0 || (mode === 'grouped' && free.length < n)) {
+        // Region full, or (grouped) the whole group moves to the next region.
+        region++;
+        row = 0;
+        continue;
+      }
+      const take = free.slice(0, n - placed.length);
+      placed.push(...take);
+      // The next group (or the rest of this one) starts on the row after the last one used.
+      const last = take[take.length - 1];
+      row = grids[region].findIndex((cellsInRow) => cellsInRow.includes(last)) + 1;
+    }
+    if (placed.length < n) return null;
+    out.push(placed);
+  }
+  return out;
+}
+
+/**
+ * Packs groups of square controls into the side regions: the largest size <= MAX_TAP (down to MIN_TAP) at which they
+ * fit, never within CHROME_GAP of each other, an obstacle, the surface or the viewport edge. Three arrangements, most
+ * structured first: 'grouped' (whole groups, each on new rows), 'rows' (each group starts a new row, may continue in
+ * the next region) and 'flow' (one continuous fill). The most structured one within MODE_TOLERANCE px of the largest
+ * size wins.
+ */
+export function packRegions(
+  regions: readonly CssRect[],
+  groupCounts: readonly number[],
+  obstacles: readonly CssRect[] = [],
+  rtl = true,
+): RegionPack {
+  const best = (mode: RegionMode): RegionPack | null => {
+    for (let size = MAX_TAP; size >= MIN_TAP; size--) {
+      const groups = packRegionsAtSize(regions, groupCounts, size, obstacles, mode, rtl);
+      if (groups) return { size, groups, mode };
+    }
+    return null;
+  };
+  const packs = (['grouped', 'rows', 'flow'] as const).map(best).filter((p): p is RegionPack => p !== null);
+  if (packs.length > 0) {
+    const largest = Math.max(...packs.map((p) => p.size));
+    // Most structured first: keep groups whole and on their own rows unless that costs more than MODE_TOLERANCE px.
+    return packs.find((p) => p.size >= largest - MODE_TOLERANCE) ?? packs[packs.length - 1];
+  }
+  // Not reached at any phone size (800x360 needs ~50 px): keep the smallest grid, even if some controls stay unplaced.
+  const groups = packRegionsAtSize(regions, groupCounts, MIN_TAP, obstacles, 'flow', rtl) ?? groupCounts.map(() => []);
+  return { size: MIN_TAP, groups, mode: 'flow' };
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Tablet portrait (e.g. 768x1024, canvas scale 0.8): the 64 px minimum grows each button from its top-left corner
+// while the game spacing shrinks, so neighbouring crayons, tools and swatches overlap by ~5-6 px. Re-space only the
+// rows/columns whose gap is under CHROME_GAP, around the same centre, and leave every other box untouched (at
+// 800x1280 every gap is already >= 8 px, so nothing moves).
+
+/** True for a tablet held upright (wider than the phone breakpoint). */
+export function isTabletPortrait(viewportWidth: number, viewportHeight: number): boolean {
+  return viewportHeight > viewportWidth && viewportWidth > PHONE_MAX_WIDTH;
+}
+
+const EPS = 1e-6;
+
+/** Distinct values (within 0.5 px), ascending. */
+function distinct(values: readonly number[]): number[] {
+  const out: number[] = [];
+  for (const v of [...values].sort((a, b) => a - b)) if (!out.length || v - out[out.length - 1] > 0.5) out.push(v);
+  return out;
+}
+
+function respaceAxis(starts: readonly number[], size: number): Map<number, number> | null {
+  const lines = distinct(starts);
+  if (lines.length < 2) return null;
+  let minGap = Infinity;
+  for (let i = 1; i < lines.length; i++) minGap = Math.min(minGap, lines[i] - lines[i - 1] - size);
+  if (minGap >= CHROME_GAP - EPS) return null;
+  const pitch = size + CHROME_GAP;
+  const centre = (lines[0] + lines[lines.length - 1] + size) / 2;
+  const first = centre - (lines.length * size + (lines.length - 1) * CHROME_GAP) / 2;
+  return new Map(lines.map((v, i) => [v, first + i * pitch]));
+}
+
+/**
+ * Re-spaces a grid of equal boxes (a row, a column or rows x columns) so neighbours are at least CHROME_GAP apart,
+ * around the grid's centre, then shifts a re-spaced grid back inside [minX + CHROME_GAP, maxX - CHROME_GAP] if it
+ * grew past an edge. Axes whose gaps are already >= CHROME_GAP are returned unchanged (same numbers).
+ */
+export function respaceGrid(rects: readonly CssRect[], minX = -Infinity, maxX = Infinity): CssRect[] {
+  if (rects.length < 2) return rects.map((r) => ({ ...r }));
+  const w = Math.max(...rects.map((r) => r.width));
+  const h = Math.max(...rects.map((r) => r.height));
+  const lookup = (map: Map<number, number> | null, v: number): number => {
+    if (!map) return v;
+    for (const [k, nv] of map) if (Math.abs(k - v) <= 0.5) return nv;
+    return v;
+  };
+  const xs = respaceAxis(rects.map((r) => r.x), w);
+  const ys = respaceAxis(rects.map((r) => r.y), h);
+  const out = rects.map((r) => ({ ...r, x: lookup(xs, r.x), y: lookup(ys, r.y) }));
+  if (xs) {
+    const left = Math.min(...out.map((r) => r.x));
+    const right = Math.max(...out.map((r) => r.x + r.width));
+    const shift = right > maxX - CHROME_GAP ? maxX - CHROME_GAP - right : left < minX + CHROME_GAP ? minX + CHROME_GAP - left : 0;
+    for (const r of out) r.x += shift;
+  }
+  return out;
+}
+
+/**
+ * Vertical stack of rows between `top` (e.g. the board bottom) and the fixed row below them (`bottom`): when two
+ * neighbouring rows sit closer than CHROME_GAP, spreads them so every gap (top -> row 0 -> ... -> bottom) is equal.
+ * Returns the new top of each row, or the old tops when every gap is already >= CHROME_GAP or nothing fits.
+ */
+export function spreadRows(rowTops: readonly number[], rowHeight: number, top: number, bottom: number): number[] {
+  const gaps = rowTops.map((t, i) => (i === 0 ? t - top : t - (rowTops[i - 1] + rowHeight)));
+  gaps.push(bottom - (rowTops[rowTops.length - 1] + rowHeight));
+  if (Math.min(...gaps.slice(1)) >= CHROME_GAP - EPS) return [...rowTops];
+  const gap = (bottom - top - rowTops.length * rowHeight) / (rowTops.length + 1);
+  if (gap <= 0) return [...rowTops];
+  return rowTops.map((_, i) => top + gap + i * (rowHeight + gap));
+}

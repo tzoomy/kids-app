@@ -124,3 +124,62 @@ export function expectHittableChrome(
     }
   }
 }
+
+/** Tolerance of the "unchanged layout" guards: the chrome writes exact inline px, so boxes must match to 0.05 px. */
+export const EXACT_TOLERANCE = 0.05;
+
+/**
+ * Exact untransformed box of every control matching `selector`, from the inline px the chrome writes (offsetLeft and
+ * friends round to whole px). Keyed by data-testid.
+ */
+export async function exactBoxes(page: Page, layerSelector: string, selector: string): Promise<Map<string, Rect>> {
+  const list = await page.evaluate(
+    ([layerSel, sel]) => {
+      const layer = document.querySelector(layerSel) as HTMLElement | null;
+      if (!layer) return [];
+      const lb = layer.getBoundingClientRect();
+      return Array.from(layer.querySelectorAll<HTMLElement>(sel)).map((n) => {
+        const cs = getComputedStyle(n);
+        return {
+          id: n.dataset.testid ?? n.className,
+          rect: {
+            x: lb.left + parseFloat(n.style.left),
+            y: lb.top + parseFloat(n.style.top),
+            // The rendered size is the inline size grown to the CSS min-width/min-height.
+            width: Math.max(parseFloat(n.style.width), parseFloat(cs.minWidth) || 0),
+            height: Math.max(parseFloat(n.style.height), parseFloat(cs.minHeight) || 0),
+          },
+        };
+      });
+    },
+    [layerSelector, selector] as const,
+  );
+  return new Map(list.map((e) => [e.id, e.rect]));
+}
+
+/** Soft-asserts that every expected box matches the actual one within EXACT_TOLERANCE; returns the number compared. */
+export function expectSameBoxes(actual: Map<string, Rect>, expected: Map<string, Rect>, label: string): number {
+  let n = 0;
+  for (const [id, e] of expected) {
+    const a = actual.get(id);
+    expect.soft(a, `${label}: ${id} is present`).toBeDefined();
+    if (!a) continue;
+    n++;
+    for (const key of ['x', 'y', 'width', 'height'] as const) {
+      expect.soft(Math.abs(a[key] - e[key]), `${label}: ${id} ${key} ${fmt(a)} vs ${fmt(e)}`).toBeLessThanOrEqual(EXACT_TOLERANCE);
+    }
+  }
+  return n;
+}
+
+/** For each run of controls on one row (same top within 1 px), whether the given ids read right-to-left. */
+export function rowDirections(boxes: Map<string, Rect>, ids: readonly string[]): Array<'rtl' | 'ltr'> {
+  const out: Array<'rtl' | 'ltr'> = [];
+  for (let i = 1; i < ids.length; i++) {
+    const a = boxes.get(ids[i - 1]);
+    const b = boxes.get(ids[i]);
+    if (!a || !b || Math.abs(a.y - b.y) > 1) continue;
+    out.push(b.x < a.x ? 'rtl' : 'ltr');
+  }
+  return out;
+}

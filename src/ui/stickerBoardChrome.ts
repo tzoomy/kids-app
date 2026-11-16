@@ -8,7 +8,18 @@ import heStrings from '../content/i18n/he.json';
 import type { Board } from '../games/stickers/board';
 import type { StickerBoardGeometry, UnitRect } from '../games/stickers/layout';
 import type { StickerAgeTrack } from '../games/stickers/types';
-import { chromeBand, isPhonePortrait, packGroups, type CssRect } from './phoneChromeLayout';
+import {
+  chromeBand,
+  isPhoneLandscape,
+  isPhonePortrait,
+  isTabletPortrait,
+  packGroups,
+  packRegions,
+  respaceGrid,
+  sideRegions,
+  spreadRows,
+  type CssRect,
+} from './phoneChromeLayout';
 
 export interface StickerTrayItem {
   id: string;
@@ -443,7 +454,7 @@ export class StickerBoardHud {
 
     // Phone portrait (audit H1): the 64 px minimum above keeps the ~0.45x game spacing, so tools, crayons and tray
     // overlap and the last background button runs off the right edge. Re-lay them out from the CSS viewport in the
-    // band under the board. Landscape and tablets return above unchanged.
+    // band under the board. Landscape tablets keep the game layout unchanged.
     const tools = [this.undoBtn, this.clearBtn, this.saveBtn, this.albumBtn, this.requestToggleBtn].filter(
       (b): b is HTMLButtonElement => Boolean(b),
     );
@@ -452,16 +463,6 @@ export class StickerBoardHud {
     const groups = [tools, backgrounds, crayons, this.trayButtons];
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    if (!isPhonePortrait(vw, vh)) {
-      if (this.layer.dataset.phoneChrome) {
-        // Rotated away from phone portrait: drop the inline minimum overrides so the CSS 64 px minimum applies again.
-        for (const node of groups.flat()) node.style.minWidth = node.style.minHeight = '';
-        delete this.layer.dataset.phoneChrome;
-      }
-      return;
-    }
-    const boardBottom = canvasBox.top + (geometry.board.y + geometry.board.height) * k;
-    const pack = packGroups(chromeBand(boardBottom, vw, vh), groups.map((g) => g.length));
     const setRect = (node: HTMLElement, r: CssRect) => {
       node.style.left = `${r.x - rootBox.left}px`;
       node.style.top = `${r.y - rootBox.top}px`;
@@ -471,8 +472,92 @@ export class StickerBoardHud {
       node.style.minWidth = `${r.width}px`;
       node.style.minHeight = `${r.height}px`;
     };
+    const board: CssRect = {
+      x: canvasBox.left + geometry.board.x * k,
+      y: canvasBox.top + geometry.board.y * k,
+      width: geometry.board.width * k,
+      height: geometry.board.height * k,
+    };
+    if (isPhoneLandscape(vw, vh)) {
+      // Phone landscape: the game layout's tool, background and tray columns overflow the bottom edge and the top
+      // bar. Move every control into the free regions beside the board (RTL: right side first), around the top-bar
+      // buttons and the request bubble. Tools come first so they sit by the back button; the tray fills the left.
+      // Rows run left to right like the Sticker Board game layout and the phone-portrait reflow (tools, crayons and
+      // tray are LTR there; only Colouring's spec asks for RTL control order).
+      const obstacles = [...this.layer.querySelectorAll<HTMLElement>('.shell-top-bar > *')]
+        .map((n) => n.getBoundingClientRect())
+        .filter((b) => b.width > 0 && b.height > 0)
+        .map((b): CssRect => ({ x: b.left, y: b.top, width: b.width, height: b.height }));
+      // The request bubble is reserved from its placed box even while hidden (it appears later without a re-layout).
+      if (this.requestBubble && geometry.requestBubble) {
+        obstacles.push({
+          x: rootBox.left + parseFloat(this.requestBubble.style.left),
+          y: rootBox.top + parseFloat(this.requestBubble.style.top),
+          width: Math.max(64, parseFloat(this.requestBubble.style.width)),
+          height: Math.max(64, parseFloat(this.requestBubble.style.height)),
+        });
+      }
+      const pack = packRegions(sideRegions(board, vw, vh), groups.map((g) => g.length), obstacles, false);
+      groups.forEach((g, gi) => g.forEach((node, i) => pack.groups[gi][i] && setRect(node, pack.groups[gi][i])));
+      this.layer.dataset.phoneChrome = String(pack.size);
+      this.layer.dataset.phoneLandscape = pack.mode;
+      return;
+    }
+    delete this.layer.dataset.phoneLandscape;
+    if (!isPhonePortrait(vw, vh)) {
+      if (this.layer.dataset.phoneChrome) {
+        // Rotated away from a phone: drop the inline minimum overrides so the CSS 64 px minimum applies again.
+        for (const node of groups.flat()) node.style.minWidth = node.style.minHeight = '';
+        delete this.layer.dataset.phoneChrome;
+      }
+      if (isTabletPortrait(vw, vh)) this.respaceTabletPortrait(board, backgrounds, tools, crayons, rootBox, vw);
+      return;
+    }
+    const boardBottom = canvasBox.top + (geometry.board.y + geometry.board.height) * k;
+    const pack = packGroups(chromeBand(boardBottom, vw, vh), groups.map((g) => g.length));
     groups.forEach((g, gi) => g.forEach((node, i) => setRect(node, pack.groups[gi][i])));
     this.layer.dataset.phoneChrome = String(pack.size);
+  }
+
+  /**
+   * Tablet portrait (e.g. 768x1024, scale 0.8): the 64 px minimum grows each button from its top-left corner while the
+   * game spacing shrinks, so neighbouring backgrounds, tools and crayons overlap by ~5-7 px and the rows touch. Re-space
+   * only what is closer than 8 px, around the same centres; at 800x1280 nothing is closer, so nothing moves.
+   */
+  private respaceTabletPortrait(
+    board: CssRect,
+    backgrounds: HTMLButtonElement[],
+    tools: HTMLButtonElement[],
+    crayons: HTMLButtonElement[],
+    rootBox: DOMRect,
+    vw: number,
+  ): void {
+    // Exact inline values written by place() (offsetLeft/Top would round them).
+    const box = (n: HTMLElement): CssRect => ({
+      x: rootBox.left + parseFloat(n.style.left),
+      y: rootBox.top + parseFloat(n.style.top),
+      width: parseFloat(n.style.width),
+      height: parseFloat(n.style.height),
+    });
+    const move = (n: HTMLElement, r: CssRect) => {
+      const old = box(n);
+      if (Math.abs(old.x - r.x) > 1e-6) n.style.left = `${r.x - rootBox.left}px`;
+      if (Math.abs(old.y - r.y) > 1e-6) n.style.top = `${r.y - rootBox.top}px`;
+    };
+    for (const row of [backgrounds, tools, crayons]) {
+      const next = respaceGrid(row.map(box), 0, vw);
+      row.forEach((n, i) => move(n, next[i]));
+    }
+    // Rows: backgrounds + tools, then crayons, then the (unchanged) tray below.
+    const barRow = [...backgrounds, ...tools];
+    if (!barRow.length || !crayons.length || !this.trayButtons.length) return;
+    const rowHeight = Math.max(...[...barRow, ...crayons].map((n) => box(n).height));
+    const trayTop = Math.min(...this.trayButtons.map((n) => box(n).y));
+    const tops = [box(barRow[0]).y, box(crayons[0]).y];
+    const next = spreadRows(tops, rowHeight, board.y + board.height, trayTop);
+    if (next[0] === tops[0] && next[1] === tops[1]) return;
+    for (const n of barRow) move(n, { ...box(n), y: next[0] });
+    for (const n of crayons) move(n, { ...box(n), y: next[1] });
   }
 
   destroy(): void {
