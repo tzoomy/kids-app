@@ -606,14 +606,75 @@ body {
 @media (orientation: portrait) {
   .station-trail::before {
     inset-inline: auto;
-    top: 8%;
-    bottom: 8%;
+    top: 0;
+    bottom: 0;
     left: 50%;
     border-top: 0;
     border-left: 8px dotted #c9842a;
   }
+  /* Station trail on a portrait screen: full-width rows (art thumbnail + label side by side) in a list that
+     scrolls vertically when the rows do not fit. The dotted line shows in the gaps between rows. Landscape keeps
+     the 4:5 cards side by side (rules above, outside this media query). */
+  .picker-cards.station-trail {
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 16px;
+    padding: 4px 6px 14px; /* room for the card shadow and the pulse ring */
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+  /* Centre the rows when they all fit; with auto margins (not justify-content) the top row stays reachable when they scroll. */
+  .station-trail > .picker-card:first-child {
+    margin-top: auto;
+  }
+  .station-trail > .picker-card:last-child {
+    margin-bottom: auto;
+  }
   .station-trail > .picker-card {
-    width: min(100cqw, calc((100cqh - 20px * (var(--picker-count, 2) - 1)) / var(--picker-count, 2) * 0.8));
+    width: 100%;
+    aspect-ratio: auto;
+    min-height: 96px; /* tap target; a long label makes the row taller instead of cutting the text */
+    flex: 0 0 auto;
+    flex-direction: row; /* RTL: the art thumbnail is on the right, the label next to it */
+    align-items: stretch;
+  }
+  .station-trail > .picker-card .picker-card-art {
+    position: relative;
+    inset: auto;
+    flex: 0 0 auto;
+    box-sizing: content-box;
+    width: calc((96px - 12px) * 0.8); /* 4:5 like the 640x800 art at the minimum row height; real art is shown whole (contain) */
+    border-inline-end: 4px solid #3b2a22;
+  }
+  .station-trail > .picker-card .picker-card-label {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border-top: 0;
+    padding: 4px 12px;
+    font-size: 22px;
+    text-align: start;
+    overflow-wrap: break-word;
+  }
+  /* The star sits in its own space at the row's inline end (left in RTL): it never covers the art or the label. */
+  .station-trail > .picker-card .station-star {
+    top: 50%;
+    inset-inline-start: auto;
+    inset-inline-end: 8px;
+    width: 40px;
+    height: 40px;
+    transform: translateY(-50%);
+    font-size: 26px;
+    line-height: 32px;
+  }
+  .station-trail > .picker-card[data-completed='true'] {
+    padding-inline-end: 56px; /* 8 + 40 + 8: the star's space belongs to the card, so the label element box ends before the star */
   }
   .shell-game-picker {
     padding: 20px 16px;
@@ -643,6 +704,28 @@ body {
   .picker-card-label {
     font-size: 24px;
     padding: 10px 12px 12px;
+  }
+}
+
+/* Phone in portrait (about 360-440 px): a smaller close button (still a 64 px tap target) and a symmetric title margin,
+   so the title is never clipped by the close button and may wrap onto two lines. Tablets keep the larger header. */
+@media (orientation: portrait) and (max-width: 600px) {
+  .picker-header {
+    min-height: 80px;
+  }
+  .picker-close {
+    width: 72px;
+    height: 72px;
+    border-width: 5px;
+  }
+  .picker-close-x {
+    font-size: 40px;
+  }
+  .picker-title {
+    font-size: 24px;
+    margin: 0 88px; /* close button 72 + 4 offset + 12 gap, mirrored so the title stays centred */
+    min-width: 0;
+    overflow-wrap: break-word;
   }
 }
 

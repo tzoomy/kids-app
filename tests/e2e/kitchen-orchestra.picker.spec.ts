@@ -82,9 +82,16 @@ test.describe('language house game picker', () => {
 
     // Each card (the whole button) is exactly 4:5, like the 640x800 art; image cards fill it with no letterbox gaps.
     // CSS-gradient placeholder cards have no <img>; IMG_CARD_IDS lists the cards whose art must fill the button.
+    // Landscape only: in portrait the station trail shows full-width rows (art thumbnail + label side by side, see
+    // docs/specs/station-trail.md "Portrait layout"); the 4:5 card and art-fills-the-card checks do not apply there,
+    // and the portrait-phone spec covers the row layout.
     const BORDER = 6;
     for (const id of CARD_IDS) {
       const card = boxes[id];
+      if (!landscape) {
+        expect(card.width, `${id} portrait row is wider than tall (${card.width}x${card.height})`).toBeGreaterThan(card.height);
+        continue;
+      }
       expect(Math.abs(card.width / card.height - 0.8), `${id} aspect ${card.width}x${card.height}`).toBeLessThanOrEqual(0.02);
       if (id === 'game-picker-word-train') continue;
       const art = page.locator(`[data-testid="${id}"] .picker-card-art`);
