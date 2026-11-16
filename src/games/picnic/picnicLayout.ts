@@ -83,9 +83,42 @@ export function trainBand(width: number, height: number): { trainTop: number; tr
   return { trainTop, trainHeight, scale, below: trainTop + trainHeight + 40 };
 }
 
+/** Landscape cargo shelf: MAX_LOAD slots in one row, gap 6. */
+const SHELF_GAP = 6;
+/**
+ * Portrait cargo shelf: MAX_LOAD slots in PORTRAIT_SHELF_ROWS rows. A portrait phone FIT-scales the 800 px wide game by
+ * about 0.45 (360 CSS px), so one row of ten 69 px slots became 31 CSS px targets (portrait audit H4). Two rows of five
+ * give 139 px slots (about 63 CSS px at 360 wide, 72 at 412) and still end well above the basket.
+ */
+const PORTRAIT_SHELF_ROWS = 2;
+const PORTRAIT_SHELF_GAP = 12;
+const PORTRAIT_SLOT_MAX = 140;
+
 function slotSize(width: number): number {
-  const fit = Math.floor((width - 2 * SIDE_MARGIN - (MAX_LOAD - 1) * 6) / MAX_LOAD);
+  const fit = Math.floor((width - 2 * SIDE_MARGIN - (MAX_LOAD - 1) * SHELF_GAP) / MAX_LOAD);
   return Math.max(MIN_TAP, Math.min(76, fit));
+}
+
+/** Cargo shelf slots (load task) below the train: one row in landscape, PORTRAIT_SHELF_ROWS rows in portrait. Filled in index order. */
+export function shelfSlotRects(width: number, height: number): LayoutRect[] {
+  const { below } = trainBand(width, height);
+  if (width >= height) {
+    const size = slotSize(width);
+    const rowWidth = MAX_LOAD * size + (MAX_LOAD - 1) * SHELF_GAP;
+    const left = (width - rowWidth) / 2;
+    return Array.from({ length: MAX_LOAD }, (_, i) => ({ x: left + i * (size + SHELF_GAP), y: below, width: size, height: size }));
+  }
+  const perRow = Math.ceil(MAX_LOAD / PORTRAIT_SHELF_ROWS);
+  const gap = PORTRAIT_SHELF_GAP;
+  const fit = Math.floor((width - 2 * SIDE_MARGIN - (perRow - 1) * gap) / perRow);
+  const size = Math.max(MIN_TAP, Math.min(PORTRAIT_SLOT_MAX, fit));
+  const rowWidth = perRow * size + (perRow - 1) * gap;
+  const left = (width - rowWidth) / 2;
+  return Array.from({ length: MAX_LOAD }, (_, i) => {
+    const row = Math.floor(i / perRow);
+    const col = i % perRow;
+    return { x: left + col * (size + gap), y: below + row * (size + gap), width: size, height: size };
+  });
 }
 
 /** Number cards 1..count in one centred row below the train (same band as the cargo shelf). */
@@ -170,13 +203,8 @@ export function computePicnicLayout(width: number, height: number, options: Picn
     hit: { x: goCx - goSize / 2, y: goCy - goSize / 2, width: goSize, height: goSize },
   };
 
-  // Cargo shelf: MAX_LOAD slots in one centred row below the train.
-  const size = slotSize(width);
-  const gap = 6;
-  const rowWidth = MAX_LOAD * size + (MAX_LOAD - 1) * gap;
-  const left = (width - rowWidth) / 2;
-  const { below } = trainBand(width, height);
-  const slots: LayoutRect[] = Array.from({ length: MAX_LOAD }, (_, i) => ({ x: left + i * (size + gap), y: below, width: size, height: size }));
+  // Cargo shelf: MAX_LOAD slots below the train (one row in landscape, two rows in portrait).
+  const slots = shelfSlotRects(width, height);
 
   return {
     width,
