@@ -8,7 +8,7 @@ import { Juice, fxTextureKey } from '../../anim/juice';
 import { ANIM_PROFILE } from '../../anim/profiles';
 import { isReducedMotion } from '../../anim/motion';
 import { transitionTo } from '../../anim/transitions';
-import { floatIdle, flyArc, hintPulse, pressSquash, tweenAsync, wait, wobble } from '../../anim/tweens';
+import { floatIdle, flyArc, hintPulse, popIn, pressSquash, tweenAsync, wait, wobble } from '../../anim/tweens';
 import { sceneArtKey } from '../../anim/artRegistry';
 import { heLine } from '../../content/voiceLines';
 import { setAppScreen } from '../../pwa';
@@ -20,13 +20,29 @@ import { gameRectToPageRect, type Rect as PageRect } from '../../testing/pageRec
 import { balloonLevel, buildBalloonRound, eligibleItemIds, isCorrectBalloon, type BalloonChoice, type BalloonRoundSpec } from './balloonRound';
 import { BOB_DISTANCE, computeBalloonLayout, type BalloonLayout, type BalloonSlot } from './balloonLayout';
 import type { BalloonInfo } from './types';
+import {
+  floatAlpha,
+  floatArea,
+  floatHitRect,
+  floatSpeed,
+  initialFloatBalloons,
+  isFloatingTrial,
+  pickFloatBalloon,
+  stepFloat,
+  type FloatArea,
+  type FloatBalloon,
+  type FloatingConfig,
+} from './balloonFloat';
 
 interface BalloonView {
   choice: BalloonChoice;
   slot: BalloonSlot;
   root: Phaser.GameObjects.Container;
-  zone: Phaser.GameObjects.Zone;
+  /** Static trials only; floating trials hit-test in onFloatTap. */
+  zone?: Phaser.GameObjects.Zone;
   bob?: Phaser.Tweens.Tween;
+  /** Floating trials only: the moving position (slot.x/y/hit follow it each frame). */
+  float?: FloatBalloon;
 }
 
 interface ActiveRound extends BalloonRoundSpec {
@@ -35,6 +51,8 @@ interface ActiveRound extends BalloonRoundSpec {
   tracker: TrialTracker;
   levelNo: number;
   skillKey: string;
+  /** Floating stage: the balloons drift upward and loop (balloonFloat.ts). */
+  floating: boolean;
 }
 
 /** Balloon taps are ignored this long after a wrong tap, so a double tap counts as one try. */
@@ -82,6 +100,10 @@ export class BalloonScene extends Phaser.Scene {
   private lastBalanceSec = 0;
   private earnedPending = false;
   private speakSeq = 0;
+  private floatCfg?: FloatingConfig;
+  private floatArea?: FloatArea;
+  private floatSpeedPx = 0;
+  private floatElapsedMs = 0;
 
   constructor() {
     super('BalloonScene');
@@ -116,6 +138,14 @@ export class BalloonScene extends Phaser.Scene {
     this.retryTimer = undefined;
     this.hintTimer = undefined;
     this.lastTargetId = '';
+    this.floatCfg = content.floating;
+    this.floatArea = undefined;
+    this.floatSpeedPx = 0;
+    this.floatElapsedMs = 0;
+    this.input.on(
+      Phaser.Input.Events.POINTER_DOWN,
+      (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => this.onFloatTap(pointer, over),
+    );
 
     this.session = this.context.createLearningSession();
     this.session.start();
@@ -297,6 +327,8 @@ export class BalloonScene extends Phaser.Scene {
     const targetId = this.skills.selectNextItem(language, candidates);
     this.lastTargetId = targetId;
     const spec = buildBalloonRound(content, descriptor, language, targetId);
+    // Floating stage: every Nth trial of the visit, unless the device asks for reduced motion (then static).
+    const floating = Boolean(this.floatCfg && isFloatingTrial(this.correctCount + 1, this.floatCfg) && !isReducedMotion());
     this.round = {
       ...spec,
       done: false,
@@ -304,11 +336,14 @@ export class BalloonScene extends Phaser.Scene {
       tracker: new TrialTracker(spec.targetItemId, language),
       levelNo: levelNumber,
       skillKey: this.skills.key(language),
+      floating,
     };
 
     this.layout = computeBalloonLayout(this.scale.width, this.scale.height, spec.choices.length);
     this.buildReplayButton();
-    const rises = spec.choices.map((choice, i) => this.buildBalloon(choice, this.layout.balloons[i], i));
+    const rises = floating
+      ? this.buildFloatingBalloons(spec.choices, levelNumber)
+      : spec.choices.map((choice, i) => this.buildBalloon(choice, this.layout.balloons[i], i));
     this.context.shell.setPromptBubble(spec.promptText, () => this.replay());
 
     void Promise.all(rises).then(() => {
@@ -328,7 +363,7 @@ export class BalloonScene extends Phaser.Scene {
       b.bob?.stop();
       this.tweens.killTweensOf(b.root);
       b.root.destroy();
-      b.zone.destroy();
+      b.zone?.destroy();
     }
     this.balloons = [];
     if (this.replayButton) this.tweens.killTweensOf(this.replayButton);
@@ -388,6 +423,82 @@ export class BalloonScene extends Phaser.Scene {
     return tweenAsync(this, { targets: root, y: slot.y, delay, duration: isReducedMotion() ? 250 : RISE_MS, ease: 'Back.easeOut' }).then(() => {
       if (root.scene) view.bob = floatIdle(this, root, BOB_DISTANCE, 1500 + index * 120);
     });
+  }
+
+  /** Floating stage: balloons pop in spread over the sky, then drift upward once the trial is ready. */
+  private buildFloatingBalloons(choices: BalloonChoice[], levelNo: number): Promise<void>[] {
+    const cfg = this.floatCfg!;
+    const age = this.context.currentAgeTrack();
+    const trackMin = this.context.content.balloon.adaptive.tracks[age].min;
+    this.floatSpeedPx = floatSpeed(cfg, age, levelNo, trackMin);
+    this.floatElapsedMs = 0;
+    const floats = initialFloatBalloons(this.scale.width, this.scale.height, choices.length);
+    this.floatArea = floatArea(this.scale.width, this.scale.height, floats[0].ry);
+    const minHit = this.minFloatHitGamePx();
+    return choices.map((choice, i) => {
+      const f = floats[i];
+      const slot: BalloonSlot = {
+        x: f.x,
+        y: f.y,
+        rx: f.rx,
+        ry: f.ry,
+        stringLength: f.ry * 0.55,
+        row: 0,
+        hit: floatHitRect(f, cfg.hitScale, minHit),
+      };
+      const root = this.drawBalloon(choice, slot);
+      this.balloons.push({ choice, slot, root, float: f });
+      return popIn(this, root, 60 + i * Math.max(RISE_STAGGER_MS, ANIM_PROFILE.popIn.stagger));
+    });
+  }
+
+  /** The floating hit area's minimum side (content minHitCssPx) in game px for the current canvas size. */
+  private minFloatHitGamePx(): number {
+    const cssPx = this.floatCfg?.minHitCssPx ?? 64;
+    const width = this.game.canvas?.getBoundingClientRect().width ?? 0;
+    return width > 0 ? cssPx * (this.scale.width / width) : cssPx;
+  }
+
+  update(_time: number, delta: number): void {
+    const round = this.round;
+    if (!round || !round.floating || round.done || !this.ready || this.helpOpen || !this.floatArea || !this.floatCfg) return;
+    // Same clamp as stepFloat, so a background tab does not jump the sway either.
+    this.floatElapsedMs += Math.min(Math.max(delta, 0), 100);
+    const views = this.balloons.filter((b) => b.float);
+    stepFloat(
+      views.map((b) => b.float!),
+      delta,
+      this.floatElapsedMs,
+      this.floatSpeedPx,
+      this.floatArea,
+      this.floatCfg.swayPx,
+    );
+    const minHit = this.minFloatHitGamePx();
+    for (const b of views) {
+      const f = b.float!;
+      b.root.setPosition(f.x, f.y);
+      b.root.setAlpha(floatAlpha(f, this.floatArea));
+      b.slot.x = f.x;
+      b.slot.y = f.y;
+      b.slot.hit = floatHitRect(f, this.floatCfg.hitScale, minHit);
+    }
+  }
+
+  /** Floating stage tap: the nearest balloon whose (generous) hit area holds the point. */
+  private onFloatTap(pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]): void {
+    const round = this.round;
+    if (!round || !round.floating || round.done || !this.ready || this.helpOpen || !this.floatCfg) return;
+    // A tap on the speaker button (or any other interactive object) is that object's, never a balloon's.
+    if (over.length > 0) return;
+    const views = this.balloons.filter((b) => b.float);
+    const index = pickFloatBalloon(
+      views.map((b) => b.slot),
+      pointer.x,
+      pointer.y,
+      this.floatCfg.hitScale,
+      this.minFloatHitGamePx(),
+    );
+    if (index >= 0) this.choose(views[index]);
   }
 
   private buildReplayButton(): void {
@@ -488,6 +599,7 @@ export class BalloonScene extends Phaser.Scene {
       hinted: this.hinted,
       correctCount: this.correctCount,
       ready: this.ready,
+      floating: round.floating,
     };
   }
 
@@ -596,7 +708,7 @@ export class BalloonScene extends Phaser.Scene {
     state.stars++;
     this.context.store.persist();
 
-    for (const b of this.balloons) b.zone.disableInteractive();
+    for (const b of this.balloons) b.zone?.disableInteractive();
     view.bob?.stop();
     juice.burst('confetti', x, y);
     juice.burst('star', x, y);
