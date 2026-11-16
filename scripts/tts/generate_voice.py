@@ -13,7 +13,10 @@ Usage (from the repo root, with GEMINI_API_KEY in the environment):
   request per batch. The free tier is treated as ~3 RPM / ~10 RPD; this script
   waits SLEEP_BETWEEN_S seconds between requests and stops immediately on 429.
 - Batches are separated by pause tags, then split locally on the n-1 longest
-  silences (a single-line batch is just trimmed).
+  silences (a single-line batch is just trimmed). The split can land on a pause
+  inside a sentence: always listen to new clips. When a boundary is wrong, record
+  hand-checked points in scripts/tts/verified-splits.json and re-cut with
+  scripts/tts/apply_verified_splits.py (no API calls).
 - Each clip is trimmed, loudness-normalized and encoded as mono 24 kHz 48 kbps
   MP3 into public/audio/{lang}/. src/content/audio-manifest.json is rewritten to
   list only clips that exist, so missing lines fall back to device TTS.
