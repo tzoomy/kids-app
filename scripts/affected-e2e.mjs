@@ -41,6 +41,7 @@ const COLOURING_SPECS = [
  * (model, trail, cards, art keys) can break any of them, so it selects all of them. One rule, not one per game.
  */
 export const PICKER_SPECS = [
+  'tests/e2e/balloon-pop.floating.spec.ts',
   'tests/e2e/balloon-pop.journey.spec.ts',
   'tests/e2e/hiding.spec.ts',
   'tests/e2e/kitchen-orchestra.picker.spec.ts',
@@ -301,7 +302,7 @@ export const GAME_RULES = [
       /^src\/content\/games\/balloon-pop\.json$/,
       /^tests\/unit\/balloon-pop[^/]*$/,
     ],
-    specs: ['tests/e2e/balloon-pop.journey.spec.ts'],
+    specs: ['tests/e2e/balloon-pop.journey.spec.ts', 'tests/e2e/balloon-pop.floating.spec.ts'],
   },
   {
     id: 'number-bridge',
