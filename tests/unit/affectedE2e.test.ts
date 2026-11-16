@@ -340,9 +340,10 @@ describe('affected e2e selection', () => {
     ]);
   });
 
-  it('Balloon Pop changes select its journey only', () => {
-    expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
-    expect(selectAffectedE2e(['src/content/games/balloon-pop.json'])).toEqual(['tests/e2e/balloon-pop.journey.spec.ts']);
+  it('Balloon Pop changes select its journey and floating-stage specs only', () => {
+    const balloonSpecs = ['tests/e2e/balloon-pop.floating.spec.ts', 'tests/e2e/balloon-pop.journey.spec.ts'];
+    expect(selectAffectedE2e(['src/games/balloon/BalloonScene.ts'])).toEqual(balloonSpecs);
+    expect(selectAffectedE2e(['src/content/games/balloon-pop.json'])).toEqual(balloonSpecs);
   });
 
   it('shell help changes select the help-card spec plus smoke (shell is shared)', () => {

@@ -39,6 +39,14 @@
     { "value": 8, "name": { "en": "eight", "fr": "huit" }, "near": [3, 0] },
     { "value": 9, "name": { "en": "nine", "fr": "neuf" }, "near": [6, 8] }
   ],
+  "floating": {
+    "everyNthTrial": 3,
+    "speed": { "age2": 40, "age5": 60 },
+    "speedStepPerLevel": 0.12,
+    "swayPx": 22,
+    "hitScale": 1.5,
+    "minHitCssPx": 64
+  },
   "adaptive": {
     "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 5, "max": 8 } },
     "levels": [

@@ -1047,6 +1047,18 @@ export const BalloonPopContentSchema = z
     helpTextHe: z.string().min(1),
     colors: z.array(BalloonColorSchema).min(2),
     digits: z.array(BalloonDigitSchema).min(2),
+    /** Floating stage (moving balloons); see src/games/balloon/balloonFloat.ts. Absent = no floating stage. */
+    floating: z
+      .object({
+        everyNthTrial: z.number().int().min(1),
+        speed: z.object({ age2: z.number().positive().max(120), age5: z.number().positive().max(120) }),
+        speedStepPerLevel: z.number().min(0).max(0.5),
+        swayPx: z.number().min(0).max(60),
+        hitScale: z.number().min(1.5),
+        minHitCssPx: z.number().min(64),
+      })
+      .refine((f) => f.speed.age2 <= f.speed.age5, { message: 'age 2 must float no faster than age 5' })
+      .optional(),
     adaptive: GameAdaptiveSchema,
   })
   .superRefine((value, ctx) => {

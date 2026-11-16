@@ -20,4 +20,6 @@ export interface BalloonInfo {
   correctCount: number;
   /** True once every balloon has risen into place and taps are accepted. */
   ready: boolean;
+  /** True on a floating-stage trial: the balloons drift upward, so `hit` rectangles change every frame. */
+  floating: boolean;
 }

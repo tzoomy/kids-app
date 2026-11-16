@@ -27,7 +27,8 @@ Balloons rise into the Number Garden sky; a voice names one of them and the chil
 - **Wrong tap:** the balloon wobbles, nothing pops, the existing Hebrew retry clip (`he.retry.0` or `he.retry.1`) plays on the first wrong tap of a trial, then the request again. Age 2 (`demonstrate`): after a wrong tap or 6 s idle, the correct balloon pulses and sparkles and the request repeats. Age 5 (`repeat-then-demonstrate`): the first wrong tap repeats the request, the second shows the pulse. Mistakes never cost leisure.
 - **Leave:** `hud-back` returns to the map at any time; leaving is a round boundary for the engine.
 - **Input mode per age:** tap only on both tracks (the engine's age-5 `drag` policy value does not apply).
-- **Balloon motion (Pass 1):** rise into place, then a small idle bob; targets do not drift off-screen. **Open decision for the owner:** continuously drifting balloons (moving targets) as a later level lever or Pass 2.
+- **Balloon motion (Pass 1):** rise into place, then a small idle bob; targets do not drift off-screen.
+- **Floating stage (Maor asked for it, 2026-11-16):** every 3rd trial of a visit (content `floating.everyNthTrial`), the same balloons drift slowly upward instead of standing still, swaying gently inside their own lane; the child pops the named one while it moves. Forgiving for ages 2–5: no timer and no fail state; a balloon that rises past the line under the HUD re-enters from the bottom at once, so the requested balloon never escapes; tap areas are 1.5x the drawn body and at least 64 CSS px, and a tap inside overlapping areas goes to the nearest balloon. Difficulty: the balloon count is the level's `choiceCount`; the speed is the age track's base (`floating.speed`: age 2 40, age 5 60 game px/s) plus 12% per level above the track's bottom level, capped at 120 (age 2 at L1 is the slowest: about 27 s to cross the portrait sky). A pop counts exactly like a static trial (star, engine record, `recordCompletedRound`). With `prefers-reduced-motion` the floating trial stays still. Pure logic in `src/games/balloon/balloonFloat.ts`; no new art. **Open decision for the owner:** the cadence (every 3rd trial) and the speeds.
 
 ## Difficulty curve
 
@@ -62,7 +63,7 @@ Profile → tap the Number Garden building → tap the `game-picker-balloon-pop`
 
 - Map building hit target: `getBuildingHit('number-garden')`.
 - `data-testid`s: `game-picker-sorting-beds`, `game-picker-balloon-pop`, `game-picker-close`; HUD `hud-back`, `hud-help`, `star-count`, `leisure-balance` (existing HUD).
-- Hooks under `?e2e=1` (seed or read only): `seedBalloonLevel(level)` (persisted level for every language), `getBalloonInfo(): BalloonInfo | null` (page CSS px rectangles: `balloons[].{id,itemId,hit}`, `targetItemId`, `mode`, `level`, `language`, `promptText`, `tries`, `hinted`, `correctCount`, `ready`, `skillKey`, `replay`), plus the existing `seedLanguageSetting`, `seedBalanceSec`, `getSpokenLines`.
+- Hooks under `?e2e=1` (seed or read only): `seedBalloonLevel(level)` (persisted level for every language), `getBalloonInfo(): BalloonInfo | null` (page CSS px rectangles: `balloons[].{id,itemId,hit}`, `targetItemId`, `mode`, `level`, `language`, `promptText`, `tries`, `hinted`, `correctCount`, `ready`, `floating`, `skillKey`, `replay`), plus the existing `seedLanguageSetting`, `seedBalanceSec`, `getSpokenLines`.
 
 ## Acceptance criteria
 
@@ -85,6 +86,11 @@ Profile → tap the Number Garden building → tap the `game-picker-balloon-pop`
 | AC-15 | Recorded Leda clips exist for every line in the voice table, with matching text hashes | 2 | unit | @single-orientation | |
 | AC-16 | The layout keeps every balloon inside the screen and under the HUD, with no overlap, for 2–6 balloons in both orientations | 1 | unit | @single-orientation | |
 | AC-17 | Hints and help: an age-2 wrong tap during the intro or help still gets its retry line and hint once they end; the age-2 idle hint repeats while the child stays idle; a correct pop never starts the next trial behind the help card (it starts when the card closes) | 1 | e2e | @single-orientation | `getBalloonInfo`, `getSpokenLines` |
+| AC-18 | Floating stage: every 3rd trial floats; balloons start visible, rise slowly, sway inside their lane, and re-enter from the bottom after passing the top (never escape); a long frame cannot teleport them; no timer or miss limit | 1 | unit | @single-orientation | |
+| AC-19 | Floating hit areas are at least 1.5x the drawn body and at least 64 CSS px (also on a 360 CSS px phone); a tap in overlapping areas goes to the nearest balloon | 1 | unit | @single-orientation | |
+| AC-20 | Floating speed rises with the level inside each track, age 2 at its first level is the slowest (>= 15 s to cross the sky), the speed is capped, and the count is the level's `choiceCount`; the schema rejects age 2 faster than age 5 | 1 | unit | @single-orientation | |
+| AC-21 | Portrait real taps: the third trial floats and its balloons move; a wrong tap fails nothing; popping the moving target adds a star and starts the next (static) trial | 1 | e2e | @single-orientation | `getBalloonInfo` |
+| AC-22 | With `prefers-reduced-motion` the third trial stays still | 1 | e2e | @single-orientation | `getBalloonInfo` |
 
 ## Art, animation, and audio
 
@@ -122,10 +128,12 @@ Counting balloons (quantities), numbers above 9, Hebrew number names, drag input
 - **Open decision for the owner:** Global `settings.languages` vs. a separate numbers-language toggle.
 - **Open decision for the owner:** Track bounds: age 2 capped at colour (L1–L4), age 5 floored at digit (L5–L8).
 - **Open decision for the owner:** Colours spoken in EN/FR (not Hebrew) on the age-2 track.
-- **Open decision for the owner:** Digits 0–9 only (no 10+); balloons rise and bob rather than drift.
+- **Open decision for the owner:** Digits 0–9 only (no 10+).
+- **Open decision for the owner:** Floating stage cadence (every 3rd trial) and speeds (age 2 40, age 5 60 game px/s, +12% per level).
 - **Open decision for the owner:** This spec itself (code was built before approval under the continuous-development mode).
 
 ## Changelog
 
 - `2026-11-13` — created (Pass 1 built in the same PR under the continuous-development mode) — substantive
+- `2026-11-16` — floating stage (moving balloons, AC-18–AC-22), requested by Maor — substantive
 - `2026-11-13` — review fixes (#64): deferred hints during intro/help, repeating idle hint, no next trial behind the help card (AC-17); AC-12 requires an active service worker; no screenshots from specs — minor
