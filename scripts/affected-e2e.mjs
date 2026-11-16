@@ -51,6 +51,7 @@ export const PICKER_SPECS = [
   'tests/e2e/picnic-train.journey.spec.ts',
   'tests/e2e/picnic-train.picker.spec.ts',
   'tests/e2e/picnic-train.platform.spec.ts',
+  'tests/e2e/picnic-train.portrait-phone.spec.ts',
   'tests/e2e/picker.press-through.spec.ts',
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
@@ -233,6 +234,7 @@ export const GAME_RULES = [
       'tests/e2e/picnic-train.journey.spec.ts',
       'tests/e2e/picnic-train.picker.spec.ts',
       'tests/e2e/picnic-train.platform.spec.ts',
+      'tests/e2e/picnic-train.portrait-phone.spec.ts',
     ],
   },
   {

@@ -217,3 +217,4 @@ Only after Maor approves the finished Pass 1.
 ## Changelog
 
 - `2026-11-13` — created — substantive
+- `2026-11-16` — bug fix (portrait audit H4): in portrait the cargo shelf wraps to two rows of five, so each slot stays at least 48 CSS px on phones; landscape unchanged; regression tests `tests/unit/picnic-train.shelf-portrait.test.ts` and `tests/e2e/picnic-train.portrait-phone.spec.ts` — minor
