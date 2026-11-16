@@ -484,10 +484,19 @@ export class StickerBoardHud {
       // buttons and the request bubble. Tools come first so they sit by the back button; the tray fills the left.
       // Rows run left to right like the Sticker Board game layout and the phone-portrait reflow (tools, crayons and
       // tray are LTR there; only Colouring's spec asks for RTL control order).
-      const obstacles = [...this.layer.querySelectorAll<HTMLElement>('.shell-top-bar > *'), ...(this.requestBubble ? [this.requestBubble] : [])]
+      const obstacles = [...this.layer.querySelectorAll<HTMLElement>('.shell-top-bar > *')]
         .map((n) => n.getBoundingClientRect())
         .filter((b) => b.width > 0 && b.height > 0)
-        .map((b) => ({ x: b.left, y: b.top, width: b.width, height: b.height }));
+        .map((b): CssRect => ({ x: b.left, y: b.top, width: b.width, height: b.height }));
+      // The request bubble is reserved from its placed box even while hidden (it appears later without a re-layout).
+      if (this.requestBubble && geometry.requestBubble) {
+        obstacles.push({
+          x: rootBox.left + parseFloat(this.requestBubble.style.left),
+          y: rootBox.top + parseFloat(this.requestBubble.style.top),
+          width: Math.max(64, parseFloat(this.requestBubble.style.width)),
+          height: Math.max(64, parseFloat(this.requestBubble.style.height)),
+        });
+      }
       const pack = packRegions(sideRegions(board, vw, vh), groups.map((g) => g.length), obstacles, false);
       groups.forEach((g, gi) => g.forEach((node, i) => pack.groups[gi][i] && setRect(node, pack.groups[gi][i])));
       this.layer.dataset.phoneChrome = String(pack.size);
