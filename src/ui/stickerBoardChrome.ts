@@ -8,6 +8,7 @@ import heStrings from '../content/i18n/he.json';
 import type { Board } from '../games/stickers/board';
 import type { StickerBoardGeometry, UnitRect } from '../games/stickers/layout';
 import type { StickerAgeTrack } from '../games/stickers/types';
+import { chromeBand, isPhonePortrait, packGroups, type CssRect } from './phoneChromeLayout';
 
 export interface StickerTrayItem {
   id: string;
@@ -439,6 +440,39 @@ export class StickerBoardHud {
     if (this.requestBubble && geometry.requestBubble) {
       place(this.requestBubble, geometry.requestBubble, 64);
     }
+
+    // Phone portrait (audit H1): the 64 px minimum above keeps the ~0.45x game spacing, so tools, crayons and tray
+    // overlap and the last background button runs off the right edge. Re-lay them out from the CSS viewport in the
+    // band under the board. Landscape and tablets return above unchanged.
+    const tools = [this.undoBtn, this.clearBtn, this.saveBtn, this.albumBtn, this.requestToggleBtn].filter(
+      (b): b is HTMLButtonElement => Boolean(b),
+    );
+    const backgrounds = [...this.bgButtons.values()];
+    const crayons = [...this.crayonButtons.values()];
+    const groups = [tools, backgrounds, crayons, this.trayButtons];
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (!isPhonePortrait(vw, vh)) {
+      if (this.layer.dataset.phoneChrome) {
+        // Rotated away from phone portrait: drop the inline minimum overrides so the CSS 64 px minimum applies again.
+        for (const node of groups.flat()) node.style.minWidth = node.style.minHeight = '';
+        delete this.layer.dataset.phoneChrome;
+      }
+      return;
+    }
+    const boardBottom = canvasBox.top + (geometry.board.y + geometry.board.height) * k;
+    const pack = packGroups(chromeBand(boardBottom, vw, vh), groups.map((g) => g.length));
+    const setRect = (node: HTMLElement, r: CssRect) => {
+      node.style.left = `${r.x - rootBox.left}px`;
+      node.style.top = `${r.y - rootBox.top}px`;
+      node.style.width = `${r.width}px`;
+      node.style.height = `${r.height}px`;
+      // The CSS 64 px minimum would re-inflate a smaller fitted size into its neighbours.
+      node.style.minWidth = `${r.width}px`;
+      node.style.minHeight = `${r.height}px`;
+    };
+    groups.forEach((g, gi) => g.forEach((node, i) => setRect(node, pack.groups[gi][i])));
+    this.layer.dataset.phoneChrome = String(pack.size);
   }
 
   destroy(): void {

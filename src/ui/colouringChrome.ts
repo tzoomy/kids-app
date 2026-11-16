@@ -3,6 +3,7 @@
 import { el, formatClock } from './dom';
 import heStrings from '../content/i18n/he.json';
 import { COLOURING_ARIA_LABELS, COLOURING_TEST_IDS, swatchTestId } from '../games/colouring/chrome';
+import { chromeBand, isPhonePortrait, packToolsAndGrid, type CssRect } from './phoneChromeLayout';
 
 export interface UnitRect {
   x: number;
@@ -163,6 +164,45 @@ export class ColouringHud {
       const b = this.swatchButtons.get(c.id);
       if (b && geometry.swatches[i]) place(b, geometry.swatches[i], 64);
     });
+
+    // Phone portrait (audit H2): the 64 px minimum above keeps the ~0.45x game spacing, so palette rows sit 32 px
+    // apart and a tap on one swatch's centre picks its neighbour. Re-lay out tools and swatches from the CSS viewport
+    // in the band under the page. Landscape and tablets return above unchanged.
+    const tools = (['undo', 'clear', 'prev', 'next'] as const).map((kind) => this.toolButtons[kind]);
+    const swatches = this.palette.map((c) => this.swatchButtons.get(c.id)).filter((b): b is HTMLButtonElement => Boolean(b));
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (!isPhonePortrait(vw, vh)) {
+      if (this.layer.dataset.phoneChrome) {
+        // Rotated away from phone portrait: drop the inline minimum overrides so the CSS 64 px minimum applies again.
+        for (const node of [...tools, ...swatches]) node.style.minWidth = node.style.minHeight = '';
+        delete this.layer.dataset.phoneChrome;
+      }
+      return;
+    }
+    const pageBottom = canvasBox.top + (geometry.page.y + geometry.page.height) * k;
+    const pack = packToolsAndGrid(chromeBand(pageBottom, vw, vh), tools.length, swatches.length);
+    const setRect = (node: HTMLElement, r: CssRect) => {
+      node.style.left = `${r.x - rootBox.left}px`;
+      node.style.top = `${r.y - rootBox.top}px`;
+      node.style.width = `${r.width}px`;
+      node.style.height = `${r.height}px`;
+      // The CSS 64 px minimum would re-inflate a smaller fitted size into its neighbours.
+      node.style.minWidth = `${r.width}px`;
+      node.style.minHeight = `${r.height}px`;
+    };
+    tools.forEach((b, i) => setRect(b, pack.tools[i]));
+    swatches.forEach((b, i) => setRect(b, pack.grid[i]));
+    // The palette box is a non-interactive group frame (no CSS minimum): keep it around the swatches.
+    if (pack.grid.length > 0) {
+      const gridLeft = Math.min(...pack.grid.map((r) => r.x));
+      const gridTop = Math.min(...pack.grid.map((r) => r.y));
+      this.paletteBox.style.left = `${gridLeft - rootBox.left}px`;
+      this.paletteBox.style.top = `${gridTop - rootBox.top}px`;
+      this.paletteBox.style.width = `${Math.max(...pack.grid.map((r) => r.x + r.width)) - gridLeft}px`;
+      this.paletteBox.style.height = `${Math.max(...pack.grid.map((r) => r.y + r.height)) - gridTop}px`;
+    }
+    this.layer.dataset.phoneChrome = String(pack.size);
   }
 
   destroy(): void {

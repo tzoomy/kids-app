@@ -103,11 +103,12 @@ describe('affected e2e selection', () => {
     ]);
   });
 
-  it('colouring core and colouring game map to all three colouring specs', () => {
+  it('colouring core and colouring game map to all four colouring specs', () => {
     const expected = [
       'tests/e2e/leisure-colouring.art.spec.ts',
       'tests/e2e/leisure-colouring.journey.spec.ts',
       'tests/e2e/leisure-colouring.platform.spec.ts',
+      'tests/e2e/leisure-colouring.portrait-phone.spec.ts',
     ];
     expect(selectAffectedE2e(['src/core/colouring/store.ts'])).toEqual(expected);
     expect(selectAffectedE2e(['src/games/colouring/ColouringScene.ts'])).toEqual(expected);
@@ -176,8 +177,8 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/potion-lab.machine.test.ts'])).toEqual(expected);
   });
 
-  it('sticker-board source, content, art and unit tests select the sticker-board journey only', () => {
-    const expected = ['tests/e2e/sticker-board.journey.spec.ts'];
+  it('sticker-board source, content, art and unit tests select the sticker-board specs only', () => {
+    const expected = ['tests/e2e/sticker-board.journey.spec.ts', 'tests/e2e/sticker-board.portrait-phone.spec.ts'];
     for (const f of [
       'src/games/stickers/StickerBoardScene.ts',
       'src/core/stickers/seed.ts',
@@ -187,8 +188,22 @@ describe('affected e2e selection', () => {
       'public/art/stickers/rocket.svg',
       'public/art/scenes/sticker-board/space-landscape.svg',
       'tests/unit/sticker-board.content.test.ts',
-      'tests/e2e/sticker-board.journey.spec.ts',
     ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(expected);
+    }
+    expect(selectAffectedE2e(['tests/e2e/sticker-board.journey.spec.ts'])).toEqual(['tests/e2e/sticker-board.journey.spec.ts']);
+  });
+
+  it('the shared phone-portrait chrome reflow selects the Sticker Board and Colouring Time specs, not the smoke set', () => {
+    const expected = [
+      'tests/e2e/leisure-colouring.art.spec.ts',
+      'tests/e2e/leisure-colouring.journey.spec.ts',
+      'tests/e2e/leisure-colouring.platform.spec.ts',
+      'tests/e2e/leisure-colouring.portrait-phone.spec.ts',
+      'tests/e2e/sticker-board.journey.spec.ts',
+      'tests/e2e/sticker-board.portrait-phone.spec.ts',
+    ];
+    for (const f of ['src/ui/phoneChromeLayout.ts', 'tests/e2e/helpers/phoneChromeCheck.ts', 'tests/unit/phoneChromeLayout.test.ts']) {
       expect(selectAffectedE2e([f]), f).toEqual(expected);
     }
   });
@@ -320,6 +335,7 @@ describe('affected e2e selection', () => {
       'tests/e2e/leisure-colouring.art.spec.ts',
       'tests/e2e/leisure-colouring.journey.spec.ts',
       'tests/e2e/leisure-colouring.platform.spec.ts',
+      'tests/e2e/leisure-colouring.portrait-phone.spec.ts',
     ]);
   });
 
