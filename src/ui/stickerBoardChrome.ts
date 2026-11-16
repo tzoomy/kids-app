@@ -454,7 +454,7 @@ export class StickerBoardHud {
 
     // Phone portrait (audit H1): the 64 px minimum above keeps the ~0.45x game spacing, so tools, crayons and tray
     // overlap and the last background button runs off the right edge. Re-lay them out from the CSS viewport in the
-    // band under the board. Landscape and tablets return above unchanged.
+    // band under the board. Landscape tablets keep the game layout unchanged.
     const tools = [this.undoBtn, this.clearBtn, this.saveBtn, this.albumBtn, this.requestToggleBtn].filter(
       (b): b is HTMLButtonElement => Boolean(b),
     );
