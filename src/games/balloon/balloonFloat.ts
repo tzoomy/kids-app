@@ -143,12 +143,26 @@ export function floatAlpha(b: Pick<FloatBalloon, 'y' | 'ry'>, area: Pick<FloatAr
 /**
  * Tap rectangle: the drawn body scaled by `hitScale` (at least 1.5x), and at least `minHitGamePx` on each side.
  * Pass `minHitGamePx = minHitCssPx * gamePxPerCssPx` from the scene.
+ * When `playfieldWidth` is set, a pad that would overflow a side is shifted inward so it stays in `[0, width]`
+ * and keeps its size (unless the playfield itself is narrower).
  */
-export function floatHitRect(b: Pick<FloatBalloon, 'x' | 'y' | 'rx' | 'ry'>, hitScale: number, minHitGamePx: number): Rect {
+export function floatHitRect(
+  b: Pick<FloatBalloon, 'x' | 'y' | 'rx' | 'ry'>,
+  hitScale: number,
+  minHitGamePx: number,
+  playfieldWidth?: number,
+): Rect {
   const scale = Math.max(1.5, hitScale);
   const halfW = Math.max(b.rx * scale, minHitGamePx / 2);
   const halfH = Math.max(b.ry * scale, minHitGamePx / 2);
-  return { left: b.x - halfW, right: b.x + halfW, top: b.y - halfH, bottom: b.y + halfH };
+  let left = b.x - halfW;
+  let right = b.x + halfW;
+  if (playfieldWidth !== undefined && playfieldWidth > 0) {
+    const width = Math.min(right - left, playfieldWidth);
+    left = Math.min(Math.max(left, 0), playfieldWidth - width);
+    right = left + width;
+  }
+  return { left, right, top: b.y - halfH, bottom: b.y + halfH };
 }
 
 /**
@@ -161,11 +175,12 @@ export function pickFloatBalloon(
   y: number,
   hitScale: number,
   minHitGamePx: number,
+  playfieldWidth?: number,
 ): number {
   let best = -1;
   let bestD = Infinity;
   balloons.forEach((b, i) => {
-    const r = floatHitRect(b, hitScale, minHitGamePx);
+    const r = floatHitRect(b, hitScale, minHitGamePx, playfieldWidth);
     if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
     const d = ((x - b.x) / b.rx) ** 2 + ((y - b.y) / b.ry) ** 2;
     if (d < bestD) {

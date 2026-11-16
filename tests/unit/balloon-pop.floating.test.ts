@@ -143,6 +143,34 @@ describe('balloon-pop floating stage: hit areas (AC-19)', () => {
     }
   });
 
+  it('[AC-19] an overflowing hit pad is shifted inward and keeps its minimum size', () => {
+    const left = floatHitRect({ x: 40, y: 600, rx: 30, ry: 36 }, 1.5, 140, 800);
+    expect(left.left).toBe(0);
+    expect(left.right).toBe(140);
+    const right = floatHitRect({ x: 760, y: 600, rx: 30, ry: 36 }, 1.5, 140, 800);
+    expect(right.right).toBe(800);
+    expect(right.left).toBe(660);
+  });
+
+  it('[AC-19] on a 360 CSS px phone at L8 the hit pad stays inside the playfield and stays >= 64 CSS px', () => {
+    const [w, h] = [800, 1280];
+    const gamePxPerCss = w / 360;
+    const minHit = cfg.minHitCssPx * gamePxPerCss;
+    const n = 6; // L8 choiceCount
+    const balloons = initialFloatBalloons(w, h, n, seeded(8));
+    const area = floatArea(w, h, balloons[0].ry);
+    for (let t = 0; t < 600; t++) {
+      stepFloat(balloons, 16, t * 16, 40, area, cfg.swayPx);
+      for (const b of balloons) {
+        const r = floatHitRect(b, cfg.hitScale, minHit, w);
+        expect(r.left, `t=${t}`).toBeGreaterThanOrEqual(0);
+        expect(r.right, `t=${t}`).toBeLessThanOrEqual(w);
+        expect((r.right - r.left) / gamePxPerCss).toBeGreaterThanOrEqual(64 - 1e-9);
+        expect((r.bottom - r.top) / gamePxPerCss).toBeGreaterThanOrEqual(64 - 1e-9);
+      }
+    }
+  });
+
   it('[AC-19] a tap goes to the nearest balloon whose hit area holds it, and outside all of them to none', () => {
     const balloons = [
       { x: 100, y: 500, rx: 50, ry: 61 },
