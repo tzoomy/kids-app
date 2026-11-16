@@ -444,7 +444,7 @@ export class BalloonScene extends Phaser.Scene {
         ry: f.ry,
         stringLength: f.ry * 0.55,
         row: 0,
-        hit: floatHitRect(f, cfg.hitScale, minHit),
+        hit: floatHitRect(f, cfg.hitScale, minHit, this.scale.width),
       };
       const root = this.drawBalloon(choice, slot);
       this.balloons.push({ choice, slot, root, float: f });
@@ -456,7 +456,8 @@ export class BalloonScene extends Phaser.Scene {
   private minFloatHitGamePx(): number {
     const cssPx = this.floatCfg?.minHitCssPx ?? 64;
     const width = this.game.canvas?.getBoundingClientRect().width ?? 0;
-    return width > 0 ? cssPx * (this.scale.width / width) : cssPx;
+    // Nudge above the CSS floor so a game↔CSS round-trip cannot land at 63.999… (#94 review).
+    return width > 0 ? cssPx * (this.scale.width / width) + 1e-6 : cssPx;
   }
 
   update(_time: number, delta: number): void {
@@ -480,7 +481,7 @@ export class BalloonScene extends Phaser.Scene {
       b.root.setAlpha(floatAlpha(f, this.floatArea));
       b.slot.x = f.x;
       b.slot.y = f.y;
-      b.slot.hit = floatHitRect(f, this.floatCfg.hitScale, minHit);
+      b.slot.hit = floatHitRect(f, this.floatCfg.hitScale, minHit, this.scale.width);
     }
   }
 
@@ -497,6 +498,7 @@ export class BalloonScene extends Phaser.Scene {
       pointer.y,
       this.floatCfg.hitScale,
       this.minFloatHitGamePx(),
+      this.scale.width,
     );
     if (index >= 0) this.choose(views[index]);
   }
