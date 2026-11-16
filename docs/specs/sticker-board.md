@@ -106,7 +106,9 @@ Pass 2 polish, recorded clips, stamps and brushes beyond one round crayon, an er
 1. **Open decision for the owner:** open the Art Studio building with Sticker Board as its direct entry game (default: yes).
 2. **Open decision for the owner:** `earnsLeisure` mark for Sticker Board (default: `false`, neither earns nor spends).
 3. **Open decision for the owner:** request language: requests are fully in the learning language (EN/FR) with a picture; the Hebrew narrator only praises (default as written).
+4. **Open decision for the owner:** phone portrait (bug fix H1, portrait audit 2026-11-16). On a phone held upright (CSS width ≤ 600 px) all 28 controls cannot be 64 CSS px under the board without shrinking the board. The chrome is now laid out from the CSS viewport in the band under the board at the largest size that fits (≥ 8 px gaps, nothing overlapping or off-screen): about 46 px at 360×800 and 54 px at 412×915 (age 5), 50 / 59 px at age 2. Tablet sizes (AC-15 at 1280×800 and 800×1280) and every landscape size are unchanged. Alternative: shrink the board on phones to keep 64 px.
 
 ## Changelog
 
 - 2026-11-13: first draft with the Pass 1 implementation (Gemini expert, continuous-development mode).
+- 2026-11-16 — Bug fix H1 (portrait audit): phone-portrait chrome reflow, recorded as open decision 4 (sizes below 64 px on phones only). — non-substantive pending the owner's answer (status unchanged)

@@ -34,6 +34,7 @@ const COLOURING_SPECS = [
   'tests/e2e/leisure-colouring.art.spec.ts',
   'tests/e2e/leisure-colouring.journey.spec.ts',
   'tests/e2e/leisure-colouring.platform.spec.ts',
+  'tests/e2e/leisure-colouring.portrait-phone.spec.ts',
 ];
 
 /**
@@ -208,6 +209,10 @@ export const GAME_RULES = [
       /^tests\/shared\/leisureColouringPages\.ts$/,
       /^tests\/fixtures\/colouring\//,
       /^tests\/e2e\/helpers\/colouringArtCheck\.ts$/,
+      // Phone-portrait chrome reflow, shared with Sticker Board (portrait audit H1/H2).
+      /^src\/ui\/phoneChromeLayout\.ts$/,
+      /^tests\/e2e\/helpers\/phoneChromeCheck\.ts$/,
+      /^tests\/unit\/phoneChromeLayout[^/]*$/,
       /^tests\/unit\/(leisure-colouring|puppetColorMotion)[^/]*$/,
     ],
     specs: COLOURING_SPECS,
@@ -248,8 +253,12 @@ export const GAME_RULES = [
       /^src\/assets\/art\/stickerBoardManifest\.ts$/,
       /^public\/art\/(stickers|scenes\/sticker-board)\//,
       /^tests\/unit\/sticker-board[^/]*$/,
+      // Phone-portrait chrome reflow, shared with Colouring Time (portrait audit H1/H2).
+      /^src\/ui\/phoneChromeLayout\.ts$/,
+      /^tests\/e2e\/helpers\/phoneChromeCheck\.ts$/,
+      /^tests\/unit\/phoneChromeLayout[^/]*$/,
     ],
-    specs: ['tests/e2e/sticker-board.journey.spec.ts'],
+    specs: ['tests/e2e/sticker-board.journey.spec.ts', 'tests/e2e/sticker-board.portrait-phone.spec.ts'],
   },
   {
     id: 'science-world',

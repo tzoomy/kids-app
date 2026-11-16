@@ -361,6 +361,8 @@ All open decisions were resolved by the owner on 2026-11-13.
 - **Decided by the owner (2026-11-13):** The square 800×800 viewBox is kept (not the 400×480 rig space), so pages letterbox cleanly in both orientations.
 - **Decided by the owner (2026-11-13):** A new leisure-game content schema is added, with no dummy `adaptive` block, because faking levels would put false data in a game that has none.
 
+- **Open decision for the owner:** phone portrait (bug fix H2, portrait audit 2026-11-16). On a phone held upright (CSS width ≤ 600 px) the age-5 palette (16 swatches) plus 4 tools do not fit at 64 CSS px under the page at 360×800. The chrome is now laid out from the CSS viewport in the band under the page at the largest size that fits (≥ 8 px gaps, nothing overlapping or off-screen): 62 px at 360×800 age 5 (tools as a column beside the palette); 64 px at 412×915 and at age 2. This is below the "never shrink below 64" decision on that one phone size only; tablet sizes (1280×800, 800×1280) and every landscape size are unchanged.
+
 The owner decisions above stand. The team-lead decisions of 2026-11-13 from Gemini's spec review refine layout, hit-testing, thickness, the palette ids, and the chef region list; they are recorded in the body and in the Changelog, and do not need owner re-approval.
 
 ## Changelog
@@ -378,3 +380,4 @@ The owner decisions above stand. The team-lead decisions of 2026-11-13 from Gemi
 - 2026-11-13 — **Team-lead decision (2026-11-13):** from Gemini's spec review (M6). An automatic art checker: unit test for ids, closed paths, and structure (AC-32); browser check for inscribed-circle thickness and sample-point hit-tests (AC-33). — non-substantive (status stays **approved**)
 - 2026-11-13 — **Team-lead decision (2026-11-13):** the colouring pages (8 at 800×800 plus 2 backgrounds) load when the colouring game opens, never at boot in `PreloadScene` (AC-34). — non-substantive (status stays **approved**)
 - 2026-11-13 — Pass in progress set to 1 with the failing Pass 1 unit and real-tap e2e tests (branch test/leisure-colouring-pass1). — non-substantive (status stays **approved**)
+- 2026-11-16 — Bug fix H2 (portrait audit): phone-portrait chrome reflow, recorded under Open decisions (62 px at 360×800 age 5 only). — non-substantive pending the owner's answer (status unchanged)
