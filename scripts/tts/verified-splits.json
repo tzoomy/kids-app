@@ -1,0 +1,20 @@
+{
+  "_comment": "Hand-verified split points for cached raw TTS takes (VOICE_RAW_DIR/{batch}.wav). The automatic splitter in generate_voice.py mis-aligned the first Hebrew batch by one sentence, so every clip after he.welcome held the wrong words (e.g. he.retry.0 said 'tap the animal to hear again'). Intervals are seconds in the raw take; 'heard' is the transcription of that interval (Gemini listening pass, 2026-11-16), checked against the line text. Applied by scripts/tts/apply_verified_splits.py, which makes no API calls.",
+  "he-df5294e9cc": {
+    "he.welcome": { "start": 0.21, "end": 3.39, "heard": "שלום! מי משחקת היום?" },
+    "he.map.choose": { "start": 4.62, "end": 10.09, "heard": "לאן נלך היום? בואי נבקר בבית השפות!" },
+    "he.map.comingSoon": { "start": 11.09, "end": 14.61, "heard": "המקום הזה עוד בבנייה. נבקר בו בקרוב!" },
+    "he.restaurant.intro": { "start": 15.70, "end": 25.34, "heard": "ברוכה הבאה למסעדת החיות! החיות רעבות. הקשיבי מה הן מבקשות, ובחרי את הצלחת המתאימה." },
+    "he.restaurant.help": { "start": 26.31, "end": 34.25, "heard": "החיה מבקשת אוכל. הקשיבי ובחרי את הצלחת המתאימה. אפשר ללחוץ על החיה כדי לשמוע שוב." },
+    "he.retry.0": { "start": 35.14, "end": 37.47, "heard": "כמעט! בואי נקשיב שוב." },
+    "he.retry.1": { "start": 38.40, "end": 41.46, "heard": "הממ, זה לא זה. ננסה שוב?" },
+    "he.retry.2": { "start": 41.97, "end": 45.16, "heard": "לא נורא! הקשיבי לחיה ונסי שוב." },
+    "he.praise.0": { "start": 46.14, "end": 47.27, "heard": "כל הכבוד!" },
+    "he.praise.1": { "start": 48.23, "end": 50.11, "heard": "איזו מלצרית מעולה!" },
+    "he.praise.2": { "start": 51.24, "end": 53.61, "heard": "יופי! החיה ממש שמחה!" },
+    "he.leisure.earned": { "start": 54.55, "end": 56.03, "heard": "הרווחת עוד זמן כיף!" },
+    "he.bubbles.intro": { "start": 56.92, "end": 59.30, "heard": "זמן כיף! פוצצי את הבועות." },
+    "he.bubbles.lowWarning": { "start": 60.10, "end": 60.66, "heard": "עוד קצת זמן!" },
+    "he.bubbles.end": { "start": 61.55, "end": 65.19, "heard": "כל הכבוד! רוצה לבקר שוב את החיות במסעדה?" }
+  }
+}
