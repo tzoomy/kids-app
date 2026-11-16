@@ -96,7 +96,7 @@ function legacyBoxes(canvas: Rect, ageTrack: 'age2' | 'age5', crayonCount: numbe
 const LANDSCAPE_VIEWPORTS = [
   { width: 1280, height: 800 },
   { width: 1024, height: 768 },
-  { width: 915, height: 412 },
+  // Landscape phones (915x412 and smaller) now reflow: see the *.landscape-phone.spec.ts regression spec.
 ] as const;
 
 for (const viewport of LANDSCAPE_VIEWPORTS) {
@@ -131,14 +131,14 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
 test.describe('sticker board chrome survives phone rotation @single-orientation', () => {
   test.use({ viewport: { width: 360, height: 800 }, isMobile: true, hasTouch: true });
 
-  test('portrait phone -> landscape phone -> portrait phone: landscape gets the game layout back, portrait reflows again', async ({ page }, testInfo) => {
+  test('portrait phone -> landscape tablet -> portrait phone: landscape gets the game layout back, portrait reflows again', async ({ page }, testInfo) => {
     onlyProject(testInfo, PORTRAIT_PROJECT);
     test.setTimeout(90_000);
     const a = AGES[1];
     await enterBoard(page, a.profile);
     await expect(page.locator(`${LAYER}[data-phone-chrome]`)).toHaveCount(1);
 
-    await page.setViewportSize({ width: 800, height: 360 });
+    await page.setViewportSize({ width: 1024, height: 768 });
     await expect(page.locator(`${LAYER}[data-phone-chrome]`)).toHaveCount(0);
     let probes = await probeStable(page, LAYER, CONTROLS, a.controls);
     const canvas = await page.locator('#game-root canvas').boundingBox();
