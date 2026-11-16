@@ -279,9 +279,10 @@ describe('affected e2e selection', () => {
     expect(rules.map((r: { id: string }) => r.id)).toEqual(['picker']);
   });
 
-  it('the station-trail unit tests and the world trail wiring select only the trail spec', () => {
-    expect(selectAffectedE2e(['tests/unit/station-trail.model.test.ts'])).toEqual(['tests/e2e/station-trail.spec.ts']);
-    expect(selectAffectedE2e(['src/worlds/worldTrail.ts'])).toEqual(['tests/e2e/station-trail.spec.ts']);
+  it('the station-trail unit tests and the world trail wiring select only the trail specs', () => {
+    const trail = ['tests/e2e/station-trail.portrait-phone.spec.ts', 'tests/e2e/station-trail.spec.ts'];
+    expect(selectAffectedE2e(['tests/unit/station-trail.model.test.ts'])).toEqual(trail);
+    expect(selectAffectedE2e(['src/worlds/worldTrail.ts'])).toEqual(trail);
   });
 
   it('credits content and UI select the credits spec', () => {
@@ -349,9 +350,20 @@ describe('affected e2e selection', () => {
   });
 
   it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
-    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts', 'src/styles/shell.css']) {
+    for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts']) {
       expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
     }
+  });
+
+  it('shell.css (shared styles, including the picker and station-trail layout) selects smoke, the gate spec and the picker layout specs', () => {
+    expect(selectAffectedE2e(['src/styles/shell.css'])).toEqual([
+      ...SMOKE,
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/parent-longpress-gate.spec.ts',
+      'tests/e2e/picnic-train.picker.spec.ts',
+      'tests/e2e/station-trail.portrait-phone.spec.ts',
+      'tests/e2e/station-trail.spec.ts',
+    ]);
   });
 
   it('long-press gate unit tests select only the gate spec (no smoke)', () => {
