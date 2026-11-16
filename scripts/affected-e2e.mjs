@@ -52,6 +52,7 @@ export const PICKER_SPECS = [
   'tests/e2e/picnic-train.picker.spec.ts',
   'tests/e2e/picnic-train.platform.spec.ts',
   'tests/e2e/picker.press-through.spec.ts',
+  'tests/e2e/portrait-topbar.phone.spec.ts',
   'tests/e2e/potion-lab.journey.spec.ts',
   'tests/e2e/science-world.map.spec.ts',
   'tests/e2e/seed-to-flower.journey.spec.ts',
@@ -364,6 +365,13 @@ export const GAME_RULES = [
       /^tests\/unit\/parent-longpress-gate[^/]*$/,
     ],
     specs: ['tests/e2e/parent-longpress-gate.spec.ts'],
+  },
+  {
+    // The game HUD top bar (RestaurantHud) and the prompt bubble live in hud.ts and shell.css; their phone-portrait and
+    // landscape geometry is pinned by one spec that enters 8 games by real taps.
+    id: 'game-topbar',
+    match: [/^src\/ui\/hud\.ts$/, /^src\/styles\/shell\.css$/],
+    specs: ['tests/e2e/portrait-topbar.phone.spec.ts'],
   },
 ];
 

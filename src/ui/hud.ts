@@ -101,7 +101,8 @@ export class RestaurantHud {
 
   constructor(root: HTMLElement, opts: RestaurantChromeOptions) {
     clear(root);
-    const bar = el('div', 'shell-top-bar');
+    // `shell-hud-bar` scopes the phone-portrait single-row layout (shell.css) to the game HUD, not the map or art-studio bars.
+    const bar = el('div', 'shell-top-bar shell-hud-bar');
     const backBtn = el('button', 'shell-pill', '⬅️');
     backBtn.dataset.testid = 'hud-back';
     backBtn.addEventListener('click', opts.onBack);
