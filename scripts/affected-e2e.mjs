@@ -58,6 +58,7 @@ export const PICKER_SPECS = [
   'tests/e2e/sink-or-float.journey.spec.ts',
   'tests/e2e/sorting-beds.journey.spec.ts',
   'tests/e2e/sorting-beds.platform.spec.ts',
+  'tests/e2e/station-trail.portrait-phone.spec.ts',
   'tests/e2e/station-trail.spec.ts',
   'tests/e2e/travel-suitcase.journey.spec.ts',
   'tests/e2e/who-is-hiding.journey.spec.ts',
@@ -158,7 +159,18 @@ export const GAME_RULES = [
       /^src\/worlds\/worldTrail\.ts$/,
       /^tests\/unit\/station-trail[^/]*$/,
     ],
-    specs: ['tests/e2e/station-trail.spec.ts'],
+    specs: ['tests/e2e/station-trail.spec.ts', 'tests/e2e/station-trail.portrait-phone.spec.ts'],
+  },
+  {
+    id: 'picker-layout',
+    // The picker and station-trail layout (portrait rows, landscape 4:5 cards, header) lives in shell.css.
+    match: [/^src\/styles\/shell\.css$/],
+    specs: [
+      'tests/e2e/station-trail.portrait-phone.spec.ts',
+      'tests/e2e/station-trail.spec.ts',
+      'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/picnic-train.picker.spec.ts',
+    ],
   },
   {
     id: 'letter-monster',
