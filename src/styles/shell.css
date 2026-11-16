@@ -729,6 +729,37 @@ body {
   }
 }
 
+/* Game HUD on a phone in portrait (about 360-440 px; portrait-phone audit C1, H3, M3).
+   Root cause: the progress bar is a fixed min(50vw, 320px) wide and .shell-row may wrap, so at 360 px the bar's content
+   is wider than the bar and the help pill wraps to a second row; the prompt bubble's `top` assumes one row, so it then
+   lands on help/back. Fix: one nowrap row where the progress bar takes the leftover width, and the bubble (the replay tap
+   target, at least 48 px tall) moves to the empty letterbox band below the game canvas.
+   The canvas is the 800x1280 game FIT-centred, so on a phone it is 160vw tall and the band below it is (100% - 160vw) / 2:
+   the bubble sits near the middle of that band, never closer than 12 px to the screen edge. Landscape and portrait
+   tablets (wider than 600 px) keep the layout above. Pending Maor decision: docs/PENDING-DECISIONS.md. */
+@media (orientation: portrait) and (max-width: 600px) {
+  .shell-hud-bar {
+    flex-wrap: nowrap;
+  }
+  .shell-hud-bar > .shell-progress {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+  .shell-hud-bar > .shell-row {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+  }
+  .shell-prompt-bubble {
+    top: auto;
+    bottom: max(calc(env(safe-area-inset-bottom, 0px) + 12px), calc(25% - 40vw - 40px));
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 /* Colouring Time (Pass 1): absolutely positioned tools, palette and the transparent page overlay. */
 .colouring-layer {
   position: absolute;

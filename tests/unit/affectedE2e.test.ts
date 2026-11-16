@@ -354,7 +354,8 @@ describe('affected e2e selection', () => {
 
   it('the long-press gate binder and the shared buttons that use it select the gate spec plus smoke', () => {
     for (const f of ['src/ui/longPress.ts', 'src/ui/profileSelect.ts', 'src/ui/hud.ts']) {
-      expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts']);
+      const topbar = f === 'src/ui/hud.ts' ? ['tests/e2e/portrait-topbar.phone.spec.ts'] : [];
+      expect(selectAffectedE2e([f]), f).toEqual([...SMOKE, 'tests/e2e/parent-longpress-gate.spec.ts', ...topbar]);
     }
   });
 
@@ -364,9 +365,16 @@ describe('affected e2e selection', () => {
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
       'tests/e2e/parent-longpress-gate.spec.ts',
       'tests/e2e/picnic-train.picker.spec.ts',
+      'tests/e2e/portrait-topbar.phone.spec.ts',
       'tests/e2e/station-trail.portrait-phone.spec.ts',
       'tests/e2e/station-trail.spec.ts',
     ]);
+  });
+
+  it('the game top bar spec is selected by hud.ts and shell.css, and by any picker change', () => {
+    for (const f of ['src/ui/hud.ts', 'src/styles/shell.css', 'src/ui/picker/pickerModel.ts']) {
+      expect(selectAffectedE2e([f]), f).toContain('tests/e2e/portrait-topbar.phone.spec.ts');
+    }
   });
 
   it('long-press gate unit tests select only the gate spec (no smoke)', () => {
