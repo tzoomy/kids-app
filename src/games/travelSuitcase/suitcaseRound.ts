@@ -4,17 +4,19 @@ import type {
   LevelDescriptor,
   SuitcaseColorVariant,
   SuitcaseItem,
-  SuitcaseRequestKind,
+  SuitcaseRequestKind as PlanRequestKind,
   TravelSuitcaseContent,
 } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
 import type { SpeechRequest } from '../../core/audio/types';
 import type { Lang } from '../templates/choiceServe';
-import type { SuitcaseChoice } from './suitcaseMachine';
+import type { SuitcaseChoice, SuitcaseRequestKind } from './suitcaseMachine';
 
 export interface SuitcasePlan {
-  request: SuitcaseRequestKind;
+  request: PlanRequestKind;
   choiceCount: number;
+  /** Items per request: 1 for L1-L5, 3 for the packing-list levels (`extra.setSize`). */
+  setSize: number;
   requestsPerCase: number;
   audioOnly: boolean;
   hintPulse: boolean;
@@ -25,10 +27,18 @@ export interface BuiltRequestSpec {
   readonly key: string;
   readonly itemId: string;
   readonly targets: readonly string[];
+  /** One slot per item to pack; a slot is filled by any of its ids (negation slots list 2 colours). */
+  readonly groups: readonly (readonly string[])[];
   readonly needed: number;
   readonly targetItemIds: readonly string[];
   readonly excludedColor?: string;
+  /** Kind `'set'` only: the curated set and whether it is the colour or the negation wording. */
+  readonly setId?: string;
+  readonly setMode?: 'attribute' | 'negation';
 }
+
+/** What `requestLine` needs: a built request (the slot groups only matter to the machine). */
+export type RequestLineSpec = Omit<BuiltRequestSpec, 'groups'> & Partial<Pick<BuiltRequestSpec, 'groups'>>;
 
 export interface BuiltRequest {
   readonly choices: SuitcaseChoice[];
@@ -47,7 +57,7 @@ const DEFAULT_REQUESTS_PER_CASE = 3;
 /** Reads the game-specific levers of one level (`choiceCount`, `support`, `extra.*`). */
 export function planForLevel(level: LevelDescriptor | undefined): SuitcasePlan {
   const rawReq = level?.extra?.request;
-  const request: SuitcaseRequestKind =
+  const request: PlanRequestKind =
     rawReq === 'two' || rawReq === 'attribute' || rawReq === 'negation' ? rawReq : 'noun';
   const rawChoice = level?.choiceCount;
   const choiceCount =
@@ -59,10 +69,14 @@ export function planForLevel(level: LevelDescriptor | undefined): SuitcasePlan {
     typeof rawPerCase === 'number' && Number.isInteger(rawPerCase) && rawPerCase >= 1
       ? rawPerCase
       : DEFAULT_REQUESTS_PER_CASE;
+  const rawSetSize = level?.extra?.setSize;
+  const setSize =
+    typeof rawSetSize === 'number' && Number.isInteger(rawSetSize) && rawSetSize >= 1 ? rawSetSize : 1;
   const audioOnly = level?.support === 'audio-only';
   return {
     request,
     choiceCount,
+    setSize,
     requestsPerCase,
     audioOnly,
     hintPulse: !audioOnly,
@@ -112,11 +126,13 @@ export function artKeyForChoice(content: TravelSuitcaseContent, choiceId: string
 /** Formats the learning-language request line (`suitcase.req.<kind>.<key>.<lang>`). */
 export function requestLine(
   content: TravelSuitcaseContent,
-  req: BuiltRequestSpec,
+  req: RequestLineSpec,
   lang: Lang,
 ): SpeechRequest {
   const lineId = `suitcase.req.${req.kind}.${req.key}.${lang}`;
   const f = content.frames[lang];
+
+  if (req.kind === 'set') return setRequestLine(content, req, lang, lineId);
 
   if (req.kind === 'noun') {
     const { item } = lookupChoice(content, req.targets[0]);
@@ -145,6 +161,47 @@ export function requestLine(
     lineId,
     lang,
     text: f.not.replace('{a}', item[lang].a).replace('{one}', onePhrase),
+  };
+}
+
+function setRequestLine(
+  content: TravelSuitcaseContent,
+  req: RequestLineSpec,
+  lang: Lang,
+  lineId: string,
+): SpeechRequest {
+  const set = content.sets.find((x) => x.id === req.setId);
+  if (!set || !req.setMode) throw new Error(`Unknown travel-suitcase set: ${String(req.setId)}`);
+  const f = content.frames[lang];
+  const item = (id: string) => {
+    const found = content.items.find((i) => i.id === id);
+    if (!found) throw new Error(`Unknown travel-suitcase item: ${id}`);
+    return found;
+  };
+  if (req.setMode === 'attribute') {
+    const phrases = set.attribute.map((slot) => {
+      const it = item(slot.item);
+      const variant = slot.color ? it.colors?.find((v) => v.color === slot.color) : undefined;
+      return variant ? variant[lang] : it[lang].the;
+    });
+    return {
+      lineId,
+      lang,
+      text: f.set.replace('{a}', phrases[0]).replace('{b}', phrases[1]).replace('{c}', phrases[2]),
+    };
+  }
+  const negated = set.negation.find((slot) => slot.notColor !== undefined)!;
+  const rest = set.negation.filter((slot) => slot !== negated).map((slot) => item(slot.item)[lang].the);
+  const negItem = item(negated.item);
+  const variant = negItem.colors!.find((v) => v.color === negated.notColor)!;
+  return {
+    lineId,
+    lang,
+    text: f.setNot
+      .replace('{b}', rest[0])
+      .replace('{c}', rest[1])
+      .replace('{a}', negItem[lang].a)
+      .replace('{one}', lang === 'en' ? variant.enOne : variant.frOne),
   };
 }
 
@@ -201,6 +258,91 @@ function coloredChoice(item: SuitcaseItem, variant: SuitcaseColorVariant): Suitc
   return { id: `${item.id}-${variant.color}`, itemId: item.id, color: variant.color };
 }
 
+/** The request spec of one curated set in one wording (also enumerated by the voice catalogue). */
+export function setRequestSpec(
+  content: TravelSuitcaseContent,
+  setId: string,
+  mode: 'attribute' | 'negation',
+): BuiltRequestSpec {
+  const set = content.sets.find((x) => x.id === setId);
+  if (!set) throw new Error(`Unknown travel-suitcase set: ${setId}`);
+  const slots = set[mode];
+  const groups: string[][] = slots.map((slot) => {
+    const item = content.items.find((i) => i.id === slot.item)!;
+    if (slot.color) return [`${item.id}-${slot.color}`];
+    if (slot.notColor) return item.colors!.filter((v) => v.color !== slot.notColor).map((v) => `${item.id}-${v.color}`);
+    return [item.id];
+  });
+  const negated = slots.find((slot) => slot.notColor !== undefined);
+  const suffix = mode === 'attribute' ? 'attr' : 'not';
+  return {
+    kind: 'set',
+    key: `${set.id}-${suffix}`,
+    itemId: `set:${set.id}-${suffix}`,
+    targets: groups.flat(),
+    groups,
+    needed: groups.length,
+    targetItemIds: slots.map((slot) => slot.item),
+    ...(negated ? { excludedColor: negated.notColor } : {}),
+    setId: set.id,
+    setMode: mode,
+  };
+}
+
+function buildSetRequest(
+  content: TravelSuitcaseContent,
+  plan: SuitcasePlan,
+  previousKey: string | null,
+  rng: () => number,
+  excluded: ReadonlySet<string>,
+  floorItems: readonly SuitcaseItem[],
+): { choices: SuitcaseChoice[]; request: BuiltRequestSpec } {
+  const mode = plan.request as 'attribute' | 'negation';
+  const suffix = mode === 'attribute' ? 'attr' : 'not';
+  const fits = content.sets.filter(
+    (set) => set[mode].length === plan.setSize && set[mode].every((slot) => !excluded.has(slot.item)),
+  );
+  if (fits.length === 0) throw new Error(`Travel Suitcase has no ${mode} set of ${plan.setSize} items left to ask`);
+  const fresh = fits.filter((set) => `${set.id}-${suffix}` !== previousKey);
+  const pool = fresh.length > 0 ? fresh : fits;
+  const set = pool[randIndex(pool.length, rng)];
+  const request = setRequestSpec(content, set.id, mode);
+
+  const byId = new Map(content.items.map((i) => [i.id, i]));
+  const shelf: SuitcaseChoice[] = [];
+  const near: SuitcaseChoice[] = [];
+  for (const slot of set[mode]) {
+    const item = byId.get(slot.item)!;
+    if (slot.color) {
+      const variant = item.colors!.find((v) => v.color === slot.color)!;
+      shelf.push(coloredChoice(item, variant));
+      for (const other of item.colors!) {
+        if (other.color !== slot.color) near.push(coloredChoice(item, other));
+      }
+    } else if (slot.notColor) {
+      // All three colours go on the shelf: two are right, the excluded one is a wrong choice.
+      for (const v of item.colors!) shelf.push(coloredChoice(item, v));
+    } else {
+      shelf.push(uncoloredChoice(item));
+    }
+  }
+
+  const room = plan.choiceCount - shelf.length;
+  const nearTaken = mode === 'attribute' ? shuffle(near, rng).slice(0, Math.min(2, Math.max(0, room))) : [];
+  shelf.push(...nearTaken);
+
+  const setItems = new Set(set[mode].map((slot) => slot.item));
+  const fillers = shuffle(
+    floorItems.filter((i) => !setItems.has(i.id)),
+    rng,
+  );
+  for (const filler of fillers) {
+    if (shelf.length >= plan.choiceCount) break;
+    shelf.push(uncoloredChoice(filler));
+  }
+  return { choices: shuffle(shelf, rng), request };
+}
+
 /**
  * Builds one request with `choices` laid out for the floor, never repeating `previousKey`.
  * `excludeItemIds` keeps items already packed inside the open suitcase off the floor.
@@ -219,7 +361,11 @@ export function buildRequest(
   let choices: SuitcaseChoice[];
   let request: BuiltRequestSpec;
 
-  if (plan.request === 'noun') {
+  if ((plan.request === 'attribute' || plan.request === 'negation') && plan.setSize > 1) {
+    const built = buildSetRequest(content, plan, previousKey, rng, excluded, floorItems);
+    choices = built.choices;
+    request = built.request;
+  } else if (plan.request === 'noun') {
     const pool = floorItems.length >= plan.choiceCount ? floorItems : content.items;
     const eligible = previousKey && pool.length > 1 ? pool.filter((i) => i.id !== previousKey) : pool;
     const targetPool = eligible.length > 0 ? eligible : pool;
@@ -234,6 +380,7 @@ export function buildRequest(
       key: target.id,
       itemId: target.id,
       targets: [target.id],
+      groups: [[target.id]],
       needed: 1,
       targetItemIds: [target.id],
     };
@@ -271,6 +418,7 @@ export function buildRequest(
       key,
       itemId,
       targets: [a.id, b.id],
+      groups: [[a.id], [b.id]],
       needed: 2,
       targetItemIds: [a.id, b.id],
     };
@@ -314,6 +462,7 @@ export function buildRequest(
         key: chosen.key,
         itemId: chosen.key,
         targets: [chosen.key],
+        groups: [[chosen.key]],
         needed: 1,
         targetItemIds: [chosen.item.id],
       };
@@ -326,6 +475,7 @@ export function buildRequest(
         key: chosen.key,
         itemId: `${chosen.item.id}-not-${chosen.variant.color}`,
         targets: rightTargets,
+        groups: [rightTargets],
         needed: 1,
         targetItemIds: [chosen.item.id],
         excludedColor: chosen.variant.color,

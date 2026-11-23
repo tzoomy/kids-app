@@ -27,7 +27,8 @@ export interface WordTrainInfo {
   phase: WordTrainPhase;
   level: number;
   skillKey: string;
-  language: 'en';
+  /** Spoken language of the round: always `en` in load mode; `en` or `fr` in spell mode. */
+  language: 'en' | 'fr';
   stars: number;
   ready: boolean;
   hinted: boolean;

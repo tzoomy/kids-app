@@ -206,6 +206,12 @@ describe('voice clip coverage', () => {
     texts['orchestra.play.pan.fr'] = 'Joue sur la poêle !';
     for (const [key, text] of Object.entries(heLines)) if (!key.startsWith('_')) texts[`he.${key}`] = text;
     for (const l of gameLines.lines) texts[l.id] = l.text;
+    // Ids sharing a clip file must share its text.
+    const textByPath = new Map<string, string>();
+    for (const [id, rel] of Object.entries(manifest)) {
+      expect(textByPath.get(rel) ?? texts[id], `${id} -> ${rel}`).toBe(texts[id]);
+      textByPath.set(rel, texts[id]);
+    }
     const hashes = textHashes as Record<string, string>;
     const stale = Object.keys(manifest).filter((id) => {
       const h = crypto.createHash('sha1').update(prefix + texts[id], 'utf8').digest('hex').slice(0, 12);

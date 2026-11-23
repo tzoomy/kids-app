@@ -22,6 +22,7 @@ import { nextRoundLanguage } from '../restaurant/trialTracker';
 import {
   createCase,
   nextRequest,
+  remainingTargets,
   pick,
   type SuitcaseChoice,
   type SuitcaseEvent,
@@ -76,6 +77,9 @@ const PACK_SLOTS: readonly Point[] = [
   { x: -44, y: 58 },
   { x: 44, y: 42 },
   { x: 130, y: 58 },
+  // 3-item requests x 2 per case = 6 packed items: two more spots so nothing stacks.
+  { x: -87, y: -6 },
+  { x: 87, y: -6 },
 ];
 
 interface ChoiceView {
@@ -112,9 +116,10 @@ function computeLayout(w: number, h: number, choiceCount: number): Layout {
       }));
     } else {
       const cols = Math.ceil(choiceCount / 2);
-      const colStep = 230;
+      // 7-8 items: four columns must still fit between the case (right edge ~580) and the screen edge.
+      const colStep = choiceCount > 6 ? 168 : 230;
       const rowStep = 210;
-      const startX = centerX - ((cols - 1) * colStep) / 2;
+      const startX = (choiceCount > 6 ? 942 : centerX) - ((cols - 1) * colStep) / 2;
       const startY = 435 - rowStep / 2;
       choiceSpots = Array.from({ length: choiceCount }, (_, i) => ({
         x: startX + (i % cols) * colStep,
@@ -598,6 +603,7 @@ export class SuitcaseScene extends Phaser.Scene {
         kind: built.request.kind,
         targets: built.request.targets,
         needed: built.request.needed,
+        groups: built.request.groups,
       },
       requestsPerCase: this.plan.requestsPerCase,
     });
@@ -662,6 +668,7 @@ export class SuitcaseScene extends Phaser.Scene {
         kind: built.request.kind,
         targets: built.request.targets,
         needed: built.request.needed,
+        groups: built.request.groups,
       },
     });
 
@@ -690,7 +697,7 @@ export class SuitcaseScene extends Phaser.Scene {
     const lang = this.roundLang ?? 'en';
 
     if (this.plan.hintPulse) {
-      const rightId = this.state.request.targets.find((id) => !this.state.packed.includes(id));
+      const rightId = remainingTargets(this.state)[0];
       const targetView = rightId ? this.floorViews.find((v) => v.id === rightId && !v.packed) : undefined;
       if (targetView) void hintPulse(this, targetView.container);
     }
@@ -917,7 +924,7 @@ export class SuitcaseScene extends Phaser.Scene {
 
     const rightIds =
       this.state.phase === 'asking'
-        ? this.state.request.targets.filter((id) => !this.state.packed.includes(id))
+        ? remainingTargets(this.state)
         : [];
 
     return {

@@ -286,4 +286,132 @@ test.describe('travel suitcase', () => {
       checkRect(c.rect, `L5 choice ${c.id}`);
     }
   });
+  /** Packs every remaining right item of the current request by real taps, last slot first. */
+  async function packRequestByTaps(page: Page, expectedPacked: number): Promise<SuitcaseInfo> {
+    let info = (await getSuitcaseInfo(page))!;
+    const groupsLeft = [...info.rightIds];
+    // Pick one id per slot: for a negation slot the sibling colour disappears once the slot is filled.
+    const taps: string[] = [];
+    for (const id of groupsLeft.reverse()) {
+      if (taps.some((t) => t.split('-')[0] === id.split('-')[0] && id.includes('-'))) continue;
+      taps.push(id);
+    }
+    for (const id of taps) {
+      info = (await getSuitcaseInfo(page))!;
+      const choice = info.choices.find((c) => c.id === id && !c.packed);
+      if (!choice) continue;
+      await tapRect(page, choice.rect);
+      await waitForSuitcase(page, (i) => i.choices.some((c) => c.id === id && c.packed), `${id} did not pack`);
+    }
+    return waitForSuitcase(page, (i) => i.packedCount >= expectedPacked, 'request did not finish packing');
+  }
+
+  test('[AC-15] @single-orientation L6 attribute set: three colour-named items packed in any order, 2 requests, one star', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    let info = await enterSuitcase(page, 'profile-b', 6);
+    expect(info.level).toBe(6);
+    expect(info.request).toBe('set');
+    expect(info.requestsPerCase).toBe(2);
+    expect(info.rightIds).toHaveLength(3);
+    expect(info.choices.filter((c) => !c.packed)).toHaveLength(6);
+    expect(info.rightIds.some((id) => id.includes('-'))).toBe(true);
+    const starsBefore = await readStarCount(page);
+
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId.startsWith('suitcase.req.set.') && l.lineId.includes('-attr.')), {
+        timeout: 10_000,
+      })
+      .toBe(true);
+
+    // A wrong shelf item stays out and never packs.
+    const wrong = info.choices.find((c) => !c.packed && !info.rightIds.includes(c.id))!;
+    await tapRect(page, wrong.rect);
+    await waitForSuitcase(page, (i) => i.lastEvent === 'other', 'wrong item did not report other');
+    expect((await getSuitcaseInfo(page))!.packedCount).toBe(0);
+
+    await packRequestByTaps(page, 3);
+    info = await waitForSuitcase(page, (i) => i.requestIndex === 1 && i.ready, 'did not advance to request 2', 15_000);
+    expect(info.rightIds).toHaveLength(3);
+    expect(info.choices.filter((c) => c.packed)).toHaveLength(3);
+    await packRequestByTaps(page, 6);
+    await expect.poll(() => readStarCount(page), { timeout: 20_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-16] @single-orientation L7 negation set: the excluded colour is on the shelf and stays out; either other colour packs', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    let info = await enterSuitcase(page, 'profile-b', 7);
+    expect(info.level).toBe(7);
+    expect(info.request).toBe('set');
+    expect(info.rightIds).toHaveLength(4); // two colours of the negated item + two plain items
+    expect(info.choices.filter((c) => !c.packed)).toHaveLength(6);
+    const colourIds = info.rightIds.filter((id) => id.includes('-'));
+    expect(colourIds).toHaveLength(2);
+    const itemId = colourIds[0].split('-')[0];
+    const excluded = info.choices.find((c) => c.itemId === itemId && c.color && !info.rightIds.includes(c.id))!;
+    expect(excluded).toBeDefined();
+
+    await tapRect(page, excluded.rect);
+    await waitForSuitcase(page, (i) => i.lastEvent === 'other', 'excluded colour did not report other');
+    expect((await getSuitcaseInfo(page))!.packedCount).toBe(0);
+
+    await packRequestByTaps(page, 3);
+    info = (await getSuitcaseInfo(page))!;
+    expect(info.choices.filter((c) => c.packed && c.itemId === itemId)).toHaveLength(1);
+  });
+
+  test('[AC-17] L6 and L8 shelves: 6 and 8 items, every target at least 64 CSS px and on screen in both orientations', async ({ page }) => {
+    test.setTimeout(60_000);
+    const vp = page.viewportSize()!;
+    const check = (rect: { x: number; y: number; width: number; height: number }, label: string) => {
+      expect(rect.width, `${label} width`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+      expect(rect.height, `${label} height`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+      expect(rect.x, `${label} left`).toBeGreaterThanOrEqual(0);
+      expect(rect.y, `${label} top`).toBeGreaterThanOrEqual(0);
+      expect(rect.x + rect.width, `${label} right`).toBeLessThanOrEqual(vp.width + 0.5);
+      expect(rect.y + rect.height, `${label} bottom`).toBeLessThanOrEqual(vp.height + 0.5);
+    };
+    for (const [level, count] of [
+      [6, 6],
+      [8, 8],
+    ] as const) {
+      const info = await enterSuitcase(page, 'profile-b', level);
+      expect(info.level).toBe(level);
+      const floor = info.choices.filter((c) => !c.packed);
+      expect(floor).toHaveLength(count);
+      check(info.caseRect!, `L${level} case`);
+      for (const c of floor) check(c.rect, `L${level} choice ${c.id}`);
+      // No two shelf items overlap.
+      for (let i = 0; i < floor.length; i++) {
+        for (let j = i + 1; j < floor.length; j++) {
+          const a = floor[i].rect;
+          const b = floor[j].rect;
+          const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+          expect(overlap, `L${level} ${floor[i].id} overlaps ${floor[j].id}`).toBe(false);
+        }
+      }
+      await tapTestId(page, 'hud-back');
+      await waitForScene(page, 'MapScene');
+    }
+  });
+
+  test('[AC-18] @single-orientation L8 is audio-only: a French set request is spoken and no item pulses before the hint delay', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    await enterWorldByTap(page, 'profile-b', 'language-house', 'travel-suitcase', {
+      beforeEnter: async () => {
+        await seedLanguageSetting(page, 'fr');
+        await seedSuitcaseLevel(page, 8);
+      },
+    });
+    const info = await waitForSuitcaseReady(page);
+    expect(info.level).toBe(8);
+    expect(info.language).toBe('fr');
+    expect(info.choices.filter((c) => !c.packed)).toHaveLength(8);
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId.startsWith('suitcase.req.set.') && l.lineId.endsWith('.fr') && l.lang === 'fr'), {
+        timeout: 10_000,
+      })
+      .toBe(true);
+  });
 });

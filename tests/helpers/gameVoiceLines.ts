@@ -5,7 +5,6 @@ import {
   loadAnimalRestaurant,
   loadBalloonPop,
   loadKitchenOrchestra,
-  loadLetterMonster,
   loadMagicMagnet,
   loadNumberBridge,
   loadPotionLab,
@@ -13,10 +12,8 @@ import {
   loadShadowMatch,
   loadSinkOrFloat,
   loadStickerBoard,
-  loadTravelSuitcase,
   loadWhoLivesHere,
   loadWhosHiding,
-  loadWordTrain,
 } from '@/content/loadContent';
 import type { SpeechRequest } from '@/core/audio/types';
 import { buildBalloonRound, balloonLevel, eligibleItemIds } from '@/games/balloon/balloonRound';
@@ -24,7 +21,6 @@ import { COLOURING_VOICE } from '@/games/colouring/voice';
 import { HABITAT_HE_TEXT, clueLine, correctLines, helpLine, nameLine as habitatNameLine } from '@/games/habitat/habitatVoice';
 import { buildHidingRound } from '@/games/hiding/hidingRound';
 import { buildShadowRound } from '@/games/hiding/shadowRound';
-import * as monster from '@/games/letterMonster/monsterRound';
 import * as magnet from '@/games/magicMagnet/magnetRound';
 import * as bridge from '@/games/numberBridge/bridgeRound';
 import { PICNIC_LINE_TEXT } from '@/games/picnic/picnicVoice';
@@ -36,8 +32,7 @@ import * as sink from '@/games/sinkFloat/sinkFloatRound';
 import { SORTING_LINE_TEXT } from '@/games/sorting/sortingVoice';
 import { requestLine as stickerRequestLine } from '@/games/stickers/request';
 import { STICKER_VOICE } from '@/games/stickers/voice';
-import * as suitcase from '@/games/travelSuitcase/suitcaseRound';
-import * as train from '@/games/wordTrain/wordTrainRound';
+import { gameVoiceCatalog } from '@/content/voiceCatalog';
 
 export interface GameVoiceLine {
   id: string;
@@ -53,8 +48,10 @@ const fixed = () => 0;
 
 export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: Record<string, string[]> } {
   const out: GameVoiceLine[] = [];
-  const add = (game: string, r: { lineId: string; lang: string; text: string }, combo = false) =>
+  const add = (game: string, r: { lineId: string; lang: string; text: string }, combo = false) => {
+    if (!['en', 'fr', 'he'].includes(r.lang)) throw new Error(`${r.lineId}: bad lang ${r.lang}`);
     out.push({ id: r.lineId, lang: r.lang as GameVoiceLine['lang'], text: r.text, game, ...(combo ? { combo } : {}) });
+  };
 
   // Animal Restaurant: two-step pair requests (food/attr/not/thanks are rendered from the restaurant JSON directly).
   const rest = loadAnimalRestaurant();
@@ -148,38 +145,9 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
         add('sticker-board', stickerRequestLine({ stickerId: s.id, backgroundId: bg.id, lang, lineId }, stickers));
       }
 
-  // Word Train.
-  const wt = loadWordTrain();
-  add('word-train', train.introLine(wt, 'load'));
-  add('word-train', train.introLine(wt, 'spell'));
-  add('word-train', { lineId: 'wordtrain.help.he', lang: 'he', text: wt.helpTextHe });
-  for (const o of wt.objects) {
-    add('word-train', train.loadLine(wt, o.id));
-    add('word-train', train.nameLine(wt, o.id));
-    add('word-train', train.otherLine(wt, o.id));
-  }
-  for (const w of wt.words) {
-    add('word-train', train.spellLine(wt, w.id));
-    add('word-train', train.wordLine(wt, w.id));
-  }
-  const letters = new Set((wt.words.map((w) => w.word).join('') + wt.distractorLetters).toLowerCase().replace(/[^a-z]/g, ''));
-  for (const ch of [...letters].sort()) add('word-train', train.letterLine(ch));
-
-  // Letter Monster.
-  const lm = loadLetterMonster();
-  add('letter-monster', monster.introLine(lm));
-  add('letter-monster', monster.askLetterLine(lm));
-  add('letter-monster', monster.notThisLine(lm));
-  add('letter-monster', { lineId: 'monster.help.he', lang: 'he', text: lm.helpTextHe });
-  for (const color of Object.keys(lm.colors) as (keyof typeof lm.colors)[]) {
-    add('letter-monster', monster.askColorLine(lm, color));
-    for (const lang of LANGS) add('letter-monster', monster.colorWordLine(lm, color, lang));
-  }
-  for (const lang of LANGS) {
-    for (const f of lm.foods) add('letter-monster', monster.foodLine(lm, f.id, lang));
-    for (const letter of [...new Set(lm.foods.map((f) => f.initial[lang].toUpperCase()))].sort())
-      add('letter-monster', monster.letterModelLine(lm, letter, lang));
-  }
+  // Word Train, Letter Monster and Travel Suitcase: the shared catalogue (src/content/voiceCatalog.ts).
+  // Two-item suitcase requests (every ordered pair) are combinatorial.
+  for (const l of gameVoiceCatalog()) add(l.game, { lineId: l.id, lang: l.lang, text: l.text }, l.id.startsWith('suitcase.req.two.'));
 
   // Number Bridge (the game's own render list, incl. the age-5 equation lines).
   const nb = loadNumberBridge();
@@ -225,34 +193,6 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
   const sd = loadSeedToFlower();
   for (const key of ['intro.free', 'intro.ordered', 'help', 'needWater', 'needSun'] as const) add('seed-to-flower', seed.seedHeLine(sd, key));
   for (const lang of LANGS) for (const st of SEED_STAGES) add('seed-to-flower', seed.stageLine(sd, st, lang));
-
-  // Travel Suitcase.
-  const ts = loadTravelSuitcase();
-  add('travel-suitcase', suitcase.introLine(ts));
-  add('travel-suitcase', suitcase.closedLine(ts));
-  add('travel-suitcase', { lineId: 'suitcase.help.he', lang: 'he', text: ts.helpTextHe });
-  for (const lang of LANGS) {
-    const choiceIds: string[] = [];
-    for (const item of ts.items) {
-      choiceIds.push(item.id);
-      for (const v of item.colors ?? []) choiceIds.push(`${item.id}-${v.color}`);
-    }
-    for (const id of choiceIds) {
-      add('travel-suitcase', suitcase.nameLine(ts, id, lang));
-      add('travel-suitcase', suitcase.otherLine(ts, id, lang));
-    }
-    const req = (kind: string, key: string, targets: string[]) =>
-      suitcase.requestLine(ts, { kind, key, itemId: key, targets, needed: 1, targetItemIds: [] } as never, lang);
-    for (const item of ts.items) {
-      add('travel-suitcase', req('noun', item.id, [item.id]));
-      for (const v of item.colors ?? []) {
-        const key = `${item.id}-${v.color}`;
-        add('travel-suitcase', req('attribute', key, [key]));
-        add('travel-suitcase', req('negation', key, [key]));
-      }
-    }
-    for (const a of ts.items) for (const b of ts.items) if (a.id !== b.id) add('travel-suitcase', req('two', `${a.id}-${b.id}`, [a.id, b.id]), true);
-  }
 
   // De-duplicate ids; an id that maps to more than one text cannot have a single clip.
   const byId = new Map<string, GameVoiceLine>();

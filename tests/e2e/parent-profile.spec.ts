@@ -118,8 +118,8 @@ test.describe('parent profile page', () => {
     const regularMonster = await level(page, 'letter-monster', 'en');
     await page.locator(id('parent-profile-difficulty')).selectOption('challenging');
     expect(await level(page, 'picnic-train', 'en')).toBeGreaterThan(regular);
-    // Letter Monster age5 starts at 3 with max 4: the offset is clamped.
-    expect(await level(page, 'letter-monster', 'en')).toBe(4);
+    // Letter Monster age5 starts at 3; challenging adds 2. Max is now 8, so this is not clamped.
+    expect(await level(page, 'letter-monster', 'en')).toBe(5);
     expect(regularMonster).toBe(3);
     await page.locator(id('parent-profile-back')).click();
 

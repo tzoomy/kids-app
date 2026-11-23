@@ -74,6 +74,7 @@ describe('suitcaseRound', () => {
     expect(planForLevel(content.adaptive.levels[0])).toEqual({
       request: 'noun',
       choiceCount: 2,
+      setSize: 1,
       requestsPerCase: 3,
       audioOnly: false,
       hintPulse: true,
@@ -81,6 +82,7 @@ describe('suitcaseRound', () => {
     expect(planForLevel(content.adaptive.levels[1])).toEqual({
       request: 'noun',
       choiceCount: 3,
+      setSize: 1,
       requestsPerCase: 3,
       audioOnly: false,
       hintPulse: true,
@@ -88,6 +90,7 @@ describe('suitcaseRound', () => {
     expect(planForLevel(content.adaptive.levels[2])).toEqual({
       request: 'two',
       choiceCount: 4,
+      setSize: 1,
       requestsPerCase: 2,
       audioOnly: false,
       hintPulse: true,
@@ -95,6 +98,7 @@ describe('suitcaseRound', () => {
     expect(planForLevel(content.adaptive.levels[3])).toEqual({
       request: 'attribute',
       choiceCount: 4,
+      setSize: 1,
       requestsPerCase: 3,
       audioOnly: false,
       hintPulse: true,
@@ -102,6 +106,7 @@ describe('suitcaseRound', () => {
     expect(planForLevel(content.adaptive.levels[4])).toEqual({
       request: 'negation',
       choiceCount: 4,
+      setSize: 1,
       requestsPerCase: 3,
       audioOnly: true,
       hintPulse: false,
@@ -349,7 +354,8 @@ describe('suitcaseRound', () => {
     }
 
     // Determinism and non-repeat across consecutive buildRequest / buildCase calls.
-    for (const lvl of content.adaptive.levels) {
+    // L6-L8 (3-item sets) are swept in travel-suitcase.sets.test.ts.
+    for (const lvl of content.adaptive.levels.slice(0, 5)) {
       const plan = planForLevel(lvl);
       const first = buildRequest(content, plan, null, makeRng(42), [], 'en');
       const replay = buildRequest(content, plan, null, makeRng(42), [], 'en');
@@ -404,7 +410,8 @@ describe('suitcaseRound', () => {
     const exclusions: readonly (readonly string[])[] = [[], ['hat'], ['shoes', 'ball']];
     const langs: readonly ('en' | 'fr')[] = ['en', 'fr'];
 
-    for (const lvl of content.adaptive.levels) {
+    // L6-L8 (3-item sets) are swept in travel-suitcase.sets.test.ts.
+    for (const lvl of content.adaptive.levels.slice(0, 5)) {
       const plan = planForLevel(lvl);
       for (const lang of langs) {
         const frames = content.frames[lang];

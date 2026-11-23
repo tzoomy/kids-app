@@ -220,7 +220,7 @@ describe('profile page: per-game levels', () => {
       expect(q(`parent-level-animal-restaurant-${lang}`)).not.toBeNull();
     }
     expect(q('parent-level-word-train-en')).not.toBeNull();
-    expect(q('parent-level-word-train-fr')).toBeNull();
+    expect(q('parent-level-word-train-fr')).not.toBeNull();
     expect(root.querySelector('[data-testid^="parent-level-leisure-colouring"]')).toBeNull();
     expect(root.querySelector('[data-testid^="parent-level-sticker-board"]')).toBeNull();
   });
@@ -251,25 +251,23 @@ describe('profile page: per-game levels', () => {
     expect(levelText('animal-restaurant', 'fr')).toBe(6);
   });
 
-  it('challenging raises unstarted starts, clamped to the track max (letter-monster age5 3 -> 4)', () => {
+  it('challenging raises unstarted starts (letter-monster age5 3 -> 5; restaurant 5 -> 7)', () => {
     mount('b');
     setSelect('parent-profile-difficulty', 'challenging');
     expect(levelText('animal-restaurant', 'en')).toBe(7);
-    expect(levelText('letter-monster', 'en')).toBe(4);
+    expect(levelText('letter-monster', 'en')).toBe(5);
   });
 
-  it('+ and - persist immediately, and are clamped to the age5 bounds (letter-monster 2..4)', () => {
+  it('+ and - persist immediately, and are clamped to the age5 bounds (letter-monster 2..8)', () => {
     mount('b');
     expect(levelText('letter-monster', 'en')).toBe(3);
     click('parent-level-up-letter-monster-en');
     expect(levelText('letter-monster', 'en')).toBe(4);
     expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'en'))?.level).toBe(4);
-    click('parent-level-up-letter-monster-en');
-    expect(levelText('letter-monster', 'en')).toBe(4);
+    for (let i = 0; i < 6; i++) click('parent-level-up-letter-monster-en');
+    expect(levelText('letter-monster', 'en')).toBe(8);
     expect(must<HTMLButtonElement>('parent-level-up-letter-monster-en').disabled).toBe(true);
-    click('parent-level-down-letter-monster-en');
-    click('parent-level-down-letter-monster-en');
-    click('parent-level-down-letter-monster-en');
+    for (let i = 0; i < 8; i++) click('parent-level-down-letter-monster-en');
     expect(levelText('letter-monster', 'en')).toBe(2);
     expect(must<HTMLButtonElement>('parent-level-down-letter-monster-en').disabled).toBe(true);
     expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'en'))?.level).toBe(2);

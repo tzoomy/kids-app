@@ -125,6 +125,8 @@
       "put": "Put {the} in the suitcase!",
       "two": "Put {a} and {b} in the suitcase!",
       "not": "Put {a} in the suitcase, but not {one}!",
+      "set": "Put {a}, {b} and {c} in the suitcase!",
+      "setNot": "Put {b}, {c} and {a} in the suitcase, but not {one}!",
       "name": "{The}!",
       "other": "Oh, {the}!"
     },
@@ -132,10 +134,54 @@
       "put": "Mets {the} dans la valise !",
       "two": "Mets {a} et {b} dans la valise !",
       "not": "Mets {a} dans la valise, mais pas {one} !",
+      "set": "Mets {a}, {b} et {c} dans la valise !",
+      "setNot": "Mets {b}, {c} et {a} dans la valise, mais pas {one} !",
       "name": "{The} !",
       "other": "Oh, {the} !"
     }
   },
+  "sets": [
+    {
+      "id": "beach",
+      "attribute": [{ "item": "hat", "color": "red" }, { "item": "sunglasses" }, { "item": "bottle" }],
+      "negation": [{ "item": "hat", "notColor": "red" }, { "item": "sunglasses" }, { "item": "bottle" }]
+    },
+    {
+      "id": "rain",
+      "attribute": [{ "item": "coat", "color": "yellow" }, { "item": "umbrella" }, { "item": "socks" }],
+      "negation": [{ "item": "coat", "notColor": "yellow" }, { "item": "umbrella" }, { "item": "socks" }]
+    },
+    {
+      "id": "story",
+      "attribute": [{ "item": "shirt", "color": "blue" }, { "item": "book" }, { "item": "teddy" }],
+      "negation": [{ "item": "shirt", "notColor": "blue" }, { "item": "book" }, { "item": "teddy" }]
+    },
+    {
+      "id": "play",
+      "attribute": [{ "item": "ball", "color": "red" }, { "item": "shoes", "color": "blue" }, { "item": "toothbrush" }],
+      "negation": [{ "item": "ball", "notColor": "red" }, { "item": "shoes" }, { "item": "toothbrush" }]
+    },
+    {
+      "id": "cold",
+      "attribute": [{ "item": "coat", "color": "blue" }, { "item": "hat", "color": "yellow" }, { "item": "socks" }],
+      "negation": [{ "item": "hat", "notColor": "yellow" }, { "item": "coat" }, { "item": "socks" }]
+    },
+    {
+      "id": "trip",
+      "attribute": [{ "item": "shirt", "color": "red" }, { "item": "shoes", "color": "yellow" }, { "item": "sunglasses" }],
+      "negation": [{ "item": "shoes", "notColor": "yellow" }, { "item": "shirt" }, { "item": "sunglasses" }]
+    },
+    {
+      "id": "park",
+      "attribute": [{ "item": "ball", "color": "blue" }, { "item": "bottle" }, { "item": "book" }],
+      "negation": [{ "item": "ball", "notColor": "blue" }, { "item": "bottle" }, { "item": "book" }]
+    },
+    {
+      "id": "night",
+      "attribute": [{ "item": "shirt", "color": "yellow" }, { "item": "teddy" }, { "item": "toothbrush" }],
+      "negation": [{ "item": "shirt", "notColor": "yellow" }, { "item": "teddy" }, { "item": "toothbrush" }]
+    }
+  ],
   "linesHe": {
     "intro": "בואי נארוז את המזוודה לטיול!",
     "closed": "המזוודה מוכנה! יוצאים לטיול!"
@@ -144,7 +190,7 @@
   "adaptive": {
     "tracks": {
       "age2": { "start": 1, "min": 1, "max": 2 },
-      "age5": { "start": 3, "min": 1, "max": 5 }
+      "age5": { "start": 3, "min": 1, "max": 8 }
     },
     "levels": [
       {
@@ -171,6 +217,21 @@
         "choiceCount": 4,
         "support": "audio-only",
         "extra": { "request": "negation", "requestsPerCase": 3 }
+      },
+      {
+        "choiceCount": 6,
+        "support": "picture-audio",
+        "extra": { "request": "attribute", "requestsPerCase": 2, "setSize": 3 }
+      },
+      {
+        "choiceCount": 6,
+        "support": "picture-audio",
+        "extra": { "request": "negation", "requestsPerCase": 2, "setSize": 3 }
+      },
+      {
+        "choiceCount": 8,
+        "support": "audio-only",
+        "extra": { "request": "negation", "requestsPerCase": 2, "setSize": 3 }
       }
     ]
   }
