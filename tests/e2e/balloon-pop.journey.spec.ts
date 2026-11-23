@@ -460,3 +460,33 @@ test.describe('balloon pop: hints and help (review fixes)', () => {
     expect(next.correctCount).toBe(1);
   });
 });
+
+test.describe('balloon pop: age-5 stretch (L9-L11)', () => {
+  test('[AC-24] @single-orientation L9 teens, L10 "more than", L11 sums: numbered balloons, natural requests, the right balloon pops', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(120_000);
+    const cases = [
+      { level: 9, lang: 'fr' as const, mode: 'digit', count: 5, text: /^Éclate le nombre (dix|onze|douze|treize|quatorze|quinze|seize|dix-sept|dix-huit|dix-neuf|vingt) !$/ },
+      { level: 10, lang: 'en' as const, mode: 'more', count: 4, text: /^Pop the number that is (one|two) more than [a-z]+!$/ },
+      { level: 11, lang: 'fr' as const, mode: 'sum', count: 4, text: /^Combien font [a-z]+ plus [a-z]+ \? Éclate-le !$/ },
+    ];
+    for (const c of cases) {
+      await enter(page, 'profile-b', { lang: c.lang, level: c.level });
+      const info = await waitForBalloonReady(page);
+      expect(info.level).toBe(c.level);
+      expect(info.mode).toBe(c.mode);
+      expect(info.balloons).toHaveLength(c.count);
+      const labels = info.balloons.map((b) => b.label);
+      expect(new Set(labels).size).toBe(c.count);
+      for (const label of labels) expect(Number(label)).toBeLessThanOrEqual(20);
+      if (c.level === 9) for (const label of labels) expect(Number(label)).toBeGreaterThanOrEqual(10);
+      expect(info.promptText).toMatch(c.text);
+      await waitForSpokenLine(page, (l) => l.lineId === `balloon.${info.targetItemId}.${c.lang}`, 15_000);
+      const stars = await readStarCount(page);
+      await popCorrectBalloon(page);
+      await expect.poll(() => readStarCount(page), { timeout: 8_000 }).toBe(stars + 1);
+      const next = await waitForBalloonReady(page);
+      expect(next.level).toBe(c.level);
+    }
+  });
+});

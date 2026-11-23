@@ -36,10 +36,10 @@ function session(profileId: string, track: 'age2' | 'age5', store: AdaptiveStore
 }
 
 describe('picnic-train: start levels (AC-07)', () => {
-  it('[AC-07] the tracks start at L2 (age 2) and L5 (age 5), min 1, max 8, in both languages', () => {
+  it('[AC-07] the tracks start at L2 (age 2) and L5 (age 5), min 1, max 8 (age 2) / 10 (age 5, stretch L9-L10), in both languages', () => {
     expect(content.adaptive.tracks.age2).toEqual({ start: 2, min: 1, max: 8 });
-    expect(content.adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 8 });
-    expect(content.adaptive.levels).toHaveLength(8);
+    expect(content.adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 10 });
+    expect(content.adaptive.levels).toHaveLength(10);
     const store = new AdaptiveStore(memoryDriver());
     const age2 = session('a', 'age2', store);
     const age5 = session('b', 'age5', store);
@@ -86,6 +86,8 @@ describe('picnic-train: content and language (AC-09, AC-22)', () => {
       [6, 'load', 'scattered', 'none'],
       [8, 'missing', 'scattered', 'none'],
       [10, 'missing', 'scattered', 'none'],
+      [10, 'load', 'scattered', 'none'],
+      [10, 'load', 'scattered', 'none'],
     ]);
   });
 
@@ -98,12 +100,14 @@ describe('picnic-train: content and language (AC-09, AC-22)', () => {
     }
   });
 
-  it('[AC-22] scaffolds per level: L1-L2 outline, L3-L4 symbol, L5-L8 none', () => {
+  it('[AC-22] scaffolds per level: L1-L2 outline, L3-L4 symbol, L5-L10 none', () => {
     expect(content.adaptive.levels.map((l) => l.scaffold)).toEqual([
       'outline',
       'outline',
       'symbol',
       'symbol',
+      'none',
+      'none',
       'none',
       'none',
       'none',

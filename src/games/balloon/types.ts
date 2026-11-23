@@ -2,8 +2,8 @@ import type { Rect as PageRect } from '../../testing/pageRect';
 
 /** Read-only snapshot of the active Balloon Pop trial for e2e (`getBalloonInfo`, ?e2e=1 only). Rectangles are page CSS px. */
 export interface BalloonInfo {
-  /** 'color' (age-2 levels) or 'digit' (age-5 levels). */
-  mode: 'color' | 'digit';
+  /** 'color' (age-2 levels), 'digit' (age-5 numbers 0-20), or the age-5 stretch 'more' ("k more than n") / 'sum' ("a plus b"). */
+  mode: 'color' | 'digit' | 'more' | 'sum';
   level: number;
   language: string;
   skillKey: string;

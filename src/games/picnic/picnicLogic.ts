@@ -1,6 +1,6 @@
 // Pure Picnic Train logic (no Phaser, no DOM). Spec: docs/specs/picnic-train.md.
 // One train is one adaptive trial and one round (`rules.trialsPerRound: 1` in picnic-train.json).
-import type { LevelDescriptor, PicnicLayout, PicnicTask } from '../../content/schema';
+import { PICNIC_STRETCH_CAPACITY, type LevelDescriptor, type PicnicLayout, type PicnicTask } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
 import type { Lang } from '../templates/choiceServe';
 
@@ -12,6 +12,27 @@ export const WRONG_TAP_LOCK_MS = 400;
 
 /** The cargo shelf holds at most this many items (the largest train has 10 passengers). */
 export const MAX_LOAD = 10;
+/** Stretch load levels (sums and take-aways up to 20) use a 20-slot shelf. */
+export const STRETCH_LOAD = PICNIC_STRETCH_CAPACITY;
+
+/** Age-5 stretch operation of a load level (L9-L10). */
+export type PicnicOp = 'add' | 'sub';
+export type PicnicOpLever = PicnicOp | 'mix';
+
+/** "Pack a and b more" (add) or "pack a, take b out" (sub): the right cargo is a + b or a - b. */
+export interface PicnicEquation {
+  op: PicnicOp;
+  a: number;
+  b: number;
+}
+
+export interface PicnicOpRange {
+  op: PicnicOpLever;
+  aMin: number;
+  aMax: number;
+  bMin: number;
+  bMax: number;
+}
 
 /** Approved animal rigs used as passengers (`Character` kinds), at least 10 so the biggest train has distinct animals. */
 export const PASSENGER_KINDS: readonly string[] = ['bear', 'rabbit', 'cat', 'dog', 'panda', 'lion', 'bird', 'frog', 'owl', 'bee'];
@@ -30,6 +51,8 @@ export interface LevelLevers {
   task: PicnicTask;
   layout: PicnicLayout;
   scaffold: PicnicScaffold;
+  /** Age-5 stretch load levels only (L9-L10); null otherwise. */
+  equation: PicnicOpRange | null;
 }
 
 /** Reads the levers from a validated level (see PicnicTrainContentSchema). It only maps content fields. */
@@ -41,7 +64,48 @@ export function levelLevers(level: LevelDescriptor): LevelLevers {
     task: task === 'load' || task === 'missing' ? task : 'one-each',
     layout: layout === 'scattered' ? 'scattered' : 'rows',
     scaffold: level.scaffold ?? 'none',
+    equation: opRange(level),
   };
+}
+
+function opRange(level: LevelDescriptor): PicnicOpRange | null {
+  const extra = level.extra ?? {};
+  const op = extra.op;
+  if (op !== 'add' && op !== 'sub' && op !== 'mix') return null;
+  const n = (v: unknown, d: number) => (typeof v === 'number' ? v : d);
+  return { op, aMin: n(extra.aMin, 2), aMax: n(extra.aMax, 5), bMin: n(extra.bMin, 2), bMax: n(extra.bMax, 3) };
+}
+
+/** Engine item id of a stretch request: `add-<a>-<b>` or `sub-<a>-<b>`. */
+export function equationItemId(eq: PicnicEquation): string {
+  return `${eq.op}-${eq.a}-${eq.b}`;
+}
+
+export function parseEquationId(id: string): PicnicEquation | null {
+  const match = /^(add|sub)-(\d+)-(\d+)$/.exec(id);
+  return match ? { op: match[1] as PicnicOp, a: Number(match[2]), b: Number(match[3]) } : null;
+}
+
+/** Every request a stretch level can make (results 1..STRETCH_LOAD); the engine picks one per train. */
+export function equationCandidates(range: PicnicOpRange): string[] {
+  const ids: string[] = [];
+  const ops: PicnicOp[] = range.op === 'mix' ? ['add', 'sub'] : [range.op];
+  for (const op of ops)
+    for (let a = range.aMin; a <= range.aMax; a++)
+      for (let b = range.bMin; b <= range.bMax; b++) {
+        const result = op === 'add' ? a + b : a - b;
+        if (result >= 1 && result <= STRETCH_LOAD && a <= STRETCH_LOAD) ids.push(equationItemId({ op, a, b }));
+      }
+  return ids;
+}
+
+/** Engine candidates of a level: train sizes (`n<size>`), or the stretch requests on L9-L10. */
+export function roundCandidates(levers: LevelLevers): string[] {
+  return levers.equation ? equationCandidates(levers.equation) : trainSizeCandidates(levers.setSize);
+}
+
+export function equationResult(eq: PicnicEquation): number {
+  return eq.op === 'add' ? eq.a + eq.b : eq.a - eq.b;
 }
 
 /** Candidate train-size ids `n<size>` for the engine's `selectNextItem`: setSize - 1 and setSize, never below 2. */
@@ -84,11 +148,15 @@ export interface TrainPlan {
   target: number;
   scaffoldKind: PicnicScaffold;
   scaffold: { ghostItems: boolean; tally: number | null };
+  /** Stretch load levels: the request ("a and b more" / "a, take b out"); null or absent otherwise. */
+  equation?: PicnicEquation | null;
+  /** Cargo shelf slots: MAX_LOAD (default), or STRETCH_LOAD on the stretch levels. */
+  capacity?: number;
 }
 
 export interface BuildTrainParams {
   levers: LevelLevers;
-  /** The engine's choice, `n<size>` (see trainSizeCandidates). */
+  /** The engine's choice, `n<size>` (see trainSizeCandidates), or `add-a-b` / `sub-a-b` on stretch levels. */
   sizeId: string;
   random: () => number;
 }
@@ -120,7 +188,9 @@ export function buildTrain(params: BuildTrainParams): TrainPlan {
       .slice(0, k)
       .sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));
   }
-  const target = levers.task === 'missing' ? size - served.length : size;
+  const fallback = levers.equation ? parseEquationId(equationCandidates(levers.equation)[0] ?? '') : null;
+  const equation = levers.equation ? (parseEquationId(params.sizeId) ?? fallback) : null;
+  const target = equation ? equationResult(equation) : levers.task === 'missing' ? size - served.length : size;
   return {
     task: levers.task,
     size,
@@ -133,6 +203,8 @@ export function buildTrain(params: BuildTrainParams): TrainPlan {
       ghostItems: levers.scaffold === 'outline',
       tally: levers.scaffold === 'symbol' ? size : null,
     },
+    equation,
+    capacity: equation ? STRETCH_LOAD : MAX_LOAD,
   };
 }
 
@@ -198,7 +270,7 @@ export class TrainRound {
 
   load(): LoadOutcome {
     if (this.phaseValue !== 'load') return { kind: 'ignored' };
-    if (this.loadedValue >= MAX_LOAD) return { kind: 'full' };
+    if (this.loadedValue >= (this.plan.capacity ?? MAX_LOAD)) return { kind: 'full' };
     this.loadedValue++;
     return { kind: 'loaded', count: this.loadedValue };
   }
@@ -291,10 +363,16 @@ export interface LineRequest {
 }
 
 /** Train-start instruction (also the replay and the idle-hint line). */
-export function askLine(plan: Pick<TrainPlan, 'task' | 'target'>): LineRequest {
+export function askLine(plan: Pick<TrainPlan, 'task' | 'target'> & { equation?: PicnicEquation | null }): LineRequest {
+  if (plan.task === 'load' && plan.equation) return { lineId: equationAskId(plan.equation), lang: 'he' };
   if (plan.task === 'load') return { lineId: `picnic.ask.load.${plan.target}.he`, lang: 'he' };
   if (plan.task === 'missing') return { lineId: 'picnic.ask.missing.he', lang: 'he' };
   return { lineId: 'picnic.ask.one-each.he', lang: 'he' };
+}
+
+/** Hebrew request of a stretch train: `picnic.ask.add.<a>.<b>.he` / `picnic.ask.sub.<a>.<b>.he`. */
+export function equationAskId(eq: PicnicEquation): string {
+  return `picnic.ask.${eq.op}.${eq.a}.${eq.b}.he`;
 }
 
 /** A number counted aloud in the round language. */

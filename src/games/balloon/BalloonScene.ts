@@ -396,7 +396,8 @@ export class BalloonScene extends Phaser.Scene {
       const text = this.add
         .text(0, 0, choice.label, {
           fontFamily: '"Noto Sans", sans-serif',
-          fontSize: `${Math.round(ry * 1.05)}px`,
+          // Two-digit numerals (10-20) get a smaller face so they stay inside the body (about 1.2 rx wide).
+          fontSize: `${Math.round(ry * (choice.label.length > 1 ? 0.78 : 1.05))}px`,
           fontStyle: 'bold',
           color: '#3b2a22',
         })

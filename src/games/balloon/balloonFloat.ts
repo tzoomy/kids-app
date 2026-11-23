@@ -20,6 +20,8 @@ export interface FloatingConfig {
   hitScale: number;
   /** Minimum hit area side in CSS px. */
   minHitCssPx: number;
+  /** Levels above this one float no faster than it (age-5 maths levels L9-L11 keep the L8 speed). Absent = no cap. */
+  speedMaxLevel?: number;
 }
 
 /** Speeds never exceed this, whatever the content says (game px per second; the portrait sky is 1280 tall). */
@@ -37,10 +39,12 @@ export function isFloatingTrial(trialNumber: number, cfg: Pick<FloatingConfig, '
 
 /**
  * Rise speed for a level: the age track's base speed, a little faster for each level above the track's
- * bottom level, clamped to MAX_FLOAT_SPEED. Age 2 at its first level is the slowest case.
+ * bottom level, clamped to MAX_FLOAT_SPEED. Age 2 at its first level is the slowest case. Levels above
+ * `speedMaxLevel` (when set) use that level's speed, so a harder maths request does not also move faster.
  */
 export function floatSpeed(cfg: FloatingConfig, age: AgeTrackId, levelNo: number, trackMin: number): number {
-  const above = Math.max(0, levelNo - trackMin);
+  const capped = cfg.speedMaxLevel !== undefined ? Math.min(levelNo, cfg.speedMaxLevel) : levelNo;
+  const above = Math.max(0, capped - trackMin);
   return Math.min(MAX_FLOAT_SPEED, cfg.speed[age] * (1 + cfg.speedStepPerLevel * above));
 }
 

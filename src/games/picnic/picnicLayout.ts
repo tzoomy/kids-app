@@ -72,6 +72,8 @@ export interface PicnicLayoutOptions {
   focusSeat: number;
   /** When this scroll already shows the focus seat it is kept, so the camera does not jitter. */
   currentOffsetX?: number;
+  /** Cargo shelf slots (default MAX_LOAD; the stretch load levels use 20). */
+  shelfCapacity?: number;
 }
 
 /** Vertical metrics of the train band, shared with `cardRects`. */
@@ -99,8 +101,36 @@ function slotSize(width: number): number {
   return Math.max(MIN_TAP, Math.min(76, fit));
 }
 
-/** Cargo shelf slots (load task) below the train: one row in landscape, PORTRAIT_SHELF_ROWS rows in portrait. Filled in index order. */
-export function shelfSlotRects(width: number, height: number): LayoutRect[] {
+/**
+ * Stretch shelf (age-5 L9-L10, `capacity` > MAX_LOAD): rows of 10 in landscape and rows of 5 in portrait, each slot as
+ * large as fits between the train band and the basket (top of the basket minus a margin), capped at the normal sizes.
+ * Portrait slots stay well above 48 CSS px on a 360 px phone (about 120 game px, see picnic-train.shelf-stretch.test.ts).
+ */
+function stretchSlotRects(width: number, height: number, capacity: number): LayoutRect[] {
+  const { below } = trainBand(width, height);
+  const landscape = width >= height;
+  const perRow = landscape ? MAX_LOAD : Math.ceil(MAX_LOAD / PORTRAIT_SHELF_ROWS);
+  const rows = Math.ceil(capacity / perRow);
+  const gap = landscape ? SHELF_GAP : PORTRAIT_SHELF_GAP;
+  const basketTop = height - 24 - (landscape ? 150 : 190);
+  const fitH = Math.floor((basketTop - 12 - below - (rows - 1) * gap) / rows);
+  const fitW = Math.floor((width - 2 * SIDE_MARGIN - (perRow - 1) * gap) / perRow);
+  const size = Math.max(MIN_TAP, Math.min(landscape ? 76 : PORTRAIT_SLOT_MAX, fitW, fitH));
+  const rowWidth = perRow * size + (perRow - 1) * gap;
+  const left = (width - rowWidth) / 2;
+  return Array.from({ length: capacity }, (_, i) => {
+    const row = Math.floor(i / perRow);
+    const col = i % perRow;
+    return { x: left + col * (size + gap), y: below + row * (size + gap), width: size, height: size };
+  });
+}
+
+/**
+ * Cargo shelf slots (load task) below the train: one row in landscape, PORTRAIT_SHELF_ROWS rows in portrait. Filled in
+ * index order. `capacity` above MAX_LOAD (stretch levels) uses `stretchSlotRects`; the default keeps the 10-slot shelf.
+ */
+export function shelfSlotRects(width: number, height: number, capacity: number = MAX_LOAD): LayoutRect[] {
+  if (capacity > MAX_LOAD) return stretchSlotRects(width, height, capacity);
   const { below } = trainBand(width, height);
   if (width >= height) {
     const size = slotSize(width);
@@ -204,7 +234,7 @@ export function computePicnicLayout(width: number, height: number, options: Picn
   };
 
   // Cargo shelf: MAX_LOAD slots below the train (one row in landscape, two rows in portrait).
-  const slots = shelfSlotRects(width, height);
+  const slots = shelfSlotRects(width, height, options.shelfCapacity ?? MAX_LOAD);
 
   return {
     width,

@@ -90,6 +90,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
       range: 5,
       dots: false,
       audioOnly: false,
+      op: null,
     });
     expect(planForLevel(content.adaptive.levels[1])).toEqual({
       mode: 'one-more',
@@ -98,6 +99,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
       range: 5,
       dots: false,
       audioOnly: false,
+      op: null,
     });
 
     expect(introLine(content, 'one-more')).toEqual({
@@ -146,6 +148,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
       range: 5,
       dots: true,
       audioOnly: false,
+      op: null,
     });
     expect(planForLevel(content.adaptive.levels[3])).toEqual({
       mode: 'missing',
@@ -154,6 +157,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
       range: 10,
       dots: false,
       audioOnly: false,
+      op: null,
     });
     expect(planForLevel(content.adaptive.levels[4])).toEqual({
       mode: 'missing',
@@ -162,6 +166,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
       range: 10,
       dots: false,
       audioOnly: true,
+      op: null,
     });
 
     expect(introLine(content, 'missing')).toEqual({
@@ -238,12 +243,13 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
 
   it('[AC-06] age-5 track starts at L3 with min 2 (can drop to L2 one-more, not L1); age 2 is L1-L2', () => {
     // "age 5 starts at L3" is the start level; min 2 is a separate floor. Spec and JSON already agree.
-    expect(content.adaptive.tracks.age5).toEqual({ start: 3, min: 2, max: 5 });
+    // Max 8 since the age-5 stretch (equation levels L6-L8, 2026-11-23); age 2 is unchanged.
+    expect(content.adaptive.tracks.age5).toEqual({ start: 3, min: 2, max: 8 });
     expect(content.adaptive.tracks.age2).toEqual({ start: 1, min: 1, max: 2 });
   });
 
   it('[AC-06] adaptive steps: age 2 stays inside L1-L2; age 5 starts at L3, rises to L5 on clean trials, and drops to L2 on misses', () => {
-    expect(content.adaptive.tracks.age5).toEqual({ start: 3, min: 2, max: 5 });
+    expect(content.adaptive.tracks.age5).toEqual({ start: 3, min: 2, max: 8 });
     const age2 = makeSession('age2');
     expect(age2.level('fr')).toBe(1);
     for (let i = 0; i < 6; i++) {
@@ -296,7 +302,7 @@ describe('Number Bridge: levels, adaptive trials, voice lines and content', () =
     expect(parsed.world).toBe('number-garden');
     expect(parsed.earnsLeisure).toBe(true);
     expect(parsed.languages).toEqual(['en', 'fr']);
-    expect(parsed.adaptive.levels).toHaveLength(5);
+    expect(parsed.adaptive.levels).toHaveLength(8);
 
     const badWord = structuredClone(numberBridgeJson);
     badWord.numbers['1'].en = '   ';
