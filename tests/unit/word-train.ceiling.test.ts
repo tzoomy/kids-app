@@ -17,7 +17,11 @@ import {
   wordLine,
   wordsForLang,
 } from '../../src/games/wordTrain/wordTrainRound';
-import { createSpellRound, placeLetter } from '../../src/games/wordTrain/wordTrainMachine';
+import { createSpellRound, placeTile } from '../../src/games/wordTrain/wordTrainMachine';
+import { SkillSession, buildMeta, skillKey } from '../../src/core/adaptive';
+import { AdaptiveStore } from '../../src/core/storage/adaptiveStore';
+import type { StorageDriver } from '../../src/core/storage/store';
+import { trialForLoad, trialForWord } from '../../src/games/wordTrain/wordTrainRound';
 
 function lcg(seed: number): () => number {
   let s = seed >>> 0;
@@ -124,8 +128,9 @@ describe('word-train ceilings (L6-L8, French spelling track)', () => {
       const pool = wordsForLang(content.words, lang);
       let prev: string | null = null;
       const seen = new Set<number>();
+      const rng = lcg(11);
       for (let i = 0; i < 80; i++) {
-        const w = pickWord(pool, 5, prev, lcg(i + 1), 6);
+        const w = pickWord(pool, 5, prev, rng, 6);
         expect(w.lang).toBe(lang);
         expect(w.word.length).toBeGreaterThanOrEqual(5);
         expect(w.word.length).toBeLessThanOrEqual(6);
@@ -150,7 +155,7 @@ describe('word-train ceilings (L6-L8, French spelling track)', () => {
     let state = createSpellRound({ word: six.word, letters: buildTiles(six.word, 2, content.distractorLetters, lcg(3)) });
     for (let s = 0; s < six.word.length; s++) {
       const tile = state.tiles.find((t) => t.placedAt === null && t.letter === six.word[s])!;
-      const res = placeLetter(state, tile.index, s);
+      const res = placeTile(state, tile.index, s);
       expect(res.event.kind).toBe(s === six.word.length - 1 ? 'spelled' : 'placed');
       state = res.state as typeof state;
     }
@@ -204,5 +209,33 @@ describe('word-train ceilings (L6-L8, French spelling track)', () => {
     expect(resolveRoundLanguages({ settingLang: 'fr', planEn: spellPlan, planSetting: loadPlan })).toEqual({
       roundLang: 'en', skillLang: 'fr', plan: loadPlan,
     });
+  });
+
+  it('[AC-13] adaptive keys: a French spell round persists under .fr, a load round under .en without creating .fr', () => {
+    const map = new Map<string, string>();
+    const driver: StorageDriver = { getItem: (k) => map.get(k) ?? null, setItem: (k, v) => void map.set(k, v) };
+    const store = new AdaptiveStore(driver);
+    const meta = buildMeta({ levelCount: levels.length, tracks: content.adaptive.tracks, rules: content.adaptive.rules });
+    const make = (profileId: string, track: 'age2' | 'age5') =>
+      new SkillSession({
+        store, profileId, track, world: content.world, gameId: content.id, meta, today: () => '2026-11-23', random: () => 0.2,
+      });
+    expect(skillKey(content.world, content.id, 'fr')).toBe('language-house.word-train.fr');
+
+    const shai = make('shai', 'age2');
+    expect(shai.level('en')).toBe(1);
+    shai.record('en', trialForLoad({ kind: 'loaded', id: 'apple', tries: 1 }));
+    store.persist('shai');
+    expect(new AdaptiveStore(driver).getProfile('shai').skills['language-house.word-train.en']).toBeDefined();
+    expect(new AdaptiveStore(driver).getProfile('shai').skills['language-house.word-train.fr']).toBeUndefined();
+
+    const elli = make('elli', 'age5');
+    expect(elli.level('fr')).toBe(3);
+    const pomme = content.words.find((w) => w.lang === 'fr' && w.word === 'pomme')!;
+    elli.record('fr', trialForWord({ kind: 'spelled', word: pomme.word, bounces: 0 }, false, pomme.id));
+    store.persist('elli');
+    const reloaded = new AdaptiveStore(driver).getProfile('elli');
+    expect(reloaded.skills['language-house.word-train.fr']).toBeDefined();
+    expect(reloaded.skills['language-house.word-train.en']).toBeUndefined();
   });
 });

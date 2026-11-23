@@ -16,6 +16,8 @@ import { heLine } from '../../content/voiceLines';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect, type Rect } from '../../testing/pageRect';
 import type { SpeechRequest } from '../../core/audio/types';
+import type { Lang } from '../templates/choiceServe';
+import { nextRoundLanguage } from '../restaurant/trialTracker';
 import {
   arriveLoad,
   arriveSpell,
@@ -37,10 +39,12 @@ import {
   pickLoadRound,
   pickWord,
   planForLevel,
+  resolveRoundLanguages,
   spellLine,
   trialForLoad,
   trialForWord,
   wordLine,
+  wordsForLang,
   type WordTrainPlan,
 } from './wordTrainRound';
 import type { WordTrainInfo } from './wordTrainTypes';
@@ -156,11 +160,25 @@ function computeLayout(
 
   const tileGap = isLandscape ? 32 : 20;
   const tileStep = TILE_SIZE + tileGap;
-  const tileStartX = w / 2 - ((tileCount - 1) * tileStep) / 2;
-  const tileSpots = Array.from({ length: tileCount }, (_, i) => ({
-    x: tileStartX + i * tileStep,
-    y: choiceY,
-  }));
+  let tileSpots: Point[];
+  if (isLandscape || tileCount <= 5) {
+    // One row; shrink the step only if a long word would run off the screen.
+    const fitStep = tileCount > 1 ? (w - 2 * 24 - TILE_SIZE) / (tileCount - 1) : tileStep;
+    const step = Math.min(tileStep, fitStep);
+    const startX = w / 2 - ((tileCount - 1) * step) / 2;
+    tileSpots = Array.from({ length: tileCount }, (_, i) => ({ x: startX + i * step, y: choiceY }));
+  } else {
+    // Portrait, 6-8 blocks (L6-L8): two centred rows so every block stays a full-size, on-screen target.
+    const firstRow = Math.ceil(tileCount / 2);
+    const rows = [firstRow, tileCount - firstRow];
+    const rowY = [choiceY - 72, choiceY + 78];
+    tileSpots = [];
+    rows.forEach((n, r) => {
+      for (let i = 0; i < n; i++) {
+        tileSpots.push({ x: w / 2 + (i - (n - 1) / 2) * tileStep, y: rowY[r] });
+      }
+    });
+  }
 
   return {
     trainY,
@@ -184,6 +202,11 @@ export class WordTrainScene extends Phaser.Scene {
   private state!: WordTrainState;
   private layout!: Layout;
   private levelNo = 1;
+  /** Language spoken this round: English for load mode, the parent setting for spell mode. */
+  private roundLang: Lang = 'en';
+  /** Language whose adaptive skill key holds this round's level and records its trial. */
+  private skillLang: Lang = 'en';
+  private spellIntroLangs = new Set<Lang>();
   private loadProgress = 0;
   private lastLoadTarget: string | null = null;
   private lastSpellWordId: string | null = null;
@@ -226,6 +249,9 @@ export class WordTrainScene extends Phaser.Scene {
     this.stepHinted = false;
     this.helpOpen = false;
     this.introPendingMode = null;
+    this.spellIntroLangs = new Set();
+    this.roundLang = 'en';
+    this.skillLang = 'en';
     this.lastEvent = null;
     this.loadProgress = 0;
     this.lastLoadTarget = null;
@@ -755,8 +781,18 @@ export class WordTrainScene extends Phaser.Scene {
 
   private refreshRoundPlan(): void {
     const c = content();
-    this.levelNo = this.skills.level('en');
-    this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
+    const planAt = (lang: Lang) => planForLevel(c.adaptive.levels[this.skills.level(lang) - 1]);
+    const setting = this.context.store.getState().settings.languages;
+    const settingLang = nextRoundLanguage(null, true, setting);
+    // Only touch the setting language's skill key when the English level is already a spell level, so
+    // load-only players (age 2) never gain a French skill entry.
+    const planEn = planAt('en');
+    const planSetting = planEn.mode === 'load' || settingLang === 'en' ? planEn : planAt(settingLang);
+    const resolved = resolveRoundLanguages({ settingLang, planEn, planSetting });
+    this.roundLang = resolved.roundLang;
+    this.skillLang = resolved.skillLang;
+    this.plan = resolved.plan;
+    this.levelNo = this.skills.level(resolved.skillLang);
   }
 
   private startRound(token: number, fromCreate = false): void {
@@ -798,7 +834,13 @@ export class WordTrainScene extends Phaser.Scene {
       }
       lines.push(loadLine(c, picked.target.id));
     } else {
-      const wordObj = pickWord(c.words, this.plan.wordLength, this.lastSpellWordId);
+      const wordObj = pickWord(
+        wordsForLang(c.words, this.roundLang),
+        this.plan.wordLength,
+        this.lastSpellWordId,
+        Math.random,
+        this.plan.wordLengthMax,
+      );
       this.lastSpellWordId = wordObj.id;
       this.currentWord = wordObj;
 
@@ -818,9 +860,10 @@ export class WordTrainScene extends Phaser.Scene {
         popPromises.push(pop);
       });
 
-      if (this.introPendingMode !== 'spell') {
+      if (!this.spellIntroLangs.has(this.roundLang)) {
+        this.spellIntroLangs.add(this.roundLang);
         this.introPendingMode = 'spell';
-        lines.push(introLine(c, 'spell'));
+        lines.push(introLine(c, 'spell', this.roundLang));
       }
       lines.push(spellLine(c, wordObj.id));
     }
@@ -874,7 +917,7 @@ export class WordTrainScene extends Phaser.Scene {
     const tile = this.state.tiles.find((t) => t.placedAt === null && t.letter === expectedLetter);
     const tileView = tile ? this.tileViews.find((v) => v.index === tile.index) : undefined;
     if (tileView) void hintPulse(this, tileView.container);
-    void this.speakSequence([letterLine(expectedLetter)], this.visitToken);
+    void this.speakSequence([letterLine(expectedLetter, this.roundLang)], this.visitToken);
     this.scheduleHint();
   }
 
@@ -921,7 +964,7 @@ export class WordTrainScene extends Phaser.Scene {
 
     if (event.kind !== 'loaded') return;
     this.ready = false;
-    this.skills.record('en', trialForLoad(event));
+    this.skills.record(this.skillLang, trialForLoad(event));
     this.stepHinted = false;
     this.loadProgress++;
 
@@ -1026,7 +1069,7 @@ export class WordTrainScene extends Phaser.Scene {
         void wobble(this, tileView.container);
         juice.burst('sparkle', tileView.rest.x, tileView.rest.y, 4);
       }
-      void this.speakSequence([letterLine(event.letter)], token);
+      void this.speakSequence([letterLine(event.letter, this.roundLang)], token);
       this.scheduleHint();
       return;
     }
@@ -1035,7 +1078,7 @@ export class WordTrainScene extends Phaser.Scene {
       this.context.sfx.tap();
       await this.snapTileToWagon(tileView, event.slotIndex, token);
       if (!alive()) return;
-      void this.speakSequence([letterLine(event.letter)], token);
+      void this.speakSequence([letterLine(event.letter, this.roundLang)], token);
       this.scheduleHint();
       return;
     }
@@ -1044,7 +1087,7 @@ export class WordTrainScene extends Phaser.Scene {
     this.ready = false;
     const lastSlotIndex = this.state.tiles[tileIndex]?.placedAt ?? this.state.slots.length - 1;
     const wordObj = this.currentWord;
-    this.skills.record('en', trialForWord(event, this.stepHinted, wordObj?.id ?? event.word));
+    this.skills.record(this.skillLang, trialForWord(event, this.stepHinted, wordObj?.id ?? event.word));
     this.stepHinted = false;
 
     await this.snapTileToWagon(tileView, lastSlotIndex, token);
@@ -1233,8 +1276,8 @@ export class WordTrainScene extends Phaser.Scene {
       mode: this.state.mode,
       phase: this.state.phase,
       level: this.levelNo,
-      skillKey: this.skills.key('en'),
-      language: 'en',
+      skillKey: this.skills.key(this.skillLang),
+      language: this.roundLang,
       stars: this.profileState().stars,
       ready: this.ready && !this.helpOpen,
       hinted: this.stepHinted,

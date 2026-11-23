@@ -3,15 +3,19 @@
 import type { LevelDescriptor, WordTrainContent, WordTrainObject, WordTrainWord } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
 import type { SpeechRequest } from '../../core/audio/types';
+import type { Lang } from '../templates/choiceServe';
 import type { WordTrainEvent, WordTrainMode } from './wordTrainMachine';
 
 export interface WordTrainPlan {
   mode: WordTrainMode;
   choiceCount: number;
   loadsPerStar: number;
-  wordLength: 3 | 4;
+  /** Shortest word length of the level (3-6). */
+  wordLength: number;
+  /** Longest word length of the level; equals `wordLength` unless `extra.wordLengthMax` widens it (L8: 5-6). */
+  wordLengthMax: number;
   ghost: boolean;
-  distractors: 0 | 1;
+  distractors: 0 | 1 | 2;
   audioOnly: boolean;
   hintPulse: boolean;
 }
@@ -32,9 +36,15 @@ export function planForLevel(level: LevelDescriptor | undefined): WordTrainPlan 
     typeof rawLoadsPerStar === 'number' && Number.isInteger(rawLoadsPerStar) && rawLoadsPerStar >= 1
       ? rawLoadsPerStar
       : DEFAULT_LOADS_PER_STAR;
-  const wordLength: 3 | 4 = level?.extra?.wordLength === 4 ? 4 : 3;
+  const rawLength = level?.extra?.wordLength;
+  const wordLength =
+    typeof rawLength === 'number' && Number.isInteger(rawLength) && rawLength >= 3 && rawLength <= 6 ? rawLength : 3;
+  const rawMax = level?.extra?.wordLengthMax;
+  const wordLengthMax =
+    typeof rawMax === 'number' && Number.isInteger(rawMax) && rawMax >= wordLength && rawMax <= 6 ? rawMax : wordLength;
   const ghost = level?.extra?.ghost === true;
-  const distractors: 0 | 1 = level?.extra?.distractors === 1 ? 1 : 0;
+  const rawDistractors = level?.extra?.distractors;
+  const distractors: 0 | 1 | 2 = rawDistractors === 1 ? 1 : rawDistractors === 2 ? 2 : 0;
   const audioOnly = level?.support === 'audio-only';
   const hintPulse = !audioOnly;
   return {
@@ -42,6 +52,7 @@ export function planForLevel(level: LevelDescriptor | undefined): WordTrainPlan 
     choiceCount,
     loadsPerStar,
     wordLength,
+    wordLengthMax,
     ghost,
     distractors,
     audioOnly,
@@ -90,19 +101,48 @@ export function pickLoadRound(
   return { choices, target };
 }
 
+/** The spelling bank of one language (English and French words live in the same content list). */
+export function wordsForLang(words: readonly WordTrainWord[], lang: Lang): WordTrainWord[] {
+  return words.filter((w) => w.lang === lang);
+}
+
 /**
- * Picks one word of `length` (3 or 4).
- * Never repeats `previousId` when another word of that length exists; deterministic with `rng`.
+ * Resolves the language of one round. Load mode (age 2, and any level below the spell levels) is
+ * English only whatever the parent setting; spell mode follows the setting. The adaptive skill key
+ * is the one that holds the level (`skillLang`): the English key for load levels, the round's key
+ * for spell levels, so Shai's stored progress and speech stay exactly as before.
+ */
+export function resolveRoundLanguages(opts: {
+  settingLang: Lang;
+  /** Plan of the level on the English skill key. */
+  planEn: WordTrainPlan;
+  /** Plan of the level on the setting language's skill key. */
+  planSetting: WordTrainPlan;
+}): { roundLang: Lang; skillLang: Lang; plan: WordTrainPlan } {
+  if (opts.planEn.mode === 'load') {
+    return { roundLang: 'en', skillLang: 'en', plan: opts.planEn };
+  }
+  if (opts.planSetting.mode === 'load') {
+    return { roundLang: 'en', skillLang: opts.settingLang, plan: opts.planSetting };
+  }
+  return { roundLang: opts.settingLang, skillLang: opts.settingLang, plan: opts.planSetting };
+}
+
+/**
+ * Picks one word with a length from `length` to `maxLength` (default: exactly `length`).
+ * Never repeats `previousId` when another matching word exists; deterministic with `rng`.
+ * Pass the words of one language (see `wordsForLang`).
  */
 export function pickWord(
   words: readonly WordTrainWord[],
-  length: 3 | 4,
+  length: number,
   previousId?: string | null,
   rng: () => number = Math.random,
+  maxLength: number = length,
 ): WordTrainWord {
-  const matching = words.filter((w) => w.word.length === length);
+  const matching = words.filter((w) => w.word.length >= length && w.word.length <= maxLength);
   if (matching.length === 0) {
-    throw new Error(`No words of length ${length} available`);
+    throw new Error(`No words of length ${length}-${maxLength} available`);
   }
   const eligible = previousId && matching.length > 1 ? matching.filter((w) => w.id !== previousId) : matching;
   const pool = eligible.length > 0 ? eligible : matching;
@@ -176,14 +216,54 @@ function findWord(content: WordTrainContent, id: string): WordTrainWord {
   return w;
 }
 
-/** Hebrew intro line for the start of a visit in load or spell mode. */
-export function introLine(content: WordTrainContent, mode: WordTrainMode): SpeechRequest {
-  return mode === 'spell'
-    ? { lineId: 'wordtrain.intro.spell.he', lang: 'he', text: content.linesHe.introSpell }
-    : { lineId: 'wordtrain.intro.load.he', lang: 'he', text: content.linesHe.introLoad };
+/** Standard French letter names (not phonics) spoken for a placed or bounced letter in a French round. */
+export const FRENCH_LETTER_NAMES: Readonly<Record<string, string>> = {
+  a: 'a',
+  b: 'bé',
+  c: 'cé',
+  d: 'dé',
+  e: 'e',
+  f: 'effe',
+  g: 'gé',
+  h: 'ache',
+  i: 'i',
+  j: 'ji',
+  k: 'ka',
+  l: 'elle',
+  m: 'emme',
+  n: 'enne',
+  o: 'o',
+  p: 'pé',
+  q: 'ku',
+  r: 'erre',
+  s: 'esse',
+  t: 'té',
+  u: 'u',
+  v: 'vé',
+  w: 'double vé',
+  x: 'ixe',
+  y: 'i grec',
+  z: 'zède',
+};
+
+function linesFor(content: WordTrainContent, lang: Lang) {
+  return lang === 'fr' ? content.linesFr : content.linesEn;
 }
 
-/** English load request: "Load the {word}!" */
+/**
+ * Hebrew intro line for the start of a visit in load or spell mode. The French spell round has its own
+ * Hebrew intro; English spell and load keep their original line ids.
+ */
+export function introLine(content: WordTrainContent, mode: WordTrainMode, lang: Lang = 'en'): SpeechRequest {
+  if (mode === 'spell') {
+    return lang === 'fr'
+      ? { lineId: 'wordtrain.intro.spell.fr.he', lang: 'he', text: content.linesHe.introSpellFr }
+      : { lineId: 'wordtrain.intro.spell.he', lang: 'he', text: content.linesHe.introSpell };
+  }
+  return { lineId: 'wordtrain.intro.load.he', lang: 'he', text: content.linesHe.introLoad };
+}
+
+/** English load request: "Load the {word}!" (load mode is English only). */
 export function loadLine(content: WordTrainContent, id: string): SpeechRequest {
   const obj = findObject(content, id);
   return {
@@ -214,36 +294,36 @@ export function otherLine(content: WordTrainContent, id: string): SpeechRequest 
   };
 }
 
-/** English spell prompt: "Let's spell {word}!" */
+/** Spell prompt in the word's language: "Let's spell {word}!" / "Épelons {word} !" */
 export function spellLine(content: WordTrainContent, id: string): SpeechRequest {
   const w = findWord(content, id);
   return {
-    lineId: `wordtrain.spell.${w.id}.en`,
-    lang: 'en',
-    text: content.linesEn.spellFrame.replace('{word}', w.word),
+    lineId: `wordtrain.spell.${w.id}.${w.lang}`,
+    lang: w.lang,
+    text: linesFor(content, w.lang).spellFrame.replace('{word}', w.word),
   };
 }
 
-/** English single letter name: "{x}". */
-export function letterLine(letter: string): SpeechRequest {
+/** Single letter name: the letter itself in English, the standard French name ("bé") in French. */
+export function letterLine(letter: string, lang: Lang = 'en'): SpeechRequest {
   const ch = letter.toLowerCase();
   if (!/^[a-z]$/.test(ch)) {
     throw new Error(`Invalid word-train letter: ${String(letter)}`);
   }
   return {
-    lineId: `wordtrain.letter.${ch}.en`,
-    lang: 'en',
-    text: ch,
+    lineId: `wordtrain.letter.${ch}.${lang}`,
+    lang,
+    text: lang === 'fr' ? FRENCH_LETTER_NAMES[ch] : ch,
   };
 }
 
-/** English completed word readout: "{letters}: {word}!" */
+/** Completed word readout in the word's language: "{letters}: {word}!" / "{letters} : {word} !" */
 export function wordLine(content: WordTrainContent, id: string): SpeechRequest {
   const w = findWord(content, id);
   const letters = w.word.split('').join(', ');
   return {
-    lineId: `wordtrain.word.${w.id}.en`,
-    lang: 'en',
-    text: content.linesEn.wordFrame.replace('{letters}', letters).replace('{word}', w.word),
+    lineId: `wordtrain.word.${w.id}.${w.lang}`,
+    lang: w.lang,
+    text: linesFor(content, w.lang).wordFrame.replace('{letters}', letters).replace('{word}', w.word),
   };
 }

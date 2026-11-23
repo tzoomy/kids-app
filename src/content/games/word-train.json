@@ -3,7 +3,7 @@
   "world": "language-house",
   "template": "spell",
   "skill": "english-words",
-  "languages": ["en"],
+  "languages": ["en", "fr"],
   "earnsLeisure": true,
   "ageTracks": {
     "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
@@ -20,14 +20,62 @@
     { "id": "fish", "art": "food-fish", "en": "fish", "he": "דג" }
   ],
   "words": [
-    { "id": "hat", "word": "hat", "art": "item-hat", "he": "כובע" },
-    { "id": "egg", "word": "egg", "art": "food-egg", "he": "ביצה" },
-    { "id": "sun", "word": "sun", "art": "word-train-sun", "he": "שמש" },
-    { "id": "cup", "word": "cup", "art": "word-train-cup", "he": "כוס" },
-    { "id": "ball", "word": "ball", "art": "item-ball", "he": "כדור" },
-    { "id": "book", "word": "book", "art": "item-book", "he": "ספר" },
-    { "id": "fish", "word": "fish", "art": "food-fish", "he": "דג" },
-    { "id": "pear", "word": "pear", "art": "food-pear", "he": "אגס" }
+    { "id": "hat", "word": "hat", "lang": "en", "art": "item-hat", "he": "כובע" },
+    { "id": "egg", "word": "egg", "lang": "en", "art": "food-egg", "he": "ביצה" },
+    { "id": "sun", "word": "sun", "lang": "en", "art": "word-train-sun", "he": "שמש" },
+    { "id": "cup", "word": "cup", "lang": "en", "art": "word-train-cup", "he": "כוס" },
+    { "id": "ball", "word": "ball", "lang": "en", "art": "item-ball", "he": "כדור" },
+    { "id": "book", "word": "book", "lang": "en", "art": "item-book", "he": "ספר" },
+    { "id": "fish", "word": "fish", "lang": "en", "art": "food-fish", "he": "דג" },
+    { "id": "pear", "word": "pear", "lang": "en", "art": "food-pear", "he": "אגס" },
+    { "id": "key", "word": "key", "lang": "en", "art": "prop-float-key", "he": "מפתח" },
+    { "id": "pot", "word": "pot", "lang": "en", "art": "instrument-pot", "he": "סיר" },
+    { "id": "star", "word": "star", "lang": "en", "art": "fx-star", "he": "כוכב" },
+    { "id": "bowl", "word": "bowl", "lang": "en", "art": "prop-mixing-bowl", "he": "קערה" },
+    { "id": "nail", "word": "nail", "lang": "en", "art": "magnet-nail", "he": "מסמר" },
+    { "id": "coat", "word": "coat", "lang": "en", "art": "item-coat", "he": "מעיל" },
+    { "id": "apple", "word": "apple", "lang": "en", "art": "food-apple", "he": "תפוח" },
+    { "id": "shirt", "word": "shirt", "lang": "en", "art": "item-shirt", "he": "חולצה" },
+    { "id": "shoes", "word": "shoes", "lang": "en", "art": "item-shoes", "he": "נעליים" },
+    { "id": "socks", "word": "socks", "lang": "en", "art": "item-socks", "he": "גרביים" },
+    { "id": "teddy", "word": "teddy", "lang": "en", "art": "item-teddy", "he": "דובי" },
+    { "id": "train", "word": "train", "lang": "en", "art": "train-engine", "he": "רכבת" },
+    { "id": "stone", "word": "stone", "lang": "en", "art": "prop-float-stone", "he": "אבן" },
+    { "id": "spoon", "word": "spoon", "lang": "en", "art": "prop-float-spoon", "he": "כף" },
+    { "id": "heart", "word": "heart", "lang": "en", "art": "fx-heart", "he": "לב" },
+    { "id": "plate", "word": "plate", "lang": "en", "art": "prop-plate", "he": "צלחת" },
+    { "id": "screw", "word": "screw", "lang": "en", "art": "magnet-screw", "he": "בורג" },
+    { "id": "banana", "word": "banana", "lang": "en", "art": "food-banana", "he": "בננה" },
+    { "id": "carrot", "word": "carrot", "lang": "en", "art": "food-carrot", "he": "גזר" },
+    { "id": "cheese", "word": "cheese", "lang": "en", "art": "food-cheese", "he": "גבינה" },
+    { "id": "cookie", "word": "cookie", "lang": "en", "art": "food-cookie", "he": "עוגייה" },
+    { "id": "orange", "word": "orange", "lang": "en", "art": "food-orange", "he": "תפוז" },
+    { "id": "bottle", "word": "bottle", "lang": "en", "art": "item-bottle", "he": "בקבוק" },
+    { "id": "grapes", "word": "grapes", "lang": "en", "art": "food-grapes", "he": "ענבים" },
+    { "id": "basket", "word": "basket", "lang": "en", "art": "picnic-basket", "he": "סל" },
+    { "id": "flower", "word": "flower", "lang": "en", "art": "flower-bloom-daisy-red", "he": "פרח" },
+    { "id": "vis", "word": "vis", "lang": "fr", "art": "magnet-screw", "he": "בורג" },
+    { "id": "bol", "word": "bol", "lang": "fr", "art": "prop-mixing-bowl", "he": "קערה" },
+    { "id": "pot-fr", "word": "pot", "lang": "fr", "art": "instrument-pot", "he": "סיר" },
+    { "id": "oeuf", "word": "oeuf", "lang": "fr", "art": "food-egg", "he": "ביצה" },
+    { "id": "clou", "word": "clou", "lang": "fr", "art": "magnet-nail", "he": "מסמר" },
+    { "id": "clef", "word": "clef", "lang": "fr", "art": "prop-float-key", "he": "מפתח" },
+    { "id": "pomme", "word": "pomme", "lang": "fr", "art": "food-apple", "he": "תפוח" },
+    { "id": "poire", "word": "poire", "lang": "fr", "art": "food-pear", "he": "אגס" },
+    { "id": "livre", "word": "livre", "lang": "fr", "art": "item-book", "he": "ספר" },
+    { "id": "tasse", "word": "tasse", "lang": "fr", "art": "word-train-cup", "he": "כוס" },
+    { "id": "balle", "word": "balle", "lang": "fr", "art": "item-ball", "he": "כדור" },
+    { "id": "fleur", "word": "fleur", "lang": "fr", "art": "flower-bloom-daisy-red", "he": "פרח" },
+    { "id": "train-fr", "word": "train", "lang": "fr", "art": "train-engine", "he": "רכבת" },
+    { "id": "coeur", "word": "coeur", "lang": "fr", "art": "fx-heart", "he": "לב" },
+    { "id": "banane", "word": "banane", "lang": "fr", "art": "food-banana", "he": "בננה" },
+    { "id": "orange-fr", "word": "orange", "lang": "fr", "art": "food-orange", "he": "תפוז" },
+    { "id": "raisin", "word": "raisin", "lang": "fr", "art": "food-grapes", "he": "ענבים" },
+    { "id": "fraise", "word": "fraise", "lang": "fr", "art": "food-strawberry", "he": "תות" },
+    { "id": "soleil", "word": "soleil", "lang": "fr", "art": "word-train-sun", "he": "שמש" },
+    { "id": "ballon", "word": "ballon", "lang": "fr", "art": "item-ball", "he": "כדור" },
+    { "id": "pierre", "word": "pierre", "lang": "fr", "art": "prop-float-stone", "he": "אבן" },
+    { "id": "panier", "word": "panier", "lang": "fr", "art": "picnic-basket", "he": "סל" }
   ],
   "distractorLetters": "bdmrtpklnoaei",
   "linesEn": {
@@ -37,15 +85,23 @@
     "spellFrame": "Let's spell {word}!",
     "wordFrame": "{letters}: {word}!"
   },
+  "linesFr": {
+    "loadFrame": "Charge {word} !",
+    "nameFrame": "{Word} !",
+    "otherFrame": "C'est {word} !",
+    "spellFrame": "Épelons {word} !",
+    "wordFrame": "{letters} : {word} !"
+  },
   "linesHe": {
     "introLoad": "בואי נעמיס את הרכבת!",
-    "introSpell": "בואי נבנה מילה באנגלית!"
+    "introSpell": "בואי נבנה מילה באנגלית!",
+    "introSpellFr": "בואי נבנה מילה בצרפתית!"
   },
-  "helpTextHe": "שמעי את המילה באנגלית והעמיסי את החפץ לרכבת, ובגן של הגדולות נבנה מילים באותיות.",
+  "helpTextHe": "שמעי את המילה באנגלית והעמיסי את החפץ לרכבת. בגן של הגדולות נבנה מילים באותיות, באנגלית או בצרפתית.",
   "adaptive": {
     "tracks": {
       "age2": { "start": 1, "min": 1, "max": 2 },
-      "age5": { "start": 3, "min": 1, "max": 5 }
+      "age5": { "start": 3, "min": 1, "max": 8 }
     },
     "levels": [
       {
@@ -67,6 +123,18 @@
       {
         "support": "audio-only",
         "extra": { "mode": "spell", "wordLength": 4, "ghost": false, "distractors": 1 }
+      },
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "spell", "wordLength": 5, "ghost": false, "distractors": 1 }
+      },
+      {
+        "support": "picture-audio",
+        "extra": { "mode": "spell", "wordLength": 5, "ghost": false, "distractors": 2 }
+      },
+      {
+        "support": "audio-only",
+        "extra": { "mode": "spell", "wordLength": 5, "wordLengthMax": 6, "ghost": false, "distractors": 2 }
       }
     ]
   }

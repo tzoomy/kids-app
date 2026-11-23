@@ -724,9 +724,19 @@ export const WordTrainObjectSchema = z.object({
 
 export const WordTrainWordSchema = z.object({
   id: nonBlankString,
-  word: z.string().regex(/^[a-z]{3,4}$/, { message: 'word must be 3-4 lowercase a-z letters' }),
+  word: z.string().regex(/^[a-z]{3,6}$/, { message: 'word must be 3-6 lowercase a-z letters (no accents)' }),
+  /** Language of the spelling: English or French (French words are ascii, e.g. `oeuf`). */
+  lang: z.enum(['en', 'fr']),
   art: nonBlankString,
   he: nonBlankString,
+});
+
+const WordTrainLinesSchema = z.object({
+  loadFrame: nonBlankString,
+  nameFrame: nonBlankString,
+  otherFrame: nonBlankString,
+  spellFrame: nonBlankString,
+  wordFrame: nonBlankString,
 });
 
 export const WordTrainContentSchema = z
@@ -735,22 +745,18 @@ export const WordTrainContentSchema = z
     world: z.string().min(1),
     template: z.literal('spell'),
     skill: z.string().min(1),
-    languages: z.tuple([z.literal('en')]),
+    languages: z.tuple([z.literal('en'), z.literal('fr')]),
     earnsLeisure: z.boolean(),
     ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
     objects: z.array(WordTrainObjectSchema).min(2),
     words: z.array(WordTrainWordSchema).min(2),
     distractorLetters: z.string().regex(/^[a-z]+$/, { message: 'distractorLetters must be lowercase a-z letters' }),
-    linesEn: z.object({
-      loadFrame: nonBlankString,
-      nameFrame: nonBlankString,
-      otherFrame: nonBlankString,
-      spellFrame: nonBlankString,
-      wordFrame: nonBlankString,
-    }),
+    linesEn: WordTrainLinesSchema,
+    linesFr: WordTrainLinesSchema,
     linesHe: z.object({
       introLoad: nonBlankString,
       introSpell: nonBlankString,
+      introSpellFr: nonBlankString,
     }),
     helpTextHe: nonBlankString,
     adaptive: GameAdaptiveSchema,
@@ -770,7 +776,7 @@ export const WordTrainContentSchema = z
 
     const wordIds = new Set<string>();
     const wordTexts = new Set<string>();
-    const wordsByLength = new Map<number, number>();
+    const wordLengthsByLang = new Map<string, number[]>();
     value.words.forEach((w, i) => {
       if (wordIds.has(w.id)) {
         ctx.addIssue({
@@ -779,16 +785,19 @@ export const WordTrainContentSchema = z
           message: `duplicate word id "${w.id}"`,
         });
       }
-      if (wordTexts.has(w.word)) {
+      // Word text is unique per language ("orange" may exist in both English and French).
+      if (wordTexts.has(`${w.lang}:${w.word}`)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['words', i, 'word'],
-          message: `duplicate word "${w.word}"`,
+          message: `duplicate ${w.lang} word "${w.word}"`,
         });
       }
       wordIds.add(w.id);
-      wordTexts.add(w.word);
-      wordsByLength.set(w.word.length, (wordsByLength.get(w.word.length) ?? 0) + 1);
+      wordTexts.add(`${w.lang}:${w.word}`);
+      const lengths = wordLengthsByLang.get(w.lang) ?? [];
+      lengths.push(w.word.length);
+      wordLengthsByLang.set(w.lang, lengths);
     });
 
     if (!value.linesEn.loadFrame.includes('{word}')) {
@@ -807,6 +816,27 @@ export const WordTrainContentSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['linesEn', 'wordFrame'],
+        message: 'wordFrame must include {letters} and {word}',
+      });
+    }
+
+    const frFrames = value.linesFr;
+    if (!frFrames.loadFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesFr', 'loadFrame'], message: 'loadFrame must include {word}' });
+    }
+    if (!frFrames.nameFrame.includes('{Word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesFr', 'nameFrame'], message: 'nameFrame must include {Word}' });
+    }
+    if (!frFrames.otherFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesFr', 'otherFrame'], message: 'otherFrame must include {word}' });
+    }
+    if (!frFrames.spellFrame.includes('{word}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['linesFr', 'spellFrame'], message: 'spellFrame must include {word}' });
+    }
+    if (!frFrames.wordFrame.includes('{letters}') || !frFrames.wordFrame.includes('{word}')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['linesFr', 'wordFrame'],
         message: 'wordFrame must include {letters} and {word}',
       });
     }
@@ -852,12 +882,18 @@ export const WordTrainContentSchema = z
         }
       } else {
         const wordLength = level.extra?.wordLength;
-        if (wordLength !== 3 && wordLength !== 4) {
-          issue('extra.wordLength must be 3 or 4');
-        } else {
-          const matching = wordsByLength.get(wordLength) ?? 0;
-          if (matching < 2) {
-            issue(`words must include at least 2 words of length ${wordLength}`);
+        const rawMax = level.extra?.wordLengthMax;
+        const wordLengthMax = rawMax === undefined ? wordLength : rawMax;
+        const validLength = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 3 && n <= 6;
+        if (!validLength(wordLength) || !validLength(wordLengthMax) || wordLengthMax < wordLength) {
+          issue('extra.wordLength (and optional wordLengthMax) must be integers from 3 to 6, max not below min');
+          return;
+        }
+        // Every language the game lists must supply at least 2 words in the length range.
+        for (const lang of value.languages) {
+          const fit = (wordLengthsByLang.get(lang) ?? []).filter((n) => n >= wordLength && n <= wordLengthMax).length;
+          if (fit < 2) {
+            issue(`words must include at least 2 ${lang} words of length ${wordLength}-${wordLengthMax}`);
           }
         }
         const ghost = level.extra?.ghost;
@@ -865,11 +901,11 @@ export const WordTrainContentSchema = z
           issue('extra.ghost must be a boolean');
         }
         const distractors = level.extra?.distractors;
-        if (distractors !== 0 && distractors !== 1) {
-          issue('extra.distractors must be 0 or 1');
-        } else if (distractors > 0 && (wordLength === 3 || wordLength === 4)) {
+        if (distractors !== 0 && distractors !== 1 && distractors !== 2) {
+          issue('extra.distractors must be 0, 1 or 2');
+        } else if (distractors > 0) {
           for (const w of value.words) {
-            if (w.word.length !== wordLength) continue;
+            if (w.word.length < wordLength || w.word.length > wordLengthMax) continue;
             const available = [...distractorSet].filter((ch) => !w.word.includes(ch));
             if (available.length < distractors) {
               issue(`distractorLetters has fewer than ${distractors} letters outside word "${w.word}"`);
