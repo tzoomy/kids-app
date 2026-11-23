@@ -231,7 +231,7 @@ Paths, keys, rigs, and line ids below reflect Pass 1 as implemented on `main` an
 | `orchestra.thanks.fr.0` | `fr` | `Bravo !` | Celebration praise on completing a sequence (`onSuccess`, random index 0) |
 | `orchestra.thanks.fr.1` | `fr` | `Quelle chanson !` | Celebration praise on completing a sequence (`onSuccess`, random index 1) |
 | `orchestra.thanks.fr.2` | `fr` | `C'est joli !` | Celebration praise on completing a sequence (`onSuccess`, random index 2) |
-| `orchestra.help.he` | `he` | `השף מנגן דוגמה. הקשיבי, ואז הקשי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.` | Tapping the `❓` HUD help button (`showHelp`) |
+| `orchestra.help.he` | `he` | `השף מנגן דוגמה. הקשיבי, ואז הקישי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.` | Tapping the `❓` HUD help button (`showHelp`) |
 
 - **World and PWA wiring:**
   - Decided (2026-11-12) and on `main`: `kitchen-orchestra` has `"world": "language-house"` and `"earnsLeisure": true`; `language-house` stays `"status": "open"` and `"earnsLeisure": true` and no longer uses a single `entryGameId` to jump straight into one game — tapping the building opens the picker. `art-studio` is `"status": "locked"` with `kitchen-orchestra` removed as `entryGameId`. Done on `main` (`3ee504a`): `src/content/games/kitchen-orchestra.json` has `"world": "language-house"` and `src/content/worlds.json` has `art-studio` locked with no `entryGameId`.
@@ -261,3 +261,4 @@ None remaining. Owner decisions of 2026-11-12 are recorded in the sections above
 - 2026-11-12 — Owner decisions: Language House move and picker (PR #36), including Art Studio lock and skill-key migration; French pan name `poêle` / `Joue sur la poêle !` (content change later); tap target 64 CSS px; age 5 has no idle hint (hint only after a mistake). Shared e2e handles and `enterWorldByTap` from PR #37 (pending merge). Added picker ACs AC-16–AC-19. — substantive
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (none were labelled open in the spec; the 2026-11-12 decisions stand unchanged); 0 ACs added — substantive
 - 2026-11-14 — voice-table intro reworded: strings match the JSON with no exception, as the French pan name `poêle` is already on `main` (`6791ea9`); no behaviour or AC change — minor
+- 2026-11-24 — voice-text hygiene: `orchestra.help.he` spells the feminine imperative `הקישי` (was `הקשי`, misread by TTS); no other change — minor

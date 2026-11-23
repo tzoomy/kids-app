@@ -98,7 +98,7 @@ Profile → Nature Lab building → picker card `game-picker-shadow-match` → p
 | `shadow.<id>.sound[-short].<lang>` | en / fr | `{sound} Who is it?` / `{sound} Qui est-ce ?` | sound cue |
 | `shadow.<id>.name.<lang>` | en / fr | `Find {name}!` / `Trouve {name} !` | name cue |
 | `shadow.<id>.reveal.<lang>` | en / fr | `It's {name}!` / `C'est {name} !` | reveal |
-| `he.shadow.<id>` | he | `זה {nameHe}!` | after the reveal line |
+| `he.shadow.<id>` | he | `זה {nameHe}!`; `זו {nameHe}!` for the feminine name (panda: `זו פנדה!`) | after the reveal line |
 | `he.shadow.intro` / `he.shadow.help` | he | `introHe` / `helpTextHe` | first trial / help |
 | `he.retry.0/1`, `he.praise.0` | he | existing clips | wrong tap / every 3rd win |
 
@@ -121,3 +121,4 @@ New animals or characters, animals without existing art, clue-only cues.
 ## Changelog
 
 - 2026-11-13 — created (Pass 1 built in the same PR under the continuous-development mode) — substantive
+- 2026-11-24 — Hebrew reveal agrees in gender: panda is spoken `זו פנדה!` (content `revealFrameFeminineHe` + `feminineHeIds`; other animals unchanged) — minor

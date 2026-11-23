@@ -119,7 +119,7 @@ Basic animation and device TTS only. All art already exists on `main`; nothing n
 | `habitat.correct.he` | he | יופי! החיה הגיעה הביתה! | Correct tap |
 | `habitat.home.<homeId>.<en\|fr>` | en / fr | "the pond" / "la mare" | After a correct tap |
 | `habitat.wrong.he` | he | כמעט! נסי בית אחר. | Wrong tap |
-| `habitat.help.he` | he | עזרי לכל חיה למצוא את הבית שלה. הקשי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב. | Help button |
+| `habitat.help.he` | he | עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב. | Help button |
 
 - **World and PWA wiring:** `worlds.json` keeps `nature-lab` `open`, `earnsLeisure: true`, `entryGameId: "who-is-hiding"` (a fallback hint only); the building opens the station trail. The only wiring in the picker is one `WORLD_GAMES` entry in `src/ui/picker/pickerModel.ts` (`who-lives-here` / `HabitatScene`, appended after `seed-to-flower`) plus the content JSON `"world": "nature-lab"`; there is no per-world list and no `MapScene` branch (station-trail "How to add a game"). `src/pwa/updatePolicy.ts`: new `AppScreen` `'habitat'`, unsafe for mid-game updates.
 
@@ -147,3 +147,4 @@ Only after Maor approves the finished Pass 1.
 - `2026-11-13` — created and approved for build by Maor (continuous mode) — substantive
 - `2026-11-13` — AC-05 clarified: the language is pinned with `seedLanguageSetting` because the adaptive level is per language; no change in meaning — minor
 - `2026-11-14` — after the station trail (#69) landed on main: the Nature Lab picker is the 3-station trail built from `WORLD_GAMES` (Who's Hiding?, Seed to Flower, Who Lives Here?); AC-16 and AC-20 reworded to match; no new hook — minor
+- `2026-11-24` — voice-text hygiene: `habitat.help.he` spells the feminine imperative `הקישי` (was `הקשי`, misread by TTS); no other change — minor

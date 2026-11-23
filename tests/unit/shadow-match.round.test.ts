@@ -118,6 +118,18 @@ describe('shadow-match: buildShadowRound (AC-09)', () => {
     for (const a of animals) expect(revealFor(shadow, a, 'en').text).not.toContain('{');
   });
 
+  it('[AC-09] the Hebrew reveal agrees in gender: panda is feminine (זו), the other animals stay masculine (זה)', () => {
+    const he = Object.fromEntries(animals.map((a) => [a.id, revealFor(shadow, a, 'en').textHe]));
+    expect(he).toEqual({
+      cat: 'זה חתול!',
+      lion: 'זה אריה!',
+      bear: 'זה דוב!',
+      panda: 'זו פנדה!',
+      dog: 'זה כלב!',
+      rabbit: 'זה ארנב!',
+    });
+  });
+
   it('[AC-09] only the requested animal is correct', () => {
     expect(isCorrectShadow('cat', 'cat')).toBe(true);
     expect(isCorrectShadow('lion', 'cat')).toBe(false);

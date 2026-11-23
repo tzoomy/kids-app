@@ -133,7 +133,7 @@ export function buildHidingRound(
     promptText: promptFor(content, target, language, level),
     lineId: `hiding.${target.id}.${level.speak}${level.shortSound ? '-short' : ''}.${language}`,
     hintText: hintFor(content, target, language, level),
-    hintLineId: `hiding.${target.id}.hint.${level.audioOnly ? 'clue' : level.speak}.${language}`,
+    hintLineId: `hiding.${target.id}.hint.${level.audioOnly ? 'clue' : level.speak}${level.audioOnly && level.shortSound ? '-short' : ''}.${language}`,
   };
 }
 

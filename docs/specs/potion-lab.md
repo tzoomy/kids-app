@@ -106,7 +106,7 @@ Profile → tap the Science World building → Science World picker (Potion Lab 
 | `potion.intro.request.he` | he | בואי נכין צבע חדש! | First request of a visit |
 | `potion.request.<color>.he` | he | אפשר להכין <color he>? | Each request (then the color word in the learning language) |
 | `potion.color.<color>.<lang>` | he / en / fr | the color name | Each result |
-| `potion.tryAgain.he` | he | איזה יופי! ועכשיו ננסה להכין <color he>. | `mixed-other` |
+| `potion.tryAgain.<orange\|green\|purple>.he` | he | איזה יופי! ועכשיו ננסה להכין <color he>. | `mixed-other` |
 | `he.praise.0` | he | existing clip | `matched`, free-mode star |
 
 ### Pass 2 — polish
@@ -130,3 +130,4 @@ Only after Maor approves Pass 1: a lab background, polished pots, a pour/fizz an
 
 - `2026-11-13` — created (draft, Pass 1 built under continuous-development mode) — substantive
 - `2026-11-14` — deferred first-visit speech in `PotionScene.startVisit` until `Phaser.Scenes.Events.CREATE` so the intro and initial request lines are not dropped while the scene is `CREATING`; added e2e intro speech-spy checks under AC-04 and AC-05 — minor
+- `2026-11-24` — voice-id hygiene: `potion.tryAgain.he` split into `potion.tryAgain.<orange|green|purple>.he` (one id, one text; same wording) — minor

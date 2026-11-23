@@ -7,7 +7,7 @@
     "age2": { "hintMode": "demonstrate", "hintDelayMs": 6000 },
     "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
   },
-  "helpTextHe": "עזרי לכל חיה למצוא את הבית שלה. הקשי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
+  "helpTextHe": "עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
   "homes": [
     { "id": "pond", "family": "water", "name": { "en": "the pond", "fr": "la mare" } },
     { "id": "nest", "family": "tree", "name": { "en": "the nest", "fr": "le nid" } },

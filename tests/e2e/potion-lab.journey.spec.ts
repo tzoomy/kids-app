@@ -143,7 +143,7 @@ test.describe('potion lab', () => {
           return (
             lines.some((l) => l.lineId === 'potion.color.red.he' && l.lang === 'he') &&
             lines.some((l) => l.lineId === `potion.color.red.${info.language}` && l.lang === info.language) &&
-            lines.some((l) => l.lineId === 'potion.tryAgain.he' && l.lang === 'he')
+            lines.some((l) => l.lineId === `potion.tryAgain.${firstRequest}.he` && l.lang === 'he')
           );
         },
         { timeout: 10_000 },

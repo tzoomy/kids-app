@@ -563,6 +563,10 @@ export const ShadowMatchContentSchema = z
     revealFrame: LangPairSchema,
     /** Then in Hebrew (`{nameHe}`), spoken by device TTS in Pass 1. */
     revealFrameHe: z.string().min(1),
+    /** Hebrew frame for animals whose Hebrew name is grammatically feminine (`זו פנדה!`); `{nameHe}` as above. */
+    revealFrameFeminineHe: z.string().min(1).optional(),
+    /** Ids of the animals that use `revealFrameFeminineHe` instead of `revealFrameHe`. */
+    feminineHeIds: z.array(z.string().min(1)).optional(),
     /** Hebrew animal names by animal id. */
     namesHe: z.record(z.string().min(1)),
     introHe: z.string().min(1),
@@ -582,6 +586,15 @@ export const ShadowMatchContentSchema = z
       if (!value.revealFrame[lang].includes('{name}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrame', lang], message: 'frame needs {name}' });
     }
     if (!value.revealFrameHe.includes('{nameHe}')) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrameHe'], message: 'frame needs {nameHe}' });
+    if (value.revealFrameFeminineHe !== undefined && !value.revealFrameFeminineHe.includes('{nameHe}')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrameFeminineHe'], message: 'frame needs {nameHe}' });
+    }
+    if ((value.feminineHeIds?.length ?? 0) > 0 && value.revealFrameFeminineHe === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['revealFrameFeminineHe'], message: 'feminineHeIds needs revealFrameFeminineHe' });
+    }
+    value.feminineHeIds?.forEach((id, i) => {
+      if (!value.namesHe[id]) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['feminineHeIds', i], message: `no Hebrew name for "${id}"` });
+    });
     value.adaptive.levels.forEach((level, i) => {
       const path = ['adaptive', 'levels', i];
       const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });

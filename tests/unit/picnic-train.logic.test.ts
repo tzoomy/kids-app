@@ -190,9 +190,13 @@ describe('picnic-train: voice lines and number words (AC-09)', () => {
     }
     for (let n = 2; n <= 10; n++) {
       const text = PICNIC_LINE_TEXT[`picnic.ask.load.${n}.he`];
-      expect(text).toContain(hebrewNumber(n));
+      // Before `פריטים` the number is attributive (2 -> construct `שני`); every other count is the standalone form.
+      expect(text).toContain(n === 2 ? 'שני פריטים' : hebrewNumber(n));
       expect(text).toMatch(/[֐-׿]/);
     }
+    expect(PICNIC_LINE_TEXT['picnic.ask.load.2.he']).toBe('ארזי שני פריטים לפיקניק, ואז לחצי על הדגל!');
+    expect(PICNIC_LINE_TEXT['picnic.ask.load.2.he']).not.toContain('שניים');
+    expect(hebrewNumber(2)).toBe('שניים');
     for (const id of [
       'picnic.ask.one-each.he',
       'picnic.ask.missing.he',
