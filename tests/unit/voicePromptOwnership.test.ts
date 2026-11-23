@@ -11,6 +11,7 @@ import heLines from '../../src/content/voice-lines-he.json';
 import manifest from '../../src/content/audio-manifest.json';
 import splits from '../../scripts/tts/verified-splits.json';
 import balloon from '../../src/content/games/balloon-pop.json';
+import gameLines from '../../scripts/tts/game-lines.json';
 
 type WorldGameId = (typeof WORLD_GAMES)[number]['gameId'];
 
@@ -68,7 +69,8 @@ function heKeysUsed(source: string): string[] {
   return [...source.matchAll(/heLine\(\s*'([^']+)'/g)].map((m) => m[1]);
 }
 
-const normalize = (s: string) => s.replace(/[^\p{L}\p{N}]+/gu, '');
+// Letters and digits only, case-insensitive (a transcript cannot hear punctuation or capitals).
+const normalize = (s: string) => s.replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase();
 
 describe('Balloon Pop speaks its own guidance', () => {
   const src = gameSources(SCENE['balloon-pop']!);
@@ -139,8 +141,12 @@ describe('every WORLD_GAMES game resolves to its own voice prompt', () => {
   });
 });
 
-describe('verified Hebrew clip splits', () => {
-  const lines = heLines as Record<string, string>;
+describe('verified clip splits', () => {
+  // Line text by id: Hebrew guidance (voice-lines-he.json, ids "he.<key>") and game lines (scripts/tts/game-lines.json).
+  const lines: Record<string, string> = Object.fromEntries([
+    ...Object.entries(heLines as Record<string, string>).map(([k, v]) => [`he.${k}`, v]),
+    ...gameLines.lines.map((l) => [l.id, l.text]),
+  ]);
   const entries = Object.entries(splits).filter(([k]) => !k.startsWith('_')) as [
     string,
     Record<string, { start: number; end: number; heard: string }>,
@@ -149,7 +155,8 @@ describe('verified Hebrew clip splits', () => {
   it('each verified transcript matches the line text it is shipped for', () => {
     for (const [, batch] of entries) {
       for (const [id, cut] of Object.entries(batch)) {
-        expect(normalize(cut.heard), id).toBe(normalize(lines[id.replace(/^he\./, '')]));
+        expect(lines[id], `${id} is not a known line`).toBeTruthy();
+        expect(normalize(cut.heard), id).toBe(normalize(lines[id]));
       }
     }
   });

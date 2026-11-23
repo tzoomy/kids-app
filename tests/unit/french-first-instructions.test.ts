@@ -49,7 +49,7 @@ import {
   visitStartLines as sinkVisit,
 } from '@/games/sinkFloat/sinkFloatRound';
 import { seedHeLine, seedTaskLine } from '@/games/seedFlower/seedFlowerRound';
-import { gameVoiceCatalog } from '@/content/voiceCatalog';
+import { enumerateGameVoiceLines } from '../helpers/gameVoiceLines';
 
 const LANGS = ['en', 'fr'] as const;
 const isHe = (r: { lineId: string; lang: string }) => r.lang === 'he' || r.lineId.endsWith('.he');
@@ -367,15 +367,26 @@ describe('[AC-fr-first] regression guards (age2 never EN/FR, age5 never Hebrew)'
   });
 });
 
-describe('[AC-fr-first] voice catalogue', () => {
-  const catalog = gameVoiceCatalog();
+describe('[AC-fr-first] voice catalogue (scripts/tts/game-lines.json via enumerateGameVoiceLines)', () => {
+  // New EN/FR task-instruction ids only (the enumerator also lists existing Hebrew and naming words).
+  const TASK_ID = /^(picnic\.ask\.|sorting\.(rule|switch)\.|potion\.(intro|request|tryAgain)\.|magnet\.(intro|ask|test)\.|sinkFloat\.(intro|ask)\.|seed\.intro\.)/;
+  const catalog = enumerateGameVoiceLines().lines.filter((l) => TASK_ID.test(l.id) && l.lang !== 'he');
   const byGame = (game: string) => catalog.filter((l) => l.game === game);
 
-  it('registers only new EN/FR ids for the six games, no Hebrew and no existing naming words', () => {
+  it('registers 220 new EN/FR ids for the six games, no Hebrew and no existing naming words', () => {
+    expect(catalog).toHaveLength(220);
     const games = ['picnic-train', 'sorting-beds', 'potion-lab', 'magic-magnet', 'sink-or-float', 'seed-to-flower'];
+    const counts: Record<string, number> = {
+      'picnic-train': 158,
+      'sorting-beds': 14,
+      'potion-lab': 16,
+      'magic-magnet': 22,
+      'sink-or-float': 6,
+      'seed-to-flower': 4,
+    };
     for (const game of games) {
       const lines = byGame(game);
-      expect(lines.length, game).toBeGreaterThan(0);
+      expect(lines.length, game).toBe(counts[game]);
       for (const l of lines) {
         expect(l.lang, l.id).not.toBe('he');
         expect(l.id.endsWith(`.${l.lang}`), l.id).toBe(true);
@@ -385,7 +396,7 @@ describe('[AC-fr-first] voice catalogue', () => {
     }
   });
 
-  it('contains the spot-checked asks', () => {
+  it('contains the spot-checked asks and does not re-catalogue potion.tryAgain.he as a new id', () => {
     const ids = new Set(catalog.map((l) => l.id));
     for (const id of [
       'picnic.ask.missing.fr',
