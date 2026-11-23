@@ -2,7 +2,7 @@ import { el } from './dom';
 import { renderProfileSelect, type ProfileSelectEntry } from './profileSelect';
 import { renderCredits } from './credits';
 import type { CreditItem } from '../content/credits';
-import { renderParentGate, renderParentSettings, type ParentSettingsCallbacks } from './parent';
+import { renderParentGate, renderParentSettings, type ParentSettingsCallbacks, type ParentSettingsView } from './parent';
 import {
   renderMapChrome,
   RestaurantHud,
@@ -113,9 +113,9 @@ export class AppShell {
     renderCredits(this.overlayRoot, items, onBack);
   }
 
-  showParentSettings(state: AppState, callbacks: ParentSettingsCallbacks): void {
+  showParentSettings(state: AppState, callbacks: ParentSettingsCallbacks, view?: ParentSettingsView): void {
     this.clearChrome();
-    renderParentSettings(this.overlayRoot, state, callbacks);
+    renderParentSettings(this.overlayRoot, state, callbacks, view);
   }
 
   setMapChrome(opts: MapChromeOptions): void {

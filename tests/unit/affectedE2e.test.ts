@@ -64,8 +64,22 @@ describe('affected e2e selection', () => {
     }
   });
 
-  it('the parent screen (shows the build info line) selects buildInfo plus smoke', () => {
-    expect(selectAffectedE2e(['src/ui/parent.ts'])).toEqual(['tests/e2e/buildInfo.spec.ts', ...SMOKE]);
+  it('the parent screen (shows the build info line) selects buildInfo, the parent-profile spec and smoke', () => {
+    expect(selectAffectedE2e(['src/ui/parent.ts'])).toEqual(['tests/e2e/buildInfo.spec.ts', ...SMOKE, 'tests/e2e/parent-profile.spec.ts']);
+  });
+
+  it('the parent profile page files and unit tests select the parent-profile spec', () => {
+    expect(selectAffectedE2e(['src/ui/parentLevels.ts'])).toEqual(['tests/e2e/parent-profile.spec.ts']);
+    for (const f of [
+      'tests/unit/parent-profile.test.ts',
+      'tests/unit/profileLanguage.test.ts',
+      'tests/unit/profileLanguage.wiring.test.ts',
+      'tests/unit/startingLevel.test.ts',
+      'tests/unit/levelAdjust.test.ts',
+      'tests/e2e/parent-profile.spec.ts',
+    ]) {
+      expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/parent-profile.spec.ts']);
+    }
   });
 
   it('a game-only change selects that game specs and not the whole suite', () => {
@@ -388,11 +402,12 @@ describe('affected e2e selection', () => {
     }
   });
 
-  it('shell.css (shared styles, including the picker and station-trail layout) selects smoke, the gate spec and the picker layout specs', () => {
+  it('shell.css (shared styles, including the picker, station-trail and parent profile layout) selects smoke, the gate spec, the parent-profile spec and the picker layout specs', () => {
     expect(selectAffectedE2e(['src/styles/shell.css'])).toEqual([
       ...SMOKE,
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
       'tests/e2e/parent-longpress-gate.spec.ts',
+      'tests/e2e/parent-profile.spec.ts',
       'tests/e2e/picnic-train.picker.spec.ts',
       'tests/e2e/portrait-topbar.phone.spec.ts',
       'tests/e2e/station-trail.portrait-phone.spec.ts',
