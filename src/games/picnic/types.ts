@@ -25,7 +25,7 @@ export interface PicnicPassengerInfo {
 }
 
 export interface PicnicInfo {
-  /** 1..8, the level of the active train. */
+  /** 1..10, the level of the active train (L9-L10: age-5 stretch). */
   level: number;
   task: PicnicTask;
   /** Counting-token language of this train (Hebrew guidance is always 'he'). */
@@ -41,6 +41,10 @@ export interface PicnicInfo {
   ghostItems: boolean;
   /** Scaffold 'symbol': number of tally dots shown, else null. */
   tally: number | null;
+  /** Age-5 stretch load trains (L9-L10): "pack a and b more" (add) or "pack a, take b out" (sub); null otherwise. */
+  equation: { op: 'add' | 'sub'; a: number; b: number } | null;
+  /** Cargo shelf slots: 10, or 20 on the stretch load levels. */
+  capacity: number;
   passengers: PicnicPassengerInfo[];
   /** First passenger without an item (a correct tap in `give`). */
   nextFreeId: string | null;

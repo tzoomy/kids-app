@@ -111,7 +111,7 @@ describe('balloon-pop floating stage: cadence and motion (AC-18)', () => {
 
   it('[AC-18] no fail state: the stage has no timer or miss limit in content', () => {
     const keys = Object.keys(cfg).sort();
-    expect(keys).toEqual(['everyNthTrial', 'hitScale', 'minHitCssPx', 'speed', 'speedStepPerLevel', 'swayPx']);
+    expect(keys).toEqual(['everyNthTrial', 'hitScale', 'minHitCssPx', 'speed', 'speedMaxLevel', 'speedStepPerLevel', 'swayPx']);
   });
 });
 
@@ -195,7 +195,9 @@ describe('balloon-pop floating stage: difficulty mapping (AC-20)', () => {
       let prev = 0;
       for (let level = min; level <= max; level++) {
         const v = floatSpeed(cfg, age, level, min);
-        expect(v).toBeGreaterThan(prev);
+        // Above speedMaxLevel (the age-5 maths levels L9-L11) the speed holds at the L8 speed.
+        if (cfg.speedMaxLevel !== undefined && level > cfg.speedMaxLevel) expect(v).toBe(prev);
+        else expect(v).toBeGreaterThan(prev);
         expect(v).toBeLessThanOrEqual(MAX_FLOAT_SPEED);
         prev = v;
         all.push(v);
@@ -212,7 +214,8 @@ describe('balloon-pop floating stage: difficulty mapping (AC-20)', () => {
   });
 
   it('[AC-20] speed is clamped even for a far-off level, and the balloon count is the level choiceCount', () => {
-    expect(floatSpeed(cfg, 'age5', 500, tracks.age5.min)).toBe(MAX_FLOAT_SPEED);
+    expect(floatSpeed({ ...cfg, speedMaxLevel: undefined }, 'age5', 500, tracks.age5.min)).toBe(MAX_FLOAT_SPEED);
+    expect(floatSpeed(cfg, 'age5', 500, tracks.age5.min)).toBe(floatSpeed(cfg, 'age5', 8, tracks.age5.min));
     for (const level of content.adaptive.levels) {
       expect(initialFloatBalloons(800, 1280, level.choiceCount ?? 2)).toHaveLength(level.choiceCount ?? 2);
     }

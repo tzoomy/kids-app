@@ -17,7 +17,22 @@
     "7": { "he": "שבע", "en": "seven", "fr": "sept" },
     "8": { "he": "שמונה", "en": "eight", "fr": "huit" },
     "9": { "he": "תשע", "en": "nine", "fr": "neuf" },
-    "10": { "he": "עשר", "en": "ten", "fr": "dix" }
+    "10": { "he": "עשר", "en": "ten", "fr": "dix" },
+    "11": { "he": "אחת עשרה", "en": "eleven", "fr": "onze" },
+    "12": { "he": "שתים עשרה", "en": "twelve", "fr": "douze" },
+    "13": { "he": "שלוש עשרה", "en": "thirteen", "fr": "treize" },
+    "14": { "he": "ארבע עשרה", "en": "fourteen", "fr": "quatorze" },
+    "15": { "he": "חמש עשרה", "en": "fifteen", "fr": "quinze" },
+    "16": { "he": "שש עשרה", "en": "sixteen", "fr": "seize" },
+    "17": { "he": "שבע עשרה", "en": "seventeen", "fr": "dix-sept" },
+    "18": { "he": "שמונה עשרה", "en": "eighteen", "fr": "dix-huit" },
+    "19": { "he": "תשע עשרה", "en": "nineteen", "fr": "dix-neuf" },
+    "20": { "he": "עשרים", "en": "twenty", "fr": "vingt" }
+  },
+  "operatorWords": {
+    "plus": { "en": "plus", "fr": "plus" },
+    "minus": { "en": "minus", "fr": "moins" },
+    "equals": { "en": "equals", "fr": "égale" }
   },
   "oneMorePhrase": {
     "en": "One more!",
@@ -27,20 +42,26 @@
     "introOneMore": "הארנב רוצה לעבור! בואי נוסיף עוד אבן.",
     "introMissing": "איזה מספר חסר בגשר?",
     "notThis": "הממ, בואי נספור שוב.",
-    "crossed": "הארנב עבר!"
+    "crossed": "הארנב עבר!",
+    "introAdd": "בואי נחבר! כמה זה ביחד? בחרי את האבן הנכונה.",
+    "introSub": "בואי נחסר! כמה נשאר? בחרי את האבן הנכונה.",
+    "introMix": "עכשיו גם מחברים וגם מחסרים. הקשיבי טוב ובחרי את האבן הנכונה."
   },
   "helpTextHe": "עזרי לארנב לחצות את הנחל! לחצי על האבנים כדי להשלים את הגשר.",
   "adaptive": {
     "tracks": {
       "age2": { "start": 1, "min": 1, "max": 2 },
-      "age5": { "start": 3, "min": 2, "max": 5 }
+      "age5": { "start": 3, "min": 2, "max": 8 }
     },
     "levels": [
       { "support": "picture-audio", "extra": { "mode": "one-more", "stones": 3, "gaps": 1, "range": 5, "dots": false } },
       { "support": "picture-audio", "extra": { "mode": "one-more", "stones": 4, "gaps": 2, "range": 5, "dots": false } },
       { "support": "picture-audio", "extra": { "mode": "missing", "stones": 4, "gaps": 1, "range": 5, "dots": true } },
       { "support": "picture-audio", "extra": { "mode": "missing", "stones": 5, "gaps": 1, "range": 10, "dots": false } },
-      { "support": "audio-only", "extra": { "mode": "missing", "stones": 5, "gaps": 1, "range": 10, "dots": false } }
+      { "support": "audio-only", "extra": { "mode": "missing", "stones": 5, "gaps": 1, "range": 10, "dots": false } },
+      { "support": "picture-audio", "extra": { "mode": "equation", "op": "add", "stones": 3, "gaps": 1, "range": 10 } },
+      { "support": "picture-audio", "extra": { "mode": "equation", "op": "sub", "stones": 3, "gaps": 1, "range": 10 } },
+      { "support": "audio-only", "extra": { "mode": "equation", "op": "mix", "stones": 3, "gaps": 1, "range": 20 } }
     ]
   }
 }
