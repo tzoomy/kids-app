@@ -7,6 +7,7 @@ import textHashes from '@/content/audio-text-hashes.json';
 import { loadAudioManifest, loadAnimalRestaurant } from '@/content/loadContent';
 import { heLine, heVariant } from '@/content/voiceLines';
 import heLines from '@/content/voice-lines-he.json';
+import gameLines from '../../scripts/tts/game-lines.json';
 
 class FakeAudio {
   static instances: FakeAudio[] = [];
@@ -151,6 +152,8 @@ describe('voice clip coverage', () => {
     // Decided French pan line (Kitchen Orchestra). Other orchestra.* lines stay on device TTS.
     valid.add('orchestra.play.pan.fr');
     for (const key of Object.keys(heLines)) if (!key.startsWith('_')) valid.add(`he.${key}`);
+    // Game lines (scripts/tts/game-lines.json, kept in sync with the games by gameVoiceLines.test.ts).
+    for (const l of gameLines.lines) valid.add(l.id);
     for (const id of Object.keys(manifest)) expect(valid.has(id), id).toBe(true);
   });
 
@@ -202,6 +205,7 @@ describe('voice clip coverage', () => {
     // Decided 2026-11-12: use poêle, not the stale tambour string still in kitchen-orchestra.json.
     texts['orchestra.play.pan.fr'] = 'Joue sur la poêle !';
     for (const [key, text] of Object.entries(heLines)) if (!key.startsWith('_')) texts[`he.${key}`] = text;
+    for (const l of gameLines.lines) texts[l.id] = l.text;
     const hashes = textHashes as Record<string, string>;
     const stale = Object.keys(manifest).filter((id) => {
       const h = crypto.createHash('sha1').update(prefix + texts[id], 'utf8').digest('hex').slice(0, 12);

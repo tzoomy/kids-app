@@ -7,7 +7,9 @@ Usage (from the repo root, with GEMINI_API_KEY in the environment):
 - Line list comes from src/content/games/animal-restaurant.json (food prompts,
   thanks, and attr.* / not.* colour lines, en + fr), src/content/voice-lines-he.json
   (Hebrew guidance), and the decided Kitchen Orchestra French pan line
-  (orchestra.play.pan.fr = "Joue sur la poêle !").
+  (orchestra.play.pan.fr = "Joue sur la poêle !"), plus every game line in
+  scripts/tts/game-lines.json (generated from the games' own line builders by
+  tests/unit/gameVoiceLines.test.ts; lines with the same language and text share one clip).
 - Lines that still need a clip are requested in priority order (pan line, then
   Who's Hiding Hebrew, then restaurant attr/not, then anything else), one API
   request per batch. The free tier is treated as ~3 RPM / ~10 RPD; this script
@@ -50,6 +52,7 @@ CONTENT = ROOT / "src/content/games/animal-restaurant.json"
 HE_LINES = ROOT / "src/content/voice-lines-he.json"
 MANIFEST = ROOT / "src/content/audio-manifest.json"
 HASHES = ROOT / "src/content/audio-text-hashes.json"
+GAME_LINES = ROOT / "scripts/tts/game-lines.json"
 AUDIO_DIR = ROOT / "public/audio"
 RAW_DIR = Path(os.environ.get("VOICE_RAW_DIR", ROOT.parent / "voice-p1" / "raw"))
 REPORT = RAW_DIR.parent / "report.json"
@@ -131,7 +134,49 @@ def collect_lines() -> list[dict]:
         slug = re.sub(r"([a-z])([A-Z])", r"\1-\2", key).replace(".", "-").lower()
         lines.append({"id": f"he.{key}", "lang": "he", "text": text, "path": f"audio/he/{slug}.mp3"})
     lines.append(dict(POELE_LINE))
+    lines.extend(game_lines(lines))
     return lines
+
+
+def game_slug(line_id: str, lang: str) -> str:
+    base = line_id[: -len(lang) - 1] if line_id.endswith(f".{lang}") else line_id
+    if base.startswith("he."):
+        base = base[3:]
+    base = re.sub(r"([a-z0-9])([A-Z])", r"\1-\2", base).lower()
+    return re.sub(r"[^a-z0-9]+", "-", base).strip("-")
+
+
+def game_lines(existing: list[dict]) -> list[dict]:
+    """Game lines from scripts/tts/game-lines.json (kept in sync by tests/unit/gameVoiceLines.test.ts).
+
+    Lines with the same language and text share one clip: the first line's path (or an existing clip's).
+    Combinatorial pair requests get priority 9 so they render last.
+    """
+    if not GAME_LINES.exists():
+        return []
+    data = json.loads(GAME_LINES.read_text(encoding="utf-8"))
+    by_text = {(l["lang"], l["text"]): l["path"] for l in existing}
+    used_paths = {l["path"] for l in existing}
+    out = []
+    for g in data["lines"]:
+        key = (g["lang"], g["text"])
+        path = by_text.get(key)
+        if path is None:
+            path = f"audio/{g['lang']}/{game_slug(g['id'], g['lang'])}.mp3"
+            if path in used_paths:
+                raise RuntimeError(f"clip path collision for {g['id']}: {path}")
+            by_text[key] = path
+            used_paths.add(path)
+        out.append({"id": g["id"], "lang": g["lang"], "text": g["text"], "path": path, "game": g["game"], "combo": bool(g.get("combo"))})
+    return out
+
+
+def propagate_shared(lines: list[dict], hashes: dict) -> None:
+    """A line whose (path, text) is shared with a current clip is current too."""
+    current = {(l["path"], l["text"]) for l in lines if clip_is_current(l, hashes)}
+    for l in lines:
+        if (l["path"], l["text"]) in current:
+            hashes[l["id"]] = text_hash(l["text"])
 
 
 def text_hash(text: str) -> str:
@@ -155,6 +200,8 @@ def line_priority(line: dict) -> int:
         return 1
     if lid.startswith("attr.") or lid.startswith("not."):
         return 2
+    if line.get("combo"):
+        return 9
     return 3
 
 
@@ -439,7 +486,12 @@ def main() -> int:
 
     lines = collect_lines()
     hashes = load_hashes()
-    stale = [l for l in lines if not clip_is_current(l, hashes)]
+    propagate_shared(lines, hashes)
+    stale, seen_paths = [], set()
+    for l in lines:
+        if not clip_is_current(l, hashes) and l["path"] not in seen_paths:
+            seen_paths.add(l["path"])
+            stale.append(l)
     request_batches = make_stale_batches(stale)
     log(f"{len(lines)} lines, {len(stale)} need a clip, {len(request_batches)} request batches")
     if args.dry_run:
@@ -533,6 +585,7 @@ def main() -> int:
                 dest.unlink(missing_ok=True)
                 continue
             hashes[l["id"]] = text_hash(l["text"])
+    propagate_shared(lines, hashes)
     HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     n = write_manifest(lines)
     remaining = [l["id"] for l in lines if not clip_is_current(l, hashes)]
