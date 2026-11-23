@@ -487,7 +487,7 @@ export async function seedSortingLevel(page: Page, level: number): Promise<void>
 }
 
 
-/** Seeds the app's language setting (stored settings.languages) so a test knows which language a round uses. Call from `beforeEnter`. */
+/** Seeds the active profile's language setting (and the deprecated global one) so a test knows which language a round uses. Call from `beforeEnter`. */
 export async function seedLanguageSetting(page: Page, lang: 'en' | 'fr' | 'both'): Promise<void> {
   await callHook<void>(page, 'seedLanguageSetting', [lang]);
 }

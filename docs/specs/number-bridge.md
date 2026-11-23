@@ -47,10 +47,23 @@ The rabbit (an existing animal rig, no new character) wants to cross a little st
 | 3 | missing | 4 | range 5, dots under each number | picture-audio |
 | 4 | missing | 5 | range 10, digits only | picture-audio |
 | 5 | missing | 5 | range 10, digits only | audio-only (no pulse on the right stone) |
+| 6 | equation (`op: add`) | 3 | a + b = ?, every number 1–10 | picture-audio |
+| 7 | equation (`op: sub`) | 3 | a − b = ?, every number 1–10, result ≥ 1 | picture-audio |
+| 8 | equation (`op: mix`) | 3 | a + b or a − b, numbers up to 20, every equation touches the teens | audio-only (no pulse on the right stone) |
 
-- **Age 2:** start L1, min 1, max 2.
-- **Age 5:** start L3, min 2, max 5.
+- **Age 2:** start L1, min 1, max 2 (unchanged).
+- **Age 5:** start L3, min 2, **max 8** (was 5; age-5 stretch, 2026-11-23).
 - **Adaptive rules:** engine defaults.
+
+### Age-5 stretch: equation bridges (L6–L8, 2026-11-23)
+
+Approved by Maor on 2026-11-23 (Elli's harder track; Shai's age-2 caps stay unchanged). Defaults below are reversible and listed in `docs/PENDING-DECISIONS.md`.
+
+- **Mode** `extra.mode: "equation"` with `extra.op` (`add`, `sub` or `mix`), `stones: 3`, `gaps: 1`, `extra.range` 10 or 20. The bridge is three number stones `a`, `b`, and a gap for the result, with a `+` / `−` sign between the first two stones and `=` before the gap (drawn on the water, no new art). Three number stones wait on the bank.
+- **Equations** (`equationCandidates` in `bridgeMachine.ts`): every number is 1..range and a difference is never 0. Within 10 there are 45 sums and 45 differences. On L8 (range 20) a sum is 11–20 or a subtraction starts at 11–20, so every L8 bridge practises the teens. `mix` picks `add` or `sub` 50/50 per bridge. The same equation never repeats twice in a row.
+- **Choices:** the result, a neighbour (result ± 1), and the "other operation" slip (a − b for a sum, a + b for a difference) when it is a new number in range, otherwise another number in range.
+- **Voice:** each bridge asks its question in the learning language, clip by clip: number `a`, `plus` / `minus`, number `b`, `equals` (`bridge.number.<n>.<lang>`, `bridge.op.<word>.<lang>`). The crossing says "three" / "plus four" / "equals seven". A wrong stone says `bridge.notThis.he` and asks the question again. The idle hint repeats the question and, on L6–L7 only, pulses the right stone. A Hebrew intro plays on the first bridge of each equation level (`bridge.intro.add.he`, `bridge.intro.sub.he`, `bridge.intro.mix.he`), including when she levels up into it mid-visit; L1–L5 intros are unchanged.
+- **Adaptive:** item id `a+b` or `a-b`; a bridge is clean only on a first-tap answer (same as missing-number bridges).
 
 ## Leisure
 
@@ -77,6 +90,11 @@ Profile → Number Garden building → **Number Garden picker** (new: Sorting Be
 | AC-07 | Content validates; number words 1-10 exist in Hebrew, English and French | 1 | unit | @single-orientation | |
 | AC-08 | Pile, choice stones and gaps are tap targets of at least 64 CSS px in both orientations | 1 | e2e | both | `getNumberBridgeInfo` |
 | AC-09 | Device check: touch, rotation mid-game, audible device-TTS voice, visuals | 1 | device | both | |
+| AC-10 | Age-5 stretch content: L1–L5 and the age-2 track (L1–L2) are unchanged, age 5 reaches L8, L6–L8 are equation levels; the schema rejects a bad `op`, more than 3 stones, a range above 20, `op` on a non-equation level, and missing number words 11–20 | 1 | unit | @single-orientation | |
+| AC-11 | Age 5 climbs to L8 on clean equation bridges and stays there; age 2 never leaves L1–L2 | 1 | unit | @single-orientation | |
+| AC-12 | Equation bridges: `a op b = c` with numbers 1..range and the gap on `c`, 3 distinct choices with a neighbour, no repeat, L8 always in the teens, a wrong stone keeps the gap; real taps at L7 hear the question clip by clip, a wrong stone changes nothing, the right stone earns a star | 1 | unit, e2e+seed | @single-orientation | `seedNumberBridgeLevel`, `getNumberBridgeInfo`, `getSpokenLines` |
+| AC-13 | Stretch voice lines: question and crossing line ids per language, number words 1–20, one text per line id, Hebrew intros addressed to one girl | 1 | unit | @single-orientation | |
+| AC-14 | L8 choice stones (numbers up to 20) and the gap are tap targets of at least 64 CSS px inside the viewport in both orientations | 1 | e2e+seed | both | `seedNumberBridgeLevel`, `getNumberBridgeInfo` |
 
 ## Art, animation, and audio
 
@@ -96,6 +114,15 @@ Profile → Number Garden building → **Number Garden picker** (new: Sorting Be
 | `bridge.notThis.he` | he | הממ, בואי נספור שוב. | A wrong number stone |
 | `bridge.crossed.he` | he | הארנב עבר! | Far bank |
 | `he.praise.0` | he | existing clip | Each crossed bridge |
+| `bridge.number.<11-20>.<lang>` | en / fr | eleven … twenty / onze … vingt | Equation bridges (L8) |
+| `bridge.op.plus.<lang>` | en / fr | plus / plus | Equation question and crossing |
+| `bridge.op.minus.<lang>` | en / fr | minus / moins | Equation question and crossing |
+| `bridge.op.equals.<lang>` | en / fr | equals / égale | Equation question and crossing |
+| `bridge.intro.add.he` | he | בואי נחבר! כמה זה ביחד? בחרי את האבן הנכונה. | First bridge of L6 in a visit |
+| `bridge.intro.sub.he` | he | בואי נחסר! כמה נשאר? בחרי את האבן הנכונה. | First bridge of L7 in a visit |
+| `bridge.intro.mix.he` | he | עכשיו גם מחברים וגם מחסרים. הקשיבי טוב ובחרי את האבן הנכונה. | First bridge of L8 in a visit |
+
+The full line list (for the Leda render list) comes from `allBridgeVoiceLines()` in `bridgeRound.ts`.
 
 ### Pass 2 — polish
 
@@ -104,6 +131,7 @@ Only after Maor approves Pass 1: polished bridge art and stream, the picker card
 ## Out of scope
 
 - Counting backwards, sequences that skip (2, 4, 6), dragging stones, other characters.
+- Number bonds with the gap on an addend ("3 + ? = 10") and two-gap equations (possible later stretch levels).
 
 ## Open decisions for the owner
 
@@ -113,7 +141,9 @@ Only after Maor approves Pass 1: polished bridge art and stream, the picker card
 - **Open decision for the owner:** age 2 stays in one-more (max L2); age 5 starts at L3 (missing number up to 5).
 - **Open decision for the owner:** Number Garden building now opens a game picker (Sorting Beds, Number Bridge) instead of Sorting Beds directly; Hebrew card name "גשר המספרים".
 - **Open decision for the owner:** a wrong number stone is a gentle retry with counting aloud; it is a non-clean adaptive trial.
+- **Open decision for the owner:** age-5 stretch L6–L8 (addition within 10, subtraction within 10, both within 20) with the equation spoken in the learning language and a Hebrew intro per level (2026-11-23 defaults, `docs/PENDING-DECISIONS.md`).
 
 ## Changelog
 
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-23` — age-5 stretch: equation levels L6–L8, age-5 max 8, number words 11–20, operator and intro lines (AC-10–AC-14), approved by Maor — substantive

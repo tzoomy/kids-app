@@ -33,6 +33,9 @@ import {
 import {
   countUpToGapLines,
   crossedLine,
+  equationHopLines,
+  equationLines,
+  introKey,
   introLine,
   notThisLine,
   numberLine,
@@ -168,6 +171,10 @@ export class NumberBridgeScene extends Phaser.Scene {
   private gapViews = new Map<number, Phaser.GameObjects.Container>();
   private choiceViews = new Map<number, Phaser.GameObjects.Container>();
   private pileView?: Phaser.GameObjects.Container;
+  /** Equation bridges: the "+" / "−" and "=" signs between the stones. */
+  private signViews: Phaser.GameObjects.Text[] = [];
+  /** Intro key of the last intro spoken this visit (see `introKey`); null before the first bridge. */
+  private lastIntroKey: string | null = null;
   private activeTransients = new Set<Phaser.GameObjects.GameObject>();
 
   private ready = false;
@@ -201,7 +208,9 @@ export class NumberBridgeScene extends Phaser.Scene {
     this.stepHinted = false;
     this.helpOpen = false;
     this.introPending = true;
+    this.lastIntroKey = null;
     this.lastEvent = null;
+    this.signViews = [];
     this.stoneViews = new Map();
     this.gapViews = new Map();
     this.choiceViews = new Map();
@@ -254,6 +263,34 @@ export class NumberBridgeScene extends Phaser.Scene {
     this.choiceViews.clear();
     this.destroyObject(this.pileView);
     this.pileView = undefined;
+    for (const sign of this.signViews) this.destroyObject(sign);
+    this.signViews = [];
+  }
+
+  /** Equation bridges: draws the operator between stones 0 and 1 and "=" between stones 1 and 2, over the water. */
+  private drawEquationSigns(): void {
+    if (this.bridge.mode !== 'equation') return;
+    const stones = this.layout.stones;
+    const signs = [this.bridge.op === 'sub' ? '\u2212' : '+', '='];
+    const fontSize = Math.round(this.layout.stoneH * 0.55);
+    signs.forEach((label, i) => {
+      const a = stones[i];
+      const b = stones[i + 1];
+      if (!a || !b) return;
+      const sign = this.add
+        .text((a.x + b.x) / 2, (a.y + b.y) / 2 - this.layout.stoneH * 0.05, label, {
+          fontFamily: "'Fredoka', 'Noto Sans', sans-serif",
+          fontSize: `${fontSize}px`,
+          fontStyle: 'bold',
+          color: '#FFFFFF',
+          stroke: '#3B2A22',
+          strokeThickness: 8,
+        })
+        .setOrigin(0.5)
+        .setDepth(DEPTH.stones + 1);
+      this.signViews.push(sign);
+      void popIn(this, sign, 60 + i * 45);
+    });
   }
 
   private cleanup(): void {
@@ -469,7 +506,10 @@ export class NumberBridgeScene extends Phaser.Scene {
   private async speakSequence(requests: readonly SpeechRequest[], token: number, maxMs = LINE_MAX_MS): Promise<void> {
     const batch = ++this.speechBatch;
     for (const req of requests) {
-      if (token !== this.visitToken || batch !== this.speechBatch || !this.sys.isActive()) return;
+      // The first bridge is presented from create(), when the scene is still CREATING (isActive() is false);
+      // without this the visit's first intro and question were silently dropped.
+      const live = this.sys.isActive() || this.sys.settings.status === Phaser.Scenes.CREATING;
+      if (token !== this.visitToken || batch !== this.speechBatch || !live) return;
       await this.speak(req, maxMs);
     }
   }
@@ -478,8 +518,7 @@ export class NumberBridgeScene extends Phaser.Scene {
 
   private refreshRoundPlan(): void {
     const c = content();
-    const settings = this.context.store.getState().settings;
-    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), settings.languages);
+    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), this.context.languageSetting());
     this.levelNo = this.skills.level(this.lang);
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
   }
@@ -515,7 +554,7 @@ export class NumberBridgeScene extends Phaser.Scene {
     }
 
     const popPromises: Promise<void>[] = [];
-    const showNums = this.bridge.mode === 'missing';
+    const showNums = this.bridge.mode !== 'one-more';
     const gapSet = new Set(this.bridge.gaps);
 
     this.bridge.sequence.forEach((num, idx) => {
@@ -547,10 +586,19 @@ export class NumberBridgeScene extends Phaser.Scene {
       });
     }
 
-    if (this.introPending) {
+    this.drawEquationSigns();
+
+    // Intro: the first bridge of a visit (as before), and again when an equation level (add / sub / mix) starts.
+    const key = introKey(this.plan);
+    const lines: SpeechRequest[] = [];
+    if (this.introPending || (this.plan.mode === 'equation' && key !== this.lastIntroKey)) {
       this.introPending = false;
-      void this.speakSequence([introLine(content(), this.bridge.mode)], token);
+      this.lastIntroKey = key;
+      lines.push(introLine(content(), this.bridge.mode, this.plan.op));
     }
+    // Equation bridges ask their question every time, in the learning language ("three" "plus" "four" "equals").
+    if (this.bridge.mode === 'equation' && this.lang) lines.push(...equationLines(content(), this.bridge, this.lang));
+    if (lines.length > 0) void this.speakSequence(lines, token);
 
     await Promise.all(popPromises);
     if (!alive()) return;
@@ -578,7 +626,11 @@ export class NumberBridgeScene extends Phaser.Scene {
       if (rightChoice) void hintPulse(this, rightChoice);
     }
     if (this.lang) {
-      void this.speakSequence(countUpToGapLines(content(), this.bridge, this.lang), this.visitToken);
+      const lines =
+        this.bridge.mode === 'equation'
+          ? equationLines(content(), this.bridge, this.lang)
+          : countUpToGapLines(content(), this.bridge, this.lang);
+      void this.speakSequence(lines, this.visitToken);
     }
   }
 
@@ -648,7 +700,9 @@ export class NumberBridgeScene extends Phaser.Scene {
       const gapView = gapIdx !== undefined ? this.gapViews.get(gapIdx) : undefined;
       if (gapView) void hintPulse(this, gapView);
       const wobblePromise = choiceView ? wobble(this, choiceView) : Promise.resolve();
-      const lines = [notThisLine(content()), ...countUpToGapLines(content(), this.bridge, lang)];
+      const again =
+        this.bridge.mode === 'equation' ? equationLines(content(), this.bridge, lang) : countUpToGapLines(content(), this.bridge, lang);
+      const lines = [notThisLine(content()), ...again];
       await Promise.all([wobblePromise, this.speakSequence(lines, token)]);
       if (!alive()) return;
       this.ready = true;
@@ -699,7 +753,9 @@ export class NumberBridgeScene extends Phaser.Scene {
     this.session.complete();
     this.context.recordCompletedRound('number-garden', 'number-bridge');
 
-    // Rabbit hops stone by stone while each number is spoken in the learning language.
+    // Rabbit hops stone by stone while each number is spoken in the learning language
+    // (equation bridges: "three" / "plus four" / "equals seven").
+    const hopLines = this.bridge.mode === 'equation' ? equationHopLines(c, this.bridge, lang) : null;
     for (let i = 0; i < this.bridge.sequence.length; i++) {
       if (!alive()) return;
       const num = this.bridge.sequence[i];
@@ -712,7 +768,15 @@ export class NumberBridgeScene extends Phaser.Scene {
             endScale: 1,
           })
         : Promise.resolve();
-      await Promise.all([hop, this.speak(numberLine(c, num, lang), HOP_LINE_MAX_MS)]);
+      const say = hopLines
+        ? (async () => {
+            for (const line of hopLines[i] ?? []) {
+              if (!alive()) return;
+              await this.speak(line, HOP_LINE_MAX_MS);
+            }
+          })()
+        : this.speak(numberLine(c, num, lang), HOP_LINE_MAX_MS);
+      await Promise.all([hop, say]);
       if (!alive()) return;
       if (this.rabbit) void squashStretch(this, this.rabbit);
       const stone = this.stoneViews.get(i);
@@ -797,7 +861,7 @@ export class NumberBridgeScene extends Phaser.Scene {
       gameRectToPageRect({ x: x - width / 2, y: y - height / 2, width, height }, canvasRect, size);
 
     const choiceRects: Record<string, Rect> = {};
-    if (this.bridge.mode === 'missing') {
+    if (this.bridge.mode !== 'one-more') {
       this.bridge.choices.forEach((num, idx) => {
         const pos = this.layout.choices[idx];
         if (pos) choiceRects[String(num)] = toPageRect(pos.x, pos.y, this.layout.choiceW, this.layout.choiceH);
@@ -812,6 +876,7 @@ export class NumberBridgeScene extends Phaser.Scene {
     return {
       phase: this.bridge.phase,
       mode: this.bridge.mode,
+      op: this.bridge.op,
       level: this.levelNo,
       skillKey: this.skills.key(this.lang),
       language: this.lang,

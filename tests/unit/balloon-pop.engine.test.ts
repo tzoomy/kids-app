@@ -84,7 +84,8 @@ describe('balloon-pop: start levels and track bounds (AC-07)', () => {
   it('[AC-07] age 2 is capped at the colour levels and age 5 floored at the digit levels', () => {
     const { age2, age5 } = content.adaptive.tracks;
     for (let l = age2.min; l <= age2.max; l++) expect(levelMode(l), `age2 L${l}`).toBe('color');
-    for (let l = age5.min; l <= age5.max; l++) expect(levelMode(l), `age5 L${l}`).toBe('digit');
+    // Age 5 never drops to colours: L5-L9 are digit levels, L10-L11 the stretch "k more than n" and sum levels.
+    for (let l = age5.min; l <= age5.max; l++) expect(levelMode(l), `age5 L${l}`).toBe(l <= 9 ? 'digit' : l === 10 ? 'more' : 'sum');
 
     const store = new AdaptiveStore(memoryDriver());
     const young = newSession('age2', store);

@@ -588,7 +588,7 @@ export class StickerBoardScene extends Phaser.Scene {
   }
 
   private startNextRequest(speakNow: boolean): void {
-    const langSetting = this.context.store.getState().settings.languages;
+    const langSetting = this.context.languageSetting();
     const req = pickRequest(
       this.context.content.stickers,
       this.board.backgroundId,

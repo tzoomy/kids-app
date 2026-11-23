@@ -471,8 +471,7 @@ export class LetterMonsterScene extends Phaser.Scene {
 
   private refreshRoundPlan(): void {
     const c = content();
-    const settings = this.context.store.getState().settings;
-    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), settings.languages);
+    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), this.context.languageSetting());
     this.levelNo = this.skills.level(this.lang);
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
   }

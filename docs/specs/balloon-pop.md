@@ -44,10 +44,24 @@ Levels (content `src/content/games/balloon-pop.json`, `adaptive.levels`, read by
 | L6 | digit | 4 | 1–9 | far |
 | L7 | digit | 5 | 0–9 | far |
 | L8 | digit | 6 | 0–9 | near (look- or sound-alike digits first: 6/9, 1/7, 3/8, 5/2, 0/8, 4/1) |
+| L9 | digit (teens) | 5 | 10–20 | near (n ± 1) |
+| L10 | more | 4 | "k more than n": n 1–10, k 1–2 (answers 2–12) | near (n itself, the other step, answer ± 1) |
+| L11 | sum | 4 | "a plus b": a, b 1–5 (answers 2–10) | near (answer ± 1, an addend, the difference) |
 
 - **Age-2 start level:** L1; min L1, **max L4** (colour only). **Open decision for the owner:** whether a strong age-2 player may later reach the digit levels.
-- **Age-5 start level:** L5; **min L5**, max L8 (digit only). **Open decision for the owner:** whether a struggling age-5 player may drop to the colour levels.
+- **Age-5 start level:** L5; **min L5**, **max L11** (was L8; age-5 stretch L9–L11, 2026-11-23; never the colour levels). **Open decision for the owner:** whether a struggling age-5 player may drop to the colour levels.
 - **Adaptive rules:** `DEFAULT_RULES` (up after 3 clean, down after 2 misses in the last 3, 3 trials per round, at most one change per round). Age 2 changes between rounds; age 5 after a trial (track policy). Items are `color-<id>` and `digit-<n>`; the engine picks the target from the level's items, so both modes share one skill per language: `number-garden.balloon-pop.<lang>`.
+
+### Age-5 stretch (L9–L11, 2026-11-23)
+
+Approved by Maor on 2026-11-23 (Elli's harder track; Shai's age-2 track L1–L4 stays unchanged). Defaults are reversible and listed in `docs/PENDING-DECISIONS.md`.
+
+- **L9 teens:** digit balloons 10–20 with the new `number` frame ("Pop the number fourteen!" / "Éclate le nombre quatorze !"; French says *nombre* for 10 and up, *chiffre* stays for 0–9).
+- **L10 one / two more:** item `more-<n>-<k>`, frame `more` ("Pop the number that is two more than five!" / "Éclate le nombre qui fait deux de plus que cinq !"). The right balloon shows n + k.
+- **L11 simple sums:** item `sum-<a>-<b>`, frame `sum` ("What is three plus four? Pop it!" / "Combien font trois plus quatre ? Éclate-le !"). The right balloon shows a + b.
+- **Balloons:** every balloon shows a number 0–20 and only one shows the answer. On L10–L11 the wrong balloons are `digit-<v>` items. Two-digit numerals are drawn at 0.78 of the body height (one-digit stay at 1.05) so "20" stays inside the balloon.
+- **Floating stage:** unchanged cadence (every third trial) and hit pads (≥ 1.5× body, ≥ 64 CSS px, clamped to the playfield). New `floating.speedMaxLevel: 8`: L9–L11 float at the L8 speed (81.6 px/s at age 5), so a harder sum does not also move faster.
+- **Adaptive:** same skill per language; the engine picks the request among the level's items (11 teens, 20 "more", 25 sums).
 
 ## Leisure
 
@@ -91,6 +105,9 @@ Profile → tap the Number Garden building → tap the `game-picker-balloon-pop`
 | AC-20 | Floating speed rises with the level inside each track, age 2 at its first level is the slowest (>= 15 s to cross the sky), the speed is capped, and the count is the level's `choiceCount`; the schema rejects age 2 faster than age 5 | 1 | unit | @single-orientation | |
 | AC-21 | Portrait real taps: the third trial floats and its balloons move; a wrong tap fails nothing; popping the moving target adds a star and starts the next (static) trial | 1 | e2e | @single-orientation | `getBalloonInfo` |
 | AC-22 | With `prefers-reduced-motion` the third trial stays still | 1 | e2e | @single-orientation | `getBalloonInfo` |
+| AC-23 | Age-5 stretch content: L1–L8 and the age-2 track (L1–L4) are unchanged, age 5 reaches L11 (teens, more, sums); the schema rejects a "more" level past 20, a sum level without `addendMax`, and a frame missing a slot | 1 | unit | @single-orientation | |
+| AC-24 | Every L9–L11 request builds distinct numbered balloons (0–20) with exactly one answer; near slips come first; requests read naturally in EN and FR with one text per line id; real taps on seeded L9, L10, L11 pop the right balloon | 1 | unit, e2e+seed | @single-orientation | `seedBalloonLevel`, `getBalloonInfo`, `getSpokenLines` |
+| AC-25 | Floating stage on the stretch: L9–L11 float at the L8 speed, pads stay ≥ 64 CSS px inside the playfield in both orientations; portrait real taps pop a moving L11 answer | 1 | unit, e2e+seed | @single-orientation | `seedBalloonLevel`, `getBalloonInfo` |
 
 ## Art, animation, and audio
 
@@ -114,6 +131,8 @@ Profile → tap the Number Garden building → tap the `game-picker-balloon-pop`
   The Hebrew intro and help texts live in `balloon-pop.json` (not `voice-lines-he.json`), so device TTS speaks them until Pass 2 clips exist.
 - **World and PWA wiring:** `number-garden` keeps `entryGameId: "sorting-beds"`; the building opens the Number Garden picker; new `AppScreen` `'balloon'` (unsafe for mid-game PWA updates).
 
+Age-5 stretch voice lines (device TTS until Leda clips exist): `balloon.digit-<10-20>.<lang>` (number frame), `balloon.more-<n>-<k>.<lang>` (n 1–10, k 1–2), `balloon.sum-<a>-<b>.<lang>` (a, b 1–5), en and fr: 112 new lines, one text each.
+
 ### Pass 2 — polish
 
 Only after Maor approves the finished Pass 1: SVG balloon art and a picker card, drifting balloons, a pop animation, Leda clips for the voice table.
@@ -131,9 +150,11 @@ Counting balloons (quantities), numbers above 9, Hebrew number names, drag input
 - **Open decision for the owner:** Digits 0–9 only (no 10+).
 - **Open decision for the owner:** Floating stage cadence (every 3rd trial) and speeds (age 2 40, age 5 60 game px/s, +12% per level).
 - **Open decision for the owner:** This spec itself (code was built before approval under the continuous-development mode).
+- **Open decision for the owner:** age-5 stretch levels and phrasing (teens, "k more than n", "a plus b"), and holding L9–L11 at the L8 float speed (2026-11-23 defaults, `docs/PENDING-DECISIONS.md`).
 
 ## Changelog
 
 - `2026-11-13` — created (Pass 1 built in the same PR under the continuous-development mode) — substantive
 - `2026-11-16` — floating stage (moving balloons, AC-18–AC-22), requested by Maor — substantive
+- `2026-11-23` — age-5 stretch L9–L11 (teens, one / two more, simple sums), age-5 max 11, floating `speedMaxLevel` 8 (AC-23–AC-25), approved by Maor — substantive
 - `2026-11-13` — review fixes (#64): deferred hints during intro/help, repeating idle hint, no next trial behind the help card (AC-17); AC-12 requires an active service worker; no screenshots from specs — minor

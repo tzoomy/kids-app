@@ -311,12 +311,11 @@ export class BalloonScene extends Phaser.Scene {
     this.hinted = false;
 
     const content = this.context.content.balloon;
-    const settings = this.context.store.getState().settings;
     // One round = trialsPerRound trials in the same language, so each round feeds one skill.
     this.roundLang = nextRoundLanguage(
       this.roundLang,
       this.roundLang === null || this.skills.atRoundBoundary(this.roundLang),
-      settings.languages,
+      this.context.languageSetting(),
     );
     const language = this.roundLang;
     const levelNumber = this.skills.level(language);
@@ -396,7 +395,8 @@ export class BalloonScene extends Phaser.Scene {
       const text = this.add
         .text(0, 0, choice.label, {
           fontFamily: '"Noto Sans", sans-serif',
-          fontSize: `${Math.round(ry * 1.05)}px`,
+          // Two-digit numerals (10-20) get a smaller face so they stay inside the body (about 1.2 rx wide).
+          fontSize: `${Math.round(ry * (choice.label.length > 1 ? 0.78 : 1.05))}px`,
           fontStyle: 'bold',
           color: '#3b2a22',
         })

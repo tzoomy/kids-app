@@ -32,7 +32,8 @@ describe('balloon-pop: content (AC-09)', () => {
     expect(content.id).toBe('balloon-pop');
     expect(content.world).toBe('number-garden');
     expect(content.languages).toEqual(['en', 'fr']);
-    expect(content.digits.map((d) => d.value)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    // 0-9 since Pass 1; 10-20 added for the age-5 stretch (teens, "k more than n" and sum answers).
+    expect(content.digits.map((d) => d.value)).toEqual(Array.from({ length: 21 }, (_, i) => i));
   });
 
   it('[AC-09] the schema rejects a level without a mode, a digit range that is too small, and an unknown colour', () => {
@@ -72,7 +73,8 @@ describe('balloon-pop: content (AC-09)', () => {
 
 describe('balloon-pop: round building (AC-09)', () => {
   it('[AC-09] every level builds rounds with the target among distinct balloons, the right count, and the right mode', () => {
-    levels.forEach((descriptor, i) => {
+    // L1-L8 (the stretch levels L9-L11 have their own checks in balloon-pop.stretch.test.ts).
+    levels.slice(0, 8).forEach((descriptor, i) => {
       const level = balloonLevel(descriptor);
       const ids = eligibleItemIds(content, level);
       for (const target of ids) {
@@ -104,10 +106,10 @@ describe('balloon-pop: round building (AC-09)', () => {
 
   it('[AC-09] age-2 levels pop colours only and age-5 levels digits only, with the specified ranges', () => {
     expect(levels.slice(0, 4).map((l) => balloonLevel(l).mode)).toEqual(['color', 'color', 'color', 'color']);
-    expect(levels.slice(4).map((l) => balloonLevel(l).mode)).toEqual(['digit', 'digit', 'digit', 'digit']);
+    expect(levels.slice(4, 8).map((l) => balloonLevel(l).mode)).toEqual(['digit', 'digit', 'digit', 'digit']);
     expect(eligibleItemIds(content, balloonLevel(levels[4]))).toEqual(['digit-1', 'digit-2', 'digit-3', 'digit-4', 'digit-5']);
     expect(eligibleItemIds(content, balloonLevel(levels[7]))).toHaveLength(10);
-    expect(levels.map((l) => l.choiceCount)).toEqual([2, 3, 4, 5, 3, 4, 5, 6]);
+    expect(levels.slice(0, 8).map((l) => l.choiceCount)).toEqual([2, 3, 4, 5, 3, 4, 5, 6]);
   });
 
   it('[AC-09] L8 near distractors put the look- or sound-alike digits first', () => {

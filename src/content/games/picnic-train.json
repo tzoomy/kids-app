@@ -7,7 +7,7 @@
     "age5": { "hintMode": "repeat-then-demonstrate", "hintDelayMs": 8000 }
   },
   "adaptive": {
-    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 8 } },
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 10 } },
     "rules": { "trialsPerRound": 1 },
     "levels": [
       { "setSize": 2, "scaffold": "outline", "extra": { "task": "one-each", "layout": "rows" } },
@@ -17,7 +17,9 @@
       { "setSize": 5, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered" } },
       { "setSize": 6, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered" } },
       { "setSize": 8, "request": "two-step", "scaffold": "none", "extra": { "task": "missing", "layout": "scattered" } },
-      { "setSize": 10, "request": "two-step", "scaffold": "none", "extra": { "task": "missing", "layout": "scattered" } }
+      { "setSize": 10, "request": "two-step", "scaffold": "none", "extra": { "task": "missing", "layout": "scattered" } },
+      { "setSize": 10, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered", "op": "add", "aMin": 5, "aMax": 10, "bMin": 2, "bMax": 5 } },
+      { "setSize": 10, "request": "quantity", "scaffold": "none", "extra": { "task": "load", "layout": "scattered", "op": "mix", "aMin": 10, "aMax": 15, "bMin": 2, "bMax": 5 } }
     ]
   }
 }
