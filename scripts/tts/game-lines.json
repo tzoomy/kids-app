@@ -2967,6 +2967,342 @@
       "game": "balloon-pop"
     },
     {
+      "id": "balloon.digit-10.en",
+      "lang": "en",
+      "text": "Pop the number ten!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-11.en",
+      "lang": "en",
+      "text": "Pop the number eleven!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-12.en",
+      "lang": "en",
+      "text": "Pop the number twelve!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-13.en",
+      "lang": "en",
+      "text": "Pop the number thirteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-14.en",
+      "lang": "en",
+      "text": "Pop the number fourteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-15.en",
+      "lang": "en",
+      "text": "Pop the number fifteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-16.en",
+      "lang": "en",
+      "text": "Pop the number sixteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-17.en",
+      "lang": "en",
+      "text": "Pop the number seventeen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-18.en",
+      "lang": "en",
+      "text": "Pop the number eighteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-19.en",
+      "lang": "en",
+      "text": "Pop the number nineteen!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-20.en",
+      "lang": "en",
+      "text": "Pop the number twenty!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-1-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than one!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-1-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than one!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-2-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than two!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-2-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than two!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-3-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than three!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-3-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than three!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-4-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than four!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-4-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than four!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-5-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than five!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-5-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than five!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-6-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than six!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-6-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than six!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-7-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than seven!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-7-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than seven!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-8-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than eight!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-8-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than eight!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-9-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than nine!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-9-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than nine!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-10-1.en",
+      "lang": "en",
+      "text": "Pop the number that is one more than ten!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-10-2.en",
+      "lang": "en",
+      "text": "Pop the number that is two more than ten!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-1.en",
+      "lang": "en",
+      "text": "What is one plus one? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-2.en",
+      "lang": "en",
+      "text": "What is one plus two? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-3.en",
+      "lang": "en",
+      "text": "What is one plus three? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-4.en",
+      "lang": "en",
+      "text": "What is one plus four? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-5.en",
+      "lang": "en",
+      "text": "What is one plus five? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-1.en",
+      "lang": "en",
+      "text": "What is two plus one? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-2.en",
+      "lang": "en",
+      "text": "What is two plus two? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-3.en",
+      "lang": "en",
+      "text": "What is two plus three? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-4.en",
+      "lang": "en",
+      "text": "What is two plus four? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-5.en",
+      "lang": "en",
+      "text": "What is two plus five? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-1.en",
+      "lang": "en",
+      "text": "What is three plus one? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-2.en",
+      "lang": "en",
+      "text": "What is three plus two? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-3.en",
+      "lang": "en",
+      "text": "What is three plus three? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-4.en",
+      "lang": "en",
+      "text": "What is three plus four? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-5.en",
+      "lang": "en",
+      "text": "What is three plus five? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-1.en",
+      "lang": "en",
+      "text": "What is four plus one? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-2.en",
+      "lang": "en",
+      "text": "What is four plus two? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-3.en",
+      "lang": "en",
+      "text": "What is four plus three? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-4.en",
+      "lang": "en",
+      "text": "What is four plus four? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-5.en",
+      "lang": "en",
+      "text": "What is four plus five? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-1.en",
+      "lang": "en",
+      "text": "What is five plus one? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-2.en",
+      "lang": "en",
+      "text": "What is five plus two? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-3.en",
+      "lang": "en",
+      "text": "What is five plus three? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-4.en",
+      "lang": "en",
+      "text": "What is five plus four? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-5.en",
+      "lang": "en",
+      "text": "What is five plus five? Pop it!",
+      "game": "balloon-pop"
+    },
+    {
       "id": "balloon.popped.fr.0",
       "lang": "fr",
       "text": "Pop !",
@@ -3078,6 +3414,342 @@
       "id": "balloon.digit-0.fr",
       "lang": "fr",
       "text": "Éclate le chiffre zéro !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-10.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre dix !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-11.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre onze !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-12.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre douze !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-13.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre treize !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-14.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre quatorze !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-15.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre quinze !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-16.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre seize !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-17.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre dix-sept !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-18.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre dix-huit !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-19.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre dix-neuf !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.digit-20.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre vingt !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-1-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que un !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-1-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que un !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-2-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que deux !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-2-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que deux !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-3-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que trois !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-3-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que trois !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-4-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que quatre !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-4-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que quatre !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-5-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que cinq !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-5-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que cinq !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-6-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que six !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-6-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que six !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-7-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que sept !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-7-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que sept !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-8-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que huit !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-8-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que huit !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-9-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que neuf !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-9-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que neuf !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-10-1.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait un de plus que dix !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.more-10-2.fr",
+      "lang": "fr",
+      "text": "Éclate le nombre qui fait deux de plus que dix !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-1.fr",
+      "lang": "fr",
+      "text": "Combien font un plus un ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-2.fr",
+      "lang": "fr",
+      "text": "Combien font un plus deux ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-3.fr",
+      "lang": "fr",
+      "text": "Combien font un plus trois ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-4.fr",
+      "lang": "fr",
+      "text": "Combien font un plus quatre ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-1-5.fr",
+      "lang": "fr",
+      "text": "Combien font un plus cinq ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-1.fr",
+      "lang": "fr",
+      "text": "Combien font deux plus un ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-2.fr",
+      "lang": "fr",
+      "text": "Combien font deux plus deux ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-3.fr",
+      "lang": "fr",
+      "text": "Combien font deux plus trois ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-4.fr",
+      "lang": "fr",
+      "text": "Combien font deux plus quatre ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-2-5.fr",
+      "lang": "fr",
+      "text": "Combien font deux plus cinq ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-1.fr",
+      "lang": "fr",
+      "text": "Combien font trois plus un ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-2.fr",
+      "lang": "fr",
+      "text": "Combien font trois plus deux ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-3.fr",
+      "lang": "fr",
+      "text": "Combien font trois plus trois ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-4.fr",
+      "lang": "fr",
+      "text": "Combien font trois plus quatre ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-3-5.fr",
+      "lang": "fr",
+      "text": "Combien font trois plus cinq ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-1.fr",
+      "lang": "fr",
+      "text": "Combien font quatre plus un ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-2.fr",
+      "lang": "fr",
+      "text": "Combien font quatre plus deux ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-3.fr",
+      "lang": "fr",
+      "text": "Combien font quatre plus trois ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-4.fr",
+      "lang": "fr",
+      "text": "Combien font quatre plus quatre ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-4-5.fr",
+      "lang": "fr",
+      "text": "Combien font quatre plus cinq ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-1.fr",
+      "lang": "fr",
+      "text": "Combien font cinq plus un ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-2.fr",
+      "lang": "fr",
+      "text": "Combien font cinq plus deux ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-3.fr",
+      "lang": "fr",
+      "text": "Combien font cinq plus trois ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-4.fr",
+      "lang": "fr",
+      "text": "Combien font cinq plus quatre ? Éclate-le !",
+      "game": "balloon-pop"
+    },
+    {
+      "id": "balloon.sum-5-5.fr",
+      "lang": "fr",
+      "text": "Combien font cinq plus cinq ? Éclate-le !",
       "game": "balloon-pop"
     },
     {
@@ -3660,6 +4332,534 @@
       "id": "picnic.number.10.fr",
       "lang": "fr",
       "text": "dix",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.11.en",
+      "lang": "en",
+      "text": "eleven",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.11.fr",
+      "lang": "fr",
+      "text": "onze",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.12.en",
+      "lang": "en",
+      "text": "twelve",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.12.fr",
+      "lang": "fr",
+      "text": "douze",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.13.en",
+      "lang": "en",
+      "text": "thirteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.13.fr",
+      "lang": "fr",
+      "text": "treize",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.14.en",
+      "lang": "en",
+      "text": "fourteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.14.fr",
+      "lang": "fr",
+      "text": "quatorze",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.15.en",
+      "lang": "en",
+      "text": "fifteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.15.fr",
+      "lang": "fr",
+      "text": "quinze",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.16.en",
+      "lang": "en",
+      "text": "sixteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.16.fr",
+      "lang": "fr",
+      "text": "seize",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.17.en",
+      "lang": "en",
+      "text": "seventeen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.17.fr",
+      "lang": "fr",
+      "text": "dix-sept",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.18.en",
+      "lang": "en",
+      "text": "eighteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.18.fr",
+      "lang": "fr",
+      "text": "dix-huit",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.19.en",
+      "lang": "en",
+      "text": "nineteen",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.19.fr",
+      "lang": "fr",
+      "text": "dix-neuf",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.20.en",
+      "lang": "en",
+      "text": "twenty",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.number.20.fr",
+      "lang": "fr",
+      "text": "vingt",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.2.he",
+      "lang": "he",
+      "text": "ארזי חמישה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.3.he",
+      "lang": "he",
+      "text": "ארזי חמישה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.4.he",
+      "lang": "he",
+      "text": "ארזי חמישה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.5.he",
+      "lang": "he",
+      "text": "ארזי חמישה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.2.he",
+      "lang": "he",
+      "text": "ארזי שישה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.3.he",
+      "lang": "he",
+      "text": "ארזי שישה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.4.he",
+      "lang": "he",
+      "text": "ארזי שישה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.5.he",
+      "lang": "he",
+      "text": "ארזי שישה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.2.he",
+      "lang": "he",
+      "text": "ארזי שבעה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.3.he",
+      "lang": "he",
+      "text": "ארזי שבעה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.4.he",
+      "lang": "he",
+      "text": "ארזי שבעה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.5.he",
+      "lang": "he",
+      "text": "ארזי שבעה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.2.he",
+      "lang": "he",
+      "text": "ארזי שמונה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.3.he",
+      "lang": "he",
+      "text": "ארזי שמונה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.4.he",
+      "lang": "he",
+      "text": "ארזי שמונה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.5.he",
+      "lang": "he",
+      "text": "ארזי שמונה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.2.he",
+      "lang": "he",
+      "text": "ארזי תשעה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.3.he",
+      "lang": "he",
+      "text": "ארזי תשעה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.4.he",
+      "lang": "he",
+      "text": "ארזי תשעה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.5.he",
+      "lang": "he",
+      "text": "ארזי תשעה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.2.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.3.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.4.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.5.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.2.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.3.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.4.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.5.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.2.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.3.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.4.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.5.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.2.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.3.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.4.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.5.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.2.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.3.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.4.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.5.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.2.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים ועוד שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.3.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.4.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים ועוד ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.5.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.2.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.3.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.4.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.5.he",
+      "lang": "he",
+      "text": "ארזי עשרה פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.2.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.3.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.4.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.5.he",
+      "lang": "he",
+      "text": "ארזי אחד עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.2.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.3.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.4.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.5.he",
+      "lang": "he",
+      "text": "ארזי שנים עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.2.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.3.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.4.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.5.he",
+      "lang": "he",
+      "text": "ארזי שלושה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.2.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.3.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.4.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.5.he",
+      "lang": "he",
+      "text": "ארזי ארבעה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.2.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים, הוציאי שניים, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.3.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.4.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים, הוציאי ארבעה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.5.he",
+      "lang": "he",
+      "text": "ארזי חמישה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
       "game": "picnic-train"
     },
     {
@@ -4641,6 +5841,24 @@
       "game": "number-bridge"
     },
     {
+      "id": "bridge.intro.add.he",
+      "lang": "he",
+      "text": "בואי נחבר! כמה זה ביחד? בחרי את האבן הנכונה.",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.intro.sub.he",
+      "lang": "he",
+      "text": "בואי נחסר! כמה נשאר? בחרי את האבן הנכונה.",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.intro.mix.he",
+      "lang": "he",
+      "text": "עכשיו גם מחברים וגם מחסרים. הקשיבי טוב ובחרי את האבן הנכונה.",
+      "game": "number-bridge"
+    },
+    {
       "id": "bridge.notThis.he",
       "lang": "he",
       "text": "הממ, בואי נספור שוב.",
@@ -4725,6 +5943,84 @@
       "game": "number-bridge"
     },
     {
+      "id": "bridge.number.11.en",
+      "lang": "en",
+      "text": "eleven",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.12.en",
+      "lang": "en",
+      "text": "twelve",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.13.en",
+      "lang": "en",
+      "text": "thirteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.14.en",
+      "lang": "en",
+      "text": "fourteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.15.en",
+      "lang": "en",
+      "text": "fifteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.16.en",
+      "lang": "en",
+      "text": "sixteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.17.en",
+      "lang": "en",
+      "text": "seventeen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.18.en",
+      "lang": "en",
+      "text": "eighteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.19.en",
+      "lang": "en",
+      "text": "nineteen",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.20.en",
+      "lang": "en",
+      "text": "twenty",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.plus.en",
+      "lang": "en",
+      "text": "plus",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.minus.en",
+      "lang": "en",
+      "text": "minus",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.equals.en",
+      "lang": "en",
+      "text": "equals",
+      "game": "number-bridge"
+    },
+    {
       "id": "bridge.oneMore.fr",
       "lang": "fr",
       "text": "Encore une !",
@@ -4788,6 +6084,84 @@
       "id": "bridge.number.10.fr",
       "lang": "fr",
       "text": "dix",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.11.fr",
+      "lang": "fr",
+      "text": "onze",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.12.fr",
+      "lang": "fr",
+      "text": "douze",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.13.fr",
+      "lang": "fr",
+      "text": "treize",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.14.fr",
+      "lang": "fr",
+      "text": "quatorze",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.15.fr",
+      "lang": "fr",
+      "text": "quinze",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.16.fr",
+      "lang": "fr",
+      "text": "seize",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.17.fr",
+      "lang": "fr",
+      "text": "dix-sept",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.18.fr",
+      "lang": "fr",
+      "text": "dix-huit",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.19.fr",
+      "lang": "fr",
+      "text": "dix-neuf",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.number.20.fr",
+      "lang": "fr",
+      "text": "vingt",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.plus.fr",
+      "lang": "fr",
+      "text": "plus",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.minus.fr",
+      "lang": "fr",
+      "text": "moins",
+      "game": "number-bridge"
+    },
+    {
+      "id": "bridge.op.equals.fr",
+      "lang": "fr",
+      "text": "égale",
       "game": "number-bridge"
     },
     {

@@ -181,17 +181,10 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
       add('letter-monster', monster.letterModelLine(lm, letter, lang));
   }
 
-  // Number Bridge.
+  // Number Bridge (the game's own render list, incl. the age-5 equation lines).
   const nb = loadNumberBridge();
-  add('number-bridge', bridge.introLine(nb, 'one-more'));
-  add('number-bridge', bridge.introLine(nb, 'missing'));
-  add('number-bridge', bridge.notThisLine(nb));
-  add('number-bridge', bridge.crossedLine(nb));
+  for (const r of bridge.allBridgeVoiceLines(nb)) add('number-bridge', r);
   add('number-bridge', { lineId: 'bridge.help.he', lang: 'he', text: nb.helpTextHe });
-  for (const lang of LANGS) {
-    add('number-bridge', bridge.oneMoreLine(nb, lang));
-    for (let n = 1; n <= 10; n++) add('number-bridge', bridge.numberLine(nb, n, lang));
-  }
 
   // Potion Lab.
   const pl = loadPotionLab();
