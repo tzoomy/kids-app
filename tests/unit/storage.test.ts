@@ -70,6 +70,10 @@ describe('legacy migration from prototype ar_state', () => {
     expect(state.profiles.find((p) => p.id === 'a')?.ageTrack).toBe('age2');
     expect(state.profiles.find((p) => p.id === 'b')?.ageTrack).toBe('age5');
     expect(driver.getItem(STORAGE_KEY)).not.toBeNull();
+    expect(state.profiles.map((p) => [p.languages, p.startFrenchHigher, p.difficulty])).toEqual([
+      ['both', false, 'regular'],
+      ['both', false, 'regular'],
+    ]);
   });
 
   it('does not run again once v2 storage already has state', () => {
@@ -108,6 +112,13 @@ describe('v2 profile state without gameVisits', () => {
     expect(profile.earnedTodaySec).toBe(60);
     expect(profile.carry).toBe(0.2);
     expect(profile.gameVisits).toBeUndefined();
+    // The same old blob gains the per-profile defaults (global language copied, flags off).
+    const state = store.getState();
+    expect(state.settings.languages).toBe('both');
+    expect(state.profiles.map((p) => [p.languages, p.startFrenchHigher, p.difficulty])).toEqual([
+      ['both', false, 'regular'],
+      ['both', false, 'regular'],
+    ]);
 
     // Same read as SortingScene: absent gameVisits is treated as 0, so the cycle starts at colour.
     const gameId = 'sorting-beds';

@@ -157,3 +157,48 @@ describe('SkillSession', () => {
     expect(session.level('en')).toBe(2);
   });
 });
+
+describe('SkillSession start prefs', () => {
+  const mk = (track: AgeTrack, prefs?: { startFrenchHigher?: boolean; difficulty?: 'regular' | 'challenging' }) =>
+    new SkillSession({
+      store: new AdaptiveStore(memoryDriver().driver),
+      profileId: 'b',
+      track,
+      world: 'language-house',
+      gameId: 'animal-restaurant',
+      meta,
+      today: () => '2026-11-23',
+      prefs,
+    });
+
+  it('a brand-new skill starts at the track start when no prefs are given', () => {
+    expect(mk('age5').level('fr')).toBe(meta.tracks.age5.start);
+  });
+
+  it('a brand-new fr skill starts higher with startFrenchHigher on age5, en does not', () => {
+    const s = mk('age5', { startFrenchHigher: true });
+    expect(s.level('fr')).toBe(meta.tracks.age5.start + 1);
+    expect(s.level('en')).toBe(meta.tracks.age5.start);
+  });
+
+  it('challenging difficulty raises a new skill on age5 and stacks with French-higher', () => {
+    const s = mk('age5', { difficulty: 'challenging', startFrenchHigher: true });
+    expect(s.level('en')).toBe(meta.tracks.age5.start + 2);
+    expect(s.level('fr')).toBe(meta.tracks.age5.start + 3);
+  });
+
+  it('age2 ignores the prefs', () => {
+    const s = mk('age2', { difficulty: 'challenging', startFrenchHigher: true });
+    expect(s.level('fr')).toBe(meta.tracks.age2.start);
+  });
+
+  it('an already stored skill is not rewritten by the prefs', () => {
+    const { driver } = memoryDriver();
+    const store = new AdaptiveStore(driver);
+    const plain = new SkillSession({ store, profileId: 'b', track: 'age5', world: 'language-house', gameId: 'animal-restaurant', meta, today: () => '2026-11-23' });
+    plain.record('fr', { itemId: IDS[0], firstTryCorrect: true, hinted: false });
+    const stored = store.getSkill('b', plain.key('fr'))!.level;
+    const withPrefs = new SkillSession({ store, profileId: 'b', track: 'age5', world: 'language-house', gameId: 'animal-restaurant', meta, today: () => '2026-11-23', prefs: { difficulty: 'challenging', startFrenchHigher: true } });
+    expect(withPrefs.level('fr')).toBe(stored);
+  });
+});

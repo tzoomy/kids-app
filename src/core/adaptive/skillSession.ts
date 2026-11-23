@@ -1,7 +1,7 @@
 // Thin stateful wrapper that binds the pure engine to one profile, one game and one age track.
 import { localDayKey } from '../storage/dayKey';
 import type { AdaptiveStore } from '../storage/adaptiveStore';
-import { clampToTrack, endRound, initialSession, initialSkill, recordTrial } from './rules';
+import { clampToTrack, endRound, initialSession, initialSkill, recordTrial, startingLevel, type StartPrefs } from './rules';
 import { selectNextItem } from './selectItem';
 import type { AgeTrack, GameLevelsMeta, LevelChange, SkillKey, SkillSessionState, SkillState, TrialResult } from './types';
 
@@ -12,6 +12,8 @@ export interface SkillSessionOptions {
   world: string;
   gameId: string;
   meta: GameLevelsMeta;
+  /** Parent start preferences; they only shape a brand-new skill (see `startingLevel`). */
+  prefs?: StartPrefs;
   today?: () => string;
   random?: () => number;
 }
@@ -36,7 +38,7 @@ export class SkillSession {
 
   private skill(lang: string): SkillState {
     const stored = this.opts.store.getSkill(this.opts.profileId, this.key(lang));
-    const base = stored ?? initialSkill(this.opts.meta, this.opts.track, this.today());
+    const base = stored ?? initialSkill(this.opts.meta, this.opts.track, this.today(), startingLevel(this.opts.meta, this.opts.track, lang, this.opts.prefs));
     return clampToTrack(base, this.opts.meta, this.opts.track);
   }
 

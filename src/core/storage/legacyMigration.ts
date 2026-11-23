@@ -1,5 +1,5 @@
 import type { AppState, AgeTrack, LanguageSetting } from './schema';
-import { SCHEMA_VERSION, defaultProfileState } from './schema';
+import { SCHEMA_VERSION, defaultProfileState, normalizeAppState } from './schema';
 import { localDayKey } from './dayKey';
 
 /** Shape of the prototype's `ar_state` localStorage key (app.js at the repo root). */
@@ -67,7 +67,7 @@ export function migrateLegacyState(raw: string, now: Date): AppState | null {
     };
   }
 
-  return state;
+  return normalizeAppState(state);
 }
 
 export function ensureProfileState(state: AppState, profileId: string, now: Date): void {
