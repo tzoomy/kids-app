@@ -11,9 +11,9 @@ const EXPORT_PATH = path.join(ROOT, 'src/content/game-voice-lines.json');
 
 const catalog = gameVoiceCatalog();
 const byId = new Map(catalog.map((l) => [l.id, l]));
-const PREFIX = /^(suitcase|monster|wordtrain)\./;
+const PREFIX = /^(suitcase|monster|wordtrain|picnic|sorting|potion|magnet|sinkFloat|seed)\./;
 
-describe('game voice catalogue (Travel Suitcase, Letter Monster, Word Train)', () => {
+describe('game voice catalogue (Travel Suitcase, Letter Monster, Word Train + Wave 2 age-5 EN/FR task asks)', () => {
   it('[AC-19] [AC-16] [AC-15] ids are unique and well-formed, every text is non-empty, and the language matches the id suffix', () => {
     expect(catalog.length).toBeGreaterThan(500);
     expect(byId.size).toBe(catalog.length);

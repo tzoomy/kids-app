@@ -13,6 +13,7 @@ import { isReducedMotion } from '../../anim/motion';
 import { transitionTo } from '../../anim/transitions';
 import { flyArc, hintPulse, popIn, pressSquash, tweenAsync, wait, wobble } from '../../anim/tweens';
 import { heLine } from '../../content/voiceLines';
+import { taskInstructionLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect, type Rect } from '../../testing/pageRect';
 import { nextRoundLanguage } from '../restaurant/trialTracker';
@@ -140,6 +141,8 @@ export class MagnetScene extends Phaser.Scene {
   private ageConfig!: AgeTrackConfig;
   private layout!: Layout;
   private lang: Lang | null = null;
+  /** Age track: age 5 hears task asks in the round's learning language, age 2 stays Hebrew. */
+  private track: TaskTrack = 'age5';
   private plan!: MagnetPlan;
   private magnet!: MagnetState;
   private levelNo = 1;
@@ -173,7 +176,8 @@ export class MagnetScene extends Phaser.Scene {
     setAppScreen('magic-magnet');
     this.context = this.game.registry.get('appContext') as AppContext;
     const c = content();
-    this.ageConfig = c.ageTracks[this.context.currentAgeTrack()];
+    this.track = this.context.currentAgeTrack();
+    this.ageConfig = c.ageTracks[this.track];
     this.skills = this.context.createSkillSession(
       c.world,
       c.id,
@@ -608,6 +612,7 @@ export class MagnetScene extends Phaser.Scene {
         targetId: this.currentTarget()?.id,
         lang: this.lang,
         audioOnly: this.plan.audioOnly,
+        track: this.track,
       });
       if (lines.length > 0) void this.speakSequence(lines, token);
     };
@@ -631,7 +636,7 @@ export class MagnetScene extends Phaser.Scene {
   }
 
   private questionLinesFor(id: string): SpeechRequest[] {
-    return questionLines(content(), id, this.lang!, this.plan.audioOnly);
+    return questionLines(content(), id, this.lang!, this.plan.audioOnly, this.track);
   }
 
   /** Resolves when the prediction buttons have finished popping in, so taps are not lost mid-tween. */
@@ -735,7 +740,7 @@ export class MagnetScene extends Phaser.Scene {
     if (event.kind !== 'predicted') return;
 
     void this.updatePredictionUi(false);
-    void this.speakSequence([testLine(content())], this.visitToken);
+    void this.speakSequence([testLine(content(), taskInstructionLang(this.track, this.lang ?? 'en'))], this.visitToken);
     this.scheduleHint();
   }
 

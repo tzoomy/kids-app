@@ -27,6 +27,7 @@ import { gameRectToPageRect } from '../../testing/pageRect';
 import type { Lang } from '../templates/choiceServe';
 import { nextRoundLanguage } from '../restaurant/trialTracker';
 import { rtlIsolate } from '../sorting/sortingVoice';
+import { taskInstructionLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import {
   HELP_LINE,
   MISSING_GIVE_LINE,
@@ -94,6 +95,7 @@ export class PicnicScene extends Phaser.Scene {
   private tracker: PicnicTrialTracker | null = null;
   private roundLevel = 1;
   private roundLang: Lang = 'en';
+  private track: TaskTrack = 'age5';
   private ready = false;
   private tries = 0;
   private lockedUntil = 0;
@@ -131,6 +133,7 @@ export class PicnicScene extends Phaser.Scene {
     const profileId = this.context.requireProfileId();
     const profile = this.context.store.getState().profiles.find((p) => p.id === profileId);
     const track = profile?.ageTrack ?? 'age5';
+    this.track = track;
     const adaptive = this.content.adaptive;
     this.ageConfig = this.content.ageTracks[track];
     this.meta = buildMeta({ levelCount: adaptive.levels.length, tracks: adaptive.tracks, rules: adaptive.rules });
@@ -326,10 +329,17 @@ export class PicnicScene extends Phaser.Scene {
     return this.say(numberLine(n, this.roundLang), WORD_LINE_MAX_MS);
   }
 
+  /** The train's primary task ask: Hebrew for age 2, the round's learning language for age 5. Misses and help stay Hebrew. */
+  private currentAsk(plan: TrainPlan): LineRequest {
+    return askLine(plan, taskInstructionLang(this.track, this.roundLang));
+  }
+
   private showAskBubble(): void {
     if (!this.plan) return;
-    const line = askLine(this.plan);
-    this.context.shell.setPromptBubble(rtlIsolate(PICNIC_LINE_TEXT[line.lineId] ?? ''), () => this.replayAsk());
+    const line = this.currentAsk(this.plan);
+    const text = PICNIC_LINE_TEXT[line.lineId] ?? '';
+    // Hebrew needs an RTL isolate inside the LTR bubble; EN/FR must not be wrapped.
+    this.context.shell.setPromptBubble(line.lang === 'he' ? rtlIsolate(text) : text, () => this.replayAsk());
   }
 
   // -------------------------------------------------------------------------------------------
@@ -369,7 +379,7 @@ export class PicnicScene extends Phaser.Scene {
       if (token !== this.token) return;
       this.positionZones();
       this.ready = true;
-      void this.say(askLine(this.plan!), HE_LINE_MAX_MS);
+      void this.say(this.currentAsk(this.plan!), HE_LINE_MAX_MS);
       this.scheduleHint(token);
     })();
   }
@@ -587,7 +597,7 @@ export class PicnicScene extends Phaser.Scene {
       const card = this.cardViews.find((c) => c.value === this.plan?.target);
       if (card) void this.pulse(card.root, 1);
     }
-    void this.say(askLine(this.plan!), HE_LINE_MAX_MS);
+    void this.say(this.currentAsk(this.plan!), HE_LINE_MAX_MS);
   }
 
   private pulse(target: Phaser.GameObjects.Container, restScale: number): Promise<void> {
@@ -598,7 +608,7 @@ export class PicnicScene extends Phaser.Scene {
     this.session.reportInteraction();
     if (!this.plan) return;
     this.tracker?.onReplay();
-    void this.say(askLine(this.plan), HE_LINE_MAX_MS);
+    void this.say(this.currentAsk(this.plan), HE_LINE_MAX_MS);
     // A replay is activity: restart the idle-hint countdown (age 2, before the trial's hint or result).
     if (this.ready && this.tracker && !this.tracker.isHinted && !this.tracker.isRecorded) this.scheduleHint(this.token);
   }

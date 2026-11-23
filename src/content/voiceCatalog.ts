@@ -1,14 +1,21 @@
-// Voice catalogue of the three Language House games that speak through device TTS today:
-// Travel Suitcase, Letter Monster and Word Train. It enumerates every playable
-// `{ id, lang, text, path }` using the same frames and helpers the games use, so the free-quota TTS job
-// (scripts/tts/generate_voice.py -> collect_lines) can render them later and unit tests can prove that
-// every line a game can emit is catalogued.
+// Voice catalogue of the games that speak through device TTS and whose lines the free-quota TTS job
+// (scripts/tts/generate_voice.py -> collect_lines) renders later:
+//  - Language House: Travel Suitcase, Letter Monster and Word Train (every playable line);
+//  - Wave 2 French-first task instructions (age 5 / Elli): ONLY the new English and French task asks of Picnic Train,
+//    Sorting Beds, Potion Lab, Magic Magnet, Sink or Float and Seed to Flower. The existing Hebrew lines of those six
+//    games (and their EN/FR naming words) are deliberately not re-catalogued here.
+// It enumerates every playable `{ id, lang, text, path }` using the same frames and helpers the games use, so unit tests
+// can prove that every line a game can emit is catalogued.
 //
 // Nothing here is registered in audio-manifest.json or audio-text-hashes.json (no clips exist yet): until a
 // clip is rendered the games keep speaking these lines with device TTS. The committed export read by the
 // Python job is src/content/game-voice-lines.json (kept in sync by tests/unit/voiceCatalog.test.ts).
 import {
   loadLetterMonster,
+  loadMagicMagnet,
+  loadPotionLab,
+  loadSeedToFlower,
+  loadSinkOrFloat,
   loadTravelSuitcase,
   loadWordTrain,
 } from './loadContent';
@@ -47,8 +54,28 @@ import {
   wordLine as trainWordLine,
 } from '../games/wordTrain/wordTrainRound';
 import type { SpeechRequest } from '../core/audio/types';
+import { PICNIC_LINE_TEXT } from '../games/picnic/picnicVoice';
+import { SORTING_LINE_TEXT } from '../games/sorting/sortingVoice';
+import { SECONDARY_COLORS } from '../games/potionLab/potionMachine';
+import {
+  introLine as potionIntroLine,
+  requestLine as potionRequestLine,
+  tryAgainLine as potionTryAgainLine,
+} from '../games/potionLab/potionRound';
+import { askTaskLine as magnetAskLine, introLine as magnetIntroLine, testLine as magnetTestLine } from '../games/magicMagnet/magnetRound';
+import { askLine as sinkAskLine, introLine as sinkIntroLine } from '../games/sinkFloat/sinkFloatRound';
+import { seedTaskLine } from '../games/seedFlower/seedFlowerRound';
 
-export type VoiceCatalogGame = 'travel-suitcase' | 'letter-monster' | 'word-train';
+export type VoiceCatalogGame =
+  | 'travel-suitcase'
+  | 'letter-monster'
+  | 'word-train'
+  | 'picnic-train'
+  | 'sorting-beds'
+  | 'potion-lab'
+  | 'magic-magnet'
+  | 'sink-or-float'
+  | 'seed-to-flower';
 
 export interface VoiceCatalogLine {
   id: string;
@@ -169,9 +196,82 @@ function wordTrainLines(): VoiceCatalogLine[] {
   return out;
 }
 
-/** Every playable line of Travel Suitcase, Letter Monster and Word Train, in a stable order. */
+function textLines(game: VoiceCatalogGame, table: Record<string, string>, pattern: RegExp): VoiceCatalogLine[] {
+  return Object.entries(table)
+    .filter(([id]) => pattern.test(id))
+    .map(([id, text]) => {
+      const lang = id.slice(id.lastIndexOf('.') + 1) as VoiceCatalogLine['lang'];
+      return { id, lang, text, path: voicePathFor(id, lang), game };
+    });
+}
+
+function fromRequests(game: VoiceCatalogGame, requests: SpeechRequest[]): VoiceCatalogLine[] {
+  return requests.map((r) => ({ id: r.lineId, lang: r.lang, text: r.text, path: voicePathFor(r.lineId, r.lang), game }));
+}
+
+// Wave 2 (age-5 French-first / English-first task instructions): only the new `.en` / `.fr` task asks.
+function picnicTaskLines(): VoiceCatalogLine[] {
+  return textLines('picnic-train', PICNIC_LINE_TEXT, /^picnic\.ask\..+\.(en|fr)$/);
+}
+
+function sortingTaskLines(): VoiceCatalogLine[] {
+  return textLines('sorting-beds', SORTING_LINE_TEXT, /^sorting\.(rule|switch)\..+\.(en|fr)$/);
+}
+
+function potionTaskLines(): VoiceCatalogLine[] {
+  const content = loadPotionLab();
+  const out: SpeechRequest[] = [];
+  for (const lang of LANGS) {
+    out.push(potionIntroLine(content, 'free', lang), potionIntroLine(content, 'request', lang));
+    for (const color of SECONDARY_COLORS) {
+      out.push(potionRequestLine(content, color, lang), potionTryAgainLine(content, color, lang));
+    }
+  }
+  return fromRequests('potion-lab', out);
+}
+
+function magnetTaskLines(): VoiceCatalogLine[] {
+  const content = loadMagicMagnet();
+  const out: SpeechRequest[] = [];
+  for (const lang of LANGS) {
+    out.push(magnetIntroLine(content, 'free', lang), magnetIntroLine(content, 'predict', lang), magnetTestLine(content, lang));
+    for (const obj of content.objects) out.push(magnetAskLine(content, obj.id, lang));
+  }
+  return fromRequests('magic-magnet', out);
+}
+
+function sinkFloatTaskLines(): VoiceCatalogLine[] {
+  const content = loadSinkOrFloat();
+  const out: SpeechRequest[] = [];
+  for (const lang of LANGS) {
+    out.push(sinkIntroLine(content, 'free', lang), sinkIntroLine(content, 'predict', lang), sinkAskLine(content, lang));
+  }
+  return fromRequests('sink-or-float', out);
+}
+
+function seedTaskLines(): VoiceCatalogLine[] {
+  const content = loadSeedToFlower();
+  const out: SpeechRequest[] = [];
+  for (const lang of LANGS) out.push(seedTaskLine(content, 'intro.free', lang), seedTaskLine(content, 'intro.ordered', lang));
+  return fromRequests('seed-to-flower', out);
+}
+
+/**
+ * Every playable line of Travel Suitcase, Letter Monster and Word Train, plus the Wave 2 age-5 EN/FR task asks of the six
+ * science / number-garden / nature games, in a stable order.
+ */
 export function gameVoiceCatalog(): VoiceCatalogLine[] {
-  return [...suitcaseLines(), ...monsterLines(), ...wordTrainLines()];
+  return [
+    ...suitcaseLines(),
+    ...monsterLines(),
+    ...wordTrainLines(),
+    ...picnicTaskLines(),
+    ...sortingTaskLines(),
+    ...potionTaskLines(),
+    ...magnetTaskLines(),
+    ...sinkFloatTaskLines(),
+    ...seedTaskLines(),
+  ];
 }
 
 /** The shape written to src/content/game-voice-lines.json (what the Python TTS job reads). */

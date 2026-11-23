@@ -14,6 +14,7 @@ import { transitionTo } from '../../anim/transitions';
 import { flyArc, hintPulse, popIn, pressSquash, squashStretch, tweenAsync, wait } from '../../anim/tweens';
 import { propArtKey } from '../../anim/artRegistry';
 import { heLine } from '../../content/voiceLines';
+import { taskInstructionLang, type TaskLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect, type Rect } from '../../testing/pageRect';
 import { nextRoundLanguage } from '../restaurant/trialTracker';
@@ -121,6 +122,8 @@ export class SinkFloatScene extends Phaser.Scene {
   private ageConfig!: AgeTrackConfig;
   private layout!: Layout;
   private lang: Lang | null = null;
+  /** Age track: age 5 hears task asks in the round's learning language, age 2 stays Hebrew. */
+  private track: TaskTrack = 'age5';
   private plan!: SinkFloatPlan;
   private machine!: SinkFloatState;
   private levelNo = 1;
@@ -149,7 +152,8 @@ export class SinkFloatScene extends Phaser.Scene {
     setAppScreen('sink-or-float');
     this.context = this.game.registry.get('appContext') as AppContext;
     const c = content();
-    this.ageConfig = c.ageTracks[this.context.currentAgeTrack()];
+    this.track = this.context.currentAgeTrack();
+    this.ageConfig = c.ageTracks[this.track];
     this.skills = this.context.createSkillSession(
       c.world,
       c.id,
@@ -485,7 +489,7 @@ export class SinkFloatScene extends Phaser.Scene {
       if (token !== this.visitToken || !this.sys.isActive()) return;
       const includeIntro = this.introPending;
       this.introPending = false;
-      const lines = visitStartLines(c, { includeIntro, mode: this.plan.mode });
+      const lines = visitStartLines(c, { includeIntro, mode: this.plan.mode, track: this.track, learningLang: this.lang });
       if (lines.length > 0) void this.speakSequence(lines, token);
     };
     if (fromCreate) {
@@ -502,6 +506,11 @@ export class SinkFloatScene extends Phaser.Scene {
       this.ready = true;
       this.scheduleHint();
     });
+  }
+
+  /** Language of the predict question: Hebrew for age 2, the round's learning language for age 5. */
+  private askLang(): TaskLang {
+    return this.lang ? taskInstructionLang(this.track, this.lang) : 'he';
   }
 
   private scheduleHint(): void {
@@ -522,7 +531,7 @@ export class SinkFloatScene extends Phaser.Scene {
       if (this.floatBtn) void hintPulse(this, this.floatBtn);
       if (this.sinkBtn) void hintPulse(this, this.sinkBtn);
     }
-    void this.speakSequence([askLine(content())], this.visitToken);
+    void this.speakSequence([askLine(content(), this.askLang())], this.visitToken);
   }
 
   private async onObjectTap(id: FloatObjectId): Promise<void> {
@@ -550,7 +559,7 @@ export class SinkFloatScene extends Phaser.Scene {
         if (this.floatBtn) void hintPulse(this, this.floatBtn);
         if (this.sinkBtn) void hintPulse(this, this.sinkBtn);
       }
-      void this.speakSequence([askLine(content())], this.visitToken);
+      void this.speakSequence([askLine(content(), this.askLang())], this.visitToken);
       this.scheduleHint();
       return;
     }

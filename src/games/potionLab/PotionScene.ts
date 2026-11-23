@@ -14,6 +14,7 @@ import { transitionTo } from '../../anim/transitions';
 import { flyArc, hintPulse, popIn, pressSquash, squashStretch, tweenAsync, wait } from '../../anim/tweens';
 import { propArtKey } from '../../anim/artRegistry';
 import { heLine } from '../../content/voiceLines';
+import { taskInstructionLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect, type Rect } from '../../testing/pageRect';
 import { nextRoundLanguage } from '../restaurant/trialTracker';
@@ -32,11 +33,10 @@ import {
   type SecondaryColor,
 } from './potionMachine';
 import {
-  colorLine,
   namingLines,
   nextRequest,
   planForLevel,
-  requestLine,
+  requestLines,
   trialForMix,
   trialForRequest,
   tryAgainLine,
@@ -125,6 +125,8 @@ export class PotionScene extends Phaser.Scene {
   private ageConfig!: AgeTrackConfig;
   private layout!: Layout;
   private lang: Lang | null = null;
+  /** Age track: age 5 hears task asks in the round's learning language, age 2 stays Hebrew. */
+  private track: TaskTrack = 'age5';
   private plan!: PotionPlan;
   private potion!: PotionState;
   private levelNo = 1;
@@ -155,7 +157,8 @@ export class PotionScene extends Phaser.Scene {
     setAppScreen('potion-lab');
     this.context = this.game.registry.get('appContext') as AppContext;
     const c = content();
-    this.ageConfig = c.ageTracks[this.context.currentAgeTrack()];
+    this.track = this.context.currentAgeTrack();
+    this.ageConfig = c.ageTracks[this.track];
     this.skills = this.context.createSkillSession(
       c.world,
       c.id,
@@ -302,7 +305,7 @@ export class PotionScene extends Phaser.Scene {
       this.context.sfx.tap();
       void pressSquash(this, container);
       const c = content();
-      void this.speakSequence([requestLine(c, this.potion.request), colorLine(c, this.potion.request, this.lang)], this.visitToken);
+      void this.speakSequence(requestLines(c, this.potion.request, this.lang, this.track), this.visitToken);
     });
     this.swatchView = container;
     this.swatchFill = fill;
@@ -447,6 +450,7 @@ export class PotionScene extends Phaser.Scene {
         mode: this.plan.mode,
         request: req,
         learningLang: this.lang,
+        track: this.track,
       });
       if (lines.length > 0) void this.speakSequence(lines, token);
     };
@@ -494,7 +498,7 @@ export class PotionScene extends Phaser.Scene {
       }
     }
     if (this.lang) {
-      void this.speakSequence([requestLine(c, this.potion.request), colorLine(c, this.potion.request, this.lang)], this.visitToken);
+      void this.speakSequence(requestLines(c, this.potion.request, this.lang, this.track), this.visitToken);
     }
   }
 
@@ -588,7 +592,7 @@ export class PotionScene extends Phaser.Scene {
 
     if (event.kind === 'mixed-other') {
       juice.burst('sparkle', this.layout.bowl.x, burstY, 8);
-      await this.speakSequence([heColor, learnColor, tryAgainLine(c, event.target)], token);
+      await this.speakSequence([heColor, learnColor, tryAgainLine(c, event.target, taskInstructionLang(this.track, lang))], token);
       if (!alive()) return;
       await wait(this, MIX_HOLD_MS);
       if (!alive()) return;
@@ -645,7 +649,7 @@ export class PotionScene extends Phaser.Scene {
     this.scheduleHint();
 
     if (nextReq !== null && this.lang) {
-      void this.speakSequence([requestLine(c, nextReq), colorLine(c, nextReq, this.lang)], token);
+      void this.speakSequence(requestLines(c, nextReq, this.lang, this.track), token);
     }
   }
 

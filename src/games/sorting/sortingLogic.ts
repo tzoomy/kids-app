@@ -5,6 +5,7 @@
 // `extra.vary: 2` means shape varies. L8_POST_SWITCH_COLOR_VARIES is our implementation choice, not an owner decision.
 import type { LevelDescriptor } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import type { TaskLang } from '../../core/audio/taskInstruction';
 import type { Lang } from '../templates/choiceServe';
 import type { FlowerColor, FlowerShape, FlowerSize, SortAttribute, SortRule, SortingBedInfo } from './types';
 
@@ -462,23 +463,24 @@ export class SortingTrialTracker {
 
 export interface LineRequest {
   lineId: string;
-  lang: 'he' | Lang;
+  lang: TaskLang;
 }
 
 /**
- * Round-start rule line: `sorting.rule.<attribute>.he`, or `sorting.rule.two-attr.he` for 'size+color'.
+ * Round-start rule line: `sorting.rule.<attribute>.<lang>`, or `sorting.rule.two-attr.<lang>` for 'size+color'.
  * After the L8 switch ('size+shape') the rule in force is described by the switch line, so a replay repeats that.
+ * `lang` defaults to Hebrew (age 2 and legacy callers); age 5 passes the round's learning language.
  */
-export function ruleLine(rule: SortRule): LineRequest {
-  if (rule === 'size+color') return { lineId: 'sorting.rule.two-attr.he', lang: 'he' };
-  if (rule === 'size+shape') return switchLine(rule);
-  return { lineId: `sorting.rule.${rule}.he`, lang: 'he' };
+export function ruleLine(rule: SortRule, lang: TaskLang = 'he'): LineRequest {
+  if (rule === 'size+color') return { lineId: `sorting.rule.two-attr.${lang}`, lang };
+  if (rule === 'size+shape') return switchLine(rule, lang);
+  return { lineId: `sorting.rule.${rule}.${lang}`, lang };
 }
 
-/** L8 switch line: `sorting.switch.shape.he` when the new rule is 'size+shape'. */
-export function switchLine(newRule: SortRule): LineRequest {
+/** L8 switch line: `sorting.switch.shape.<lang>` when the new rule is 'size+shape'. */
+export function switchLine(newRule: SortRule, lang: TaskLang = 'he'): LineRequest {
   const attr = newRule === 'size+shape' ? 'shape' : newRule === 'size+color' ? 'color' : newRule;
-  return { lineId: `sorting.switch.${attr}.he`, lang: 'he' };
+  return { lineId: `sorting.switch.${attr}.${lang}`, lang };
 }
 
 /**

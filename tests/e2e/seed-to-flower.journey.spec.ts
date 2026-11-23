@@ -103,11 +103,17 @@ test.describe('seed to flower', () => {
     expect(info.mode).toBe('water-then-sun');
     const stars = await readStarCount(page);
     const balance = await readBalanceSec(page);
+    // [AC-fr-first] Age 5 hears the task intro in the round's learning language, never in Hebrew.
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId === `seed.intro.ordered.${info.language}` && l.lang === info.language))
+      .toBe(true);
+    expect((await getSpokenLines(page)).some((l) => l.lineId.startsWith('seed.intro.') && l.lineId.endsWith('.he'))).toBe(false);
     const spokenBefore = (await getSpokenLines(page)).length;
 
     await tapRect(page, info.sun);
     const nudged = await waitForPlant(page, (i) => i.lastEvent === 'needs-water', 'no needs-water nudge');
     expect(nudged.stageIndex).toBe(0);
+    // The miss nudge stays Hebrew (pending Maor decision: Hebrew help/replay on a miss for French-first age 5).
     await expect
       .poll(async () => (await getSpokenLines(page, spokenBefore)).some((l) => l.lineId === 'seed.needWater.he' && l.lang === 'he'))
       .toBe(true);

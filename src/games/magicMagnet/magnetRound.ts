@@ -2,6 +2,7 @@
 // No Phaser, no DOM, so unit tests import this module directly.
 import type { LevelDescriptor, MagicMagnetContent, MagnetObject } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import { taskInstructionLang, type TaskLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import type { SpeechRequest } from '../../core/audio/types';
 import type { Lang } from '../templates/choiceServe';
 import type { MagnetEvent, MagnetMode } from './magnetMachine';
@@ -144,12 +145,40 @@ export function reactionLines(
   ];
 }
 
-/** Predict question sequence: Hebrew question, then the object word in the learning language. */
+/** French definite article of each object (agreement for « Est-ce que le trombone … » / « la vis … »). */
+const FR_ARTICLE: Record<string, 'le' | 'la'> = {
+  paperclip: 'le',
+  nail: 'le',
+  screw: 'la',
+  'bottle-cap': 'la',
+  ball: 'la',
+  leaf: 'la',
+  feather: 'la',
+  apple: 'la',
+};
+
+/** Age-5 predict question: ONE learning-language sentence that already names the object (no Hebrew prefix, no word line). */
+export function askTaskLine(content: MagicMagnetContent, id: string, lang: Lang): SpeechRequest {
+  const obj = findContentObject(content, id);
+  if (lang === 'en') {
+    return { lineId: `magnet.ask.${obj.id}.en`, lang, text: `Will the ${obj.en} stick to the magnet?` };
+  }
+  const article = FR_ARTICLE[obj.id];
+  if (!article) throw new Error(`No French article for magic-magnet object: ${obj.id}`);
+  return { lineId: `magnet.ask.${obj.id}.fr`, lang, text: `Est-ce que ${article} ${obj.fr} va coller à l'aimant ?` };
+}
+
+/**
+ * Predict question lines: Hebrew question then the object word in the learning language (age 2 / default), or a single
+ * learning-language sentence for age 5.
+ */
 export function askLines(
   content: MagicMagnetContent,
   id: string,
   lang: Lang,
-): [SpeechRequest, SpeechRequest] {
+  track: TaskTrack = 'age2',
+): SpeechRequest[] {
+  if (track === 'age5') return [askTaskLine(content, id, lang)];
   const obj = findContentObject(content, id);
   return [
     { lineId: `magnet.ask.${obj.id}.he`, lang: 'he', text: obj.askHe },
@@ -157,14 +186,15 @@ export function askLines(
   ];
 }
 
-/** Predict-mode question lines for `id`: word-only on L4 (`audioOnly`), otherwise Hebrew question + word. */
+/** Predict-mode question lines for `id`: word-only on L4 (`audioOnly`), otherwise the ask for the track. */
 export function questionLines(
   content: MagicMagnetContent,
   id: string,
   lang: Lang,
   audioOnly: boolean,
+  track: TaskTrack = 'age2',
 ): SpeechRequest[] {
-  return audioOnly ? [wordLine(content, id, lang)] : askLines(content, id, lang);
+  return audioOnly ? [wordLine(content, id, lang)] : askLines(content, id, lang, track);
 }
 
 export interface RoundStartLineOptions {
@@ -173,6 +203,8 @@ export interface RoundStartLineOptions {
   targetId?: string | null;
   lang: Lang | null;
   audioOnly: boolean;
+  /** Defaults to 'age2' (today's Hebrew behaviour). */
+  track?: TaskTrack;
 }
 
 /** Voice lines spoken at the start of a round: optional visit intro, plus the first predict question in predict mode. */
@@ -181,22 +213,42 @@ export function roundStartLines(
   opts: RoundStartLineOptions,
 ): SpeechRequest[] {
   const lines: SpeechRequest[] = [];
-  if (opts.includeIntro) lines.push(introLine(content, opts.mode));
+  const track = opts.track ?? 'age2';
+  if (opts.includeIntro) lines.push(introLine(content, opts.mode, opts.lang ? taskInstructionLang(track, opts.lang) : 'he'));
   if (opts.mode === 'predict' && opts.lang && opts.targetId) {
-    lines.push(...questionLines(content, opts.targetId, opts.lang, opts.audioOnly));
+    lines.push(...questionLines(content, opts.targetId, opts.lang, opts.audioOnly, track));
   }
   return lines;
 }
 
-/** Hebrew intro line for the start of a visit in free or predict mode. */
-export function introLine(content: MagicMagnetContent, mode: MagnetMode): SpeechRequest {
+const INTRO_TEXT: Record<Lang, Record<MagnetMode, string>> = {
+  en: {
+    free: "Let's find out what sticks to the magnet! Drag the magnet.",
+    predict: "Let's guess what will stick to the magnet, then we'll check!",
+  },
+  fr: {
+    free: "Découvrons ce qui colle à l'aimant ! Fais glisser l'aimant.",
+    predict: "Devinons ce qui va coller à l'aimant, puis nous vérifierons !",
+  },
+};
+const TEST_TEXT: Record<Lang, string> = {
+  en: "Let's check! Bring the magnet close.",
+  fr: "Vérifions ! Approche l'aimant.",
+};
+
+/** Intro line for the start of a visit in free or predict mode (Hebrew by default, learning language for age 5). */
+export function introLine(content: MagicMagnetContent, mode: MagnetMode, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') {
+    return { lineId: `magnet.intro.${mode}.${taskLang}`, lang: taskLang, text: INTRO_TEXT[taskLang][mode] };
+  }
   return mode === 'predict'
     ? { lineId: 'magnet.intro.predict.he', lang: 'he', text: content.linesHe.introPredict }
     : { lineId: 'magnet.intro.free.he', lang: 'he', text: content.linesHe.introFree };
 }
 
-/** Hebrew prompt after a prediction is chosen ("בואי נבדוק! קרבי את המגנט."). */
-export function testLine(content: MagicMagnetContent): SpeechRequest {
+/** Prompt after a prediction is chosen ("בואי נבדוק! קרבי את המגנט."), or the learning-language one for age 5. */
+export function testLine(content: MagicMagnetContent, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') return { lineId: `magnet.test.${taskLang}`, lang: taskLang, text: TEST_TEXT[taskLang] };
   return { lineId: 'magnet.test.he', lang: 'he', text: content.linesHe.test };
 }
 

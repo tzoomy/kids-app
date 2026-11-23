@@ -76,9 +76,9 @@ async function placeRound(page: Page): Promise<void> {
 
 const centerY = (r: PageRect): number => r.y + r.height / 2;
 
-/** Round-start rule line for a rule (spec voice table). */
-function ruleLineId(rule: SortingInfo['rule']): string {
-  return rule === 'size+color' ? 'sorting.rule.two-attr.he' : `sorting.rule.${rule}.he`;
+/** Round-start rule line for a rule (spec voice table). Hebrew for age 2 (default); age 5 passes the round language. */
+function ruleLineId(rule: SortingInfo['rule'], lang: 'he' | 'en' | 'fr' = 'he'): string {
+  return rule === 'size+color' ? `sorting.rule.two-attr.${lang}` : `sorting.rule.${rule}.${lang}`;
 }
 
 /** Spoken learning tokens after a correct placement, in order (spec voice table; shape rounds speak none).
@@ -541,14 +541,16 @@ test.describe('sorting beds: voice', () => {
     expect(full.lang).toBe('he');
   });
 
-  test('[AC-31] @single-orientation e2e+seed L5: round start requests the rule line, a correct placement requests the token in the round language', async ({ page }, testInfo) => {
+  test('[AC-31] @single-orientation e2e+seed L5: round start requests the rule line in the round language, a correct placement requests the token in the round language', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(60_000);
     await enter(page, 'profile-b', { level: 5 });
     const info = await waitForSortingReady(page);
     expect(['color', 'size']).toContain(info.rule); // L5 alternates colour and size between rounds
-    const rule = await waitForSpokenLine(page, (l) => l.lineId === ruleLineId(info.rule), 10_000);
-    expect(rule.lang).toBe('he');
+    // Age 5 hears the rule in the round's learning language (Wave 2 French-first), never in Hebrew.
+    const rule = await waitForSpokenLine(page, (l) => l.lineId === ruleLineId(info.rule, info.lang), 10_000);
+    expect(rule.lang).toBe(info.lang);
+    expect((await getSpokenLines(page)).filter((l) => l.lineId.startsWith('sorting.rule.') && l.lineId.endsWith('.he'))).toEqual([]);
 
     const from = await getSpokenLineCount(page);
     const placed = await placeCurrentCorrectly(page);
@@ -564,8 +566,8 @@ test.describe('sorting beds: voice', () => {
     await enter(page, 'profile-b', { level: 6 });
     const info = await waitForSortingReady(page);
     expect(info.rule).toBe('size+color');
-    const rule = await waitForSpokenLine(page, (l) => l.lineId === 'sorting.rule.two-attr.he', 10_000);
-    expect(rule.lang).toBe('he');
+    const rule = await waitForSpokenLine(page, (l) => l.lineId === `sorting.rule.two-attr.${info.lang}`, 10_000);
+    expect(rule.lang).toBe(info.lang);
 
     const from = await getSpokenLineCount(page);
     const placed = await placeCurrentCorrectly(page);
@@ -585,8 +587,8 @@ test.describe('sorting beds: voice', () => {
     expect(before.rule).toBe('size+color');
     const fromSwitch = await getSpokenLineCount(page);
     const first = await placeCurrentCorrectly(page);
-    const switchLine = await waitForSpokenLine(page, (l) => l.lineId === 'sorting.switch.shape.he', 10_000, fromSwitch);
-    expect(switchLine.lang).toBe('he');
+    const switchLine = await waitForSpokenLine(page, (l) => l.lineId === `sorting.switch.shape.${before.lang}`, 10_000, fromSwitch);
+    expect(switchLine.lang).toBe(before.lang);
 
     // After the switch: Pass 1 speaks only the size token; no shape word, no second colour word.
     const after = await waitForSortingReady(page);

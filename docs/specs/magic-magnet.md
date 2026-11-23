@@ -141,3 +141,4 @@ Only after Maor approves Pass 1: a lab background, polished objects, magnetic sp
 
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
 - `2026-11-14` — fix: intro and first predict question now play (first-round speech deferred until the scene is RUNNING); intro e2e regressions, L3 AC-09 case, hint rescheduled on busy touches
+- `2026-11-24` — Wave 2 French-first: age-5 (profile track `age5`) intro, predict question and test prompt (`magnet.intro.*`, `magnet.ask.<id>.*`, `magnet.test.*` `.en/.fr`; one sentence, no word line) are spoken in the round's learning language (`fr`/`en`) with no Hebrew prefix; age 2 stays Hebrew; reaction, feedback and help lines stay Hebrew on both tracks (reversible default, `docs/PENDING-DECISIONS.md`). New EN/FR ids only; no new hooks — minor

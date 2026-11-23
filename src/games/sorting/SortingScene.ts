@@ -51,6 +51,7 @@ import { computeSortingLayout, type BedSlotLayout, type LayoutRect, type Sorting
 import { addBackground, makeBasket, makeBed, makeFlower, makeRuleIcon, makeSign } from './sortingArt';
 import { bloomFlowers, dropIntoBed, hopToward, shakeBed, switchRule } from './sortingMotion';
 import { SORTING_LINE_TEXT, rtlIsolate } from './sortingVoice';
+import { taskInstructionLang, type TaskLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import type { SortingInfo, SortRule } from './types';
 
 export type { SortingInfo, SortingBedInfo, SortingCurrentItem, SortRule, SortAttribute, FlowerColor, FlowerShape, FlowerSize, PageRect } from './types';
@@ -99,6 +100,7 @@ export class SortingScene extends Phaser.Scene {
   private presentation: BedPresentation | null = null;
   private roundLevel = 1;
   private roundLang: Lang = 'en';
+  private track: TaskTrack = 'age5';
   private roundIndex = 0;
   private rule: SortRule = 'color';
   private ruleSwitched = false;
@@ -127,6 +129,7 @@ export class SortingScene extends Phaser.Scene {
     const profileId = this.context.requireProfileId();
     const profile = this.context.store.getState().profiles.find((p) => p.id === profileId);
     const track = profile?.ageTrack ?? 'age5';
+    this.track = track;
     const adaptive = this.content.adaptive;
     this.ageConfig = this.content.ageTracks[track];
     this.meta = buildMeta({ levelCount: adaptive.levels.length, tracks: adaptive.tracks, rules: adaptive.rules });
@@ -318,9 +321,16 @@ export class SortingScene extends Phaser.Scene {
     }
   }
 
+  /** Language of the rule / switch ask: Hebrew for age 2, the round's learning language for age 5. Feedback and help stay Hebrew. */
+  private taskLang(): TaskLang {
+    return taskInstructionLang(this.track, this.roundLang);
+  }
+
   private showRuleBubble(): void {
-    const line = ruleLine(this.rule);
-    this.context.shell.setPromptBubble(rtlIsolate(SORTING_LINE_TEXT[line.lineId] ?? ''), () => this.replayRule());
+    const line = ruleLine(this.rule, this.taskLang());
+    const text = SORTING_LINE_TEXT[line.lineId] ?? '';
+    // Hebrew needs an RTL isolate inside the LTR bubble; EN/FR must not be wrapped.
+    this.context.shell.setPromptBubble(line.lang === 'he' ? rtlIsolate(text) : text, () => this.replayRule());
   }
 
   // -------------------------------------------------------------------------------------------
@@ -364,7 +374,7 @@ export class SortingScene extends Phaser.Scene {
     void (async () => {
       await wait(this, 350);
       if (token !== this.token) return;
-      await this.say(ruleLine(this.rule), HE_LINE_MAX_MS);
+      await this.say(ruleLine(this.rule, this.taskLang()), HE_LINE_MAX_MS);
       if (token !== this.token) return;
       this.nextFlower(token);
     })();
@@ -571,7 +581,7 @@ export class SortingScene extends Phaser.Scene {
       Juice.for(this).burst('sparkle', bed.slot.x, bed.slot.y - bed.slot.height * 0.4);
       void hopToward(this, this.current.view, bed.slot.x, bed.slot.soilY);
     }
-    void this.say(ruleLine(this.rule), HE_LINE_MAX_MS);
+    void this.say(ruleLine(this.rule, this.taskLang()), HE_LINE_MAX_MS);
   }
 
   private replayRule(): void {
@@ -580,7 +590,7 @@ export class SortingScene extends Phaser.Scene {
       this.tracker?.onReplay();
       void wobble(this, this.current.view);
     }
-    void this.say(ruleLine(this.rule), HE_LINE_MAX_MS);
+    void this.say(ruleLine(this.rule, this.taskLang()), HE_LINE_MAX_MS);
     // A replay is activity: restart the idle-hint countdown (age 2, before the trial's hint or result).
     if (this.current && this.ready && this.tracker && !this.tracker.isHinted && !this.tracker.isRecorded) {
       this.scheduleHint(this.token);
@@ -684,7 +694,7 @@ export class SortingScene extends Phaser.Scene {
     for (const b of this.beds) b.accepts = { ...(b.plan.acceptsAfterSwitch ?? b.accepts) };
     this.showRuleBubble();
     const flips = this.beds.map((b) => switchRule(this, b.sign, () => this.fillPlaque(b.sign, b.accepts, this.presentation!, b.slot)));
-    await Promise.all([...flips, this.say(switchLine(this.rule), HE_LINE_MAX_MS)]);
+    await Promise.all([...flips, this.say(switchLine(this.rule, this.taskLang()), HE_LINE_MAX_MS)]);
     if (token !== this.token) return;
   }
 
