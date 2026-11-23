@@ -57,6 +57,7 @@ def main() -> int:
                 continue
             hashes[line_id] = g.text_hash(line["text"])
     if not args.dry_run:
+        g.propagate_shared(list(lines.values()), hashes)
         g.HASHES.write_text(json.dumps(dict(sorted(hashes.items())), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         g.write_manifest(list(lines.values()))
     g.log(f"failed: {failed or 'none'}")
