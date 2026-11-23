@@ -4,6 +4,18 @@ export const SCHEMA_VERSION = 2;
 
 export type AgeTrack = 'age2' | 'age5';
 export type LanguageSetting = 'both' | 'en' | 'fr';
+export type DifficultyPreference = 'regular' | 'challenging';
+
+export const LANGUAGE_SETTINGS: readonly LanguageSetting[] = ['both', 'en', 'fr'];
+export const DIFFICULTY_PREFERENCES: readonly DifficultyPreference[] = ['regular', 'challenging'];
+
+export function isLanguageSetting(v: unknown): v is LanguageSetting {
+  return typeof v === 'string' && (LANGUAGE_SETTINGS as readonly string[]).includes(v);
+}
+
+export function isDifficultyPreference(v: unknown): v is DifficultyPreference {
+  return typeof v === 'string' && (DIFFICULTY_PREFERENCES as readonly string[]).includes(v);
+}
 
 export interface ProfileSettings {
   id: string;
@@ -11,6 +23,12 @@ export interface ProfileSettings {
   name: string;
   avatar: string;
   ageTrack: AgeTrack;
+  /** Learning language of this child. Missing in older payloads: `normalizeAppState` fills it on load. */
+  languages?: LanguageSetting;
+  /** age5 only: new French skills start `START_FRENCH_HIGHER_OFFSET` levels higher. Default false. */
+  startFrenchHigher?: boolean;
+  /** age5 only: 'challenging' raises the start level of new skills by `CHALLENGING_LEVEL_OFFSET`. Default 'regular'. */
+  difficulty?: DifficultyPreference;
 }
 
 export interface LeisureSettings {
@@ -22,6 +40,7 @@ export interface LeisureSettings {
   dailyEarnCapMinutes: number;
   /** PLACEHOLDER policy, pending owner decision. */
   idleSeconds: number;
+  /** Deprecated: the learning language now lives on each profile. Kept as a fallback for older payloads. */
   languages: LanguageSetting;
   /** Master switch for the time-earning mechanic (earn, spend, balance UI). Off by default. */
   timeEarning: { enabled: boolean };
@@ -63,8 +82,8 @@ export const DEFAULT_SETTINGS: LeisureSettings = {
 };
 
 export const DEFAULT_PROFILES: ProfileSettings[] = [
-  { id: 'a', name: 'הקטנה', avatar: 'bunny', ageTrack: 'age2' },
-  { id: 'b', name: 'הגדולה', avatar: 'butterfly', ageTrack: 'age5' },
+  { id: 'a', name: 'הקטנה', avatar: 'bunny', ageTrack: 'age2', languages: 'both', startFrenchHigher: false, difficulty: 'regular' },
+  { id: 'b', name: 'הגדולה', avatar: 'butterfly', ageTrack: 'age5', languages: 'both', startFrenchHigher: false, difficulty: 'regular' },
 ];
 
 export function defaultAppState(): AppState {
@@ -88,4 +107,48 @@ export function normalizeSettings(settings: LeisureSettings): LeisureSettings {
 
 export function defaultProfileState(day: string): ProfileState {
   return { activeSec: 0, balanceSec: 0, earnedTodaySec: 0, carry: 0, day, stars: 0 };
+}
+
+/**
+ * Fills the per-profile fields of a state read from storage, in place: `languages` (the profile's own value, else the
+ * deprecated global `settings.languages`, else 'both'), `startFrenchHigher` (false) and `difficulty` ('regular').
+ * A valid existing value is never overwritten.
+ */
+export function normalizeAppState(state: AppState): AppState {
+  const legacy = isLanguageSetting(state.settings?.languages) ? state.settings.languages : 'both';
+  for (const p of state.profiles) {
+    if (!isLanguageSetting(p.languages)) p.languages = legacy;
+    if (typeof p.startFrenchHigher !== 'boolean') p.startFrenchHigher = false;
+    if (!isDifficultyPreference(p.difficulty)) p.difficulty = 'regular';
+  }
+  return state;
+}
+
+/** The learning language of a profile: its own value, else the deprecated global one, else 'both'. */
+export function profileLanguageSetting(
+  state: Pick<AppState, 'profiles' | 'settings'>,
+  profileId: string | null | undefined,
+): LanguageSetting {
+  const own = state.profiles.find((p) => p.id === profileId)?.languages;
+  if (isLanguageSetting(own)) return own;
+  return isLanguageSetting(state.settings?.languages) ? state.settings.languages : 'both';
+}
+
+/** Start-level preferences of a profile, with safe defaults. */
+export function profileStartPrefs(
+  state: Pick<AppState, 'profiles'>,
+  profileId: string | null | undefined,
+): { difficulty: DifficultyPreference; startFrenchHigher: boolean } {
+  const p = state.profiles.find((pr) => pr.id === profileId);
+  return {
+    difficulty: isDifficultyPreference(p?.difficulty) ? p.difficulty : 'regular',
+    startFrenchHigher: p?.startFrenchHigher === true,
+  };
+}
+
+/** E2E seed: sets the profile's language and also the deprecated global value (any leftover reader). Without a profile, only the global one. */
+export function seedProfileLanguage(state: AppState, profileId: string | null | undefined, lang: LanguageSetting): void {
+  const p = state.profiles.find((pr) => pr.id === profileId);
+  if (p) p.languages = lang;
+  state.settings.languages = lang;
 }

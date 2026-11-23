@@ -306,10 +306,9 @@ export class SeedFlowerScene extends Phaser.Scene {
   private startPlant(): void {
     const token = ++this.plantToken;
     const c = content();
-    const settings = this.context.store.getState().settings;
     // The level and language are read only here, at the start of a plant, so they never change mid-plant.
     // A 4-stage plant is one engine round (3 trials); an L1 plant (3 stages) is 2 trials (see the spec).
-    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), settings.languages);
+    this.lang = nextRoundLanguage(this.lang, this.lang === null || this.skills.atRoundBoundary(this.lang), this.context.languageSetting());
     this.levelNo = this.skills.level(this.lang);
     this.plan = planForLevel(c.adaptive.levels[this.levelNo - 1]);
     this.plant = createPlant(this.plan.stages, this.plan.mode);

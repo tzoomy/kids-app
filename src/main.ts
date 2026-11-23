@@ -9,12 +9,14 @@ import type Phaser from 'phaser';
 import { Store } from './core/storage/store';
 import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from './core/audio';
 import { AppShell } from './ui/shell';
+import type { ParentProfileEdit } from './ui/parent';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadPicnicTrain, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadStickerBoard, loadShadowMatch, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadWordTrain, loadNumberBridge, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
-import { isTimeEarningEnabled, type AgeTrack } from './core/storage/schema';
+import { isTimeEarningEnabled } from './core/storage/schema';
+import { collectParentLevelGames, type ParentLevelsApi } from './ui/parentLevels';
 
 const shellRoot = document.getElementById('shell-root');
 if (!shellRoot) throw new Error('#shell-root missing from web/index.html');
@@ -84,37 +86,59 @@ function openParentSettingsDirect(onDone: () => void): void {
   openParentSettings(onDone);
 }
 
-function openParentSettings(onDone: () => void): void {
-  shell.showParentSettings(store.getState(), {
-    onSave: (settings, edits) => {
-      const state = store.getState();
-      state.settings = settings;
-      for (const edit of edits) {
-        const p = state.profiles.find((pr) => pr.id === edit.id);
-        if (!p) continue;
-        if (edit.name) p.name = edit.name;
-        p.ageTrack = edit.ageTrack as AgeTrack;
-      }
-      store.persist();
-      onDone();
+const parentLevels: ParentLevelsApi = {
+  games: collectParentLevelGames(context.content as unknown as Record<string, unknown>),
+  getSkill: (profileId, key) => context.adaptive.getSkill(profileId, key),
+  saveSkill: (profileId, key, skill) => {
+    context.adaptive.setSkill(profileId, key, skill);
+    context.adaptive.persist(profileId);
+  },
+};
+
+function applyProfileEdit(edit: ParentProfileEdit): void {
+  const p = store.getState().profiles.find((pr) => pr.id === edit.id);
+  if (!p) return;
+  if (edit.name) p.name = edit.name;
+  p.ageTrack = edit.ageTrack;
+  p.languages = edit.languages;
+  p.startFrenchHigher = edit.startFrenchHigher;
+  p.difficulty = edit.difficulty;
+}
+
+/** `openProfileId` re-opens that child's profile page (after reset balance / +5 minutes). */
+function openParentSettings(onDone: () => void, openProfileId?: string): void {
+  shell.showParentSettings(
+    store.getState(),
+    {
+      onSave: (settings, edits) => {
+        store.getState().settings = settings;
+        for (const edit of edits) applyProfileEdit(edit);
+        store.persist();
+        onDone();
+      },
+      onProfileChange: (edit) => {
+        applyProfileEdit(edit);
+        store.persist();
+      },
+      onExit: onDone,
+      onOpenCredits: () => shell.showCredits(creditsFileSchema.parse(creditsJson).items, () => openParentSettings(onDone)),
+      onResetBalance: (profileId) => {
+        const s = store.getProfileState(profileId, new Date());
+        s.balanceSec = 0;
+        s.earnedTodaySec = 0;
+        s.carry = 0;
+        store.persist();
+        openParentSettings(onDone, profileId);
+      },
+      onPlusFive: (profileId) => {
+        const s = store.getProfileState(profileId, new Date());
+        s.balanceSec += 300;
+        store.persist();
+        openParentSettings(onDone, profileId);
+      },
     },
-    onExit: onDone,
-    onOpenCredits: () => shell.showCredits(creditsFileSchema.parse(creditsJson).items, () => openParentSettings(onDone)),
-    onResetBalance: (profileId) => {
-      const s = store.getProfileState(profileId, new Date());
-      s.balanceSec = 0;
-      s.earnedTodaySec = 0;
-      s.carry = 0;
-      store.persist();
-      openParentSettings(onDone);
-    },
-    onPlusFive: (profileId) => {
-      const s = store.getProfileState(profileId, new Date());
-      s.balanceSec += 300;
-      store.persist();
-      openParentSettings(onDone);
-    },
-  });
+    { openProfileId, levels: parentLevels },
+  );
 }
 
 let welcomed = false;

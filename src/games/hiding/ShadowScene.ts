@@ -274,11 +274,10 @@ export class ShadowScene extends Phaser.Scene {
 
     const content = this.context.content.shadow;
     const animals = this.context.content.hiding.animals;
-    const settings = this.context.store.getState().settings;
     this.roundLang = nextRoundLanguage(
       this.roundLang,
       this.roundLang === null || this.skills.atRoundBoundary(this.roundLang),
-      settings.languages,
+      this.context.languageSetting(),
     );
     const language = this.roundLang;
     const levelNumber = this.skills.level(language);

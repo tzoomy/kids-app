@@ -14,7 +14,9 @@ Status: **approved for implementation**. The owner approved the feature in issue
 - A generic `adaptive` block in game content JSON (`levels[]` with lever values), validated with zod.
 - The Animal Restaurant migrated onto the engine.
 
-**Deferred (v2+)**: parent level view and override, the parent's "start French higher" option, the 14-day decay (`lastPlayedDay` is stored now, so no migration will be needed), window-percentage rules (≥85% / <60% over the last 8), response-time skip-ahead for age 5, the frustration guard / confidence round, sharing a word's item state across games, parent export, real drag on the age-5 track (the restaurant is tap-only today), and pre-generated (Gemini) audio for the new restaurant request lines of L6–L9, which use device TTS in v1.
+**Implemented 2026-11-23 (parent profile page; see `docs/PENDING-DECISIONS.md`)**: the parent's "start French higher" option (`startingLevel`, age5 + `fr` only, new skills only), an overall difficulty preference, and the parent per-game level view with `−` / `+` / Reset.
+
+**Deferred (v2+)**: the 14-day decay (`lastPlayedDay` is stored now, so no migration will be needed), window-percentage rules (≥85% / <60% over the last 8), response-time skip-ahead for age 5, the frustration guard / confidence round, sharing a word's item state across games, parent export, real drag on the age-5 track (the restaurant is tap-only today), and pre-generated (Gemini) audio for the new restaurant request lines of L6–L9, which use device TTS in v1.
 
 ## 2. Types
 
