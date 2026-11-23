@@ -1,12 +1,9 @@
 // Voice catalogue of the three Language House games that speak through device TTS today:
 // Travel Suitcase, Letter Monster and Word Train. It enumerates every playable
-// `{ id, lang, text, path }` using the same frames and helpers the games use, so the free-quota TTS job
-// (scripts/tts/generate_voice.py -> collect_lines) can render them later and unit tests can prove that
-// every line a game can emit is catalogued.
-//
-// Nothing here is registered in audio-manifest.json or audio-text-hashes.json (no clips exist yet): until a
-// clip is rendered the games keep speaking these lines with device TTS. The committed export read by the
-// Python job is src/content/game-voice-lines.json (kept in sync by tests/unit/voiceCatalog.test.ts).
+// `{ id, lang, text }` using the same frames and helpers the games use, so unit tests can prove that every
+// line a game can emit is catalogued. tests/helpers/gameVoiceLines.ts maps this catalogue into the single
+// TTS render list scripts/tts/game-lines.json (read by scripts/tts/generate_voice.py, which assigns clip
+// paths). Lines without a clip in audio-manifest.json keep speaking through device TTS.
 import {
   loadLetterMonster,
   loadTravelSuitcase,
@@ -54,23 +51,16 @@ export interface VoiceCatalogLine {
   id: string;
   lang: 'en' | 'fr' | 'he';
   text: string;
-  /** Where a rendered clip would live (public/<path>); no clip exists yet. */
-  path: string;
   game: VoiceCatalogGame;
 }
 
 const LANGS = ['en', 'fr'] as const;
 
-/** `audio/<lang>/<slug>.mp3`; the slug is the line id with dots turned into dashes, lower-cased. */
-export function voicePathFor(id: string, lang: string): string {
-  return `audio/${lang}/${id.replace(/\./g, '-').toLowerCase()}.mp3`;
-}
-
 function suitcaseLines(): VoiceCatalogLine[] {
   const content = loadTravelSuitcase();
   const out: VoiceCatalogLine[] = [];
   const add = (r: SpeechRequest) =>
-    out.push({ id: r.lineId, lang: r.lang, text: r.text, path: voicePathFor(r.lineId, r.lang), game: 'travel-suitcase' });
+    out.push({ id: r.lineId, lang: r.lang, text: r.text, game: 'travel-suitcase' });
 
   add(suitcaseIntroLine(content));
   add(closedLine(content));
@@ -120,7 +110,7 @@ function monsterLines(): VoiceCatalogLine[] {
   const content = loadLetterMonster();
   const out: VoiceCatalogLine[] = [];
   const add = (r: SpeechRequest) =>
-    out.push({ id: r.lineId, lang: r.lang, text: r.text, path: voicePathFor(r.lineId, r.lang), game: 'letter-monster' });
+    out.push({ id: r.lineId, lang: r.lang, text: r.text, game: 'letter-monster' });
 
   add(monsterIntroLine(content));
   add(askLetterLine(content));
@@ -148,7 +138,7 @@ function wordTrainLines(): VoiceCatalogLine[] {
   const content = loadWordTrain();
   const out: VoiceCatalogLine[] = [];
   const add = (r: SpeechRequest) =>
-    out.push({ id: r.lineId, lang: r.lang, text: r.text, path: voicePathFor(r.lineId, r.lang), game: 'word-train' });
+    out.push({ id: r.lineId, lang: r.lang, text: r.text, game: 'word-train' });
 
   add(trainIntroLine(content, 'load'));
   add(trainIntroLine(content, 'spell', 'en'));
@@ -174,7 +164,3 @@ export function gameVoiceCatalog(): VoiceCatalogLine[] {
   return [...suitcaseLines(), ...monsterLines(), ...wordTrainLines()];
 }
 
-/** The shape written to src/content/game-voice-lines.json (what the Python TTS job reads). */
-export function gameVoiceExport(): Array<Pick<VoiceCatalogLine, 'id' | 'lang' | 'text' | 'path'>> {
-  return gameVoiceCatalog().map(({ id, lang, text, path }) => ({ id, lang, text, path }));
-}

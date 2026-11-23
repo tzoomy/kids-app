@@ -26,7 +26,7 @@ export default defineConfig({
       injectRegister: 'auto',
       manifest: false, // we ship our own public/manifest.webmanifest
       workbox: {
-        // Precache the app shell plus the voice clips (~1.5 MB of 48 kbps mono MP3) so the
+        // Precache the app shell plus the voice clips (48 kbps mono MP3, ~4.2 MB as of #103) so the
         // restaurant speaks offline from the first launch. Other world assets are cached at runtime
         // as they are requested, so first install does not pull the whole library.
         // The combined shell JS is just over Workbox's 2 MiB default once Sticker Board,

@@ -1,20 +1,900 @@
 {
-  "_comment": "Hand-verified split points for cached raw TTS takes (VOICE_RAW_DIR/{batch}.wav). The automatic splitter in generate_voice.py mis-aligned the first Hebrew batch by one sentence, so every clip after he.welcome held the wrong words (e.g. he.retry.0 said 'tap the animal to hear again'). Intervals are seconds in the raw take; 'heard' is the transcription of that interval (Gemini listening pass, 2026-11-16), checked against the line text. Applied by scripts/tts/apply_verified_splits.py, which makes no API calls.",
+  "_comment": "Hand-verified split points for cached raw TTS takes (VOICE_RAW_DIR/{batch}.wav). The automatic splitter in generate_voice.py mis-aligned the first Hebrew batch by one sentence, so every clip after he.welcome held the wrong words (e.g. he.retry.0 said 'tap the animal to hear again'). Intervals are seconds in the raw take; 'heard' is the transcription of that interval (Gemini listening pass, 2026-11-16), checked against the line text. Applied by scripts/tts/apply_verified_splits.py, which makes no API calls. Game lines (scripts/tts/game-lines.json) are aligned per batch by transcribing every speech segment of the raw take, then each cut clip is transcribed again (Gemini 3.8 Flash listening pass, 2026-11-23) and 'heard' holds that final transcript.",
   "he-df5294e9cc": {
-    "he.welcome": { "start": 0.21, "end": 3.39, "heard": "שלום! מי משחקת היום?" },
-    "he.map.choose": { "start": 4.62, "end": 10.09, "heard": "לאן נלך היום? בואי נבקר בבית השפות!" },
-    "he.map.comingSoon": { "start": 11.09, "end": 14.61, "heard": "המקום הזה עוד בבנייה. נבקר בו בקרוב!" },
-    "he.restaurant.intro": { "start": 15.70, "end": 25.34, "heard": "ברוכה הבאה למסעדת החיות! החיות רעבות. הקשיבי מה הן מבקשות, ובחרי את הצלחת המתאימה." },
-    "he.restaurant.help": { "start": 26.31, "end": 34.25, "heard": "החיה מבקשת אוכל. הקשיבי ובחרי את הצלחת המתאימה. אפשר ללחוץ על החיה כדי לשמוע שוב." },
-    "he.retry.0": { "start": 35.14, "end": 37.47, "heard": "כמעט! בואי נקשיב שוב." },
-    "he.retry.1": { "start": 38.40, "end": 41.46, "heard": "הממ, זה לא זה. ננסה שוב?" },
-    "he.retry.2": { "start": 41.97, "end": 45.16, "heard": "לא נורא! הקשיבי לחיה ונסי שוב." },
-    "he.praise.0": { "start": 46.14, "end": 47.27, "heard": "כל הכבוד!" },
-    "he.praise.1": { "start": 48.23, "end": 50.11, "heard": "איזו מלצרית מעולה!" },
-    "he.praise.2": { "start": 51.24, "end": 53.61, "heard": "יופי! החיה ממש שמחה!" },
-    "he.leisure.earned": { "start": 54.55, "end": 56.03, "heard": "הרווחת עוד זמן כיף!" },
-    "he.bubbles.intro": { "start": 56.92, "end": 59.30, "heard": "זמן כיף! פוצצי את הבועות." },
-    "he.bubbles.lowWarning": { "start": 60.10, "end": 60.66, "heard": "עוד קצת זמן!" },
-    "he.bubbles.end": { "start": 61.55, "end": 65.19, "heard": "כל הכבוד! רוצה לבקר שוב את החיות במסעדה?" }
+    "he.welcome": {
+      "start": 0.21,
+      "end": 3.39,
+      "heard": "שלום! מי משחקת היום?"
+    },
+    "he.map.choose": {
+      "start": 4.62,
+      "end": 10.09,
+      "heard": "לאן נלך היום? בואי נבקר בבית השפות!"
+    },
+    "he.map.comingSoon": {
+      "start": 11.09,
+      "end": 14.61,
+      "heard": "המקום הזה עוד בבנייה. נבקר בו בקרוב!"
+    },
+    "he.restaurant.intro": {
+      "start": 15.7,
+      "end": 25.34,
+      "heard": "ברוכה הבאה למסעדת החיות! החיות רעבות. הקשיבי מה הן מבקשות, ובחרי את הצלחת המתאימה."
+    },
+    "he.restaurant.help": {
+      "start": 26.31,
+      "end": 34.25,
+      "heard": "החיה מבקשת אוכל. הקשיבי ובחרי את הצלחת המתאימה. אפשר ללחוץ על החיה כדי לשמוע שוב."
+    },
+    "he.retry.0": {
+      "start": 35.14,
+      "end": 37.47,
+      "heard": "כמעט! בואי נקשיב שוב."
+    },
+    "he.retry.1": {
+      "start": 38.4,
+      "end": 41.46,
+      "heard": "הממ, זה לא זה. ננסה שוב?"
+    },
+    "he.retry.2": {
+      "start": 41.97,
+      "end": 45.16,
+      "heard": "לא נורא! הקשיבי לחיה ונסי שוב."
+    },
+    "he.praise.0": {
+      "start": 46.14,
+      "end": 47.27,
+      "heard": "כל הכבוד!"
+    },
+    "he.praise.1": {
+      "start": 48.23,
+      "end": 50.11,
+      "heard": "איזו מלצרית מעולה!"
+    },
+    "he.praise.2": {
+      "start": 51.24,
+      "end": 53.61,
+      "heard": "יופי! החיה ממש שמחה!"
+    },
+    "he.leisure.earned": {
+      "start": 54.55,
+      "end": 56.03,
+      "heard": "הרווחת עוד זמן כיף!"
+    },
+    "he.bubbles.intro": {
+      "start": 56.92,
+      "end": 59.3,
+      "heard": "זמן כיף! פוצצי את הבועות."
+    },
+    "he.bubbles.lowWarning": {
+      "start": 60.1,
+      "end": 60.66,
+      "heard": "עוד קצת זמן!"
+    },
+    "he.bubbles.end": {
+      "start": 61.55,
+      "end": 65.19,
+      "heard": "כל הכבוד! רוצה לבקר שוב את החיות במסעדה?"
+    }
+  },
+  "en-dd0319dfe8": {
+    "orchestra.listen.en": {
+      "start": 0.32,
+      "end": 0.9,
+      "heard": "Listen"
+    },
+    "orchestra.yourturn.en": {
+      "start": 3.91,
+      "end": 4.55,
+      "heard": "Your turn."
+    },
+    "orchestra.retry.en": {
+      "start": 5.51,
+      "end": 6.63,
+      "heard": "Let's try again"
+    },
+    "orchestra.thanks.en.1": {
+      "start": 9.88,
+      "end": 11.43,
+      "heard": "What a song."
+    },
+    "orchestra.thanks.en.2": {
+      "start": 12.69,
+      "end": 13.69,
+      "heard": "Beautiful"
+    },
+    "orchestra.play.pot.en": {
+      "start": 14.88,
+      "end": 15.79,
+      "heard": "Play the pot"
+    },
+    "orchestra.play.pan.en": {
+      "start": 16.21,
+      "end": 18.2,
+      "heard": "Play the pan"
+    },
+    "orchestra.play.glass-low.en": {
+      "start": 18.62,
+      "end": 21.51,
+      "heard": "Play the low glass"
+    },
+    "orchestra.play.glass-mid.en": {
+      "start": 21.99,
+      "end": 24.15,
+      "heard": "Play the glass"
+    },
+    "orchestra.play.glass-high.en": {
+      "start": 25.0,
+      "end": 27.39,
+      "heard": "Play the high glass"
+    },
+    "hiding.found.en.0": {
+      "start": 28.03,
+      "end": 30.08,
+      "heard": "Peekaboo"
+    },
+    "hiding.found.en.1": {
+      "start": 31.78,
+      "end": 33.32,
+      "heard": "Surprise"
+    },
+    "hiding.found.en.2": {
+      "start": 34.77,
+      "end": 36.26,
+      "heard": "You found me"
+    },
+    "hiding.cat.name-sound.en": {
+      "start": 38.12,
+      "end": 41.96,
+      "heard": "Where is the cat? Meow, meow"
+    },
+    "hiding.lion.name-sound.en": {
+      "start": 43.21,
+      "end": 49.2,
+      "heard": "Where is the lion? Roar, roar"
+    },
+    "hiding.bear.name-sound.en": {
+      "start": 49.84,
+      "end": 56.18,
+      "heard": "Where is the bear? Growl, growl"
+    }
+  },
+  "en-375fa98111": {
+    "balloon.color-red.en": {
+      "start": 0.43,
+      "end": 2.51,
+      "heard": "Pop the red balloon"
+    },
+    "balloon.color-blue.en": {
+      "start": 4.73,
+      "end": 6.78,
+      "heard": "Pop the blue balloon"
+    },
+    "balloon.color-yellow.en": {
+      "start": 9.04,
+      "end": 11.0,
+      "heard": "Pop the yellow balloon"
+    },
+    "balloon.color-green.en": {
+      "start": 13.09,
+      "end": 15.1,
+      "heard": "Pop the green balloon"
+    },
+    "balloon.color-orange.en": {
+      "start": 17.12,
+      "end": 19.18,
+      "heard": "Pop the orange balloon"
+    },
+    "balloon.color-purple.en": {
+      "start": 21.11,
+      "end": 23.01,
+      "heard": "Pop the purple balloon"
+    },
+    "balloon.digit-1.en": {
+      "start": 24.94,
+      "end": 26.83,
+      "heard": "Pop the number one"
+    },
+    "balloon.digit-2.en": {
+      "start": 28.7,
+      "end": 30.37,
+      "heard": "Pop the number two"
+    },
+    "balloon.digit-3.en": {
+      "start": 32.29,
+      "end": 34.05,
+      "heard": "Pop the number three"
+    },
+    "balloon.digit-4.en": {
+      "start": 34.59,
+      "end": 36.89,
+      "heard": "Pop the number four"
+    },
+    "balloon.digit-5.en": {
+      "start": 37.88,
+      "end": 40.33,
+      "heard": "Pop the number five"
+    },
+    "balloon.digit-6.en": {
+      "start": 41.5,
+      "end": 43.3,
+      "heard": "Pop the number six"
+    },
+    "balloon.digit-7.en": {
+      "start": 44.35,
+      "end": 45.91,
+      "heard": "Pop the number seven"
+    },
+    "balloon.digit-8.en": {
+      "start": 46.89,
+      "end": 48.57,
+      "heard": "Pop the number eight"
+    },
+    "balloon.digit-9.en": {
+      "start": 49.73,
+      "end": 51.28,
+      "heard": "Pop the number nine"
+    },
+    "balloon.digit-0.en": {
+      "start": 52.31,
+      "end": 54.22,
+      "heard": "Pop the number zero"
+    }
+  },
+  "en-4e4a95f528": {
+    "hiding.panda.name-sound.en": {
+      "start": 0.28,
+      "end": 4.24,
+      "heard": "Where is the panda? Munch munch."
+    },
+    "hiding.dog.name-sound.en": {
+      "start": 5.91,
+      "end": 8.92,
+      "heard": "Where is the dog? Woof woof!"
+    },
+    "hiding.rabbit.name-sound.en": {
+      "start": 10.25,
+      "end": 13.71,
+      "heard": "Where is the rabbit? Thump thump."
+    },
+    "hiding.cat.name.en": {
+      "start": 15.1,
+      "end": 16.82,
+      "heard": "Where is the cat?"
+    },
+    "hiding.lion.name.en": {
+      "start": 18.12,
+      "end": 20.31,
+      "heard": "Where is the lion?"
+    },
+    "hiding.bear.name.en": {
+      "start": 21.38,
+      "end": 22.75,
+      "heard": "Where is the bear?"
+    },
+    "hiding.panda.name.en": {
+      "start": 23.71,
+      "end": 25.49,
+      "heard": "Where is the panda?"
+    },
+    "hiding.dog.name.en": {
+      "start": 26.56,
+      "end": 28.16,
+      "heard": "Where is the dog?"
+    },
+    "hiding.rabbit.name.en": {
+      "start": 28.87,
+      "end": 30.52,
+      "heard": "Where is the rabbit?"
+    },
+    "hiding.cat.sound.en": {
+      "start": 31.14,
+      "end": 33.07,
+      "heard": "Meow, meow."
+    },
+    "hiding.lion.sound.en": {
+      "start": 34.46,
+      "end": 37.16,
+      "heard": "Roar! Roar!"
+    },
+    "hiding.bear.sound.en": {
+      "start": 38.65,
+      "end": 40.87,
+      "heard": "Growl, growl."
+    },
+    "hiding.panda.sound.en": {
+      "start": 42.31,
+      "end": 43.95,
+      "heard": "Munch, munch."
+    },
+    "hiding.dog.sound.en": {
+      "start": 45.0,
+      "end": 45.74,
+      "heard": "Woof, woof!"
+    },
+    "hiding.rabbit.sound.en": {
+      "start": 46.86,
+      "end": 47.88,
+      "heard": "Thump, thump."
+    },
+    "hiding.cat.sound-short.en": {
+      "start": 49.41,
+      "end": 50.35,
+      "heard": "Meow."
+    }
+  },
+  "en-85bb7a25da": {
+    "picnic.number.10.en": {
+      "start": 0.28,
+      "end": 0.87,
+      "heard": "ten"
+    },
+    "sticker-board.request.rocket.en": {
+      "start": 2.2,
+      "end": 4.92,
+      "heard": "Put the rocket in space"
+    },
+    "sticker-board.request.planet.en": {
+      "start": 7.21,
+      "end": 9.56,
+      "heard": "Put the planet in space"
+    },
+    "sticker-board.request.moon.en": {
+      "start": 11.29,
+      "end": 13.57,
+      "heard": "Put the moon in space"
+    },
+    "sticker-board.request.star.en": {
+      "start": 15.27,
+      "end": 17.49,
+      "heard": "Put the star in space"
+    },
+    "sticker-board.request.palm-tree.en": {
+      "start": 19.08,
+      "end": 21.5,
+      "heard": "Put the palm tree in the jungle"
+    },
+    "sticker-board.request.banana.en": {
+      "start": 23.35,
+      "end": 25.6,
+      "heard": "Put the banana in the jungle"
+    },
+    "sticker-board.request.leaf.en": {
+      "start": 27.27,
+      "end": 29.45,
+      "heard": "Put the leaf in the jungle"
+    },
+    "sticker-board.request.flower.en": {
+      "start": 30.98,
+      "end": 33.17,
+      "heard": "Put the flower in the jungle"
+    },
+    "sticker-board.request.shell.en": {
+      "start": 33.79,
+      "end": 36.31,
+      "heard": "Put the shell on the beach"
+    },
+    "sticker-board.request.starfish.en": {
+      "start": 38.22,
+      "end": 40.91,
+      "heard": "Put the starfish on the beach"
+    },
+    "sticker-board.request.umbrella.en": {
+      "start": 42.54,
+      "end": 45.11,
+      "heard": "Put the umbrella on the beach"
+    },
+    "sticker-board.request.ball.en": {
+      "start": 46.76,
+      "end": 48.85,
+      "heard": "Put the ball on the beach"
+    },
+    "wordtrain.load.apple.en": {
+      "start": 50.33,
+      "end": 51.74,
+      "heard": "Load the apple"
+    },
+    "wordtrain.name.apple.en": {
+      "start": 53.31,
+      "end": 53.91,
+      "heard": "Apple"
+    },
+    "wordtrain.other.apple.en": {
+      "start": 55.07,
+      "end": 56.33,
+      "heard": "That's the apple"
+    }
+  },
+  "en-9dc0728be4": {
+    "habitat.name.frog.en": {
+      "start": 0.21,
+      "end": 1.21,
+      "heard": "The frog"
+    },
+    "habitat.clue.frog.en": {
+      "start": 2.07,
+      "end": 6.62,
+      "heard": "I am green, and I love to swim and hop."
+    },
+    "habitat.home.pond.en": {
+      "start": 7.45,
+      "end": 8.28,
+      "heard": "The pond"
+    },
+    "habitat.name.bird.en": {
+      "start": 9.23,
+      "end": 10.16,
+      "heard": "The bird"
+    },
+    "habitat.clue.bird.en": {
+      "start": 11.18,
+      "end": 14.83,
+      "heard": "I have feathers, and I sing in the morning."
+    },
+    "habitat.home.nest.en": {
+      "start": 15.86,
+      "end": 16.83,
+      "heard": "The nest"
+    },
+    "habitat.name.owl.en": {
+      "start": 17.89,
+      "end": 18.77,
+      "heard": "The owl"
+    },
+    "habitat.clue.owl.en": {
+      "start": 19.76,
+      "end": 24.37,
+      "heard": "I stay awake at night, and I say, \"Hoo, hoo.\""
+    },
+    "habitat.home.tree-hollow.en": {
+      "start": 25.45,
+      "end": 26.7,
+      "heard": "The hollow tree"
+    },
+    "habitat.name.bee.en": {
+      "start": 27.38,
+      "end": 28.46,
+      "heard": "The bee"
+    },
+    "habitat.clue.bee.en": {
+      "start": 29.8,
+      "end": 33.6,
+      "heard": "I buzz, and I make honey."
+    },
+    "habitat.home.hive.en": {
+      "start": 36.4,
+      "end": 37.5,
+      "heard": "The beehive"
+    },
+    "habitat.name.rabbit.en": {
+      "start": 39.19,
+      "end": 40.06,
+      "heard": "The rabbit"
+    },
+    "habitat.clue.rabbit.en": {
+      "start": 41.92,
+      "end": 47.01,
+      "heard": "I have long ears, and I love to dig."
+    },
+    "habitat.home.burrow.en": {
+      "start": 49.99,
+      "end": 50.83,
+      "heard": "The burrow"
+    },
+    "habitat.name.dog.en": {
+      "start": 51.95,
+      "end": 53.61,
+      "heard": "The dog"
+    }
+  },
+  "en-a4aa45ef2f": {
+    "habitat.clue.dog.en": {
+      "start": 0.24,
+      "end": 3.05,
+      "heard": "I wag my tail, and I bark."
+    },
+    "habitat.home.kennel.en": {
+      "start": 5.65,
+      "end": 6.78,
+      "heard": "The doghouse."
+    },
+    "sorting.word.red.en": {
+      "start": 8.64,
+      "end": 9.12,
+      "heard": "Red"
+    },
+    "sorting.word.yellow.en": {
+      "start": 10.98,
+      "end": 11.58,
+      "heard": "Yellow"
+    },
+    "sorting.word.blue.en": {
+      "start": 13.36,
+      "end": 13.87,
+      "heard": "Blue"
+    },
+    "sorting.word.big.en": {
+      "start": 15.61,
+      "end": 16.04,
+      "heard": "Big"
+    },
+    "sorting.word.small.en": {
+      "start": 17.7,
+      "end": 18.2,
+      "heard": "Small"
+    },
+    "picnic.number.1.en": {
+      "start": 19.71,
+      "end": 20.16,
+      "heard": "One"
+    },
+    "picnic.number.2.en": {
+      "start": 21.58,
+      "end": 21.96,
+      "heard": "Two"
+    },
+    "picnic.number.3.en": {
+      "start": 23.15,
+      "end": 23.51,
+      "heard": "Three"
+    },
+    "picnic.number.4.en": {
+      "start": 24.34,
+      "end": 25.5,
+      "heard": "Four"
+    },
+    "picnic.number.5.en": {
+      "start": 28.19,
+      "end": 29.47,
+      "heard": "Five"
+    },
+    "picnic.number.6.en": {
+      "start": 32.17,
+      "end": 32.98,
+      "heard": "Six"
+    },
+    "picnic.number.7.en": {
+      "start": 35.27,
+      "end": 35.95,
+      "heard": "Seven"
+    },
+    "picnic.number.8.en": {
+      "start": 38.76,
+      "end": 39.33,
+      "heard": "Eight"
+    },
+    "picnic.number.9.en": {
+      "start": 42.34,
+      "end": 42.9,
+      "heard": "Nine"
+    }
+  },
+  "en-e2bf366a8c": {
+    "hiding.lion.sound-short.en": {
+      "start": 0.2,
+      "end": 1.48,
+      "heard": "Roar"
+    },
+    "hiding.bear.sound-short.en": {
+      "start": 3.34,
+      "end": 4.52,
+      "heard": "Growl"
+    },
+    "hiding.panda.sound-short.en": {
+      "start": 6.38,
+      "end": 7.35,
+      "heard": "Munch"
+    },
+    "hiding.dog.sound-short.en": {
+      "start": 8.99,
+      "end": 9.36,
+      "heard": "Woof"
+    },
+    "hiding.rabbit.sound-short.en": {
+      "start": 10.52,
+      "end": 11.31,
+      "heard": "Thump"
+    },
+    "shadow.cat.sound.en": {
+      "start": 13.63,
+      "end": 16.47,
+      "heard": "Meow, meow. Who is it?"
+    },
+    "shadow.cat.reveal.en": {
+      "start": 18.19,
+      "end": 19.2,
+      "heard": "It's the cat."
+    },
+    "shadow.lion.sound.en": {
+      "start": 20.44,
+      "end": 23.51,
+      "heard": "Roar, roar. Who is it?"
+    },
+    "shadow.lion.reveal.en": {
+      "start": 24.94,
+      "end": 26.35,
+      "heard": "It's the lion."
+    },
+    "shadow.bear.sound.en": {
+      "start": 28.08,
+      "end": 30.98,
+      "heard": "Growl, growl. Who is it?"
+    },
+    "shadow.bear.reveal.en": {
+      "start": 31.73,
+      "end": 33.41,
+      "heard": "It's the bear."
+    },
+    "shadow.panda.sound.en": {
+      "start": 34.21,
+      "end": 39.76,
+      "heard": "Munch, munch. Who is it?"
+    },
+    "shadow.panda.reveal.en": {
+      "start": 39.89,
+      "end": 43.3,
+      "heard": "It's the panda."
+    },
+    "shadow.dog.sound.en": {
+      "start": 43.98,
+      "end": 47.61,
+      "heard": "Woof, woof. Who is it?"
+    },
+    "shadow.dog.reveal.en": {
+      "start": 49.19,
+      "end": 50.72,
+      "heard": "It's the dog."
+    },
+    "shadow.rabbit.sound.en": {
+      "start": 51.66,
+      "end": 55.51,
+      "heard": "Thump, thump. Who is it?"
+    }
+  },
+  "en-3e2a8e84a3": {
+    "shadow.rabbit.reveal.en": {
+      "start": 0.39,
+      "end": 2.0,
+      "heard": "It's the rabbit"
+    },
+    "shadow.cat.name.en": {
+      "start": 2.8,
+      "end": 4.37,
+      "heard": "Find the cat"
+    },
+    "shadow.lion.name.en": {
+      "start": 5.27,
+      "end": 7.19,
+      "heard": "Find the lion"
+    },
+    "shadow.bear.name.en": {
+      "start": 8.04,
+      "end": 9.4,
+      "heard": "Find the bear"
+    },
+    "shadow.panda.name.en": {
+      "start": 10.3,
+      "end": 12.24,
+      "heard": "Find the panda"
+    },
+    "shadow.dog.name.en": {
+      "start": 13.03,
+      "end": 14.48,
+      "heard": "Find the dog"
+    },
+    "shadow.rabbit.name.en": {
+      "start": 15.09,
+      "end": 16.78,
+      "heard": "Find the rabbit"
+    },
+    "shadow.cat.sound-short.en": {
+      "start": 17.6,
+      "end": 19.87,
+      "heard": "Meow Who is it?"
+    },
+    "shadow.lion.sound-short.en": {
+      "start": 20.65,
+      "end": 23.38,
+      "heard": "Roar Who is it?"
+    },
+    "shadow.bear.sound-short.en": {
+      "start": 24.07,
+      "end": 26.51,
+      "heard": "Growl Who is it?"
+    },
+    "shadow.panda.sound-short.en": {
+      "start": 27.16,
+      "end": 29.29,
+      "heard": "Munch Who is it?"
+    },
+    "shadow.dog.sound-short.en": {
+      "start": 31.45,
+      "end": 33.41,
+      "heard": "Woof Who is it?"
+    },
+    "shadow.rabbit.sound-short.en": {
+      "start": 35.23,
+      "end": 36.98,
+      "heard": "Thump Who is it?"
+    },
+    "balloon.popped.en.0": {
+      "start": 38.4,
+      "end": 38.78,
+      "heard": "Pop"
+    },
+    "balloon.popped.en.1": {
+      "start": 39.48,
+      "end": 40.58,
+      "heard": "Hooray"
+    },
+    "balloon.popped.en.2": {
+      "start": 42.13,
+      "end": 43.37,
+      "heard": "Great popping"
+    }
+  },
+  "en-cd4f4c5c00": {
+    "wordtrain.load.banana.en": {
+      "start": 0.41,
+      "end": 2.37,
+      "heard": "Load the banana"
+    },
+    "wordtrain.name.banana.en": {
+      "start": 4.96,
+      "end": 6.13,
+      "heard": "banana"
+    },
+    "wordtrain.other.banana.en": {
+      "start": 7.62,
+      "end": 9.01,
+      "heard": "That's the banana"
+    },
+    "wordtrain.load.carrot.en": {
+      "start": 10.51,
+      "end": 12.4,
+      "heard": "Load the carrot"
+    },
+    "wordtrain.name.carrot.en": {
+      "start": 14.25,
+      "end": 15.04,
+      "heard": "carrot"
+    },
+    "wordtrain.other.carrot.en": {
+      "start": 16.78,
+      "end": 18.27,
+      "heard": "That's the carrot"
+    },
+    "wordtrain.load.ball.en": {
+      "start": 19.5,
+      "end": 21.22,
+      "heard": "Load the ball"
+    },
+    "wordtrain.name.ball.en": {
+      "start": 23.25,
+      "end": 23.85,
+      "heard": "ball"
+    },
+    "wordtrain.other.ball.en": {
+      "start": 25.43,
+      "end": 26.53,
+      "heard": "That's the ball"
+    },
+    "wordtrain.load.hat.en": {
+      "start": 27.79,
+      "end": 29.34,
+      "heard": "Load the hat"
+    },
+    "wordtrain.name.hat.en": {
+      "start": 30.36,
+      "end": 30.83,
+      "heard": "hat"
+    },
+    "wordtrain.other.hat.en": {
+      "start": 34.86,
+      "end": 36.35,
+      "heard": "That's the hat"
+    },
+    "wordtrain.load.book.en": {
+      "start": 38.86,
+      "end": 40.71,
+      "heard": "Load the book"
+    },
+    "wordtrain.name.book.en": {
+      "start": 43.48,
+      "end": 43.95,
+      "heard": "book"
+    },
+    "wordtrain.other.book.en": {
+      "start": 46.15,
+      "end": 47.75,
+      "heard": "That's the book"
+    },
+    "wordtrain.load.egg.en": {
+      "start": 49.17,
+      "end": 51.67,
+      "heard": "Load the egg"
+    }
+  },
+  "en-ccf4b78869": {
+    "wordtrain.name.egg.en": {
+      "start": 0.27,
+      "end": 0.79,
+      "heard": "Egg"
+    },
+    "wordtrain.other.egg.en": {
+      "start": 3.26,
+      "end": 4.45,
+      "heard": "That's the egg"
+    },
+    "wordtrain.load.fish.en": {
+      "start": 6.31,
+      "end": 8.11,
+      "heard": "Load the fish"
+    },
+    "wordtrain.name.fish.en": {
+      "start": 9.72,
+      "end": 10.26,
+      "heard": "Fish"
+    },
+    "wordtrain.other.fish.en": {
+      "start": 11.78,
+      "end": 12.82,
+      "heard": "That's the fish"
+    },
+    "wordtrain.spell.hat.en": {
+      "start": 14.31,
+      "end": 16.08,
+      "heard": "Let's spell hat"
+    },
+    "wordtrain.word.hat.en": {
+      "start": 17.45,
+      "end": 21.63,
+      "heard": "H A T hat"
+    },
+    "wordtrain.spell.egg.en": {
+      "start": 23.36,
+      "end": 25.08,
+      "heard": "Let's spell egg"
+    },
+    "wordtrain.word.egg.en": {
+      "start": 26.47,
+      "end": 30.7,
+      "heard": "E G G egg"
+    },
+    "wordtrain.spell.sun.en": {
+      "start": 32.36,
+      "end": 34.04,
+      "heard": "Let's spell sun"
+    },
+    "wordtrain.word.sun.en": {
+      "start": 35.42,
+      "end": 39.1,
+      "heard": "S U N sun"
+    },
+    "wordtrain.spell.cup.en": {
+      "start": 40.41,
+      "end": 42.84,
+      "heard": "Let's spell cup"
+    },
+    "wordtrain.word.cup.en": {
+      "start": 44.52,
+      "end": 47.92,
+      "heard": "C U P cup"
+    },
+    "wordtrain.spell.ball.en": {
+      "start": 49.35,
+      "end": 52.0,
+      "heard": "Let's spell ball"
+    },
+    "wordtrain.word.ball.en": {
+      "start": 53.59,
+      "end": 58.02,
+      "heard": "B A L L ball"
+    },
+    "wordtrain.spell.book.en": {
+      "start": 58.93,
+      "end": 61.61,
+      "heard": "Let's spell book"
+    }
   }
 }
