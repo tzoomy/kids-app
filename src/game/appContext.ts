@@ -2,7 +2,7 @@ import { Store, browserStorage, type StorageDriver } from '../core/storage/store
 import { recordRoundAndSave } from '../core/wardrobe/store';
 import { AdaptiveStore } from '../core/storage/adaptiveStore';
 import { localDayKey } from '../core/storage/dayKey';
-import { isTimeEarningEnabled, type AgeTrack } from '../core/storage/schema';
+import { isTimeEarningEnabled, profileLanguageSetting, profileStartPrefs, type AgeTrack, type LanguageSetting } from '../core/storage/schema';
 import { SkillSession, type GameLevelsMeta } from '../core/adaptive';
 import type { AudioManager, SfxPlayer } from '../core/audio';
 import { LearningSession, LeisureSession } from '../core/leisure';
@@ -101,8 +101,14 @@ export class AppContext {
       world,
       gameId,
       meta,
+      prefs: profileStartPrefs(this.store.getState(), this.requireProfileId()),
       today: () => localDayKey(new Date(this.nowMs())),
     });
+  }
+
+  /** Learning language setting of the current profile (falls back to the deprecated global value, then 'both'). */
+  languageSetting(): LanguageSetting {
+    return profileLanguageSetting(this.store.getState(), this.requireProfileId());
   }
 
   requireProfileId(): string {

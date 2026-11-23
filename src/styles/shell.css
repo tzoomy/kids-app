@@ -1167,3 +1167,125 @@ body {
 [dir='rtl'] .shell-hold-progress > div {
   background: linear-gradient(270deg, #ffd93d, #ff6b6b);
 }
+
+/* Parent area: per-child profile cards (main screen) and the profile page. Tap targets are >= 44 CSS px. */
+.shell-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.shell-profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: 2px solid #ccc;
+  border-radius: 16px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+}
+
+.shell-profile-card:active {
+  background: #f3f3f3;
+}
+
+.shell-profile-card .shell-note {
+  margin: 0;
+  font-weight: 400;
+}
+
+.shell-profile-page label {
+  flex-wrap: wrap;
+  min-height: 44px;
+}
+
+.shell-profile-page .shell-toggle input[type='checkbox'] {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  max-width: none;
+  margin: 6px;
+  padding: 0;
+}
+
+.shell-profile-actions {
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.shell-btn.shell-btn-small {
+  font-size: 16px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 14px;
+}
+
+.shell-levels h3,
+.shell-levels h4 {
+  margin: 16px 0 4px;
+}
+
+.shell-level-game {
+  border-top: 1px solid #e3e3e3;
+  padding: 6px 0;
+}
+
+.shell-level-game-name {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.shell-level-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 4px 0;
+}
+
+.shell-level-lang {
+  min-width: 96px;
+}
+
+.shell-level-value {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.shell-level-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shell-level-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shell-level-reset {
+  font-size: 14px;
+}
+
+.shell-card .shell-level-note {
+  margin: 0;
+}

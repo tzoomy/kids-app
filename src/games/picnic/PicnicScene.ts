@@ -348,8 +348,7 @@ export class PicnicScene extends Phaser.Scene {
     this.lockedUntil = 0;
     this.session.reportCelebrating(false);
 
-    const settings = this.context.store.getState().settings;
-    this.roundLang = nextRoundLanguage(first ? null : this.roundLang, this.skills.atRoundBoundary(this.roundLang), settings.languages);
+    this.roundLang = nextRoundLanguage(first ? null : this.roundLang, this.skills.atRoundBoundary(this.roundLang), this.context.languageSetting());
     this.roundLevel = this.skills.level(this.roundLang);
     const levers = levelLevers(this.content.adaptive.levels[this.roundLevel - 1]);
     // The engine chooses the train size among the level's candidates (a known size right after a level drop).

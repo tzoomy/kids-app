@@ -42,4 +42,22 @@ describe('he.json', () => {
     const text = fs.readFileSync(path.join('src', 'content', 'i18n', 'he.json'), 'utf8');
     expect(duplicateKeys(text)).toEqual([]);
   });
+
+  it('has the parent profile page strings (feminine "not started yet", per-profile language label)', () => {
+    const he = JSON.parse(fs.readFileSync(path.join('src', 'content', 'i18n', 'he.json'), 'utf8')) as { parent: Record<string, string> };
+    for (const key of [
+      'profileLanguageLabel',
+      'startFrenchHigherLabel',
+      'difficultyLabel',
+      'difficultyRegular',
+      'difficultyChallenging',
+      'levelsTitle',
+      'levelNotStarted',
+      'profileBack',
+    ]) {
+      expect(he.parent[key], key).toBeTruthy();
+    }
+    expect(he.parent.levelNotStarted).toBe('טרם התחילה');
+    expect(he.parent).not.toHaveProperty('languagesLabel');
+  });
 });
