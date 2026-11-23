@@ -64,6 +64,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       choiceCount: 2,
       loadsPerStar: 3,
       wordLength: 3,
+      wordLengthMax: 3,
       ghost: false,
       distractors: 0,
       audioOnly: false,
@@ -74,6 +75,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       choiceCount: 3,
       loadsPerStar: 3,
       wordLength: 3,
+      wordLengthMax: 3,
       ghost: false,
       distractors: 0,
       audioOnly: false,
@@ -84,6 +86,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       choiceCount: 2,
       loadsPerStar: 3,
       wordLength: 3,
+      wordLengthMax: 3,
       ghost: true,
       distractors: 0,
       audioOnly: false,
@@ -94,6 +97,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       choiceCount: 2,
       loadsPerStar: 3,
       wordLength: 3,
+      wordLengthMax: 3,
       ghost: false,
       distractors: 1,
       audioOnly: false,
@@ -104,6 +108,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       choiceCount: 2,
       loadsPerStar: 3,
       wordLength: 4,
+      wordLengthMax: 4,
       ghost: false,
       distractors: 1,
       audioOnly: true,
@@ -205,7 +210,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
       expect(o).toEqual({ lineId: `wordtrain.other.${obj.id}.en`, lang: 'en', text: `That's the ${obj.en}!` });
     }
 
-    for (const w of content.words) {
+    for (const w of content.words.filter((x) => x.lang === 'en')) {
       expect(spellLine(content, w.id)).toEqual({
         lineId: `wordtrain.spell.${w.id}.en`,
         lang: 'en',
@@ -254,7 +259,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
     expect(() => WordTrainContentSchema.parse(wordTrainJson)).not.toThrow();
     expect(content.id).toBe('word-train');
     expect(content.world).toBe('language-house');
-    expect(content.languages).toEqual(['en']);
+    expect(content.languages).toEqual(['en', 'fr']);
     expect(content.earnsLeisure).toBe(true);
     expect(loadWorlds().worlds.find((w) => w.id === 'language-house')?.status).toBe('open');
 
@@ -274,7 +279,7 @@ describe('Word Train: levels, adaptive trials, voice lines and content', () => {
     }
 
     for (const w of content.words) {
-      expect(w.word).toMatch(/^[a-z]{3,4}$/);
+      expect(w.word).toMatch(/^[a-z]{3,6}$/);
       expect(w.he.trim().length).toBeGreaterThan(0);
       const entry = manifestByKey.get(w.art);
       expect(entry, `word art ${w.art}`).toBeDefined();

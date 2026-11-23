@@ -7,6 +7,7 @@ import {
   getSpokenLines,
   readBalanceSec,
   readStarCount,
+  seedLanguageSetting,
   seedLetterMonsterLevel,
   tapRect,
   tapTestId,
@@ -181,6 +182,110 @@ test.describe('letter monster', () => {
       expect(rect.y).toBeGreaterThanOrEqual(0);
       expect(rect.x + rect.width).toBeLessThanOrEqual(vp.width + 0.5);
       expect(rect.y + rect.height).toBeLessThanOrEqual(vp.height + 0.5);
+    }
+  });
+  test('[AC-13] @single-orientation L6 ending-letter request: Hebrew lead then the ending model line; wrong food keeps the request, right food earns a star', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    const info = await enterLetterMonster(page, 'profile-b', 6);
+    expect(info.level).toBe(6);
+    expect(info.mode).toBe('ending');
+    expect(info.request.kind).toBe('ending');
+    expect(info.offeredIds).toHaveLength(4);
+    expect(info.signVisible).toBe(true);
+
+    const request = info.request as { kind: 'ending'; letter: string };
+    await expect
+      .poll(
+        async () => {
+          const lines = await getSpokenLines(page);
+          return (
+            lines.some((l) => l.lineId === 'monster.askEnding.he' && l.lang === 'he') &&
+            lines.some((l) => l.lineId === `monster.ending.${request.letter}.${info.language}` && l.lang === info.language)
+          );
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+
+    const starsBefore = await readStarCount(page);
+    const wrongId = info.offeredIds.find((id) => id !== info.matchId)!;
+    await tapRect(page, info.foods[wrongId]);
+    const afterWrong = await waitForMonster(page, (i) => i.ready && i.lastEvent === 'not-this-one', 'wrong food not rejected');
+    expect(afterWrong.request).toEqual(request);
+    expect(await readStarCount(page)).toBe(starsBefore);
+
+    await tapRect(page, afterWrong.foods[afterWrong.matchId]);
+    await expect.poll(() => readStarCount(page), { timeout: 12_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-14] @single-orientation L8 word reading in French: the written word is on the sign, six foods, exactly one matches', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterWorldByTap(page, 'profile-b', 'language-house', 'letter-monster', {
+      beforeEnter: async () => {
+        await seedLanguageSetting(page, 'fr');
+        await seedLetterMonsterLevel(page, 8);
+      },
+    });
+    const info = await waitForLetterMonsterReady(page);
+    expect(info.level).toBe(8);
+    expect(info.language).toBe('fr');
+    expect(info.mode).toBe('word');
+    expect(info.signVisible).toBe(true);
+    expect(info.offeredIds).toHaveLength(6);
+    expect(info.request.kind).toBe('word');
+    const request = info.request as { kind: 'word'; foodId: string; word: string };
+    expect(request.foodId).toBe(info.matchId);
+    expect(request.word.length).toBeLessThanOrEqual(6);
+
+    await expect
+      .poll(
+        async () => {
+          const lines = await getSpokenLines(page);
+          return (
+            lines.some((l) => l.lineId === 'monster.askWord.he' && l.lang === 'he') &&
+            lines.some((l) => l.lineId === `monster.word.${request.foodId}.fr` && l.lang === 'fr')
+          );
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+
+    const starsBefore = await readStarCount(page);
+    await tapRect(page, info.foods[info.matchId]);
+    await expect.poll(() => readStarCount(page), { timeout: 12_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-15] L5 (4 foods) and L7 (6 foods): every food and the monster at least 64 CSS px, on screen and not overlapping, in both orientations', async ({ page }) => {
+    test.setTimeout(60_000);
+    const vp = page.viewportSize()!;
+    for (const [level, count] of [
+      [5, 4],
+      [7, 6],
+    ] as const) {
+      const info = await enterLetterMonster(page, 'profile-b', level);
+      expect(info.level).toBe(level);
+      expect(info.offeredIds).toHaveLength(count);
+      const rects = info.offeredIds.map((id) => ({ id, rect: info.foods[id] }));
+      for (const { id, rect } of rects) {
+        expect(rect.width, `${id} width`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(rect.height, `${id} height`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(rect.x, `${id} left`).toBeGreaterThanOrEqual(0);
+        expect(rect.y, `${id} top`).toBeGreaterThanOrEqual(0);
+        expect(rect.x + rect.width, `${id} right`).toBeLessThanOrEqual(vp.width + 0.5);
+        expect(rect.y + rect.height, `${id} bottom`).toBeLessThanOrEqual(vp.height + 0.5);
+      }
+      for (let i = 0; i < rects.length; i++) {
+        for (let j = i + 1; j < rects.length; j++) {
+          const a = rects[i].rect;
+          const b = rects[j].rect;
+          const overlap = a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+          expect(overlap, `L${level} ${rects[i].id} overlaps ${rects[j].id}`).toBe(false);
+        }
+      }
+      await tapTestId(page, 'hud-back');
+      await waitForScene(page, 'MapScene');
     }
   });
 });

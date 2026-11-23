@@ -6,11 +6,16 @@ import type { Lang } from '../templates/choiceServe';
 export type MonsterPhase = 'asking' | 'eating';
 export const MONSTER_PHASES: readonly MonsterPhase[] = ['asking', 'eating'];
 
-export type MonsterRequestKind = 'color' | 'letter';
+export type MonsterRequestKind = 'color' | 'letter' | 'ending' | 'word';
+
+/** Longest food word shown on the sign for a reading ("word") request. */
+export const MAX_READ_WORD_LENGTH = 6;
 
 export type MonsterRequest =
   | { readonly kind: 'color'; readonly color: LetterMonsterColorId }
-  | { readonly kind: 'letter'; readonly letter: string };
+  | { readonly kind: 'letter'; readonly letter: string }
+  | { readonly kind: 'ending'; readonly letter: string }
+  | { readonly kind: 'word'; readonly foodId: string; readonly word: string };
 
 export interface MonsterRound {
   readonly request: MonsterRequest;
@@ -48,7 +53,14 @@ function shuffleWithRng<T>(items: readonly T[], rng: () => number): T[] {
 
 export function sameRequest(a: MonsterRequest | null, b: MonsterRequest | null): boolean {
   if (!a || !b || a.kind !== b.kind) return false;
-  return a.kind === 'color' ? a.color === (b as Extract<MonsterRequest, { kind: 'color' }>).color : a.letter === (b as Extract<MonsterRequest, { kind: 'letter' }>).letter;
+  switch (a.kind) {
+    case 'color':
+      return a.color === (b as typeof a).color;
+    case 'word':
+      return a.foodId === (b as typeof a).foodId;
+    default:
+      return a.letter === (b as typeof a).letter;
+  }
 }
 
 /**
@@ -97,9 +109,31 @@ export function buildRound(
     return { request: { kind: 'color', color: targetColor }, offeredIds, matchId: match.id };
   }
 
+  if (requestKind === 'word') {
+    const readable = foods.filter((f) => f.word[language].length <= MAX_READ_WORD_LENGTH);
+    const fresh = previousRequest?.kind === 'word' ? readable.filter((f) => f.id !== previousRequest.foodId) : readable;
+    const pool = fresh.length > 0 ? fresh : readable;
+    if (pool.length === 0) throw new Error(`No ${language} food word has ${MAX_READ_WORD_LENGTH} letters or fewer`);
+    const match = pool[pickIndex(pool.length, rng)];
+    const distractors = shuffleWithRng(
+      foods.filter((f) => f.id !== match.id && f.word[language] !== match.word[language]),
+      rng,
+    ).slice(0, choices - 1);
+    if (distractors.length < choices - 1) throw new Error(`Not enough distinct words for ${choices} choices`);
+    const offeredIds = shuffleWithRng([match.id, ...distractors.map((d) => d.id)], rng);
+    return {
+      request: { kind: 'word', foodId: match.id, word: match.word[language] },
+      offeredIds,
+      matchId: match.id,
+    };
+  }
+
+  const letterOf = (f: LetterMonsterFood): string =>
+    requestKind === 'ending' ? f.ending[language].toUpperCase() : f.initial[language].toUpperCase();
+  const letterKind: 'letter' | 'ending' = requestKind === 'ending' ? 'ending' : 'letter';
   const byLetter = new Map<string, LetterMonsterFood[]>();
   for (const food of foods) {
-    const letter = food.initial[language].toUpperCase();
+    const letter = letterOf(food);
     const list = byLetter.get(letter) ?? [];
     list.push(food);
     byLetter.set(letter, list);
@@ -111,17 +145,17 @@ export function buildRound(
     throw new Error(`No letter in ${language} can supply 1 match and ${choices - 1} distractors`);
   }
   const filtered =
-    previousRequest?.kind === 'letter' && eligible.length > 1
-      ? eligible.filter(([letter]) => letter !== previousRequest.letter)
+    previousRequest?.kind === letterKind && eligible.length > 1
+      ? eligible.filter(([letter]) => letter !== (previousRequest as { letter: string }).letter)
       : eligible;
   const [targetLetter, matching] = filtered[pickIndex(filtered.length, rng)];
   const match = matching[pickIndex(matching.length, rng)];
   const distractors = shuffleWithRng(
-    foods.filter((f) => f.initial[language].toUpperCase() !== targetLetter),
+    foods.filter((f) => letterOf(f) !== targetLetter),
     rng,
   ).slice(0, choices - 1);
   const offeredIds = shuffleWithRng([match.id, ...distractors.map((d) => d.id)], rng);
-  return { request: { kind: 'letter', letter: targetLetter }, offeredIds, matchId: match.id };
+  return { request: { kind: letterKind, letter: targetLetter }, offeredIds, matchId: match.id };
 }
 
 function assertValidRound(round: MonsterRound): void {

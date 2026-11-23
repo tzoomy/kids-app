@@ -151,13 +151,14 @@ test.describe('word train', () => {
       .poll(
         async () => {
           const lines = await getSpokenLines(page, spokenBeforeBounce);
-          return lines.some((l) => l.lineId === `wordtrain.letter.${wrongTile.letter}.en` && l.lang === 'en');
+          return lines.some((l) => l.lineId === `wordtrain.letter.${wrongTile.letter}.${info.language}` && l.lang === info.language);
         },
         { timeout: 10_000 },
       )
       .toBe(true);
 
     const wordId = info.target!;
+    const roundLang = info.language;
     const spokenBeforeSpell = (await getSpokenLines(page)).length;
     for (let s = 0; s < info.slots.length; s++) {
       info = await waitForWordTrainReady(page);
@@ -175,7 +176,7 @@ test.describe('word train', () => {
       .poll(
         async () => {
           const lines = await getSpokenLines(page, spokenBeforeSpell);
-          return lines.some((l) => l.lineId === `wordtrain.word.${wordId}.en` && l.lang === 'en');
+          return lines.some((l) => l.lineId === `wordtrain.word.${wordId}.${roundLang}` && l.lang === roundLang);
         },
         { timeout: 10_000 },
       )
@@ -206,14 +207,17 @@ test.describe('word train', () => {
     await expect.poll(() => readStarCount(page), { timeout: 10_000 }).toBe(starsBefore + 1);
   });
 
-  test('[AC-07] @single-orientation English only even when language setting is French or both', async ({ page }, testInfo) => {
+  test('[AC-07] @single-orientation load mode (age 2) stays English only even when language setting is French or both; its skill key stays .en', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(60_000);
     for (const lang of ['fr', 'both'] as const) {
       await enterWorldByTap(page, 'profile-a', 'language-house', 'word-train', {
         beforeEnter: () => seedLanguageSetting(page, lang),
       });
-      await waitForWordTrainReady(page);
+      const loadInfo = await waitForWordTrainReady(page);
+      expect(loadInfo.mode).toBe('load');
+      expect(loadInfo.language).toBe('en');
+      expect(loadInfo.skillKey.endsWith('.en')).toBe(true);
 
       await expect
         .poll(
@@ -268,6 +272,141 @@ test.describe('word train', () => {
     }
     for (const tile of spellInfo.tiles) {
       checkRect(tile.rect, `spell tile ${tile.index}`);
+    }
+  });
+  test('[AC-12] @single-orientation L6 spells a five-letter word by tapping (5 wagons, 6 blocks)', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterWorldByTap(page, 'profile-b', 'language-house', 'word-train', {
+      beforeEnter: async () => {
+        await seedLanguageSetting(page, 'en');
+        await seedWordTrainLevel(page, 6);
+      },
+    });
+    let info = await waitForWordTrainReady(page);
+    expect(info.level).toBe(6);
+    expect(info.mode).toBe('spell');
+    expect(info.language).toBe('en');
+    expect(info.slots).toHaveLength(5);
+    expect(info.tiles).toHaveLength(6);
+    expect(info.word).toHaveLength(5);
+    const starsBefore = await readStarCount(page);
+
+    for (let s = 0; s < info.slots.length; s++) {
+      info = await waitForWordTrainReady(page);
+      const slot = info.slots[s];
+      const tile = info.tiles.find((t) => !t.placed && t.letter === slot.letter)!;
+      await tapRect(page, tile.rect);
+      await waitForWordTrain(
+        page,
+        (i) => (s === info.slots.length - 1 ? i.lastEvent === 'spelled' : Boolean(i.slots[s]?.filled)),
+        `tapping block for slot ${s} did not fill`,
+      );
+    }
+    await expect.poll(() => readStarCount(page), { timeout: 12_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-13] @single-orientation French setting at L7 speaks the French intro, spell line and French letter names; skill key is .fr', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterWorldByTap(page, 'profile-b', 'language-house', 'word-train', {
+      beforeEnter: async () => {
+        await seedLanguageSetting(page, 'fr');
+        await seedWordTrainLevel(page, 7);
+      },
+    });
+    let info = await waitForWordTrainReady(page);
+    expect(info.level).toBe(7);
+    expect(info.mode).toBe('spell');
+    expect(info.language).toBe('fr');
+    expect(info.skillKey.endsWith('.fr')).toBe(true);
+    expect(info.slots).toHaveLength(5);
+    expect(info.tiles).toHaveLength(7);
+    const wordId = info.target!;
+
+    await expect
+      .poll(
+        async () => {
+          const lines = await getSpokenLines(page);
+          return (
+            lines.some((l) => l.lineId === 'wordtrain.intro.spell.fr.he' && l.lang === 'he') &&
+            lines.some((l) => l.lineId === `wordtrain.spell.${wordId}.fr` && l.lang === 'fr')
+          );
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+
+    const starsBefore = await readStarCount(page);
+    const firstSlot = info.slots[0];
+    const wrong = info.tiles.find((t) => !t.placed && t.letter !== firstSlot.letter)!;
+    await dragRectTo(page, wrong.rect, firstSlot.rect);
+    await waitForWordTrain(page, (i) => i.lastEvent === 'bounced', 'wrong block did not bounce');
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId === `wordtrain.letter.${wrong.letter}.fr` && l.lang === 'fr'), {
+        timeout: 10_000,
+      })
+      .toBe(true);
+
+    for (let s = 0; s < info.slots.length; s++) {
+      info = await waitForWordTrainReady(page);
+      const slot = info.slots[s];
+      const tile = info.tiles.find((t) => !t.placed && t.letter === slot.letter)!;
+      await tapRect(page, tile.rect);
+      await waitForWordTrain(
+        page,
+        (i) => (s === info.slots.length - 1 ? i.lastEvent === 'spelled' : Boolean(i.slots[s]?.filled)),
+        `tapping block for slot ${s} did not fill`,
+      );
+    }
+    await expect
+      .poll(async () => (await getSpokenLines(page)).some((l) => l.lineId === `wordtrain.word.${wordId}.fr` && l.lang === 'fr'), {
+        timeout: 10_000,
+      })
+      .toBe(true);
+    await expect.poll(() => readStarCount(page), { timeout: 12_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-14] L8 (5-6 letters, 2 distractors, audio-only) and L7 blocks are at least 64 CSS px, on screen and not overlapping, in both orientations', async ({ page }) => {
+    test.setTimeout(90_000);
+    const vp = page.viewportSize()!;
+    for (const level of [7, 8]) {
+      await enterWorldByTap(page, 'profile-b', 'language-house', 'word-train', {
+        beforeEnter: async () => {
+          await seedLanguageSetting(page, 'en');
+          await seedWordTrainLevel(page, level);
+        },
+      });
+      const info = await waitForWordTrainReady(page);
+      expect(info.level).toBe(level);
+      expect(info.slots.length).toBeGreaterThanOrEqual(5);
+      expect(info.slots.length).toBeLessThanOrEqual(6);
+      expect(info.tiles).toHaveLength(info.slots.length + 2);
+      for (const slot of info.slots) {
+        expect(slot.rect.width, `L${level} wagon ${slot.index} width`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(slot.rect.height, `L${level} wagon ${slot.index} height`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(slot.rect.x).toBeGreaterThanOrEqual(0);
+        expect(slot.rect.x + slot.rect.width).toBeLessThanOrEqual(vp.width + 0.5);
+      }
+      for (const tile of info.tiles) {
+        const r = tile.rect;
+        expect(r.width, `L${level} tile ${tile.index}`).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(r.height).toBeGreaterThanOrEqual(MIN_HIT_PX);
+        expect(r.x).toBeGreaterThanOrEqual(0);
+        expect(r.y).toBeGreaterThanOrEqual(0);
+        expect(r.x + r.width).toBeLessThanOrEqual(vp.width + 0.5);
+        expect(r.y + r.height).toBeLessThanOrEqual(vp.height + 0.5);
+      }
+      for (let i = 0; i < info.tiles.length; i++) {
+        for (let j = i + 1; j < info.tiles.length; j++) {
+          const a = info.tiles[i].rect;
+          const b = info.tiles[j].rect;
+          const overlap = a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+          expect(overlap, `L${level} tile ${i} overlaps tile ${j}`).toBe(false);
+        }
+      }
+      await tapTestId(page, 'hud-back');
+      await waitForScene(page, 'MapScene');
     }
   });
 });

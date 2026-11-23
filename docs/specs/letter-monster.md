@@ -12,7 +12,7 @@ A friendly, hungry monster sits behind the Language House counter. It asks for a
 ## Learning goals
 
 - **Age 2:** colors, and food words heard in the learning language.
-- **Age 5:** the initial sound and letter of a word in English or French (letter name, then a word that starts with it).
+- **Age 5:** the initial sound and letter of a word in English or French (letter name, then a word that starts with it). From 2026-11-23 the ceiling is kindergarten-plus: the **ending** letter of a word, then **reading a short written word** and matching it to its picture (L5–L8). Age 2 is untouched.
 
 ## World and why
 
@@ -25,11 +25,13 @@ The monster is a **simple prop**, not a new main character and not one of the ap
 
 ## Mechanic
 
-**Scene.** The Language House look with a plain procedural backdrop (warm wall, counter). The monster in the middle-top, and a row of foods on the counter under it. A sign next to the monster shows the request: a color dot (color levels) or the big letter (letter levels with picture support). Foods and the monster are tap targets of at least 64 CSS px.
+**Scene.** The Language House look with a plain procedural backdrop (warm wall, counter). The monster in the middle-top, and a row of foods on the counter under it (one row for 2–4 foods, two rows of up to three for 5–6). A sign next to the monster shows the request: a color dot (color levels) or the big letter (letter levels with picture support). Foods and the monster are tap targets of at least 64 CSS px.
 
 **Foods** (reused art `public/art/foods/*.svg` and names from `animal-restaurant.json`): apple (red), banana (yellow), carrot (orange), grapes (purple), strawberry (red), broccoli (green), pear (green), orange (orange), cheese (yellow), cookie (brown), egg (white), fish (blue). Each food has its English and French word and its initial letter per language (content `foods`), for example banana B / banane B, fish F / poisson P, egg E / œuf O.
 
-**Rounds.** Each request offers `extra.choices` foods (2 or 3). Exactly one food matches the request; the others never match (different color, or a different initial letter in the round's language). The same request is never asked twice in a row.
+**Rounds.** Each request offers `extra.choices` foods (2 or 3 on L1–L4, 4 or 6 on L5–L8; the schema allows 2–6). Exactly one food matches the request; the others never match (different color, or a different initial / ending letter, or a different word, in the round's language). The same request is never asked twice in a row. Each food also has an `ending` letter per language (the last letter of its word, validated in the schema; French œuf ends in F, while its initial stays O). French endings are E-heavy (7 of 12 foods): an E request still builds a 6-choice round, because the 5 non-E foods (raisin N, brocoli I, biscuit T, œuf F, poisson N) are exactly enough.
+
+**Request kinds** (`extra.request`): `color`, `letter` (initial), `ending` (last letter; sign shows "…T"), `word` (reading: the written word of the food is on the sign, which widens; only words of up to 6 letters are asked, 10 of 12 in English and 7 of 12 in French; all foods can be distractors, and no distractor has the same word).
 
 **State machine** (pure, `src/games/letterMonster/monsterMachine.ts`, no Phaser):
 
@@ -38,7 +40,7 @@ The monster is a **simple prop**, not a new main character and not one of the ap
 - Tap another food → event `not-this-one` (phase stays `asking`, the try count rises; nothing is lost).
 - Taps while `eating` → `busy`.
 
-**Adaptive trials.** One trial per request: `itemId` = the request (`color:red` or `letter:B`), `firstTryCorrect` = fed on the first tap, `hinted` = the idle hint fired.
+**Adaptive trials.** One trial per request: `itemId` = the request (`color:red`, `letter:B`, `ending:T` or `word:apple`), `firstTryCorrect` = fed on the first tap, `hinted` = the idle hint fired.
 
 **Idle hint.** After the track's `hintDelayMs` without a tap the request is repeated; on `picture-audio` levels the matching food also wiggles once.
 
@@ -52,9 +54,13 @@ The monster is a **simple prop**, not a new main character and not one of the ap
 | 2 | color | 3 | picture-audio |
 | 3 | first letter | 3 | picture-audio (the big letter on the sign; the match wiggles on the hint) |
 | 4 | first letter | 3 | audio-only (no letter on the sign; the request is only spoken) |
+| 5 | first letter | 4 | picture-audio |
+| 6 | ending letter | 4 | picture-audio (sign shows "…T") |
+| 7 | ending letter | 6 | audio-only |
+| 8 | short-word reading | 6 | picture-audio (the written word is on the sign) |
 
-- **Age 2:** start L1, min 1, max 2 (color only).
-- **Age 5:** start L3, min 2, max 4.
+- **Age 2:** start L1, min 1, **max 2** (color only). Pinned by a unit test: `{ start: 1, min: 1, max: 2 }`.
+- **Age 5:** start L3, min 2, max **8** (was 4).
 - **Adaptive rules:** engine defaults.
 
 ## Leisure
@@ -82,6 +88,13 @@ Profile → Language House building → picker → `game-picker-letter-monster` 
 | AC-07 | Content validates; every food has a non-empty English and French word whose first letter matches its `initial` | 1 | unit | @single-orientation | |
 | AC-08 | Food and monster tap targets are at least 64 CSS px in both orientations | 1 | e2e | both | `getLetterMonsterInfo` |
 | AC-09 | Device check: touch, rotation mid-game, audible device-TTS voice, visuals | 1 | device | both | |
+| AC-10 | Ceiling curve: L5–L8 appended (L1–L4 unchanged), `tracks.age2` pinned `{1,1,2}`, `tracks.age5` start 3 / min 2 / max 8, schema accepts `ending` and `word` requests and 2–6 choices | 1 | unit | @single-orientation | |
+| AC-11 | Ending and word rounds: every `ending` is the last letter of its word (œuf → F, initial O kept); L5–L7 and word rounds are satisfiable with exactly one match over many seeded draws in both languages (including 6-choice French E endings) | 1 | unit | @single-orientation | |
+| AC-12 | Voice for ending and word requests: Hebrew feminine lead + learning-language line; adaptive item ids `ending:<L>` / `word:<food>` | 1 | unit | @single-orientation | |
+| AC-13 | L6 ending request journey: lines spoken, wrong food keeps the request, right food earns a star | 1 | e2e+seed | @single-orientation | `seedLetterMonsterLevel`, `getLetterMonsterInfo`, `getSpokenLines` |
+| AC-14 | L8 word reading journey in French: written word on the sign, six foods, word line spoken, right food earns a star | 1 | e2e+seed | @single-orientation | `seedLanguageSetting`, `seedLetterMonsterLevel`, `getLetterMonsterInfo`, `getSpokenLines` |
+| AC-15 | 4 and 6 foods are at least 64 CSS px, on screen and not overlapping in both orientations | 1 | e2e+seed | both | `seedLetterMonsterLevel`, `getLetterMonsterInfo` |
+| AC-16 | Voice catalogue: every line id the game can speak (colors, letters, endings, words, foods, help) is enumerated with non-empty text | 1 | unit | @single-orientation | |
 
 ## Art, animation, and audio
 
@@ -99,6 +112,11 @@ Profile → Language House building → picker → `game-picker-letter-monster` 
 | `monster.color.<color>.<lang>` | en / fr | e.g. Red! / Rouge ! | After the Hebrew color request |
 | `monster.askLetter.he` | he | המפלצת רוצה משהו שמתחיל ב... | Letter request |
 | `monster.letter.<L>.<lang>` | en / fr | e.g. B... like banana! / B... comme banane ! | After the Hebrew letter request |
+| `monster.askEnding.he` | he | המפלצת רוצה משהו שמסתיים ב... | Ending request |
+| `monster.ending.<L>.<lang>` | en / fr | e.g. T... at the end of carrot! / T... à la fin de biscuit ! | After the Hebrew ending request |
+| `monster.askWord.he` | he | המפלצת רוצה את המילה... | Word-reading request |
+| `monster.word.<food>.<lang>` | en / fr | e.g. apple! / pomme ! | After the Hebrew word request |
+| `monster.help.he` | he | help text | Help pill |
 | `monster.food.<food>.<lang>` | en / fr | e.g. A banana! / Une banane ! | Each fed food |
 | `monster.notThis.he` | he | הממ, לא את זה. ננסה שוב? | A non-matching food |
 | `he.praise.0` | he | existing clip | Each fed request |
@@ -109,7 +127,7 @@ Only after Maor approves Pass 1: a decision on the monster (keep, replace with a
 
 ## Out of scope
 
-- Shapes (age 2 feeds by color only in Pass 1), letter tracing, drag to feed, more foods.
+- Shapes (age 2 feeds by color only in Pass 1), letter tracing, drag to feed, more foods (the 12 foods are enough for the ending and word levels; no new art), sentences, spelling.
 
 ## Open decisions for the owner
 
@@ -122,4 +140,5 @@ Only after Maor approves Pass 1: a decision on the monster (keep, replace with a
 
 ## Changelog
 
+- `2026-11-23` — Elli ceilings (approved by Maor via the team lead): L5–L8 appended (initial letter ×4, ending letter ×4, ending letter ×6 audio-only, short-word reading ×6), `tracks.age5.max` 4 → 8 (start 3, min 2 kept), `tracks.age2` pinned `{1,1,2}` (unchanged). Content: `foods[].ending`, `linesHe.askEnding` / `askWord`, `endingFrames`; `extra.request` also `ending` | `word`; `extra.choices` 2–6. The sign shows "…T" for endings and a wider board with the written word for reading; foods lay out in one row (≤4) or two rows (5–6). `getLetterMonsterInfo().request` can be `{ kind: 'ending', letter }` or `{ kind: 'word', foodId, word }`. New ACs AC-10 to AC-16. No new hooks. — substantive
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
