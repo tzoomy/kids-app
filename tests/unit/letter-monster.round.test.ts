@@ -8,6 +8,7 @@ import letterMonsterJson from '@/content/games/letter-monster.json';
 import { buildRound, createMonster, tapFood, type MonsterRequest } from '@/games/letterMonster/monsterMachine';
 import {
   askColorLine,
+  askEndingLine,
   askLetterLine,
   colorWordLine,
   fedLines,
@@ -135,6 +136,13 @@ describe('Letter Monster: levels, adaptive trials, voice lines and content', () 
     // The standalone Hebrew clip is a complete sentence: one shared id, no letter embedded, no trailing "ב...".
     expect(content.linesHe.askLetter).toBe('המפלצת רוצה משהו שמתחיל באות הזו.');
     expect(content.linesHe.askLetter).not.toContain('...');
+    expect(content.linesHe.askEnding).toBe('המפלצת רוצה משהו שמסתיים באות הזו.');
+    expect(content.linesHe.askEnding).not.toContain('...');
+    expect(askEndingLine(content)).toEqual({
+      lineId: 'monster.askEnding.he',
+      lang: 'he',
+      text: content.linesHe.askEnding,
+    });
     expect(askLetterLine(content)).toEqual({
       lineId: 'monster.askLetter.he',
       lang: 'he',
