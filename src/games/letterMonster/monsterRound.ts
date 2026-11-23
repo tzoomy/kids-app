@@ -123,14 +123,22 @@ export function modelWordForEnding(content: LetterMonsterContent, letter: string
   return food.word[lang];
 }
 
+
+/** French "de" + vowel, œ/æ, or mute h becomes "d'". Leaves "de biscuit" / "de pomme" alone. */
+export function elideFrenchDe(text: string): string {
+  return text.replace(/\bde ([aeiouyæœhàâäéèêëïîôùûüAEIOUYÆŒHÀÂÄÉÈÊËÏÎÔÙÛÜ])/gu, "d'$1");
+}
+
 /** Learning-language letter + model word ("T... at the end of carrot!" / "T... à la fin de biscuit !"). */
 export function endingModelLine(content: LetterMonsterContent, letter: string, lang: Lang): SpeechRequest {
   const upper = letter.toUpperCase();
   const word = modelWordForEnding(content, upper, lang);
+  let text = content.endingFrames[lang].replace('{letter}', upper).replace('{word}', word);
+  if (lang === 'fr') text = elideFrenchDe(text);
   return {
     lineId: `monster.ending.${upper}.${lang}`,
     lang,
-    text: content.endingFrames[lang].replace('{letter}', upper).replace('{word}', word),
+    text,
   };
 }
 

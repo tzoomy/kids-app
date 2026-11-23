@@ -12,6 +12,7 @@ import {
 import {
   askEndingLine,
   askWordLine,
+  elideFrenchDe,
   endingModelLine,
   foodLine,
   modelWordForEnding,
@@ -158,6 +159,9 @@ describe('letter-monster ceilings (L5-L8)', () => {
       lang: 'fr',
       text: `N... à la fin de ${modelWordForEnding(content, 'N', 'fr')} !`,
     });
+    expect(endingModelLine(content, 'F', 'fr').text).toBe("F... à la fin d'œuf !");
+    expect(elideFrenchDe('E... à la fin de orange !')).toBe("E... à la fin d'orange !");
+    expect(elideFrenchDe('T... à la fin de biscuit !')).toBe('T... à la fin de biscuit !');
     expect(endingModelLine(content, 'T', 'en').text).toBe(`T... at the end of ${modelWordForEnding(content, 'T', 'en')}!`);
     expect(wordLine(content, 'apple', 'en')).toEqual({ lineId: 'monster.word.apple.en', lang: 'en', text: 'apple!' });
     expect(wordLine(content, 'egg', 'fr')).toEqual({ lineId: 'monster.word.egg.fr', lang: 'fr', text: 'œuf !' });

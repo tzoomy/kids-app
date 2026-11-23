@@ -782,7 +782,7 @@ export class WordTrainScene extends Phaser.Scene {
   private refreshRoundPlan(): void {
     const c = content();
     const planAt = (lang: Lang) => planForLevel(c.adaptive.levels[this.skills.level(lang) - 1]);
-    const setting = this.context.store.getState().settings.languages;
+    const setting = this.context.languageSetting();
     const settingLang = nextRoundLanguage(null, true, setting);
     // Only touch the setting language's skill key when the English level is already a spell level, so
     // load-only players (age 2) never gain a French skill entry.
