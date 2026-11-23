@@ -4,7 +4,7 @@
 export type SuitcasePhase = 'asking' | 'closing';
 export const SUITCASE_PHASES: readonly SuitcasePhase[] = ['asking', 'closing'];
 
-export type SuitcaseRequestKind = 'noun' | 'two' | 'attribute' | 'negation';
+export type SuitcaseRequestKind = 'noun' | 'two' | 'attribute' | 'negation' | 'set';
 
 export interface SuitcaseChoice {
   readonly id: string;
@@ -15,6 +15,11 @@ export interface SuitcaseChoice {
 export interface SuitcaseRequest {
   readonly kind: SuitcaseRequestKind;
   readonly targets: readonly string[];
+  /**
+   * One entry per slot of the request. A slot is filled by packing any one of its choice ids
+   * (a negation slot lists every acceptable colour). `needed === groups.length`.
+   */
+  readonly groups: readonly (readonly string[])[];
   readonly needed: number;
   readonly packedForRequest: readonly string[];
 }
@@ -38,6 +43,8 @@ export interface SuitcaseRequestInput {
   readonly kind: SuitcaseRequestKind;
   readonly targets: readonly string[];
   readonly needed?: number;
+  /** Required for kind `'set'` (3-item attribute / negation requests): one slot per item. */
+  readonly groups?: readonly (readonly string[])[];
 }
 
 export interface CreateCaseOptions {
@@ -72,21 +79,43 @@ function validateChoices(choices: readonly SuitcaseChoice[], alreadyPacked: Read
 }
 
 function validateRequest(request: SuitcaseRequestInput, choiceIds: ReadonlySet<string>): SuitcaseRequest {
+  const checkId = (id: string, seen: Set<string>): string => {
+    if (!choiceIds.has(id)) {
+      throw new Error(`Suitcase target "${String(id)}" is not in choices`);
+    }
+    if (seen.has(id)) {
+      throw new Error(`Duplicate suitcase target "${id}"`);
+    }
+    seen.add(id);
+    return id;
+  };
+
+  if (request.kind === 'set') {
+    const rawGroups = request.groups;
+    if (!rawGroups || rawGroups.length < 2 || rawGroups.some((g) => g.length < 1)) {
+      throw new Error('Set suitcase request requires at least 2 non-empty groups');
+    }
+    const seen = new Set<string>();
+    const groups = rawGroups.map((g) => g.map((id) => checkId(id, seen)));
+    const needed = request.needed ?? groups.length;
+    if (needed !== groups.length) {
+      throw new Error('Set suitcase request needed must equal the number of groups');
+    }
+    return {
+      kind: 'set',
+      targets: groups.flat(),
+      groups,
+      needed,
+      packedForRequest: [],
+    };
+  }
+
   const needed = request.needed ?? (request.kind === 'two' ? 2 : 1);
   if (!Number.isInteger(needed) || needed < 1) {
     throw new Error(`Invalid suitcase needed count: ${String(needed)}`);
   }
   const seenTargets = new Set<string>();
-  const targets = request.targets.map((id) => {
-    if (!choiceIds.has(id)) {
-      throw new Error(`Suitcase target "${String(id)}" is not in choices`);
-    }
-    if (seenTargets.has(id)) {
-      throw new Error(`Duplicate suitcase target "${id}"`);
-    }
-    seenTargets.add(id);
-    return id;
-  });
+  const targets = request.targets.map((id) => checkId(id, seenTargets));
 
   if (request.kind === 'two') {
     if (needed !== 2 || targets.length !== 2) {
@@ -100,12 +129,20 @@ function validateRequest(request: SuitcaseRequestInput, choiceIds: ReadonlySet<s
     throw new Error(`${request.kind} suitcase request requires 1 target and needed = 1`);
   }
 
+  const groups: string[][] = request.kind === 'two' ? targets.map((t) => [t]) : [targets];
   return {
     kind: request.kind,
     targets,
+    groups,
     needed,
     packedForRequest: [],
   };
+}
+
+/** Right choice ids still worth tapping: unfilled slots only (a filled slot's sibling colours are not offered). */
+export function remainingTargets(state: SuitcaseState): string[] {
+  const packed = new Set(state.request.packedForRequest);
+  return state.request.groups.filter((g) => !g.some((id) => packed.has(id))).flat();
 }
 
 /** Creates an initial open-suitcase case in `'asking'` phase. Never enters a failure phase. */
@@ -173,6 +210,11 @@ export function pick(state: SuitcaseState, choiceId: string): { state: SuitcaseS
       state: { ...state, tries: state.tries + 1 },
       event: { kind: 'other', choiceId },
     };
+  }
+
+  // A slot that is already filled (e.g. one colour of the negated item) accepts no second pick.
+  if (!remainingTargets(state).includes(choiceId)) {
+    return { state, event: { kind: 'busy' } };
   }
 
   const packedForRequest = [...state.request.packedForRequest, choiceId];

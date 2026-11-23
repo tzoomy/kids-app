@@ -1568,8 +1568,29 @@ const SuitcaseLangFramesSchema = z.object({
   put: suitcaseNonBlank,
   two: suitcaseNonBlank,
   not: suitcaseNonBlank,
+  /** 3-item attribute request: `{a}`, `{b}`, `{c}` are the named items (colour included). */
+  set: suitcaseNonBlank,
+  /** 3-item request with one negation: `{b}`, `{c}` plain items, `{a}` the negated item, `{one}` its excluded colour. */
+  setNot: suitcaseNonBlank,
   name: suitcaseNonBlank,
   other: suitcaseNonBlank,
+});
+
+/**
+ * One slot of a curated 3-item set. `color` fixes the colour of an attribute slot; `notColor`
+ * marks the single negation slot ("a hat, but not the red one"). Neither = the plain item.
+ */
+export const SuitcaseSetSlotSchema = z.object({
+  item: suitcaseNonBlank,
+  color: suitcaseNonBlank.optional(),
+  notColor: suitcaseNonBlank.optional(),
+});
+
+/** A curated packing list used by `extra.setSize` levels (keeps the line catalogue finite). */
+export const SuitcaseSetSchema = z.object({
+  id: suitcaseNonBlank,
+  attribute: z.array(SuitcaseSetSlotSchema).min(2),
+  negation: z.array(SuitcaseSetSlotSchema).min(2),
 });
 
 /** Travel Suitcase (docs/specs/travel-suitcase.md): EN/FR packing & vocabulary game in Language House. */
@@ -1584,6 +1605,7 @@ export const TravelSuitcaseContentSchema = z
     ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
     items: z.array(SuitcaseItemSchema).min(2),
     frames: z.object({ en: SuitcaseLangFramesSchema, fr: SuitcaseLangFramesSchema }),
+    sets: z.array(SuitcaseSetSchema),
     linesHe: z.object({ intro: suitcaseNonBlank, closed: suitcaseNonBlank }),
     helpTextHe: suitcaseNonBlank,
     adaptive: GameAdaptiveSchema,
@@ -1646,6 +1668,16 @@ export const TravelSuitcaseContentSchema = z
       if (!f.not.includes('{a}') || !f.not.includes('{one}')) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'not'], message: 'not frame must include {a} and {one}' });
       }
+      for (const ph of ['{a}', '{b}', '{c}']) {
+        if (!f.set.includes(ph)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'set'], message: `set frame must include ${ph}` });
+        }
+      }
+      for (const ph of ['{a}', '{b}', '{c}', '{one}']) {
+        if (!f.setNot.includes(ph)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'setNot'], message: `setNot frame must include ${ph}` });
+        }
+      }
       if (!f.name.includes('{The}')) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'name'], message: 'name frame must include {The}' });
       }
@@ -1653,6 +1685,47 @@ export const TravelSuitcaseContentSchema = z
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['frames', lang, 'other'], message: 'other frame must include {the}' });
       }
     }
+
+    const itemById = new Map(value.items.map((i) => [i.id, i]));
+    const setIds = new Set<string>();
+    value.sets.forEach((set, i) => {
+      const at = (mode: 'attribute' | 'negation') => ['sets', i, mode];
+      if (setIds.has(set.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sets', i, 'id'], message: `duplicate set id "${set.id}"` });
+      }
+      setIds.add(set.id);
+      for (const mode of ['attribute', 'negation'] as const) {
+        const slots = set[mode];
+        const issue = (message: string) => ctx.addIssue({ code: z.ZodIssueCode.custom, path: at(mode), message });
+        if (new Set(slots.map((s) => s.item)).size !== slots.length) issue(`set "${set.id}" ${mode} repeats an item`);
+        slots.forEach((slot) => {
+          const item = itemById.get(slot.item);
+          if (!item) {
+            issue(`set "${set.id}" ${mode} names unknown item "${slot.item}"`);
+            return;
+          }
+          const colourOk = (c: string) => item.colors?.some((v) => v.color === c) ?? false;
+          if (slot.color !== undefined && !colourOk(slot.color)) issue(`set "${set.id}" item "${slot.item}" has no colour "${slot.color}"`);
+          if (slot.notColor !== undefined && !colourOk(slot.notColor)) issue(`set "${set.id}" item "${slot.item}" has no colour "${slot.notColor}"`);
+          if (mode === 'attribute' && slot.notColor !== undefined) issue(`set "${set.id}" attribute slot must not use notColor`);
+          if (mode === 'negation' && slot.color !== undefined) issue(`set "${set.id}" negation slot must not use color`);
+        });
+        if (mode === 'attribute' && !slots.some((s) => s.color !== undefined)) {
+          issue(`set "${set.id}" attribute needs at least one colour-specified slot`);
+        }
+        if (mode === 'negation' && slots.filter((s) => s.notColor !== undefined).length !== 1) {
+          issue(`set "${set.id}" negation needs exactly one notColor slot`);
+        }
+      }
+      if (set.attribute.length !== set.negation.length) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sets', i], message: `set "${set.id}" attribute and negation must have the same size` });
+      }
+      const attrItems = set.attribute.map((s) => s.item).sort().join(',');
+      const negItems = set.negation.map((s) => s.item).sort().join(',');
+      if (attrItems !== negItems) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sets', i], message: `set "${set.id}" attribute and negation must use the same items` });
+      }
+    });
 
     const levelCount = value.adaptive.levels.length;
     for (const trackName of ['age2', 'age5'] as const) {
@@ -1694,12 +1767,41 @@ export const TravelSuitcaseContentSchema = z
         issue('extra.requestsPerCase must be a positive integer');
       }
 
+      const rawSetSize = level.extra?.setSize;
+      const setSize = rawSetSize === undefined ? 1 : rawSetSize;
+      if (typeof setSize !== 'number' || !Number.isInteger(setSize) || setSize < 1) {
+        issue('extra.setSize must be a positive integer');
+        return;
+      }
+      if (setSize > 1 && req !== 'attribute' && req !== 'negation') {
+        issue('extra.setSize above 1 requires an attribute or negation request');
+      }
+
       if (req === 'attribute' || req === 'negation') {
         if (coloredCount < 2) {
           issue(`${req} request requires at least 2 coloured items`);
         }
-        if (choiceCount !== 4) {
-          issue(`${req} request requires choiceCount 4 (3 colours + 1 other item)`);
+        if (setSize === 1) {
+          if (choiceCount !== 4) {
+            issue(`${req} request requires choiceCount 4 (3 colours + 1 other item)`);
+          }
+        } else {
+          // attribute: the set + at least one near (other-colour) distractor; negation: 3 colours + the other slots.
+          const minChoices = req === 'attribute' ? setSize + 1 : setSize + 2;
+          if (typeof choiceCount === 'number' && choiceCount < minChoices) {
+            issue(`${req} set request needs choiceCount of at least ${minChoices}`);
+          }
+          const matching = value.sets.filter((set) => set[req].length === setSize);
+          if (matching.length === 0) {
+            issue(`${req} set level needs curated sets of ${setSize} items`);
+          }
+          for (const set of matching) {
+            const items = new Set(set[req].map((s) => s.item));
+            const hasPartner = matching.some((o) => o.id !== set.id && o[req].every((s) => !items.has(s.item)));
+            if (!hasPartner && (level.extra?.requestsPerCase as number) > 1) {
+              issue(`set "${set.id}" needs a disjoint partner set for requestsPerCase > 1`);
+            }
+          }
         }
       }
     });
