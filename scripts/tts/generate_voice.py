@@ -6,8 +6,13 @@ Usage (from the repo root, with GEMINI_API_KEY in the environment):
 
 - Line list comes from src/content/games/animal-restaurant.json (food prompts,
   thanks, and attr.* / not.* colour lines, en + fr), src/content/voice-lines-he.json
-  (Hebrew guidance), and the decided Kitchen Orchestra French pan line
-  (orchestra.play.pan.fr = "Joue sur la poêle !").
+  (Hebrew guidance), the decided Kitchen Orchestra French pan line
+  (orchestra.play.pan.fr = "Joue sur la poêle !"), and the Language House game lines
+  of Travel Suitcase, Letter Monster and Word Train (suitcase.* / monster.* / wordtrain.*)
+  from src/content/game-voice-lines.json. That file is the export of
+  src/content/voiceCatalog.ts, which enumerates the lines with the same frames the games
+  use; tests/unit/voiceCatalog.test.ts keeps it in sync (UPDATE_VOICE_CATALOG=1 npx vitest
+  run tests/unit/voiceCatalog.test.ts regenerates it). The game lines are rendered last.
 - Lines that still need a clip are requested in priority order (pan line, then
   Who's Hiding Hebrew, then restaurant attr/not, then anything else), one API
   request per batch. The free tier is treated as ~3 RPM / ~10 RPD; this script
@@ -48,6 +53,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONTENT = ROOT / "src/content/games/animal-restaurant.json"
 HE_LINES = ROOT / "src/content/voice-lines-he.json"
+GAME_LINES = ROOT / "src/content/game-voice-lines.json"
+GAME_LINE_PREFIXES = ("suitcase.", "monster.", "wordtrain.")
 MANIFEST = ROOT / "src/content/audio-manifest.json"
 HASHES = ROOT / "src/content/audio-text-hashes.json"
 AUDIO_DIR = ROOT / "public/audio"
@@ -131,7 +138,18 @@ def collect_lines() -> list[dict]:
         slug = re.sub(r"([a-z])([A-Z])", r"\1-\2", key).replace(".", "-").lower()
         lines.append({"id": f"he.{key}", "lang": "he", "text": text, "path": f"audio/he/{slug}.mp3"})
     lines.append(dict(POELE_LINE))
+    lines.extend(collect_game_lines())
     return lines
+
+
+def collect_game_lines() -> list[dict]:
+    """Travel Suitcase / Letter Monster / Word Train lines (id, lang, text, path), from the catalogue export."""
+    if not GAME_LINES.exists():
+        return []
+    return [
+        {"id": row["id"], "lang": row["lang"], "text": row["text"], "path": row["path"]}
+        for row in json.loads(GAME_LINES.read_text(encoding="utf-8"))
+    ]
 
 
 def text_hash(text: str) -> str:
@@ -155,6 +173,8 @@ def line_priority(line: dict) -> int:
         return 1
     if lid.startswith("attr.") or lid.startswith("not."):
         return 2
+    if lid.startswith(GAME_LINE_PREFIXES):
+        return 4
     return 3
 
 
