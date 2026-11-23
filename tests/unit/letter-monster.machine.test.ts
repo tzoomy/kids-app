@@ -45,7 +45,7 @@ describe('monsterMachine', () => {
               const food = byId.get(id)!;
               return round.request.kind === 'color'
                 ? food.color === round.request.color
-                : food.initial[language].toUpperCase() === round.request.letter;
+                : food.initial[language].toUpperCase() === (round.request as { letter: string }).letter;
             });
             expect(matching).toEqual([round.matchId]);
 
@@ -56,7 +56,7 @@ describe('monsterMachine', () => {
               if (round.request.kind === 'color') {
                 expect(food.color).not.toBe(round.request.color);
               } else {
-                expect(food.initial[language].toUpperCase()).not.toBe(round.request.letter);
+                expect(food.initial[language].toUpperCase()).not.toBe((round.request as { letter: string }).letter);
               }
             }
 

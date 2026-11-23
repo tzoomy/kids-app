@@ -900,6 +900,18 @@ export function normalizeInitialLetter(word: string): string {
     .toUpperCase();
 }
 
+/** Normalizes the last letter of a word (strips accents; no ligature handling needed: œuf ends in F). */
+export function normalizeFinalLetter(word: string): string {
+  const trimmed = word.trim();
+  if (!trimmed) return '';
+  return trimmed[trimmed.length - 1]
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+}
+
+export const LETTER_MONSTER_REQUESTS = ['color', 'letter', 'ending', 'word'] as const;
+
 export const LetterMonsterColorEntrySchema = z.object({
   hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   he: nonBlankString,
@@ -914,6 +926,11 @@ export const LetterMonsterFoodSchema = z.object({
   word: z.object({ en: nonBlankString, fr: nonBlankString }),
   phrase: z.object({ en: nonBlankString, fr: nonBlankString }),
   initial: z.object({
+    en: z.string().regex(/^[A-Z]$/),
+    fr: z.string().regex(/^[A-Z]$/),
+  }),
+  /** Last letter of `word[lang]` (L6-L7 "ends with" requests). */
+  ending: z.object({
     en: z.string().regex(/^[A-Z]$/),
     fr: z.string().regex(/^[A-Z]$/),
   }),
@@ -943,9 +960,12 @@ export const LetterMonsterContentSchema = z
       intro: nonBlankString,
       askColorFrame: nonBlankString,
       askLetter: nonBlankString,
+      askEnding: nonBlankString,
+      askWord: nonBlankString,
       notThis: nonBlankString,
     }),
     letterFrames: z.object({ en: nonBlankString, fr: nonBlankString }),
+    endingFrames: z.object({ en: nonBlankString, fr: nonBlankString }),
     helpTextHe: nonBlankString,
     adaptive: GameAdaptiveSchema,
   })
@@ -966,6 +986,14 @@ export const LetterMonsterContentSchema = z
           message: 'letterFrames must include {letter} and {word}',
         });
       }
+      const ending = value.endingFrames[lang];
+      if (!ending.includes('{letter}') || !ending.includes('{word}')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['endingFrames', lang],
+          message: 'endingFrames must include {letter} and {word}',
+        });
+      }
     }
     const ids = new Set<string>();
     value.foods.forEach((food, i) => {
@@ -982,18 +1010,44 @@ export const LetterMonsterContentSchema = z
             message: `${lang} word "${food.word[lang]}" starts with "${expected}", expected "${food.initial[lang]}"`,
           });
         }
+        const expectedEnd = normalizeFinalLetter(food.word[lang]);
+        if (expectedEnd !== food.ending[lang]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['foods', i, 'ending', lang],
+            message: `${lang} word "${food.word[lang]}" ends with "${expectedEnd}", expected "${food.ending[lang]}"`,
+          });
+        }
       }
     });
     value.adaptive.levels.forEach((level, i) => {
       const issue = (message: string) =>
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
       const req = level.extra?.request;
-      if (req !== 'color' && req !== 'letter') {
-        issue('extra.request must be "color" or "letter"');
+      if (typeof req !== 'string' || !(LETTER_MONSTER_REQUESTS as readonly string[]).includes(req)) {
+        issue(`extra.request must be one of ${LETTER_MONSTER_REQUESTS.join(', ')}`);
       }
       const choices = level.extra?.choices;
-      if (choices !== 2 && choices !== 3) {
-        issue('extra.choices must be 2 or 3');
+      if (typeof choices !== 'number' || !Number.isInteger(choices) || choices < 2 || choices > 6) {
+        issue('extra.choices must be an integer from 2 to 6');
+      } else if (choices > value.foods.length) {
+        issue(`extra.choices ${choices} exceeds the ${value.foods.length} foods`);
+      } else {
+        // Every language the game lists must be able to build the round: 1 match + (choices - 1) non-matching foods.
+        const languages = new Set<'en' | 'fr'>(value.languages);
+        for (const lang of languages) {
+          const groups = new Map<string, number>();
+          if (req === 'letter') for (const f of value.foods) groups.set(f.initial[lang], (groups.get(f.initial[lang]) ?? 0) + 1);
+          if (req === 'ending') for (const f of value.foods) groups.set(f.ending[lang], (groups.get(f.ending[lang]) ?? 0) + 1);
+          if (req === 'letter' || req === 'ending') {
+            const ok = [...groups.values()].some((n) => value.foods.length - n >= choices - 1);
+            if (!ok) issue(`${req} level with ${choices} choices cannot be built in ${lang}`);
+          }
+          if (req === 'word') {
+            const readable = value.foods.filter((f) => f.word[lang].length <= 6);
+            if (readable.length < 2) issue(`word level needs at least 2 foods with words of up to 6 letters in ${lang}`);
+          }
+        }
       }
       if (level.support !== 'picture-audio' && level.support !== 'audio-only') {
         issue('letter-monster supports support "picture-audio" or "audio-only"');

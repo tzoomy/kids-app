@@ -49,6 +49,7 @@ const OUTLINE_COLOR = 0x3b2a22;
 const MONSTER_SIZE_LANDSCAPE = 260;
 const MONSTER_SIZE_PORTRAIT = 270;
 const SIGN_SIZE = 148;
+const SIGN_WORD_WIDTH = 250;
 const FOOD_HIT_SIZE = 168;
 const FOOD_IMG_SIZE = 132;
 const LINE_MAX_MS = 2200;
@@ -67,6 +68,10 @@ interface Layout {
   foodY: number;
   foodSpacing2: number;
   foodSpacing3: number;
+  /** One row of 4 foods. */
+  foodSpacing4: number;
+  /** Two rows (5-6 foods): the y of each row; columns use `foodSpacing3`. */
+  foodRowsY: [number, number];
 }
 
 function computeLayout(w: number, h: number): Layout {
@@ -79,6 +84,8 @@ function computeLayout(w: number, h: number): Layout {
       foodY: h * 0.74,
       foodSpacing2: 320,
       foodSpacing3: 280,
+      foodSpacing4: 250,
+      foodRowsY: [h * 0.66, h * 0.66 + FOOD_HIT_SIZE + 4],
     };
   }
   return {
@@ -89,6 +96,8 @@ function computeLayout(w: number, h: number): Layout {
     foodY: h * 0.72,
     foodSpacing2: 290,
     foodSpacing3: 235,
+    foodSpacing4: 190,
+    foodRowsY: [h * 0.672, h * 0.672 + FOOD_HIT_SIZE + 4],
   };
 }
 
@@ -112,6 +121,7 @@ export class LetterMonsterScene extends Phaser.Scene {
   private signView?: Phaser.GameObjects.Container;
   private signColorDot?: Phaser.GameObjects.Arc;
   private signLetterText?: Phaser.GameObjects.Text;
+  private signBoard?: Phaser.GameObjects.Rectangle;
   private foodViews = new Map<string, { container: Phaser.GameObjects.Container; pos: Point }>();
   private activeTransients = new Set<Phaser.GameObjects.GameObject>();
   private ready = false;
@@ -153,6 +163,7 @@ export class LetterMonsterScene extends Phaser.Scene {
     this.signView = undefined;
     this.signColorDot = undefined;
     this.signLetterText = undefined;
+    this.signBoard = undefined;
     this.hintTimer = undefined;
     this.layout = computeLayout(this.scale.width, this.scale.height);
 
@@ -309,6 +320,7 @@ export class LetterMonsterScene extends Phaser.Scene {
     const board = this.add
       .rectangle(0, 0, SIGN_SIZE, SIGN_SIZE, 0xfffdf9)
       .setStrokeStyle(6, OUTLINE_COLOR);
+    this.signBoard = board;
     const dot = this.add.circle(0, 0, 44, 0xffffff).setStrokeStyle(5, OUTLINE_COLOR).setVisible(false);
     const letter = this.add
       .text(0, 0, '', {
@@ -339,10 +351,16 @@ export class LetterMonsterScene extends Phaser.Scene {
       this.signColorDot.setVisible(true);
       this.signLetterText.setVisible(false);
     } else {
-      this.signLetterText.setText(req.letter);
+      // Letters: "B"; ending letters: "…T"; reading: the written word on a wider board.
+      const text = req.kind === 'word' ? req.word : req.kind === 'ending' ? `…${req.letter}` : req.letter;
+      const wide = req.kind === 'word';
+      this.signBoard?.setSize(wide ? SIGN_WORD_WIDTH : SIGN_SIZE, SIGN_SIZE);
+      this.signLetterText.setFontSize(wide ? Math.min(78, Math.floor((SIGN_WORD_WIDTH - 30) / (text.length * 0.62))) : 78);
+      this.signLetterText.setText(text);
       this.signLetterText.setVisible(true);
       this.signColorDot.setVisible(false);
     }
+    if (req.kind !== 'word') this.signBoard?.setSize(SIGN_SIZE, SIGN_SIZE);
     this.signView.setVisible(true);
     if (animate) void popIn(this, this.signView, 40);
   }
@@ -357,12 +375,27 @@ export class LetterMonsterScene extends Phaser.Scene {
         { x: cx + half, y },
       ];
     }
+    if (count === 3) {
+      const step = this.layout.foodSpacing3;
+      return [
+        { x: cx - step, y },
+        { x: cx, y },
+        { x: cx + step, y },
+      ];
+    }
+    if (count === 4) {
+      const step = this.layout.foodSpacing4;
+      return Array.from({ length: 4 }, (_, i) => ({ x: cx + (i - 1.5) * step, y }));
+    }
+    // 5-6 foods: two centred rows of up to three.
     const step = this.layout.foodSpacing3;
-    return [
-      { x: cx - step, y },
-      { x: cx, y },
-      { x: cx + step, y },
-    ];
+    const firstRow = Math.ceil(count / 2);
+    const rows = [firstRow, count - firstRow];
+    const out: Point[] = [];
+    rows.forEach((n, r) => {
+      for (let i = 0; i < n; i++) out.push({ x: cx + (i - (n - 1) / 2) * step, y: this.layout.foodRowsY[r] });
+    });
+    return out;
   }
 
   private buildFoodSprite(food: LetterMonsterFood): Phaser.GameObjects.GameObject {

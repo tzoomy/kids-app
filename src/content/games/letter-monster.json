@@ -26,7 +26,8 @@
       "color": "red",
       "word": { "en": "apple", "fr": "pomme" },
       "phrase": { "en": "An apple!", "fr": "Une pomme !" },
-      "initial": { "en": "A", "fr": "P" }
+      "initial": { "en": "A", "fr": "P" },
+      "ending": { "en": "E", "fr": "E" }
     },
     {
       "id": "banana",
@@ -34,7 +35,8 @@
       "color": "yellow",
       "word": { "en": "banana", "fr": "banane" },
       "phrase": { "en": "A banana!", "fr": "Une banane !" },
-      "initial": { "en": "B", "fr": "B" }
+      "initial": { "en": "B", "fr": "B" },
+      "ending": { "en": "A", "fr": "E" }
     },
     {
       "id": "carrot",
@@ -42,7 +44,8 @@
       "color": "orange",
       "word": { "en": "carrot", "fr": "carotte" },
       "phrase": { "en": "A carrot!", "fr": "Une carotte !" },
-      "initial": { "en": "C", "fr": "C" }
+      "initial": { "en": "C", "fr": "C" },
+      "ending": { "en": "T", "fr": "E" }
     },
     {
       "id": "grapes",
@@ -50,7 +53,8 @@
       "color": "purple",
       "word": { "en": "grapes", "fr": "raisin" },
       "phrase": { "en": "Some grapes!", "fr": "Du raisin !" },
-      "initial": { "en": "G", "fr": "R" }
+      "initial": { "en": "G", "fr": "R" },
+      "ending": { "en": "S", "fr": "N" }
     },
     {
       "id": "strawberry",
@@ -58,7 +62,8 @@
       "color": "red",
       "word": { "en": "strawberry", "fr": "fraise" },
       "phrase": { "en": "A strawberry!", "fr": "Une fraise !" },
-      "initial": { "en": "S", "fr": "F" }
+      "initial": { "en": "S", "fr": "F" },
+      "ending": { "en": "Y", "fr": "E" }
     },
     {
       "id": "broccoli",
@@ -66,7 +71,8 @@
       "color": "green",
       "word": { "en": "broccoli", "fr": "brocoli" },
       "phrase": { "en": "Some broccoli!", "fr": "Du brocoli !" },
-      "initial": { "en": "B", "fr": "B" }
+      "initial": { "en": "B", "fr": "B" },
+      "ending": { "en": "I", "fr": "I" }
     },
     {
       "id": "pear",
@@ -74,7 +80,8 @@
       "color": "green",
       "word": { "en": "pear", "fr": "poire" },
       "phrase": { "en": "A pear!", "fr": "Une poire !" },
-      "initial": { "en": "P", "fr": "P" }
+      "initial": { "en": "P", "fr": "P" },
+      "ending": { "en": "R", "fr": "E" }
     },
     {
       "id": "orange",
@@ -82,7 +89,8 @@
       "color": "orange",
       "word": { "en": "orange", "fr": "orange" },
       "phrase": { "en": "An orange!", "fr": "Une orange !" },
-      "initial": { "en": "O", "fr": "O" }
+      "initial": { "en": "O", "fr": "O" },
+      "ending": { "en": "E", "fr": "E" }
     },
     {
       "id": "cheese",
@@ -90,7 +98,8 @@
       "color": "yellow",
       "word": { "en": "cheese", "fr": "fromage" },
       "phrase": { "en": "Some cheese!", "fr": "Du fromage !" },
-      "initial": { "en": "C", "fr": "F" }
+      "initial": { "en": "C", "fr": "F" },
+      "ending": { "en": "E", "fr": "E" }
     },
     {
       "id": "cookie",
@@ -98,7 +107,8 @@
       "color": "brown",
       "word": { "en": "cookie", "fr": "biscuit" },
       "phrase": { "en": "A cookie!", "fr": "Un biscuit !" },
-      "initial": { "en": "C", "fr": "B" }
+      "initial": { "en": "C", "fr": "B" },
+      "ending": { "en": "E", "fr": "T" }
     },
     {
       "id": "egg",
@@ -106,7 +116,8 @@
       "color": "white",
       "word": { "en": "egg", "fr": "œuf" },
       "phrase": { "en": "An egg!", "fr": "Un œuf !" },
-      "initial": { "en": "E", "fr": "O" }
+      "initial": { "en": "E", "fr": "O" },
+      "ending": { "en": "G", "fr": "F" }
     },
     {
       "id": "fish",
@@ -114,30 +125,41 @@
       "color": "blue",
       "word": { "en": "fish", "fr": "poisson" },
       "phrase": { "en": "Some fish!", "fr": "Du poisson !" },
-      "initial": { "en": "F", "fr": "P" }
+      "initial": { "en": "F", "fr": "P" },
+      "ending": { "en": "H", "fr": "N" }
     }
   ],
   "linesHe": {
     "intro": "המפלצת רעבה! בואי נאכיל אותה.",
     "askColorFrame": "המפלצת רוצה משהו {color}.",
     "askLetter": "המפלצת רוצה משהו שמתחיל ב...",
+    "askEnding": "המפלצת רוצה משהו שמסתיים ב...",
+    "askWord": "המפלצת רוצה את המילה...",
     "notThis": "הממ, לא את זה. ננסה שוב?"
   },
   "letterFrames": {
     "en": "{letter}... like {word}!",
     "fr": "{letter}... comme {word} !"
   },
-  "helpTextHe": "המפלצת מבקשת אוכל לפי צבע או אות ראשונה. הקשיבי ובחרי את האוכל המתאים. אפשר ללחוץ על המפלצת כדי לשמוע שוב.",
+  "endingFrames": {
+    "en": "{letter}... at the end of {word}!",
+    "fr": "{letter}... à la fin de {word} !"
+  },
+  "helpTextHe": "המפלצת מבקשת אוכל לפי צבע, אות ראשונה, אות אחרונה או מילה כתובה. הקשיבי ובחרי את האוכל המתאים. אפשר ללחוץ על המפלצת כדי לשמוע שוב.",
   "adaptive": {
     "tracks": {
       "age2": { "start": 1, "min": 1, "max": 2 },
-      "age5": { "start": 3, "min": 2, "max": 4 }
+      "age5": { "start": 3, "min": 2, "max": 8 }
     },
     "levels": [
       { "support": "picture-audio", "extra": { "request": "color", "choices": 2 } },
       { "support": "picture-audio", "extra": { "request": "color", "choices": 3 } },
       { "support": "picture-audio", "extra": { "request": "letter", "choices": 3 } },
-      { "support": "audio-only", "extra": { "request": "letter", "choices": 3 } }
+      { "support": "audio-only", "extra": { "request": "letter", "choices": 3 } },
+      { "support": "picture-audio", "extra": { "request": "letter", "choices": 4 } },
+      { "support": "picture-audio", "extra": { "request": "ending", "choices": 4 } },
+      { "support": "audio-only", "extra": { "request": "ending", "choices": 6 } },
+      { "support": "picture-audio", "extra": { "request": "word", "choices": 6 } }
     ]
   }
 }
