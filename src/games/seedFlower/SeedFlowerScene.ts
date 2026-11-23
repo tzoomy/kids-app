@@ -14,13 +14,14 @@ import { transitionTo } from '../../anim/transitions';
 import { flyArc, hintPulse, popIn, pressSquash, wait, wobble } from '../../anim/tweens';
 import { flowerArtKey, propArtKey, sceneArtKey } from '../../anim/artRegistry';
 import { heLine } from '../../content/voiceLines';
+import { taskInstructionLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect, type Rect } from '../../testing/pageRect';
 import { nextRoundLanguage } from '../restaurant/trialTracker';
 import type { Lang } from '../templates/choiceServe';
 import type { SpeechRequest } from '../../core/audio/types';
 import { applyTool, createPlant, nextTool, stageId, type PlantEvent, type PlantState, type StageId, type Tool } from './seedFlowerMachine';
-import { bloomFor, planForLevel, seedHeLine, speaksStage, stageLine, trialForGrowth, type SeedFlowerPlan } from './seedFlowerRound';
+import { bloomFor, planForLevel, seedHeLine, seedTaskLine, speaksStage, stageLine, trialForGrowth, type SeedFlowerPlan } from './seedFlowerRound';
 import type { SeedFlowerInfo } from './seedFlowerTypes';
 import { disposePlantView } from './plantView';
 
@@ -59,6 +60,8 @@ export class SeedFlowerScene extends Phaser.Scene {
   private ageConfig!: AgeTrackConfig;
   private layout!: Layout;
   private lang: Lang | null = null;
+  /** Age track: age 5 hears task asks in the round's learning language, age 2 stays Hebrew. */
+  private track: TaskTrack = 'age5';
   private plan!: SeedFlowerPlan;
   private plant!: PlantState;
   private levelNo = 1;
@@ -84,7 +87,8 @@ export class SeedFlowerScene extends Phaser.Scene {
     setAppScreen('seed-flower');
     this.context = this.game.registry.get('appContext') as AppContext;
     const c = content();
-    this.ageConfig = c.ageTracks[this.context.currentAgeTrack()];
+    this.track = this.context.currentAgeTrack();
+    this.ageConfig = c.ageTracks[this.track];
     this.skills = this.context.createSkillSession(
       c.world,
       c.id,
@@ -322,7 +326,7 @@ export class SeedFlowerScene extends Phaser.Scene {
       this.ready = true;
       this.scheduleHint();
     });
-    const intro = this.introPending ? seedHeLine(c, this.plan.mode === 'free' ? 'intro.free' : 'intro.ordered') : undefined;
+    const intro = this.introPending ? seedTaskLine(c, this.plan.mode === 'free' ? 'intro.free' : 'intro.ordered', taskInstructionLang(this.track, this.lang)) : undefined;
     this.introPending = false;
     // On naming levels the seed itself is named too (after the intro on the first plant of a visit).
     const seedLine = speaksStage(this.plan, 'seed') ? stageLine(c, 'seed', this.lang) : undefined;

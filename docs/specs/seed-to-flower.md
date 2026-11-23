@@ -136,3 +136,4 @@ Only after Maor approves the finished Pass 1: polished plant-stage art and growt
 
 - `2026-11-13` — created (draft, Pass 1 built under continuous-development mode) — substantive
 - `2026-11-13` — review fixes (#65): the seed is named at plant start on naming levels; L1 trial count documented; bloom reports celebrating — minor
+- `2026-11-24` — Wave 2 French-first: age-5 (profile track `age5`) intro lines (`seed.intro.free.*` / `seed.intro.ordered.*` `.en/.fr`) are spoken in the round's learning language (`fr`/`en`) with no Hebrew prefix; age 2 stays Hebrew; needWater, needSun and help lines stay Hebrew on both tracks (reversible default, `docs/PENDING-DECISIONS.md`). New EN/FR ids only; no new hooks — minor

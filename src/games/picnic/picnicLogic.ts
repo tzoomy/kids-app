@@ -2,6 +2,7 @@
 // One train is one adaptive trial and one round (`rules.trialsPerRound: 1` in picnic-train.json).
 import { PICNIC_STRETCH_CAPACITY, type LevelDescriptor, type PicnicLayout, type PicnicTask } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import type { TaskLang } from '../../core/audio/taskInstruction';
 import type { Lang } from '../templates/choiceServe';
 
 export type { PicnicTask, PicnicLayout };
@@ -359,20 +360,24 @@ export function isLocked(nowMs: number, lockedUntilMs: number): boolean {
 
 export interface LineRequest {
   lineId: string;
-  lang: 'he' | Lang;
+  lang: TaskLang;
 }
 
-/** Train-start instruction (also the replay and the idle-hint line). */
-export function askLine(plan: Pick<TrainPlan, 'task' | 'target'> & { equation?: PicnicEquation | null }): LineRequest {
-  if (plan.task === 'load' && plan.equation) return { lineId: equationAskId(plan.equation), lang: 'he' };
-  if (plan.task === 'load') return { lineId: `picnic.ask.load.${plan.target}.he`, lang: 'he' };
-  if (plan.task === 'missing') return { lineId: 'picnic.ask.missing.he', lang: 'he' };
-  return { lineId: 'picnic.ask.one-each.he', lang: 'he' };
+/** Train-start instruction (also the replay and the idle-hint line). `lang` defaults to Hebrew (age 2 and legacy callers). */
+export function askLine(
+  plan: Pick<TrainPlan, 'task' | 'target'> & { equation?: PicnicEquation | null },
+  lang: TaskLang = 'he',
+): LineRequest {
+  const line = (id: string): LineRequest => ({ lineId: `${id}.${lang}`, lang });
+  if (plan.task === 'load' && plan.equation) return { lineId: equationAskId(plan.equation, lang), lang };
+  if (plan.task === 'load') return line(`picnic.ask.load.${plan.target}`);
+  if (plan.task === 'missing') return line('picnic.ask.missing');
+  return line('picnic.ask.one-each');
 }
 
-/** Hebrew request of a stretch train: `picnic.ask.add.<a>.<b>.he` / `picnic.ask.sub.<a>.<b>.he`. */
-export function equationAskId(eq: PicnicEquation): string {
-  return `picnic.ask.${eq.op}.${eq.a}.${eq.b}.he`;
+/** Request of a stretch train: `picnic.ask.add.<a>.<b>.<lang>` / `picnic.ask.sub.<a>.<b>.<lang>` (Hebrew by default). */
+export function equationAskId(eq: PicnicEquation, lang: TaskLang = 'he'): string {
+  return `picnic.ask.${eq.op}.${eq.a}.${eq.b}.${lang}`;
 }
 
 /** A number counted aloud in the round language. */

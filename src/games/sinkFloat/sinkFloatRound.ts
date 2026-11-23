@@ -2,6 +2,7 @@
 // No Phaser, no DOM, so unit tests import this module directly.
 import type { LevelDescriptor, SinkOrFloatContent } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import { taskInstructionLang, type TaskLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import type { SpeechRequest } from '../../core/audio/types';
 import type { Lang } from '../templates/choiceServe';
 import type { FloatObjectId, FloatOutcome, SinkFloatEvent, SinkFloatMode } from './sinkFloatMachine';
@@ -51,23 +52,43 @@ function findObject(content: SinkOrFloatContent, objectId: FloatObjectId) {
   return entry;
 }
 
-/** Hebrew intro line for the start of a visit in free or predict mode. */
-export function introLine(content: SinkOrFloatContent, mode: SinkFloatMode): SpeechRequest {
+const INTRO_TEXT: Record<Lang, Record<SinkFloatMode, string>> = {
+  en: {
+    free: "Let's see what floats and what sinks! Tap an object.",
+    predict: "Let's guess: will it float or sink?",
+  },
+  fr: {
+    free: 'Voyons ce qui flotte et ce qui coule ! Appuie sur un objet.',
+    predict: 'Devinons : est-ce que ça va flotter ou couler ?',
+  },
+};
+const ASK_TEXT: Record<Lang, string> = {
+  en: 'What do you think? Will it float or sink?',
+  fr: 'À ton avis, ça va flotter ou couler ?',
+};
+
+/** Intro line for the start of a visit in free or predict mode (Hebrew by default, learning language for age 5). */
+export function introLine(content: SinkOrFloatContent, mode: SinkFloatMode, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') {
+    return { lineId: `sinkFloat.intro.${mode}.${taskLang}`, lang: taskLang, text: INTRO_TEXT[taskLang][mode] };
+  }
   return mode === 'predict'
     ? { lineId: 'sinkFloat.intro.predict.he', lang: 'he', text: content.linesHe.introPredict }
     : { lineId: 'sinkFloat.intro.free.he', lang: 'he', text: content.linesHe.introFree };
 }
 
-/** Lines spoken when starting a visit: the mode-specific Hebrew intro when pending, empty otherwise. */
+/** Lines spoken when starting a visit: the mode-specific intro when pending (Hebrew unless age 5), empty otherwise. */
 export function visitStartLines(
   content: SinkOrFloatContent,
-  opts: { includeIntro: boolean; mode: SinkFloatMode },
+  opts: { includeIntro: boolean; mode: SinkFloatMode; track?: TaskTrack; learningLang?: Lang | null },
 ): SpeechRequest[] {
-  return opts.includeIntro ? [introLine(content, opts.mode)] : [];
+  const taskLang = opts.learningLang ? taskInstructionLang(opts.track ?? 'age2', opts.learningLang) : 'he';
+  return opts.includeIntro ? [introLine(content, opts.mode, taskLang)] : [];
 }
 
-/** Hebrew question spoken after selecting an object in predict mode. */
-export function askLine(content: SinkOrFloatContent): SpeechRequest {
+/** Question spoken after selecting an object in predict mode (Hebrew by default, learning language for age 5). */
+export function askLine(content: SinkOrFloatContent, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') return { lineId: `sinkFloat.ask.${taskLang}`, lang: taskLang, text: ASK_TEXT[taskLang] };
   return {
     lineId: 'sinkFloat.ask.he',
     lang: 'he',

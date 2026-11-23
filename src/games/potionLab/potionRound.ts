@@ -2,6 +2,7 @@
 // No Phaser, no DOM, so unit tests import this module directly.
 import type { LevelDescriptor, PotionLabContent } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import { taskInstructionLang, type TaskLang, type TaskTrack } from '../../core/audio/taskInstruction';
 import type { SpeechLang, SpeechRequest } from '../../core/audio/types';
 import type { Lang } from '../templates/choiceServe';
 import {
@@ -81,8 +82,37 @@ export function namingLines(
   return [colorLine(content, color, 'he'), colorLine(content, color, learningLang)];
 }
 
-/** Hebrew request line for a secondary color ("אפשר להכין <color he>?"). */
-export function requestLine(content: PotionLabContent, color: SecondaryColor): SpeechRequest {
+/**
+ * Age-5 French-first / English-first task asks (Wave 2). The request is one idiomatic sentence that already contains the
+ * color, so the old "Hebrew request + color word" pair collapses to a single line. French takes the partitive with
+ * elision: `du vert`, `du violet`, `de l'orange`.
+ */
+const REQUEST_TEXT: Record<'en' | 'fr', Record<SecondaryColor, string>> = {
+  en: { green: 'Can you make green?', orange: 'Can you make orange?', purple: 'Can you make purple?' },
+  fr: { green: 'Peux-tu faire du vert ?', orange: "Peux-tu faire de l'orange ?", purple: 'Peux-tu faire du violet ?' },
+};
+const TRY_AGAIN_TEXT: Record<'en' | 'fr', Record<SecondaryColor, string>> = {
+  en: {
+    green: "Lovely! Now let's try to make green.",
+    orange: "Lovely! Now let's try to make orange.",
+    purple: "Lovely! Now let's try to make purple.",
+  },
+  fr: {
+    green: 'Bravo ! Maintenant, essayons de faire du vert.',
+    orange: "Bravo ! Maintenant, essayons de faire de l'orange.",
+    purple: 'Bravo ! Maintenant, essayons de faire du violet.',
+  },
+};
+const INTRO_TEXT: Record<'en' | 'fr', Record<PotionMode, string>> = {
+  en: { free: "Let's mix colors! Tap two pots.", request: "Let's make a new color!" },
+  fr: { free: 'Mélangeons des couleurs ! Appuie sur deux pots.', request: 'Faisons une nouvelle couleur !' },
+};
+
+/** Request line for a secondary color: Hebrew ("אפשר להכין <color he>?") by default, or one EN/FR sentence for age 5. */
+export function requestLine(content: PotionLabContent, color: SecondaryColor, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') {
+    return { lineId: `potion.request.${color}.${taskLang}`, lang: taskLang, text: REQUEST_TEXT[taskLang][color] };
+  }
   return {
     lineId: `potion.request.${color}.he`,
     lang: 'he',
@@ -90,17 +120,23 @@ export function requestLine(content: PotionLabContent, color: SecondaryColor): S
   };
 }
 
-/** Gentle Hebrew retry line when a request-mode mix produced another color. */
-export function tryAgainLine(content: PotionLabContent, target: SecondaryColor): SpeechRequest {
-  return {
-    lineId: `potion.tryAgain.${target}.he`,
-    lang: 'he',
-    text: content.linesHe.tryAgainFrame.replace('{color}', content.colors[target].he),
-  };
+/**
+ * Next-step task ask when a request-mode mix produced another color. One unique id per colour and language:
+ * `potion.tryAgain.<orange|green|purple>.<he|en|fr>` (Hebrew wording stays the existing tryAgainFrame).
+ */
+export function tryAgainLine(content: PotionLabContent, target: SecondaryColor, taskLang: TaskLang = 'he'): SpeechRequest {
+  const text =
+    taskLang === 'he'
+      ? content.linesHe.tryAgainFrame.replace('{color}', content.colors[target].he)
+      : TRY_AGAIN_TEXT[taskLang][target];
+  return { lineId: `potion.tryAgain.${target}.${taskLang}`, lang: taskLang, text };
 }
 
-/** Hebrew intro line for the start of a visit in free or request mode. */
-export function introLine(content: PotionLabContent, mode: PotionMode): SpeechRequest {
+/** Intro line for the start of a visit in free or request mode (Hebrew by default, EN/FR for age 5). */
+export function introLine(content: PotionLabContent, mode: PotionMode, taskLang: TaskLang = 'he'): SpeechRequest {
+  if (taskLang !== 'he') {
+    return { lineId: `potion.intro.${mode}.${taskLang}`, lang: taskLang, text: INTRO_TEXT[taskLang][mode] };
+  }
   return mode === 'request'
     ? { lineId: 'potion.intro.request.he', lang: 'he', text: content.linesHe.introRequest }
     : { lineId: 'potion.intro.free.he', lang: 'he', text: content.linesHe.introFree };
@@ -111,17 +147,29 @@ export interface VisitStartLinesInput {
   mode: PotionMode;
   request: SecondaryColor | null;
   learningLang: Lang | null;
+  /** Defaults to 'age2' (today's Hebrew behaviour). */
+  track?: TaskTrack;
 }
 
-/** Voice lines spoken when a visit/round begins: optional intro, then the request in Hebrew and the learning language. */
+/** The request lines of one request: age 2 = Hebrew request then the color word; age 5 = one learning-language sentence. */
+export function requestLines(
+  content: PotionLabContent,
+  color: SecondaryColor,
+  learningLang: Lang,
+  track: TaskTrack = 'age2',
+): SpeechRequest[] {
+  return track === 'age5'
+    ? [requestLine(content, color, taskInstructionLang(track, learningLang))]
+    : [requestLine(content, color), colorLine(content, color, learningLang)];
+}
+
+/** Voice lines spoken when a visit/round begins: optional intro, then the request (see `requestLines`). */
 export function visitStartLines(
   content: PotionLabContent,
-  { includeIntro, mode, request, learningLang }: VisitStartLinesInput,
+  { includeIntro, mode, request, learningLang, track = 'age2' }: VisitStartLinesInput,
 ): SpeechRequest[] {
   const lines: SpeechRequest[] = [];
-  if (includeIntro) lines.push(introLine(content, mode));
-  if (request !== null && learningLang) {
-    lines.push(requestLine(content, request), colorLine(content, request, learningLang));
-  }
+  if (includeIntro) lines.push(introLine(content, mode, learningLang ? taskInstructionLang(track, learningLang) : 'he'));
+  if (request !== null && learningLang) lines.push(...requestLines(content, request, learningLang, track));
   return lines;
 }

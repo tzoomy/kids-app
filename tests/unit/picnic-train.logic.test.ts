@@ -22,7 +22,7 @@ import {
   trainSizeCandidates,
   type TrainPlan,
 } from '@/games/picnic/picnicLogic';
-import { PICNIC_LINE_TEXT, hebrewNumber } from '@/games/picnic/picnicVoice';
+import { PICNIC_LINE_TEXT, equationAskText, equationAskTextLang, hebrewNumber, hebrewNumberBeforeNoun } from '@/games/picnic/picnicVoice';
 
 const content = loadPicnicTrain();
 const TODAY = '2026-11-13';
@@ -197,6 +197,23 @@ describe('picnic-train: voice lines and number words (AC-09)', () => {
     expect(PICNIC_LINE_TEXT['picnic.ask.load.2.he']).toBe('ארזי שני פריטים לפיקניק, ואז לחצי על הדגל!');
     expect(PICNIC_LINE_TEXT['picnic.ask.load.2.he']).not.toContain('שניים');
     expect(hebrewNumber(2)).toBe('שניים');
+    expect(hebrewNumberBeforeNoun(2)).toBe('שני');
+    expect(hebrewNumberBeforeNoun(5)).toBe(hebrewNumber(5));
+    // Stretch (and any future a === 2) uses the construct form before פריטים, not standalone שניים.
+    expect(equationAskText('add', 2, 3)).toBe('ארזי שני פריטים ועוד שלושה, ואז לחצי על הדגל!');
+    expect(equationAskText('sub', 2, 1)).toBe('ארזי שני פריטים, הוציאי אחד, ואז לחצי על הדגל!');
+    expect(equationAskText('add', 2, 3)).not.toContain('שניים פריטים');
+    expect(equationAskText('sub', 2, 1)).not.toContain('שניים פריטים');
+    for (const [id, line] of Object.entries(PICNIC_LINE_TEXT)) {
+      expect(line, id).not.toContain('שניים פריטים');
+    }
+    // French never spells a count as the digit 1 ("1 objet"); a count of 1 is "un objet".
+    expect(equationAskTextLang('add', 1, 2, 'fr')).toBe('Emporte un objet et encore deux, puis appuie sur le drapeau !');
+    expect(equationAskTextLang('sub', 1, 1, 'fr')).toBe('Emporte un objet, enlève un, puis appuie sur le drapeau !');
+    for (const [id, line] of Object.entries(PICNIC_LINE_TEXT)) {
+      if (id.endsWith('.fr')) expect(line, id).not.toMatch(/\b1 objet\b/);
+    }
+    expect(PICNIC_LINE_TEXT['picnic.ask.load.1.fr']).toBeUndefined();
     for (const id of [
       'picnic.ask.one-each.he',
       'picnic.ask.missing.he',

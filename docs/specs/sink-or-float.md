@@ -133,3 +133,4 @@ Only after Maor approves Pass 1: polished art, water ripples, picker card art an
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
 - `2026-11-14` — sync Pass 1 spec notes (`sinkFloat.help.he`, `hinted`/`audioOnly`, `goToScreen('sink-or-float')`, tank as layout area) and add tap-race regression tests
 - `2026-11-14` — defer visit-start intro speech to `Phaser.Scenes.Events.CREATE` so first-entry intro plays, with e2e intro tests
+- `2026-11-24` — Wave 2 French-first: age-5 (profile track `age5`) intro and predict question (`sinkFloat.intro.*`, `sinkFloat.ask.*` `.en/.fr`) are spoken in the round's learning language (`fr`/`en`) with no Hebrew prefix; age 2 stays Hebrew; letsSee, result naming and help lines stay Hebrew on both tracks (reversible default, `docs/PENDING-DECISIONS.md`). New EN/FR ids only; no new hooks — minor

@@ -141,7 +141,7 @@ test.describe('sink or float', () => {
     expect(reentryLines.filter((l) => l.lineId === 'sinkFloat.intro.free.he')).toHaveLength(1);
   });
 
-  test('[AC-05] @single-orientation predict mode (age 5): speaks the predict-mode intro line on entry before any tap', async ({
+  test('[AC-05] [AC-fr-first] @single-orientation predict mode (age 5): speaks the predict-mode intro line in the round language on entry before any tap', async ({
     page,
   }, testInfo) => {
     skipIfNotLandscape(testInfo);
@@ -150,10 +150,13 @@ test.describe('sink or float', () => {
     expect(info.mode).toBe('predict');
     expect(info.phase).toBe('choosing');
 
-    await waitForSpokenLine(page, (l) => l.lineId === 'sinkFloat.intro.predict.he' && l.lang === 'he');
+    // Age 5 hears the intro in the round's learning language; the question only follows once an object is chosen.
+    const lang = info.language;
+    await waitForSpokenLine(page, (l) => l.lineId === `sinkFloat.intro.predict.${lang}` && l.lang === lang);
     const lines = await getSpokenLines(page);
-    expect(lines.filter((l) => l.lineId === 'sinkFloat.intro.predict.he')).toHaveLength(1);
-    expect(lines.some((l) => l.lineId === 'sinkFloat.ask.he')).toBe(false);
+    expect(lines.filter((l) => l.lineId === `sinkFloat.intro.predict.${lang}`)).toHaveLength(1);
+    expect(lines.some((l) => l.lineId.startsWith('sinkFloat.') && l.lineId.endsWith('.he'))).toBe(false);
+    expect(lines.some((l) => l.lineId.startsWith('sinkFloat.ask.'))).toBe(false);
   });
 
   test('[AC-04] @single-orientation free mode (age 2): each drop names the outcome in Hebrew and in the learning language', async ({
@@ -216,6 +219,9 @@ test.describe('sink or float', () => {
       (i) => i.ready && i.phase === 'predicting' && i.selected === id1,
       'object tap did not enter predicting phase',
     );
+    // Age 5: choosing an object asks the question in the round's learning language, not Hebrew.
+    await waitForSpokenLine(page, (l) => l.lineId === `sinkFloat.ask.${info.language}` && l.lang === info.language);
+    expect((await getSpokenLines(page)).some((l) => l.lineId === 'sinkFloat.ask.he')).toBe(false);
     await tapRect(page, predicting1.buttons[wrongGuess]);
 
     const afterWrong = await waitForSinkFloat(

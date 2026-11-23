@@ -2,6 +2,7 @@
 // No Phaser, no DOM, so unit tests import this module directly.
 import type { LevelDescriptor, SeedToFlowerContent } from '../../content/schema';
 import type { TrialResult } from '../../core/adaptive';
+import type { TaskLang } from '../../core/audio/taskInstruction';
 import type { SpeechRequest } from '../../core/audio/types';
 import type { Lang } from '../templates/choiceServe';
 import { parseOrderMode, parseStages, type OrderMode, type PlantEvent, type StageId } from './seedFlowerMachine';
@@ -53,6 +54,28 @@ export function seedHeLine(content: SeedToFlowerContent, key: SeedHeLine): Speec
     : key === 'needWater' ? content.linesHe.needWater
     : content.linesHe.needSun;
   return { lineId: `seed.${key}.he`, lang: 'he', text };
+}
+
+export type SeedTaskKey = 'intro.free' | 'intro.ordered';
+
+const SEED_INTRO_TEXT: Record<'en' | 'fr', Record<SeedTaskKey, string>> = {
+  en: {
+    'intro.free': "Let's grow a flower! Tap the water or the sun, and watch it grow.",
+    'intro.ordered': "Let's grow a flower! First we water it, then the sun warms it.",
+  },
+  fr: {
+    'intro.free': "Faisons pousser une fleur ! Appuie sur l'eau ou sur le soleil, et regarde-la grandir.",
+    'intro.ordered': "Faisons pousser une fleur ! D'abord on l'arrose, ensuite le soleil la réchauffe.",
+  },
+};
+
+/**
+ * Task intro in the task-instruction language: Hebrew (`seedHeLine`) for age 2, the round's learning language for age 5.
+ * Miss and help lines (`needWater`, `needSun`, `help`) stay Hebrew on both tracks and keep using `seedHeLine`.
+ */
+export function seedTaskLine(content: SeedToFlowerContent, key: SeedTaskKey, lang: TaskLang = 'he'): SpeechRequest {
+  if (lang === 'he') return seedHeLine(content, key);
+  return { lineId: `seed.${key}.${lang}`, lang, text: SEED_INTRO_TEXT[lang][key] };
 }
 
 /** Bloom art for the n-th plant of a visit (existing `art/flowers/bloom-<id>.svg`), in turn. */

@@ -193,8 +193,13 @@ describe('picnic-train age-5 stretch: voice lines', () => {
     expect(PICNIC_LINE_TEXT['picnic.ask.sub.12.3.he']).toBe('ארזי שנים עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!');
     expect(PICNIC_LINE_TEXT['picnic.ask.add.15.2.he']).toBe('ארזי חמישה עשר פריטים ועוד שניים, ואז לחצי על הדגל!');
     // Only the requests the content can make get a line (no stray clips for the TTS job).
-    const all = Object.keys(PICNIC_LINE_TEXT).filter((k) => /^picnic\.ask\.(add|sub)\./.test(k));
+    const all = Object.keys(PICNIC_LINE_TEXT).filter((k) => /^picnic\.ask\.(add|sub)\..*\.he$/.test(k));
     expect(new Set(all)).toEqual(asks);
+    // Wave 2: the age-5 English and French requests cover exactly the same set of requests, no strays.
+    for (const lang of ['en', 'fr']) {
+      const langAll = Object.keys(PICNIC_LINE_TEXT).filter((k) => new RegExp(`^picnic\\.ask\\.(add|sub)\\..*\\.${lang}$`).test(k));
+      expect(new Set(langAll)).toEqual(new Set([...asks].map((id) => id.replace(/\.he$/, `.${lang}`))));
+    }
   });
 
   it('[AC-31] counting words go up to twenty in English and French', () => {

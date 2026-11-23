@@ -129,7 +129,7 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
       for (const l of correctLines(habitat, a, lang)) if (l.lang !== 'he') add('who-lives-here', l);
     }
 
-  // Sorting Beds and Picnic Train (text tables).
+  // Sorting Beds and Picnic Train (text tables, including Wave 2 EN/FR task asks).
   for (const [id, text] of Object.entries(SORTING_LINE_TEXT)) add('sorting-beds', { lineId: id, lang: id.slice(-2), text });
   for (const [id, text] of Object.entries(PICNIC_LINE_TEXT)) add('picnic-train', { lineId: id, lang: id.slice(-2), text });
 
@@ -164,6 +164,15 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
     add('potion-lab', potion.tryAgainLine(pl, c));
   }
   for (const c of POTION_COLORS) for (const lang of ['he', 'en', 'fr'] as const) add('potion-lab', potion.colorLine(pl, c, lang));
+  // Wave 2 age-5 French-first / English-first task instructions (unique EN/FR ids).
+  for (const lang of LANGS) {
+    add('potion-lab', potion.introLine(pl, 'free', lang));
+    add('potion-lab', potion.introLine(pl, 'request', lang));
+    for (const c of SECONDARY_COLORS) {
+      add('potion-lab', potion.requestLine(pl, c, lang));
+      add('potion-lab', potion.tryAgainLine(pl, c, lang));
+    }
+  }
 
   // Sink or Float.
   const sf = loadSinkOrFloat();
@@ -174,6 +183,11 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
   add('sink-or-float', { lineId: 'sinkFloat.help.he', lang: 'he', text: sf.helpTextHe });
   for (const o of sf.objects) add('sink-or-float', sink.resultHeLine(sf, o.id));
   for (const lang of LANGS) for (const outcome of ['floats', 'sinks'] as const) add('sink-or-float', sink.resultLearningLine(sf, outcome, lang));
+  for (const lang of LANGS) {
+    add('sink-or-float', sink.introLine(sf, 'free', lang));
+    add('sink-or-float', sink.introLine(sf, 'predict', lang));
+    add('sink-or-float', sink.askLine(sf, lang));
+  }
 
   // Magic Magnet.
   const mm = loadMagicMagnet();
@@ -188,11 +202,22 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
       for (const l of magnet.reactionLines(mm, o.id, lang)) add('magic-magnet', l);
       for (const l of magnet.askLines(mm, o.id, lang)) add('magic-magnet', l);
     }
+  // Wave 2 age-5 asks: one EN/FR sentence per object (askTaskLine), plus EN/FR intro and test.
+  for (const lang of LANGS) {
+    add('magic-magnet', magnet.introLine(mm, 'free', lang));
+    add('magic-magnet', magnet.introLine(mm, 'predict', lang));
+    add('magic-magnet', magnet.testLine(mm, lang));
+    for (const o of mm.objects) add('magic-magnet', magnet.askTaskLine(mm, o.id, lang));
+  }
 
   // Seed to Flower.
   const sd = loadSeedToFlower();
   for (const key of ['intro.free', 'intro.ordered', 'help', 'needWater', 'needSun'] as const) add('seed-to-flower', seed.seedHeLine(sd, key));
   for (const lang of LANGS) for (const st of SEED_STAGES) add('seed-to-flower', seed.stageLine(sd, st, lang));
+  for (const lang of LANGS) {
+    add('seed-to-flower', seed.seedTaskLine(sd, 'intro.free', lang));
+    add('seed-to-flower', seed.seedTaskLine(sd, 'intro.ordered', lang));
+  }
 
   // De-duplicate ids; an id that maps to more than one text cannot have a single clip.
   const byId = new Map<string, GameVoiceLine>();

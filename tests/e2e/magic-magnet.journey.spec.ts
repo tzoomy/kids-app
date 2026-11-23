@@ -134,28 +134,28 @@ test.describe('magic magnet', () => {
     expect((await getSpokenLines(page)).filter((l) => l.lineId === 'magnet.intro.free.he')).toHaveLength(2);
   });
 
-  test('[AC-05] predict mode intro (age 5, L2): plays magnet.intro.predict.he and the first target ask lines in order before any touch', async ({ page }) => {
+  test('[AC-05] [AC-fr-first] predict mode intro (age 5, L2): plays the intro and ONE target ask sentence in the round language, with no Hebrew ask and no extra word line, before any touch', async ({ page }) => {
     const info = await enterMagicMagnet(page, 'profile-b', 2);
     expect(info.mode).toBe('predict');
     expect(info.phase).toBe('predicting');
     expect(info.target).not.toBeNull();
     const targetId = info.target!;
+    const lang = info.language;
 
-    const intro = await waitForSpokenLine(page, (l) => l.lineId === 'magnet.intro.predict.he' && l.lang === 'he');
+    const intro = await waitForSpokenLine(page, (l) => l.lineId === `magnet.intro.predict.${lang}` && l.lang === lang);
     const ask = await waitForSpokenLine(
       page,
-      (l) => l.lineId === `magnet.ask.${targetId}.he` && l.lang === 'he',
+      (l) => l.lineId === `magnet.ask.${targetId}.${lang}` && l.lang === lang,
       10_000,
       intro.index + 1,
     );
-    const word = await waitForSpokenLine(
-      page,
-      (l) => l.lineId === `magnet.word.${targetId}.${info.language}` && l.lang === info.language,
-      10_000,
-      ask.index + 1,
-    );
     expect(intro.index).toBeLessThan(ask.index);
-    expect(ask.index).toBeLessThan(word.index);
+    // Let any (wrongly) queued follow-up lines surface, then check none were spoken.
+    await page.waitForTimeout(1_500);
+    const visit = (await getSpokenLines(page, intro.index)).filter((l) => l.lineId.startsWith('magnet.'));
+    expect(visit.slice(0, 2).map((l) => l.lineId)).toEqual([`magnet.intro.predict.${lang}`, `magnet.ask.${targetId}.${lang}`]);
+    expect(visit.some((l) => l.lineId.endsWith('.he'))).toBe(false);
+    expect(visit.some((l) => l.lineId.startsWith('magnet.word.'))).toBe(false);
   });
 
   test('[AC-04] @single-orientation free mode (age 2): every touched object is named in Hebrew and the learning language with sticks/notSticks', async ({ page }, testInfo) => {
@@ -238,6 +238,8 @@ test.describe('magic magnet', () => {
         (i) => i.phase === 'testing' && i.ready && i.target === targetId,
         `step ${step} did not enter testing phase`,
       );
+      // Age 5: the "now check" prompt is in the round's learning language (reaction / feedback lines stay Hebrew).
+      if (step === 0) await waitForSpokenLine(page, (l) => l.lineId === `magnet.test.${info.language}` && l.lang === info.language);
       const spokenBefore = (await getSpokenLines(page)).length;
       const targetInTest = testingInfo.objects.find((o) => o.id === targetId)!;
       await dragMagnetTo(

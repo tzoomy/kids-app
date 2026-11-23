@@ -277,7 +277,9 @@ test.describe('picnic train: load and missing tasks (age 5)', () => {
     const info = await waitForPicnicReady(page);
     expect(info.task).toBe('load');
     const n = info.target;
-    await waitForSpokenLine(page, (l) => l.lineId === `picnic.ask.load.${n}.he` && l.lang === 'he');
+    // Age 5 (Elli) hears the task ask in the round language (EN here), never a Hebrew one.
+    await waitForSpokenLine(page, (l) => l.lineId === `picnic.ask.load.${n}.en` && l.lang === 'en');
+    expect((await getSpokenLines(page)).filter((l) => l.lineId.startsWith('picnic.ask.') && l.lineId.endsWith('.he'))).toEqual([]);
 
     await loadOne(page);
     await waitForSpokenLine(page, (l) => l.lineId === 'picnic.number.1.en' && l.lang === 'en');
@@ -316,7 +318,7 @@ test.describe('picnic train: load and missing tasks (age 5)', () => {
     expect(info.phase).toBe('answer');
     const m = info.target;
     const wrong = m === 1 ? 2 : 1;
-    await waitForSpokenLine(page, (l) => l.lineId === 'picnic.ask.missing.he' && l.lang === 'he');
+    await waitForSpokenLine(page, (l) => l.lineId === 'picnic.ask.missing.en' && l.lang === 'en');
 
     await tapCard(page, wrong);
     await waitForSpokenLine(page, (l) => l.lineId === 'picnic.wrong.count.he' && l.lang === 'he');
@@ -375,10 +377,21 @@ test.describe('picnic train: voice lines', () => {
     expect(help.lang).toBe('he');
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
   });
+
+  test('[AC-fr-first] age 5: the help button still speaks the Hebrew help line after an English task ask', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(60_000);
+    await enterPicnic(page, 'profile-b', { level: 5, lang: 'en' });
+    await waitForPicnicReady(page);
+    await waitForSpokenLine(page, (l) => l.lineId.startsWith('picnic.ask.load.') && l.lang === 'en');
+    await page.locator('[data-testid="hud-help"]').click();
+    const help = await waitForSpokenLine(page, (l) => l.lineId === 'picnic.help.he');
+    expect(help.lang).toBe('he');
+  });
 });
 
 test.describe('picnic train: age-5 stretch (L9-L10)', () => {
-  test('[AC-29] @single-orientation L10: the Hebrew request names a and b; packing a and taking b out (or adding b) makes the train ready', async ({ page }, testInfo) => {
+  test('[AC-29] @single-orientation L10: the French request names a and b; packing a and taking b out (or adding b) makes the train ready', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(150_000);
     await enterPicnic(page, 'profile-b', { level: 10, lang: 'fr' });
@@ -389,7 +402,7 @@ test.describe('picnic train: age-5 stretch (L9-L10)', () => {
     const eq = info.equation!;
     expect(eq).not.toBeNull();
     expect(info.target).toBe(eq.op === 'add' ? eq.a + eq.b : eq.a - eq.b);
-    await waitForSpokenLine(page, (l) => l.lineId === `picnic.ask.${eq.op}.${eq.a}.${eq.b}.he` && l.lang === 'he');
+    await waitForSpokenLine(page, (l) => l.lineId === `picnic.ask.${eq.op}.${eq.a}.${eq.b}.fr` && l.lang === 'fr');
 
     for (let k = 0; k < eq.a; k++) await loadOne(page);
     if (eq.op === 'add') {

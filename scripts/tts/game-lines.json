@@ -4149,6 +4149,90 @@
       "game": "sorting-beds"
     },
     {
+      "id": "sorting.rule.color.en",
+      "lang": "en",
+      "text": "Let's sort the flowers by color!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.color.fr",
+      "lang": "fr",
+      "text": "Rangeons les fleurs par couleur !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.shape.en",
+      "lang": "en",
+      "text": "Let's sort the flowers by shape!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.shape.fr",
+      "lang": "fr",
+      "text": "Rangeons les fleurs par forme !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.size.en",
+      "lang": "en",
+      "text": "Let's sort the flowers by size — big and small!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.size.fr",
+      "lang": "fr",
+      "text": "Rangeons les fleurs par taille — les grandes et les petites !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.two-attr.en",
+      "lang": "en",
+      "text": "Pay attention to both color and size!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.rule.two-attr.fr",
+      "lang": "fr",
+      "text": "Fais attention à la couleur et à la taille !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.size.en",
+      "lang": "en",
+      "text": "Surprise! Now pay attention to size!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.size.fr",
+      "lang": "fr",
+      "text": "Surprise ! Maintenant, fais attention à la taille !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.color.en",
+      "lang": "en",
+      "text": "Surprise! Now pay attention to color!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.color.fr",
+      "lang": "fr",
+      "text": "Surprise ! Maintenant, fais attention à la couleur !",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.shape.en",
+      "lang": "en",
+      "text": "Surprise! Now pay attention to shape!",
+      "game": "sorting-beds"
+    },
+    {
+      "id": "sorting.switch.shape.fr",
+      "lang": "fr",
+      "text": "Surprise ! Maintenant, fais attention à la forme !",
+      "game": "sorting-beds"
+    },
+    {
       "id": "sorting.word.red.en",
       "lang": "en",
       "text": "red",
@@ -4302,6 +4386,138 @@
       "id": "picnic.ask.load.10.he",
       "lang": "he",
       "text": "ארזי עשרה פריטים לפיקניק, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.one-each.en",
+      "lang": "en",
+      "text": "Let's feed the friends on the train! Give each friend one picnic item.",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.one-each.fr",
+      "lang": "fr",
+      "text": "Allons nourrir les copains dans le train ! Donne un objet de pique-nique à chaque copain.",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.missing.en",
+      "lang": "en",
+      "text": "Some friends already have an item. How many items are still missing?",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.missing.fr",
+      "lang": "fr",
+      "text": "Certains copains ont déjà un objet. Combien d'objets manquent encore ?",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.2.en",
+      "lang": "en",
+      "text": "Pack two picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.2.fr",
+      "lang": "fr",
+      "text": "Emporte deux objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.3.en",
+      "lang": "en",
+      "text": "Pack three picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.3.fr",
+      "lang": "fr",
+      "text": "Emporte trois objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.4.en",
+      "lang": "en",
+      "text": "Pack four picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.4.fr",
+      "lang": "fr",
+      "text": "Emporte quatre objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.5.en",
+      "lang": "en",
+      "text": "Pack five picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.5.fr",
+      "lang": "fr",
+      "text": "Emporte cinq objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.6.en",
+      "lang": "en",
+      "text": "Pack six picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.6.fr",
+      "lang": "fr",
+      "text": "Emporte six objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.7.en",
+      "lang": "en",
+      "text": "Pack seven picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.7.fr",
+      "lang": "fr",
+      "text": "Emporte sept objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.8.en",
+      "lang": "en",
+      "text": "Pack eight picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.8.fr",
+      "lang": "fr",
+      "text": "Emporte huit objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.9.en",
+      "lang": "en",
+      "text": "Pack nine picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.9.fr",
+      "lang": "fr",
+      "text": "Emporte neuf objets pour le pique-nique, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.10.en",
+      "lang": "en",
+      "text": "Pack ten picnic items, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.load.10.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets pour le pique-nique, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4551,9 +4767,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.5.2.en",
+      "lang": "en",
+      "text": "Pack five items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.2.fr",
+      "lang": "fr",
+      "text": "Emporte cinq objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.5.3.he",
       "lang": "he",
       "text": "ארזי חמישה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.3.en",
+      "lang": "en",
+      "text": "Pack five items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.3.fr",
+      "lang": "fr",
+      "text": "Emporte cinq objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4563,9 +4803,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.5.4.en",
+      "lang": "en",
+      "text": "Pack five items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.4.fr",
+      "lang": "fr",
+      "text": "Emporte cinq objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.5.5.he",
       "lang": "he",
       "text": "ארזי חמישה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.5.en",
+      "lang": "en",
+      "text": "Pack five items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.5.5.fr",
+      "lang": "fr",
+      "text": "Emporte cinq objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4575,9 +4839,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.6.2.en",
+      "lang": "en",
+      "text": "Pack six items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.2.fr",
+      "lang": "fr",
+      "text": "Emporte six objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.6.3.he",
       "lang": "he",
       "text": "ארזי שישה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.3.en",
+      "lang": "en",
+      "text": "Pack six items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.3.fr",
+      "lang": "fr",
+      "text": "Emporte six objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4587,9 +4875,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.6.4.en",
+      "lang": "en",
+      "text": "Pack six items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.4.fr",
+      "lang": "fr",
+      "text": "Emporte six objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.6.5.he",
       "lang": "he",
       "text": "ארזי שישה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.5.en",
+      "lang": "en",
+      "text": "Pack six items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.6.5.fr",
+      "lang": "fr",
+      "text": "Emporte six objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4599,9 +4911,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.7.2.en",
+      "lang": "en",
+      "text": "Pack seven items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.2.fr",
+      "lang": "fr",
+      "text": "Emporte sept objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.7.3.he",
       "lang": "he",
       "text": "ארזי שבעה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.3.en",
+      "lang": "en",
+      "text": "Pack seven items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.3.fr",
+      "lang": "fr",
+      "text": "Emporte sept objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4611,9 +4947,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.7.4.en",
+      "lang": "en",
+      "text": "Pack seven items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.4.fr",
+      "lang": "fr",
+      "text": "Emporte sept objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.7.5.he",
       "lang": "he",
       "text": "ארזי שבעה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.5.en",
+      "lang": "en",
+      "text": "Pack seven items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.7.5.fr",
+      "lang": "fr",
+      "text": "Emporte sept objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4623,9 +4983,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.8.2.en",
+      "lang": "en",
+      "text": "Pack eight items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.2.fr",
+      "lang": "fr",
+      "text": "Emporte huit objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.8.3.he",
       "lang": "he",
       "text": "ארזי שמונה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.3.en",
+      "lang": "en",
+      "text": "Pack eight items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.3.fr",
+      "lang": "fr",
+      "text": "Emporte huit objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4635,9 +5019,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.8.4.en",
+      "lang": "en",
+      "text": "Pack eight items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.4.fr",
+      "lang": "fr",
+      "text": "Emporte huit objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.8.5.he",
       "lang": "he",
       "text": "ארזי שמונה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.5.en",
+      "lang": "en",
+      "text": "Pack eight items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.8.5.fr",
+      "lang": "fr",
+      "text": "Emporte huit objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4647,9 +5055,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.9.2.en",
+      "lang": "en",
+      "text": "Pack nine items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.2.fr",
+      "lang": "fr",
+      "text": "Emporte neuf objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.9.3.he",
       "lang": "he",
       "text": "ארזי תשעה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.3.en",
+      "lang": "en",
+      "text": "Pack nine items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.3.fr",
+      "lang": "fr",
+      "text": "Emporte neuf objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4659,9 +5091,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.9.4.en",
+      "lang": "en",
+      "text": "Pack nine items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.4.fr",
+      "lang": "fr",
+      "text": "Emporte neuf objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.9.5.he",
       "lang": "he",
       "text": "ארזי תשעה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.5.en",
+      "lang": "en",
+      "text": "Pack nine items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.9.5.fr",
+      "lang": "fr",
+      "text": "Emporte neuf objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4671,9 +5127,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.10.2.en",
+      "lang": "en",
+      "text": "Pack ten items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.2.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.10.3.he",
       "lang": "he",
       "text": "ארזי עשרה פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.3.en",
+      "lang": "en",
+      "text": "Pack ten items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.3.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4683,9 +5163,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.10.4.en",
+      "lang": "en",
+      "text": "Pack ten items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.4.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.10.5.he",
       "lang": "he",
       "text": "ארזי עשרה פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.5.en",
+      "lang": "en",
+      "text": "Pack ten items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.10.5.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4695,9 +5199,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.11.2.en",
+      "lang": "en",
+      "text": "Pack eleven items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.2.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.11.3.he",
       "lang": "he",
       "text": "ארזי אחד עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.3.en",
+      "lang": "en",
+      "text": "Pack eleven items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.3.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4707,9 +5235,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.11.4.en",
+      "lang": "en",
+      "text": "Pack eleven items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.4.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.11.5.he",
       "lang": "he",
       "text": "ארזי אחד עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.5.en",
+      "lang": "en",
+      "text": "Pack eleven items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.11.5.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4719,9 +5271,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.12.2.en",
+      "lang": "en",
+      "text": "Pack twelve items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.2.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.12.3.he",
       "lang": "he",
       "text": "ארזי שנים עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.3.en",
+      "lang": "en",
+      "text": "Pack twelve items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.3.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4731,9 +5307,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.12.4.en",
+      "lang": "en",
+      "text": "Pack twelve items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.4.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.12.5.he",
       "lang": "he",
       "text": "ארזי שנים עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.5.en",
+      "lang": "en",
+      "text": "Pack twelve items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.12.5.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4743,9 +5343,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.13.2.en",
+      "lang": "en",
+      "text": "Pack thirteen items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.2.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.13.3.he",
       "lang": "he",
       "text": "ארזי שלושה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.3.en",
+      "lang": "en",
+      "text": "Pack thirteen items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.3.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4755,9 +5379,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.13.4.en",
+      "lang": "en",
+      "text": "Pack thirteen items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.4.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.13.5.he",
       "lang": "he",
       "text": "ארזי שלושה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.5.en",
+      "lang": "en",
+      "text": "Pack thirteen items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.13.5.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4767,9 +5415,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.14.2.en",
+      "lang": "en",
+      "text": "Pack fourteen items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.2.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.14.3.he",
       "lang": "he",
       "text": "ארזי ארבעה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.3.en",
+      "lang": "en",
+      "text": "Pack fourteen items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.3.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4779,9 +5451,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.14.4.en",
+      "lang": "en",
+      "text": "Pack fourteen items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.4.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.14.5.he",
       "lang": "he",
       "text": "ארזי ארבעה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.5.en",
+      "lang": "en",
+      "text": "Pack fourteen items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.14.5.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4791,9 +5487,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.15.2.en",
+      "lang": "en",
+      "text": "Pack fifteen items and two more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.2.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets et encore deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.15.3.he",
       "lang": "he",
       "text": "ארזי חמישה עשר פריטים ועוד שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.3.en",
+      "lang": "en",
+      "text": "Pack fifteen items and three more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.3.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets et encore trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4803,9 +5523,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.add.15.4.en",
+      "lang": "en",
+      "text": "Pack fifteen items and four more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.4.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets et encore quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.add.15.5.he",
       "lang": "he",
       "text": "ארזי חמישה עשר פריטים ועוד חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.5.en",
+      "lang": "en",
+      "text": "Pack fifteen items and five more, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.add.15.5.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets et encore cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4815,9 +5559,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.10.2.en",
+      "lang": "en",
+      "text": "Pack ten items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.2.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.10.3.he",
       "lang": "he",
       "text": "ארזי עשרה פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.3.en",
+      "lang": "en",
+      "text": "Pack ten items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.3.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4827,9 +5595,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.10.4.en",
+      "lang": "en",
+      "text": "Pack ten items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.4.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.10.5.he",
       "lang": "he",
       "text": "ארזי עשרה פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.5.en",
+      "lang": "en",
+      "text": "Pack ten items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.10.5.fr",
+      "lang": "fr",
+      "text": "Emporte dix objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4839,9 +5631,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.11.2.en",
+      "lang": "en",
+      "text": "Pack eleven items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.2.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.11.3.he",
       "lang": "he",
       "text": "ארזי אחד עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.3.en",
+      "lang": "en",
+      "text": "Pack eleven items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.3.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4851,9 +5667,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.11.4.en",
+      "lang": "en",
+      "text": "Pack eleven items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.4.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.11.5.he",
       "lang": "he",
       "text": "ארזי אחד עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.5.en",
+      "lang": "en",
+      "text": "Pack eleven items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.11.5.fr",
+      "lang": "fr",
+      "text": "Emporte onze objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4863,9 +5703,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.12.2.en",
+      "lang": "en",
+      "text": "Pack twelve items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.2.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.12.3.he",
       "lang": "he",
       "text": "ארזי שנים עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.3.en",
+      "lang": "en",
+      "text": "Pack twelve items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.3.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4875,9 +5739,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.12.4.en",
+      "lang": "en",
+      "text": "Pack twelve items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.4.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.12.5.he",
       "lang": "he",
       "text": "ארזי שנים עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.5.en",
+      "lang": "en",
+      "text": "Pack twelve items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.12.5.fr",
+      "lang": "fr",
+      "text": "Emporte douze objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4887,9 +5775,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.13.2.en",
+      "lang": "en",
+      "text": "Pack thirteen items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.2.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.13.3.he",
       "lang": "he",
       "text": "ארזי שלושה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.3.en",
+      "lang": "en",
+      "text": "Pack thirteen items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.3.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4899,9 +5811,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.13.4.en",
+      "lang": "en",
+      "text": "Pack thirteen items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.4.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.13.5.he",
       "lang": "he",
       "text": "ארזי שלושה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.5.en",
+      "lang": "en",
+      "text": "Pack thirteen items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.13.5.fr",
+      "lang": "fr",
+      "text": "Emporte treize objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4911,9 +5847,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.14.2.en",
+      "lang": "en",
+      "text": "Pack fourteen items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.2.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.14.3.he",
       "lang": "he",
       "text": "ארזי ארבעה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.3.en",
+      "lang": "en",
+      "text": "Pack fourteen items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.3.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4923,9 +5883,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.14.4.en",
+      "lang": "en",
+      "text": "Pack fourteen items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.4.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.14.5.he",
       "lang": "he",
       "text": "ארזי ארבעה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.5.en",
+      "lang": "en",
+      "text": "Pack fourteen items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.14.5.fr",
+      "lang": "fr",
+      "text": "Emporte quatorze objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4935,9 +5919,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.15.2.en",
+      "lang": "en",
+      "text": "Pack fifteen items, take out two, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.2.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets, enlève deux, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.15.3.he",
       "lang": "he",
       "text": "ארזי חמישה עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.3.en",
+      "lang": "en",
+      "text": "Pack fifteen items, take out three, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.3.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets, enlève trois, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -4947,9 +5955,33 @@
       "game": "picnic-train"
     },
     {
+      "id": "picnic.ask.sub.15.4.en",
+      "lang": "en",
+      "text": "Pack fifteen items, take out four, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.4.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets, enlève quatre, puis appuie sur le drapeau !",
+      "game": "picnic-train"
+    },
+    {
       "id": "picnic.ask.sub.15.5.he",
       "lang": "he",
       "text": "ארזי חמישה עשר פריטים, הוציאי חמישה, ואז לחצי על הדגל!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.5.en",
+      "lang": "en",
+      "text": "Pack fifteen items, take out five, then tap the flag!",
+      "game": "picnic-train"
+    },
+    {
+      "id": "picnic.ask.sub.15.5.fr",
+      "lang": "fr",
+      "text": "Emporte quinze objets, enlève cinq, puis appuie sur le drapeau !",
       "game": "picnic-train"
     },
     {
@@ -8369,7 +9401,7 @@
     {
       "id": "monster.askEnding.he",
       "lang": "he",
-      "text": "המפלצת רוצה משהו שמסתיים ב...",
+      "text": "המפלצת רוצה משהו שמסתיים באות הזו.",
       "game": "letter-monster"
     },
     {
@@ -10605,6 +11637,102 @@
       "game": "potion-lab"
     },
     {
+      "id": "potion.intro.free.en",
+      "lang": "en",
+      "text": "Let's mix colors! Tap two pots.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.intro.request.en",
+      "lang": "en",
+      "text": "Let's make a new color!",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.orange.en",
+      "lang": "en",
+      "text": "Can you make orange?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.orange.en",
+      "lang": "en",
+      "text": "Lovely! Now let's try to make orange.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.green.en",
+      "lang": "en",
+      "text": "Can you make green?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.green.en",
+      "lang": "en",
+      "text": "Lovely! Now let's try to make green.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.purple.en",
+      "lang": "en",
+      "text": "Can you make purple?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.purple.en",
+      "lang": "en",
+      "text": "Lovely! Now let's try to make purple.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.intro.free.fr",
+      "lang": "fr",
+      "text": "Mélangeons des couleurs ! Appuie sur deux pots.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.intro.request.fr",
+      "lang": "fr",
+      "text": "Faisons une nouvelle couleur !",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.orange.fr",
+      "lang": "fr",
+      "text": "Peux-tu faire de l'orange ?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.orange.fr",
+      "lang": "fr",
+      "text": "Bravo ! Maintenant, essayons de faire de l'orange.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.green.fr",
+      "lang": "fr",
+      "text": "Peux-tu faire du vert ?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.green.fr",
+      "lang": "fr",
+      "text": "Bravo ! Maintenant, essayons de faire du vert.",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.request.purple.fr",
+      "lang": "fr",
+      "text": "Peux-tu faire du violet ?",
+      "game": "potion-lab"
+    },
+    {
+      "id": "potion.tryAgain.purple.fr",
+      "lang": "fr",
+      "text": "Bravo ! Maintenant, essayons de faire du violet.",
+      "game": "potion-lab"
+    },
+    {
       "id": "sinkFloat.intro.free.he",
       "lang": "he",
       "text": "בואי נבדוק מה צף ומה שוקע! לחצי על חפץ.",
@@ -10692,6 +11820,42 @@
       "id": "sinkFloat.result.sinks.fr",
       "lang": "fr",
       "text": "Ça coule !",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.intro.free.en",
+      "lang": "en",
+      "text": "Let's see what floats and what sinks! Tap an object.",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.intro.predict.en",
+      "lang": "en",
+      "text": "Let's guess: will it float or sink?",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.ask.en",
+      "lang": "en",
+      "text": "What do you think? Will it float or sink?",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.intro.free.fr",
+      "lang": "fr",
+      "text": "Voyons ce qui flotte et ce qui coule ! Appuie sur un objet.",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.intro.predict.fr",
+      "lang": "fr",
+      "text": "Devinons : est-ce que ça va flotter ou couler ?",
+      "game": "sink-or-float"
+    },
+    {
+      "id": "sinkFloat.ask.fr",
+      "lang": "fr",
+      "text": "À ton avis, ça va flotter ou couler ?",
       "game": "sink-or-float"
     },
     {
@@ -10947,6 +12111,138 @@
       "game": "magic-magnet"
     },
     {
+      "id": "magnet.intro.free.en",
+      "lang": "en",
+      "text": "Let's find out what sticks to the magnet! Drag the magnet.",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.intro.predict.en",
+      "lang": "en",
+      "text": "Let's guess what will stick to the magnet, then we'll check!",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.test.en",
+      "lang": "en",
+      "text": "Let's check! Bring the magnet close.",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.paperclip.en",
+      "lang": "en",
+      "text": "Will the paperclip stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.nail.en",
+      "lang": "en",
+      "text": "Will the nail stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.screw.en",
+      "lang": "en",
+      "text": "Will the screw stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.bottle-cap.en",
+      "lang": "en",
+      "text": "Will the bottle cap stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.ball.en",
+      "lang": "en",
+      "text": "Will the ball stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.leaf.en",
+      "lang": "en",
+      "text": "Will the leaf stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.feather.en",
+      "lang": "en",
+      "text": "Will the feather stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.apple.en",
+      "lang": "en",
+      "text": "Will the apple stick to the magnet?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.intro.free.fr",
+      "lang": "fr",
+      "text": "Découvrons ce qui colle à l'aimant ! Fais glisser l'aimant.",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.intro.predict.fr",
+      "lang": "fr",
+      "text": "Devinons ce qui va coller à l'aimant, puis nous vérifierons !",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.test.fr",
+      "lang": "fr",
+      "text": "Vérifions ! Approche l'aimant.",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.paperclip.fr",
+      "lang": "fr",
+      "text": "Est-ce que le trombone va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.nail.fr",
+      "lang": "fr",
+      "text": "Est-ce que le clou va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.screw.fr",
+      "lang": "fr",
+      "text": "Est-ce que la vis va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.bottle-cap.fr",
+      "lang": "fr",
+      "text": "Est-ce que la capsule va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.ball.fr",
+      "lang": "fr",
+      "text": "Est-ce que la balle va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.leaf.fr",
+      "lang": "fr",
+      "text": "Est-ce que la feuille va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.feather.fr",
+      "lang": "fr",
+      "text": "Est-ce que la plume va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
+      "id": "magnet.ask.apple.fr",
+      "lang": "fr",
+      "text": "Est-ce que la pomme va coller à l'aimant ?",
+      "game": "magic-magnet"
+    },
+    {
       "id": "seed.intro.free.he",
       "lang": "he",
       "text": "בואי נגדל פרח! לחצי על המים או על השמש, וראי איך הוא גדל.",
@@ -11022,6 +12318,30 @@
       "id": "seed.stage.flower.fr",
       "lang": "fr",
       "text": "Une fleur !",
+      "game": "seed-to-flower"
+    },
+    {
+      "id": "seed.intro.free.en",
+      "lang": "en",
+      "text": "Let's grow a flower! Tap the water or the sun, and watch it grow.",
+      "game": "seed-to-flower"
+    },
+    {
+      "id": "seed.intro.ordered.en",
+      "lang": "en",
+      "text": "Let's grow a flower! First we water it, then the sun warms it.",
+      "game": "seed-to-flower"
+    },
+    {
+      "id": "seed.intro.free.fr",
+      "lang": "fr",
+      "text": "Faisons pousser une fleur ! Appuie sur l'eau ou sur le soleil, et regarde-la grandir.",
+      "game": "seed-to-flower"
+    },
+    {
+      "id": "seed.intro.ordered.fr",
+      "lang": "fr",
+      "text": "Faisons pousser une fleur ! D'abord on l'arrose, ensuite le soleil la réchauffe.",
       "game": "seed-to-flower"
     }
   ]

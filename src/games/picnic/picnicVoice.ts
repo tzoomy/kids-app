@@ -35,13 +35,31 @@ const NUMBER_FR: readonly string[] = [
 const MAX_SPOKEN = 20;
 
 /**
- * Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`). Stretch counts start at 5,
- * so the standalone/construct difference of 2 never arises here (after `ועוד` / `הוציאי` no noun follows).
+ * Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`).
+ * The count standing directly before `פריטים` uses `hebrewNumberBeforeNoun` (`שני` when a === 2);
+ * after `ועוד` / `הוציאי` the standalone form stays (`hebrewNumber`).
  */
 export function equationAskText(op: 'add' | 'sub', a: number, b: number): string {
   return op === 'add'
-    ? `ארזי ${hebrewNumber(a)} פריטים ועוד ${hebrewNumber(b)}, ואז לחצי על הדגל!`
-    : `ארזי ${hebrewNumber(a)} פריטים, הוציאי ${hebrewNumber(b)}, ואז לחצי על הדגל!`;
+    ? `ארזי ${hebrewNumberBeforeNoun(a)} פריטים ועוד ${hebrewNumber(b)}, ואז לחצי על הדגל!`
+    : `ארזי ${hebrewNumberBeforeNoun(a)} פריטים, הוציאי ${hebrewNumber(b)}, ואז לחצי על הדגל!`;
+}
+
+/**
+ * Age-5 task asks in English and French (Wave 2 French-first). Numbers are spoken words; 1 is `one` / `un`, and the noun
+ * agrees (`item` / `objet`) when a count is exactly 1. French `objet` is masculine, hence `un`.
+ */
+export function equationAskTextLang(op: 'add' | 'sub', a: number, b: number, lang: 'en' | 'fr'): string {
+  const word = (n: number) => (lang === 'en' ? NUMBER_EN[n] : NUMBER_FR[n]);
+  const noun = lang === 'en' ? (a === 1 ? 'item' : 'items') : a === 1 ? 'objet' : 'objets';
+  if (lang === 'en') {
+    return op === 'add'
+      ? `Pack ${word(a)} ${noun} and ${word(b)} more, then tap the flag!`
+      : `Pack ${word(a)} ${noun}, take out ${word(b)}, then tap the flag!`;
+  }
+  return op === 'add'
+    ? `Emporte ${word(a)} ${noun} et encore ${word(b)}, puis appuie sur le drapeau !`
+    : `Emporte ${word(a)} ${noun}, enlève ${word(b)}, puis appuie sur le drapeau !`;
 }
 
 function buildLineText(): Record<string, string> {
@@ -57,6 +75,15 @@ function buildLineText(): Record<string, string> {
   for (let n = 2; n <= 10; n++) {
     text[`picnic.ask.load.${n}.he`] = `ארזי ${hebrewNumberBeforeNoun(n)} פריטים לפיקניק, ואז לחצי על הדגל!`;
   }
+  // Age-5 French-first / English-first task asks (Hebrew above stays for age 2).
+  text['picnic.ask.one-each.en'] = "Let's feed the friends on the train! Give each friend one picnic item.";
+  text['picnic.ask.one-each.fr'] = 'Allons nourrir les copains dans le train ! Donne un objet de pique-nique à chaque copain.';
+  text['picnic.ask.missing.en'] = 'Some friends already have an item. How many items are still missing?';
+  text['picnic.ask.missing.fr'] = "Certains copains ont déjà un objet. Combien d'objets manquent encore ?";
+  for (let n = 2; n <= 10; n++) {
+    text[`picnic.ask.load.${n}.en`] = `Pack ${NUMBER_EN[n]} picnic items, then tap the flag!`;
+    text[`picnic.ask.load.${n}.fr`] = `Emporte ${NUMBER_FR[n]} objets pour le pique-nique, puis appuie sur le drapeau !`;
+  }
   for (let n = 1; n <= MAX_SPOKEN; n++) {
     text[`picnic.number.${n}.en`] = NUMBER_EN[n];
     text[`picnic.number.${n}.fr`] = NUMBER_FR[n];
@@ -68,6 +95,7 @@ function buildLineText(): Record<string, string> {
     for (const id of equationCandidates(range)) {
       const eq = parseEquationId(id)!;
       text[equationAskId(eq)] = equationAskText(eq.op, eq.a, eq.b);
+      for (const lang of ['en', 'fr'] as const) text[equationAskId(eq, lang)] = equationAskTextLang(eq.op, eq.a, eq.b, lang);
     }
   }
   return text;
