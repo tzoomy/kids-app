@@ -3,6 +3,14 @@ import crypto from 'node:crypto';
 import { loadAnimalRestaurant, loadKitchenOrchestra, loadWorlds } from '../../src/content/loadContent';
 import kitchenOrchestraJson from '../../src/content/games/kitchen-orchestra.json';
 
+describe('Kitchen Orchestra Hebrew help text', () => {
+  it('[AC-10] orchestra.help.he spells the feminine imperative "tap" as הקישי (not הקשי)', () => {
+    expect(loadKitchenOrchestra().helpTextHe).toBe(
+      'השף מנגן דוגמה. הקשיבי, ואז הקישי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.',
+    );
+  });
+});
+
 describe('Kitchen Orchestra moves to Language House', () => {
   it('declares language-house as its world, next to Animal Restaurant', () => {
     expect(loadKitchenOrchestra().world).toBe('language-house');

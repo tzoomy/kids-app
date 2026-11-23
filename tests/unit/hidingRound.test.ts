@@ -131,6 +131,23 @@ describe('prompt text per language and support mode', () => {
     expect(hintFor(content, cat, 'en', lvl(2))).toBe(promptFor(content, cat, 'en', lvl(2)));
   });
 
+  it('[AC-10] L7 (long sound) and L8 (short sound) audio-only hints get distinct line ids and texts', () => {
+    for (const animal of content.animals) {
+      for (const lang of ['en', 'fr'] as const) {
+        const long = buildHidingRound(content, levels[6], lang, animal.id, seeded(1));
+        const short = buildHidingRound(content, levels[7], lang, animal.id, seeded(1));
+        expect(long.hintLineId).toBe(`hiding.${animal.id}.hint.clue.${lang}`);
+        expect(short.hintLineId).toBe(`hiding.${animal.id}.hint.clue-short.${lang}`);
+        expect(short.hintLineId).not.toBe(long.hintLineId);
+        expect(short.hintText).not.toBe(long.hintText);
+        expect(long.hintText).toBe(`${animal.sound[lang]} ${animal.clue[lang]}`);
+        expect(short.hintText).toBe(`${animal.soundShort[lang]} ${animal.clue[lang]}`);
+      }
+    }
+    // Visual levels keep their per-speak-mode ids.
+    expect(buildHidingRound(content, levels[0], 'en', 'cat', seeded(1)).hintLineId).toBe('hiding.cat.hint.name-sound.en');
+  });
+
   it('[AC-09] every animal composes a non-empty prompt in every language at every level', () => {
     for (const d of levels)
       for (const a of content.animals)

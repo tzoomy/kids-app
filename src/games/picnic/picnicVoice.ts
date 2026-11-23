@@ -6,7 +6,7 @@ import { equationAskId, equationCandidates, levelLevers, parseEquationId } from 
 
 /**
  * Masculine Hebrew number words 1..20 (the counted noun is `פריטים`, masculine). Index = number. 2 is the standalone
- * form (`שניים`); the stretch lines only put 5 and up before the noun, so the construct form `שני` is never needed.
+ * form (`שניים`); use `hebrewNumberBeforeNoun` where the number stands directly before `פריטים`.
  */
 const HEBREW_NUMBERS: readonly string[] = [
   '', 'אחד', 'שניים', 'שלושה', 'ארבעה', 'חמישה', 'שישה', 'שבעה', 'שמונה', 'תשעה', 'עשרה',
@@ -15,6 +15,11 @@ const HEBREW_NUMBERS: readonly string[] = [
 
 export function hebrewNumber(n: number): string {
   return HEBREW_NUMBERS[n] ?? String(n);
+}
+
+/** Number word standing directly before `פריטים` (construct state): 2 is `שני`; every other count is unchanged. */
+export function hebrewNumberBeforeNoun(n: number): string {
+  return n === 2 ? 'שני' : hebrewNumber(n);
 }
 
 const NUMBER_EN: readonly string[] = [
@@ -29,7 +34,10 @@ const NUMBER_FR: readonly string[] = [
 /** Largest count spoken aloud: the stretch shelf holds up to 20. */
 const MAX_SPOKEN = 20;
 
-/** Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`). */
+/**
+ * Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`). Stretch counts start at 5,
+ * so the standalone/construct difference of 2 never arises here (after `ועוד` / `הוציאי` no noun follows).
+ */
 export function equationAskText(op: 'add' | 'sub', a: number, b: number): string {
   return op === 'add'
     ? `ארזי ${hebrewNumber(a)} פריטים ועוד ${hebrewNumber(b)}, ואז לחצי על הדגל!`
@@ -47,7 +55,7 @@ function buildLineText(): Record<string, string> {
     'picnic.help.he': 'תני לכל חבר ברכבת את מה שחסר לו, וסופרים ביחד.',
   };
   for (let n = 2; n <= 10; n++) {
-    text[`picnic.ask.load.${n}.he`] = `ארזי ${hebrewNumber(n)} פריטים לפיקניק, ואז לחצי על הדגל!`;
+    text[`picnic.ask.load.${n}.he`] = `ארזי ${hebrewNumberBeforeNoun(n)} פריטים לפיקניק, ואז לחצי על הדגל!`;
   }
   for (let n = 1; n <= MAX_SPOKEN; n++) {
     text[`picnic.number.${n}.en`] = NUMBER_EN[n];

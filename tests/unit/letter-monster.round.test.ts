@@ -132,6 +132,9 @@ describe('Letter Monster: levels, adaptive trials, voice lines and content', () 
       hintWiggle: false,
     });
 
+    // The standalone Hebrew clip is a complete sentence: one shared id, no letter embedded, no trailing "ב...".
+    expect(content.linesHe.askLetter).toBe('המפלצת רוצה משהו שמתחיל באות הזו.');
+    expect(content.linesHe.askLetter).not.toContain('...');
     expect(askLetterLine(content)).toEqual({
       lineId: 'monster.askLetter.he',
       lang: 'he',

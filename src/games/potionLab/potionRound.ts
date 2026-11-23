@@ -93,7 +93,7 @@ export function requestLine(content: PotionLabContent, color: SecondaryColor): S
 /** Gentle Hebrew retry line when a request-mode mix produced another color. */
 export function tryAgainLine(content: PotionLabContent, target: SecondaryColor): SpeechRequest {
   return {
-    lineId: 'potion.tryAgain.he',
+    lineId: `potion.tryAgain.${target}.he`,
     lang: 'he',
     text: content.linesHe.tryAgainFrame.replace('{color}', content.colors[target].he),
   };

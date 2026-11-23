@@ -110,7 +110,7 @@ Profile → Language House building → picker → `game-picker-letter-monster` 
 | `monster.intro.he` | he | המפלצת רעבה! בואי נאכיל אותה. | First request of a visit |
 | `monster.askColor.<color>.he` | he | המפלצת רוצה משהו <color he>. | Color request |
 | `monster.color.<color>.<lang>` | en / fr | e.g. Red! / Rouge ! | After the Hebrew color request |
-| `monster.askLetter.he` | he | המפלצת רוצה משהו שמתחיל ב... | Letter request |
+| `monster.askLetter.he` | he | המפלצת רוצה משהו שמתחיל באות הזו. | Letter request |
 | `monster.letter.<L>.<lang>` | en / fr | e.g. B... like banana! / B... comme banane ! | After the Hebrew letter request |
 | `monster.askEnding.he` | he | המפלצת רוצה משהו שמסתיים ב... | Ending request |
 | `monster.ending.<L>.<lang>` | en / fr | e.g. T... at the end of carrot! / T... à la fin de biscuit ! | After the Hebrew ending request |
@@ -142,3 +142,4 @@ Only after Maor approves Pass 1: a decision on the monster (keep, replace with a
 
 - `2026-11-23` — Elli ceilings (approved by Maor via the team lead): L5–L8 appended (initial letter ×4, ending letter ×4, ending letter ×6 audio-only, short-word reading ×6), `tracks.age5.max` 4 → 8 (start 3, min 2 kept), `tracks.age2` pinned `{1,1,2}` (unchanged). Content: `foods[].ending`, `linesHe.askEnding` / `askWord`, `endingFrames`; `extra.request` also `ending` | `word`; `extra.choices` 2–6. The sign shows "…T" for endings and a wider board with the written word for reading; foods lay out in one row (≤4) or two rows (5–6). `getLetterMonsterInfo().request` can be `{ kind: 'ending', letter }` or `{ kind: 'word', foodId, word }`. New ACs AC-10 to AC-16. No new hooks. — substantive
 - `2026-11-14` — created (draft, Pass 1 built under continuous-development mode) — substantive
+- `2026-11-24` — voice-text hygiene: `monster.askLetter.he` is now a complete sentence, `המפלצת רוצה משהו שמתחיל באות הזו.` (was a trailing `ב...`); the letter model line follows as before — minor

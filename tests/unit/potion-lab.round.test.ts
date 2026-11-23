@@ -145,7 +145,8 @@ describe('Potion Lab: levels, adaptive trials, voice lines and content', () => {
       expect(req.text).toContain(content.colors[target].he);
 
       const retry = tryAgainLine(content, target);
-      expect(retry.lineId).toBe('potion.tryAgain.he');
+      expect(retry.lineId).toBe(`potion.tryAgain.${target}.he`);
+      expect(retry.text).toBe(`איזה יופי! ועכשיו ננסה להכין ${content.colors[target].he}.`);
       expect(retry.lang).toBe('he');
       expect(retry.text).toContain(content.colors[target].he);
     }
