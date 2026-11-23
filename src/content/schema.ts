@@ -300,6 +300,8 @@ export type SortingBedsContent = z.infer<typeof SortingBedsContentSchema>;
 export const PICNIC_TASKS = ['one-each', 'load', 'missing'] as const;
 export type PicnicTask = (typeof PICNIC_TASKS)[number];
 export const PICNIC_LAYOUTS = ['rows', 'scattered'] as const;
+/** Cargo shelf size on the age-5 stretch load levels (sums and take-aways up to 20); the other levels keep 10. */
+export const PICNIC_STRETCH_CAPACITY = 20;
 export type PicnicLayout = (typeof PICNIC_LAYOUTS)[number];
 
 /**
@@ -337,6 +339,22 @@ export const PicnicTrainContentSchema = z
         issue(`picnic train ${String(task)} levels require request ${String(expectedRequest)}`);
       }
       if (level.support !== undefined || level.choiceCount !== undefined) issue('picnic train levels use only setSize, request, scaffold and extra');
+      // Age-5 stretch (L9-L10): a load level may ask "a and b more" / "a, take b out" (`extra.op` add | sub | mix).
+      const op = level.extra?.op;
+      if (op !== undefined) {
+        if (task !== 'load') issue('extra.op is only for load levels');
+        if (op !== 'add' && op !== 'sub' && op !== 'mix') issue('extra.op must be add, sub or mix');
+        const { aMin, aMax, bMin, bMax } = level.extra ?? {};
+        const ints = [aMin, aMax, bMin, bMax];
+        if (ints.some((v) => typeof v !== 'number' || !Number.isInteger(v))) {
+          issue('op levels require integer extra.aMin, extra.aMax, extra.bMin, extra.bMax');
+        } else {
+          const [a0, a1, b0, b1] = ints as number[];
+          if (a0 < 2 || a0 > a1 || b0 < 2 || b0 > b1) issue('op levels require 2 <= aMin <= aMax and 2 <= bMin <= bMax');
+          if ((op === 'add' || op === 'mix') && a1 + b1 > PICNIC_STRETCH_CAPACITY) issue(`a + b must stay within ${PICNIC_STRETCH_CAPACITY}`);
+          if ((op === 'sub' || op === 'mix') && (a0 - b1 < 1 || a1 > PICNIC_STRETCH_CAPACITY)) issue('a - b must stay at least 1, a within the shelf');
+        }
+      }
     });
   });
 
@@ -1097,10 +1115,14 @@ export type LetterMonsterContent = z.infer<typeof LetterMonsterContentSchema>;
 
 // ---------------------------------------------------------------------------
 // Balloon Pop (Number Garden, docs/specs/balloon-pop.md). Choice family: the child pops one of
-// several balloons. Per-level extras: `mode` (color | digit), and `digitMin`/`digitMax` on digit levels.
+// several balloons. Per-level extras: `mode` (color | digit | more | sum), `digitMin`/`digitMax` on digit levels
+// (0-20; numbers 10-20 use the `number` request frame), `baseMin`/`baseMax`/`stepMax` on "k more than n" levels
+// and `addendMax` on sum levels (age-5 stretch L10-L11).
 // ---------------------------------------------------------------------------
 
-export const BALLOON_MODES = ['color', 'digit'] as const;
+export const BALLOON_MODES = ['color', 'digit', 'more', 'sum'] as const;
+/** Largest numeral a balloon can show (teens and the stretch answers stay within 20). */
+export const BALLOON_NUMBER_MAX = 20;
 export type BalloonMode = (typeof BALLOON_MODES)[number];
 
 export const BalloonColorSchema = z.object({
@@ -1112,11 +1134,11 @@ export const BalloonColorSchema = z.object({
 });
 
 export const BalloonDigitSchema = z.object({
-  value: z.number().int().min(0).max(9),
+  value: z.number().int().min(0).max(20),
   /** Number word spoken in the request ("three", "trois"). */
   name: LangPairSchema,
-  /** Look- or sound-alike digits, preferred as `near` distractors. */
-  near: z.array(z.number().int().min(0).max(9)).default([]),
+  /** Look- or sound-alike numbers, preferred as `near` distractors. */
+  near: z.array(z.number().int().min(0).max(20)).default([]),
 });
 
 export const BalloonPopContentSchema = z
@@ -1128,8 +1150,17 @@ export const BalloonPopContentSchema = z
     languages: z.array(z.enum(['en', 'fr'])).min(1),
     earnsLeisure: z.boolean(),
     ageTracks: z.object({ age2: AgeTrackConfigSchema, age5: AgeTrackConfigSchema }),
-    /** Request frames per mode; `{name}` is replaced by the colour or number word. */
-    promptFrames: z.object({ color: LangPairSchema, digit: LangPairSchema }),
+    /**
+     * Request frames: `color` / `digit` (0-9) / `number` (10-20) replace `{name}` with the colour or number word;
+     * `more` replaces `{k}` and `{n}` ("two more than five"); `sum` replaces `{a}` and `{b}` ("three plus four").
+     */
+    promptFrames: z.object({
+      color: LangPairSchema,
+      digit: LangPairSchema,
+      number: LangPairSchema,
+      more: LangPairSchema,
+      sum: LangPairSchema,
+    }),
     /** Short line spoken when the right balloon pops. */
     popped: z.object({ en: z.array(z.string().min(1)).min(1), fr: z.array(z.string().min(1)).min(1) }),
     /** Hebrew intro (first trial of a visit) and help texts, spoken by device TTS in Pass 1. */
@@ -1146,16 +1177,21 @@ export const BalloonPopContentSchema = z
         swayPx: z.number().min(0).max(60),
         hitScale: z.number().min(1.5),
         minHitCssPx: z.number().min(64),
+        /** Levels above this one float no faster than it (the age-5 maths levels keep the L8 speed). Absent = no cap. */
+        speedMaxLevel: z.number().int().min(1).optional(),
       })
       .refine((f) => f.speed.age2 <= f.speed.age5, { message: 'age 2 must float no faster than age 5' })
       .optional(),
     adaptive: GameAdaptiveSchema,
   })
   .superRefine((value, ctx) => {
-    for (const mode of BALLOON_MODES) {
+    const FRAME_SLOTS = { color: ['{name}'], digit: ['{name}'], number: ['{name}'], more: ['{k}', '{n}'], sum: ['{a}', '{b}'] } as const;
+    for (const frame of Object.keys(FRAME_SLOTS) as (keyof typeof FRAME_SLOTS)[]) {
       for (const lang of ['en', 'fr'] as const) {
-        if (!value.promptFrames[mode][lang].includes('{name}')) {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', mode, lang], message: 'frame needs {name}' });
+        for (const slot of FRAME_SLOTS[frame]) {
+          if (!value.promptFrames[frame][lang].includes(slot)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['promptFrames', frame, lang], message: `frame needs ${slot}` });
+          }
         }
       }
     }
@@ -1190,6 +1226,29 @@ export const BalloonPopContentSchema = z
         if (count > value.colors.length) issue('choiceCount exceeds the number of colours');
         return;
       }
+      const hasDigits = (...ns: number[]) => ns.every((n) => digitValues.has(n));
+      if (mode === 'more') {
+        const { baseMin, baseMax, stepMax } = level.extra ?? {};
+        if (
+          typeof baseMin !== 'number' || typeof baseMax !== 'number' || typeof stepMax !== 'number' ||
+          !Number.isInteger(baseMin) || !Number.isInteger(baseMax) || !Number.isInteger(stepMax) ||
+          baseMin < 1 || baseMin > baseMax || stepMax < 1 || stepMax > 2 || baseMax + stepMax > BALLOON_NUMBER_MAX
+        ) {
+          issue(`"more" levels require integers 1 <= extra.baseMin <= extra.baseMax, extra.stepMax 1..2, baseMax + stepMax <= ${BALLOON_NUMBER_MAX}`);
+          return;
+        }
+        for (let n = baseMin; n <= baseMax; n++) if (!hasDigits(n, n + stepMax)) issue(`"more" level needs digit entries for ${n}..${n + stepMax}`);
+        return;
+      }
+      if (mode === 'sum') {
+        const addendMax = level.extra?.addendMax;
+        if (typeof addendMax !== 'number' || !Number.isInteger(addendMax) || addendMax < 1 || addendMax * 2 > BALLOON_NUMBER_MAX) {
+          issue(`sum levels require an integer extra.addendMax with 2 * addendMax <= ${BALLOON_NUMBER_MAX}`);
+          return;
+        }
+        for (let n = 1; n <= addendMax * 2; n++) if (!hasDigits(n)) issue(`sum level needs a digit entry for ${n}`);
+        return;
+      }
       const min = level.extra?.digitMin;
       const max = level.extra?.digitMax;
       if (typeof min !== 'number' || typeof max !== 'number' || min > max) {
@@ -1205,7 +1264,14 @@ export type BalloonColor = z.infer<typeof BalloonColorSchema>;
 export type BalloonDigit = z.infer<typeof BalloonDigitSchema>;
 export type BalloonPopContent = z.infer<typeof BalloonPopContentSchema>;
 
-export const BRIDGE_NUMBER_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+/** Number words 1-20: 1-10 for the counting levels, 11-20 for the age-5 equation levels (L6-L8). */
+export const BRIDGE_NUMBER_KEYS = [
+  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+  '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+] as const;
+/** Equation operators of the age-5 stretch levels (`extra.op`): `mix` picks add or sub per bridge. */
+export const BRIDGE_EQUATION_OPS = ['add', 'sub', 'mix'] as const;
+export type BridgeEquationOp = (typeof BRIDGE_EQUATION_OPS)[number];
 export type BridgeNumberKey = (typeof BRIDGE_NUMBER_KEYS)[number];
 
 export const BridgeNumberEntrySchema = z.object({
@@ -1233,6 +1299,22 @@ export const NumberBridgeContentSchema = z
       '8': BridgeNumberEntrySchema,
       '9': BridgeNumberEntrySchema,
       '10': BridgeNumberEntrySchema,
+      '11': BridgeNumberEntrySchema,
+      '12': BridgeNumberEntrySchema,
+      '13': BridgeNumberEntrySchema,
+      '14': BridgeNumberEntrySchema,
+      '15': BridgeNumberEntrySchema,
+      '16': BridgeNumberEntrySchema,
+      '17': BridgeNumberEntrySchema,
+      '18': BridgeNumberEntrySchema,
+      '19': BridgeNumberEntrySchema,
+      '20': BridgeNumberEntrySchema,
+    }),
+    /** Operator words spoken between the number words of an equation bridge ("three" "plus" "four" "equals"). */
+    operatorWords: z.object({
+      plus: z.object({ en: nonBlankString, fr: nonBlankString }),
+      minus: z.object({ en: nonBlankString, fr: nonBlankString }),
+      equals: z.object({ en: nonBlankString, fr: nonBlankString }),
     }),
     oneMorePhrase: z.object({
       en: nonBlankString,
@@ -1243,6 +1325,10 @@ export const NumberBridgeContentSchema = z
       introMissing: nonBlankString,
       notThis: nonBlankString,
       crossed: nonBlankString,
+      /** Equation levels: intro when an addition / subtraction / mixed level starts. */
+      introAdd: nonBlankString,
+      introSub: nonBlankString,
+      introMix: nonBlankString,
     }),
     helpTextHe: nonBlankString,
     adaptive: GameAdaptiveSchema,
@@ -1252,8 +1338,8 @@ export const NumberBridgeContentSchema = z
       const issue = (message: string) =>
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['adaptive', 'levels', i], message });
       const mode = level.extra?.mode;
-      if (mode !== 'one-more' && mode !== 'missing') {
-        issue('extra.mode must be "one-more" or "missing"');
+      if (mode !== 'one-more' && mode !== 'missing' && mode !== 'equation') {
+        issue('extra.mode must be "one-more", "missing" or "equation"');
       }
       const stones = level.extra?.stones;
       if (typeof stones !== 'number' || !Number.isInteger(stones) || stones < 2 || stones > 10) {
@@ -1264,13 +1350,14 @@ export const NumberBridgeContentSchema = z
         issue('extra.gaps must be a positive integer smaller than extra.stones');
       }
       const range = level.extra?.range;
+      const maxRange = mode === 'equation' ? 20 : 10;
       if (
         typeof range !== 'number' ||
         !Number.isInteger(range) ||
-        range > 10 ||
+        range > maxRange ||
         (typeof stones === 'number' && range < stones)
       ) {
-        issue('extra.range must be an integer between extra.stones and 10');
+        issue(`extra.range must be an integer between extra.stones and ${maxRange}`);
       }
       const dots = level.extra?.dots;
       if (dots !== undefined && typeof dots !== 'boolean') {
@@ -1285,8 +1372,19 @@ export const NumberBridgeContentSchema = z
       if (mode === 'missing' && typeof range === 'number' && range < 5) {
         issue('missing-number levels require extra.range >= 5 so 3 distinct choices exist');
       }
-      if (level.support === 'audio-only' && mode !== 'missing') {
-        issue('audio-only number-bridge levels must use extra.mode "missing"');
+      if (level.support === 'audio-only' && mode !== 'missing' && mode !== 'equation') {
+        issue('audio-only number-bridge levels must use extra.mode "missing" or "equation"');
+      }
+      if (mode === 'equation') {
+        const op = level.extra?.op;
+        if (typeof op !== 'string' || !(BRIDGE_EQUATION_OPS as readonly string[]).includes(op)) {
+          issue(`equation levels require extra.op of ${BRIDGE_EQUATION_OPS.join(', ')}`);
+        }
+        if (stones !== 3 || gaps !== 1) issue('equation levels are "a op b = ?": extra.stones 3 and extra.gaps 1');
+        if (typeof range === 'number' && range < 10) issue('equation levels require extra.range 10..20');
+        if (dots === true) issue('equation levels do not draw dots');
+      } else if (level.extra?.op !== undefined) {
+        issue('extra.op is only for equation levels');
       }
     });
   });

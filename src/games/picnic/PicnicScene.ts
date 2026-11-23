@@ -40,9 +40,10 @@ import {
   askLine,
   buildTrain,
   isLocked,
+  MAX_LOAD,
   levelLevers,
   numberLine,
-  trainSizeCandidates,
+  roundCandidates,
   type LineRequest,
   type TrainPassenger,
   type TrainPlan,
@@ -203,6 +204,8 @@ export class PicnicScene extends Phaser.Scene {
       scaffold: plan.scaffoldKind,
       ghostItems: plan.scaffold.ghostItems,
       tally: plan.scaffold.tally,
+      equation: plan.equation ? { ...plan.equation } : null,
+      capacity: plan.capacity ?? MAX_LOAD,
       passengers: plan.passengers.map((p) => {
         const seat = this.layout.seats[p.seat];
         return {
@@ -349,7 +352,8 @@ export class PicnicScene extends Phaser.Scene {
     this.roundLevel = this.skills.level(this.roundLang);
     const levers = levelLevers(this.content.adaptive.levels[this.roundLevel - 1]);
     // The engine chooses the train size among the level's candidates (a known size right after a level drop).
-    const sizeId = this.skills.selectNextItem(this.roundLang, trainSizeCandidates(levers.setSize));
+    // Stretch levels (L9-L10): the engine picks the request (`add-a-b` / `sub-a-b`) instead of the train size.
+    const sizeId = this.skills.selectNextItem(this.roundLang, roundCandidates(levers));
     this.plan = buildTrain({ levers, sizeId, random: Math.random });
     this.round = new TrainRound(this.plan);
     this.tracker = new PicnicTrialTracker(sizeId, this.roundLang);
@@ -435,7 +439,7 @@ export class PicnicScene extends Phaser.Scene {
     const round = this.round!;
     const { width, height } = this.scale;
     const first = plan.passengers.find((p) => p.id === round.nextFreeId) ?? plan.passengers[0];
-    this.layout = computePicnicLayout(width, height, { seatCount: plan.seatCount, focusSeat: first.seat });
+    this.layout = computePicnicLayout(width, height, { seatCount: plan.seatCount, focusSeat: first.seat, shelfCapacity: plan.capacity });
     const layout = this.layout;
 
     // The train: pieces, empty seats, passengers, items.
@@ -822,6 +826,7 @@ export class PicnicScene extends Phaser.Scene {
     this.layout = computePicnicLayout(this.scale.width, this.scale.height, {
       seatCount: plan.seatCount,
       focusSeat,
+      shelfCapacity: plan.capacity,
       currentOffsetX: root.scaleX === 1 ? this.layout.offsetX : undefined,
     });
     const t = this.focusTransform();

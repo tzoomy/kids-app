@@ -220,3 +220,55 @@ test.describe('number bridge', () => {
     }
   });
 });
+
+test.describe('number bridge: age-5 stretch (equation bridges L6-L8)', () => {
+  test('[AC-12] @single-orientation L7 subtraction: the question is spoken clip by clip, a wrong stone keeps the gap, the right stone earns a star', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    const info = await enterNumberBridge(page, 'profile-b', 7);
+    const spokenStart = 0; // a fresh page load: every line since the app started
+    expect(info.level).toBe(7);
+    expect(info.mode).toBe('equation');
+    expect(info.op).toBe('sub');
+    const [a, b, c] = info.sequence;
+    expect(a - b).toBe(c);
+    expect(info.gaps).toEqual([2]);
+    expect(info.answer).toBe(c);
+    expect(info.choices).toHaveLength(3);
+    const lang = info.language;
+    await expect
+      .poll(async () => {
+        const ids = (await getSpokenLines(page, spokenStart)).map((l) => l.lineId);
+        return ['bridge.intro.sub.he', `bridge.number.${a}.${lang}`, `bridge.op.minus.${lang}`, `bridge.number.${b}.${lang}`, `bridge.op.equals.${lang}`].every((id) => ids.includes(id));
+      }, { timeout: 15_000 })
+      .toBe(true);
+
+    const starsBefore = await readStarCount(page);
+    const spokenBefore = (await getSpokenLines(page)).length;
+    const wrong = info.choices.find((n) => n !== info.answer)!;
+    await tapRect(page, info.choiceRects[String(wrong)]);
+    const afterMiss = await waitForBridge(page, (i) => i.ready && i.tries === 1 && i.lastEvent === 'not-this-one', 'wrong stone did not recover', 15_000);
+    expect(afterMiss.gaps).toEqual([2]);
+    expect(await readStarCount(page)).toBe(starsBefore);
+    await expect
+      .poll(async () => (await getSpokenLines(page, spokenBefore)).some((l) => l.lineId === 'bridge.notThis.he'), { timeout: 10_000 })
+      .toBe(true);
+
+    await tapRect(page, afterMiss.choiceRects[String(info.answer!)]);
+    await expect.poll(() => readStarCount(page), { timeout: 20_000 }).toBe(starsBefore + 1);
+  });
+
+  test('[AC-14] L8 equation stones (numbers up to 20) and the gap meet the 64 CSS px floor inside the viewport in both orientations', async ({ page }) => {
+    test.setTimeout(60_000);
+    const vp = page.viewportSize()!;
+    const info = await enterNumberBridge(page, 'profile-b', 8);
+    expect(info.level).toBe(8);
+    expect(info.mode).toBe('equation');
+    expect(['add', 'sub']).toContain(info.op);
+    for (const n of info.sequence) expect(n).toBeLessThanOrEqual(20);
+    expect(info.op === 'add' ? info.answer! >= 11 : info.sequence[0] >= 11).toBe(true);
+    const choiceRects = Object.values(info.choiceRects);
+    expect(choiceRects).toHaveLength(3);
+    for (const rect of [...choiceRects, ...info.gapRects]) expectInsideMinTap(rect, vp);
+  });
+});

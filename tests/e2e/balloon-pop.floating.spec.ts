@@ -86,3 +86,63 @@ test.describe('balloon pop: floating stage with reduced motion', () => {
     expect(later.balloons.map((b) => b.hit.y)).toEqual(y0);
   });
 });
+
+/**
+ * Age-5 floating trials have 4-6 balloons whose 64 px+ pads can overlap. Waits until the target is in the middle
+ * of the sky, then taps a point of its pad that no other pad covers (a real tap on the target only).
+ */
+async function tapMovingTargetClear(page: Page, itemId: string): Promise<BalloonInfo> {
+  const viewportH = page.viewportSize()?.height ?? 1280;
+  const inside = (r: { x: number; y: number; width: number; height: number }, x: number, y: number) =>
+    x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height;
+  const clearPoint = async () => {
+    const info = await getBalloonInfo(page);
+    const b = info?.balloons.find((x) => x.itemId === itemId);
+    if (!info || !b) return null;
+    const cy = b.hit.y + b.hit.height / 2;
+    if (cy < viewportH * 0.3 || cy > viewportH * 0.7) return null;
+    const others = info.balloons.filter((x) => x.itemId !== itemId);
+    for (const fy of [0.5, 0.35, 0.65, 0.25, 0.75]) {
+      for (const fx of [0.5, 0.3, 0.7, 0.2, 0.8]) {
+        const x = b.hit.x + b.hit.width * fx;
+        const y = b.hit.y + b.hit.height * fy;
+        if (!others.some((o) => inside(o.hit, x, y))) return { info, x, y };
+      }
+    }
+    return null;
+  };
+  await expect.poll(async () => Boolean(await clearPoint()), { timeout: 40_000, intervals: [50] }).toBe(true);
+  const found = await clearPoint();
+  if (!found) throw new Error(`balloon "${itemId}" had no clear point before the tap`);
+  await page.mouse.click(found.x, found.y);
+  return found.info;
+}
+
+test.describe('balloon pop: floating stage on the age-5 stretch', () => {
+  test('[AC-25] @single-orientation portrait: an L11 sum trial floats at the L8 speed, keeps 64 px pads, and the moving answer pops', async ({ page }, testInfo) => {
+    portraitOnly(testInfo);
+    test.setTimeout(120_000);
+    await enterWorldByTap(page, 'profile-b', 'number-garden', 'balloon-pop', {
+      beforeEnter: () => page.evaluate(() => (window as unknown as { __testHooks__: { seedBalloonLevel: (l: number) => void } }).__testHooks__.seedBalloonLevel(11)),
+    });
+    for (let i = 0; i < 2; i++) {
+      const info = await popCorrectBalloon(page);
+      expect(info.floating).toBe(false);
+      expect(info.mode).toBe('sum');
+    }
+    const third = await waitForBalloonReady(page);
+    expect(third.level).toBe(11);
+    expect(third.mode).toBe('sum');
+    expect(third.floating).toBe(true);
+    expect(third.balloons).toHaveLength(4);
+    for (const b of third.balloons) {
+      expect(b.hit.width).toBeGreaterThanOrEqual(64);
+      expect(b.hit.height).toBeGreaterThanOrEqual(64);
+    }
+    const stars = await readStarCount(page);
+    await tapMovingTargetClear(page, third.targetItemId);
+    await expect.poll(() => readStarCount(page), { timeout: 8_000 }).toBe(stars + 1);
+    const next = await waitForBalloonReady(page, 15_000);
+    expect(next.floating).toBe(false);
+  });
+});

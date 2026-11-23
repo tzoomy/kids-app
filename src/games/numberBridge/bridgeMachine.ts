@@ -4,7 +4,14 @@
 export type BridgePhase = 'building' | 'crossing';
 export const BRIDGE_PHASES: readonly BridgePhase[] = ['building', 'crossing'] as const;
 
-export type BridgeMode = 'one-more' | 'missing';
+export type BridgeMode = 'one-more' | 'missing' | 'equation';
+/** Operator of one equation bridge ("a + b = ?" or "a - b = ?"). */
+export type EquationOp = 'add' | 'sub';
+/** Operator lever of an equation level: `mix` picks `add` or `sub` per bridge. */
+export type EquationOpLever = EquationOp | 'mix';
+
+/** Largest number on an equation bridge (age-5 stretch levels, number words 1-20). */
+export const EQUATION_MAX = 20;
 
 export interface BridgeSpec {
   readonly mode: BridgeMode;
@@ -12,6 +19,8 @@ export interface BridgeSpec {
   readonly gaps: readonly number[];
   readonly answer: number | null;
   readonly choices: readonly number[];
+  /** Equation bridges only (`sequence` = [a, b, a op b], gap on the result); null otherwise. */
+  readonly op?: EquationOp | null;
 }
 
 export interface BridgeState {
@@ -23,6 +32,8 @@ export interface BridgeState {
   readonly answer: number | null;
   readonly choices: readonly number[];
   readonly tries: number;
+  /** Equation bridges only; null on one-more and missing-number bridges. */
+  readonly op: EquationOp | null;
 }
 
 export type BridgeEvent =
@@ -37,6 +48,8 @@ export interface BridgePlanInput {
   readonly stones: number;
   readonly gaps: number;
   readonly range: number;
+  /** Equation levels only (default `add`). */
+  readonly op?: EquationOpLever | null;
 }
 
 export interface PreviousBridge {
@@ -81,6 +94,21 @@ function validateSpec(spec: BridgeSpec): void {
     }
     seen.add(idx);
   }
+  if (spec.mode === 'equation') {
+    const [a, b, result] = spec.sequence;
+    if (spec.sequence.length !== 3 || spec.gaps.length !== 1 || spec.gaps[0] !== 2) {
+      throw new Error('equation bridge is [a, b, result] with the gap on the result');
+    }
+    if (spec.op !== 'add' && spec.op !== 'sub') throw new Error('equation bridge needs op add or sub');
+    if ((spec.op === 'add' ? a + b : a - b) !== result) throw new Error(`equation ${a} ${spec.op} ${b} != ${result}`);
+    if (spec.sequence.some((n) => !Number.isInteger(n) || n < 1 || n > EQUATION_MAX)) {
+      throw new Error(`equation numbers must be 1..${EQUATION_MAX}`);
+    }
+    if (spec.answer !== result || spec.choices.length !== 3 || !spec.choices.includes(result) || new Set(spec.choices).size !== 3) {
+      throw new Error('equation bridge must have 3 distinct choices including the result');
+    }
+    return;
+  }
   if (spec.mode === 'one-more') {
     if (spec.answer !== null || spec.choices.length !== 0) {
       throw new Error('one-more bridge must have null answer and empty choices');
@@ -122,6 +150,10 @@ export function buildBridge(
     const sequence = Array.from({ length: stones }, (_, i) => i + 1);
     const gaps = Array.from({ length: gapCount }, (_, i) => stones - gapCount + i);
     return { mode: 'one-more', sequence, gaps, answer: null, choices: [] };
+  }
+
+  if (plan.mode === 'equation') {
+    return buildEquationBridge(plan, previous ?? null, rng);
   }
 
   const range = Math.floor(plan.range);
@@ -169,6 +201,68 @@ export function buildBridge(
   };
 }
 
+/**
+ * All equations an equation level can ask (docs/specs/number-bridge.md, "Age-5 stretch: equation bridges"):
+ * every number is 1..range and the result is never 0. On a range above 10 ("within 20") each equation touches
+ * the teens: a sum of at least 11, or a subtraction that starts at 11 or more.
+ */
+export function equationCandidates(op: EquationOp, range: number): Array<[number, number, number]> {
+  const max = Math.min(EQUATION_MAX, Math.floor(range));
+  const teens = max > 10;
+  const out: Array<[number, number, number]> = [];
+  for (let a = 1; a <= max; a++) {
+    for (let b = 1; b <= max; b++) {
+      if (op === 'add') {
+        const sum = a + b;
+        if (sum <= max && (!teens || sum >= 11)) out.push([a, b, sum]);
+      } else {
+        const diff = a - b;
+        if (diff >= 1 && (!teens || a >= 11)) out.push([a, b, diff]);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Three choices for an equation result: the result, a neighbour (result ± 1), and the "other operation" trap
+ * (a - b for a sum, a + b for a difference) when it is a new number in range, else another number in range.
+ */
+export function equationChoices(a: number, b: number, op: EquationOp, range: number, rng: () => number): number[] {
+  const max = Math.min(EQUATION_MAX, Math.floor(range));
+  const result = op === 'add' ? a + b : a - b;
+  const neighbours = [result - 1, result + 1].filter((n) => n >= 1 && n <= max);
+  const near = neighbours[pickIndex(neighbours.length, rng)];
+  const trap = op === 'add' ? Math.abs(a - b) : a + b;
+  let other: number;
+  if (trap >= 1 && trap <= max && trap !== result && trap !== near) {
+    other = trap;
+  } else {
+    const pool: number[] = [];
+    for (let n = 1; n <= max; n++) if (n !== result && n !== near) pool.push(n);
+    other = pool[pickIndex(pool.length, rng)];
+  }
+  return shuffleWithRng([result, near, other], rng);
+}
+
+function buildEquationBridge(plan: BridgePlanInput, previous: PreviousBridge | null, rng: () => number): BridgeSpec {
+  const lever = plan.op ?? 'add';
+  const op: EquationOp = lever === 'mix' ? (rng() < 0.5 ? 'add' : 'sub') : lever;
+  const all = equationCandidates(op, plan.range);
+  if (all.length === 0) throw new Error(`no ${op} equations within ${plan.range}`);
+  const filtered = previous ? all.filter((c) => !arraysEqual(c, previous.sequence)) : all;
+  const pool = filtered.length > 0 ? filtered : all;
+  const [a, b, result] = pool[pickIndex(pool.length, rng)];
+  return {
+    mode: 'equation',
+    sequence: [a, b, result],
+    gaps: [2],
+    answer: result,
+    choices: equationChoices(a, b, op, plan.range, rng),
+    op,
+  };
+}
+
 /** Creates an initial `building` state from a validated bridge spec. */
 export function createBridge(spec: BridgeSpec): BridgeState {
   validateSpec(spec);
@@ -182,6 +276,7 @@ export function createBridge(spec: BridgeSpec): BridgeState {
     answer: spec.answer,
     choices: [...spec.choices],
     tries: 0,
+    op: spec.mode === 'equation' ? (spec.op ?? null) : null,
   };
 }
 
@@ -214,7 +309,7 @@ export function tapChoice(state: BridgeState, picked: number): { state: BridgeSt
   if (state.phase === 'crossing') {
     return { state, event: { kind: 'busy' } };
   }
-  if (state.mode !== 'missing' || state.answer === null) {
+  if (state.mode === 'one-more' || state.answer === null) {
     // Choice stones are not on screen in one-more mode; treat a stray tap as a no-op.
     return { state, event: { kind: 'busy' } };
   }

@@ -67,13 +67,26 @@ Follows `docs/adaptive-engine.md` §2.2 (Picnic Train), with the refinements mar
 | 6 | 6 | `load` | `quantity` | `none` | `scattered` | Load 6 |
 | 7 | 8 | `missing` | `two-step` | `none` | `scattered` | 8 friends, some already served: how many are missing? |
 | 8 | 10 | `missing` | `two-step` | `none` | `scattered` | 10 friends |
+| 9 | 10 | `load` + `op: add` | `quantity` | `none` | `scattered` | **Age-5 stretch:** "pack a items and b more", a 5–10, b 2–5 (6–15 items), 20-slot shelf |
+| 10 | 10 | `load` + `op: mix` | `quantity` | `none` | `scattered` | **Age-5 stretch:** "pack a and b more" or "pack a, take b out", a 10–15, b 2–5 (5–20 items) |
 
 - **Train size within a level.** `setSize` is the largest train of the level. The engine picks the round's train size from `{setSize − 1, setSize}` (never below 2) with `selectNextItem` over the ids `n<size>`, so a known size is served right after a level drop. `load` and `missing` use this size as N.
 - **`scattered`:** the train has `min(10, size + 2)` seats and the passengers fill a random subset, so counting needs attention; empty seats show the seat outline. `rows`: exactly `size` seats, all occupied.
 - **Age-2 start level:** L2. **Age-5 start level:** L5 (3 steps above; a new task, no scaffold, more passengers).
-- **Min / max:** `min: 1`, `max: 8` on both tracks; age 2 has no ceiling.
+- **Min / max:** `min: 1`; `max: 8` on age 2 (unchanged, so age 2 never reaches the stretch levels) and **`max: 10` on age 5** (age-5 stretch, 2026-11-23).
 - **Adaptive rules:** the engine defaults (`upCleanStreak: 3`, `downMisses: 2` in `downWindow: 3`, `maxChangesPerRound: 1`, `retryAfterTrials: 2`, `masteredBox: 3`) except `trialsPerRound: 1` (see the open decision). Level change timing: `between-rounds` on age 2, `after-trial` on age 5 (`trackPolicy`). No response-time scoring. One train records exactly one trial: `miss` at the first wrong tap, otherwise `clean` (or `assisted` after an idle hint).
 - **Languages:** `languages: ['en', 'fr']`. The counting-token language is picked per round with `nextRoundLanguage` from the parent's `settings.languages`, and each round feeds that language's skill `number-garden.picnic-train.<lang>`.
+
+### Age-5 stretch (L9–L10, 2026-11-23)
+
+Approved by Maor on 2026-11-23 (Elli's harder track; Shai's age-2 track stays L1–L8). Defaults are reversible and listed in `docs/PENDING-DECISIONS.md`.
+
+- **Task:** the existing `load` task with `extra.op` (`add`, `sub` or `mix`) and `extra.aMin/aMax/bMin/bMax`. The engine picks the request (`add-<a>-<b>` or `sub-<a>-<b>`) instead of the train size; the train shows 10 friends as on L8.
+- **Add:** "ארזי שבעה פריטים ועוד ארבעה, ואז לחצי על הדגל!" (`picnic.ask.add.<a>.<b>.he`) — the right cargo is a + b.
+- **Sub (take-away):** "ארזי שנים עשר פריטים, הוציאי שלושה, ואז לחצי על הדגל!" (`picnic.ask.sub.<a>.<b>.he`) — she packs a, taps b items to take them back (the existing take-back tap), and the right cargo is a − b. Loading a − b directly is also right.
+- **Shelf:** 20 slots on these levels only (`PICNIC_STRETCH_CAPACITY`): two rows of ten in landscape (64 px) and four rows of five in portrait (122 px, about 55 CSS px on a 360 px phone, above the #97 48 px floor). L1–L8 keep the 10-slot shelf exactly. The counting token goes up to 20 (`picnic.number.<11-20>.<lang>`).
+- **Go:** unchanged: a wrong go records the miss and returns the cargo; the right go makes the train ready. Age 5 still has no idle hint.
+- **Hebrew:** feminine singular address (ארזי, הוציאי, לחצי) and masculine numbers for פריטים (אחד עשר … חמישה עשר; standalone שניים … חמישה for b). One line per request the content can make (68 lines).
 
 ## Leisure
 
@@ -159,6 +172,10 @@ Test titles start with the id, in `tests/**/picnic-train*` files.
 | AC-25 | Age-2 idle hint: with no tap for 6 s the next free passenger is shown, `hinted` becomes true and the instruction is requested again; an age-5 profile gets no idle hint | 1 | e2e | @single-orientation | `getBuildingHit`, `getPicnicInfo`, `getSpokenLines` |
 | AC-26 | 400 ms lock: after a wrong tap, taps are ignored for 400 ms (`tries` unchanged) | 1 | unit | @single-orientation | |
 | AC-27 | Wiring: `AppScreen` includes `'picnic'` and it is unsafe for mid-game updates; the `WORLD_GAMES` registry holds one Picnic Train entry and, with content, gives the Number Garden trail Sorting Beds, Balloon Pop, Picnic Train; `worlds.json` keeps `number-garden` open with `earnsLeisure: true` | 1 | unit | @single-orientation | |
+| AC-28 | Age-5 stretch content: L1–L8 and the age-2 track are unchanged, age 5 reaches L10, L9–L10 are load levels with an operation; the schema rejects an operation on a non-load level, sums past 20 and differences below 1; age 5 climbs to L10 and age 2 stays within L1–L8 | 1 | unit | @single-orientation | |
+| AC-29 | Stretch trains: every request is a + b or a − b with a result 1–20 and a 20-slot shelf; taking b out with the take-back tap and then go makes the train ready; real taps on a seeded L10 hear `picnic.ask.<op>.<a>.<b>.he` and finish the train with one clean trial | 1 | unit, e2e+seed | @single-orientation | `seedPicnicLevel`, `getPicnicInfo`, `getSpokenLines` |
+| AC-30 | 20-slot shelf layout: every slot ≥ 64 game px, inside the screen, below the train, clear of the basket and the go flag, in both orientations; portrait phone slots ≥ 48 CSS px; the 10-slot shelf is unchanged; seeded L9 fits 20 real items | 1 | unit, e2e+seed | both | `seedPicnicLevel`, `getPicnicInfo` |
+| AC-31 | Stretch voice lines: one Hebrew line per request (feminine address, masculine numbers), no stray lines, counting words to twenty in EN and FR | 1 | unit | @single-orientation | |
 
 By default Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3).
 
@@ -213,8 +230,10 @@ Only after Maor approves the finished Pass 1.
 - **Open decision for the owner:** EN/FR number voicing (see the voice table).
 - **Open decision for the owner:** placeholder art (go flag, number cards, cargo shelf, tally dots, picker card art), to be replaced in Pass 2.
 - **Open decision for the owner:** one train per round (`trialsPerRound: 1`) and the extended level table up to 10 passengers.
+- **Open decision for the owner:** age-5 stretch L9–L10 ("pack a and b more", "pack a, take b out", up to 20 on a 20-slot shelf, Hebrew-only requests) (2026-11-23 defaults, `docs/PENDING-DECISIONS.md`).
 
 ## Changelog
 
 - `2026-11-13` — created — substantive
 - `2026-11-16` — bug fix (portrait audit H4): in portrait the cargo shelf wraps to two rows of five, so each slot stays at least 48 CSS px on phones; landscape unchanged; regression tests `tests/unit/picnic-train.shelf-portrait.test.ts` and `tests/e2e/picnic-train.portrait-phone.spec.ts` — minor
+- `2026-11-23` — age-5 stretch L9–L10 (addition and take-away up to 20, 20-slot shelf, Hebrew request lines, counting words 11–20), age-5 max 10; `PicnicInfo` gains `equation` and `capacity` (AC-28–AC-31), approved by Maor — substantive

@@ -11,7 +11,10 @@
   },
   "promptFrames": {
     "color": { "en": "Pop the {name} balloon!", "fr": "Éclate le ballon {name} !" },
-    "digit": { "en": "Pop the number {name}!", "fr": "Éclate le chiffre {name} !" }
+    "digit": { "en": "Pop the number {name}!", "fr": "Éclate le chiffre {name} !" },
+    "number": { "en": "Pop the number {name}!", "fr": "Éclate le nombre {name} !" },
+    "more": { "en": "Pop the number that is {k} more than {n}!", "fr": "Éclate le nombre qui fait {k} de plus que {n} !" },
+    "sum": { "en": "What is {a} plus {b}? Pop it!", "fr": "Combien font {a} plus {b} ? Éclate-le !" }
   },
   "popped": {
     "en": ["Pop!", "Hooray!", "Great popping!"],
@@ -37,7 +40,18 @@
     { "value": 6, "name": { "en": "six", "fr": "six" }, "near": [9, 0] },
     { "value": 7, "name": { "en": "seven", "fr": "sept" }, "near": [1, 4] },
     { "value": 8, "name": { "en": "eight", "fr": "huit" }, "near": [3, 0] },
-    { "value": 9, "name": { "en": "nine", "fr": "neuf" }, "near": [6, 8] }
+    { "value": 9, "name": { "en": "nine", "fr": "neuf" }, "near": [6, 8] },
+    { "value": 10, "name": { "en": "ten", "fr": "dix" }, "near": [11] },
+    { "value": 11, "name": { "en": "eleven", "fr": "onze" }, "near": [10, 12] },
+    { "value": 12, "name": { "en": "twelve", "fr": "douze" }, "near": [11, 13] },
+    { "value": 13, "name": { "en": "thirteen", "fr": "treize" }, "near": [12, 14] },
+    { "value": 14, "name": { "en": "fourteen", "fr": "quatorze" }, "near": [13, 15] },
+    { "value": 15, "name": { "en": "fifteen", "fr": "quinze" }, "near": [14, 16] },
+    { "value": 16, "name": { "en": "sixteen", "fr": "seize" }, "near": [15, 17] },
+    { "value": 17, "name": { "en": "seventeen", "fr": "dix-sept" }, "near": [16, 18] },
+    { "value": 18, "name": { "en": "eighteen", "fr": "dix-huit" }, "near": [17, 19] },
+    { "value": 19, "name": { "en": "nineteen", "fr": "dix-neuf" }, "near": [18, 20] },
+    { "value": 20, "name": { "en": "twenty", "fr": "vingt" }, "near": [19] }
   ],
   "floating": {
     "everyNthTrial": 3,
@@ -45,10 +59,11 @@
     "speedStepPerLevel": 0.12,
     "swayPx": 22,
     "hitScale": 1.5,
-    "minHitCssPx": 64
+    "minHitCssPx": 64,
+    "speedMaxLevel": 8
   },
   "adaptive": {
-    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 5, "max": 8 } },
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 5, "max": 11 } },
     "levels": [
       { "choiceCount": 2, "distractor": "far", "extra": { "mode": "color" } },
       { "choiceCount": 3, "distractor": "far", "extra": { "mode": "color" } },
@@ -57,7 +72,10 @@
       { "choiceCount": 3, "distractor": "far", "extra": { "mode": "digit", "digitMin": 1, "digitMax": 5 } },
       { "choiceCount": 4, "distractor": "far", "extra": { "mode": "digit", "digitMin": 1, "digitMax": 9 } },
       { "choiceCount": 5, "distractor": "far", "extra": { "mode": "digit", "digitMin": 0, "digitMax": 9 } },
-      { "choiceCount": 6, "distractor": "near", "extra": { "mode": "digit", "digitMin": 0, "digitMax": 9 } }
+      { "choiceCount": 6, "distractor": "near", "extra": { "mode": "digit", "digitMin": 0, "digitMax": 9 } },
+      { "choiceCount": 5, "distractor": "near", "extra": { "mode": "digit", "digitMin": 10, "digitMax": 20 } },
+      { "choiceCount": 4, "distractor": "near", "extra": { "mode": "more", "baseMin": 1, "baseMax": 10, "stepMax": 2 } },
+      { "choiceCount": 4, "distractor": "near", "extra": { "mode": "sum", "addendMax": 5 } }
     ]
   }
 }

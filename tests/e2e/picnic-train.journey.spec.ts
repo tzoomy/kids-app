@@ -376,3 +376,58 @@ test.describe('picnic train: voice lines', () => {
     await expect(page.locator('[data-testid="help-card"]')).toBeVisible();
   });
 });
+
+test.describe('picnic train: age-5 stretch (L9-L10)', () => {
+  test('[AC-29] @single-orientation L10: the Hebrew request names a and b; packing a and taking b out (or adding b) makes the train ready', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(150_000);
+    await enterPicnic(page, 'profile-b', { level: 10, lang: 'fr' });
+    const info = await waitForPicnicReady(page);
+    expect(info.level).toBe(10);
+    expect(info.task).toBe('load');
+    expect(info.capacity).toBe(20);
+    const eq = info.equation!;
+    expect(eq).not.toBeNull();
+    expect(info.target).toBe(eq.op === 'add' ? eq.a + eq.b : eq.a - eq.b);
+    await waitForSpokenLine(page, (l) => l.lineId === `picnic.ask.${eq.op}.${eq.a}.${eq.b}.he` && l.lang === 'he');
+
+    for (let k = 0; k < eq.a; k++) await loadOne(page);
+    if (eq.op === 'add') {
+      for (let k = 0; k < eq.b; k++) await loadOne(page);
+    } else {
+      for (let k = 0; k < eq.b; k++) {
+        const now = await waitForPicnicReady(page);
+        await tapRect(page, now.cargoHits[now.loaded - 1]);
+        await waitForPicnic(page, (i) => i.loaded === now.loaded - 1, 'an item was not taken out');
+      }
+    }
+    const loaded = await waitForPicnicReady(page);
+    expect(loaded.loaded).toBe(info.target);
+    if (info.target > 10) await waitForSpokenLine(page, (l) => l.lineId === `picnic.number.${info.target}.fr` && l.lang === 'fr');
+    await tapGo(page);
+    await expect.poll(() => readStarCount(page), { timeout: 15_000 }).toBe(1);
+    expect((await readStoredPicnicSkill(page, 'profile-b', 'fr'))?.recent).toEqual(['clean']);
+  });
+
+  test('[AC-30] the 20-slot shelf: 20 items fit, each slot at least 64 CSS px inside the screen, clear of the basket and the go flag', async ({ page }) => {
+    test.setTimeout(150_000);
+    const vp = page.viewportSize()!;
+    await enterPicnic(page, 'profile-b', { level: 9, lang: 'en' });
+    const info = await waitForPicnicReady(page);
+    expect(info.level).toBe(9);
+    expect(info.capacity).toBe(20);
+    for (let k = 0; k < 20; k++) await loadOne(page);
+    const full = await waitForPicnicReady(page);
+    expect(full.cargoHits).toHaveLength(20);
+    const overlaps = (a: PageRect, b: PageRect) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+    for (const r of full.cargoHits) {
+      expect(r.width).toBeGreaterThanOrEqual(64 - 0.5);
+      expect(r.x).toBeGreaterThanOrEqual(0);
+      expect(r.y).toBeGreaterThanOrEqual(0);
+      expect(r.x + r.width).toBeLessThanOrEqual(vp.width + 0.5);
+      expect(r.y + r.height).toBeLessThanOrEqual(vp.height + 0.5);
+      expect(overlaps(r, full.basket!.hit)).toBe(false);
+      expect(overlaps(r, full.go!.hit)).toBe(false);
+    }
+  });
+});
