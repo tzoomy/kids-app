@@ -195,7 +195,7 @@ Existing approved art only; no new SVG and no new recording.
 | lineId | lang | Text | Trigger |
 |---|---|---|---|
 | `picnic.ask.one-each.he` | he | בואי נאכיל את החברים ברכבת! תני לכל חבר פריט אחד לפיקניק. | Train start, `one-each`; replay |
-| `picnic.ask.load.<n>.he` | he | ארזי `<מספר במילים>` פריטים לפיקניק, ואז לחצי על הדגל! | Train start, `load`; replay |
+| `picnic.ask.load.<n>.he` | he | ארזי `<מספר במילים>` פריטים לפיקניק, ואז לחצי על הדגל! (n = 2 is the construct `שני`: ארזי שני פריטים…) | Train start, `load`; replay |
 | `picnic.ask.missing.he` | he | לחלק מהחברים כבר יש פריט. כמה פריטים עוד חסרים? | Train start, `missing`; replay |
 | `picnic.missing.give.he` | he | נכון! עכשיו תני פריט לכל חבר שחסר לו. | After the right number card |
 | `picnic.wrong.given.he` | he | לחבר הזה כבר יש פריט. נסי חבר שעוד אין לו! | Wrong passenger tap |
@@ -205,7 +205,7 @@ Existing approved art only; no new SVG and no new recording.
 | `picnic.number.<n>.en` | en | one … ten | Counting aloud (a give, a load, the right answer m), round language `en` |
 | `picnic.number.<n>.fr` | fr | un … dix | Same, round language `fr` |
 
-The Hebrew number words are masculine (`שניים, שלושה, ארבעה, חמישה, שישה, שבעה, שמונה, תשעה, עשרה`) because the noun is `פריטים`. **Open decision for the owner:** EN/FR number voicing. The repo already speaks EN/FR learning tokens in Number Garden (Sorting Beds colour and size words, per-language skills, the parent's `settings.languages`), so Pass 1 counts aloud in the round language and keeps all instructions in Hebrew. If Maor prefers Hebrew-only numbers, set `languages` to `['he']` content-side and replace the number lines; reversible.
+The Hebrew number words are masculine (`שניים, שלושה, ארבעה, חמישה, שישה, שבעה, שמונה, תשעה, עשרה`) because the noun is `פריטים`; directly before the noun, 2 is the construct `שני` (`hebrewNumberBeforeNoun`). **Open decision for the owner:** EN/FR number voicing. The repo already speaks EN/FR learning tokens in Number Garden (Sorting Beds colour and size words, per-language skills, the parent's `settings.languages`), so Pass 1 counts aloud in the round language and keeps all instructions in Hebrew. If Maor prefers Hebrew-only numbers, set `languages` to `['he']` content-side and replace the number lines; reversible.
 
 - **World and PWA wiring:** `number-garden` keeps `earnsLeisure: true`; new `AppScreen` `'picnic'` marked unsafe for mid-game updates in `src/pwa/updatePolicy.ts`; scene `PicnicScene` registered in `src/game/createGame.ts`; `main.ts` stops it when returning to the profile screen; `src/ui/picker/pickerModel.ts` gets one `WORLD_GAMES` entry after Balloon Pop (no per-world picker list).
 
@@ -237,4 +237,5 @@ Only after Maor approves the finished Pass 1.
 - `2026-11-13` — created — substantive
 - `2026-11-16` — bug fix (portrait audit H4): in portrait the cargo shelf wraps to two rows of five, so each slot stays at least 48 CSS px on phones; landscape unchanged; regression tests `tests/unit/picnic-train.shelf-portrait.test.ts` and `tests/e2e/picnic-train.portrait-phone.spec.ts` — minor
 - `2026-11-23` — age-5 stretch L9–L10 (addition and take-away up to 20, 20-slot shelf, Hebrew request lines, counting words 11–20), age-5 max 10; `PicnicInfo` gains `equation` and `capacity` (AC-28–AC-31), approved by Maor — substantive
+- `2026-11-24` — voice-text hygiene: `picnic.ask.load.2.he` reads `ארזי שני פריטים לפיקניק, ואז לחצי על הדגל!` (construct `שני` before the noun, was standalone `שניים`); stretch lines unchanged — minor
 - `2026-11-24` — Wave 2 French-first: age-5 (profile track `age5`) the task asks (`picnic.ask.*.en/.fr`, incl. L9–L10 equations; prompt bubble shows the same text, no RTL isolate) are spoken in the round's learning language (`fr`/`en`) with no Hebrew prefix; age 2 stays Hebrew; help, wrong, missing-give and ready lines stay Hebrew on both tracks (reversible default, `docs/PENDING-DECISIONS.md`). New EN/FR ids only; no new hooks — minor

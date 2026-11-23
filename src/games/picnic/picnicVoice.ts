@@ -6,7 +6,7 @@ import { equationAskId, equationCandidates, levelLevers, parseEquationId } from 
 
 /**
  * Masculine Hebrew number words 1..20 (the counted noun is `פריטים`, masculine). Index = number. 2 is the standalone
- * form (`שניים`); the stretch lines only put 5 and up before the noun, so the construct form `שני` is never needed.
+ * form (`שניים`); use `hebrewNumberBeforeNoun` where the number stands directly before `פריטים`.
  */
 const HEBREW_NUMBERS: readonly string[] = [
   '', 'אחד', 'שניים', 'שלושה', 'ארבעה', 'חמישה', 'שישה', 'שבעה', 'שמונה', 'תשעה', 'עשרה',
@@ -15,6 +15,11 @@ const HEBREW_NUMBERS: readonly string[] = [
 
 export function hebrewNumber(n: number): string {
   return HEBREW_NUMBERS[n] ?? String(n);
+}
+
+/** Number word standing directly before `פריטים` (construct state): 2 is `שני`; every other count is unchanged. */
+export function hebrewNumberBeforeNoun(n: number): string {
+  return n === 2 ? 'שני' : hebrewNumber(n);
 }
 
 const NUMBER_EN: readonly string[] = [
@@ -29,18 +34,22 @@ const NUMBER_FR: readonly string[] = [
 /** Largest count spoken aloud: the stretch shelf holds up to 20. */
 const MAX_SPOKEN = 20;
 
-/** Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`). */
+/**
+ * Hebrew request of a stretch train (feminine singular address; masculine numbers for `פריטים`).
+ * The count standing directly before `פריטים` uses `hebrewNumberBeforeNoun` (`שני` when a === 2);
+ * after `ועוד` / `הוציאי` the standalone form stays (`hebrewNumber`).
+ */
 export function equationAskText(op: 'add' | 'sub', a: number, b: number): string {
   return op === 'add'
-    ? `ארזי ${hebrewNumber(a)} פריטים ועוד ${hebrewNumber(b)}, ואז לחצי על הדגל!`
-    : `ארזי ${hebrewNumber(a)} פריטים, הוציאי ${hebrewNumber(b)}, ואז לחצי על הדגל!`;
+    ? `ארזי ${hebrewNumberBeforeNoun(a)} פריטים ועוד ${hebrewNumber(b)}, ואז לחצי על הדגל!`
+    : `ארזי ${hebrewNumberBeforeNoun(a)} פריטים, הוציאי ${hebrewNumber(b)}, ואז לחצי על הדגל!`;
 }
 
 /**
  * Age-5 task asks in English and French (Wave 2 French-first). Numbers are spoken words; 1 is `one` / `un`, and the noun
  * agrees (`item` / `objet`) when a count is exactly 1. French `objet` is masculine, hence `un`.
  */
-function equationAskTextLang(op: 'add' | 'sub', a: number, b: number, lang: 'en' | 'fr'): string {
+export function equationAskTextLang(op: 'add' | 'sub', a: number, b: number, lang: 'en' | 'fr'): string {
   const word = (n: number) => (lang === 'en' ? NUMBER_EN[n] : NUMBER_FR[n]);
   const noun = lang === 'en' ? (a === 1 ? 'item' : 'items') : a === 1 ? 'objet' : 'objets';
   if (lang === 'en') {
@@ -64,7 +73,7 @@ function buildLineText(): Record<string, string> {
     'picnic.help.he': 'תני לכל חבר ברכבת את מה שחסר לו, וסופרים ביחד.',
   };
   for (let n = 2; n <= 10; n++) {
-    text[`picnic.ask.load.${n}.he`] = `ארזי ${hebrewNumber(n)} פריטים לפיקניק, ואז לחצי על הדגל!`;
+    text[`picnic.ask.load.${n}.he`] = `ארזי ${hebrewNumberBeforeNoun(n)} פריטים לפיקניק, ואז לחצי על הדגל!`;
   }
   // Age-5 French-first / English-first task asks (Hebrew above stays for age 2).
   text['picnic.ask.one-each.en'] = "Let's feed the friends on the train! Give each friend one picnic item.";

@@ -16,6 +16,8 @@
   },
   "revealFrame": { "en": "It's {name}!", "fr": "C'est {name} !" },
   "revealFrameHe": "זה {nameHe}!",
+  "revealFrameFeminineHe": "זו {nameHe}!",
+  "feminineHeIds": ["panda"],
   "namesHe": {
     "cat": "חתול",
     "lion": "אריה",

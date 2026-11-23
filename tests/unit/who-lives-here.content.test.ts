@@ -143,6 +143,9 @@ describe('who-lives-here: voice lines (AC-10)', () => {
 
   it('[AC-10] the help line is Hebrew and every Hebrew line has text', () => {
     expect(helpLine()).toMatchObject({ lineId: 'habitat.help.he', lang: 'he' });
+    // Feminine singular imperative of להקיש is `הקישי` (with yod); `הקשי` is misread by TTS.
+    expect(helpLine().text).toBe('עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.');
+    expect(content.helpTextHe).toBe(helpLine().text);
     for (const line of [helpLine(), ...askLines(content, frog, nounLevel, 'en'), ...correctLines(content, frog, 'en'), ...wrongLines(content, frog, nounLevel, 'en')]) {
       expect(line.text.length).toBeGreaterThan(0);
       if (line.lang === 'he') expect(line.text).toMatch(/[֐-׿]/);

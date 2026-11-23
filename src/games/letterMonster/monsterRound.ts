@@ -82,7 +82,7 @@ export function colorWordLine(content: LetterMonsterContent, color: LetterMonste
   };
 }
 
-/** Hebrew letter request ("המפלצת רוצה משהו שמתחיל ב..."). */
+/** Hebrew letter request ("המפלצת רוצה משהו שמתחיל באות הזו."; the letter itself follows in the next line). */
 export function askLetterLine(content: LetterMonsterContent): SpeechRequest {
   return {
     lineId: 'monster.askLetter.he',

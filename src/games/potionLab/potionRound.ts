@@ -121,18 +121,15 @@ export function requestLine(content: PotionLabContent, color: SecondaryColor, ta
 }
 
 /**
- * Next-step task ask when a request-mode mix produced another color. Hebrew (`potion.tryAgain.he`, one shared id) by
- * default; age 5 hears a unique `potion.tryAgain.<color>.<lang>` line.
+ * Next-step task ask when a request-mode mix produced another color. One unique id per colour and language:
+ * `potion.tryAgain.<orange|green|purple>.<he|en|fr>` (Hebrew wording stays the existing tryAgainFrame).
  */
 export function tryAgainLine(content: PotionLabContent, target: SecondaryColor, taskLang: TaskLang = 'he'): SpeechRequest {
-  if (taskLang !== 'he') {
-    return { lineId: `potion.tryAgain.${target}.${taskLang}`, lang: taskLang, text: TRY_AGAIN_TEXT[taskLang][target] };
-  }
-  return {
-    lineId: 'potion.tryAgain.he',
-    lang: 'he',
-    text: content.linesHe.tryAgainFrame.replace('{color}', content.colors[target].he),
-  };
+  const text =
+    taskLang === 'he'
+      ? content.linesHe.tryAgainFrame.replace('{color}', content.colors[target].he)
+      : TRY_AGAIN_TEXT[taskLang][target];
+  return { lineId: `potion.tryAgain.${target}.${taskLang}`, lang: taskLang, text };
 }
 
 /** Intro line for the start of a visit in free or request mode (Hebrew by default, EN/FR for age 5). */

@@ -18,7 +18,7 @@ export const HABITAT_HE_TEXT = {
   'habitat.ask.he': 'לאן החיה הזאת הולכת הביתה?',
   'habitat.correct.he': 'יופי! החיה הגיעה הביתה!',
   'habitat.wrong.he': 'כמעט! נסי בית אחר.',
-  'habitat.help.he': 'עזרי לכל חיה למצוא את הבית שלה. הקשי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.',
+  'habitat.help.he': 'עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.',
 } as const;
 
 type HeLineId = keyof typeof HABITAT_HE_TEXT;

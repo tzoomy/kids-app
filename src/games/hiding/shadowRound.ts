@@ -49,9 +49,12 @@ export function promptFor(content: ShadowMatchContent, animal: HidingAnimal, lan
 }
 
 export function revealFor(content: ShadowMatchContent, animal: HidingAnimal, lang: Lang): { text: string; textHe: string } {
+  // Hebrew demonstrative agrees with the noun's grammatical gender: `זה חתול!` but `זו פנדה!`.
+  const feminine = content.revealFrameFeminineHe !== undefined && (content.feminineHeIds ?? []).includes(animal.id);
+  const frameHe = feminine ? content.revealFrameFeminineHe! : content.revealFrameHe;
   return {
     text: content.revealFrame[lang].replace('{name}', animal.name[lang]),
-    textHe: content.revealFrameHe.replace('{nameHe}', content.namesHe[animal.id] ?? animal.id),
+    textHe: frameHe.replace('{nameHe}', content.namesHe[animal.id] ?? animal.id),
   };
 }
 

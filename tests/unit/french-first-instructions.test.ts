@@ -19,7 +19,7 @@ import {
   levelLevers,
   parseEquationId,
 } from '@/games/picnic/picnicLogic';
-import { PICNIC_LINE_TEXT } from '@/games/picnic/picnicVoice';
+import { PICNIC_LINE_TEXT, equationAskText, equationAskTextLang } from '@/games/picnic/picnicVoice';
 import picnicJson from '@/content/games/picnic-train.json';
 import type { LevelDescriptor } from '@/content/schema';
 import { ruleLine, switchLine } from '@/games/sorting/sortingLogic';
@@ -82,6 +82,9 @@ describe('[AC-fr-first] Picnic Train', () => {
     expect(PICNIC_LINE_TEXT['picnic.ask.load.5.en']).toBe('Pack five picnic items, then tap the flag!');
     expect(PICNIC_LINE_TEXT['picnic.ask.load.5.fr']).toBe('Emporte cinq objets pour le pique-nique, puis appuie sur le drapeau !');
     expect(PICNIC_LINE_TEXT['picnic.ask.load.10.fr']).toBe('Emporte dix objets pour le pique-nique, puis appuie sur le drapeau !');
+    expect(equationAskTextLang('add', 1, 4, 'fr')).toBe('Emporte un objet et encore quatre, puis appuie sur le drapeau !');
+    expect(equationAskTextLang('add', 1, 4, 'fr')).not.toMatch(/\b1 objet\b/);
+    expect(equationAskText('sub', 2, 2)).toBe('ארזי שני פריטים, הוציאי שניים, ואז לחצי על הדגל!');
     expect(PICNIC_LINE_TEXT['picnic.ask.missing.fr']).toBe("Certains copains ont déjà un objet. Combien d'objets manquent encore ?");
     expect(PICNIC_LINE_TEXT['picnic.ask.missing.en']).toBe('Some friends already have an item. How many items are still missing?');
     expect(PICNIC_LINE_TEXT['picnic.ask.one-each.en']).toBe("Let's feed the friends on the train! Give each friend one picnic item.");
@@ -158,7 +161,7 @@ describe('[AC-fr-first] Potion Lab', () => {
   it('default / age2 keep Hebrew intro, Hebrew request THEN the color word, Hebrew tryAgain', () => {
     expect(potionIntro(content, 'request')).toMatchObject({ lineId: 'potion.intro.request.he', lang: 'he' });
     expect(potionRequest(content, 'green')).toMatchObject({ lineId: 'potion.request.green.he', lang: 'he' });
-    expect(tryAgainLine(content, 'green').lineId).toBe('potion.tryAgain.he');
+    expect(tryAgainLine(content, 'green').lineId).toBe('potion.tryAgain.green.he');
     const input = { includeIntro: true, mode: 'request', request: 'green', learningLang: 'fr' } as const;
     const expected = [potionIntro(content, 'request'), potionRequest(content, 'green'), colorLine(content, 'green', 'fr')];
     expect(potionVisit(content, input)).toEqual(expected);
@@ -183,12 +186,17 @@ describe('[AC-fr-first] Potion Lab', () => {
     expect(potionRequest(content, 'purple', 'fr').text).toBe('Peux-tu faire du violet ?');
   });
 
-  it('age5 tryAgain is a unique id per color and language; Hebrew default untouched', () => {
+  it('age5 tryAgain is a unique id per color and language; Hebrew is potion.tryAgain.<color>.he', () => {
     expect(tryAgainLine(content, 'green', 'en')).toMatchObject({ lineId: 'potion.tryAgain.green.en', lang: 'en', text: "Lovely! Now let's try to make green." });
     expect(tryAgainLine(content, 'green', 'fr').text).toBe('Bravo ! Maintenant, essayons de faire du vert.');
     expect(tryAgainLine(content, 'orange', 'fr').text).toBe("Bravo ! Maintenant, essayons de faire de l'orange.");
     expect(tryAgainLine(content, 'purple', 'fr').text).toBe('Bravo ! Maintenant, essayons de faire du violet.');
     expect(tryAgainLine(content, 'purple', 'en').lineId).toBe('potion.tryAgain.purple.en');
+    for (const color of ['orange', 'green', 'purple'] as const) {
+      expect(tryAgainLine(content, color).lineId).toBe(`potion.tryAgain.${color}.he`);
+      expect(tryAgainLine(content, color).lang).toBe('he');
+    }
+    expect(tryAgainLine(content, 'green').lineId).not.toBe('potion.tryAgain.he');
   });
 
   it('mix result naming stays Hebrew then learning language', () => {
