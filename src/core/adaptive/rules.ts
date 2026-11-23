@@ -58,9 +58,33 @@ export function classify(r: TrialResult): OutcomeKind {
   return r.hinted ? 'assisted' : 'clean';
 }
 
-export function initialSkill(meta: GameLevelsMeta, track: AgeTrack, today: string): SkillState {
+/** Pending Maor decision (reversible): age5 French skills start this many levels higher when the parent opts in. */
+export const START_FRENCH_HIGHER_OFFSET = 1;
+/** Pending Maor decision (reversible): age5 'challenging' difficulty raises every new skill's start by this much. */
+export const CHALLENGING_LEVEL_OFFSET = 2;
+
+export interface StartPrefs {
+  difficulty?: 'regular' | 'challenging';
+  startFrenchHigher?: boolean;
+}
+
+/**
+ * Start level of a NEW skill: the track start, plus the age5-only offsets (they stack), clamped to the track bounds.
+ * age2 never shifts and `en` never gets the French-higher offset. Stored skills are never rewritten by this.
+ */
+export function startingLevel(meta: GameLevelsMeta, track: AgeTrack, lang: string, prefs: StartPrefs = {}): number {
+  const bounds = meta.tracks[track];
+  let level = bounds.start;
+  if (track === 'age5') {
+    if (prefs.difficulty === 'challenging') level += CHALLENGING_LEVEL_OFFSET;
+    if (prefs.startFrenchHigher === true && lang === 'fr') level += START_FRENCH_HIGHER_OFFSET;
+  }
+  return clampLevel(level, bounds);
+}
+
+export function initialSkill(meta: GameLevelsMeta, track: AgeTrack, today: string, level?: number): SkillState {
   return {
-    level: meta.tracks[track].start,
+    level: level ?? meta.tracks[track].start,
     cleanStreak: 0,
     recent: [],
     afterDrop: false,

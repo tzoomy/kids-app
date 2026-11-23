@@ -570,7 +570,7 @@ export class SuitcaseScene extends Phaser.Scene {
 
   private refreshLanguageAndPlan(atBoundary: boolean): Lang {
     const c = content();
-    const setting = this.context.store.getState().settings.languages;
+    const setting = this.context.languageSetting();
     const lang = nextRoundLanguage(this.roundLang, atBoundary, setting);
     this.roundLang = lang;
     if (atBoundary) {

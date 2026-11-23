@@ -52,6 +52,7 @@ import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobe
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
+import { seedProfileLanguage } from '../core/storage/schema';
 import { PreloadScene } from '../anim/PreloadScene';
 import { registerProjectArt } from '../anim/registerArt';
 import { skillKey } from '../core/adaptive';
@@ -74,7 +75,7 @@ declare global {
       seedOrchestraLevel: (level: number) => void;
       /** Seeds the active profile's persisted Sorting Beds level (level, cleanStreak 0, recent []) for every language. Call before entering. */
       seedSortingLevel: (level: number) => void;
-      /** Seeds the stored language setting (settings.languages) and persists. Seed only: no navigation, no game action. */
+      /** Seeds the active profile's language (and the deprecated global settings.languages) and persists. Seed only: no navigation, no game action. */
       seedLanguageSetting: (lang: 'en' | 'fr' | 'both') => void;
       /** Writes settings.timeEarning = { enabled } and persists. Seed only: no navigation, no game action, no profile needed. */
       seedTimeEarningEnabled: (enabled: boolean) => void;
@@ -347,7 +348,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       return scene && game.scene.isActive('HabitatScene') ? scene.getHabitatInfo() : null;
     },
     seedLanguageSetting(lang) {
-      context.store.getState().settings.languages = lang;
+      seedProfileLanguage(context.store.getState(), context.currentProfileId, lang);
       context.store.persist();
     },
     seedTimeEarningEnabled(enabled) {

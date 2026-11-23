@@ -311,12 +311,11 @@ export class BalloonScene extends Phaser.Scene {
     this.hinted = false;
 
     const content = this.context.content.balloon;
-    const settings = this.context.store.getState().settings;
     // One round = trialsPerRound trials in the same language, so each round feeds one skill.
     this.roundLang = nextRoundLanguage(
       this.roundLang,
       this.roundLang === null || this.skills.atRoundBoundary(this.roundLang),
-      settings.languages,
+      this.context.languageSetting(),
     );
     const language = this.roundLang;
     const levelNumber = this.skills.level(language);

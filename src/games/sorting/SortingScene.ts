@@ -340,8 +340,7 @@ export class SortingScene extends Phaser.Scene {
     this.tracker = null;
     this.session.reportCelebrating(false);
 
-    const settings = this.context.store.getState().settings;
-    this.roundLang = nextRoundLanguage(first ? null : this.roundLang, this.skills.atRoundBoundary(this.roundLang), settings.languages);
+    this.roundLang = nextRoundLanguage(first ? null : this.roundLang, this.skills.atRoundBoundary(this.roundLang), this.context.languageSetting());
     this.roundLevel = this.skills.level(this.roundLang);
     const level = this.content.adaptive.levels[this.roundLevel - 1];
     const levers = levelLevers(level);

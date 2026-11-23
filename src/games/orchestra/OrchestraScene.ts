@@ -218,8 +218,7 @@ export class OrchestraScene extends Phaser.Scene {
     this.echoIndex = 0;
     this.session.reportCelebrating(false);
 
-    const settings = this.context.store.getState().settings;
-    const lang = nextRoundLanguage(this.roundLang, this.skills.atRoundBoundary(this.roundLang ?? 'en'), settings.languages);
+    const lang = nextRoundLanguage(this.roundLang, this.skills.atRoundBoundary(this.roundLang ?? 'en'), this.context.languageSetting());
     this.roundLang = lang;
     const levelNumber = this.skills.level(lang);
     const levers = this.content.adaptive.levels[levelNumber - 1];

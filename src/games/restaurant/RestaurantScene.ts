@@ -307,12 +307,11 @@ export class RestaurantScene extends Phaser.Scene {
     this.inputLockedUntil = 0;
 
     const content = this.context.content.restaurant;
-    const settings = this.context.store.getState().settings;
     // One round = trialsPerRound animals of the same language, so each round feeds one skill.
     this.roundLang = nextRoundLanguage(
       this.roundLang,
       this.roundLang === null || this.skills.atRoundBoundary(this.roundLang),
-      settings.languages,
+      this.context.languageSetting(),
     );
     const language = this.roundLang;
     const adaptive = content.adaptive;
