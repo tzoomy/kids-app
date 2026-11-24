@@ -34,6 +34,11 @@ export const ItemVariantSchema = z.object({
   color: z.string().min(1),
   en: VariantPromptsSchema,
   fr: VariantPromptsSchema,
+  /**
+   * Plural noun phrase with this colour and no article ("green apples", "pommes vertes"), used by the age-5
+   * `count-attribute` requests ("I want two green apples, please!"). Optional: items without it never get those requests.
+   */
+  plural: z.object({ en: z.string().min(1), fr: z.string().min(1) }).optional(),
 });
 
 export const RestaurantItemSchema = z.object({
@@ -52,7 +57,7 @@ export const RestaurantItemSchema = z.object({
 });
 
 /** Request types the restaurant knows how to build and check. */
-export const RESTAURANT_REQUESTS = ['noun', 'quantity', 'attribute', 'two-step', 'negation'] as const;
+export const RESTAURANT_REQUESTS = ['noun', 'quantity', 'attribute', 'two-step', 'negation', 'count-attribute', 'sequence'] as const;
 export type RestaurantRequest = (typeof RESTAURANT_REQUESTS)[number];
 
 export const LevelDescriptorSchema = z
@@ -62,7 +67,7 @@ export const LevelDescriptorSchema = z
     setSize: z.number().int().min(1).max(10).optional(),
     distractor: z.enum(['far', 'near', 'same-category', 'same-item-variant']).optional(),
     request: z
-      .enum(['noun', 'quantity', 'attribute', 'two-step', 'negation', 'sequence', 'riddle', 'rule-switch'])
+      .enum(['noun', 'quantity', 'attribute', 'two-step', 'negation', 'count-attribute', 'sequence', 'riddle', 'mystery', 'missing', 'rule-switch'])
       .optional(),
     sequenceLength: z.number().int().min(1).max(6).optional(),
     support: z.enum(['picture-audio', 'partial-reveal', 'audio-first', 'audio-only', 'clue', 'lit', 'flash']).optional(),
@@ -133,6 +138,17 @@ export const AnimalRestaurantContentSchema = z
     helpTextHe: z.string().min(1),
     /** Frames for two-item requests; `{a}` and `{b}` are replaced by the items' noun phrases. */
     twoStepFrames: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    /** Age-5 ordered two-item requests ("First {a}, then {b}, please!"); required by `sequence` levels. */
+    sequenceFrames: z.object({ en: z.string().min(1), fr: z.string().min(1) }).optional(),
+    /** Age-5 colour + count requests: `{count}` is a count word, `{items}` a variant's plural phrase. */
+    countAttributeFrames: z.object({ en: z.string().min(1), fr: z.string().min(1) }).optional(),
+    /** Count words for `count-attribute` requests ("two", "deux"). */
+    countWords: z
+      .object({
+        en: z.object({ '2': z.string().min(1), '3': z.string().min(1) }),
+        fr: z.object({ '2': z.string().min(1), '3': z.string().min(1) }),
+      })
+      .optional(),
     items: z.array(RestaurantItemSchema).min(1),
     adaptive: GameAdaptiveSchema,
   })
@@ -169,8 +185,40 @@ export const AnimalRestaurantContentSchema = z
       if ((level.request === 'attribute' || level.request === 'negation') && variantItems < 1) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: `request "${level.request}" needs at least one item with colour variants` });
       }
-      if (level.request === 'two-step' && ((level.choiceCount ?? 0) < 3 || value.items.length < 3)) {
+      if ((level.request === 'two-step' || level.request === 'sequence') && ((level.choiceCount ?? 0) < 3 || value.items.length < 3)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a two-item request needs choiceCount of at least 3 (one wrong plate) and 3+ items' });
+      }
+      if (level.request === 'sequence') {
+        for (const lang of ['en', 'fr'] as const) {
+          const frame = value.sequenceFrames?.[lang];
+          if (!frame || !frame.includes('{a}') || !frame.includes('{b}')) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: `a sequence request needs sequenceFrames.${lang} with {a} and {b}` });
+          }
+        }
+      }
+      if (level.request === 'count-attribute') {
+        for (const lang of ['en', 'fr'] as const) {
+          const frame = value.countAttributeFrames?.[lang];
+          if (!frame || !frame.includes('{count}') || !frame.includes('{items}') || !value.countWords) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: `a count-attribute request needs countAttributeFrames.${lang} with {count} and {items}, and countWords` });
+          }
+        }
+        const counts = level.counts ?? [];
+        if (counts.length < 2 || counts.some((c) => c < 2)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a count-attribute request needs at least two counts, each 2 or 3' });
+        }
+        const eligible = value.items.filter(
+          (i) =>
+            (i.variants?.length ?? 0) >= 2 &&
+            i.variants!.every((v) => v.plural) &&
+            counts.every((c) => i.prompts.en[String(c) as '2' | '3'] && i.prompts.fr[String(c) as '2' | '3']),
+        );
+        if (eligible.length < 1) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a count-attribute request needs an item whose two variants have plural phrases and counted prompts' });
+        }
+        if (level.choiceCount !== undefined && level.choiceCount < 4) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a count-attribute request needs choiceCount of at least 4 (colour and count look-alikes)' });
+        }
       }
       if (level.choiceCount === undefined) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'restaurant levels require choiceCount' });
@@ -226,6 +274,17 @@ export const KitchenOrchestraContentSchema = z
     listenPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
     yourTurnPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
     retryPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+    /**
+     * Age-5 reverse echo (levels with `extra.order: "reverse"`): the listen and your-turn lines name the rule,
+     * and a Hebrew line explains it before the first reverse pattern of a visit.
+     */
+    reverse: z
+      .object({
+        listenPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+        yourTurnPrompt: z.object({ en: z.string().min(1), fr: z.string().min(1) }),
+        introHe: z.string().min(1),
+      })
+      .optional(),
     helpTextHe: z.string().min(1),
     instruments: z.array(OrchestraInstrumentSchema).min(3),
     adaptive: GameAdaptiveSchema,
@@ -252,6 +311,15 @@ export const KitchenOrchestraContentSchema = z
       }
       if (level.support !== undefined && !ORCHESTRA_SUPPORTS.includes(level.support as OrchestraSupport)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'orchestra support must be lit, flash, or audio-only' });
+      }
+      const order = level.extra?.order;
+      if (order !== undefined && order !== 'forward' && order !== 'reverse') {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'extra.order must be "forward" or "reverse"' });
+      }
+      if (order === 'reverse') {
+        if (!value.reverse) ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a reverse level needs the reverse prompts' });
+        if ((level.sequenceLength ?? 0) < 2) ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a reverse level needs sequenceLength of at least 2' });
+        if (level.support === 'audio-only') ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a reverse level keeps visual support (lit or flash)' });
       }
     });
   });
@@ -402,6 +470,18 @@ export const WhosHidingContentSchema = z
     promptFrames: z.object({ 'name-sound': LangPairSchema, name: LangPairSchema, sound: LangPairSchema }),
     /** "Peekaboo!" lines spoken when the animal pops out. */
     found: z.object({ en: z.array(z.string().min(1)).min(1), fr: z.array(z.string().min(1)).min(1) }),
+    /**
+     * Age-5 "Who is missing?" levels (request "missing"): the line-up line, the "someone left" line, the question
+     * (the hint adds the missing animal's sound to it) and a Hebrew line explaining the rule once per visit.
+     */
+    missing: z
+      .object({
+        look: LangPairSchema,
+        gone: LangPairSchema,
+        ask: LangPairSchema,
+        introHe: z.string().min(1),
+      })
+      .optional(),
     helpTextHe: z.string().min(1),
     animals: z.array(HidingAnimalSchema).min(2),
     adaptive: GameAdaptiveSchema,
@@ -448,6 +528,15 @@ export const WhosHidingContentSchema = z
       if (level.support === 'audio-only' && speak !== 'sound') issue('an audio-only level speaks only the sound');
       const soundMs = level.extra?.soundMs;
       if (soundMs !== undefined && (typeof soundMs !== 'number' || soundMs <= 0)) issue('extra.soundMs must be a positive number');
+      if (level.request !== undefined && level.request !== 'missing') issue('who-is-hiding supports only request "missing" (or none)');
+      if (level.request === 'missing') {
+        if (!value.missing) issue('a missing level needs the missing lines');
+        if ((level.choiceCount ?? 0) < 3) issue('a missing level needs at least 3 animals in the line-up');
+        for (const key of ['peekMs', 'backMs'] as const) {
+          const ms = level.extra?.[key];
+          if (typeof ms !== 'number' || ms <= 0) issue(`a missing level needs a positive extra.${key}`);
+        }
+      }
     });
   });
 
@@ -462,7 +551,7 @@ export type WhosHidingContent = z.infer<typeof WhosHidingContentSchema>;
 /** Distractor homes next to the right one: `far` = other families first, `near` = the same family first. */
 export const HABITAT_DISTRACTORS = ['far', 'near'] as const;
 /** What the spoken request contains: the animal's name, or a descriptive clue. */
-export const HABITAT_REQUESTS = ['noun', 'riddle'] as const;
+export const HABITAT_REQUESTS = ['noun', 'riddle', 'mystery'] as const;
 export const HABITAT_MAX_HOMES = 4;
 
 export const HabitatHomeSchema = z.object({
@@ -484,6 +573,11 @@ export const HabitatAnimalSchema = z.object({
   name: LangPairSchema,
   /** Descriptive clue ("I have feathers and I build a nest."), spoken at riddle levels and after a miss. */
   clue: LangPairSchema,
+  /**
+   * Age-5 two-clue riddle for `mystery` levels (the animal stays hidden until it is home), e.g. "I have a little
+   * beak. I sleep in a cosy home made of twigs." Required when a level uses request "mystery".
+   */
+  mystery: LangPairSchema.optional(),
 });
 
 export const WhoLivesHereContentSchema = z
@@ -522,12 +616,15 @@ export const WhoLivesHereContentSchema = z
         issue('who-lives-here supports distractor "far" or "near"');
       }
       if (level.request !== undefined && !(HABITAT_REQUESTS as readonly string[]).includes(level.request)) {
-        issue('who-lives-here supports request "noun" or "riddle"');
+        issue('who-lives-here supports request "noun", "riddle" or "mystery"');
       }
+      if (level.request === 'mystery' && value.animals.some((a) => !a.mystery)) issue('a mystery level needs a two-clue riddle (mystery) for every animal');
       if (level.support !== undefined && level.support !== 'picture-audio' && level.support !== 'audio-only') {
         issue('who-lives-here supports support "picture-audio" or "audio-only"');
       }
-      if (level.support === 'audio-only' && level.request !== 'riddle') issue('an audio-only level speaks the descriptive clue (request "riddle")');
+      if (level.support === 'audio-only' && level.request !== 'riddle' && level.request !== 'mystery') {
+        issue('an audio-only level speaks a riddle (request "riddle" or "mystery")');
+      }
       if (level.scaffold !== undefined && level.scaffold !== 'outline') issue('who-lives-here supports scaffold "outline" (the right home glows)');
       const clue = level.extra?.clue;
       if (clue !== undefined && clue !== 'after-miss' && clue !== 'none') issue('extra.clue must be "after-miss" or "none"');

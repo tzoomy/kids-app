@@ -29,23 +29,29 @@ function seededRandom(seed: number): () => number {
 
 const VARIANT_IDS = items.filter((i) => i.variants).map((i) => i.id);
 
-describe('the 9-level restaurant curve', () => {
-  it('has 9 levels with the agreed levers', () => {
-    expect(levels).toHaveLength(9);
-    expect(levels.map((l) => l.choiceCount)).toEqual([2, 3, 3, 3, 4, 4, 4, 4, 4]);
+describe('the 12-level restaurant curve (L10-L12: age-5 stretch)', () => {
+  it('has 12 levels with the agreed levers (L1-L9 unchanged)', () => {
+    expect(levels).toHaveLength(12);
+    expect(levels.map((l) => l.choiceCount)).toEqual([2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4]);
     expect(levels.map((l) => l.request)).toEqual([
       'noun', 'noun', 'noun', 'quantity', 'quantity', 'attribute', 'two-step', 'negation', 'negation',
+      'count-attribute', 'sequence', 'count-attribute',
     ]);
-    expect(levels.map((l) => l.distractor)).toEqual(['far', 'far', 'near', 'near', 'near', 'near', 'near', 'near', 'near']);
+    expect(levels.map((l) => l.distractor)).toEqual([
+      'far', 'far', 'near', 'near', 'near', 'near', 'near', 'near', 'near', 'near', 'near', 'same-item-variant',
+    ]);
     expect(levels[8].support).toBe('audio-only');
     // L9 has the same levers as L8; only the voice-only support differs.
     expect({ ...levels[8], support: undefined }).toEqual({ ...levels[7], support: undefined });
     expect(levels.slice(0, 8).every((l) => l.support === undefined)).toBe(true);
+    expect(levels[9].support).toBeUndefined();
+    expect(levels[10].support).toBeUndefined();
+    expect(levels[11].support).toBe('audio-only');
   });
 
-  it('tracks: age2 starts at L4, age5 at L5, both floor at L1 and top out at L9', () => {
+  it('tracks: age2 unchanged (L4 start, max L9); age5 starts at L5 and tops out at L12', () => {
     expect(restaurant.adaptive.tracks.age2).toEqual({ start: 4, min: 1, max: 9 });
-    expect(restaurant.adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 9 });
+    expect(restaurant.adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 12 });
   });
 });
 
@@ -324,9 +330,9 @@ describe('content validation for the new levers', () => {
     expect(ok(missingPhrase)).toBe(false);
   });
 
-  it('track bounds may reach level 9 but not beyond', () => {
+  it('track bounds may reach level 12 but not beyond', () => {
     const c = clone();
-    c.adaptive.tracks.age2.max = 10;
+    c.adaptive.tracks.age2.max = 13;
     expect(ok(c)).toBe(false);
   });
 });

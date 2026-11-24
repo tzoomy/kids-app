@@ -14,13 +14,19 @@
     "name": { "en": "Where is {name}?", "fr": "Où est {name} ?" },
     "sound": { "en": "{sound}", "fr": "{sound}" }
   },
+  "missing": {
+    "look": { "en": "Look who is here!", "fr": "Regarde qui est là !" },
+    "gone": { "en": "Oh! Someone ran away!", "fr": "Oh ! Quelqu'un est parti !" },
+    "ask": { "en": "Who is missing?", "fr": "Qui a disparu ?" },
+    "introHe": "הסתכלי טוב על כל החיות! אחת מהן תברח, ואת תגלי מי חסרה."
+  },
   "found": {
     "en": ["Peekaboo!", "Surprise!", "You found me!"],
     "fr": ["Coucou !", "Surprise !", "Tu m'as trouvé !"]
   },
   "helpTextHe": "מישהו מתחבא בשיחים! הקשיבי למי שמחפשים ולחצי על השיח שבו החיה מתחבאת. אפשר ללחוץ על הרמקול כדי לשמוע שוב.",
   "adaptive": {
-    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 8 } },
+    "tracks": { "age2": { "start": 2, "min": 1, "max": 8 }, "age5": { "start": 5, "min": 1, "max": 10 } },
     "levels": [
       { "choiceCount": 2, "distractor": "far", "support": "partial-reveal", "extra": { "reveal": 0.9, "speak": "name-sound" } },
       { "choiceCount": 3, "distractor": "far", "support": "partial-reveal", "extra": { "reveal": 0.8, "speak": "name-sound" } },
@@ -29,7 +35,9 @@
       { "choiceCount": 4, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.3, "speak": "name" } },
       { "choiceCount": 5, "distractor": "same-category", "support": "partial-reveal", "extra": { "reveal": 0.3, "speak": "name" } },
       { "choiceCount": 5, "distractor": "same-category", "support": "audio-only", "extra": { "reveal": 0.3, "speak": "sound" } },
-      { "choiceCount": 6, "distractor": "same-category", "support": "audio-only", "extra": { "reveal": 0.3, "speak": "sound", "soundMs": 800 } }
+      { "choiceCount": 6, "distractor": "same-category", "support": "audio-only", "extra": { "reveal": 0.3, "speak": "sound", "soundMs": 800 } },
+      { "choiceCount": 4, "distractor": "far", "support": "partial-reveal", "request": "missing", "extra": { "reveal": 1, "speak": "sound", "peekMs": 3500, "backMs": 2500 } },
+      { "choiceCount": 6, "distractor": "same-category", "support": "audio-only", "request": "missing", "extra": { "reveal": 1, "speak": "sound", "peekMs": 2500, "backMs": 1500 } }
     ]
   },
   "animals": [

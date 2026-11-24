@@ -39,7 +39,7 @@ describe('shadow-match: content (AC-09, AC-17)', () => {
     expect(shadow.world).toBe(hiding.world);
     expect(skillKey(shadow.world, shadow.id, 'en')).toBe('nature-lab.shadow-match.en');
     expect(skillKey(hiding.world, hiding.id, 'en')).toBe('nature-lab.who-is-hiding.en');
-    expect(hiding.adaptive.levels).toHaveLength(8);
+    expect(hiding.adaptive.levels).toHaveLength(10);
     expect(hiding.adaptive.tracks).toEqual(rawHiding.adaptive.tracks);
   });
 });

@@ -19,6 +19,7 @@ export const HABITAT_HE_TEXT = {
   'habitat.correct.he': 'יופי! החיה הגיעה הביתה!',
   'habitat.wrong.he': 'כמעט! נסי בית אחר.',
   'habitat.help.he': 'עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.',
+  'habitat.mystery.ask.he': 'מי מתחבאת כאן? הקשיבי לחידה, ואז הקישי על הבית שלה.',
 } as const;
 
 type HeLineId = keyof typeof HABITAT_HE_TEXT;
@@ -37,9 +38,23 @@ export function clueLine(animal: HabitatAnimal, lang: Lang): SpeechLine {
   return { lineId: `habitat.clue.${animal.id}.${lang}`, lang, text: animal.clue[lang] };
 }
 
-/** The Hebrew ask line, then the name (noun levels) or the descriptive clue (riddle levels) in the round language. */
+/** The animal's two-clue riddle (mystery levels), e.g. `habitat.mystery.owl.fr`; falls back to the clue. */
+export function mysteryLine(animal: HabitatAnimal, lang: Lang): SpeechLine {
+  return { lineId: `habitat.mystery.${animal.id}.${lang}`, lang, text: (animal.mystery ?? animal.clue)[lang] };
+}
+
+/** The Hebrew ask line for the round's request (the mystery ask on mystery levels). */
+export function askHeLineId(levers: Pick<HabitatLevers, 'request'>): 'habitat.ask.he' | 'habitat.mystery.ask.he' {
+  return levers.request === 'mystery' ? 'habitat.mystery.ask.he' : 'habitat.ask.he';
+}
+
+/**
+ * The Hebrew ask line, then the name (noun levels), the descriptive clue (riddle levels) or the two-clue riddle
+ * (mystery levels) in the round language.
+ */
 export function askLines(_content: Pick<WhoLivesHereContent, 'homes'>, animal: HabitatAnimal, levers: HabitatLevers, lang: Lang): SpeechLine[] {
-  return [heLine('habitat.ask.he'), levers.request === 'riddle' ? clueLine(animal, lang) : nameLine(animal, lang)];
+  const word = levers.request === 'mystery' ? mysteryLine(animal, lang) : levers.request === 'riddle' ? clueLine(animal, lang) : nameLine(animal, lang);
+  return [heLine(askHeLineId(levers)), word];
 }
 
 /** Hebrew praise, then the home's name in the round language. */

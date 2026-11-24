@@ -21,6 +21,16 @@ export interface ChoiceServeLevel {
 /** Frames for two-item requests, with `{a}` and `{b}` placeholders (from content). */
 export type TwoStepFrames = Record<Lang, string>;
 
+/** Optional age-5 request frames (from content): ordered pairs and colour + count requests. */
+export interface StretchFrames {
+  /** "First {a}, then {b}, please!" */
+  sequenceFrames?: Record<Lang, string>;
+  /** "I want {count} {items}, please!" */
+  countAttributeFrames?: Record<Lang, string>;
+  /** Count words for `count-attribute` ("two", "deux"). */
+  countWords?: Record<Lang, { '2': string; '3': string }>;
+}
+
 export interface ChoiceOption {
   item: RestaurantItem;
   count: 1 | 2 | 3;
@@ -41,6 +51,8 @@ export interface RoundSpec {
   lineId: string;
   /** No visual cue for the request (no text bubble). */
   audioOnly: boolean;
+  /** `sequence` requests: `targets` must be served in this order (a plate out of order is a miss). */
+  ordered?: boolean;
 }
 
 /** Requests that need a special round builder (everything but the plain noun / quantity rounds). */
@@ -222,6 +234,88 @@ function buildTwoStepRound(
   };
 }
 
+function pickOne<T>(arr: readonly T[], random: () => number): T {
+  return arr[Math.min(arr.length - 1, Math.floor(random() * arr.length))];
+}
+
+/** Counts (2 or 3) an item can be asked for at a `count-attribute` level, in both languages. */
+function countAttributeCounts(item: RestaurantItem, level: ChoiceServeLevel): (2 | 3)[] {
+  return level.counts.filter(
+    (c): c is 2 | 3 => (c === 2 || c === 3) && Boolean(item.prompts.en[String(c) as '2' | '3']) && Boolean(item.prompts.fr[String(c) as '2' | '3']),
+  );
+}
+
+/** True when `item` can carry a `count-attribute` request at `level` (two coloured variants with plural phrases). */
+function supportsCountAttribute(item: RestaurantItem, level: ChoiceServeLevel): boolean {
+  // Two colours, each with a plural noun ("green apples"), and sentences for two counts in both languages.
+  const variants = item.variants ?? [];
+  return variants.length >= 2 && variants.every((v) => v.plural) && countAttributeCounts(item, level).length >= 2;
+}
+
+/**
+ * Colour + count request ("I want two green apples, please!", age 5). The plates always include the
+ * colour look-alike (same count, other colour) and the count look-alike (same colour, other count), so
+ * both words matter. `same-item-variant` fills the rest with the same food (other colour, other count);
+ * any other distractor adds other foods at the asked count. One answer only.
+ */
+function buildCountAttributeRound(
+  items: readonly RestaurantItem[],
+  item: RestaurantItem,
+  level: ChoiceServeLevel,
+  language: Lang,
+  extras: StretchFrames,
+  random: () => number,
+): RoundSpec | null {
+  const variants = item.variants;
+  const frames = extras.countAttributeFrames;
+  const words = extras.countWords;
+  if (!variants || !frames || !words || !supportsCountAttribute(item, level)) return null;
+  const counts = countAttributeCounts(item, level);
+  const named = pickOne(variants, random);
+  const other = variants.find((v) => v !== named)!;
+  const count = pickOne(counts, random);
+  const otherCount = pickOne(
+    counts.filter((c) => c !== count),
+    random,
+  );
+  const target: ChoiceOption = { item, count, color: named.color };
+  const options: ChoiceOption[] = [target, { item, count, color: other.color }, { item, count: otherCount, color: named.color }];
+  if (level.distractor === 'same-item-variant') options.push({ item, count: otherCount, color: other.color });
+  const rest = Math.max(0, level.choiceCount - options.length);
+  const others = pickDistractors(item, items, rest, 'near', random).map((d) => ({ item: d, count }));
+  const choices = shuffle([...options, ...others].slice(0, Math.max(level.choiceCount, 3)), random);
+  return {
+    language,
+    request: 'count-attribute',
+    target,
+    targets: [target],
+    choices,
+    promptText: frames[language].replace('{count}', words[language][String(count) as '2' | '3']).replace('{items}', named.plural![language]),
+    lineId: `countattr.${item.id}.${named.color}.${count}.${language}`,
+    audioOnly: level.support === 'audio-only',
+  };
+}
+
+/**
+ * Ordered two-item request ("First an apple, then a banana, please!", age 5). Same plates as a two-item
+ * request, but the first food must be served first: the second food tapped first is a miss.
+ */
+function buildSequenceRound(
+  items: readonly RestaurantItem[],
+  first: RestaurantItem,
+  level: ChoiceServeLevel,
+  language: Lang,
+  extras: StretchFrames,
+  random: () => number,
+  familiarIds: readonly string[],
+): RoundSpec | null {
+  const frames = extras.sequenceFrames;
+  if (!frames || items.length < 3) return null;
+  const pair = buildTwoStepRound(items, first, level, language, frames, random, familiarIds);
+  const [a, b] = pair.targets;
+  return { ...pair, request: 'sequence', lineId: `seq.${a.item.id}.${b.item.id}.${language}`, ordered: true };
+}
+
 /**
  * Builds one round: either several different items (count 1 each), or the same
  * item at different counts, per the level's configuration. Choice count and
@@ -240,6 +334,7 @@ export function buildRound(
   targetId?: string,
   frames?: TwoStepFrames,
   familiarIds: readonly string[] = [],
+  extras: StretchFrames = {},
 ): RoundSpec {
   const n = level.choiceCount;
   let fixed = targetId === undefined ? undefined : items.find((i) => i.id === targetId);
@@ -256,7 +351,11 @@ export function buildRound(
           ? frames && items.length >= 3
             ? buildTwoStepRound(items, fixed, level, language, frames, random, familiarIds)
             : null
-          : buildVariantRound(items, fixed, level, language, level.request as 'attribute' | 'negation', random);
+          : level.request === 'sequence'
+            ? buildSequenceRound(items, fixed, level, language, extras, random, familiarIds)
+            : level.request === 'count-attribute'
+              ? buildCountAttributeRound(items, fixed, level, language, extras, random)
+              : buildVariantRound(items, fixed, level, language, level.request as 'attribute' | 'negation', random);
       // A target the request cannot use (no variants, no frames) falls back to a plain round.
       if (special) return special;
     }
@@ -296,8 +395,21 @@ export function isRequestedChoice(choice: ChoiceOption, targets: readonly Choice
   return targets.some((t) => isCorrectChoice(choice, t));
 }
 
+/**
+ * True when `choice` is a plate the child may serve next. An ordered (`sequence`) request accepts only the
+ * next food in order; otherwise any requested plate not yet served. `servedCount` = requested plates already served.
+ */
+export function isNextRequestedChoice(choice: ChoiceOption, round: Pick<RoundSpec, 'targets' | 'ordered'>, servedCount: number): boolean {
+  if (round.ordered) {
+    const next = round.targets[servedCount];
+    return next !== undefined && isCorrectChoice(choice, next);
+  }
+  return isRequestedChoice(choice, round.targets);
+}
+
 /** Items the engine may pick as the primary target for a level's request type. */
 export function eligibleTargetIds(items: readonly RestaurantItem[], level: ChoiceServeLevel): string[] {
+  if (level.request === 'count-attribute') return items.filter((i) => supportsCountAttribute(i, level)).map((i) => i.id);
   const needsVariants = level.request === 'attribute' || level.request === 'negation';
   return items.filter((i) => !needsVariants || i.variants).map((i) => i.id);
 }

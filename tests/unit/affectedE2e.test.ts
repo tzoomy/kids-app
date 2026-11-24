@@ -106,6 +106,7 @@ describe('affected e2e selection', () => {
   it('game content JSON selects that game specs', () => {
     expect(selectAffectedE2e(['src/content/games/animal-restaurant.json'])).toEqual([
       'tests/e2e/animal-restaurant.journey.spec.ts',
+      'tests/e2e/animal-restaurant.stretch.spec.ts',
     ]);
   });
 
@@ -113,9 +114,11 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/unit/who-is-hiding.audio.test.ts'])).toEqual([
       'tests/e2e/hiding.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
+      'tests/e2e/who-is-hiding.missing.spec.ts',
     ]);
     expect(selectAffectedE2e(['tests/unit/restaurantLayout.test.ts'])).toEqual([
       'tests/e2e/animal-restaurant.journey.spec.ts',
+      'tests/e2e/animal-restaurant.stretch.spec.ts',
     ]);
   });
 
@@ -132,9 +135,10 @@ describe('affected e2e selection', () => {
     expect(selectAffectedE2e(['tests/shared/leisureColouringPages.ts'])).toEqual(expected);
   });
 
-  it('orchestra game selects the orchestra picker spec', () => {
+  it('orchestra game selects the orchestra picker and reverse specs', () => {
     expect(selectAffectedE2e(['src/games/orchestra/orchestraGame.ts'])).toEqual([
       'tests/e2e/kitchen-orchestra.picker.spec.ts',
+      'tests/e2e/kitchen-orchestra.reverse.spec.ts',
     ]);
   });
 
@@ -376,6 +380,7 @@ describe('affected e2e selection', () => {
       // Shadow Match lives in src/games/hiding/, so hiding changes also select its journey.
       'tests/e2e/shadow-match.journey.spec.ts',
       'tests/e2e/who-is-hiding.journey.spec.ts',
+      'tests/e2e/who-is-hiding.missing.spec.ts',
     ]);
   });
 

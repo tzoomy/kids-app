@@ -20,13 +20,24 @@ export interface OrchestraLevelLevers {
   choiceCount: number;
   speed: number;
   support: OrchestraSupport;
+  /** Age-5 reverse echo (`extra.order: "reverse"`): the child plays the pattern from the last note to the first. */
+  reverse?: boolean;
 }
 
 export interface OrchestraTrial {
   instruments: OrchestraInstrumentId[];
+  /** The pattern the chef plays, in playing order. */
   sequence: OrchestraInstrumentId[];
+  /** The taps the child must make: `sequence`, or `sequence` reversed on a reverse level. */
+  answer: OrchestraInstrumentId[];
+  reverse: boolean;
   support: OrchestraSupport;
   speed: number;
+}
+
+/** True when the pattern reads the same backwards (a reverse trial would not test the rule). */
+export function isPalindrome(sequence: readonly OrchestraInstrumentId[]): boolean {
+  return sequence.every((id, i) => id === sequence[sequence.length - 1 - i]);
 }
 
 export function instrumentsForChoiceCount(choiceCount: number): OrchestraInstrumentId[] {
@@ -68,11 +79,38 @@ export function buildSequence(
 
 export function buildTrial(level: OrchestraLevelLevers, random: () => number = Math.random): OrchestraTrial {
   const instruments = instrumentsForChoiceCount(level.choiceCount);
+  const reverse = level.reverse === true && level.sequenceLength > 1;
+  let sequence = buildSequence(instruments, level.sequenceLength, random);
+  if (reverse && isPalindrome(sequence)) {
+    // Backwards must differ from forwards: change the last note (never to its neighbour, so no repeat appears).
+    const last = sequence.length - 1;
+    const options = instruments.filter((id) => id !== sequence[last] && id !== sequence[last - 1]);
+    sequence = [...sequence.slice(0, last), options[0] ?? sequence[last]];
+  }
   return {
     instruments,
-    sequence: buildSequence(instruments, level.sequenceLength, random),
+    sequence,
+    answer: reverse ? [...sequence].reverse() : [...sequence],
+    reverse,
     support: level.support,
     speed: level.speed,
+  };
+}
+
+/** Reads the levers from a validated content level. */
+export function orchestraLevers(level: {
+  sequenceLength?: number;
+  choiceCount?: number;
+  speed?: number;
+  support?: string;
+  extra?: Record<string, string | number | boolean>;
+}): OrchestraLevelLevers {
+  return {
+    sequenceLength: level.sequenceLength ?? 1,
+    choiceCount: level.choiceCount ?? 3,
+    speed: level.speed ?? 1,
+    support: (level.support as OrchestraSupport | undefined) ?? 'lit',
+    reverse: level.extra?.order === 'reverse',
   };
 }
 

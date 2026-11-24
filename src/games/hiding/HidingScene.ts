@@ -19,12 +19,20 @@ import { TrialTracker, nextRoundLanguage } from '../restaurant/trialTracker';
 import { crossedWholeMinute, shouldPraise, shouldSayRetry, showsPromptBubble } from '../restaurant/voiceRules';
 import { type Lang } from '../templates/choiceServe';
 import type { SpeechRequest } from '../../core/audio/types';
-import { buildHidingRound, eligibleAnimalIds, isCorrectBush, type HidingRoundSpec } from './hidingRound';
+import { MISSING_INTRO_HE_ID, buildHidingRound, eligibleAnimalIds, isCorrectBush, missingLines, type HidingRoundSpec } from './hidingRound';
+import { computeShadowLayout, type ShadowSlot } from './shadowLayout';
 import { animalFeetY, computeHidingLayout, BUSH_ART, type BushSlot, type HidingLayout } from './hidingLayout';
 
 export interface HidingRoundInfo {
-  /** Always 'hiding'; lets a test tell this round apart from a restaurant round. */
-  request: 'hiding';
+  /**
+   * 'hiding' (find the hiding animal) or 'missing' (age-5 "Who is missing?", L9-L10); lets a test tell this round apart
+   * from a restaurant round. On a missing round the choices are the answer cards.
+   */
+  request: 'hiding' | 'missing';
+  /** Missing rounds: 'peek' (line-up), 'gone' (one runs away), 'back' (the others return) or 'answer' (cards). */
+  phase?: 'peek' | 'gone' | 'back' | 'answer';
+  /** Missing rounds: the line-up animals in bush order (the target is the one that runs away). */
+  lineupIds?: string[];
   /** Index of the bush that hides the requested animal. */
   correctIndex: number;
   /** Animal ids per bush, in display order. */
@@ -72,6 +80,15 @@ interface BushView {
   maskShape: Phaser.GameObjects.Graphics;
 }
 
+/** A standing answer animal on a "Who is missing?" round. */
+interface CardView {
+  animal: HidingAnimal;
+  slot: ShadowSlot;
+  character: Character;
+  ground: Phaser.GameObjects.Ellipse;
+  zone: Phaser.GameObjects.Zone;
+}
+
 interface ActiveRound extends HidingRoundSpec {
   done: boolean;
   tries: number;
@@ -89,6 +106,10 @@ const FOLLOWUP_MAX_WAIT_MS = 3500;
 const FOUND_BEFORE_PRAISE_MAX_MS = 5000;
 /** The hint lifts the answer animal at least this far out of its bush (fraction of its height). */
 const HINT_MIN_REVEAL = 0.9;
+/** Missing rounds: how long the line-up animals take to duck into or rise out of their bushes. */
+const MISSING_MOVE_MS = 380;
+/** Missing rounds: cap for the Hebrew rule line and the short EN/FR lines between phases. */
+const MISSING_LINE_MAX_MS = 4500;
 
 const DEPTH = { background: -10, ui: 200, zone: 100, flying: 300 } as const;
 
@@ -101,6 +122,10 @@ export class HidingScene extends Phaser.Scene {
   private layout!: HidingLayout;
   private round: ActiveRound | null = null;
   private bushes: BushView[] = [];
+  private cards: CardView[] = [];
+  private missingPhase: 'peek' | 'gone' | 'back' | 'answer' | null = null;
+  /** The Hebrew "Who is missing?" rule line plays before the first missing round of a visit. */
+  private missingIntroPending = true;
   private replayButton?: Phaser.GameObjects.Container;
   private ready = false;
   private hinted = false;
@@ -139,6 +164,9 @@ export class HidingScene extends Phaser.Scene {
     this.roundLang = null;
     this.round = null;
     this.bushes = [];
+    this.cards = [];
+    this.missingPhase = null;
+    this.missingIntroPending = true;
     this.replayButton = undefined;
     this.ready = false;
     this.hinted = false;
@@ -187,6 +215,7 @@ export class HidingScene extends Phaser.Scene {
     this.roundToken++;
     this.round = null;
     this.clearBushes();
+    this.clearCards();
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.context.audio.stopAll();
     this.context.shell.clearPromptBubble();
@@ -307,6 +336,8 @@ export class HidingScene extends Phaser.Scene {
     this.session.reportListening(false);
     this.session.reportCelebrating(false);
     this.clearBushes();
+    this.clearCards();
+    this.missingPhase = null;
     this.hintTimer?.remove();
     this.retryTimer?.remove();
     this.retryTimer = undefined;
@@ -333,6 +364,11 @@ export class HidingScene extends Phaser.Scene {
       levelNo: levelNumber,
       skillKey: this.skills.key(language),
     };
+
+    if (spec.level.missing && spec.cards) {
+      void this.playMissingRound(token, spec);
+      return;
+    }
 
     this.layout = computeHidingLayout(this.scale.width, this.scale.height, spec.level.choiceCount);
     this.buildReplayButton();
@@ -370,6 +406,165 @@ export class HidingScene extends Phaser.Scene {
     this.bushes = [];
     this.replayButton?.destroy();
     this.replayButton = undefined;
+  }
+
+  private clearCards(): void {
+    for (const c of this.cards) {
+      c.character.destroy();
+      c.ground.destroy();
+      c.zone.destroy();
+    }
+    this.cards = [];
+  }
+
+  // ---------------------------------------------------------------- who is missing (age 5, L9-L10)
+
+  /** Tweens an animal's feet to `y` (duck into or rise out of its bush). */
+  private moveAnimal(view: BushView, y: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.tweens.add({ targets: view.character.root, y, duration: isReducedMotion() ? 1 : MISSING_MOVE_MS, ease: 'Sine.easeInOut', onComplete: () => resolve() });
+    });
+  }
+
+  private playLine(lineId: string, lang: 'he' | Lang, text: string): Promise<void> {
+    return Promise.race([this.context.audio.play({ lineId, lang, text }).then(() => undefined), wait(this, MISSING_LINE_MAX_MS)]);
+  }
+
+  /**
+   * "Who is missing?": the line-up stands in front of the bushes (peek), everyone hides and one runs away (gone), the
+   * others come back for a moment and hide again (back), then the whole line-up stands as answer cards (answer).
+   * Nothing is tappable before the answer phase, so no try or hint can be recorded early.
+   */
+  private async playMissingRound(token: number, spec: HidingRoundSpec): Promise<void> {
+    const alive = () => token === this.roundToken && this.round !== null && !this.round.done;
+    const content = this.context.content.hiding;
+    const lang = spec.language;
+    const lines = missingLines(content, lang)!;
+    this.layout = computeHidingLayout(this.scale.width, this.scale.height, spec.level.choiceCount);
+    this.buildReplayButton();
+    this.context.shell.clearPromptBubble();
+    this.missingPhase = 'peek';
+    await Promise.all(spec.choices.map((animal, i) => this.buildBush(animal, this.layout.bushes[i], spec, i)));
+    if (!alive()) return;
+
+    // The general hiding intro does not describe this rule; the missing intro replaces it once per visit.
+    this.introPending = false;
+    this.session.reportListening(true);
+    if (this.missingIntroPending && content.missing) {
+      this.missingIntroPending = false;
+      await this.playLine(MISSING_INTRO_HE_ID, 'he', content.missing.introHe);
+      if (!alive()) return;
+    }
+    this.bushes.forEach((b) => void b.character.happy());
+    await Promise.all([this.playLine(lines.look.lineId, lang, lines.look.text), wait(this, spec.level.peekMs)]);
+    if (!alive()) return;
+
+    // Everyone hides; the target runs away while hidden.
+    this.missingPhase = 'gone';
+    const down = (b: BushView) => b.slot.topY + b.slot.animalHeight + 12;
+    await Promise.all(this.bushes.map((b) => this.moveAnimal(b, down(b))));
+    if (!alive()) return;
+    const leaver = this.bushes.find((b) => b.animal.id === spec.target.id);
+    leaver?.character.root.setVisible(false);
+    this.bushes.forEach((b) => void this.rustleBush(b));
+    await this.playLine(lines.gone.lineId, lang, lines.gone.text);
+    if (!alive()) return;
+
+    // The others come back for a moment, then hide again.
+    this.missingPhase = 'back';
+    const stayers = this.bushes.filter((b) => b !== leaver);
+    await Promise.all(stayers.map((b) => this.moveAnimal(b, b.hiddenY)));
+    if (!alive()) return;
+    await wait(this, spec.level.backMs);
+    if (!alive()) return;
+    await Promise.all(stayers.map((b) => this.moveAnimal(b, down(b))));
+    if (!alive()) return;
+    this.session.reportListening(false);
+
+    // Answer: the line-up stands as cards; tap the one that ran away.
+    this.clearBushes();
+    this.buildReplayButton();
+    const slots = computeShadowLayout(this.scale.width, this.scale.height, spec.cards!.length).slots;
+    await Promise.all(spec.cards!.map((animal, i) => this.buildCard(animal, slots[i], i)));
+    if (!alive()) return;
+    this.missingPhase = 'answer';
+    this.ready = true;
+    if (showsPromptBubble(spec.level.audioOnly)) this.context.shell.setPromptBubble(spec.promptText, () => this.replay());
+    void this.speakPrompt();
+    this.scheduleIdleHint();
+  }
+
+  private buildCard(animal: HidingAnimal, slot: ShadowSlot, index: number): Promise<void> {
+    const ground = this.add.ellipse(slot.x, slot.feetY, slot.animalHeight * 0.8, slot.animalHeight * 0.16, 0x3b2a22, 0.18).setDepth(slot.row * 10);
+    const character = new Character(this, { kind: animal.kind, x: slot.x, y: slot.feetY, displayHeight: slot.animalHeight, depth: slot.row * 10 + 2 });
+    this.dressBear(character, animal.kind);
+    const hit = slot.hit;
+    const zone = this.add
+      .zone((hit.left + hit.right) / 2, (hit.top + hit.bottom) / 2, hit.right - hit.left, hit.bottom - hit.top)
+      .setDepth(DEPTH.zone)
+      .setInteractive({ useHandCursor: true });
+    const view: CardView = { animal, slot, character, ground, zone };
+    zone.on('pointerdown', () => this.chooseCard(view));
+    this.cards.push(view);
+    const delay = 120 + index * ANIM_PROFILE.popIn.stagger;
+    return Promise.all([popIn(this, ground, delay, ground.scaleX), popIn(this, character.root, delay, character.root.scaleX)]).then(() => undefined);
+  }
+
+  private chooseCard(view: CardView): void {
+    const round = this.round;
+    if (!round || round.done || !this.ready || this.missingPhase !== 'answer') return;
+    if (this.time.now < this.inputLockedUntil) return;
+    this.session.reportInteraction();
+    void pressSquash(this, view.character.root);
+    const correct = view.animal.id === round.target.id;
+    const result = round.tracker.onPlateTap(correct, 0);
+    if (result) this.skills.record(round.language, result);
+    if (correct) {
+      round.done = true;
+      this.hintTimer?.remove();
+      this.retryTimer?.remove();
+      void this.onMissingCorrect(view);
+      return;
+    }
+    round.tries++;
+    this.inputLockedUntil = this.time.now + WRONG_TAP_LOCK_MS;
+    void wobble(this, view.character.root);
+    void view.character.hmm();
+    this.retryAfterMiss(round);
+  }
+
+  private async onMissingCorrect(view: CardView): Promise<void> {
+    const token = this.roundToken;
+    const alive = () => token === this.roundToken;
+    const juice = Juice.for(this);
+    const round = this.round!;
+    this.context.sfx.yay();
+    this.speakSeq++;
+    this.correctCount++;
+    this.context.audio.stopAll();
+    this.context.shell.clearPromptBubble();
+    this.session.complete();
+    this.context.recordCompletedRound('nature-lab', 'who-is-hiding');
+    const state = this.profileState();
+    state.stars++;
+    this.context.store.persist();
+    this.cards.forEach((c) => c.zone.disableInteractive());
+    const head = view.character.headPoint();
+    juice.burst('star', head.x, head.y);
+    juice.burst('confetti', view.slot.x, head.y - 30);
+    this.flyStarToCounter(head.x, head.y);
+    const lang = round.language;
+    const lines = this.context.content.hiding.found[lang];
+    const index = Math.floor(Math.random() * lines.length);
+    const found = this.context.audio.play({ lineId: `hiding.found.${lang}.${index}`, lang, text: lines[index] });
+    await view.character.happy();
+    if (!alive()) return;
+    await Promise.race([view.character.talk(found), wait(this, FOUND_MAX_WAIT_MS)]);
+    if (!alive()) return;
+    await this.afterFound(found, alive);
+    if (!alive()) return;
+    this.session.reportCelebrating(false);
+    this.startRound();
   }
 
   private bushImage(shape: 'round' | 'tall', layer: 'back' | 'front', slot: BushSlot): Phaser.GameObjects.Image | Phaser.GameObjects.Ellipse {
@@ -510,15 +705,20 @@ export class HidingScene extends Phaser.Scene {
   getRoundInfo(): HidingRoundInfo | null {
     if (!this.round || this.round.done) return null;
     const round = this.round;
-    const correctIndex = this.bushes.findIndex((b) => isCorrectBush(b.animal.id, round.target.id));
+    const missing = round.level.missing;
+    const correctIndex = missing
+      ? this.cards.findIndex((c) => c.animal.id === round.target.id)
+      : this.bushes.findIndex((b) => isCorrectBush(b.animal.id, round.target.id));
+    const center = (r: { left: number; right: number; top: number; bottom: number }) => ({ x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 });
     return {
-      request: 'hiding',
+      request: missing ? 'missing' : 'hiding',
+      ...(missing ? { phase: this.missingPhase ?? 'peek', lineupIds: round.choices.map((a) => a.id) } : {}),
       correctIndex,
-      choiceIds: this.bushes.map((b) => b.animal.id),
+      choiceIds: missing ? this.cards.map((c) => c.animal.id) : this.bushes.map((b) => b.animal.id),
       targetId: round.target.id,
-      choiceCenters: this.bushes.map((b) => ({ x: (b.slot.hit.left + b.slot.hit.right) / 2, y: (b.slot.hit.top + b.slot.hit.bottom) / 2 })),
+      choiceCenters: missing ? this.cards.map((c) => center(c.slot.hit)) : this.bushes.map((b) => center(b.slot.hit)),
       replayCenter: { x: this.layout.replay.x, y: this.layout.replay.y },
-      choiceCount: this.bushes.length,
+      choiceCount: missing ? this.cards.length : this.bushes.length,
       language: round.language,
       promptText: round.promptText,
       visualCue: !round.level.audioOnly,
@@ -557,6 +757,11 @@ export class HidingScene extends Phaser.Scene {
     // and the tracker ignores them). `hinted` mirrors what the tracker will report.
     round.tracker.onHint();
     if (round.tries === 0) this.hinted = true;
+    const card = round.level.missing ? this.cards.find((c) => c.animal.id === round.target.id) : undefined;
+    if (card && !round.level.audioOnly) {
+      void hintPulse(this, card.character.root, card.character.root.scaleX);
+      Juice.for(this).burst('sparkle', card.slot.x, card.slot.feetY - card.slot.animalHeight);
+    }
     const view = this.bushes.find((b) => isCorrectBush(b.animal.id, round.target.id));
     // A voice-only level shows nothing of the answer: the hint is the spoken request plus a clue.
     if (view && !round.level.audioOnly) {
@@ -596,6 +801,11 @@ export class HidingScene extends Phaser.Scene {
     void wobble(this, view.front);
     void wobble(this, view.back);
     void view.character.hmm();
+    this.retryAfterMiss(round);
+  }
+
+  /** After a wrong tap: the gentle retry line, then the request (age 5) or the hint (age 2, or a second miss). */
+  private retryAfterMiss(round: ActiveRound): void {
     const token = this.roundToken;
     const retry = shouldSayRetry(round.tries) ? heVariant('retry') : undefined;
     const later = (fn: () => void) => {

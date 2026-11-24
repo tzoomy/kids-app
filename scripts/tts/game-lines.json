@@ -1851,9 +1851,2031 @@
       "combo": true
     },
     {
+      "id": "seq.apple.banana.en",
+      "lang": "en",
+      "text": "First an apple, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.carrot.en",
+      "lang": "en",
+      "text": "First an apple, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.grapes.en",
+      "lang": "en",
+      "text": "First an apple, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.cheese.en",
+      "lang": "en",
+      "text": "First an apple, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.strawberry.en",
+      "lang": "en",
+      "text": "First an apple, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.broccoli.en",
+      "lang": "en",
+      "text": "First an apple, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.cookie.en",
+      "lang": "en",
+      "text": "First an apple, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.egg.en",
+      "lang": "en",
+      "text": "First an apple, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.pear.en",
+      "lang": "en",
+      "text": "First an apple, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.orange.en",
+      "lang": "en",
+      "text": "First an apple, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.fish.en",
+      "lang": "en",
+      "text": "First an apple, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.apple.en",
+      "lang": "en",
+      "text": "First a banana, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.carrot.en",
+      "lang": "en",
+      "text": "First a banana, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.grapes.en",
+      "lang": "en",
+      "text": "First a banana, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.cheese.en",
+      "lang": "en",
+      "text": "First a banana, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.strawberry.en",
+      "lang": "en",
+      "text": "First a banana, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.broccoli.en",
+      "lang": "en",
+      "text": "First a banana, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.cookie.en",
+      "lang": "en",
+      "text": "First a banana, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.egg.en",
+      "lang": "en",
+      "text": "First a banana, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.pear.en",
+      "lang": "en",
+      "text": "First a banana, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.orange.en",
+      "lang": "en",
+      "text": "First a banana, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.fish.en",
+      "lang": "en",
+      "text": "First a banana, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.apple.en",
+      "lang": "en",
+      "text": "First a carrot, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.banana.en",
+      "lang": "en",
+      "text": "First a carrot, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.grapes.en",
+      "lang": "en",
+      "text": "First a carrot, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.cheese.en",
+      "lang": "en",
+      "text": "First a carrot, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.strawberry.en",
+      "lang": "en",
+      "text": "First a carrot, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.broccoli.en",
+      "lang": "en",
+      "text": "First a carrot, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.cookie.en",
+      "lang": "en",
+      "text": "First a carrot, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.egg.en",
+      "lang": "en",
+      "text": "First a carrot, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.pear.en",
+      "lang": "en",
+      "text": "First a carrot, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.orange.en",
+      "lang": "en",
+      "text": "First a carrot, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.fish.en",
+      "lang": "en",
+      "text": "First a carrot, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.apple.en",
+      "lang": "en",
+      "text": "First some grapes, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.banana.en",
+      "lang": "en",
+      "text": "First some grapes, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.carrot.en",
+      "lang": "en",
+      "text": "First some grapes, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.cheese.en",
+      "lang": "en",
+      "text": "First some grapes, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.strawberry.en",
+      "lang": "en",
+      "text": "First some grapes, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.broccoli.en",
+      "lang": "en",
+      "text": "First some grapes, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.cookie.en",
+      "lang": "en",
+      "text": "First some grapes, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.egg.en",
+      "lang": "en",
+      "text": "First some grapes, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.pear.en",
+      "lang": "en",
+      "text": "First some grapes, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.orange.en",
+      "lang": "en",
+      "text": "First some grapes, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.fish.en",
+      "lang": "en",
+      "text": "First some grapes, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.apple.en",
+      "lang": "en",
+      "text": "First some cheese, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.banana.en",
+      "lang": "en",
+      "text": "First some cheese, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.carrot.en",
+      "lang": "en",
+      "text": "First some cheese, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.grapes.en",
+      "lang": "en",
+      "text": "First some cheese, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.strawberry.en",
+      "lang": "en",
+      "text": "First some cheese, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.broccoli.en",
+      "lang": "en",
+      "text": "First some cheese, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.cookie.en",
+      "lang": "en",
+      "text": "First some cheese, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.egg.en",
+      "lang": "en",
+      "text": "First some cheese, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.pear.en",
+      "lang": "en",
+      "text": "First some cheese, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.orange.en",
+      "lang": "en",
+      "text": "First some cheese, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.fish.en",
+      "lang": "en",
+      "text": "First some cheese, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.apple.en",
+      "lang": "en",
+      "text": "First a strawberry, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.banana.en",
+      "lang": "en",
+      "text": "First a strawberry, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.carrot.en",
+      "lang": "en",
+      "text": "First a strawberry, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.grapes.en",
+      "lang": "en",
+      "text": "First a strawberry, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.cheese.en",
+      "lang": "en",
+      "text": "First a strawberry, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.broccoli.en",
+      "lang": "en",
+      "text": "First a strawberry, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.cookie.en",
+      "lang": "en",
+      "text": "First a strawberry, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.egg.en",
+      "lang": "en",
+      "text": "First a strawberry, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.pear.en",
+      "lang": "en",
+      "text": "First a strawberry, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.orange.en",
+      "lang": "en",
+      "text": "First a strawberry, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.fish.en",
+      "lang": "en",
+      "text": "First a strawberry, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.apple.en",
+      "lang": "en",
+      "text": "First some broccoli, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.banana.en",
+      "lang": "en",
+      "text": "First some broccoli, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.carrot.en",
+      "lang": "en",
+      "text": "First some broccoli, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.grapes.en",
+      "lang": "en",
+      "text": "First some broccoli, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.cheese.en",
+      "lang": "en",
+      "text": "First some broccoli, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.strawberry.en",
+      "lang": "en",
+      "text": "First some broccoli, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.cookie.en",
+      "lang": "en",
+      "text": "First some broccoli, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.egg.en",
+      "lang": "en",
+      "text": "First some broccoli, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.pear.en",
+      "lang": "en",
+      "text": "First some broccoli, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.orange.en",
+      "lang": "en",
+      "text": "First some broccoli, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.fish.en",
+      "lang": "en",
+      "text": "First some broccoli, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.apple.en",
+      "lang": "en",
+      "text": "First a cookie, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.banana.en",
+      "lang": "en",
+      "text": "First a cookie, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.carrot.en",
+      "lang": "en",
+      "text": "First a cookie, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.grapes.en",
+      "lang": "en",
+      "text": "First a cookie, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.cheese.en",
+      "lang": "en",
+      "text": "First a cookie, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.strawberry.en",
+      "lang": "en",
+      "text": "First a cookie, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.broccoli.en",
+      "lang": "en",
+      "text": "First a cookie, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.egg.en",
+      "lang": "en",
+      "text": "First a cookie, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.pear.en",
+      "lang": "en",
+      "text": "First a cookie, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.orange.en",
+      "lang": "en",
+      "text": "First a cookie, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.fish.en",
+      "lang": "en",
+      "text": "First a cookie, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.apple.en",
+      "lang": "en",
+      "text": "First an egg, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.banana.en",
+      "lang": "en",
+      "text": "First an egg, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.carrot.en",
+      "lang": "en",
+      "text": "First an egg, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.grapes.en",
+      "lang": "en",
+      "text": "First an egg, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.cheese.en",
+      "lang": "en",
+      "text": "First an egg, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.strawberry.en",
+      "lang": "en",
+      "text": "First an egg, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.broccoli.en",
+      "lang": "en",
+      "text": "First an egg, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.cookie.en",
+      "lang": "en",
+      "text": "First an egg, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.pear.en",
+      "lang": "en",
+      "text": "First an egg, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.orange.en",
+      "lang": "en",
+      "text": "First an egg, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.fish.en",
+      "lang": "en",
+      "text": "First an egg, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.apple.en",
+      "lang": "en",
+      "text": "First a pear, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.banana.en",
+      "lang": "en",
+      "text": "First a pear, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.carrot.en",
+      "lang": "en",
+      "text": "First a pear, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.grapes.en",
+      "lang": "en",
+      "text": "First a pear, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.cheese.en",
+      "lang": "en",
+      "text": "First a pear, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.strawberry.en",
+      "lang": "en",
+      "text": "First a pear, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.broccoli.en",
+      "lang": "en",
+      "text": "First a pear, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.cookie.en",
+      "lang": "en",
+      "text": "First a pear, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.egg.en",
+      "lang": "en",
+      "text": "First a pear, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.orange.en",
+      "lang": "en",
+      "text": "First a pear, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.fish.en",
+      "lang": "en",
+      "text": "First a pear, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.apple.en",
+      "lang": "en",
+      "text": "First an orange, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.banana.en",
+      "lang": "en",
+      "text": "First an orange, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.carrot.en",
+      "lang": "en",
+      "text": "First an orange, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.grapes.en",
+      "lang": "en",
+      "text": "First an orange, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.cheese.en",
+      "lang": "en",
+      "text": "First an orange, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.strawberry.en",
+      "lang": "en",
+      "text": "First an orange, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.broccoli.en",
+      "lang": "en",
+      "text": "First an orange, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.cookie.en",
+      "lang": "en",
+      "text": "First an orange, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.egg.en",
+      "lang": "en",
+      "text": "First an orange, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.pear.en",
+      "lang": "en",
+      "text": "First an orange, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.fish.en",
+      "lang": "en",
+      "text": "First an orange, then some fish, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.apple.en",
+      "lang": "en",
+      "text": "First some fish, then an apple, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.banana.en",
+      "lang": "en",
+      "text": "First some fish, then a banana, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.carrot.en",
+      "lang": "en",
+      "text": "First some fish, then a carrot, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.grapes.en",
+      "lang": "en",
+      "text": "First some fish, then some grapes, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.cheese.en",
+      "lang": "en",
+      "text": "First some fish, then some cheese, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.strawberry.en",
+      "lang": "en",
+      "text": "First some fish, then a strawberry, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.broccoli.en",
+      "lang": "en",
+      "text": "First some fish, then some broccoli, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.cookie.en",
+      "lang": "en",
+      "text": "First some fish, then a cookie, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.egg.en",
+      "lang": "en",
+      "text": "First some fish, then an egg, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.pear.en",
+      "lang": "en",
+      "text": "First some fish, then a pear, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.orange.en",
+      "lang": "en",
+      "text": "First some fish, then an orange, please!",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "countattr.apple.red.2.en",
+      "lang": "en",
+      "text": "I want two red apples, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.red.3.en",
+      "lang": "en",
+      "text": "I want three red apples, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.green.2.en",
+      "lang": "en",
+      "text": "I want two green apples, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.green.3.en",
+      "lang": "en",
+      "text": "I want three green apples, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.yellow.2.en",
+      "lang": "en",
+      "text": "I want two yellow bananas, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.yellow.3.en",
+      "lang": "en",
+      "text": "I want three yellow bananas, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.green.2.en",
+      "lang": "en",
+      "text": "I want two green bananas, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.green.3.en",
+      "lang": "en",
+      "text": "I want three green bananas, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.green.2.en",
+      "lang": "en",
+      "text": "I want two green pears, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.green.3.en",
+      "lang": "en",
+      "text": "I want three green pears, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.yellow.2.en",
+      "lang": "en",
+      "text": "I want two yellow pears, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.yellow.3.en",
+      "lang": "en",
+      "text": "I want three yellow pears, please!",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "seq.apple.banana.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.pear.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.orange.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.apple.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une pomme, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.apple.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.pear.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.orange.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.banana.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une banane, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.apple.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.banana.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.pear.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.orange.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.carrot.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une carotte, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.apple.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.banana.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.egg.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.pear.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.orange.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.grapes.fish.fr",
+      "lang": "fr",
+      "text": "D'abord du raisin, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.apple.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.banana.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.egg.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.pear.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.orange.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cheese.fish.fr",
+      "lang": "fr",
+      "text": "D'abord du fromage, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.apple.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.banana.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.pear.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.orange.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.strawberry.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une fraise, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.apple.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.banana.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.egg.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.pear.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.orange.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.broccoli.fish.fr",
+      "lang": "fr",
+      "text": "D'abord du brocoli, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.apple.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.banana.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.egg.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.pear.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.orange.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.cookie.fish.fr",
+      "lang": "fr",
+      "text": "D'abord un biscuit, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.apple.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.banana.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.pear.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.orange.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.egg.fish.fr",
+      "lang": "fr",
+      "text": "D'abord un œuf, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.apple.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.banana.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.orange.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.pear.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une poire, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.apple.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.banana.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.egg.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.pear.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.orange.fish.fr",
+      "lang": "fr",
+      "text": "D'abord une orange, puis du poisson, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.apple.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une pomme, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.banana.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une banane, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.carrot.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une carotte, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.grapes.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis du raisin, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.cheese.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis du fromage, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.strawberry.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une fraise, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.broccoli.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis du brocoli, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.cookie.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis un biscuit, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.egg.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis un œuf, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.pear.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une poire, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "seq.fish.orange.fr",
+      "lang": "fr",
+      "text": "D'abord du poisson, puis une orange, s'il te plaît !",
+      "game": "animal-restaurant",
+      "combo": true
+    },
+    {
+      "id": "countattr.apple.red.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux pommes rouges, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.red.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois pommes rouges, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.green.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux pommes vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.apple.green.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois pommes vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.yellow.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux bananes jaunes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.yellow.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois bananes jaunes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.green.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux bananes vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.banana.green.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois bananes vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.green.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux poires vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.green.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois poires vertes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.yellow.2.fr",
+      "lang": "fr",
+      "text": "Je voudrais deux poires jaunes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
+      "id": "countattr.pear.yellow.3.fr",
+      "lang": "fr",
+      "text": "Je voudrais trois poires jaunes, s'il te plaît !",
+      "game": "animal-restaurant"
+    },
+    {
       "id": "orchestra.help.he",
       "lang": "he",
       "text": "השף מנגן דוגמה. הקשיבי, ואז הקישי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.",
+      "game": "kitchen-orchestra"
+    },
+    {
+      "id": "orchestra.reverse.he",
+      "lang": "he",
+      "text": "עכשיו מנגנים הפוך! הקשיבי לשף, ואז נגני מהצליל האחרון ועד הראשון.",
+      "game": "kitchen-orchestra"
+    },
+    {
+      "id": "orchestra.reverse.listen.en",
+      "lang": "en",
+      "text": "Listen, then play it backwards!",
+      "game": "kitchen-orchestra"
+    },
+    {
+      "id": "orchestra.reverse.yourturn.en",
+      "lang": "en",
+      "text": "Now play it backwards!",
+      "game": "kitchen-orchestra"
+    },
+    {
+      "id": "orchestra.reverse.listen.fr",
+      "lang": "fr",
+      "text": "Écoute bien, puis joue à l'envers !",
+      "game": "kitchen-orchestra"
+    },
+    {
+      "id": "orchestra.reverse.yourturn.fr",
+      "lang": "fr",
+      "text": "À toi ! Joue à l'envers !",
       "game": "kitchen-orchestra"
     },
     {
@@ -1998,6 +4020,18 @@
       "id": "hiding.found.en.2",
       "lang": "en",
       "text": "You found me!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.look.en",
+      "lang": "en",
+      "text": "Look who is here!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.gone.en",
+      "lang": "en",
+      "text": "Oh! Someone ran away!",
       "game": "who-is-hiding"
     },
     {
@@ -2289,6 +4323,48 @@
       "game": "who-is-hiding"
     },
     {
+      "id": "hiding.missing.ask.en",
+      "lang": "en",
+      "text": "Who is missing?",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.cat.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Meow, meow!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.lion.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Roar, roar!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.bear.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Growl, growl!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.panda.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Munch, munch!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.dog.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Woof, woof!",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.rabbit.hint.en",
+      "lang": "en",
+      "text": "Who is missing? Thump, thump!",
+      "game": "who-is-hiding"
+    },
+    {
       "id": "hiding.found.fr.0",
       "lang": "fr",
       "text": "Coucou !",
@@ -2304,6 +4380,18 @@
       "id": "hiding.found.fr.2",
       "lang": "fr",
       "text": "Tu m'as trouvé !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.look.fr",
+      "lang": "fr",
+      "text": "Regarde qui est là !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.gone.fr",
+      "lang": "fr",
+      "text": "Oh ! Quelqu'un est parti !",
       "game": "who-is-hiding"
     },
     {
@@ -2592,6 +4680,54 @@
       "id": "hiding.rabbit.hint.clue-short.fr",
       "lang": "fr",
       "text": "Toc ! Il a de longues oreilles et il saute.",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.ask.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ?",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.cat.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Miaou, miaou !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.lion.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Rrrah, rrrah !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.bear.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Grrr, grrr !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.panda.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Miam, miam !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.dog.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Ouaf, ouaf !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.rabbit.hint.fr",
+      "lang": "fr",
+      "text": "Qui a disparu ? Toc, toc !",
+      "game": "who-is-hiding"
+    },
+    {
+      "id": "hiding.missing.intro.he",
+      "lang": "he",
+      "text": "הסתכלי טוב על כל החיות! אחת מהן תברח, ואת תגלי מי חסרה.",
       "game": "who-is-hiding"
     },
     {
@@ -3861,6 +5997,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.ask.he",
+      "lang": "he",
+      "text": "מי מתחבאת כאן? הקשיבי לחידה, ואז הקישי על הבית שלה.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.help.he",
       "lang": "he",
       "text": "עזרי לכל חיה למצוא את הבית שלה. הקישי על הבית שבו היא גרה. אפשר ללחוץ על החיה כדי לשמוע שוב.",
@@ -3876,6 +6018,12 @@
       "id": "habitat.clue.frog.en",
       "lang": "en",
       "text": "I am green and I love to swim and hop.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.frog.en",
+      "lang": "en",
+      "text": "I am not a fish, but I love the water. I hop and I say ribbit!",
       "game": "who-lives-here"
     },
     {
@@ -3897,6 +6045,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.bird.en",
+      "lang": "en",
+      "text": "I have a little beak. I sleep in a cosy home made of twigs.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.nest.en",
       "lang": "en",
       "text": "the nest",
@@ -3912,6 +6066,12 @@
       "id": "habitat.clue.owl.en",
       "lang": "en",
       "text": "I stay awake at night and I say hoo, hoo.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.owl.en",
+      "lang": "en",
+      "text": "I have big round eyes. I sleep all day and I fly at night.",
       "game": "who-lives-here"
     },
     {
@@ -3933,6 +6093,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.bee.en",
+      "lang": "en",
+      "text": "I am tiny and I have stripes. I fly from flower to flower.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.hive.en",
       "lang": "en",
       "text": "the beehive",
@@ -3948,6 +6114,12 @@
       "id": "habitat.clue.rabbit.en",
       "lang": "en",
       "text": "I have long ears and I love to dig.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.rabbit.en",
+      "lang": "en",
+      "text": "I have a fluffy little tail. I eat carrots and I sleep under the ground.",
       "game": "who-lives-here"
     },
     {
@@ -3969,6 +6141,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.dog.en",
+      "lang": "en",
+      "text": "I am a good friend for children. I guard the house and I love to play ball.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.kennel.en",
       "lang": "en",
       "text": "the doghouse",
@@ -3984,6 +6162,12 @@
       "id": "habitat.clue.frog.fr",
       "lang": "fr",
       "text": "Je suis verte et j'adore nager et sauter.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.frog.fr",
+      "lang": "fr",
+      "text": "Je ne suis pas un poisson, mais j'adore l'eau. Je saute et je fais coâ !",
       "game": "who-lives-here"
     },
     {
@@ -4005,6 +6189,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.bird.fr",
+      "lang": "fr",
+      "text": "J'ai un petit bec. Je dors dans une petite maison de brindilles.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.nest.fr",
       "lang": "fr",
       "text": "le nid",
@@ -4020,6 +6210,12 @@
       "id": "habitat.clue.owl.fr",
       "lang": "fr",
       "text": "Je veille la nuit et je fais hou, hou.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.owl.fr",
+      "lang": "fr",
+      "text": "J'ai de grands yeux ronds. Je dors le jour et je vole la nuit.",
       "game": "who-lives-here"
     },
     {
@@ -4041,6 +6237,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.bee.fr",
+      "lang": "fr",
+      "text": "Je suis toute petite et j'ai des rayures. Je vole de fleur en fleur.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.hive.fr",
       "lang": "fr",
       "text": "la ruche",
@@ -4059,6 +6261,12 @@
       "game": "who-lives-here"
     },
     {
+      "id": "habitat.mystery.rabbit.fr",
+      "lang": "fr",
+      "text": "J'ai une petite queue toute douce. Je mange des carottes et je dors sous la terre.",
+      "game": "who-lives-here"
+    },
+    {
       "id": "habitat.home.burrow.fr",
       "lang": "fr",
       "text": "le terrier",
@@ -4074,6 +6282,12 @@
       "id": "habitat.clue.dog.fr",
       "lang": "fr",
       "text": "Je remue la queue et j'aboie.",
+      "game": "who-lives-here"
+    },
+    {
+      "id": "habitat.mystery.dog.fr",
+      "lang": "fr",
+      "text": "Je suis un bon copain pour les enfants. Je garde la maison et j'adore jouer à la balle.",
       "game": "who-lives-here"
     },
     {

@@ -66,17 +66,20 @@ describe('who-lives-here: content (AC-09)', () => {
     expect(WhoLivesHereContentSchema.safeParse(badRequest).success).toBe(false);
   });
 
-  it('[AC-09] the eight levels climb from 2 far homes to 4 near homes with riddles, and age 2 stops at level 4', () => {
+  it('[AC-09] the ten levels climb from 2 far homes to 4 near homes with riddles, and age 2 stops at level 4', () => {
     const levers = content.adaptive.levels.map(levelLevers);
-    expect(levers).toHaveLength(8);
-    expect(levers.map((l) => l.choiceCount)).toEqual([2, 2, 3, 3, 3, 4, 4, 4]);
+    expect(levers).toHaveLength(10);
+    expect(levers.map((l) => l.choiceCount)).toEqual([2, 2, 3, 3, 3, 4, 4, 4, 4, 4]);
     expect(levers[0]).toMatchObject({ distractor: 'far', request: 'noun', glow: true, clueAfterMiss: false });
     expect(levers[3]).toMatchObject({ distractor: 'near' });
     expect(levers[4]).toMatchObject({ clueAfterMiss: true });
     expect(levers[6]).toMatchObject({ request: 'riddle' });
     expect(levers[7]).toMatchObject({ request: 'riddle', audioOnly: true });
+    expect(levers.slice(0, 8).every((l) => !l.hideAnimal)).toBe(true);
+    expect(levers[8]).toMatchObject({ request: 'mystery', hideAnimal: true, audioOnly: false, clueAfterMiss: true });
+    expect(levers[9]).toMatchObject({ request: 'mystery', hideAnimal: true, audioOnly: true, clueAfterMiss: true });
     expect(content.adaptive.tracks.age2).toEqual({ start: 1, min: 1, max: 4 });
-    expect(content.adaptive.tracks.age5).toEqual({ start: 5, min: 3, max: 8 });
+    expect(content.adaptive.tracks.age5).toEqual({ start: 5, min: 3, max: 10 });
   });
 
   it('[AC-09] age 2 gets an idle demonstrate hint, age 5 only a hint after a miss', () => {

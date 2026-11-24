@@ -25,7 +25,7 @@ import { homeArtKey, sceneArtKey } from '../../anim/artRegistry';
 import { ANIM_PROFILE } from '../../anim/profiles';
 import { settleInHome, walkHome } from '../../anim/homesTrainMotion';
 import { transitionTo } from '../../anim/transitions';
-import { hintPulse, popIn, wait } from '../../anim/tweens';
+import { hintPulse, popIn, popOut, wait, wobble } from '../../anim/tweens';
 import { setAppScreen } from '../../pwa';
 import { gameRectToPageRect } from '../../testing/pageRect';
 import type { Lang } from '../templates/choiceServe';
@@ -36,7 +36,7 @@ import { addBackground } from '../sorting/sortingArt';
 import { rtlIsolate } from '../sorting/sortingVoice';
 import { buildHabitatRound, chooseFirstAnimal, levelLevers, type HabitatLevers, type HabitatRoundPlan } from './habitatRound';
 import { computeHabitatLayout, type HabitatHomeLayout, type HabitatLayout, type LayoutRect } from './habitatLayout';
-import { HABITAT_HE_TEXT, askLines, correctLines, helpLine, wrongLines, type SpeechLine } from './habitatVoice';
+import { HABITAT_HE_TEXT, askHeLineId, askLines, correctLines, helpLine, wrongLines, type SpeechLine } from './habitatVoice';
 import type { HabitatInfo } from './types';
 
 export type { HabitatInfo, HabitatHomeInfo, HabitatCurrentAnimal } from './types';
@@ -68,7 +68,12 @@ interface CurrentAnimal {
   homeId: string;
   character: Character;
   tries: number;
+  /** Mystery levels: the "?" cover that hides the animal until it is placed. */
+  cover?: Phaser.GameObjects.Container;
 }
+
+/** How long the hidden animal's reveal plays before it walks home (mystery levels). */
+const MYSTERY_REVEAL_MS = 450;
 
 export class HabitatScene extends Phaser.Scene {
   private context!: AppContext;
@@ -89,6 +94,8 @@ export class HabitatScene extends Phaser.Scene {
   private roundNo = 0;
   private animalIndex = 0;
   private current: CurrentAnimal | null = null;
+  /** Mystery levels: the "?" cover while it pops out after the reveal (destroyed with the stage if still there). */
+  private fadingCover?: Phaser.GameObjects.Container;
   private tracker: SortingTrialTracker | null = null;
   private ready = false;
   private lockedUntil = 0;
@@ -124,6 +131,7 @@ export class HabitatScene extends Phaser.Scene {
     this.plan = null;
     this.levers = null;
     this.current = null;
+    this.fadingCover = undefined;
     this.tracker = null;
     this.ready = false;
     this.helpOpen = false;
@@ -174,6 +182,7 @@ export class HabitatScene extends Phaser.Scene {
       lang: this.roundLang,
       request: this.levers.request,
       textBubble: !this.levers.audioOnly,
+      animalHidden: this.levers.hideAnimal && current !== null && current.cover !== undefined,
       homes: this.homes.map((h) => ({
         id: h.home.id,
         family: h.home.family,
@@ -213,6 +222,7 @@ export class HabitatScene extends Phaser.Scene {
     this.stageObjects = [];
     this.animalZone = null;
     this.current = null;
+    this.fadingCover = undefined;
     this.plan = null;
     this.levers = null;
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
@@ -310,7 +320,7 @@ export class HabitatScene extends Phaser.Scene {
       this.context.shell.clearPromptBubble();
       return;
     }
-    this.context.shell.setPromptBubble(rtlIsolate(HABITAT_HE_TEXT['habitat.ask.he']), () => this.replay());
+    this.context.shell.setPromptBubble(rtlIsolate(HABITAT_HE_TEXT[askHeLineId(this.levers)]), () => this.replay());
   }
 
   // -------------------------------------------------------------------------------------------
@@ -365,6 +375,10 @@ export class HabitatScene extends Phaser.Scene {
     }
     this.homes = [];
     this.current?.character.destroy();
+    this.current?.cover?.destroy(true);
+    // A "?" cover still fading out after a reveal (revealMystery) goes too.
+    this.fadingCover?.destroy(true);
+    this.fadingCover = undefined;
     this.current = null;
     this.stageObjects.forEach((o) => o.destroy());
     this.stageObjects = [];
@@ -438,7 +452,10 @@ export class HabitatScene extends Phaser.Scene {
     const animal = this.content.animals.find((a) => a.id === spec.id)!;
     const a = this.layout.animal;
     const character = new Character(this, { kind: animal.kind, x: a.x, y: a.feetY, displayHeight: a.height, depth: 60 });
-    this.current = { animal, homeId: spec.homeId, character, tries: 0 };
+    // Mystery levels: the animal stays hidden behind a "?" until it is home, so only the riddle can tell who it is.
+    const cover = this.levers?.hideAnimal ? this.buildMysteryCover() : undefined;
+    if (cover) character.root.setVisible(false);
+    this.current = { animal, homeId: spec.homeId, character, tries: 0, cover };
     this.tracker = new SortingTrialTracker(spec.id, this.roundLang);
     this.context.sfx.pop();
     void character.enter(a.x - Math.min(260, a.x - 40)).then(() => {
@@ -449,6 +466,44 @@ export class HabitatScene extends Phaser.Scene {
     });
     // The request is spoken while the animal hops in; taps are accepted as soon as it has landed.
     void this.sayAll(askLines(this.content, animal, this.levers!, this.roundLang), token);
+  }
+
+  /** A round "?" sign standing on the path where the animal would be (decoration; the animal zone takes the taps). */
+  private buildMysteryCover(): Phaser.GameObjects.Container {
+    const a = this.layout.animal;
+    const r = Math.max(48, a.height * 0.42);
+    const cy = a.feetY - a.height * 0.5;
+    const disc = this.add.circle(0, 0, r, 0xfff3c4).setStrokeStyle(6, 0x3b2a22);
+    const leaves = this.add.graphics();
+    leaves.fillStyle(0x57c457, 1);
+    leaves.lineStyle(4, 0x3b2a22, 1);
+    for (const dx of [-0.75, 0, 0.75]) {
+      leaves.fillEllipse(dx * r, r * 0.92, r * 0.9, r * 0.5);
+      leaves.strokeEllipse(dx * r, r * 0.92, r * 0.9, r * 0.5);
+    }
+    const mark = this.add
+      .text(0, -r * 0.05, '?', { fontFamily: 'Arial Rounded MT Bold, Arial, sans-serif', fontSize: `${Math.round(r * 1.3)}px`, color: '#6b3fa0', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    const cover = this.add.container(a.x, cy, [disc, leaves, mark]).setDepth(62);
+    void popIn(this, cover, 0, 1);
+    return cover;
+  }
+
+  /** Mystery levels: the "?" pops away and the animal appears with a sparkle. */
+  private async revealMystery(current: CurrentAnimal, token: number): Promise<void> {
+    const cover = current.cover;
+    if (!cover) return;
+    current.cover = undefined;
+    this.fadingCover = cover;
+    const a = this.layout.animal;
+    Juice.for(this).burst('sparkle', a.x, a.feetY - a.height * 0.5);
+    current.character.root.setVisible(true);
+    void popIn(this, current.character.root, 0, current.character.root.scaleX);
+    await popOut(this, cover, 0);
+    if (this.fadingCover === cover) this.fadingCover = undefined;
+    if (cover.scene) cover.destroy(true);
+    if (token !== this.token) return;
+    await wait(this, MYSTERY_REVEAL_MS);
   }
 
   private homeView(homeId: string): HomeView | undefined {
@@ -540,6 +595,7 @@ export class HabitatScene extends Phaser.Scene {
     const target = this.homeView(current.homeId);
     if (target) this.pulseHome(target, true);
     void current.character.hmm();
+    if (current.cover) void wobble(this, current.cover);
     void this.sayAll(wrongLines(this.content, current.animal, this.levers!, this.roundLang), this.token);
   }
 
@@ -562,6 +618,8 @@ export class HabitatScene extends Phaser.Scene {
     const toY = view.layout.settle.feetY;
     const restScale = character.root.scaleX * (view.layout.animalHeight / a.height);
     void (async () => {
+      await this.revealMystery(current, token);
+      if (token !== this.token) return;
       await walkHome(this, character.root, toX, toY);
       if (token !== this.token) return;
       // Between the home's back and front layers, so the front rim covers the animal's feet.
