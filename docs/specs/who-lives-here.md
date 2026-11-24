@@ -35,7 +35,7 @@ Tapping the animal replays the request (a voluntary replay is never a hint). The
 
 ## Difficulty curve
 
-- **Levels** (8, levers `choiceCount`, `distractor`, `request`, `scaffold`, `support`, `extra.clue`):
+- **Levels** (10, L9–L10 age 5 only since 2026-11-24; levers `choiceCount`, `distractor`, `request`, `scaffold`, `support`, `extra.clue`):
 
 | Level | Homes | Distractor homes | Request | Scaffold / support | Clue after a miss |
 |---|---|---|---|---|---|
@@ -47,10 +47,14 @@ Tapping the animal replays the request (a voluntary replay is never a hint). The
 | 6 | 4 | near | animal name | none | yes |
 | 7 | 4 | near | descriptive clue (`riddle`) | none | yes |
 | 8 | 4 | near | descriptive clue (`riddle`) | `audio-only` (no text bubble) | yes |
+| 9 | 4 | near | **mystery animal** (`mystery`): the animal is hidden behind a "?" and a two-clue riddle is spoken | none | yes (the descriptive clue) |
+| 10 | 4 | near | **mystery animal** (`mystery`) | `audio-only` (no text bubble) | yes (the descriptive clue) |
+
+- **Mystery levels (age 5, 2026-11-24, Wave 2):** the animal waits on the path behind a "?" cover (`animalHidden` in `getHabitatInfo`), so she has to understand the riddle; the Hebrew ask becomes `habitat.mystery.ask.he` "מי מתחבאת כאן? הקשיבי לחידה, ואז הקישי על הבית שלה." and the round-language line is the animal's two-clue riddle (`habitat.mystery.<id>.<lang>`, content field `mystery`, e.g. owl "I have big round eyes. I sleep all day and I fly at night."). A riddle never names the animal or its home. A wrong tap wobbles the cover and replays the old descriptive clue (`habitat.clue.*`) as a second chance; the right home reveals the animal, then it walks home as usual. The schema requires a riddle for every animal when a mystery level exists. New lines play on device TTS until recorded.
 
 - **Age-2 start level:** 1.
 - **Age-5 start level:** 5 (three homes with a look-alike pair, a clue after a miss).
-- **Min / max:** age 2: 1–4 (**ceiling at 4**, no riddles or 4 homes); age 5: 3–8.
+- **Min / max:** age 2: 1–4 (**ceiling at 4**, no riddles or 4 homes; unchanged); age 5: 3–10 (was 3–8 before 2026-11-24).
 - **Adaptive rules:** engine defaults (`docs/adaptive-engine.md`): `upCleanStreak: 3`, `downMisses: 2`, `downWindow: 3`, `trialsPerRound: 3`, `maxChangesPerRound: 1`. Age 2 changes level between rounds only; age 5 may change after a trial, shown from the next round. The skill key is `nature-lab.who-lives-here.<lang>`.
 
 ## Leisure
@@ -66,7 +70,7 @@ Handles (frozen at approval):
 - Map building hit target: `getBuildingHit('nature-lab')`
 - `data-testid`s: `game-picker-who-is-hiding`, `game-picker-seed-to-flower`, `game-picker-who-lives-here`, `game-picker-close`, `hud-back`, `hud-help`, `star-count`, `leisure-balance`, `prompt-bubble`, `help-card`, `help-card-close`.
 - Seed and read hooks under `?e2e=1` (seed or read only; no game actions, no scene navigation):
-  - `getHabitatInfo(): HabitatInfo | null` (read; types in `src/games/habitat/types.ts`): `level`, `lang`, `request` (`noun` or `riddle`), `textBubble` (false on the audio-only level), `ready`, `homes[]` (`id`, `family`, `count`, `glowing`, `hit` in page CSS px), `currentAnimal` (`id`, `homeId`, `tries`, `hinted`, `hit` in page CSS px) or `null`, `round` (`index`, `total`, `placed`).
+  - `getHabitatInfo(): HabitatInfo | null` (read; types in `src/games/habitat/types.ts`): `level`, `lang`, `request` (`noun`, `riddle` or `mystery`), `textBubble` (false on the audio-only levels), `animalHidden` (true while the mystery animal is behind its cover), `ready`, `homes[]` (`id`, `family`, `count`, `glowing`, `hit` in page CSS px), `currentAnimal` (`id`, `homeId`, `tries`, `hinted`, `hit` in page CSS px) or `null`, `round` (`index`, `total`, `placed`).
   - `seedHabitatLevel(level)` (seed): writes the active profile's adaptive level for every language, call on the map before the game opens.
   - Existing: `getBuildingHit`, `getActiveScenes`, `getSpokenLines`, `seedBalanceSec`, `seedLanguageSetting`, `seedTimeEarningEnabled`.
 
@@ -94,6 +98,9 @@ Handles (frozen at approval):
 | AC-18 | Layout: homes and the animal stand inside the canvas in both orientations, homes do not overlap, and every tap target is at least 64 px | 1 | unit | @single-orientation | |
 | AC-19 | At age 5, after a wrong tap on a clue-after-miss level the descriptive clue is spoken in the round language; age 2 has an idle hint and age 5 does not | 1 | e2e+seed | @single-orientation | `seedHabitatLevel`, `getHabitatInfo`, `getSpokenLines` |
 | AC-20 | Habitat screen is an `AppScreen` and a waiting update is deferred while the game is open; Who Lives Here? is exactly one `WORLD_GAMES` entry and the third Nature Lab station (after Who's Hiding? and Seed to Flower) with its scene and card id, and no per-world picker list exists | 1 | unit | @single-orientation | |
+| AC-21 | Age-5 mystery stretch keeps age 2 untouched: L1–L8 unchanged, L9–L10 are 4-home `mystery` levels (L10 voice only), `age2` stays `{ 1, 1, 4 }`, `age5` is `{ 5, 3, 10 }`; the schema rejects a mystery level when an animal has no riddle; mystery rounds keep every animal's home on screen | 1 | unit | @single-orientation | |
+| AC-22 | Mystery voice: every animal has a two-clue riddle that differs from its clue and never names the animal or its home; the ask is the Hebrew mystery line then the riddle; a miss replays the descriptive clue; the lines are registered with no id conflict and the Hebrew is feminine singular | 1 | unit | @single-orientation | |
+| AC-23 | Real taps at age 5 (profile-b): seeded L9 hides the animal, speaks its riddle and shows the bubble, a wrong home keeps it hidden and replays the clue, the right home reveals and places it; seeded L10 has no bubble and the right home places the animal | 1 | e2e+seed | both | `seedHabitatLevel`, `getHabitatInfo`, `getSpokenLines` |
 
 By default, Pass-1 criteria do not require polished animation or new recorded clips (`docs/PROCESS.md` §3).
 
@@ -148,3 +155,4 @@ Only after Maor approves the finished Pass 1.
 - `2026-11-13` — AC-05 clarified: the language is pinned with `seedLanguageSetting` because the adaptive level is per language; no change in meaning — minor
 - `2026-11-14` — after the station trail (#69) landed on main: the Nature Lab picker is the 3-station trail built from `WORLD_GAMES` (Who's Hiding?, Seed to Flower, Who Lives Here?); AC-16 and AC-20 reworded to match; no new hook — minor
 - `2026-11-24` — voice-text hygiene: `habitat.help.he` spells the feminine imperative `הקישי` (was `הקשי`, misread by TTS); no other change — minor
+- `2026-11-24` — Wave 2 age-5 stretch: L9–L10 "mystery animal" (hidden animal, two-clue riddle, clue after a miss; L10 voice only); age-5 `max` 8 → 10, age 2 unchanged (ceiling 4); `getHabitatInfo` gains `animalHidden` and `request: 'mystery'`; 3 ACs added (AC-21 to AC-23) — substantive

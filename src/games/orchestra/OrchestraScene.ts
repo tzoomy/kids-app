@@ -15,6 +15,7 @@ import { nextRoundLanguage } from '../restaurant/trialTracker';
 import {
   buildTrial,
   checkEchoTap,
+  orchestraLevers,
   keepsGlowLit,
   noteGapMs,
   noteHoldMs,
@@ -22,11 +23,18 @@ import {
   showsVisualSupport,
   type OrchestraTrial,
 } from './orchestraGame';
-import { computeOrchestraLayout, type OrchestraLayout } from './orchestraLayout';
+import { computeOrchestraLayout, computeReverseBadge, type OrchestraLayout } from './orchestraLayout';
 import { OrchestraSounds } from './orchestraSounds';
 
 export interface OrchestraRoundInfo {
+  /** The pattern the chef plays. */
   sequence: OrchestraInstrumentId[];
+  /** The taps the child must make, in order (`sequence` reversed on a reverse level). */
+  answer: OrchestraInstrumentId[];
+  /** Age-5 reverse echo level: play it backwards. */
+  reverse: boolean;
+  /** Reverse levels: dots of the reverse badge that are still lit (one per note not yet echoed). */
+  litDots: number;
   expectedIndex: number;
   instrumentCenters: Array<{ x: number; y: number; id: OrchestraInstrumentId }>;
   level: number;
@@ -84,6 +92,12 @@ export class OrchestraScene extends Phaser.Scene {
   private trialToken = 0;
   private hintTimer?: Phaser.Time.TimerEvent;
   private visibilityHandler?: () => void;
+  /** The Hebrew reverse-rule line plays before the first reverse pattern of a visit. */
+  private reverseIntroPending = true;
+  /** Reverse levels: the "backwards" badge and its note dots. */
+  private reverseBadge?: Phaser.GameObjects.Container;
+  private reverseDots: Phaser.GameObjects.Arc[] = [];
+  private litDots = 0;
 
   constructor() {
     super('OrchestraScene');
@@ -108,6 +122,10 @@ export class OrchestraScene extends Phaser.Scene {
     this.speakSeq = 0;
     this.trialToken = 0;
     this.ready = false;
+    this.reverseIntroPending = true;
+    this.reverseBadge = undefined;
+    this.reverseDots = [];
+    this.litDots = 0;
 
     this.visibilityHandler = () => {
       this.session.setHidden(document.hidden);
@@ -135,6 +153,9 @@ export class OrchestraScene extends Phaser.Scene {
     if (!this.trial) return null;
     return {
       sequence: [...this.trial.sequence],
+      answer: [...this.trial.answer],
+      reverse: this.trial.reverse,
+      litDots: this.litDots,
       expectedIndex: this.echoIndex,
       instrumentCenters: this.views.map((v) => ({ x: v.root.x, y: v.root.y, id: v.id })),
       level: this.skills.level(this.roundLang ?? 'en'),
@@ -221,13 +242,7 @@ export class OrchestraScene extends Phaser.Scene {
     const lang = nextRoundLanguage(this.roundLang, this.skills.atRoundBoundary(this.roundLang ?? 'en'), this.context.languageSetting());
     this.roundLang = lang;
     const levelNumber = this.skills.level(lang);
-    const levers = this.content.adaptive.levels[levelNumber - 1];
-    const trial = buildTrial({
-      sequenceLength: levers.sequenceLength ?? 1,
-      choiceCount: levers.choiceCount ?? 3,
-      speed: levers.speed ?? 1,
-      support: (levers.support as OrchestraSupport) ?? 'lit',
-    });
+    const trial = buildTrial(orchestraLevers(this.content.adaptive.levels[levelNumber - 1]));
     this.trial = trial;
     this.tracker = new EchoTracker(trial.sequence.join('+'), lang);
 
@@ -252,6 +267,10 @@ export class OrchestraScene extends Phaser.Scene {
     this.chef?.destroy();
     this.chef = undefined;
     this.bg?.destroy();
+    this.reverseBadge?.destroy(true);
+    this.reverseBadge = undefined;
+    this.reverseDots = [];
+    this.litDots = 0;
 
     this.layout = computeOrchestraLayout(this.scale.width, this.scale.height, choiceCount);
     const bgKey = keyForUrl(`art/scenes/kitchen/${this.layout.backgroundKey}.svg`) ?? sceneArtKey('kitchen', this.layout.backgroundKey);
@@ -283,6 +302,33 @@ export class OrchestraScene extends Phaser.Scene {
       void popIn(this, root, 80 + i * 70);
       this.views.push({ id, root, sprite, glow });
     });
+    if (this.trial?.reverse) this.buildReverseBadge(this.trial.sequence.length);
+  }
+
+  /** The reverse-echo badge: a left-pointing arrow and one dot per note (see computeReverseBadge). */
+  private buildReverseBadge(noteCount: number): void {
+    const b = computeReverseBadge(this.layout, this.scale.width, this.scale.height, noteCount);
+    const panel = this.add.graphics();
+    panel.fillStyle(0xfff8e7, 0.95);
+    panel.fillRoundedRect(-b.width / 2, -b.height / 2, b.width, b.height, b.height / 2);
+    panel.lineStyle(4, 0x3b2a22, 1);
+    panel.strokeRoundedRect(-b.width / 2, -b.height / 2, b.width, b.height, b.height / 2);
+    // A bold arrow pointing left: "from the end back to the start".
+    const a = b.arrow;
+    panel.fillStyle(0xe8613c, 1);
+    panel.fillTriangle(a.tipX, a.y, a.tipX + 30, a.y - 22, a.tipX + 30, a.y + 22);
+    panel.fillRect(a.tipX + 28, a.y - 8, a.tailX - a.tipX - 28, 16);
+    const dots = b.dots.map((d) => this.add.circle(d.x, d.y, b.dotRadius, 0xffc93c).setStrokeStyle(3, 0x3b2a22).setFillStyle(0xffffff));
+    this.reverseBadge = this.add.container(b.x, b.y, [panel, ...dots]).setDepth(5);
+    this.reverseDots = dots;
+    this.litDots = 0;
+    void popIn(this, this.reverseBadge, 120);
+  }
+
+  /** Lights the first `count` dots (playing order); the rest stay dark. */
+  private setLitDots(count: number): void {
+    this.litDots = Math.max(0, Math.min(this.reverseDots.length, count));
+    this.reverseDots.forEach((dot, i) => dot.setFillStyle(i < this.litDots ? 0xffc93c : 0xffffff));
   }
 
   private view(id: OrchestraInstrumentId): InstrumentView | undefined {
@@ -299,9 +345,12 @@ export class OrchestraScene extends Phaser.Scene {
     if (announce) {
       const seq = ++this.speakSeq;
       this.session.reportListening(true);
+      const reverse = trial.reverse ? this.content.reverse : undefined;
       const prompt = trial.sequence.length === 1
         ? this.promptFor(trial.sequence[0], lang)
-        : { lineId: `orchestra.listen.${lang}`, lang, text: this.content.listenPrompt[lang] };
+        : reverse
+          ? { lineId: `orchestra.reverse.listen.${lang}`, lang, text: reverse.listenPrompt[lang] }
+          : { lineId: `orchestra.listen.${lang}`, lang, text: this.content.listenPrompt[lang] };
       if (showsVisualSupport(support) && trial.sequence.length === 1) {
         this.context.shell.setPromptBubble(prompt.text, () => undefined);
       } else if (support === 'audio-only') {
@@ -309,14 +358,22 @@ export class OrchestraScene extends Phaser.Scene {
       } else {
         this.context.shell.setPromptBubble(prompt.text, () => undefined);
       }
+      if (reverse && this.reverseIntroPending) {
+        // Before the first backwards pattern of a visit, a Hebrew line explains the new rule.
+        this.reverseIntroPending = false;
+        await this.context.audio.play({ lineId: 'orchestra.reverse.he', lang: 'he', text: reverse.introHe });
+        if (token !== this.trialToken) return;
+      }
       await this.context.audio.play(prompt);
       if (seq === this.speakSeq) this.session.reportListening(false);
       if (token !== this.trialToken) return;
     }
     const hold = noteHoldMs(speed);
     const gap = noteGapMs(speed);
-    for (const id of trial.sequence) {
+    if (trial.reverse) this.setLitDots(0);
+    for (const [i, id] of trial.sequence.entries()) {
       if (token !== this.trialToken) return;
+      if (trial.reverse) this.setLitDots(i + 1);
       await this.playOne(id, support, hold);
       await wait(this, Math.max(40, gap - hold));
     }
@@ -354,11 +411,13 @@ export class OrchestraScene extends Phaser.Scene {
 
   private maybePromptYourTurn(lang: Lang, trial: OrchestraTrial): void {
     if (trial.sequence.length === 1) return;
-    const text = this.content.yourTurnPrompt[lang];
+    const reverse = trial.reverse ? this.content.reverse : undefined;
+    const text = reverse ? reverse.yourTurnPrompt[lang] : this.content.yourTurnPrompt[lang];
+    const lineId = reverse ? `orchestra.reverse.yourturn.${lang}` : `orchestra.yourturn.${lang}`;
     if (trial.support !== 'audio-only') this.context.shell.setPromptBubble(text, () => undefined);
     const seq = ++this.speakSeq;
     this.session.reportListening(true);
-    void this.context.audio.play({ lineId: `orchestra.yourturn.${lang}`, lang, text }).finally(() => {
+    void this.context.audio.play({ lineId, lang, text }).finally(() => {
       if (seq === this.speakSeq) this.session.reportListening(false);
     });
   }
@@ -379,7 +438,9 @@ export class OrchestraScene extends Phaser.Scene {
     // Free play (or taps during listen) always makes sound and never scores a miss.
     if (!this.ready || this.phase !== 'echo' || !this.trial || !this.tracker) return;
 
-    const result = checkEchoTap(this.trial.sequence, this.echoIndex, id);
+    const result = checkEchoTap(this.trial.answer, this.echoIndex, id);
+    // Reverse levels: each right tap puts out the last lit dot, so the dots run backwards with her.
+    if (result.kind !== 'miss' && this.trial.reverse) this.setLitDots(this.trial.answer.length - this.echoIndex - 1);
     if (result.kind === 'continue') {
       this.echoIndex = result.nextIndex;
       return;
@@ -393,7 +454,7 @@ export class OrchestraScene extends Phaser.Scene {
 
   private giveHint(): void {
     if (!this.ready || this.phase !== 'echo' || !this.trial) return;
-    const next = this.trial.sequence[this.echoIndex];
+    const next = this.trial.answer[this.echoIndex];
     if (!next) return;
     this.tracker?.onHint();
     this.context.sfx.hint();

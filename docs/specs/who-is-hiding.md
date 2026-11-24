@@ -70,13 +70,17 @@ Terminology: in the code a scene "round" (`HidingScene.startRound`) is **one req
 | 6 | 5 | same-category | partial-reveal | 0.3 (ears) | name | yes |
 | 7 | 5 | same-category | audio-only | 0.3 (ears) | sound | no |
 | 8 | 6 | same-category | audio-only | 0.3 (ears) | sound, `soundMs` 800 → short sound word | no |
+| 9 | 4 | far | partial-reveal | 1 (whole, in the line-up) | **"Who is missing?"** (`request: "missing"`, `peekMs` 3500, `backMs` 2500) | yes |
+| 10 | 6 | same-category | audio-only | 1 (whole, in the line-up) | **"Who is missing?"** (`peekMs` 2500, `backMs` 1500) | no |
+
+  - **"Who is missing?" (age 5 only, L9–L10, 2026-11-24, Wave 2):** the line-up stands fully out of the bushes for `peekMs` ("Look who is here!" / "Regarde qui est là !"), everyone ducks, one animal (the engine's target) runs away ("Oh! Someone ran away!" / "Oh ! Quelqu'un est parti !"), the others pop back up for `backMs` and duck again; then the bushes clear and the whole line-up appears as answer cards (Shadow Match card layout) and she is asked "Who is missing?" / "Qui a disparu ?". The right card is the runaway. The hint is the runaway's sound after the question (`hiding.missing.<id>.hint.<lang>`), never its name; on L9 a hint also pulses the card, on L10 it is voice only. Before the first missing round of a visit a Hebrew line explains the rule once (`hiding.missing.intro.he`: "הסתכלי טוב על כל החיות! אחת מהן תברח, ואת תגלי מי חסר."). The schema requires the `missing` lines, at least 3 animals and positive `peekMs` / `backMs` on a missing level. L1–L8 request and hint ids (including `hint.clue` / `hint.clue-short`) are unchanged. `getRoundInfo` adds `request: 'missing'`, `phase` (`peek`, `gone`, `back`, `answer`) and `lineupIds`; during `answer` the choices are the cards. New lines play on device TTS until recorded.
 
   - **Neighbours** (`pickBushNeighbours`): `far` prefers animals from groups other than the target's and from each other; `same-category` takes the target's look-alike group first. Too few matches are filled from the rest. Groups are content: `big-cats` (cat, lion), `bears` (bear, panda), `pets` (dog, rabbit). With only 2 animals per group, every `same-category` request has exactly one look-alike next to the target; L8 uses all six animals.
   - **Audio-only** (L7–L8) means no visual cue for the **request** (no text bubble, no written name). The animals keep the 0.3 ear-level peek (**Decided by the owner (2026-11-12):** keep it), because every bush hides a different animal and an empty bush row would make the level a pure guess (`docs/adaptive-engine.md` on `3fd6d7e`). The schema requires an audio-only level to speak only the sound.
   - **Short sound** (L8): device TTS cannot be timed, so `extra.soundMs` (any positive number) only switches to the animal's `soundShort` word ("Meow!" instead of "Meow, meow!"); the value 800 is not used as a duration (`hidingLevel().shortSound`).
 - **Age-2 start level:** L2 (3 bushes, far, 0.8 reveal, name + sound, bubble).
 - **Age-5 start level:** L5 (4 bushes, same-category, ears only, name alone, bubble). Harder than age 2 in four ways: more bushes, look-alike neighbours, a smaller visible part, and no sound in the request.
-- **Min / max:** both tracks min 1, max 8 (`adaptive.tracks`). **Age 2 has no ceiling**: an age-2 profile can reach the audio-only levels L7–L8.
+- **Min / max:** both tracks min 1 (`adaptive.tracks`). Age 2 max 8 (unchanged): **age 2 has no ceiling** within L1–L8, so an age-2 profile can reach the audio-only levels L7–L8, but the age-5 "Who is missing?" levels are not on its track. Age 5 max 10 (2026-11-24).
 - **Adaptive rules:** no overrides in the content; the engine defaults apply (`DEFAULT_RULES` in `src/core/adaptive/rules.ts`), the same engine and defaults as Animal Restaurant:
   - `upCleanStreak` 3: up one level after 3 clean answers in a row (assisted answers are not clean and reset the streak).
   - `downMisses` 2 in `downWindow` 3: down one level when 2 of the last 3 recorded trials are misses.
@@ -117,7 +121,7 @@ Handles that exist today:
 - **Seed and read hooks under `?e2e=1`** (`window.__testHooks__`, `src/game/createGame.ts`):
   - `seedBalanceSec(sec)` — seed (existing).
   - `seedHidingLevel(level)` — seed: sets the stored level for every content language and resets the streak and recent window (new on PR #29).
-  - `getRoundInfo()` — read: returns `HidingRoundInfo` (`request: 'hiding'`, `correctIndex`, `choiceIds`, `targetId`, `choiceCenters`, `replayCenter`, `choiceCount`, `language`, `promptText`, `visualCue`, `reveal`, `speak`, `tries`, `hinted`, `level`, `skillKey`, `correctCount`, `ready`) while `HidingScene` is active.
+  - `getRoundInfo()` — read: returns `HidingRoundInfo` (`request: 'hiding'` or `'missing'` (then also `phase` and `lineupIds`), `correctIndex`, `choiceIds`, `targetId`, `choiceCenters`, `replayCenter`, `choiceCount`, `language`, `promptText`, `visualCue`, `reveal`, `speak`, `tries`, `hinted`, `level`, `skillKey`, `correctCount`, `ready`) while `HidingScene` is active.
   - `getActiveScenes()`, `getGameSize()` — read (existing).
   - `goToScreen('hiding')` — navigation; **not allowed** in AC tests (`docs/PROCESS.md` §4). It is used today by the L7 test and must be replaced by a map-entry journey.
   - `getBuildingHit(worldId)` — read, page CSS pixels (see above; draft PR #37).
@@ -144,7 +148,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-04 | Level rises after 3 clean answers and drops when 2 of the last 3 trials are misses, with at most one change per engine round; age 2 changes only between engine rounds, age 5 after the trial | 1 | unit | @single-orientation | |
 | AC-05 | One real-tap level change at a low level (for example a seeded age-2 profile at L2 rises to L3 after three clean answers and the next engine round shows 3 bushes with same-category neighbours) | 1 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
 | AC-06 | High levels play correctly: seeded L7 and L8 entered from the map show 5 and 6 bushes, no text bubble, a sound-only request (L8 the short sound word), and accept a correct tap | 1 | e2e+seed | @single-orientation | `seedHidingLevel`, `getRoundInfo`, `getBuildingHit` |
-| AC-07 | A new age-2 profile starts at L2 and a new age-5 profile at L5; both tracks have min 1 and max 8 (no age-2 ceiling) | 1 | unit | @single-orientation | |
+| AC-07 | A new age-2 profile starts at L2 and a new age-5 profile at L5; both tracks have min 1 and max 8 (no age-2 ceiling; age 5 max 10 since 2026-11-24) | 1 | unit | @single-orientation | |
 | AC-08 | Leisure accrues through `LearningSession` as specified (interaction, listening, celebrating; not while hidden; not while the help card is open and no help clip is playing), never drops on mistakes, never mixes across profiles | 1 | unit | @single-orientation | |
 | AC-09 | Content and language: every animal has EN/FR name, sound, short sound and clue; the request language follows the parent's language setting | 1 | unit | @single-orientation | |
 | AC-10 | Each voice line requests the right line id, language and text (request, hint, found line, Hebrew retry/praise/leisure-earned) through a speech spy | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`, `getSpokenLineCount` |
@@ -178,6 +182,10 @@ Ids are stable: never renumber or reuse them; strike through a removed one. Test
 | AC-38 | While the help card is open, `isListening()` is true only while `he.hiding.help` plays, and is false immediately before the line starts and after it ends (the card may still be open) | 1 | e2e | @single-orientation | `isListening`, `getSpokenLines`; testids `hud-help`, `help-card` |
 | AC-39 | In both orientations, the help card's page rectangle and the speaker / replay button's page rectangle do not overlap; both hit targets are at least 64 CSS px; a tap on the speaker does not close the card; a tap on the overlay outside the card still closes it | 1 | e2e | both | `getRoundInfo`; testids `hud-help`, `help-card`, `help-card-close` |
 | AC-40 | Age 2: the idle auto-hint does not fire while `he.hiding.intro` or `he.hiding.help` is playing, and fires only after the full `hintDelayMs` (6 s) measured from when that line ends (and from when the help card is closed, if it was still open) | 1 | e2e | @single-orientation | `getRoundInfo`, `getSpokenLines`, `isListening`; testids `hud-help`, `help-card`, `help-card-close` |
+| AC-41 | Age-5 stretch keeps age 2 untouched: L1–L8 and their request / hint line ids (including `hint.clue` and `hint.clue-short`) are unchanged, L9 (4 animals, bubble) and L10 (6 animals, voice only, shorter peek) are "Who is missing?", `age2` stays `{ 2, 1, 8 }`, `age5` max 10; the schema rejects a missing level without its lines or with fewer than 3 animals | 1 | unit | @single-orientation | |
+| AC-42 | "Who is missing?" rounds: the runaway is in the line-up, the answer cards are exactly the line-up (one right card), the ask is `hiding.missing.ask.<lang>` and the hint adds the runaway's sound, never its name; four and six cards stay on screen and ≥ 64 CSS px on 360×800 / 800×360 phones and tablets | 1 | unit | @single-orientation | |
+| AC-43 | "Who is missing?" voice: look, gone, ask, the six sound hints per language and the Hebrew rule line are registered with no id conflict; the Hebrew is feminine singular | 1 | unit | @single-orientation | |
+| AC-44 | Real taps at age 5 (profile-b): seeded L9 runs peek → gone → back → answer with the look / gone / ask lines and the Hebrew rule, the cards are the line-up and the runaway earns a star; seeded L10 has six cards and no bubble, a wrong card is a miss, then the runaway earns a star | 1 | e2e+seed | both | `seedHidingLevel`, `getRoundInfo`, `getSpokenLines`, `getGameSize` |
 
 ### Existing test mapping (retroactive)
 
@@ -220,6 +228,7 @@ These tests exist **only on PR #29** (branch `feat/game-hiding`, commit `3fd6d7e
 | AC-38 | — | New (2026-11-13 team-lead); no test |
 | AC-39 | — | New (2026-11-13 team-lead); no test |
 | AC-40 | — | New (2026-11-13 team-lead); no test |
+| AC-41 to AC-44 | `tests/unit/who-is-hiding.missing.test.ts`, `tests/e2e/who-is-hiding.missing.spec.ts` (tagged `[AC-41]` to `[AC-44]`) | Added with the Wave 2 stretch (2026-11-24) |
 | AC-27 | `tests/e2e/hiding.spec.ts` — `a clean correct tap completes the trial and starts the next round` | Age-2 profile only; no age-5 tap test |
 | AC-28 | `tests/unit/hidingRound.test.ts` — `fits every bush count in both orientations without overlapping hit areas` | — |
 | AC-29 | — | `tests/unit/pwaUpdatePolicy.test.ts` does not cover `hiding` |
@@ -340,3 +349,4 @@ All open decisions were resolved by the owner on 2026-11-13.
 - 2026-11-13 — **Team-lead decision:** read-only `isListening()` hook (`?e2e=1`); help overlay must not cover the speaker / replay button (no overlap in either orientation, hit targets ≥ 64 CSS px, tap-outside still closes); idle auto-hint is postponed while intro/help lines play and the full `hintDelayMs` starts when they end. AC-38, AC-39 and AC-40 added. Status stays **approved** — clarification
 - 2026-11-13 — Nature Lab building now opens a picker (Who's Hiding? first, then Shadow Match, `docs/specs/shadow-match.md`) as a reversible default pending the owner; this game's content, levels and skill key are unchanged; e2e entries tap `game-picker-who-is-hiding` — minor
 - 2026-11-24 — voice-id hygiene: the L8 (short sound) audio-only hint now has its own id `hiding.<id>.hint.clue-short.<lang>`; L7 keeps `hint.clue` (one id, one text) — minor
+- 2026-11-24 — Wave 2 age-5 stretch: L9–L10 "Who is missing?" (line-up, one runs away, answer cards; L10 six animals, voice only); age-5 `max` 8 → 10, age 2 unchanged; L1–L8 ids unchanged; `getRoundInfo` gains `request: 'missing'`, `phase`, `lineupIds`; 4 ACs added (AC-41 to AC-44) — substantive

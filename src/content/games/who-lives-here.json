@@ -22,46 +22,52 @@
       "kind": "frog",
       "home": "pond",
       "name": { "en": "the frog", "fr": "la grenouille" },
-      "clue": { "en": "I am green and I love to swim and hop.", "fr": "Je suis verte et j'adore nager et sauter." }
+      "clue": { "en": "I am green and I love to swim and hop.", "fr": "Je suis verte et j'adore nager et sauter." },
+      "mystery": { "en": "I am not a fish, but I love the water. I hop and I say ribbit!", "fr": "Je ne suis pas un poisson, mais j'adore l'eau. Je saute et je fais coâ !" }
     },
     {
       "id": "bird",
       "kind": "bird",
       "home": "nest",
       "name": { "en": "the bird", "fr": "l'oiseau" },
-      "clue": { "en": "I have feathers and I sing in the morning.", "fr": "J'ai des plumes et je chante le matin." }
+      "clue": { "en": "I have feathers and I sing in the morning.", "fr": "J'ai des plumes et je chante le matin." },
+      "mystery": { "en": "I have a little beak. I sleep in a cosy home made of twigs.", "fr": "J'ai un petit bec. Je dors dans une petite maison de brindilles." }
     },
     {
       "id": "owl",
       "kind": "owl",
       "home": "tree-hollow",
       "name": { "en": "the owl", "fr": "la chouette" },
-      "clue": { "en": "I stay awake at night and I say hoo, hoo.", "fr": "Je veille la nuit et je fais hou, hou." }
+      "clue": { "en": "I stay awake at night and I say hoo, hoo.", "fr": "Je veille la nuit et je fais hou, hou." },
+      "mystery": { "en": "I have big round eyes. I sleep all day and I fly at night.", "fr": "J'ai de grands yeux ronds. Je dors le jour et je vole la nuit." }
     },
     {
       "id": "bee",
       "kind": "bee",
       "home": "hive",
       "name": { "en": "the bee", "fr": "l'abeille" },
-      "clue": { "en": "I buzz and I make honey.", "fr": "Je bourdonne et je fais du miel." }
+      "clue": { "en": "I buzz and I make honey.", "fr": "Je bourdonne et je fais du miel." },
+      "mystery": { "en": "I am tiny and I have stripes. I fly from flower to flower.", "fr": "Je suis toute petite et j'ai des rayures. Je vole de fleur en fleur." }
     },
     {
       "id": "rabbit",
       "kind": "rabbit",
       "home": "burrow",
       "name": { "en": "the rabbit", "fr": "le lapin" },
-      "clue": { "en": "I have long ears and I love to dig.", "fr": "J'ai de longues oreilles et j'adore creuser." }
+      "clue": { "en": "I have long ears and I love to dig.", "fr": "J'ai de longues oreilles et j'adore creuser." },
+      "mystery": { "en": "I have a fluffy little tail. I eat carrots and I sleep under the ground.", "fr": "J'ai une petite queue toute douce. Je mange des carottes et je dors sous la terre." }
     },
     {
       "id": "dog",
       "kind": "dog",
       "home": "kennel",
       "name": { "en": "the dog", "fr": "le chien" },
-      "clue": { "en": "I wag my tail and I bark.", "fr": "Je remue la queue et j'aboie." }
+      "clue": { "en": "I wag my tail and I bark.", "fr": "Je remue la queue et j'aboie." },
+      "mystery": { "en": "I am a good friend for children. I guard the house and I love to play ball.", "fr": "Je suis un bon copain pour les enfants. Je garde la maison et j'adore jouer à la balle." }
     }
   ],
   "adaptive": {
-    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 3, "max": 8 } },
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 4 }, "age5": { "start": 5, "min": 3, "max": 10 } },
     "levels": [
       { "choiceCount": 2, "distractor": "far", "request": "noun", "scaffold": "outline", "extra": { "clue": "none" } },
       { "choiceCount": 2, "distractor": "far", "request": "noun", "extra": { "clue": "none" } },
@@ -70,7 +76,9 @@
       { "choiceCount": 3, "distractor": "near", "request": "noun", "extra": { "clue": "after-miss" } },
       { "choiceCount": 4, "distractor": "near", "request": "noun", "extra": { "clue": "after-miss" } },
       { "choiceCount": 4, "distractor": "near", "request": "riddle", "extra": { "clue": "after-miss" } },
-      { "choiceCount": 4, "distractor": "near", "request": "riddle", "support": "audio-only", "extra": { "clue": "after-miss" } }
+      { "choiceCount": 4, "distractor": "near", "request": "riddle", "support": "audio-only", "extra": { "clue": "after-miss" } },
+      { "choiceCount": 4, "distractor": "near", "request": "mystery", "extra": { "clue": "after-miss" } },
+      { "choiceCount": 4, "distractor": "near", "request": "mystery", "support": "audio-only", "extra": { "clue": "after-miss" } }
     ]
   }
 }

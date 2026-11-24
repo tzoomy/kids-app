@@ -30,10 +30,11 @@ describe('Kitchen Orchestra content and levels', () => {
 
   it('starts age 2 at a comfortable L1 and age 5 at a meaningfully harder L4', () => {
     const { adaptive } = loadKitchenOrchestra();
-    expect(adaptive.levels).toHaveLength(8);
+    expect(adaptive.levels).toHaveLength(10);
     expect(adaptive.tracks.age2.start).toBe(1);
     expect(adaptive.tracks.age2.min).toBe(1);
-    expect(adaptive.tracks.age2.max).toBe(adaptive.levels.length);
+    // L9-L10 are the age-5 stretch: age 2 keeps its eight-level ladder.
+    expect(adaptive.tracks.age2).toEqual({ start: 1, min: 1, max: 8 });
     const l1 = adaptive.levels[0];
     expect(l1.sequenceLength).toBe(1);
     expect(l1.choiceCount).toBe(3);

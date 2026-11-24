@@ -25,6 +25,11 @@
     "en": "Let's try again!",
     "fr": "On réessaie !"
   },
+  "reverse": {
+    "listenPrompt": { "en": "Listen, then play it backwards!", "fr": "Écoute bien, puis joue à l'envers !" },
+    "yourTurnPrompt": { "en": "Now play it backwards!", "fr": "À toi ! Joue à l'envers !" },
+    "introHe": "עכשיו מנגנים הפוך! הקשיבי לשף, ואז נגני מהצליל האחרון ועד הראשון."
+  },
   "helpTextHe": "השף מנגן דוגמה. הקשיבי, ואז הקישי על הכלים באותו הסדר. אפשר לנגן חופשי, וטעות אף פעם לא מורידה זמן כיף.",
   "instruments": [
     { "id": "pot", "he": "סיר", "name": { "en": "pot", "fr": "casserole" }, "prompts": { "en": "Play the pot!", "fr": "Joue sur la casserole !" } },
@@ -34,7 +39,7 @@
     { "id": "glass-high", "he": "כוס גבוהה", "name": { "en": "high glass", "fr": "verre aigu" }, "prompts": { "en": "Play the high glass!", "fr": "Joue le verre aigu !" } }
   ],
   "adaptive": {
-    "tracks": { "age2": { "start": 1, "min": 1, "max": 8 }, "age5": { "start": 4, "min": 1, "max": 8 } },
+    "tracks": { "age2": { "start": 1, "min": 1, "max": 8 }, "age5": { "start": 4, "min": 1, "max": 10 } },
     "rules": { "upCleanStreak": 2, "downMisses": 2, "downWindow": 2, "trialsPerRound": 3 },
     "levels": [
       { "sequenceLength": 1, "choiceCount": 3, "speed": 0.8, "support": "lit", "request": "sequence" },
@@ -44,7 +49,9 @@
       { "sequenceLength": 3, "choiceCount": 4, "speed": 1, "support": "flash", "request": "sequence" },
       { "sequenceLength": 4, "choiceCount": 4, "speed": 1.2, "support": "flash", "request": "sequence" },
       { "sequenceLength": 4, "choiceCount": 5, "speed": 1.2, "support": "audio-only", "request": "sequence" },
-      { "sequenceLength": 5, "choiceCount": 5, "speed": 1.2, "support": "audio-only", "request": "sequence" }
+      { "sequenceLength": 5, "choiceCount": 5, "speed": 1.2, "support": "audio-only", "request": "sequence" },
+      { "sequenceLength": 6, "choiceCount": 5, "speed": 1.3, "support": "flash", "request": "sequence" },
+      { "sequenceLength": 4, "choiceCount": 5, "speed": 1, "support": "flash", "request": "sequence", "extra": { "order": "reverse" } }
     ]
   }
 }

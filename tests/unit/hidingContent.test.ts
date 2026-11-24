@@ -26,11 +26,11 @@ describe("Who's Hiding? content schema", () => {
     }
   });
 
-  it('[AC-07] has 8 levels; age 2 starts at L2 and age 5 at L5, both with min 1 and max = levels.length (no age-2 ceiling)', () => {
+  it('[AC-07] has 10 levels; age 2 starts at L2 and keeps its L8 cap, age 5 starts at L5 and reaches the L10 stretch', () => {
     const { adaptive } = content;
-    expect(adaptive.levels).toHaveLength(8);
+    expect(adaptive.levels).toHaveLength(10);
     expect(adaptive.tracks.age2).toEqual({ start: 2, min: 1, max: 8 });
-    expect(adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 8 });
+    expect(adaptive.tracks.age5).toEqual({ start: 5, min: 1, max: 10 });
   });
 
   it('[AC-07] the age-5 start is meaningfully harder than the age-2 start', () => {
@@ -44,8 +44,10 @@ describe("Who's Hiding? content schema", () => {
     expect(a5.speak).toBe('name');
   });
 
-  it('[AC-16] the level curve never gets easier: bushes up, reveal down, speech thinner', () => {
-    const levels = content.adaptive.levels.map(hidingLevel);
+  it('[AC-16] the level curve never gets easier: bushes up, reveal down, speech thinner (L1-L8 hiding levels)', () => {
+    // L9-L10 are the age-5 "Who is missing?" task (AC-41), with their own levers.
+    const levels = content.adaptive.levels.map(hidingLevel).filter((l) => !l.missing);
+    expect(levels).toHaveLength(8);
     for (let i = 1; i < levels.length; i++) {
       expect(levels[i].choiceCount).toBeGreaterThanOrEqual(levels[i - 1].choiceCount);
       expect(levels[i].reveal).toBeLessThanOrEqual(levels[i - 1].reveal);
@@ -85,7 +87,7 @@ describe("Who's Hiding? content schema", () => {
 
   it('[AC-31] rejects bad track bounds, missing levers and unsupported values', () => {
     const badBounds = JSON.parse(JSON.stringify(rawHiding));
-    badBounds.adaptive.tracks.age2.max = 9;
+    badBounds.adaptive.tracks.age2.max = 11;
     expect(WhosHidingContentSchema.safeParse(badBounds).success).toBe(false);
     expect(withLevel(0, { choiceCount: 1 }).success).toBe(false);
     expect(withLevel(0, { choiceCount: 7 }).success).toBe(false);

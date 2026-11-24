@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { ANIMAL_KINDS } from '../../assets/vectorArt';
-import { buildRound, eligibleTargetIds, isRequestedChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
+import { buildRound, eligibleTargetIds, isCorrectChoice, isNextRequestedChoice, type ChoiceServeLevel, type Lang, type RoundSpec } from '../templates/choiceServe';
 import { TrialTracker, nextRoundLanguage } from './trialTracker';
 import { buildMeta, type SkillSession } from '../../core/adaptive';
 import type { LearningSession } from '../../core/leisure';
@@ -37,8 +37,12 @@ export interface RoundInfo {
   correctIndex: number;
   /** Every requested plate not served yet (two for a two-item request until one is served). */
   correctIndices: number[];
-  /** Request type: noun, quantity, attribute, two-step or negation. */
+  /** Request type: noun, quantity, attribute, two-step, negation, count-attribute or sequence. */
   request: string;
+  /** `sequence` requests: the plates must be served in the spoken order (`correctIndices` holds only the next one). */
+  ordered: boolean;
+  /** Requested plates not served yet, in request order (for an ordered request the first is the only correct tap). */
+  requestedIndices: number[];
   /** False on a voice-only level: the request has no text bubble. */
   visualCue: boolean;
   choiceCount: number;
@@ -324,7 +328,11 @@ export class RestaurantScene extends Phaser.Scene {
     // Read the familiar foods first: selecting the next item consumes the after-drop flag.
     const familiarIds = this.skills.familiarItemIds(language);
     const targetId = this.skills.selectNextItem(language, eligibleTargetIds(content.items, this.level));
-    const spec = buildRound(content.items, this.level, language, Math.random, targetId, content.twoStepFrames, familiarIds);
+    const spec = buildRound(content.items, this.level, language, Math.random, targetId, content.twoStepFrames, familiarIds, {
+      sequenceFrames: content.sequenceFrames,
+      countAttributeFrames: content.countAttributeFrames,
+      countWords: content.countWords,
+    });
     this.round = {
       ...spec,
       done: false,
@@ -420,6 +428,10 @@ export class RestaurantScene extends Phaser.Scene {
       correctIndex: correctIndices.length > 0 ? correctIndices[0] : -1,
       correctIndices,
       request: round.request,
+      ordered: round.ordered === true,
+      requestedIndices: round.targets
+        .map((t) => this.plates.findIndex((p) => !round.served.includes(p) && isCorrectChoice(p.choice, t)))
+        .filter((i) => i >= 0),
       visualCue: !round.audioOnly,
       choiceCount: this.plates.length,
       choiceCenters: this.plates.map((p) => ({ x: p.root.x, y: p.root.y })),
@@ -436,10 +448,10 @@ export class RestaurantScene extends Phaser.Scene {
     };
   }
 
-  /** A requested plate that has not been served yet. */
+  /** A requested plate that has not been served yet (for an ordered request, only the next one in order). */
   private isPending(view: PlateView): boolean {
     const round = this.round;
-    return Boolean(round) && !round!.served.includes(view) && isRequestedChoice(view.choice, round!.targets);
+    return Boolean(round) && !round!.served.includes(view) && isNextRequestedChoice(view.choice, round!, round!.served.length);
   }
 
   private correctPlate(): PlateView | undefined {

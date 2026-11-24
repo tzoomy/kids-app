@@ -81,8 +81,9 @@ describe('round building per level', () => {
   });
 
   it('[AC-16] [AC-18] reveal and audio-only come from the level, per level', () => {
-    expect(levels.map((d) => hidingLevel(d).reveal)).toEqual([0.9, 0.8, 0.6, 0.5, 0.3, 0.3, 0.3, 0.3]);
-    expect(levels.map((d) => hidingLevel(d).audioOnly)).toEqual([false, false, false, false, false, false, true, true]);
+    expect(levels.map((d) => hidingLevel(d).reveal)).toEqual([0.9, 0.8, 0.6, 0.5, 0.3, 0.3, 0.3, 0.3, 1, 1]);
+    expect(levels.map((d) => hidingLevel(d).audioOnly)).toEqual([false, false, false, false, false, false, true, true, false, true]);
+    expect(levels.map((d) => hidingLevel(d).missing)).toEqual([false, false, false, false, false, false, false, false, true, true]);
     expect(buildHidingRound(content, levels[6], 'en', 'cat', seeded(1)).level.audioOnly).toBe(true);
     expect(buildHidingRound(content, levels[0], 'en', 'cat', seeded(1)).level.audioOnly).toBe(false);
   });
@@ -164,8 +165,8 @@ describe('prompt text per language and support mode', () => {
       const spec = buildHidingRound(content, d, 'en', 'cat', seeded(1));
       lineIds.add(spec.lineId);
     }
-    // Levels 1-4 share one request line; every other mode has its own id.
-    expect(lineIds.size).toBe(4);
+    // Levels 1-4 share one request line; every other mode has its own id (L9-L10 share the "Who is missing?" line).
+    expect(lineIds.size).toBe(5);
     expect(buildHidingRound(content, levels[0], 'fr', 'cat', seeded(1)).lineId).not.toBe(
       buildHidingRound(content, levels[0], 'en', 'cat', seeded(1)).lineId,
     );

@@ -13,8 +13,20 @@
     "en": "I want {a} and {b}, please!",
     "fr": "Je voudrais {a} et {b}, s'il te plaît !"
   },
+  "sequenceFrames": {
+    "en": "First {a}, then {b}, please!",
+    "fr": "D'abord {a}, puis {b}, s'il te plaît !"
+  },
+  "countAttributeFrames": {
+    "en": "I want {count} {items}, please!",
+    "fr": "Je voudrais {count} {items}, s'il te plaît !"
+  },
+  "countWords": {
+    "en": { "2": "two", "3": "three" },
+    "fr": { "2": "deux", "3": "trois" }
+  },
   "adaptive": {
-    "tracks": { "age2": { "start": 4, "min": 1, "max": 9 }, "age5": { "start": 5, "min": 1, "max": 9 } },
+    "tracks": { "age2": { "start": 4, "min": 1, "max": 9 }, "age5": { "start": 5, "min": 1, "max": 12 } },
     "levels": [
       { "choiceCount": 2, "counts": [1], "distractor": "far", "request": "noun" },
       { "choiceCount": 3, "counts": [1], "distractor": "far", "request": "noun" },
@@ -24,7 +36,10 @@
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "attribute" },
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "two-step" },
       { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation" },
-      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation", "support": "audio-only" }
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "negation", "support": "audio-only" },
+      { "choiceCount": 4, "counts": [2, 3], "distractor": "near", "request": "count-attribute" },
+      { "choiceCount": 4, "counts": [1], "distractor": "near", "request": "sequence" },
+      { "choiceCount": 4, "counts": [2, 3], "distractor": "same-item-variant", "request": "count-attribute", "support": "audio-only" }
     ]
   },
   "thanks": {
@@ -40,8 +55,8 @@
       "shape": "apple",
       "phrase": { "en": "an apple", "fr": "une pomme" },
       "variants": [
-        { "color": "red", "en": { "pick": "I want the red apple, please!", "not": "I want an apple, but not the red one!" }, "fr": { "pick": "Je voudrais la pomme rouge, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la rouge !" } },
-        { "color": "green", "en": { "pick": "I want the green apple, please!", "not": "I want an apple, but not the green one!" }, "fr": { "pick": "Je voudrais la pomme verte, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la verte !" } }
+        { "color": "red", "en": { "pick": "I want the red apple, please!", "not": "I want an apple, but not the red one!" }, "fr": { "pick": "Je voudrais la pomme rouge, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la rouge !" }, "plural": { "en": "red apples", "fr": "pommes rouges" } },
+        { "color": "green", "en": { "pick": "I want the green apple, please!", "not": "I want an apple, but not the green one!" }, "fr": { "pick": "Je voudrais la pomme verte, s'il te plaît !", "not": "Je voudrais une pomme, mais pas la verte !" }, "plural": { "en": "green apples", "fr": "pommes vertes" } }
       ],
       "prompts": {
         "en": { "1": "I want an apple, please!", "2": "I want two apples, please!", "3": "I want three apples, please!" },
@@ -55,8 +70,8 @@
       "shape": "banana",
       "phrase": { "en": "a banana", "fr": "une banane" },
       "variants": [
-        { "color": "yellow", "en": { "pick": "I want the yellow banana, please!", "not": "I want a banana, but not the yellow one!" }, "fr": { "pick": "Je voudrais la banane jaune, s'il te plaît !", "not": "Je voudrais une banane, mais pas la jaune !" } },
-        { "color": "green", "en": { "pick": "I want the green banana, please!", "not": "I want a banana, but not the green one!" }, "fr": { "pick": "Je voudrais la banane verte, s'il te plaît !", "not": "Je voudrais une banane, mais pas la verte !" } }
+        { "color": "yellow", "en": { "pick": "I want the yellow banana, please!", "not": "I want a banana, but not the yellow one!" }, "fr": { "pick": "Je voudrais la banane jaune, s'il te plaît !", "not": "Je voudrais une banane, mais pas la jaune !" }, "plural": { "en": "yellow bananas", "fr": "bananes jaunes" } },
+        { "color": "green", "en": { "pick": "I want the green banana, please!", "not": "I want a banana, but not the green one!" }, "fr": { "pick": "Je voudrais la banane verte, s'il te plaît !", "not": "Je voudrais une banane, mais pas la verte !" }, "plural": { "en": "green bananas", "fr": "bananes vertes" } }
       ],
       "prompts": {
         "en": { "1": "I want a banana, please!", "2": "I want two bananas, please!", "3": "I want three bananas, please!" },
@@ -151,8 +166,8 @@
       "shape": "pear",
       "phrase": { "en": "a pear", "fr": "une poire" },
       "variants": [
-        { "color": "green", "en": { "pick": "I want the green pear, please!", "not": "I want a pear, but not the green one!" }, "fr": { "pick": "Je voudrais la poire verte, s'il te plaît !", "not": "Je voudrais une poire, mais pas la verte !" } },
-        { "color": "yellow", "en": { "pick": "I want the yellow pear, please!", "not": "I want a pear, but not the yellow one!" }, "fr": { "pick": "Je voudrais la poire jaune, s'il te plaît !", "not": "Je voudrais une poire, mais pas la jaune !" } }
+        { "color": "green", "en": { "pick": "I want the green pear, please!", "not": "I want a pear, but not the green one!" }, "fr": { "pick": "Je voudrais la poire verte, s'il te plaît !", "not": "Je voudrais une poire, mais pas la verte !" }, "plural": { "en": "green pears", "fr": "poires vertes" } },
+        { "color": "yellow", "en": { "pick": "I want the yellow pear, please!", "not": "I want a pear, but not the yellow one!" }, "fr": { "pick": "Je voudrais la poire jaune, s'il te plaît !", "not": "Je voudrais une poire, mais pas la jaune !" }, "plural": { "en": "yellow pears", "fr": "poires jaunes" } }
       ],
       "prompts": {
         "en": { "1": "I want a pear, please!", "2": "I want two pears, please!", "3": "I want three pears, please!" },

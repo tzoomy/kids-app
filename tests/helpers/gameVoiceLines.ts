@@ -17,9 +17,10 @@ import {
 } from '@/content/loadContent';
 import type { SpeechRequest } from '@/core/audio/types';
 import { buildBalloonRound, balloonLevel, eligibleItemIds } from '@/games/balloon/balloonRound';
+import { restaurantStretchVoiceLines } from '@/games/restaurant/restaurantVoice';
 import { COLOURING_VOICE } from '@/games/colouring/voice';
-import { HABITAT_HE_TEXT, clueLine, correctLines, helpLine, nameLine as habitatNameLine } from '@/games/habitat/habitatVoice';
-import { buildHidingRound } from '@/games/hiding/hidingRound';
+import { HABITAT_HE_TEXT, clueLine, correctLines, helpLine, mysteryLine, nameLine as habitatNameLine } from '@/games/habitat/habitatVoice';
+import { MISSING_INTRO_HE_ID, buildHidingRound, missingLines } from '@/games/hiding/hidingRound';
 import { buildShadowRound } from '@/games/hiding/shadowRound';
 import * as magnet from '@/games/magicMagnet/magnetRound';
 import * as bridge from '@/games/numberBridge/bridgeRound';
@@ -64,10 +65,20 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
             lang,
             text: rest.twoStepFrames[lang].replace('{a}', a.phrase[lang]).replace('{b}', b.phrase[lang]),
           }, true);
+  // Animal Restaurant age-5 stretch (L10-L12): ordered pairs (combinatorial) and colour + count requests.
+  for (const r of restaurantStretchVoiceLines(rest)) add('animal-restaurant', r, r.lineId.startsWith('seq.'));
 
   // Kitchen Orchestra.
   const orch = loadKitchenOrchestra();
   add('kitchen-orchestra', { lineId: 'orchestra.help.he', lang: 'he', text: orch.helpTextHe });
+  // Age-5 reverse echo (L10).
+  if (orch.reverse) {
+    add('kitchen-orchestra', { lineId: 'orchestra.reverse.he', lang: 'he', text: orch.reverse.introHe });
+    for (const lang of LANGS) {
+      add('kitchen-orchestra', { lineId: `orchestra.reverse.listen.${lang}`, lang, text: orch.reverse.listenPrompt[lang] });
+      add('kitchen-orchestra', { lineId: `orchestra.reverse.yourturn.${lang}`, lang, text: orch.reverse.yourTurnPrompt[lang] });
+    }
+  }
   for (const lang of LANGS) {
     add('kitchen-orchestra', { lineId: `orchestra.listen.${lang}`, lang, text: orch.listenPrompt[lang] });
     add('kitchen-orchestra', { lineId: `orchestra.yourturn.${lang}`, lang, text: orch.yourTurnPrompt[lang] });
@@ -83,6 +94,9 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
   const hiding = loadWhosHiding();
   for (const lang of LANGS) {
     hiding.found[lang].forEach((t, i) => add('who-is-hiding', { lineId: `hiding.found.${lang}.${i}`, lang, text: t }));
+    // Age-5 "Who is missing?" (L9-L10): line-up and "someone left" lines (the ask and hints come from the rounds below).
+    const missing = missingLines(hiding, lang);
+    if (missing) for (const l of [missing.look, missing.gone]) add('who-is-hiding', { lineId: l.lineId, lang, text: l.text });
     for (const level of hiding.adaptive.levels)
       for (const a of hiding.animals) {
         const r = buildHidingRound(hiding, level, lang, a.id, fixed);
@@ -90,6 +104,8 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
         add('who-is-hiding', { lineId: r.hintLineId, lang, text: r.hintText });
       }
   }
+
+  if (hiding.missing) add('who-is-hiding', { lineId: MISSING_INTRO_HE_ID, lang: 'he', text: hiding.missing.introHe });
 
   // Shadow Match.
   const shadow = loadShadowMatch();
@@ -126,6 +142,7 @@ export function enumerateGameVoiceLines(): { lines: GameVoiceLine[]; conflicts: 
     for (const a of habitat.animals) {
       add('who-lives-here', habitatNameLine(a, lang));
       add('who-lives-here', clueLine(a, lang));
+      if (a.mystery) add('who-lives-here', mysteryLine(a, lang));
       for (const l of correctLines(habitat, a, lang)) if (l.lang !== 'he') add('who-lives-here', l);
     }
 

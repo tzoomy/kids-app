@@ -19,16 +19,18 @@ describe('content schema validation', () => {
     }
   });
 
-  it('the adaptive block: age2 starts at L4 (3 plates, quantities) with no ceiling; age5 starts at L5 (4 plates)', () => {
+  it('the adaptive block: age2 starts at L4 (3 plates, quantities) and keeps its L9 cap; age5 starts at L5 (4 plates)', () => {
     const { adaptive } = loadAnimalRestaurant();
-    expect(adaptive.levels).toHaveLength(9);
+    expect(adaptive.levels).toHaveLength(12);
     const start2 = adaptive.levels[adaptive.tracks.age2.start - 1];
     expect(adaptive.tracks.age2.start).toBe(4);
     expect(start2.choiceCount).toBe(3);
     expect(start2.counts).toEqual([1, 2, 3]);
     expect(start2.request).toBe('quantity');
     expect(adaptive.tracks.age2.min).toBe(1);
-    expect(adaptive.tracks.age2.max).toBe(adaptive.levels.length);
+    // L10-L12 are the age-5 stretch: age 2 keeps the nine-level ladder.
+    expect(adaptive.tracks.age2.max).toBe(9);
+    expect(adaptive.tracks.age5.max).toBe(adaptive.levels.length);
     expect(adaptive.tracks.age5.start).toBe(5);
     const start5 = adaptive.levels[adaptive.tracks.age5.start - 1];
     expect(start5.choiceCount).toBe(4);
@@ -42,7 +44,7 @@ describe('content schema validation', () => {
     expect(AnimalRestaurantContentSchema.safeParse(valid).success).toBe(true);
 
     const badBounds = JSON.parse(JSON.stringify(valid));
-    badBounds.adaptive.tracks.age5.start = 10;
+    badBounds.adaptive.tracks.age5.start = 13;
     expect(AnimalRestaurantContentSchema.safeParse(badBounds).success).toBe(false);
 
     const unordered = JSON.parse(JSON.stringify(valid));

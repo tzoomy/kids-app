@@ -42,9 +42,9 @@ function make(driver: StorageDriver, track: AgeTrack, profileId = 'a') {
 }
 
 describe('SkillSession', () => {
-  it('starts at the track start level: age2 -> L4, age5 -> L5 (9 levels)', () => {
+  it('starts at the track start level: age2 -> L4, age5 -> L5 (12 levels)', () => {
     const { driver } = memoryDriver();
-    expect(meta.levelCount).toBe(9);
+    expect(meta.levelCount).toBe(12);
     expect(make(driver, 'age2').session.level('en')).toBe(4);
     expect(make(driver, 'age5').session.level('en')).toBe(5);
     expect(meta.tracks.age2.min).toBe(1);
@@ -75,8 +75,8 @@ describe('SkillSession', () => {
     expect(session.familiarItemIds('en')).toEqual(['apple']);
   });
 
-  it('age2 has no ceiling: max equals the level count', () => {
-    expect(meta.tracks.age2.max).toBe(meta.levelCount);
+  it('age2 keeps the nine-level restaurant ladder; age5 reaches the last (stretch) level', () => {
+    expect(meta.tracks.age2.max).toBe(9);
     expect(meta.tracks.age5.max).toBe(meta.levelCount);
   });
 

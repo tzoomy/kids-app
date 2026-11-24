@@ -83,7 +83,7 @@ Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in
 
 ## Difficulty curve
 
-- **Levels:** 8 levels (1-based) defined in `src/content/games/kitchen-orchestra.json` and `docs/adaptive-engine.md` §2.2:
+- **Levels:** 10 levels (1-based; L9–L10 are the age-5 stretch added 2026-11-24) defined in `src/content/games/kitchen-orchestra.json` and `docs/adaptive-engine.md` §2.2:
 
 | L | `sequenceLength` | `choiceCount` | Instruments (`ORCHESTRA_INSTRUMENT_ORDER`) | `speed` | `support` | `request` |
 |---|---|---|---|---|---|---|
@@ -95,10 +95,15 @@ Kitchen Orchestra is a musical listen-and-echo memory and vocabulary game set in
 | 6 | 4 | 4 | `pot`, `pan`, `glass-low`, `glass-high` | 1.2 | `flash` | `sequence` |
 | 7 | 4 | 5 | `pot`, `pan`, `glass-low`, `glass-mid`, `glass-high` (all five) | 1.2 | `audio-only` | `sequence` |
 | 8 | 5 | 5 | `pot`, `pan`, `glass-low`, `glass-mid`, `glass-high` (all five) | 1.2 | `audio-only` | `sequence` |
+| 9 | 6 | 5 | all five | 1.3 | `flash` | `sequence` — **age 5 only**: a six-note echo |
+| 10 | 4 | 5 | all five | 1 | `flash` | `sequence`, `extra.order: "reverse"` — **age 5 only**: play the pattern backwards |
+
+- **Age-5 stretch (2026-11-24, Wave 2):** L9 lengthens the echo to six notes (back to `flash`, so the longer pattern is still seen once). L10 is the **reverse echo**: the chef plays four notes and she taps them from the last to the first (`trial.answer` = `sequence` reversed; `checkEchoTap` and hints use `answer`). A palindrome pattern is repaired so backwards always differs. The rule is shown and spoken: a badge under the instruments (a left-pointing arrow and one dot per note) lights a dot per note during playback and puts out the last lit dot on each right tap; the listen / your-turn lines become "Listen, then play it backwards!" / "Now play it backwards!" ("Écoute bien, puis joue à l'envers !" / "À toi ! Joue à l'envers !"), and before the first reverse pattern of a visit a Hebrew line explains the rule once (`orchestra.reverse.he`: "עכשיו מנגנים הפוך! הקשיבי לשף, ואז נגני מהצליל האחרון ועד הראשון."). The schema requires the `reverse` lines for a reverse level and forbids `audio-only` on it. `getOrchestraInfo` adds `answer`, `reverse` and `litDots`. New lines play on device TTS until recorded.
+- **Instrument row fit (2026-11-24):** with four or five instruments the original row ran past the screen edge (in landscape the fifth instrument's centre was at x ≈ 1407 of 1280, so it could not be tapped; in portrait the first one was half off the left edge). Rows that do not fit are now refitted inside the screen (narrower gaps first, never under 144 game px = 64.8 CSS px on a 360 px phone, landscape rows start right of the chef); three-instrument rows (L1–L2) keep their exact place.
 
 - **Age-2 start level:** L1 (`start: 1`). Per `docs/adaptive-engine.md` §2.2, Kitchen Orchestra is the justified exception to the "age 2 starts above L1" convention because echoing even a 2-note sequence is already demanding for a 2-year-old; L1 gives her a single lit note at `speed: 0.8` across 3 utensils.
 - **Age-5 start level:** L4 (`start: 4`). Meaningfully harder than age 2: a 3-note sequence (`sequenceLength: 3`) across 4 utensils (`pot`, `pan`, `glass-low`, `glass-high`) at normal tempo (`speed: 1`, `support: 'lit'`).
-- **Min / max:** `min: 1`, `max: 8` on both `age2` and `age5`. Age 2 has **no ceiling** (`max: 8`). At L1, a down decision performs a soft drop (`recent = []`, `cleanStreak = 0`, `afterDrop = true`, level stays 1); at L8, an up decision is a no-op and `cleanStreak` keeps counting.
+- **Min / max:** `min: 1` on both tracks; `age2` `max: 8` (unchanged; L9–L10 are not added to the age-2 track) and `age5` `max: 10` (2026-11-24). At L1, a down decision performs a soft drop (`recent = []`, `cleanStreak = 0`, `afterDrop = true`, level stays 1); at L8, an up decision is a no-op and `cleanStreak` keeps counting.
 - **Adaptive rules** (`src/content/games/kitchen-orchestra.json` overrides merged onto `DEFAULT_RULES` in `src/core/adaptive/rules.ts`, plus `trackPolicy` in `src/core/adaptive/policy.ts`):
   - `upCleanStreak: 2` (override; default is 3): 2 consecutive `'clean'` trials trigger a level-up (`+1`). An `'assisted'` or `'miss'` trial resets `cleanStreak` to `0`.
   - `downMisses: 2`, `downWindow: 2` (override; default `downWindow` is 3): 2 consecutive `'miss'` trials trigger a level-down (`-1`).
@@ -155,7 +160,7 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-04 | Difficulty rises after 2 consecutive clean trials (`upCleanStreak: 2`) and drops after 2 consecutive misses (`downMisses: 2`, `downWindow: 2`), with `trialsPerRound: 3`, `maxChangesPerRound: 1`, `between-rounds` on `age2`, and `after-trial` on `age5` | 1 | unit | @single-orientation | |
 | AC-05 | One real-tap level change at a low level (e.g. seeded L1 or L4 rising by 1 after 2 clean sequences or dropping by 1 after 2 missed sequences) | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedOrchestraLevel`, `getOrchestraInfo` |
 | AC-06 | High levels (seeded L7 and L8: 4–5 note sequence, 5 utensils, `speed: 1.2`, `support: audio-only` with no prompt bubble and no utensil glow) play and complete correctly | 1 | e2e+seed | @single-orientation | `getBuildingHit`, `seedOrchestraLevel`, `getOrchestraInfo` |
-| AC-07 | A new `age2` profile starts at L1 (`sequenceLength: 1`, `choiceCount: 3`, `speed: 0.8`, `support: 'lit'`); a new `age5` profile starts at L4 (`sequenceLength: 3`, `choiceCount: 4`, `speed: 1`, `support: 'lit'`), with `min: 1` and `max: 8` (no age-2 ceiling) | 1 | unit | @single-orientation | |
+| AC-07 | A new `age2` profile starts at L1 (`sequenceLength: 1`, `choiceCount: 3`, `speed: 0.8`, `support: 'lit'`); a new `age5` profile starts at L4 (`sequenceLength: 3`, `choiceCount: 4`, `speed: 1`, `support: 'lit'`), with `min: 1` and `max: 8` (no age-2 ceiling; age 5 `max: 10` since 2026-11-24) | 1 | unit | @single-orientation | |
 | AC-08 | Leisure accrues via `LearningSession` during active play, listening, and celebration (10 min learn → 5 min leisure, 30 min daily cap, 20 s idle window, paused when tab-hidden), never drops on mistakes, and never mixes across profiles | 1 | unit | @single-orientation | |
 | AC-09 | Utensil sets (`ORCHESTRA_INSTRUMENT_ORDER` for 3, 4, 5 choices), non-repeating consecutive notes in `buildSequence` when `length > 1`, note timing (`BASE_NOTE_GAP_MS = 700`, `BASE_NOTE_HOLD_MS = 320`, `replaySpeed = speed * 0.75`), and fixed per-round language selection (`en` / `fr`) match this spec | 1 | unit | @single-orientation | |
 | AC-10 | Each voice line requests the right `lineId` (`orchestra.play.<id>.<lang>`, `orchestra.listen.<lang>`, `orchestra.yourturn.<lang>`, `orchestra.retry.<lang>`, `orchestra.thanks.<lang>.<0..2>`, `orchestra.help.he`) and language, asserted via `getSpokenLines` | 1 | e2e | @single-orientation | `getBuildingHit`, `getOrchestraInfo`, `getSpokenLines` |
@@ -168,6 +173,10 @@ Ids are stable: never renumber or reuse them; strike through a removed one (`~~A
 | AC-17 | A real tap on `game-picker-animal-restaurant` opens Animal Restaurant, at both `1280x800` and `800x1280` | 1 | e2e | both | `getBuildingHit` |
 | AC-18 | A real tap on `game-picker-kitchen-orchestra` opens Kitchen Orchestra, at both `1280x800` and `800x1280` | 1 | e2e | both | `getBuildingHit`, `getOrchestraInfo` |
 | AC-19 | A real tap on `game-picker-close` returns the child to the map, at both `1280x800` and `800x1280` | 1 | e2e | both | `getBuildingHit` |
+| AC-20 | Age-5 stretch keeps age 2 untouched: L1–L8 unchanged, L9 (6 notes, 5 instruments, speed 1.3, flash) and L10 (4 notes, flash, `extra.order: "reverse"`) appended, `age2` stays `{ 1, 1, 8 }`, `age5` max 10; the schema rejects a reverse level without the reverse lines, an audio-only reverse level and an unknown order | 1 | unit | @single-orientation | |
+| AC-21 | L9 echoes six notes forwards with no immediate repeat; on L10 the answer is the reversed pattern, never equal to it (palindromes repaired), a forwards echo misses and a backwards echo completes | 1 | unit | @single-orientation | |
+| AC-22 | The reverse cue: EN / FR / HE reverse lines are registered with no id conflict (Hebrew in the feminine singular); the badge is on screen under the instruments with one dot per note; with four or five instruments every instrument is on screen and ≥ 64 CSS px on a 360 px phone, and three-instrument rows keep their place | 1 | unit | both | |
+| AC-23 | Real taps at age 5 (profile-b): seeded L9 completes a six-note forwards echo; seeded L10 speaks the Hebrew rule, starts with 4 lit dots, puts one out per right tap and completes only with the backwards echo | 1 | e2e+seed | both | `seedOrchestraLevel`, `getOrchestraInfo`, `getSpokenLines`, `getGameSize` |
 
 ## Art, animation, and audio
 
@@ -262,3 +271,4 @@ None remaining. Owner decisions of 2026-11-12 are recorded in the sections above
 - 2026-11-13 — approved by the owner; all open decisions and team-lead proposals resolved (none were labelled open in the spec; the 2026-11-12 decisions stand unchanged); 0 ACs added — substantive
 - 2026-11-14 — voice-table intro reworded: strings match the JSON with no exception, as the French pan name `poêle` is already on `main` (`6791ea9`); no behaviour or AC change — minor
 - 2026-11-24 — voice-text hygiene: `orchestra.help.he` spells the feminine imperative `הקישי` (was `הקשי`, misread by TTS); no other change — minor
+- 2026-11-24 — Wave 2 age-5 stretch: L9 six-note echo, L10 reverse echo with a backwards badge and a one-time Hebrew rule line; age-5 `max` 8 → 10, age 2 unchanged; four- and five-instrument rows refitted inside the screen (the fifth instrument was off screen in landscape); `getOrchestraInfo` gains `answer`, `reverse`, `litDots`; 4 ACs added (AC-20 to AC-23) — substantive

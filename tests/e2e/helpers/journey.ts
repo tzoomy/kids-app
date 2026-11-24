@@ -114,10 +114,22 @@ export interface RoundInfo {
   correctPeek?: number;
   shortSound?: boolean;
   speak?: string;
+  /** Restaurant `sequence` requests: plates must be served in the spoken order. */
+  ordered?: boolean;
+  /** Restaurant: requested plates not served yet, in request order. */
+  requestedIndices?: number[];
+  /** Who's Hiding? "Who is missing?" rounds: peek -> gone -> back -> answer. */
+  phase?: 'peek' | 'gone' | 'back' | 'answer';
+  /** Who's Hiding? "Who is missing?" rounds: the animals of the line-up. */
+  lineupIds?: string[];
 }
 
 export interface OrchestraInfo {
   sequence: string[];
+  /** The taps to make, in order (`sequence` reversed on a reverse level). */
+  answer: string[];
+  reverse: boolean;
+  litDots: number;
   expectedIndex: number;
   instrumentCenters: Array<{ x: number; y: number; id: string }>;
   level: number;
@@ -162,6 +174,8 @@ type Hooks = {
   /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
   isListening: () => boolean;
   seedHidingLevel: (level: number) => void;
+  seedRestaurantLevel: (level: number) => void;
+  seedOrchestraLevel: (level: number) => void;
   seedBalanceSec: (sec: number) => void;
   seedColouringState: (seed: ColouringSeed) => void;
   getColouringInfo: () => ColouringInfo | null;
@@ -239,6 +253,16 @@ export function isListening(page: Page): Promise<boolean> {
 
 export function getGameSize(page: Page): Promise<{ width: number; height: number }> {
   return callHook<{ width: number; height: number }>(page, 'getGameSize');
+}
+
+/** Seeds the Animal Restaurant adaptive level (seed-only hook; call it on the map, before the building tap). */
+export async function seedRestaurantLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedRestaurantLevel', [level]);
+}
+
+/** Seeds the Kitchen Orchestra adaptive level (seed-only hook; call it on the map, before the building tap). */
+export async function seedOrchestraLevel(page: Page, level: number): Promise<void> {
+  await callHook<void>(page, 'seedOrchestraLevel', [level]);
 }
 
 /** Seeds the Who's Hiding? adaptive level (seed-only hook; call it on the map, before the building tap). */

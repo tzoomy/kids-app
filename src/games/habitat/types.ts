@@ -5,7 +5,7 @@ import type { PageRect } from '../sorting/types';
 
 export type { PageRect };
 
-export type HabitatRequest = 'noun' | 'riddle';
+export type HabitatRequest = 'noun' | 'riddle' | 'mystery';
 
 export interface HabitatHomeInfo {
   /** Home id from the content (also the art key suffix `home-<id>-back|front`). */
@@ -32,13 +32,18 @@ export interface HabitatCurrentAnimal {
 }
 
 export interface HabitatInfo {
-  /** 1..8, the level of the active round. */
+  /** 1..10, the level of the active round. */
   level: number;
   /** Learning-token language of this round (Hebrew guidance is always 'he'). */
   lang: 'en' | 'fr';
   request: HabitatRequest;
-  /** The Hebrew prompt bubble is shown (false on the audio-only level). */
+  /** The Hebrew prompt bubble is shown (false on the audio-only levels). */
   textBubble: boolean;
+  /**
+   * Mystery levels (age 5, L9-L10): the current animal is hidden behind a "?" until it is placed, so the two-clue
+   * riddle has to be understood. False on every other level and once the animal is revealed.
+   */
+  animalHidden: boolean;
   homes: HabitatHomeInfo[];
   /** null between animals, during animations, and after the round. */
   currentAnimal: HabitatCurrentAnimal | null;

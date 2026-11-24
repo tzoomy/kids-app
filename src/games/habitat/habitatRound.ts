@@ -15,6 +15,8 @@ export interface HabitatLevers {
   clueAfterMiss: boolean;
   /** `support: 'audio-only'`: no text bubble, the request is voice only. */
   audioOnly: boolean;
+  /** `request: 'mystery'`: the animal is hidden until it is home, and the two-clue riddle is spoken. */
+  hideAnimal: boolean;
 }
 
 /** Reads the levers from a validated level (see WhoLivesHereContentSchema). */
@@ -22,10 +24,11 @@ export function levelLevers(level: LevelDescriptor): HabitatLevers {
   return {
     choiceCount: level.choiceCount ?? 2,
     distractor: level.distractor === 'near' ? 'near' : 'far',
-    request: level.request === 'riddle' ? 'riddle' : 'noun',
+    request: level.request === 'riddle' || level.request === 'mystery' ? level.request : 'noun',
     glow: level.scaffold === 'outline',
     clueAfterMiss: level.extra?.clue === 'after-miss',
     audioOnly: level.support === 'audio-only',
+    hideAnimal: level.request === 'mystery',
   };
 }
 

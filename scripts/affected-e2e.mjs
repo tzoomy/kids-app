@@ -86,7 +86,7 @@ export const GAME_RULES = [
       /^src\/content\/games\/animal-restaurant\.json$/,
       /^tests\/unit\/(restaurant|animal-restaurant|trialTracker)[^/]*$/,
     ],
-    specs: ['tests/e2e/animal-restaurant.journey.spec.ts'],
+    specs: ['tests/e2e/animal-restaurant.journey.spec.ts', 'tests/e2e/animal-restaurant.stretch.spec.ts'],
   },
   {
     id: 'who-is-hiding',
@@ -95,7 +95,7 @@ export const GAME_RULES = [
       /^src\/content\/games\/who-is-hiding\.json$/,
       /^tests\/unit\/(hiding|who-is-hiding)[^/]*$/,
     ],
-    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts'],
+    specs: ['tests/e2e/hiding.spec.ts', 'tests/e2e/who-is-hiding.journey.spec.ts', 'tests/e2e/who-is-hiding.missing.spec.ts'],
   },
   {
     // Shadow Match is the silhouette variant of Who's Hiding? (same folder, so hiding changes select both).
@@ -117,7 +117,7 @@ export const GAME_RULES = [
       /^public\/art\/(homes|scenes\/habitats)\//,
       /^tests\/unit\/who-lives-here[^/]*$/,
     ],
-    specs: ['tests/e2e/who-lives-here.journey.spec.ts'],
+    specs: ['tests/e2e/who-lives-here.journey.spec.ts', 'tests/e2e/who-lives-here.mystery.spec.ts'],
   },
   {
     id: 'kitchen-orchestra',
@@ -127,7 +127,7 @@ export const GAME_RULES = [
       /^public\/art\/instruments\//,
       /^tests\/unit\/(orchestra|kitchen-orchestra)[^/]*$/,
     ],
-    specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts'],
+    specs: ['tests/e2e/kitchen-orchestra.picker.spec.ts', 'tests/e2e/kitchen-orchestra.reverse.spec.ts'],
   },
   {
     id: 'word-train',
