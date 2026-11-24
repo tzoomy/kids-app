@@ -18,7 +18,7 @@
     "look": { "en": "Look who is here!", "fr": "Regarde qui est là !" },
     "gone": { "en": "Oh! Someone ran away!", "fr": "Oh ! Quelqu'un est parti !" },
     "ask": { "en": "Who is missing?", "fr": "Qui a disparu ?" },
-    "introHe": "הסתכלי טוב על כל החיות! אחת מהן תברח, ואת תגלי מי חסר."
+    "introHe": "הסתכלי טוב על כל החיות! אחת מהן תברח, ואת תגלי מי חסרה."
   },
   "found": {
     "en": ["Peekaboo!", "Surprise!", "You found me!"],

@@ -94,6 +94,8 @@ export class HabitatScene extends Phaser.Scene {
   private roundNo = 0;
   private animalIndex = 0;
   private current: CurrentAnimal | null = null;
+  /** Mystery levels: the "?" cover while it pops out after the reveal (destroyed with the stage if still there). */
+  private fadingCover?: Phaser.GameObjects.Container;
   private tracker: SortingTrialTracker | null = null;
   private ready = false;
   private lockedUntil = 0;
@@ -129,6 +131,7 @@ export class HabitatScene extends Phaser.Scene {
     this.plan = null;
     this.levers = null;
     this.current = null;
+    this.fadingCover = undefined;
     this.tracker = null;
     this.ready = false;
     this.helpOpen = false;
@@ -219,6 +222,7 @@ export class HabitatScene extends Phaser.Scene {
     this.stageObjects = [];
     this.animalZone = null;
     this.current = null;
+    this.fadingCover = undefined;
     this.plan = null;
     this.levers = null;
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
@@ -372,6 +376,9 @@ export class HabitatScene extends Phaser.Scene {
     this.homes = [];
     this.current?.character.destroy();
     this.current?.cover?.destroy(true);
+    // A "?" cover still fading out after a reveal (revealMystery) goes too.
+    this.fadingCover?.destroy(true);
+    this.fadingCover = undefined;
     this.current = null;
     this.stageObjects.forEach((o) => o.destroy());
     this.stageObjects = [];
@@ -487,12 +494,14 @@ export class HabitatScene extends Phaser.Scene {
     const cover = current.cover;
     if (!cover) return;
     current.cover = undefined;
+    this.fadingCover = cover;
     const a = this.layout.animal;
     Juice.for(this).burst('sparkle', a.x, a.feetY - a.height * 0.5);
     current.character.root.setVisible(true);
     void popIn(this, current.character.root, 0, current.character.root.scaleX);
     await popOut(this, cover, 0);
-    cover.destroy(true);
+    if (this.fadingCover === cover) this.fadingCover = undefined;
+    if (cover.scene) cover.destroy(true);
     if (token !== this.token) return;
     await wait(this, MYSTERY_REVEAL_MS);
   }

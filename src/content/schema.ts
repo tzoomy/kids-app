@@ -207,7 +207,12 @@ export const AnimalRestaurantContentSchema = z
         if (counts.length < 2 || counts.some((c) => c < 2)) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a count-attribute request needs at least two counts, each 2 or 3' });
         }
-        const eligible = value.items.filter((i) => i.variants?.every((v) => v.plural) && counts.every((c) => i.prompts.en[String(c) as '2' | '3']));
+        const eligible = value.items.filter(
+          (i) =>
+            (i.variants?.length ?? 0) >= 2 &&
+            i.variants!.every((v) => v.plural) &&
+            counts.every((c) => i.prompts.en[String(c) as '2' | '3'] && i.prompts.fr[String(c) as '2' | '3']),
+        );
         if (eligible.length < 1) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: 'a count-attribute request needs an item whose two variants have plural phrases and counted prompts' });
         }

@@ -247,7 +247,9 @@ function countAttributeCounts(item: RestaurantItem, level: ChoiceServeLevel): (2
 
 /** True when `item` can carry a `count-attribute` request at `level` (two coloured variants with plural phrases). */
 function supportsCountAttribute(item: RestaurantItem, level: ChoiceServeLevel): boolean {
-  return Boolean(item.variants?.every((v) => v.plural)) && countAttributeCounts(item, level).length >= 2;
+  // Two colours, each with a plural noun ("green apples"), and sentences for two counts in both languages.
+  const variants = item.variants ?? [];
+  return variants.length >= 2 && variants.every((v) => v.plural) && countAttributeCounts(item, level).length >= 2;
 }
 
 /**
