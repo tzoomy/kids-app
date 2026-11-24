@@ -1229,63 +1229,14 @@ body {
   padding: 8px 14px;
 }
 
-.shell-levels h3,
-.shell-levels h4 {
-  margin: 16px 0 4px;
+.shell-profile-reset {
+  margin-top: 8px;
 }
 
-.shell-level-game {
-  border-top: 1px solid #e3e3e3;
-  padding: 6px 0;
-}
-
-.shell-level-game-name {
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.shell-level-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
+.shell-profile-reset .shell-note {
   margin: 4px 0;
 }
 
-.shell-level-lang {
-  min-width: 96px;
-}
-
-.shell-level-value {
-  min-width: 28px;
-  text-align: center;
+.shell-profile-reset-confirm {
   font-weight: 700;
-  font-size: 20px;
-}
-
-.shell-level-btn {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 2px solid #ccc;
-  border-radius: 12px;
-  background: #fff;
-  font-family: inherit;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.shell-level-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.shell-level-reset {
-  font-size: 14px;
-}
-
-.shell-card .shell-level-note {
-  margin: 0;
 }

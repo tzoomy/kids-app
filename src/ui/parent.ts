@@ -8,9 +8,6 @@ import {
   type DifficultyPreference,
   type LanguageSetting,
 } from '../core/storage/schema';
-import { adjustSkillLevel, resetSkill, shownLevel, skillKey } from '../core/adaptive';
-import { localDayKey } from '../core/storage/dayKey';
-import type { ParentLevelGame, ParentLevelsApi } from './parentLevels';
 import heStrings from '../content/i18n/he.json';
 import { applyPwaUpdate, pwaNeedsRefresh } from '../pwa';
 import { formatBuildInfo } from '../buildInfo';
@@ -71,14 +68,14 @@ export interface ParentSettingsCallbacks {
   onExit: () => void;
   onResetBalance: (profileId: string) => void;
   onPlusFive: (profileId: string) => void;
+  /** Confirmed "איפוס התקדמות": drop every saved skill of this child (nothing else). */
+  onResetProgress: (profileId: string) => void;
   onOpenCredits: () => void;
 }
 
 export interface ParentSettingsView {
   /** Open straight on this child's profile page. */
   openProfileId?: string;
-  /** Per-game level view; without it the profile page has no level section. */
-  levels?: ParentLevelsApi;
 }
 
 const LANGUAGE_OPTIONS: readonly LanguageSetting[] = ['both', 'en', 'fr'];
@@ -269,7 +266,6 @@ export function renderParentSettings(
       toggle.addEventListener('change', () => {
         edit.startFrenchHigher = toggle.checked;
         commit();
-        refreshLevels();
       });
       frLabel.appendChild(toggle);
       body.appendChild(el('p', 'shell-note', t.startFrenchHigherHint));
@@ -283,7 +279,6 @@ export function renderParentSettings(
       diffSelect.addEventListener('change', () => {
         edit.difficulty = diffSelect.value as DifficultyPreference;
         commit();
-        refreshLevels();
       });
       diffLabel.appendChild(diffSelect);
       body.appendChild(el('p', 'shell-note', t.difficultyHint));
@@ -316,9 +311,7 @@ export function renderParentSettings(
     actionRow.appendChild(plusBtn);
     body.appendChild(actionRow);
 
-    const refreshers: (() => void)[] = [];
-    const refreshLevels = (): void => refreshers.forEach((fn) => fn());
-    if (view.levels) body.appendChild(renderLevels(profileId, edit, view.levels, refreshers));
+    body.appendChild(renderResetProgress(profileId, edit.name, commit));
 
     const buttonRow = el('div', 'shell-row shell-card-actions');
     const backBtn = el('button', 'shell-btn', t.profileBack);
@@ -334,83 +327,37 @@ export function renderParentSettings(
     root.replaceChildren(screen);
   }
 
-  function renderLevels(profileId: string, edit: ParentProfileEdit, api: ParentLevelsApi, refreshers: (() => void)[]): HTMLElement {
-    const section = el('section', 'shell-levels');
-    section.appendChild(el('h3', undefined, t.levelsTitle));
-    section.appendChild(el('p', 'shell-note', t.levelsHint));
-    let lastWorld = '';
-    for (const game of api.games) {
-      if (game.world !== lastWorld) {
-        lastWorld = game.world;
-        section.appendChild(el('h4', 'shell-levels-world', game.worldName));
-      }
-      section.appendChild(renderGameLevels(profileId, edit, api, game, refreshers));
-    }
-    return section;
-  }
-
-  function renderGameLevels(
-    profileId: string,
-    edit: ParentProfileEdit,
-    api: ParentLevelsApi,
-    game: ParentLevelGame,
-    refreshers: (() => void)[],
-  ): HTMLElement {
-    const block = el('div', 'shell-level-game');
-    block.dataset.testid = `parent-level-game-${game.gameId}`;
-    block.appendChild(el('div', 'shell-level-game-name', game.label));
-    for (const lang of game.languages) {
-      const key = skillKey(game.world, game.gameId, lang);
-      const prefs = (): { difficulty: DifficultyPreference; startFrenchHigher: boolean } => ({
-        difficulty: edit.difficulty,
-        startFrenchHigher: edit.startFrenchHigher,
+  /** One child-wide "איפוס התקדמות" with a two-step inline confirmation (no native confirm). */
+  function renderResetProgress(profileId: string, name: string, commit: () => void): HTMLElement {
+    const box = el('div', 'shell-profile-reset');
+    const showAsk = (): void => {
+      const ask = el('button', 'shell-btn shell-btn-small', t.resetProgress);
+      ask.type = 'button';
+      ask.dataset.testid = 'parent-profile-reset-progress';
+      ask.addEventListener('click', showConfirm);
+      box.replaceChildren(ask, el('p', 'shell-note', t.resetProgressHint.replace('{name}', name)));
+    };
+    const showConfirm = (): void => {
+      const text = el('p', 'shell-profile-reset-confirm', t.resetProgressConfirm.replace('{name}', name));
+      text.dataset.testid = 'parent-profile-reset-progress-confirm-text';
+      text.setAttribute('role', 'alert');
+      const yes = el('button', 'shell-btn shell-btn-small', t.resetProgressYes);
+      yes.type = 'button';
+      yes.dataset.testid = 'parent-profile-reset-progress-confirm';
+      yes.addEventListener('click', () => {
+        commit();
+        callbacks.onResetProgress(profileId);
       });
-      const row = el('div', 'shell-level-row');
-      row.dataset.testid = `parent-level-row-${game.gameId}-${lang}`;
-      row.appendChild(el('span', 'shell-level-lang', languageText[lang as LanguageSetting] ?? lang));
-      const down = el('button', 'shell-level-btn', '−');
-      down.type = 'button';
-      down.dataset.testid = `parent-level-down-${game.gameId}-${lang}`;
-      down.setAttribute('aria-label', `${t.levelDown}: ${game.label}`);
-      const value = el('span', 'shell-level-value');
-      value.dataset.testid = `parent-level-${game.gameId}-${lang}`;
-      const up = el('button', 'shell-level-btn', '+');
-      up.type = 'button';
-      up.dataset.testid = `parent-level-up-${game.gameId}-${lang}`;
-      up.setAttribute('aria-label', `${t.levelUp}: ${game.label}`);
-      const reset = el('button', 'shell-level-btn shell-level-reset', t.levelReset);
-      reset.type = 'button';
-      reset.dataset.testid = `parent-level-reset-${game.gameId}-${lang}`;
-      const note = el('span', 'shell-note shell-level-note');
-      note.dataset.testid = `parent-level-note-${game.gameId}-${lang}`;
-
-      const refresh = (): void => {
-        const skill = api.getSkill(profileId, key);
-        const level = shownLevel(skill, game.meta, edit.ageTrack, lang, prefs());
-        value.textContent = String(level);
-        down.disabled = level <= game.meta.tracks[edit.ageTrack].min;
-        up.disabled = level >= game.meta.tracks[edit.ageTrack].max;
-        reset.disabled = !skill;
-        note.textContent = skill ? '' : t.levelNotStarted;
-      };
-      const step = (delta: 1 | -1): void => {
-        const next = adjustSkillLevel(api.getSkill(profileId, key), game.meta, edit.ageTrack, lang, prefs(), delta, localDayKey(new Date()));
-        api.saveSkill(profileId, key, next);
-        refresh();
-      };
-      down.addEventListener('click', () => step(-1));
-      up.addEventListener('click', () => step(1));
-      reset.addEventListener('click', () => {
-        const fresh = resetSkill(api.getSkill(profileId, key), game.meta, edit.ageTrack, lang, prefs(), localDayKey(new Date()));
-        if (fresh) api.saveSkill(profileId, key, fresh);
-        refresh();
-      });
-      refreshers.push(refresh);
-      refresh();
-      row.append(down, value, up, reset, note);
-      block.appendChild(row);
-    }
-    return block;
+      const no = el('button', 'shell-btn shell-btn-small', t.cancel);
+      no.type = 'button';
+      no.dataset.testid = 'parent-profile-reset-progress-cancel';
+      no.addEventListener('click', showAsk);
+      const row = el('div', 'shell-row shell-profile-actions');
+      row.append(yes, no);
+      box.replaceChildren(text, row);
+    };
+    showAsk();
+    return box;
   }
 
   if (view.openProfileId) renderProfile(view.openProfileId);

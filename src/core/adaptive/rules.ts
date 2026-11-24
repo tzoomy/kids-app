@@ -58,7 +58,7 @@ export function classify(r: TrialResult): OutcomeKind {
   return r.hinted ? 'assisted' : 'clean';
 }
 
-/** Pending Maor decision (reversible): age5 French skills start this many levels higher when the parent opts in. */
+/** Pending Maor decision (reversible): age5 French skills start (and are lifted to) this many levels higher when the parent opts in. */
 export const START_FRENCH_HIGHER_OFFSET = 1;
 /** Pending Maor decision (reversible): age5 'challenging' difficulty raises every new skill's start by this much. */
 export const CHALLENGING_LEVEL_OFFSET = 2;
@@ -70,7 +70,8 @@ export interface StartPrefs {
 
 /**
  * Start level of a NEW skill: the track start, plus the age5-only offsets (they stack), clamped to the track bounds.
- * age2 never shifts and `en` never gets the French-higher offset. Stored skills are never rewritten by this.
+ * age2 never shifts and `en` never gets the French-higher offset. Stored skills are never rewritten by this; the parent
+ * profile page raises already-started skills to this same floor through `liftStartedSkills` (`startFloor.ts`).
  */
 export function startingLevel(meta: GameLevelsMeta, track: AgeTrack, lang: string, prefs: StartPrefs = {}): number {
   const bounds = meta.tracks[track];

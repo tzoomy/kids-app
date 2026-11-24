@@ -44,6 +44,12 @@ export class AdaptiveStore {
     e.profile = { ...e.profile, skills: { ...e.profile.skills, [key]: skill } };
   }
 
+  /** Drops every skill of one profile (the parent's "reset progress"). Other profiles are never touched; call `persist` after. */
+  clearSkills(profileId: string): void {
+    const e = this.entry(profileId);
+    e.profile = { ...e.profile, skills: {} };
+  }
+
   /** Writes the profile. A no-op for payloads written by a newer build, or without a driver. */
   persist(profileId: string): void {
     const e = this.entry(profileId);
