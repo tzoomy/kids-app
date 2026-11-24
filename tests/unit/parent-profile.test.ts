@@ -3,40 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/pwa', () => ({ pwaNeedsRefresh: () => false, applyPwaUpdate: async () => {} }));
 
 import { renderParentSettings, type ParentProfileEdit, type ParentSettingsCallbacks } from '@/ui/parent';
-import { collectParentLevelGames, type ParentLevelsApi } from '@/ui/parentLevels';
-import { AdaptiveStore } from '@/core/storage/adaptiveStore';
-import { skillKey } from '@/core/adaptive';
 import { defaultAppState, type AppState } from '@/core/storage/schema';
-import type { StorageDriver } from '@/core/storage/store';
-import {
-  loadAnimalRestaurant,
-  loadLetterMonster,
-  loadTravelSuitcase,
-  loadWordTrain,
-  loadLeisureColouring,
-  loadStickerBoard,
-  loadWorlds,
-} from '@/content/loadContent';
-
-function memoryDriver(): StorageDriver {
-  const map = new Map<string, string>();
-  return { getItem: (k) => map.get(k) ?? null, setItem: (k, v) => void map.set(k, v) };
-}
-
-const bundle = {
-  worlds: loadWorlds(),
-  restaurant: loadAnimalRestaurant(),
-  letterMonster: loadLetterMonster(),
-  suitcase: loadTravelSuitcase(),
-  wordTrain: loadWordTrain(),
-  colouring: loadLeisureColouring(),
-  stickers: loadStickerBoard(),
-};
 
 let root: HTMLElement;
 let state: AppState;
-let adaptive: AdaptiveStore;
-let levels: ParentLevelsApi;
 let cb: ParentSettingsCallbacks & { edits: ParentProfileEdit[] };
 
 function mount(openProfileId?: string): void {
@@ -47,12 +17,13 @@ function mount(openProfileId?: string): void {
     onExit: vi.fn(),
     onResetBalance: vi.fn(),
     onPlusFive: vi.fn(),
+    onResetProgress: vi.fn(),
     onOpenCredits: vi.fn(),
     onProfileChange: vi.fn((e: ParentProfileEdit) => {
       edits.push(e);
     }),
   };
-  renderParentSettings(root, state, cb, { levels, openProfileId });
+  renderParentSettings(root, state, cb, { openProfileId });
 }
 
 const q = <T extends HTMLElement = HTMLElement>(id: string): T | null => root.querySelector<T>(`[data-testid="${id}"]`);
@@ -67,7 +38,6 @@ function setSelect(id: string, value: string): void {
   s.dispatchEvent(new Event('change', { bubbles: true }));
 }
 const click = (id: string): void => must(id).click();
-const levelText = (game: string, lang: string): number => Number(must(`parent-level-${game}-${lang}`).textContent);
 
 beforeEach(() => {
   document.body.replaceChildren();
@@ -76,15 +46,6 @@ beforeEach(() => {
   state = defaultAppState();
   state.data.a = { activeSec: 0, balanceSec: 0, earnedTodaySec: 0, carry: 0, day: '2026-11-23', stars: 0 };
   state.data.b = { activeSec: 0, balanceSec: 0, earnedTodaySec: 0, carry: 0, day: '2026-11-23', stars: 0 };
-  adaptive = new AdaptiveStore(memoryDriver());
-  levels = {
-    games: collectParentLevelGames(bundle as unknown as Record<string, unknown>),
-    getSkill: (p, k) => adaptive.getSkill(p, k),
-    saveSkill: (p, k, s) => {
-      adaptive.setSkill(p, k, s);
-      adaptive.persist(p);
-    },
-  };
 });
 
 describe('main parent settings screen', () => {
@@ -212,108 +173,103 @@ describe('profile page: language, French-higher, difficulty', () => {
   });
 });
 
-describe('profile page: per-game levels', () => {
-  it('lists every adaptive game of the bundle once per supported language, none for leisure-only games', () => {
+describe('profile page: generic across games', () => {
+  it('[AC-01] shows name, age track, language and age5 options, with no per-game level list or controls', () => {
     mount('b');
-    for (const lang of ['en', 'fr']) {
-      expect(q(`parent-level-letter-monster-${lang}`)).not.toBeNull();
-      expect(q(`parent-level-animal-restaurant-${lang}`)).not.toBeNull();
+    for (const id of ['parent-profile-name', 'parent-profile-age-track', 'parent-profile-languages', 'parent-profile-start-french-higher', 'parent-profile-difficulty']) {
+      expect(q(id), id).not.toBeNull();
     }
-    expect(q('parent-level-word-train-en')).not.toBeNull();
-    expect(q('parent-level-word-train-fr')).not.toBeNull();
-    expect(root.querySelector('[data-testid^="parent-level-leisure-colouring"]')).toBeNull();
-    expect(root.querySelector('[data-testid^="parent-level-sticker-board"]')).toBeNull();
+    expect(root.querySelector('[data-testid^="parent-level"]')).toBeNull();
+    expect(root.querySelector('.shell-levels, .shell-level-game, .shell-level-row, .shell-level-btn')).toBeNull();
+    expect(root.querySelectorAll('h3, h4').length).toBe(0);
+    expect(root.textContent).not.toContain('טרם התחילה');
   });
 
-  it('an unstarted game shows the track start and a not-started note', () => {
+  it('[AC-01] the age5-only hints say that already-started games are raised and that turning off keeps progress', () => {
     mount('b');
-    expect(levelText('animal-restaurant', 'en')).toBe(5);
-    expect(must('parent-level-note-animal-restaurant-en').textContent).toBe('טרם התחילה');
+    const notes = [...root.querySelectorAll('.shell-note')].map((n) => n.textContent ?? '');
+    const fr = notes.find((n) => n.includes('צרפתית'));
+    const diff = notes.find((n) => n.includes('מאתגר'));
+    expect(fr).toContain('שהתחילה');
+    expect(fr).toContain('לא מוריד');
+    expect(diff).toContain('שהתחילה');
+    expect(diff).toContain('לא מוריד');
+    expect(notes.join(' ')).not.toContain('בלי לשנות משחקים שהתחילה');
+    expect(notes.join(' ')).not.toContain('חל רק על משחקים חדשים');
   });
 
-  it('French-higher raises only the unstarted fr start of age5, and age2 ignores it', () => {
-    state.profiles[1].startFrenchHigher = true;
-    mount('b');
-    expect(levelText('animal-restaurant', 'fr')).toBe(6);
-    expect(levelText('animal-restaurant', 'en')).toBe(5);
-    click('parent-profile-back');
-    state.profiles[0].startFrenchHigher = true;
-    click('parent-open-profile-a');
-    expect(levelText('animal-restaurant', 'fr')).toBe(4);
-  });
-
-  it('toggling French-higher live updates the displayed unstarted start levels', () => {
-    mount('b');
-    expect(levelText('animal-restaurant', 'fr')).toBe(5);
-    const toggle = must<HTMLInputElement>('parent-profile-start-french-higher');
-    toggle.checked = true;
-    toggle.dispatchEvent(new Event('change', { bubbles: true }));
-    expect(levelText('animal-restaurant', 'fr')).toBe(6);
-  });
-
-  it('challenging raises unstarted starts (letter-monster age5 3 -> 5; restaurant 5 -> 7)', () => {
-    mount('b');
-    setSelect('parent-profile-difficulty', 'challenging');
-    expect(levelText('animal-restaurant', 'en')).toBe(7);
-    expect(levelText('letter-monster', 'en')).toBe(5);
-  });
-
-  it('+ and - persist immediately, and are clamped to the age5 bounds (letter-monster 2..8)', () => {
-    mount('b');
-    expect(levelText('letter-monster', 'en')).toBe(3);
-    click('parent-level-up-letter-monster-en');
-    expect(levelText('letter-monster', 'en')).toBe(4);
-    expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'en'))?.level).toBe(4);
-    for (let i = 0; i < 6; i++) click('parent-level-up-letter-monster-en');
-    expect(levelText('letter-monster', 'en')).toBe(8);
-    expect(must<HTMLButtonElement>('parent-level-up-letter-monster-en').disabled).toBe(true);
-    for (let i = 0; i < 8; i++) click('parent-level-down-letter-monster-en');
-    expect(levelText('letter-monster', 'en')).toBe(2);
-    expect(must<HTMLButtonElement>('parent-level-down-letter-monster-en').disabled).toBe(true);
-    expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'en'))?.level).toBe(2);
-    expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'fr'))).toBeUndefined();
-  });
-
-  it('age2 + stops at the age2 max (letter-monster 1..2) and never exceeds it', () => {
+  it('[AC-02] an age2 profile has no age5-only controls and no reset of start floors, and switching live hides and shows them', () => {
     mount('a');
-    click('parent-level-up-letter-monster-fr');
-    click('parent-level-up-letter-monster-fr');
-    click('parent-level-up-letter-monster-fr');
-    expect(levelText('letter-monster', 'fr')).toBe(2);
-    expect(adaptive.getSkill('a', skillKey('language-house', 'letter-monster', 'fr'))?.level).toBe(2);
+    expect(q('parent-profile-start-french-higher')).toBeNull();
+    expect(q('parent-profile-difficulty')).toBeNull();
+    setSelect('parent-profile-age-track', 'age5');
+    expect(q('parent-profile-start-french-higher')).not.toBeNull();
+    setSelect('parent-profile-age-track', 'age2');
+    expect(q('parent-profile-start-french-higher')).toBeNull();
+    expect(q('parent-profile-difficulty')).toBeNull();
   });
 
-  it('the first + on an unstarted game with French-higher persists start + 1 clamped', () => {
-    state.profiles[1].startFrenchHigher = true;
+  it('[AC-02] changing the age track, name or language alone reports no start-option change', () => {
     mount('b');
-    click('parent-level-up-animal-restaurant-fr');
-    expect(levelText('animal-restaurant', 'fr')).toBe(7);
-    expect(must('parent-level-note-animal-restaurant-fr').textContent).not.toBe('טרם התחילה');
+    setSelect('parent-profile-age-track', 'age2');
+    setSelect('parent-profile-languages', 'fr');
+    for (const edit of cb.edits) expect(edit).toMatchObject({ startFrenchHigher: false, difficulty: 'regular' });
+  });
+});
+
+describe('profile page: reset progress (two-step inline confirm)', () => {
+  it('[AC-08] sits at the bottom of the profile page, below the leisure controls and above Back', () => {
+    mount('b');
+    const buttons = [...root.querySelectorAll('button')].map((b) => b.dataset.testid);
+    expect(buttons.indexOf('parent-profile-reset-progress')).toBeGreaterThan(buttons.indexOf('plus-five-b'));
+    expect(buttons.indexOf('parent-profile-reset-progress')).toBeLessThan(buttons.indexOf('parent-profile-back'));
+    expect(must('parent-profile-reset-progress').textContent).toBe('איפוס התקדמות');
   });
 
-  it('Reset restores the effective start and clears history; it is a no-op on an unstarted game and spares other keys', () => {
-    state.profiles[1].startFrenchHigher = true;
-    const frKey = skillKey('language-house', 'animal-restaurant', 'fr');
-    const enKey = skillKey('language-house', 'animal-restaurant', 'en');
-    adaptive.setSkill('b', frKey, {
-      level: 9,
-      cleanStreak: 2,
-      recent: ['clean'],
-      afterDrop: false,
-      lastPlayedDay: '2026-11-20',
-      items: { apple: { box: 3, seen: 3, clean: 3, lastSeenDay: '2026-11-20' } },
-    });
-    adaptive.setSkill('b', enKey, { ...adaptive.getSkill('b', frKey)!, level: 8 });
+  it('[AC-08] a single click only asks for confirmation; nothing is reset and no window.confirm is used', () => {
+    const confirmSpy = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirmSpy);
     mount('b');
-    expect(levelText('animal-restaurant', 'fr')).toBe(9);
-    click('parent-level-reset-animal-restaurant-fr');
-    expect(levelText('animal-restaurant', 'fr')).toBe(6);
-    const fr = adaptive.getSkill('b', frKey)!;
-    expect(fr.level).toBe(6);
-    expect(fr.items).toEqual({});
-    expect(fr.cleanStreak).toBe(0);
-    expect(adaptive.getSkill('b', enKey)?.level).toBe(8);
-    click('parent-level-reset-letter-monster-fr');
-    expect(adaptive.getSkill('b', skillKey('language-house', 'letter-monster', 'fr'))).toBeUndefined();
+    click('parent-profile-reset-progress');
+    expect(cb.onResetProgress).not.toHaveBeenCalled();
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(q('parent-profile-reset-progress')).toBeNull();
+    expect(must('parent-profile-reset-progress-confirm-text').textContent).toContain('הגדולה');
+    expect(q('parent-profile-reset-progress-confirm')).not.toBeNull();
+    expect(q('parent-profile-reset-progress-cancel')).not.toBeNull();
+    expect(q('parent-profile-page-b')).not.toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('[AC-08] the second step (confirm) resets exactly this profile once and commits pending edits first', () => {
+    mount('b');
+    setSelect('parent-profile-languages', 'fr');
+    click('parent-profile-reset-progress');
+    click('parent-profile-reset-progress-confirm');
+    expect(cb.onResetProgress).toHaveBeenCalledTimes(1);
+    expect(cb.onResetProgress).toHaveBeenCalledWith('b');
+    expect(cb.edits.at(-1)).toMatchObject({ id: 'b', languages: 'fr' });
+  });
+
+  it('[AC-10] cancel returns to the single button and resets nothing; the page stays on the profile', () => {
+    mount('b');
+    click('parent-profile-reset-progress');
+    click('parent-profile-reset-progress-cancel');
+    expect(cb.onResetProgress).not.toHaveBeenCalled();
+    expect(q('parent-profile-reset-progress')).not.toBeNull();
+    expect(q('parent-profile-reset-progress-confirm')).toBeNull();
+    expect(q('parent-profile-page-b')).not.toBeNull();
+    click('parent-profile-reset-progress');
+    click('parent-profile-back');
+    expect(cb.onResetProgress).not.toHaveBeenCalled();
+  });
+
+  it('[AC-10] the confirm step does not survive leaving and re-opening the profile page', () => {
+    mount('b');
+    click('parent-profile-reset-progress');
+    click('parent-profile-back');
+    click('parent-open-profile-b');
+    expect(q('parent-profile-reset-progress')).not.toBeNull();
+    expect(q('parent-profile-reset-progress-confirm')).toBeNull();
   });
 });

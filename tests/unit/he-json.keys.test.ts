@@ -43,7 +43,7 @@ describe('he.json', () => {
     expect(duplicateKeys(text)).toEqual([]);
   });
 
-  it('has the parent profile page strings (feminine "not started yet", per-profile language label)', () => {
+  it('has the generic parent profile page strings (per-profile language label, reset progress) and no per-game level strings', () => {
     const he = JSON.parse(fs.readFileSync(path.join('src', 'content', 'i18n', 'he.json'), 'utf8')) as { parent: Record<string, string> };
     for (const key of [
       'profileLanguageLabel',
@@ -51,13 +51,21 @@ describe('he.json', () => {
       'difficultyLabel',
       'difficultyRegular',
       'difficultyChallenging',
-      'levelsTitle',
-      'levelNotStarted',
+      'startFrenchHigherHint',
+      'difficultyHint',
+      'resetProgress',
+      'resetProgressHint',
+      'resetProgressConfirm',
+      'resetProgressYes',
       'profileBack',
     ]) {
       expect(he.parent[key], key).toBeTruthy();
     }
-    expect(he.parent.levelNotStarted).toBe('טרם התחילה');
+    expect(he.parent.resetProgress).toBe('איפוס התקדמות');
+    for (const key of ['resetProgressHint', 'resetProgressConfirm']) expect(he.parent[key], key).toContain('{name}');
+    for (const key of ['levelsTitle', 'levelsHint', 'levelNotStarted', 'levelDown', 'levelUp', 'levelReset']) {
+      expect(he.parent, key).not.toHaveProperty(key);
+    }
     expect(he.parent).not.toHaveProperty('languagesLabel');
   });
 });

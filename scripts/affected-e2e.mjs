@@ -364,14 +364,15 @@ export const GAME_RULES = [
     specs: ['tests/e2e/buildInfo.spec.ts'],
   },
   {
-    // The per-child parent profile page (language, French-higher, difficulty, per-game levels). Its pure helpers
-    // (schema, adaptive start level / level adjust) are shared runtime code and select the smoke set by default.
+    // The per-child parent profile page (name, age track, language, age5 French-higher / difficulty, reset progress).
+    // Its pure helpers (schema, adaptive start level / start-floor lift) are shared runtime code and select the smoke set by default.
     id: 'parent-profile',
     match: [
       /^src\/ui\/parent\.ts$/,
       /^src\/ui\/parentLevels\.ts$/,
+      /^src\/ui\/parentProfileEdits\.ts$/,
       /^src\/styles\/shell\.css$/,
-      /^tests\/unit\/(parent-profile|profileLanguage|startingLevel|levelAdjust)[^/]*$/,
+      /^tests\/unit\/(parent-profile|profileLanguage|startingLevel|startFloor)[^/]*$/,
     ],
     specs: ['tests/e2e/parent-profile.spec.ts'],
   },

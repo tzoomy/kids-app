@@ -21,4 +21,5 @@ export { selectNextItem } from './selectItem';
 export type { Selection } from './selectItem';
 export { SkillSession, skillKey } from './skillSession';
 export type { SkillSessionOptions } from './skillSession';
-export { adjustSkillLevel, resetSkill, shownLevel } from './levelAdjust';
+export { buildSkillMetaIndex, liftProfileSkills, liftScopeFor, liftStartedSkills } from './startFloor';
+export type { LiftScope, SkillGame, SkillMetaIndex, SkillMetaRef, SkillStoreLike } from './startFloor';

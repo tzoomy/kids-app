@@ -69,13 +69,16 @@ describe('affected e2e selection', () => {
   });
 
   it('the parent profile page files and unit tests select the parent-profile spec', () => {
-    expect(selectAffectedE2e(['src/ui/parentLevels.ts'])).toEqual(['tests/e2e/parent-profile.spec.ts']);
     for (const f of [
+      'src/ui/parentLevels.ts',
+      'src/ui/parentProfileEdits.ts',
       'tests/unit/parent-profile.test.ts',
       'tests/unit/profileLanguage.test.ts',
       'tests/unit/profileLanguage.wiring.test.ts',
       'tests/unit/startingLevel.test.ts',
-      'tests/unit/levelAdjust.test.ts',
+      'tests/unit/startFloor.test.ts',
+      'tests/unit/parent-profile.floor.test.ts',
+      'tests/unit/parent-profile.wiring.test.ts',
       'tests/e2e/parent-profile.spec.ts',
     ]) {
       expect(selectAffectedE2e([f]), f).toEqual(['tests/e2e/parent-profile.spec.ts']);
