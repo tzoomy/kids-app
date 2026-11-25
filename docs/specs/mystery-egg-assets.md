@@ -26,7 +26,7 @@ Companion of `docs/specs/mystery-egg.md`. Ids, paths, and kinds below are **froz
   - `confetti`: 6 frames of 64×64 (2x) → 32×32 display, **no fps** (the strip is a set of particle pieces, not an animation). The 6 frames are used as particle emitter frames 0-5.
 - **`robot` vs `robot-blink`:** `robot.webp` has closed, cheering eyes, so it is used only for cheer moments (success). The idle robot is `robot-blink` frame 0. If `robot-blink` is missing, `robot` (or its drawn placeholder) is the idle still.
 - **Heart panel geometry** (PR #108): `heart-panel` is 320×80 display (1x). Socket centres are at x = 40/100/160/220/280, y = 40 on the 1x panel; `slot-empty`/`slot-filled` are 48×48 at 1x, centred on the sockets. The app draws the panel and slots at 1.5x (`layout.ts`, `heartSlotCentres`).
-- **Voice lines** (`kind: "vo"`) must have `transcript` and `lang`. Hebrew lines are **feminine singular** and do not name the child. `vo-he-robot-help-1` explains the goal, never the solution; `vo-he-robot-help-2` is the GDD's glowing-slot hint step (it does say where the ramp goes: pending Maor decision). The transcripts below are the ones Gemini verified in PR #108 (the Hebrew lines do not name the child, because names are chosen at first launch).
+- **Voice lines** (`kind: "vo"`) must have `transcript` and `lang`. Hebrew lines are **feminine singular** and do not name the child. `vo-he-robot-help-1` is the goal hint (explains the request, never the solution); `vo-he-robot-help-2` is the glowing-slot hint (GDD hint step 3; it says where the ramp goes and is played together with the pulsing slot pointer: pending Maor decision). The transcripts below are the ones Gemini verified in PR #108 (the Hebrew lines do not name the child, because names are chosen at first launch).
 - **Sfx** (`kind: "sfx"`) have no size fields.
 
 ## Placeholder behaviour (a file is missing)
@@ -69,8 +69,8 @@ All 41 ids, exactly (a unit test pins this list: `tests/unit/mystery-egg.assets.
 | `vo-fr-success` | `audio/mystery-egg/vo-fr-success.ogg` | vo | Opus mono, short line | Hero: success line after the feather reaches the nest. | “Bravo ! Tu as réveillé Monsieur Moustache !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
 | `vo-fr-presque` | `audio/mystery-egg/vo-fr-presque.ogg` | vo | Opus mono, short line | Hero: gentle near-miss line after a failed run in which the ball passed close to the bell (and no hint is due). | “Presque !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
 | `vo-fr-cat-croissants` | `audio/mystery-egg/vo-fr-cat-croissants.ogg` | vo | Opus mono, short line | Cat (Algieba): wakes up and cheers. The “(Mmm,)” parts are as recorded. | “(Mmm,) Mes croissants ! (Mmm,) Merci beaucoup !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
-| `vo-he-robot-help-1` | `audio/mystery-egg/vo-he-robot-help-1.ogg` | vo | Opus mono, short line | Bip (Puck, +8% pitch), Hebrew, feminine singular: explains the goal, never the solution. First hint (2nd failed run, then every 4th). | “חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון.” (`he`) | — | Chime + speech-bubble cue next to the robot; the slot pointer pulses. |
-| `vo-he-robot-help-2` | `audio/mystery-egg/vo-he-robot-help-2.ogg` | vo | Opus mono, short line | Bip, Hebrew, feminine singular: points at the glowing slot (GDD hint step 3). Second hint (4th failed run, then every 4th after the 2nd). | “שימי את הרמפה במקום שזוהר.” (`he`) | — | Chime + speech-bubble cue next to the robot; the slot pointer pulses. |
+| `vo-he-robot-help-1` | `audio/mystery-egg/vo-he-robot-help-1.ogg` | vo | Opus mono, short line | Bip (Puck, +8% pitch), Hebrew, feminine singular: explains the goal, never the solution. Ladder rung 1, the GOAL hint (2nd failed run). | “חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון.” (`he`) | — | Chime + speech-bubble cue next to the robot; no pointer. |
+| `vo-he-robot-help-2` | `audio/mystery-egg/vo-he-robot-help-2.ogg` | vo | Opus mono, short line | Bip, Hebrew, feminine singular: points at the glowing slot (GDD hint step 3). Ladder rung 2, the GLOWING-SLOT hint (3rd failed run and every later one), played together with the pulsing slot pointer. | “שימי את הרמפה במקום שזוהר.” (`he`) | — | Chime + speech-bubble cue next to the robot; the slot pointer pulses. |
 | `vo-he-robot-breathe` | `audio/mystery-egg/vo-he-robot-breathe.ogg` | vo | Opus mono, short line | Bip, Hebrew, feminine singular: the breathing/resilience line (GDD section 8, after 3 failed runs). Listed only, not wired in this prototype. | “קחי נשימה, תחשבי, ותנסי שוב!” (`he`) | — | n/a |
 | `vo-fr-robot-regarde` | `audio/mystery-egg/vo-fr-robot-regarde.ogg` | vo | Opus mono, short line | Bip, French: “Look here!”. Listed only, not wired in this prototype. | “Regarde ici !” (`fr`) | — | n/a |
 | `vo-fr-robot-aide` | `audio/mystery-egg/vo-fr-robot-aide.ogg` | vo | Opus mono, short line | Bip, French: “I'll help a bit!”. Listed only, not wired in this prototype. | “Je t'aide un peu !” (`fr`) | — | n/a |
@@ -84,6 +84,15 @@ All 41 ids, exactly (a unit test pins this list: `tests/unit/mystery-egg.assets.
 | `cat-wake` | `art/mystery-egg/cat-wake.webp` | sprite | single frame 320×320 display px (file frame 640×640); 6 frames, 8 fps (strip 3840×640) | Sprite strip: asleep → eye opens → yawn → stretch → rubs eye → awake, paws up. | — | plays once at the manifest fps when the cat wakes, holds the last frame 0.5 s, then swaps to `cat-awake`. Without it: the stretch tween on `cat-awake` | None: tweens on the static art. |
 | `robot-blink` | `art/mystery-egg/robot-blink.webp` | sprite | single frame 140×180 display px (file frame 280×360); 4 frames, 10 fps (strip 1120×360) | Sprite strip: the robot with open eyes, blinking: open → half → closed → half. Frame 0 is the robot's idle still. | — | plays every 3-5 s (random) on the idle robot, then holds frame 0. Without it: the `robot` art is the idle still and a blink is a squash (scaleY 0.92, 80 ms yoyo) | None: squash tween on the static art. |
 | `confetti` | `art/mystery-egg/confetti.webp` | sprite | single frame 32×32 display px (file frame 64×64); 6 frames, no fps (particle frames) (strip 384×64) | Sprite strip of 6 confetti particle pieces (not an animation): pink rect, mint rect, lavender curl, yellow star, turquoise dot, pink heart. | — | particle explosion on success; the 6 frames are the emitter frames 0-5 (spun and shrunk by the emitter) | Generated white rectangle, tinted. |
+
+## Help ladder (order, frozen in code: `src/games/mysteryEgg/run.ts`, `HINT_LADDER`)
+
+| Trigger | What plays | Pointer at the slot |
+|---|---|---|
+| Robot ear button, any time | `vo-fr-instruction` (replay of the French request) | no |
+| 2nd failed run | `vo-he-robot-help-1` (goal hint) + `sfx-robot-beep-1` | no |
+| 3rd failed run and every later one | `vo-he-robot-help-2` (glowing-slot hint) + `sfx-robot-beep-1` | yes, pulsing until the ramp is placed |
+| A failed run that passed close to the bell, when no rung is due | `vo-fr-presque` | no |
 
 ## Wiring of the extras
 

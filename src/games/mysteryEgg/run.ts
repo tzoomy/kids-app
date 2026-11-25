@@ -1,9 +1,19 @@
 // Mystery Egg: run outcome and failed-run tracking. Pure TS, no Phaser. Spec: docs/specs/mystery-egg.md (AC-07, AC-08).
 
-/** The 2nd failed run triggers the Hebrew hint (pending Maor decision: GDD section 8, "automatically after 2 failed tries"). */
-export const HINT_AFTER_FAILS = 2;
-export const HINT_LINE_IDS = ['vo-he-robot-help-1', 'vo-he-robot-help-2'] as const;
-export type HintLineId = (typeof HINT_LINE_IDS)[number];
+/**
+ * The help ladder (GDD section 8; the order is pending Maor's decision). Failed runs never cost anything.
+ *  - 2nd failed run: `vo-he-robot-help-1`, the GOAL hint (explains the request, never the solution). No pointer.
+ *  - 3rd failed run and every later one: `vo-he-robot-help-2`, the GLOWING-SLOT hint (GDD hint step 3), together with
+ *    the pulsing pointer at the empty slot.
+ * The robot's ear button is separate: it always replays the French instruction (`vo-fr-instruction`).
+ */
+export const HINT_LADDER = [
+  { afterFailedRuns: 2, lineId: 'vo-he-robot-help-1', step: 'goal', pointer: false },
+  { afterFailedRuns: 3, lineId: 'vo-he-robot-help-2', step: 'slot', pointer: true },
+] as const;
+export const HINT_AFTER_FAILS = HINT_LADDER[0].afterFailedRuns;
+export type HintLineId = (typeof HINT_LADDER)[number]['lineId'];
+export type HintStep = (typeof HINT_LADDER)[number]['step'];
 
 /** Fixed simulation step (60 Hz). Outcomes depend on step counts, never on frame times. */
 export const STEP_MS = 1000 / 60;
@@ -22,19 +32,24 @@ export function createRunTracker(): RunTrackerState {
 
 export interface HintDue {
   lineId: HintLineId;
+  step: HintStep;
+  /** Show the pulsing pointer at the empty slot with this hint. */
+  pointer: boolean;
 }
 
 /**
- * Records one finished run. Pure: returns the next state and, when a hint is due, which line to play.
- * A hint is due on the 2nd failed run and on every 2nd failed run after it; the two lines alternate.
+ * Records one finished run. Pure: returns the next state and, when a ladder rung is reached, which hint to give.
+ * Rung 1 on the 2nd failed run, rung 2 on the 3rd and on every failed run after it.
  */
 export function recordRun(state: RunTrackerState, outcome: 'success' | 'fail'): { state: RunTrackerState; hint: HintDue | null } {
   if (outcome === 'success') return { state: { ...state, won: true }, hint: null };
   const failedRuns = state.failedRuns + 1;
-  const due = failedRuns >= HINT_AFTER_FAILS && failedRuns % HINT_AFTER_FAILS === 0;
-  if (!due) return { state: { ...state, failedRuns }, hint: null };
-  const lineId = HINT_LINE_IDS[state.hintsGiven % HINT_LINE_IDS.length];
-  return { state: { ...state, failedRuns, hintsGiven: state.hintsGiven + 1 }, hint: { lineId } };
+  const rung = [...HINT_LADDER].reverse().find((r) => failedRuns >= r.afterFailedRuns);
+  if (!rung) return { state: { ...state, failedRuns }, hint: null };
+  return {
+    state: { ...state, failedRuns, hintsGiven: state.hintsGiven + 1 },
+    hint: { lineId: rung.lineId, step: rung.step, pointer: rung.pointer },
+  };
 }
 
 export type FailReason = 'out-of-bounds' | 'at-rest' | 'timeout';

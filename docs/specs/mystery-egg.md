@@ -28,7 +28,7 @@ One mission (id `1.1`), four views:
 3. **Build** (Matter.js scene, physics enabled for this scene only): a fixed shelf, a fixed bell, a bed, and ONE glowing empty slot. A tray at the bottom holds three big parts: red ball, ramp piece, bell. The child drags a part with a real pointer drag. **Forgiving snap:** a part dropped within a generous radius (160 game px) of the compatible slot snaps in. A part dropped elsewhere, or a part the slot does not accept, glides back to the tray (harmless, no penalty). Only the ramp piece fits the slot; the ball and the bell in the tray are decoys in mission 1.1 (the ball and bell already sit on the board, as in the GDD). A placed ramp can be dragged out again (it returns to the tray or re-snaps).
 4. **Play:** the big green Play button runs the physics at a fixed 60 Hz timestep (deterministic: outcomes depend on step counts, not on frame times). The ball rolls off the shelf; with the ramp placed it rolls down the ramp and rings the bell. Failure (the ball misses, falls out, stops, or times out after 10 s of simulated time) resets the ball to the shelf; placed parts stay where they are. No buzzer, no "wrong" message.
 
-**Help:** the robot ear button is always visible (intro and build) and replays the request line. After 2 failed runs the robot gives the Hebrew hint (feminine singular, explains the request, never the solution) and a pointer pulses at the empty slot. Further failures repeat the hint every 2nd failed run, alternating the two lines. The hint stays available until the ramp is placed.
+**Help ladder (explicit order):** the robot ear button is always visible (intro and build) and replays the French instruction `vo-fr-instruction`. Failed runs cost nothing. The **2nd failed run** plays the Hebrew *goal hint* `vo-he-robot-help-1` (feminine singular, explains the request, never the solution; no pointer). The **next failed run, and every later one,** plays the *glowing-slot hint* `vo-he-robot-help-2` (the GDD's hint step 3) together with a visual pointer pulsing at the empty slot; the pointer stays until the ramp is placed. A failed run that passed close to the bell and has no hint due plays `vo-fr-presque`.
 
 **Success:** the cat wakes (sprite strip `cat-wake` or a tween), croissants and confetti are drawn, a feather flies to the nest, the egg glows brighter, and exactly one robot heart lights up. Progress is saved the moment the bell rings, then a big continue button returns to the hub, which shows the lit heart, the brighter egg, and the feather in the nest. Replaying the mission never lights more than one heart.
 
@@ -66,10 +66,10 @@ Profile → tap the big egg button on the map → hub → tap Workshop → intro
 | AC-04 | Persistence: save and load round-trip under a versioned, per-profile key | 1 | unit | @single-orientation | |
 | AC-05 | Persistence: corrupt JSON, a wrong version, wrong types, or unknown mission ids fall back to the empty state or are repaired, and never throw | 1 | unit | @single-orientation | |
 | AC-06 | Completing mission 1.1 lights exactly 1 heart and one feather; completing it again is idempotent (still 1 heart) | 1 | unit | @single-orientation | |
-| AC-07 | Run tracker: each failed run increments the fail counter, the hint is due on the 2nd failed run (and every 2nd one after), a success never counts as a failure, and parts placement is untouched | 1 | unit | @single-orientation | |
+| AC-07 | Run tracker: each failed run increments the fail counter, the ladder rung is due on the 2nd failed run (help-1, no pointer) and on the 3rd and every later one (help-2, with the pointer), a success never counts as a failure, and the tracker does not touch the parts placement | 1 | unit | @single-orientation | |
 | AC-08 | Run outcome: ringing the bell is a success; the ball leaving the board, coming to rest away from the bell, or running out of simulated time is a failed run | 1 | unit | @single-orientation | |
 | AC-09 | Headless physics at a fixed 60 Hz step: the ramp in the slot rings the bell in every jittered run (±2 px); the empty slot never does; identical runs give identical results | 1 | unit | @single-orientation | |
-| AC-10 | A failed run resets the ball to the shelf and moves no part (a placed ramp stays in the slot: unit; in the e2e every part stays in the tray); after 2 failed runs the Hebrew hint line `vo-he-robot-help-1` is requested and a pointer pulses at the empty slot, and it goes away once the ramp is placed | 1 | unit, e2e | @single-orientation | `getMysteryEggInfo`, `getSpokenLines` |
+| AC-10 | A failed run resets the ball to the shelf and moves no part (a placed ramp stays in the slot: unit; in the e2e every part stays in the tray). The help ladder is explicit: the 2nd failed run requests the Hebrew goal hint `vo-he-robot-help-1` (no pointer); the next failed run (and every later one) requests the glowing-slot hint `vo-he-robot-help-2` together with a pulsing pointer at the empty slot, which goes away once the ramp is placed | 1 | unit, e2e | @single-orientation | `getMysteryEggInfo`, `getSpokenLines` |
 | AC-11 | The robot ear button is available in the intro and in the build view and replays `vo-fr-instruction` (speech spy) | 1 | e2e | @single-orientation | `getMysteryEggInfo`, `getSpokenLines` |
 | AC-12 | A part dropped far from the slot, or the ball or bell dropped on the slot, returns to the tray and the board is unchanged | 1 | e2e | @single-orientation | `getMysteryEggInfo` |
 | AC-13 | Replay: with a seeded completed mission the hub shows 1 lit heart, the brighter egg and the feather, and winning again keeps exactly 1 heart | 1 | e2e+seed | @single-orientation | `seedMysteryEggProgress`, `getMysteryEggInfo` |
@@ -95,8 +95,8 @@ All media belong to the Gemini agent (`feat/mystery-egg-assets`); this change ad
 | `vo-fr-presque` | fr | Presque ! | A failed run that passed close to the bell (no hint due) |
 | `vo-fr-cat-croissants` | fr | (Mmm,) Mes croissants ! (Mmm,) Merci beaucoup ! | The cat wakes |
 | `vo-fr-success` | fr | Bravo ! Tu as réveillé Monsieur Moustache ! | The feather reaches the nest |
-| `vo-he-robot-help-1` | he | חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון. | Hint after the 2nd failed run (then every 4th) |
-| `vo-he-robot-help-2` | he | שימי את הרמפה במקום שזוהר. | Hint after the 4th failed run (then every 4th after the 2nd) |
+| `vo-he-robot-help-1` | he | חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון. | Goal hint, ladder rung 1: the 2nd failed run |
+| `vo-he-robot-help-2` | he | שימי את הרמפה במקום שזוהר. | Glowing-slot hint, ladder rung 2 (with the pointer): the 3rd failed run and every later one |
 | `vo-he-robot-breathe`, `vo-fr-robot-regarde`, `vo-fr-robot-aide` | he / fr / fr | Listed in the manifest only (fuller hint ladder, Pass 2) | not wired |
 
 - **World and PWA wiring:** new `AppScreen` values `mystery-egg` and `mystery-egg-build` in `src/pwa/updatePolicy.ts` (unsafe for mid-game updates). No `entryGameId`, no `earnsLeisure` (not a world).
@@ -107,13 +107,13 @@ Only after Maor approves the finished Pass 1: the real art, sprites, voices and 
 
 ## Out of scope
 
-Missions 1.2 to 1.7, rotation, the full hint ladder beyond the first Hebrew hint, the naming flow (Lumi and Bip are placeholders), Shai's playroom, the bonus goal, slow-motion replay, the parts book, generated challenges, sandbox, the hatching finale, recorded voices and art (Gemini's PR), and any change to existing games, worlds, or the picker.
+Missions 1.2 to 1.7, rotation, the hint ladder beyond the two Hebrew hints (trajectory preview, ghost part, robot places a part, breathing line), the naming flow (Lumi and Bip are placeholders), Shai's playroom, the bonus goal, slow-motion replay, the parts book, generated challenges, sandbox, the hatching finale, recorded voices and art (Gemini's PR), and any change to existing games, worlds, or the picker.
 
 ## Open decisions for the owner
 
 - **Open decision for the owner:** placeholder names Lumi (hero) and Bip (robot), until Elli chooses.
 - **Open decision for the owner:** home entry placement (a big egg button on the map HUD for now).
-- **Open decision for the owner:** hint timing (hint on the 2nd failed run, then every 2nd failed run).
+- **Open decision for the owner:** help ladder timing: 2nd failed run = goal hint (help-1), 3rd and later = glowing-slot hint (help-2) with the pointer.
 - **Open decision for the owner:** heart mapping: this prototype lights one heart for mission 1.1; the GDD ties heart gears to episodes (one step per episode, the first heart slot after episode 5).
 - **Open decision for the owner:** in mission 1.1 the tray's ball and bell are decoys (the GDD tray was ramp, domino, spring).
 
@@ -121,3 +121,4 @@ Missions 1.2 to 1.7, rotation, the full hint ladder beyond the first Hebrew hint
 
 - `2026-11-25` — created from the approved task brief — substantive
 - `2026-11-25` — manifest aligned with Gemini's media PR #108: sizes (display = half of the 2x files), `cat-wake` 6 frames at 8 fps, `robot-blink` 280x360 frames, `confetti` as a 6-frame particle strip, verified transcripts, 7 extra ids (`vo-fr-story`, `vo-fr-presque`, `vo-fr-robot-regarde`, `vo-fr-robot-aide`, `vo-he-robot-breathe`, `sfx-success`, `sfx-pop`), heart-panel socket geometry, robot idle = `robot-blink` frame 0 and `robot` for cheers; the voice table follows the new transcripts — minor (frozen ids extended additively, agreed with the Gemini agent)
+- `2026-11-25` — Gemini's media PR #108 merged: the real files are wired (1x display, robot-blink frame 0 as the robot's idle still); the help ladder is explicit (2nd failed run: help-1 goal hint; 3rd and later: help-2 slot hint with the pointer; ear button replays the French instruction) — minor (hint timing was already an open decision)

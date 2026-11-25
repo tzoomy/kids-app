@@ -15,7 +15,7 @@ import { playEggSfx } from './eggSound';
 import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
-import { RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type RunResult, type RunTrackerState } from './run';
+import { RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
 import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
@@ -300,10 +300,11 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     void this.speak('vo-fr-instruction');
   }
 
-  private showHint(lineId: string): void {
-    this.hintActive = true;
+  /** One rung of the help ladder (run.ts): the goal hint says it in Hebrew; the slot hint adds the pulsing pointer. */
+  private showHint(hint: HintDue): void {
+    if (hint.pointer) this.hintActive = true;
     playEggSfx('sfx-robot-beep-1');
-    void this.speak(lineId);
+    void this.speak(hint.lineId);
     this.refreshHintPointer();
   }
 
@@ -431,7 +432,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     });
     // The ball is parked right away in the pure model; the view eases back with the delayed reset above.
     this.playBtn.setEnabled(false);
-    if (outcome.hint) this.showHint(outcome.hint.lineId);
+    if (outcome.hint) this.showHint(outcome.hint);
     else if (isNearMiss(this.watcher.minBellDistance, RUN_WATCHER_CONFIG.reach)) void this.speak('vo-fr-presque');
   }
 

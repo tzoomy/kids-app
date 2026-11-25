@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   HINT_AFTER_FAILS,
+  HINT_LADDER,
   RUN_TIMEOUT_STEPS,
   RunWatcher,
   isNearMiss,
@@ -14,7 +15,7 @@ const cfg = { reach: 100, bounds, restSpeed: 0.05, restSteps: 60, timeoutSteps: 
 const sample = (over: Partial<RunSample> = {}): RunSample => ({ step: 1, x: 300, y: 300, speed: 5, bellDistance: 400, ...over });
 
 describe('mystery-egg run tracker', () => {
-  it('[AC-07] the hint is due on the 2nd failed run, not before', () => {
+  it('[AC-07] ladder step 1: the goal hint (help-1, no pointer) is due on the 2nd failed run, not before', () => {
     expect(HINT_AFTER_FAILS).toBe(2);
     let t = createRunTracker();
     const first = recordRun(t, 'fail');
@@ -23,18 +24,32 @@ describe('mystery-egg run tracker', () => {
     t = first.state;
     const second = recordRun(t, 'fail');
     expect(second.state.failedRuns).toBe(2);
-    expect(second.hint).toEqual({ lineId: 'vo-he-robot-help-1' });
+    expect(second.hint).toEqual({ lineId: 'vo-he-robot-help-1', step: 'goal', pointer: false });
   });
 
-  it('[AC-07] further hints come every 2nd failed run and alternate the two lines', () => {
+  it('[AC-07] ladder step 2: the next failed run gives the glowing-slot hint (help-2) with the slot pointer, and it repeats on every later failed run', () => {
     let t = createRunTracker();
-    const lines: Array<string | null> = [];
-    for (let i = 0; i < 6; i++) {
+    const steps: Array<[string | null, boolean | null]> = [];
+    for (let i = 0; i < 5; i++) {
       const r = recordRun(t, 'fail');
       t = r.state;
-      lines.push(r.hint?.lineId ?? null);
+      steps.push([r.hint?.lineId ?? null, r.hint?.pointer ?? null]);
     }
-    expect(lines).toEqual([null, 'vo-he-robot-help-1', null, 'vo-he-robot-help-2', null, 'vo-he-robot-help-1']);
+    expect(steps).toEqual([
+      [null, null],
+      ['vo-he-robot-help-1', false],
+      ['vo-he-robot-help-2', true],
+      ['vo-he-robot-help-2', true],
+      ['vo-he-robot-help-2', true],
+    ]);
+    expect(t.hintsGiven).toBe(4);
+  });
+
+  it('[AC-07] the ladder is explicit: two rungs, goal then slot, in order', () => {
+    expect(HINT_LADDER.map((r) => [r.afterFailedRuns, r.lineId, r.pointer])).toEqual([
+      [2, 'vo-he-robot-help-1', false],
+      [3, 'vo-he-robot-help-2', true],
+    ]);
   });
 
   it('[AC-07] a success never counts as a failure and never asks for a hint', () => {

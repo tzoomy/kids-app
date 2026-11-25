@@ -162,11 +162,12 @@ test.describe('mystery-egg', () => {
     expect(await getBuildingHit(page, 'language-house')).not.toBeNull();
   });
 
-  test('[AC-10] @single-orientation a failed run resets the ball and touches no part; the Hebrew hint (and the slot pointer) comes after the 2nd failed run, and goes away once the ramp is placed', async ({ page }, testInfo) => {
+  test('[AC-10] @single-orientation a failed run resets the ball and touches no part; the help ladder: 2nd failed run = Hebrew goal hint (help-1), next failed run = glowing-slot hint (help-2) with the slot pointer, which goes away once the ramp is placed', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
-    test.setTimeout(120_000);
+    test.setTimeout(150_000);
     await reachBuild(page);
     const linesBefore = (await getSpokenLines(page)).length;
+    const hebrew = async () => (await getSpokenLines(page, linesBefore)).filter((s) => s.lang === 'he').map((s) => s.lineId);
 
     await tap(page, 'playBtn');
     await waitInfo(page, (i) => i.phase === 'playing', 'the run never started');
@@ -175,19 +176,26 @@ test.describe('mystery-egg', () => {
     expect(first.hintVisible).toBe(false);
     expect(first.partsInTray.sort()).toEqual(['ball', 'bell', 'ramp']);
     expect(first.slotFilled).toBe(false);
-    expect((await getSpokenLines(page, linesBefore)).some((s) => s.lang === 'he')).toBe(false);
+    expect(await hebrew()).toEqual([]);
 
+    // Rung 1: the goal hint (explains the request). No pointer yet.
     await tap(page, 'playBtn');
     const second = await waitInfo(page, (i) => i.failedRuns === 2 && i.ballAtStart && i.phase === 'build', 'the second failed run never reset', 45_000);
     expect(second.hintsGiven).toBe(1);
-    expect(second.hintVisible).toBe(true);
+    expect(second.hintVisible).toBe(false);
     expect(second.partsInTray.sort()).toEqual(['ball', 'bell', 'ramp']);
-    const hint = (await getSpokenLines(page, linesBefore)).filter((s) => s.lang === 'he');
-    expect(hint.map((s) => s.lineId)).toEqual(['vo-he-robot-help-1']);
+    expect(await hebrew()).toEqual(['vo-he-robot-help-1']);
+
+    // Rung 2: the glowing-slot hint, together with the pulsing pointer at the empty slot.
+    await tap(page, 'playBtn');
+    const third = await waitInfo(page, (i) => i.failedRuns === 3 && i.ballAtStart && i.phase === 'build', 'the third failed run never reset', 45_000);
+    expect(third.hintsGiven).toBe(2);
+    expect(third.hintVisible).toBe(true);
+    expect(await hebrew()).toEqual(['vo-he-robot-help-1', 'vo-he-robot-help-2']);
 
     await dragPartToSlot(page, 'partRamp');
     const placed = await waitInfo(page, (i) => i.slotFilled && !i.hintVisible, 'the hint pointer stayed after the ramp was placed');
-    expect(placed.failedRuns).toBe(2);
+    expect(placed.failedRuns).toBe(3);
   });
 
   test('[AC-11] @single-orientation the robot ear button is there in the intro and in the build view and replays the French request', async ({ page }, testInfo) => {

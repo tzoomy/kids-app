@@ -1,0 +1,47 @@
+// Guards the manifest against Gemini's merged media (PR #108): every manifest path is a real file under public/,
+// every file in the two media folders is in the manifest, and WebP pixel sizes match the display sizes (2x; hub-bg 1x).
+import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
+
+const publicDir = path.resolve(__dirname, '..', '..', 'public');
+
+/** Width and height of a WebP file from its header (VP8, VP8L or VP8X). */
+function webpSize(file: string): { width: number; height: number } {
+  const b = fs.readFileSync(file);
+  expect(b.toString('ascii', 0, 4), file).toBe('RIFF');
+  expect(b.toString('ascii', 8, 12), file).toBe('WEBP');
+  const kind = b.toString('ascii', 12, 16);
+  if (kind === 'VP8X') return { width: 1 + b.readUIntLE(24, 3), height: 1 + b.readUIntLE(27, 3) };
+  if (kind === 'VP8L') {
+    const bits = b.readUInt32LE(21);
+    return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+  }
+  if (kind === 'VP8 ') return { width: b.readUInt16LE(26) & 0x3fff, height: b.readUInt16LE(28) & 0x3fff };
+  throw new Error(`Unknown WebP chunk ${kind} in ${file}`);
+}
+
+describe('mystery-egg media files (Gemini PR #108)', () => {
+  const manifest = mysteryEggManifest();
+
+  it('[AC-14] every manifest path is a real file under public/', () => {
+    for (const [id, e] of Object.entries(manifest)) expect(fs.existsSync(path.join(publicDir, e.path)), `${id}: ${e.path}`).toBe(true);
+  });
+
+  it('[AC-14] every file in public/art/mystery-egg and public/audio/mystery-egg is listed in the manifest', () => {
+    const listed = new Set(Object.values(manifest).map((e) => e.path));
+    for (const dir of ['art/mystery-egg', 'audio/mystery-egg']) {
+      for (const name of fs.readdirSync(path.join(publicDir, dir))) expect(listed.has(`${dir}/${name}`), `${dir}/${name}`).toBe(true);
+    }
+  });
+
+  it('[AC-14] WebP pixel sizes are 2x the display size (hub-bg 1x), times the frame count for a strip', () => {
+    for (const [id, e] of Object.entries(manifest)) {
+      if (e.kind !== 'webp' && e.kind !== 'sprite') continue;
+      const k = id === 'hub-bg' ? 1 : 2;
+      const { width, height } = webpSize(path.join(publicDir, e.path));
+      expect([width, height], id).toEqual([(e.w as number) * k * (e.frames ?? 1), (e.h as number) * k]);
+    }
+  });
+});
