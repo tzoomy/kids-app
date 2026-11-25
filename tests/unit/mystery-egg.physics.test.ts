@@ -3,7 +3,8 @@
 import { describe, expect, it } from 'vitest';
 import MatterModule from 'phaser/src/physics/matter-js/CustomMain.js';
 import { Machine, simulateRun, type MatterLib } from '../../src/games/mysteryEgg/machine';
-import { BALL, BELL, RAMP_SLOT, SLOTS } from '../../src/games/mysteryEgg/layout';
+import * as layout from '../../src/games/mysteryEgg/layout';
+import { BALL, BELL, RAMP_POLY, RAMP_SLOT, SLOTS } from '../../src/games/mysteryEgg/layout';
 import { STEP_MS } from '../../src/games/mysteryEgg/run';
 
 const Matter = MatterModule as unknown as MatterLib;
@@ -94,5 +95,41 @@ describe('mystery-egg physics (headless, fixed 60 Hz)', () => {
       rang = s.bellDistance < BELL.radius + BALL.radius;
     }
     expect(rang).toBe(true);
+  });
+
+  it('[AC-09] the ramp body is the wedge RAMP_POLY (display px relative to the slot centre), unrotated, and the plank is gone', () => {
+    expect(RAMP_POLY).toEqual([{ x: -64, y: -52 }, { x: 72, y: 48 }, { x: 32, y: 65 }, { x: -82, y: 26 }]);
+    expect('RAMP_BODY' in layout).toBe(false);
+    // Convex: all cross products of consecutive edges have the same sign.
+    const cross = RAMP_POLY.map((p, i) => {
+      const q = RAMP_POLY[(i + 1) % 4];
+      const r = RAMP_POLY[(i + 2) % 4];
+      return (q.x - p.x) * (r.y - q.y) - (q.y - p.y) * (r.x - q.x);
+    });
+    expect(cross.every((c) => c > 0) || cross.every((c) => c < 0)).toBe(true);
+
+    const engine = Matter.Engine.create();
+    const machine = new Machine(Matter, engine);
+    machine.placeRamp();
+    const world = machine.rampVertices();
+    expect(world).toHaveLength(4);
+    for (const p of RAMP_POLY) {
+      const hit = world.some((v) => Math.abs(v.x - (RAMP_SLOT.x + p.x)) < 1e-6 && Math.abs(v.y - (RAMP_SLOT.y + p.y)) < 1e-6);
+      expect(hit, `vertex ${p.x},${p.y}`).toBe(true);
+    }
+    // A jittered ramp moves rigidly.
+    const engine2 = Matter.Engine.create();
+    const m2 = new Machine(Matter, engine2);
+    m2.placeRamp({ x: 2, y: -2 });
+    expect(m2.rampVertices().some((v) => Math.abs(v.x - (RAMP_SLOT.x + RAMP_POLY[0].x + 2)) < 1e-6 && Math.abs(v.y - (RAMP_SLOT.y + RAMP_POLY[0].y - 2)) < 1e-6)).toBe(true);
+  });
+
+  it('[AC-09] the ramp run succeeds for every ±2 px ball jitter AND ±2 px ramp jitter combined (225 runs)', () => {
+    let wins = 0;
+    for (let bx = -2; bx <= 2; bx++) for (let by = -2; by <= 2; by++) for (let rx = -2; rx <= 2; rx += 2) for (let ry = -2; ry <= 2; ry += 2) {
+      const run = simulateRun(Matter, { rampPlaced: true, ballOffset: { x: bx, y: by }, rampOffset: { x: rx, y: ry } });
+      if (run.result.status === 'success') wins++;
+    }
+    expect(wins).toBe(225);
   });
 });

@@ -73,7 +73,9 @@ describe('mystery-egg asset manifest', () => {
     expect(assetEntry('vo-fr-success').transcript).toBe('Bravo ! Tu as réveillé Monsieur Moustache !');
     expect(assetEntry('vo-fr-presque').transcript).toBe('Presque !');
     expect(assetEntry('vo-fr-cat-croissants').transcript).toBe('(Mmm,) Mes croissants ! (Mmm,) Merci beaucoup !');
-    expect(assetEntry('vo-he-robot-help-1').transcript).toBe('חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון.');
+    // Gemini's final trimmed recording (PR #110): Hebrew with the French key words.
+    expect(assetEntry('vo-he-robot-help-1').transcript).toBe('בואי נעיר אותו! הכדור, la balle, צריך לצלצל בפעמון, la cloche!');
+    expect(assetEntry('vo-he-robot-help-1').lang).toBe('he');
     expect(assetEntry('vo-he-robot-help-2').transcript).toBe('שימי את הרמפה במקום שזוהר.');
     expect(assetEntry('vo-he-robot-breathe').transcript).toBe('קחי נשימה, תחשבי, ותנסי שוב!');
     expect(assetEntry('vo-fr-robot-regarde').transcript).toBe('Regarde ici !');
