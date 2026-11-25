@@ -16,7 +16,7 @@ Spec: `docs/specs/mystery-egg.md` (approved, Pass 1 in progress). Branch `feat/m
 ## How to run
 
 - Unit: `npx vitest run tests/unit/mystery-egg` (add `tests/unit/pwaUpdatePolicy.test.ts`).
-- E2E: a temporary Playwright config outside the repo (testDir `tests/e2e`, port 4391, landscape 1280x800, webServer `npm run build && npm run preview -- --port 4391 --strictPort` with `cwd` the repo) run with `NODE_PATH=<repo>/node_modules npx playwright test -c /tmp/pw-mystery-egg.config.ts 'e2e/mystery-egg\.journey'`. The plain pattern `mystery-egg` also matches the worktree directory name and selects the whole suite.
+- E2E: a temporary Playwright config outside the repo (testDir `tests/e2e`, port 4391, landscape 1280x800, webServer `npm run build && npm run preview -- --port 4391 --strictPort` with `cwd` the repo); run it with the command under "Follow-up" below. Pass the spec file path: a bare `mystery-egg` pattern also matches the worktree directory name and selects the whole suite.
 
 ## Gotchas
 
@@ -25,6 +25,12 @@ Spec: `docs/specs/mystery-egg.md` (approved, Pass 1 in progress). Branch `feat/m
 - `vite preview` answers a missing file with `index.html` (200), so "missing" shows up as a decode/processing error, not a 404. Both paths are handled.
 - Both scenes call `shell.clearChrome()`: the map's DOM chrome (top bar, world labels, egg button) otherwise stays on top of the canvas.
 - Sprite frame width comes from the loaded texture width / manifest `frames`, so a 1x or 2x strip both work.
+
+## Follow-up (2026-11-25): aligned with Gemini's media PR #108
+
+Manifest now has 41 ids (display w/h = half of the 2x files, hub-bg 1x; `cat-wake` 6 frames at 8 fps, `robot-blink` 4 frames at 10 fps, `confetti` a 6-frame particle strip without fps; verified transcripts; extras `vo-fr-story`, `vo-fr-presque`, `vo-fr-robot-regarde`, `vo-fr-robot-aide`, `vo-he-robot-breathe`, `sfx-success`, `sfx-pop`). Heart-panel sockets from `layout.ts` (`heartSlotCentres`). Robot idle = `robot-blink` frame 0, `robot` only for cheers. The branch has no media files; the fallbacks still apply. The sprite code paths were checked once in a browser with throwaway fake strips copied into the git-ignored `dist/` (nothing committed).
+
+Run only the new e2e spec: `NODE_PATH=<repo>/node_modules npx playwright test -c /tmp/pw-mystery-egg.config.ts tests/e2e/mystery-egg.journey.spec.ts --project=landscape-1280x800`.
 
 ## Open (needs Maor)
 

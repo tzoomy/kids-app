@@ -73,7 +73,7 @@ Profile → tap the big egg button on the map → hub → tap Workshop → intro
 | AC-11 | The robot ear button is available in the intro and in the build view and replays `vo-fr-instruction` (speech spy) | 1 | e2e | @single-orientation | `getMysteryEggInfo`, `getSpokenLines` |
 | AC-12 | A part dropped far from the slot, or the ball or bell dropped on the slot, returns to the tray and the board is unchanged | 1 | e2e | @single-orientation | `getMysteryEggInfo` |
 | AC-13 | Replay: with a seeded completed mission the hub shows 1 lit heart, the brighter egg and the feather, and winning again keeps exactly 1 heart | 1 | e2e+seed | @single-orientation | `seedMysteryEggProgress`, `getMysteryEggInfo` |
-| AC-14 | The asset manifest `src/content/mysteryEggAssets.json` parses with zod and contains exactly the agreed ids; every `vo-*` has a transcript and a language; the two sprite entries have frames, fps, w and h | 1 | unit | @single-orientation | |
+| AC-14 | The asset manifest `src/content/mysteryEggAssets.json` parses with zod and contains exactly the agreed ids (41, incl. Gemini's extras from PR #108); every `vo-*` has a transcript and a language; the sprite entries have frames, w and h (fps for `cat-wake` and `robot-blink`); display sizes are half of the 2x file px; the heart-panel socket geometry | 1 | unit | @single-orientation | |
 | AC-15 | The asset loader tolerates missing files: a failed key is marked missing, lookups fall back to placeholders without throwing, URLs respect the Vite base, and sprite frame data is read from the manifest, never hardcoded | 1 | unit | @single-orientation | |
 | AC-16 | The existing map and games still open (the egg button is additive): the smoke journey passes and the egg button does not cover a world building | 1 | e2e | @single-orientation | `getBuildingHit` |
 | AC-17 | Device check: touch drag and tap, 60 fps on the family tablet, audible voice once Gemini's files land, visuals | 1 | device | both | |
@@ -84,17 +84,20 @@ All media belong to the Gemini agent (`feat/mystery-egg-assets`); this change ad
 
 ### Pass 1 — working game
 
-- Placeholder behaviour for missing art: Phaser-drawn shapes. Missing sfx: short WebAudio synthesized beeps and chimes. Missing voice: a short chime plus a pulsing speech bubble (no device TTS).
+- Placeholder behaviour for missing art: Phaser-drawn shapes. Missing sfx: short WebAudio synthesized beeps and chimes. Missing voice: a short chime plus a speech-bubble cue (no device TTS).
 - Animation: idle and reaction motion are Phaser tweens on whole images (bob, squash, wiggle). If a manifest entry has `kind: "sprite"` with `frames` and `fps`, it is loaded as a horizontal strip spritesheet (`w`,`h` are the single-frame size) and played.
-- **Voice table** (placeholder transcripts; the files come from the Gemini PR):
+- **Voice table** (placeholder behaviour: a chime plus a speech-bubble cue until Gemini's file is in place; transcripts from PR #108, Hebrew lines are feminine singular and do not name the child):
 
 | lineId | lang | Text | Trigger |
 |---|---|---|---|
-| `vo-fr-instruction` | fr | Monsieur Moustache dort ! Il doit faire les croissants ! | Intro start, and every ear-button tap |
-| `vo-fr-success` | fr | Bravo ! Monsieur Moustache est réveillé ! | Success view |
-| `vo-fr-cat-croissants` | fr | Mes croissants ! | The cat wakes |
-| `vo-he-robot-help-1` | he | Elli, החתול ישן והוא צריך להתעורר. תעזרי לכדור להגיע אל הפעמון. | Hint after the 2nd failed run (and every 4th) |
-| `vo-he-robot-help-2` | he | Elli, נסי לחשוב איזה חלק חסר כדי שהכדור יוכל להמשיך הלאה. | Hint after the 4th failed run (and every 4th after the 2nd) |
+| `vo-fr-story` | fr | Oh non ! Monsieur Moustache dort, et il n'y a pas de croissants ! | Intro start |
+| `vo-fr-instruction` | fr | Réveille Monsieur Moustache ! Fais rouler la balle pour sonner la cloche. | After the story line, and on every ear-button tap |
+| `vo-fr-presque` | fr | Presque ! | A failed run that passed close to the bell (no hint due) |
+| `vo-fr-cat-croissants` | fr | (Mmm,) Mes croissants ! (Mmm,) Merci beaucoup ! | The cat wakes |
+| `vo-fr-success` | fr | Bravo ! Tu as réveillé Monsieur Moustache ! | The feather reaches the nest |
+| `vo-he-robot-help-1` | he | חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון. | Hint after the 2nd failed run (then every 4th) |
+| `vo-he-robot-help-2` | he | שימי את הרמפה במקום שזוהר. | Hint after the 4th failed run (then every 4th after the 2nd) |
+| `vo-he-robot-breathe`, `vo-fr-robot-regarde`, `vo-fr-robot-aide` | he / fr / fr | Listed in the manifest only (fuller hint ladder, Pass 2) | not wired |
 
 - **World and PWA wiring:** new `AppScreen` values `mystery-egg` and `mystery-egg-build` in `src/pwa/updatePolicy.ts` (unsafe for mid-game updates). No `entryGameId`, no `earnsLeisure` (not a world).
 
@@ -117,3 +120,4 @@ Missions 1.2 to 1.7, rotation, the full hint ladder beyond the first Hebrew hint
 ## Changelog
 
 - `2026-11-25` — created from the approved task brief — substantive
+- `2026-11-25` — manifest aligned with Gemini's media PR #108: sizes (display = half of the 2x files), `cat-wake` 6 frames at 8 fps, `robot-blink` 280x360 frames, `confetti` as a 6-frame particle strip, verified transcripts, 7 extra ids (`vo-fr-story`, `vo-fr-presque`, `vo-fr-robot-regarde`, `vo-fr-robot-aide`, `vo-he-robot-breathe`, `sfx-success`, `sfx-pop`), heart-panel socket geometry, robot idle = `robot-blink` frame 0 and `robot` for cheers; the voice table follows the new transcripts — minor (frozen ids extended additively, agreed with the Gemini agent)
