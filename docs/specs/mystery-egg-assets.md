@@ -102,4 +102,4 @@ Wired where cheap and natural: `vo-fr-story` (intro, before `vo-fr-instruction`)
 
 - Keep the **centre** of each image at the visual centre: the code positions every image by its centre. `cat-wake` and `cat-awake` share one 640×640 frame (the code lines the cat's bottom up with the bed), and `robot`, `robot-blink` share one 280×360 frame.
 - `egg-nest-0` … `egg-nest-5` must share the same canvas and egg position so the glow can step up in place.
-- `part-ramp` is drawn sloping down to the right (as in the board), 240×140 display.
+- `part-ramp` is drawn sloping down to the right, 240×140 display. The code builds the physics board from the art as delivered in PR #108 (top surface 0.457 rad ≈ 26.2°, board centre +20/+15 display px from the art centre, about 192×33 display px; `layout.ts` `RAMP_BODY`). **If the ramp art is redrawn, keep that board geometry or update `RAMP_BODY`** so the drawn ramp and the solid ramp coincide.

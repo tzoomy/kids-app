@@ -12,7 +12,7 @@ import { createRobot, ensureSpriteAnim, ensureSpriteFrames, eggArt, playSpriteOn
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
-import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
+import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_BODY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
 import { RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
@@ -31,7 +31,7 @@ const PART_HOME: Record<PartKind, { x: number; y: number; scale: number }> = {
 };
 const BALL_SCALE = (BALL.radius * 2) / displaySize('part-ball').w;
 const BELL_SCALE = (BELL.radius * 2 + 8) / displaySize('part-bell').w;
-const CAT_POS = { x: BED.x, y: 290 } as const;
+const CAT_POS = { x: BED.x + 20, y: 290 } as const;
 /** The cat art is drawn at 1.15x; asleep and awake/wake art share the bed line (their bottoms line up). */
 const CAT_SCALE = 1.15;
 const CAT_BOTTOM = CAT_POS.y + (displaySize('cat-asleep').h * CAT_SCALE) / 2;
@@ -166,12 +166,15 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.ballView = eggArt(this, 'part-ball', BALL.x, BALL.y).setDepth(30).setScale(BALL_SCALE);
 
     // The one glowing slot.
-    this.slotGlow = this.add.container(RAMP_SLOT.x, RAMP_SLOT.y).setDepth(8).setRotation(RAMP_SLOT.angle);
+    // The glow hugs the ramp's board (same centre, angle and size the physics body will have).
+    this.slotGlow = this.add.container(RAMP_SLOT.x + RAMP_BODY.dx, RAMP_SLOT.y + RAMP_BODY.dy).setDepth(8).setRotation(RAMP_SLOT.angle);
     const glow = this.add.graphics();
+    const gw = RAMP_BODY.w + 36;
+    const gh = RAMP_BODY.h + 40;
     glow.fillStyle(0xfff176, 0.35);
-    glow.fillRoundedRect(-RAMP_SLOT.w / 2 - 16, -RAMP_SLOT.h / 2 - 22, RAMP_SLOT.w + 32, RAMP_SLOT.h + 44, 16);
+    glow.fillRoundedRect(-gw / 2, -gh / 2, gw, gh, 16);
     glow.lineStyle(6, 0xffc400, 1);
-    glow.strokeRoundedRect(-RAMP_SLOT.w / 2 - 16, -RAMP_SLOT.h / 2 - 22, RAMP_SLOT.w + 32, RAMP_SLOT.h + 44, 16);
+    glow.strokeRoundedRect(-gw / 2, -gh / 2, gw, gh, 16);
     this.slotGlow.add(glow);
     this.tweens.add({ targets: this.slotGlow, alpha: 0.45, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
@@ -287,8 +290,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve(false);
     ++this.speechToken;
     const done = this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
-    if (entry.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 70, this.robotView.y - 150);
-    else speechCue(this, this.catView.x, this.catView.y - 150);
+    if (entry.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 90, this.robotView.y - 190);
+    else speechCue(this, this.catView.x - 210, this.catView.y - 110);
     return done;
   }
 
@@ -310,6 +313,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
   /** A bobbing arrow pulsing at the empty slot; shown only while the slot is empty. */
   private refreshHintPointer(): void {
+    // The glow marks the EMPTY slot: it goes away once the ramp sits in it (and comes back if the ramp is lifted).
+    this.slotGlow.setVisible(!this.occupied.has('ramp-slot'));
     const show = this.hintActive && !this.occupied.has('ramp-slot') && this.phase !== 'success';
     if (show && !this.hintPointer) {
       const c = this.add.container(RAMP_SLOT.x, RAMP_SLOT.y - 110).setDepth(300);
@@ -373,7 +378,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
         targets: part.container,
         x: drop.x,
         y: drop.y,
-        rotation: RAMP_SLOT.angle,
+        rotation: 0,
         scale: RAMP_SLOT.w / art,
         duration: 160,
         ease: 'Back.easeOut',
@@ -511,8 +516,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     emitter.setDepth(250);
     emitter.explode(70);
     this.time.delayedCall(2600, () => emitter.destroy());
+    // Croissants pop up in a row in front of the bed (drawn; no croissant art exists), clear of the cat's face.
     for (let i = 0; i < 5; i++) {
-      const c = this.add.container(CAT_POS.x - 150 + i * 75, CAT_POS.y - 20).setDepth(260);
+      const c = this.add.container(CAT_POS.x - 190 + i * 72, CAT_BOTTOM - 30).setDepth(260);
       const g = this.add.graphics();
       g.fillStyle(0xd9902f, 1);
       g.fillEllipse(0, 0, 66, 34);
@@ -524,8 +530,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
       g.lineBetween(8, -14, 14, 10);
       c.add(g);
       c.setScale(0);
-      this.tweens.add({ targets: c, scale: 1, y: c.y - 70 - (i % 2) * 24, duration: 420, delay: 200 + i * 90, ease: 'Back.easeOut' });
-      this.tweens.add({ targets: c, y: c.y - 60, duration: 900, delay: 700 + i * 90, yoyo: true, repeat: 1, ease: 'Sine.easeInOut' });
+      const top = CAT_BOTTOM + 4 - (i % 2) * 20;
+      this.tweens.add({ targets: c, scale: 1, y: top, duration: 420, delay: 200 + i * 90, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: c, y: top + 14, duration: 700, delay: 700 + i * 90, yoyo: true, repeat: 2, ease: 'Sine.easeInOut' });
     }
   }
 

@@ -84,8 +84,8 @@ export class MysteryEggScene extends Phaser.Scene {
     // Friends. Idle motion = whole-image tweens (bob).
     // Sizes follow the hub mock: bunny about 300 px tall, capybara about 250, robot about 130-145.
     const bunny = eggArt(this, 'bunny', 250, 560).setDepth(10);
-    const capybara = eggArt(this, 'capybara', 1100, 650).setDepth(10).setScale(0.9);
-    const robotView = createRobot(this, 1010, 540);
+    const capybara = eggArt(this, 'capybara', 1120, 655).setDepth(10).setScale(0.9);
+    const robotView = createRobot(this, 925, 575);
     const robot = robotView.container.setDepth(10).setScale(0.8);
     for (const c of [bunny, capybara, robot]) {
       floatIdle(this, c, 8, 1500 + Math.random() * 500);

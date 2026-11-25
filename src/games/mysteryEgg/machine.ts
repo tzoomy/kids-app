@@ -1,7 +1,7 @@
 // Mystery Egg physics: builds the mission-1.1 board on a Matter engine and steps it at a fixed 60 Hz.
 // Pure TS: the Matter library is passed in (Phaser's bundled build in the scene, the same build headless in tests).
 // Spec: docs/specs/mystery-egg.md (AC-09).
-import { BALL, BELL, FLOOR, LAUNCH_SPEED, PIT_WALL, RAMP_SLOT, RIGHT_WALL, SHELF, TABLE } from './layout';
+import { BALL, BELL, FLOOR, LAUNCH_SPEED, PIT_WALL, RAMP_BODY, RAMP_SLOT, RIGHT_WALL, SHELF, TABLE } from './layout';
 import { RUN_TIMEOUT_STEPS, RunWatcher, STEP_MS, type RunResult, type RunSample, type RunWatcherConfig } from './run';
 
 /** The few Matter calls this module uses, so it needs neither Phaser nor the matter-js typings. */
@@ -92,7 +92,7 @@ export class Machine {
   placeRamp(offset: Offset = { x: 0, y: 0 }): void {
     if (this.ramp) return;
     const { Bodies, Body, Composite } = this.M;
-    this.ramp = Bodies.rectangle(RAMP_SLOT.x + offset.x, RAMP_SLOT.y + offset.y, RAMP_SLOT.w, RAMP_SLOT.h, STATIC);
+    this.ramp = Bodies.rectangle(RAMP_SLOT.x + RAMP_BODY.dx + offset.x, RAMP_SLOT.y + RAMP_BODY.dy + offset.y, RAMP_BODY.w, RAMP_BODY.h, STATIC);
     Body.setAngle(this.ramp, RAMP_SLOT.angle);
     Composite.add(this.engine.world, this.ramp);
   }

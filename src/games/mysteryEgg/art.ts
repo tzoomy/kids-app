@@ -2,6 +2,7 @@
 // Phaser-drawn placeholder. Idle and reaction motion are tweens on the whole container (docs/specs/mystery-egg-assets.md).
 import Phaser from 'phaser';
 import { animatedSpriteSpec, displaySize, spriteFrameRects, spriteSpec, type SpriteSpec } from './assets';
+import { RAMP_BODY, RAMP_SLOT } from './layout';
 import { eggAvailability } from './voiceProvider';
 
 const BROWN = 0x8a5a33;
@@ -179,14 +180,24 @@ export function drawPlaceholder(g: G, id: string): void {
       g.fillStyle(0xf7a3a0, 1);
       for (const [dx, dy] of [[-16, -14], [14, -22], [22, 12], [-6, 20], [-26, 14]]) g.fillCircle(dx, dy, 7);
       break;
-    case 'part-ramp':
+    case 'part-ramp': {
+      // Same geometry as the real art (layout.ts RAMP_BODY): a board sloping down to the right on a left post.
+      const cx = RAMP_BODY.dx;
+      const cy = RAMP_BODY.dy;
+      const c = Math.cos(RAMP_SLOT.angle);
+      const sn = Math.sin(RAMP_SLOT.angle);
+      const corner = (u: number, v: number) => new Phaser.Math.Vector2(cx + u * c - v * sn, cy + u * sn + v * c);
+      const hw = RAMP_BODY.w / 2;
+      const hh = RAMP_BODY.h / 2;
       g.fillStyle(BLUE, 1);
-      g.fillPoints([new Phaser.Math.Vector2(-w * 0.46, h * 0.1), new Phaser.Math.Vector2(w * 0.46, -h * 0.2), new Phaser.Math.Vector2(w * 0.46, -h * 0.02), new Phaser.Math.Vector2(-w * 0.46, h * 0.3)], true);
-      g.fillStyle(0x3d4ba3, 1);
-      g.fillRect(w * 0.28, -h * 0.02, 22, h * 0.4);
+      g.fillPoints([corner(-hw, -hh), corner(hw, -hh), corner(hw, hh), corner(-hw, hh)], true);
       g.lineStyle(4, DARK, 1);
-      g.strokeRect(w * 0.28, -h * 0.02, 22, h * 0.4);
+      g.strokePoints([corner(-hw, -hh), corner(hw, -hh), corner(hw, hh), corner(-hw, hh)], true);
+      g.fillStyle(0x3d4ba3, 1);
+      g.fillRect(-w * 0.46, -h * 0.2, 28, h * 0.8);
+      g.strokeRect(-w * 0.46, -h * 0.2, 28, h * 0.8);
       break;
+    }
     case 'part-bell':
       g.fillStyle(GOLD, 1);
       g.fillRoundedRect(-w * 0.34, -h * 0.34, w * 0.68, h * 0.62, 30);
