@@ -8,6 +8,7 @@ import { RUN_TIMEOUT_STEPS, RunWatcher, STEP_MS, type RunResult, type RunSample,
 export interface MBody {
   position: { x: number; y: number };
   speed: number;
+  angle: number;
 }
 export interface MEngine {
   world: unknown;

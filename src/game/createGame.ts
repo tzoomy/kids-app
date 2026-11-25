@@ -50,6 +50,10 @@ import type { VisibleBearOutfit, WardrobeInfo, WardrobeSeed } from '../games/war
 import { listDressedBears } from '../core/wardrobe/dress';
 import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobeInfo';
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
+import { MysteryEggScene } from '../games/mysteryEgg/MysteryEggScene';
+import { MysteryEggBuildScene } from '../games/mysteryEgg/MysteryEggBuildScene';
+import type { MysteryEggInfo, MysteryEggSeed } from '../games/mysteryEgg/types';
+import { saveProgress } from '../games/mysteryEgg/progress';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
 import { seedProfileLanguage } from '../core/storage/schema';
@@ -151,6 +155,10 @@ declare global {
       seedMagnetLevel: (level: number) => void;
       /** Current Magic Magnet state (null when MagnetScene is not active); rectangles are page CSS px. */
       getMagnetInfo: () => MagnetInfo | null;
+      /** Writes the active profile's Mystery Egg progress key only (seed only; no navigation, no game action). Call on the map. */
+      seedMysteryEggProgress: (seed: MysteryEggSeed) => void;
+      /** Read-only snapshot of the active Mystery Egg scene (hub or mission); null when neither is active. Rectangles are page CSS px. */
+      getMysteryEggInfo: () => MysteryEggInfo | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -236,6 +244,8 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('WardrobeScene', WardrobeScene, false);
   game.scene.add('SinkFloatScene', SinkFloatScene, false);
   game.scene.add('MagnetScene', MagnetScene, false);
+  game.scene.add('MysteryEggScene', MysteryEggScene, false);
+  game.scene.add('MysteryEggBuildScene', MysteryEggBuildScene, false);
 
   game.registry.set('appContext', context);
 
@@ -533,6 +543,14 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     getMagnetInfo() {
       const scene = game.scene.getScene('MagnetScene') as MagnetScene | null;
       return scene && game.scene.isActive('MagnetScene') ? scene.getMagnetInfo() : null;
+    },
+    seedMysteryEggProgress(seed) {
+      saveProgress(window.localStorage, context.requireProfileId(), { v: 1, completed: [...seed.completed] });
+    },
+    getMysteryEggInfo() {
+      if (game.scene.isActive('MysteryEggBuildScene')) return (game.scene.getScene('MysteryEggBuildScene') as MysteryEggBuildScene).getMysteryEggInfo();
+      if (game.scene.isActive('MysteryEggScene')) return (game.scene.getScene('MysteryEggScene') as MysteryEggScene).getMysteryEggInfo();
+      return null;
     },
     getOrchestraInfo() {
       const scene = game.scene.getScene('OrchestraScene') as OrchestraScene | null;

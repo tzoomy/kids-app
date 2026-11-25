@@ -1240,3 +1240,31 @@ body {
 .shell-profile-reset-confirm {
   font-weight: 700;
 }
+
+/* Mystery Egg entry (docs/specs/mystery-egg.md): one big picture-only egg button in the map's right margin (landscape)
+   or bottom-right corner (portrait). At least 96 CSS px, clear of the world buildings and the bear mascot. */
+.shell-egg-btn {
+  position: absolute;
+  right: max(2.5vmin, env(safe-area-inset-right));
+  top: 50%;
+  transform: translateY(-50%);
+  width: max(96px, 15vmin);
+  height: max(96px, 15vmin);
+  border-radius: 50%;
+  border: 4px solid #8a5a33;
+  background: radial-gradient(circle at 35% 30%, #fffbe8, #ffe9a8 70%, #f2c96b);
+  box-shadow: 0 0 18px 6px rgba(255, 233, 150, 0.75);
+  font-size: max(48px, 8vmin);
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  padding: 0;
+}
+
+@media (orientation: portrait) {
+  .shell-egg-btn {
+    top: auto;
+    bottom: max(2.5vmin, env(safe-area-inset-bottom));
+    transform: none;
+  }
+}
