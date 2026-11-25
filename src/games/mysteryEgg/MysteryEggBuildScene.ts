@@ -7,15 +7,15 @@ import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { transitionTo } from '../../anim/transitions';
 import { floatIdle } from '../../anim/tweens';
-import { assetEntry } from './assets';
-import { blinkRobot, ensureSpriteAnim, eggArt, playSpriteOnce, panel } from './art';
+import { assetEntry, displaySize } from './assets';
+import { createRobot, ensureSpriteAnim, ensureSpriteFrames, eggArt, playSpriteOnce, panel, type RobotView } from './art';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
-import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED } from './layout';
+import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
-import { RunWatcher, STEP_MS, createRunTracker, recordRun, type RunResult, type RunTrackerState } from './run';
+import { RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type RunResult, type RunTrackerState } from './run';
 import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
@@ -23,13 +23,23 @@ import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeB
 const MISSION_ID = '1.1';
 /** Display scale of each tray part, and its home in the tray (board px). */
 const TRAY = { x: 540, y: 722, w: 600, h: 140 } as const;
+// Manifest display sizes (half of the 2x files): ball 64, ramp 240x140, bell 96x110. Tray parts are drawn larger (big touch targets).
 const PART_HOME: Record<PartKind, { x: number; y: number; scale: number }> = {
-  ball: { x: 340, y: 722, scale: 0.92 },
-  ramp: { x: 540, y: 722, scale: 1 },
-  bell: { x: 740, y: 722, scale: 0.9 },
+  ball: { x: 340, y: 722, scale: 1.6 },
+  ramp: { x: 540, y: 722, scale: 0.95 },
+  bell: { x: 740, y: 722, scale: 1.1 },
 };
-const BALL_SCALE = (BALL.radius * 2) / 120;
+const BALL_SCALE = (BALL.radius * 2) / displaySize('part-ball').w;
+const BELL_SCALE = (BELL.radius * 2 + 8) / displaySize('part-bell').w;
 const CAT_POS = { x: BED.x, y: 290 } as const;
+/** The cat art is drawn at 1.15x; asleep and awake/wake art share the bed line (their bottoms line up). */
+const CAT_SCALE = 1.15;
+const CAT_BOTTOM = CAT_POS.y + (displaySize('cat-asleep').h * CAT_SCALE) / 2;
+const CAT_AWAKE_Y = CAT_BOTTOM - (displaySize('cat-awake').h * CAT_SCALE) / 2;
+/** The heart panel in the success view: 1.5x its 1x manifest size. */
+const HEART_VIEW = { x: 640, y: 150, scale: 1.5 } as const;
+/** The cat wake-up holds its last frame this long before swapping to the awake art. */
+const CAT_WAKE_HOLD_MS = 500;
 const ROBOT_POS = { x: 1170, y: 660 } as const;
 const EAR_POS = { x: 1170, y: 500 } as const;
 const PLAY_POS = { x: 955, y: 725, w: 210, h: 120 } as const;
@@ -59,7 +69,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   private ballView!: Phaser.GameObjects.Container;
   private catView!: Phaser.GameObjects.Container;
   private bellView!: Phaser.GameObjects.Container;
+  private robot!: RobotView;
   private robotView!: Phaser.GameObjects.Container;
+  private speechToken = 0;
   private slotGlow!: Phaser.GameObjects.Container;
   private hintPointer: Phaser.GameObjects.Container | null = null;
   private hintActive = false;
@@ -148,9 +160,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.drawBoard();
 
     // Cat, bell, ball.
-    this.catView = eggArt(this, 'cat-asleep', CAT_POS.x, CAT_POS.y).setDepth(10);
-    this.tweens.add({ targets: this.catView, scaleY: 1.025, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.bellView = eggArt(this, 'part-bell', BELL.x, BELL.y).setDepth(12).setScale((BELL.radius * 2) / 110);
+    this.catView = eggArt(this, 'cat-asleep', CAT_POS.x, CAT_POS.y).setDepth(10).setScale(CAT_SCALE);
+    this.tweens.add({ targets: this.catView, scaleY: CAT_SCALE * 1.025, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.bellView = eggArt(this, 'part-bell', BELL.x, BELL.y).setDepth(12).setScale(BELL_SCALE);
     this.ballView = eggArt(this, 'part-ball', BALL.x, BALL.y).setDepth(30).setScale(BALL_SCALE);
 
     // The one glowing slot.
@@ -165,10 +177,11 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
     // Goal card (top-left), friends, tray.
     goalCard(this, 310, 85).setDepth(40);
-    eggArt(this, 'bunny', 120, 640).setDepth(10).setInteractive({ useHandCursor: true }).on('pointerdown', () => undefined);
-    this.robotView = eggArt(this, 'robot', ROBOT_POS.x, ROBOT_POS.y).setDepth(10);
+    eggArt(this, 'bunny', 120, 640).setDepth(10).setScale(0.9).setInteractive({ useHandCursor: true }).on('pointerdown', () => undefined);
+    this.robot = createRobot(this, ROBOT_POS.x, ROBOT_POS.y);
+    this.robotView = this.robot.container.setDepth(10).setScale(1.2);
     floatIdle(this, this.robotView, 6, 1600);
-    this.time.addEvent({ delay: 4500, loop: true, callback: () => blinkRobot(this, this.robotView) });
+    this.robot.startIdleBlinks();
     panel(this, TRAY.x, TRAY.y, TRAY.w, TRAY.h).setDepth(20);
     for (const kind of ['ball', 'ramp', 'bell'] as const) this.makePart(kind);
 
@@ -239,8 +252,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     const dim = this.add.rectangle(640, 400, BOARD.width + 800, BOARD.height + 800, 0x2b1d14, 0.6).setInteractive();
     layer.add(dim);
     layer.add(panel(this, 640, 400, 960, 600));
-    const cat = eggArt(this, 'cat-asleep', 640, 300).setScale(1.5);
-    this.tweens.add({ targets: cat, scaleY: 1.55, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    const cat = eggArt(this, 'cat-asleep', 640, 300).setScale(1.7);
+    this.tweens.add({ targets: cat, scaleY: 1.75, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     layer.add(cat);
     layer.add(goalCard(this, 640, 520).setScale(1.2));
     const go = makeButton(this, 640, 700, 160, 112, drawArrowIcon, () => this.endIntro());
@@ -248,7 +261,12 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.tweens.add({ targets: go.container, scale: 1.08, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.buttons.set('goBtn', go);
     this.introLayer = layer;
-    this.speak('vo-fr-instruction');
+    // The story line first, then the request (unless the child taps the ear or leaves the intro meanwhile).
+    const story = this.speak('vo-fr-story');
+    const storyToken = this.speechToken;
+    void story.then(() => {
+      if (this.alive && this.phase === 'intro' && this.speechToken === storyToken) void this.speak('vo-fr-instruction');
+    });
   }
 
   private endIntro(): void {
@@ -264,12 +282,14 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   // ---------------------------------------------------------------- voice and help
 
   /** Requests a manifest voice line (file if it exists, otherwise a chime) and shows a speech cue by the speaker. */
-  private speak(lineId: string): void {
+  private speak(lineId: string): Promise<boolean> {
     const entry = assetEntry(lineId);
-    if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) return;
-    void this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
-    if (entry.lang === 'he') speechCue(this, this.robotView.x - 70, this.robotView.y - 150);
+    if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve(false);
+    ++this.speechToken;
+    const done = this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
+    if (entry.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 70, this.robotView.y - 150);
     else speechCue(this, this.catView.x, this.catView.y - 150);
+    return done;
   }
 
   /** The robot's ear button: replays the request at any time. */
@@ -277,13 +297,13 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     if (!this.alive) return;
     playEggSfx('sfx-robot-beep-2');
     this.tweens.add({ targets: this.robotView, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.robotView.setAngle(0) });
-    this.speak('vo-fr-instruction');
+    void this.speak('vo-fr-instruction');
   }
 
   private showHint(lineId: string): void {
     this.hintActive = true;
     playEggSfx('sfx-robot-beep-1');
-    this.speak(lineId);
+    void this.speak(lineId);
     this.refreshHintPointer();
   }
 
@@ -346,7 +366,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
       this.occupied.add(drop.slotId);
       part.slotId = drop.slotId;
       if (part.kind === 'ramp') this.machine.placeRamp();
-      playEggSfx('sfx-robot-beep-3');
+      playEggSfx('sfx-pop');
       const art = part.container.width;
       this.tweens.add({
         targets: part.container,
@@ -412,6 +432,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     // The ball is parked right away in the pure model; the view eases back with the delayed reset above.
     this.playBtn.setEnabled(false);
     if (outcome.hint) this.showHint(outcome.hint.lineId);
+    else if (isNearMiss(this.watcher.minBellDistance, RUN_WATCHER_CONFIG.reach)) void this.speak('vo-fr-presque');
   }
 
   // ---------------------------------------------------------------- success
@@ -427,43 +448,65 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
     playEggSfx('sfx-bell');
     this.tweens.add({ targets: this.bellView, angle: { from: -14, to: 14 }, duration: 110, yoyo: true, repeat: 5, onComplete: () => this.bellView.setAngle(0) });
+    this.time.delayedCall(600, () => playEggSfx('sfx-success'));
     void this.wakeCat();
-    this.speak('vo-fr-cat-croissants');
+    void this.speak('vo-fr-cat-croissants');
+    this.robot.cheer();
     this.celebrate();
     this.time.delayedCall(2200, () => {
       if (this.alive && token === this.successToken) this.showSuccessPanel(saved.newlyCompleted ? before : eggLevel(this.progress));
     });
   }
 
-  /** The cat wakes: the `cat-wake` strip when it loaded, otherwise the awake art with a stretch tween. */
+  /**
+   * The cat wakes: the `cat-wake` strip plays once (frames and fps from the manifest) and holds its last frame for
+   * 0.5 s, then the awake art takes over. Without the strip: the awake art appears with a stretch tween.
+   */
   private async wakeCat(): Promise<void> {
+    let playedStrip = false;
     if (ensureSpriteAnim(this, 'cat-wake')) {
       this.catView.setVisible(false);
-      const sprite = await playSpriteOnce(this, 'cat-wake', this.catView.x, this.catView.y);
+      const sprite = await playSpriteOnce(this, 'cat-wake', this.catView.x, CAT_AWAKE_Y, { scale: CAT_SCALE, holdMs: CAT_WAKE_HOLD_MS });
       if (!this.alive) return;
       sprite?.destroy();
+      playedStrip = sprite !== null;
     }
     if (!this.alive) return;
-    const awake = eggArt(this, 'cat-awake', this.catView.x, this.catView.y).setDepth(10);
+    const awake = eggArt(this, 'cat-awake', this.catView.x, CAT_AWAKE_Y).setDepth(10).setScale(CAT_SCALE);
     this.catView.destroy();
     this.catView = awake;
-    this.tweens.add({ targets: awake, scaleY: { from: 0.85, to: 1.12 }, scaleX: { from: 1.1, to: 0.95 }, duration: 260, yoyo: true, ease: 'Sine.easeOut', onComplete: () => awake.setScale(1) });
+    if (!playedStrip) {
+      this.tweens.add({
+        targets: awake,
+        scaleY: { from: CAT_SCALE * 0.85, to: CAT_SCALE * 1.12 },
+        scaleX: { from: CAT_SCALE * 1.1, to: CAT_SCALE * 0.95 },
+        duration: 260,
+        yoyo: true,
+        ease: 'Sine.easeOut',
+        onComplete: () => awake.setScale(CAT_SCALE),
+      });
+    }
   }
 
   /** Croissants and confetti, all drawn. */
   private celebrate(): void {
     const colors = [0xff5252, 0xffd93d, 0x4d96ff, 0x6bcb77, 0xff6fb5, 0x9b5de5];
-    const key = this.confettiTexture();
-    const emitter = this.add.particles(CAT_POS.x, CAT_POS.y - 40, key, {
+    // Particle frames 0-5 of the `confetti` strip (pink rect, mint rect, lavender curl, star, dot, heart) when it loaded;
+    // otherwise a generated square, tinted. The strip is not an animation (no fps).
+    const strip = ensureSpriteFrames(this, 'confetti');
+    const frameWidth = strip ? this.textures.getFrame('confetti', '0').width : 0;
+    const drawn = strip && frameWidth > 0 ? (strip.w / frameWidth) : 1;
+    const emitter = this.add.particles(CAT_POS.x, CAT_POS.y - 40, strip ? 'confetti' : this.confettiTexture(), {
+      ...(strip ? { frame: Array.from({ length: strip.frames }, (_, i) => String(i)) } : { tint: colors }),
       speed: { min: 240, max: 620 },
       angle: { min: 205, max: 335 },
       gravityY: 800,
       lifespan: 2200,
       rotate: { min: 0, max: 360 },
-      scale: { start: 1, end: 0.6 },
-      tint: colors,
+      scale: { start: drawn, end: drawn * 0.6 },
       emitting: false,
     });
+    playEggSfx('sfx-pop');
     emitter.setDepth(250);
     emitter.explode(70);
     this.time.delayedCall(2600, () => emitter.destroy());
@@ -485,11 +528,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     }
   }
 
-  /** A tiny confetti piece: the manifest's `confetti` art when it loaded, otherwise a generated square. */
+  /** Fallback confetti piece (a white square, tinted by the emitter) while the `confetti` strip is missing. */
   private confettiTexture(): string {
-    if (this.textures.exists('confetti') && !this.textures.get('confetti').key.startsWith('__')) {
-      return 'confetti';
-    }
     const key = 'egg-confetti-px';
     if (!this.textures.exists(key)) {
       const g = this.add.graphics();
@@ -513,12 +553,13 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     const newLevel = eggLevel(this.progress);
     const newlyLit = levelBefore < newLevel;
 
-    layer.add(eggArt(this, 'heart-panel', 640, 150));
+    layer.add(eggArt(this, 'heart-panel', HEART_VIEW.x, HEART_VIEW.y).setScale(HEART_VIEW.scale));
+    const sockets = heartSlotCentres(HEART_VIEW.x, HEART_VIEW.y, displaySize('heart-panel'), HEART_VIEW.scale);
     const slots: Phaser.GameObjects.Container[] = [];
     for (let i = 0; i < HEART_SLOT_COUNT; i++) {
       // Slots about to light start empty; they flip when the feather lands.
       const filled = lit.has(i) && !(newlyLit && i === 0);
-      const s = eggArt(this, filled ? 'slot-filled' : 'slot-empty', 640 + (i - 2) * 112, 150);
+      const s = eggArt(this, filled ? 'slot-filled' : 'slot-empty', sockets[i].x, sockets[i].y).setScale(HEART_VIEW.scale);
       slots.push(s);
       layer.add(s);
     }
@@ -526,13 +567,13 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     layer.add(egg);
     const feather = eggArt(this, 'feather', CAT_POS.x, CAT_POS.y - 60).setDepth(900);
     if (newlyLit) {
-      feather.setScale(1.2);
+      feather.setScale(1);
       this.tweens.add({
         targets: feather,
         x: 700,
         y: 450,
         angle: 720 - 35,
-        scale: 0.8,
+        scale: 0.7,
         duration: 1100,
         ease: 'Sine.easeInOut',
         onComplete: () => {
@@ -544,19 +585,19 @@ export class MysteryEggBuildScene extends Phaser.Scene {
           egg = bigger;
           this.tweens.add({ targets: bigger, scale: { from: 1.18, to: 1 }, duration: 420, ease: 'Back.easeOut' });
           const idx = [...lit][0] ?? 0;
-          const filled = eggArt(this, 'slot-filled', 640 + (idx - 2) * 112, 150);
+          const filled = eggArt(this, 'slot-filled', sockets[idx].x, sockets[idx].y).setScale(HEART_VIEW.scale);
           layer.add(filled);
           slots[idx]?.destroy();
-          this.tweens.add({ targets: filled, scale: { from: 0.2, to: 1.15 }, duration: 480, yoyo: true, hold: 0, ease: 'Back.easeOut', onComplete: () => filled.setScale(1) });
+          this.tweens.add({ targets: filled, scale: { from: HEART_VIEW.scale * 0.2, to: HEART_VIEW.scale * 1.15 }, duration: 480, yoyo: true, ease: 'Back.easeOut', onComplete: () => filled.setScale(HEART_VIEW.scale) });
           playEggSfx('sfx-robot-beep-3');
-          this.speak('vo-fr-success');
+          void this.speak('vo-fr-success');
           this.time.delayedCall(700, () => this.addContinue());
         },
       });
     } else {
       feather.destroy();
       this.featherArrived = true;
-      this.speak('vo-fr-success');
+      void this.speak('vo-fr-success');
       this.time.delayedCall(700, () => this.addContinue());
     }
     this.tweens.add({ targets: egg, angle: 2, duration: 700, yoyo: true, repeat: -1 });

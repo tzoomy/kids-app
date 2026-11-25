@@ -58,3 +58,14 @@ export function synthBeep(n: 1 | 2 | 3): void {
 export function synthRoll(): void {
   tone(110, 0.35, 'sawtooth', 0, 0.05);
 }
+
+/** Soft pop (sfx-pop): a part snaps in, confetti bursts. */
+export function synthPop(): void {
+  tone(520, 0.08, 'sine', 0, 0.16);
+  tone(780, 0.06, 'sine', 0.03, 0.08);
+}
+
+/** Four-note success chime (sfx-success). */
+export function synthSuccess(): void {
+  [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.28, 'triangle', i * 0.13, 0.14));
+}

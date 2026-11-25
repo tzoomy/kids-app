@@ -44,122 +44,146 @@
   "bunny": {
     "path": "art/mystery-egg/bunny.webp",
     "kind": "webp",
-    "w": 220,
+    "w": 200,
     "h": 300
   },
   "robot": {
     "path": "art/mystery-egg/robot.webp",
     "kind": "webp",
-    "w": 200,
-    "h": 260
+    "w": 140,
+    "h": 180
   },
   "capybara": {
     "path": "art/mystery-egg/capybara.webp",
     "kind": "webp",
-    "w": 260,
-    "h": 200
+    "w": 220,
+    "h": 280
   },
   "cat-asleep": {
     "path": "art/mystery-egg/cat-asleep.webp",
     "kind": "webp",
-    "w": 380,
-    "h": 230
+    "w": 320,
+    "h": 220
   },
   "cat-awake": {
     "path": "art/mystery-egg/cat-awake.webp",
     "kind": "webp",
-    "w": 300,
-    "h": 340
+    "w": 320,
+    "h": 320
   },
   "heart-panel": {
     "path": "art/mystery-egg/heart-panel.webp",
     "kind": "webp",
-    "w": 600,
-    "h": 130
+    "w": 320,
+    "h": 80
   },
   "slot-empty": {
     "path": "art/mystery-egg/slot-empty.webp",
     "kind": "webp",
-    "w": 96,
-    "h": 96
+    "w": 48,
+    "h": 48
   },
   "slot-filled": {
     "path": "art/mystery-egg/slot-filled.webp",
     "kind": "webp",
-    "w": 96,
-    "h": 96
+    "w": 48,
+    "h": 48
   },
   "part-ball": {
     "path": "art/mystery-egg/part-ball.webp",
     "kind": "webp",
-    "w": 120,
-    "h": 120
+    "w": 64,
+    "h": 64
   },
   "part-ramp": {
     "path": "art/mystery-egg/part-ramp.webp",
     "kind": "webp",
-    "w": 220,
-    "h": 130
+    "w": 240,
+    "h": 140
   },
   "part-bell": {
     "path": "art/mystery-egg/part-bell.webp",
     "kind": "webp",
-    "w": 120,
-    "h": 140
+    "w": 96,
+    "h": 110
   },
   "part-domino": {
     "path": "art/mystery-egg/part-domino.webp",
     "kind": "webp",
-    "w": 120,
-    "h": 120
+    "w": 48,
+    "h": 110
   },
   "part-spring": {
     "path": "art/mystery-egg/part-spring.webp",
     "kind": "webp",
-    "w": 100,
-    "h": 140
+    "w": 80,
+    "h": 110
   },
   "feather": {
     "path": "art/mystery-egg/feather.webp",
     "kind": "webp",
-    "w": 80,
-    "h": 110
-  },
-  "confetti": {
-    "path": "art/mystery-egg/confetti.webp",
-    "kind": "webp",
-    "w": 40,
-    "h": 40
+    "w": 120,
+    "h": 120
   },
   "vo-fr-instruction": {
     "path": "audio/mystery-egg/vo-fr-instruction.ogg",
     "kind": "vo",
-    "transcript": "Monsieur Moustache dort ! Il doit faire les croissants !",
+    "transcript": "Réveille Monsieur Moustache ! Fais rouler la balle pour sonner la cloche.",
+    "lang": "fr"
+  },
+  "vo-fr-story": {
+    "path": "audio/mystery-egg/vo-fr-story.ogg",
+    "kind": "vo",
+    "transcript": "Oh non ! Monsieur Moustache dort, et il n'y a pas de croissants !",
     "lang": "fr"
   },
   "vo-fr-success": {
     "path": "audio/mystery-egg/vo-fr-success.ogg",
     "kind": "vo",
-    "transcript": "Bravo ! Monsieur Moustache est réveillé !",
+    "transcript": "Bravo ! Tu as réveillé Monsieur Moustache !",
+    "lang": "fr"
+  },
+  "vo-fr-presque": {
+    "path": "audio/mystery-egg/vo-fr-presque.ogg",
+    "kind": "vo",
+    "transcript": "Presque !",
     "lang": "fr"
   },
   "vo-fr-cat-croissants": {
     "path": "audio/mystery-egg/vo-fr-cat-croissants.ogg",
     "kind": "vo",
-    "transcript": "Mes croissants !",
+    "transcript": "(Mmm,) Mes croissants ! (Mmm,) Merci beaucoup !",
     "lang": "fr"
   },
   "vo-he-robot-help-1": {
     "path": "audio/mystery-egg/vo-he-robot-help-1.ogg",
     "kind": "vo",
-    "transcript": "Elli, החתול ישן והוא צריך להתעורר. תעזרי לכדור להגיע אל הפעמון.",
+    "transcript": "חתול המאפייה ישן, ואין קרואסונים. בואי נעיר אותו! הכדור צריך לצלצל בפעמון.",
     "lang": "he"
   },
   "vo-he-robot-help-2": {
     "path": "audio/mystery-egg/vo-he-robot-help-2.ogg",
     "kind": "vo",
-    "transcript": "Elli, נסי לחשוב איזה חלק חסר כדי שהכדור יוכל להמשיך הלאה.",
+    "transcript": "שימי את הרמפה במקום שזוהר.",
     "lang": "he"
+  },
+  "vo-he-robot-breathe": {
+    "path": "audio/mystery-egg/vo-he-robot-breathe.ogg",
+    "kind": "vo",
+    "transcript": "קחי נשימה, תחשבי, ותנסי שוב!",
+    "lang": "he"
+  },
+  "vo-fr-robot-regarde": {
+    "path": "audio/mystery-egg/vo-fr-robot-regarde.ogg",
+    "kind": "vo",
+    "transcript": "Regarde ici !",
+    "lang": "fr"
+  },
+  "vo-fr-robot-aide": {
+    "path": "audio/mystery-egg/vo-fr-robot-aide.ogg",
+    "kind": "vo",
+    "transcript": "Je t'aide un peu !",
+    "lang": "fr"
   },
   "sfx-robot-beep-1": {
     "path": "audio/mystery-egg/sfx-robot-beep-1.ogg",
@@ -181,20 +205,35 @@
     "path": "audio/mystery-egg/sfx-ball-roll.ogg",
     "kind": "sfx"
   },
+  "sfx-success": {
+    "path": "audio/mystery-egg/sfx-success.ogg",
+    "kind": "sfx"
+  },
+  "sfx-pop": {
+    "path": "audio/mystery-egg/sfx-pop.ogg",
+    "kind": "sfx"
+  },
   "cat-wake": {
     "path": "art/mystery-egg/cat-wake.webp",
     "kind": "sprite",
-    "w": 300,
-    "h": 340,
-    "frames": 8,
-    "fps": 10
+    "w": 320,
+    "h": 320,
+    "frames": 6,
+    "fps": 8
   },
   "robot-blink": {
     "path": "art/mystery-egg/robot-blink.webp",
     "kind": "sprite",
-    "w": 200,
-    "h": 260,
+    "w": 140,
+    "h": 180,
     "frames": 4,
     "fps": 10
+  },
+  "confetti": {
+    "path": "art/mystery-egg/confetti.webp",
+    "kind": "sprite",
+    "w": 32,
+    "h": 32,
+    "frames": 6
   }
 }

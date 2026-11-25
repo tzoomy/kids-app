@@ -66,13 +66,20 @@ export interface RunWatcherConfig {
 /** Decides the result of one run, step by step. The first final result sticks. */
 export class RunWatcher {
   private restCount = 0;
+  private minDistance = Infinity;
   private result: RunResult = { status: 'running' };
 
   constructor(private readonly cfg: RunWatcherConfig) {}
 
+  /** Closest the ball centre came to the bell centre during this run (Infinity before the first sample). */
+  get minBellDistance(): number {
+    return this.minDistance;
+  }
+
   update(s: RunSample): RunResult {
     if (this.result.status !== 'running') return this.result;
     const { cfg } = this;
+    this.minDistance = Math.min(this.minDistance, s.bellDistance);
     if (s.bellDistance < cfg.reach) {
       this.result = { status: 'success' };
     } else if (s.x < cfg.bounds.minX || s.x > cfg.bounds.maxX || s.y > cfg.bounds.maxY) {
@@ -84,4 +91,9 @@ export class RunWatcher {
     }
     return this.result;
   }
+}
+
+/** A failed run that still passed within twice the bell's reach earns the gentle "Presque !" line. */
+export function isNearMiss(minBellDistance: number, reach: number): boolean {
+  return minBellDistance < reach * 2;
 }

@@ -3,6 +3,7 @@ import {
   HINT_AFTER_FAILS,
   RUN_TIMEOUT_STEPS,
   RunWatcher,
+  isNearMiss,
   createRunTracker,
   recordRun,
   type RunSample,
@@ -91,5 +92,16 @@ describe('mystery-egg run outcome', () => {
     const w = new RunWatcher(cfg);
     w.update(sample({ bellDistance: 10 }));
     expect(w.update(sample({ step: 5, y: 1200 }))).toEqual({ status: 'success' });
+  });
+
+  it('[AC-08] the watcher remembers how close the ball came to the bell (for the "Presque !" near-miss line)', () => {
+    const w = new RunWatcher(cfg);
+    expect(w.minBellDistance).toBe(Infinity);
+    w.update(sample({ step: 1, bellDistance: 400 }));
+    w.update(sample({ step: 2, bellDistance: 150 }));
+    w.update(sample({ step: 3, bellDistance: 300 }));
+    expect(w.minBellDistance).toBe(150);
+    expect(isNearMiss(150, cfg.reach)).toBe(true);
+    expect(isNearMiss(400, cfg.reach)).toBe(false);
   });
 });

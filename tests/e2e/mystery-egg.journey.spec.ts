@@ -114,8 +114,11 @@ test.describe('mystery-egg', () => {
     const intro = await openWorkshopByTap(page);
     const goBtn = intro.rects.goBtn as Rect;
     expect(goBtn.width).toBeGreaterThanOrEqual(MIN_TAP_PX);
-    const spoken = await getSpokenLines(page);
-    expect(spoken.map((s) => [s.lineId, s.lang])).toContainEqual(['vo-fr-instruction', 'fr']);
+    // The story line first, then the request (the second follows the first once it ends, so poll).
+    await expect.poll(async () => (await getSpokenLines(page)).map((s) => [s.lineId, s.lang]), { timeout: 10_000 }).toContainEqual(['vo-fr-instruction', 'fr']);
+    const spokenIds = (await getSpokenLines(page)).map((s) => s.lineId);
+    expect(spokenIds.indexOf('vo-fr-story')).toBeGreaterThanOrEqual(0);
+    expect(spokenIds.indexOf('vo-fr-story')).toBeLessThan(spokenIds.indexOf('vo-fr-instruction'));
 
     // Build: ONE glowing slot, three big parts in the tray, a big Play button.
     const build = await startBuildByTap(page);

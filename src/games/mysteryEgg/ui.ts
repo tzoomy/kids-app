@@ -130,11 +130,11 @@ function dottedArrow(scene: Phaser.Scene, container: Phaser.GameObjects.Containe
 export function goalCard(scene: Phaser.Scene, x: number, y: number): Phaser.GameObjects.Container {
   const card = scene.add.container(x, y);
   card.add(panel(scene, 0, 0, 560, 130));
-  card.add(eggArt(scene, 'part-ball', -210, 0).setScale(0.7));
+  card.add(eggArt(scene, 'part-ball', -210, 0).setScale(1.2));
   dottedArrow(scene, card, -150, -72, 0);
-  card.add(eggArt(scene, 'part-bell', -30, 0).setScale(0.75));
+  card.add(eggArt(scene, 'part-bell', -30, 0).setScale(0.85));
   dottedArrow(scene, card, 30, 100, 0);
-  card.add(eggArt(scene, 'cat-awake', 200, 6).setScale(0.36));
+  card.add(eggArt(scene, 'cat-awake', 200, 4).setScale(0.36));
   card.setSize(560, 130);
   return card;
 }

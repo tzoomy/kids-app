@@ -2,6 +2,11 @@
 // The scene draws from these numbers and the physics (machine.ts) builds its bodies from them, so they cannot drift apart.
 import type { SlotDef } from './snap';
 
+export interface Point2 {
+  x: number;
+  y: number;
+}
+
 export const BOARD = { width: 1280, height: 800 } as const;
 
 export const BALL = { x: 150, y: 232, radius: 34 } as const;
@@ -31,3 +36,16 @@ export const SLOTS: readonly SlotDef[] = [{ id: 'ramp-slot', x: RAMP_SLOT.x, y: 
 
 /** Small push (px per step) given at Play; gravity on the tilted shelf does the rest. */
 export const LAUNCH_SPEED = 2;
+
+/** Heart-panel socket centres on the 1x panel (from Gemini's PR #108): x = 40/100/160/220/280, y = 40. */
+export const HEART_SOCKETS_1X = { x: [40, 100, 160, 220, 280], y: 40 } as const;
+
+/**
+ * Board position of each of the 5 sockets when the heart panel (manifest display size `panel`) is drawn centred at
+ * (cx, cy) with `scale`. Slots (48x48 at 1x) are centred on these points at the same scale.
+ */
+export function heartSlotCentres(cx: number, cy: number, panel: { w: number; h: number }, scale: number): Point2[] {
+  const left = cx - (panel.w * scale) / 2;
+  const top = cy - (panel.h * scale) / 2;
+  return HEART_SOCKETS_1X.x.map((sx) => ({ x: left + sx * scale, y: top + HEART_SOCKETS_1X.y * scale }));
+}

@@ -1,7 +1,7 @@
 // Mystery Egg art: every visual is a Container holding either the manifest's WebP (when it loaded) or a simple
 // Phaser-drawn placeholder. Idle and reaction motion are tweens on the whole container (docs/specs/mystery-egg-assets.md).
 import Phaser from 'phaser';
-import { displaySize, spriteFrameRects, spriteSpec, type SpriteSpec } from './assets';
+import { animatedSpriteSpec, displaySize, spriteFrameRects, spriteSpec, type SpriteSpec } from './assets';
 import { eggAvailability } from './voiceProvider';
 
 const BROWN = 0x8a5a33;
@@ -241,10 +241,10 @@ export function eggArt(scene: Phaser.Scene, id: string, x: number, y: number): P
 }
 
 /**
- * Splits a loaded horizontal strip into frames and registers its animation, reading frames, fps, w and h from the
- * manifest. Returns null when the strip did not load (the caller then uses tweens on the static art).
+ * Splits a loaded horizontal strip into frames named "0".."n-1" (frame count, w and h from the manifest; the frame
+ * width is the REAL texture width / frames, so a 1x or 2x file both work). Returns null when the strip did not load.
  */
-export function ensureSpriteAnim(scene: Phaser.Scene, id: string): SpriteSpec | null {
+export function ensureSpriteFrames(scene: Phaser.Scene, id: string): SpriteSpec | null {
   if (!eggAvailability.isReady(id) || !scene.textures.exists(id)) return null;
   const spec = spriteSpec(id);
   const texture = scene.textures.get(id);
@@ -252,38 +252,112 @@ export function ensureSpriteAnim(scene: Phaser.Scene, id: string): SpriteSpec | 
   const rects = spriteFrameRects(spec.frames, source.width, source.height);
   if (rects.length === 0 || source.width < spec.frames) return null;
   for (const r of rects) if (!texture.has(String(r.index))) texture.add(String(r.index), 0, r.x, r.y, r.width, r.height);
+  return spec;
+}
+
+/** Frames plus a play-once animation (fps from the manifest). Null when the strip did not load or is not animated. */
+export function ensureSpriteAnim(scene: Phaser.Scene, id: string): (SpriteSpec & { fps: number }) | null {
+  if (!ensureSpriteFrames(scene, id)) return null;
+  const spec = animatedSpriteSpec(id);
   if (!scene.anims.exists(id)) {
-    scene.anims.create({ key: id, frames: rects.map((r) => ({ key: id, frame: String(r.index) })), frameRate: spec.fps, repeat: 0 });
+    scene.anims.create({
+      key: id,
+      frames: Array.from({ length: spec.frames }, (_, i) => ({ key: id, frame: String(i) })),
+      frameRate: spec.fps,
+      repeat: 0,
+    });
   }
   return spec;
 }
 
-/** Plays the sprite strip `id` once at (x, y), sized to the manifest's single-frame size. Resolves when done, or false if unavailable. */
-export function playSpriteOnce(scene: Phaser.Scene, id: string, x: number, y: number): Promise<Phaser.GameObjects.Sprite | null> {
+export interface PlaySpriteOptions {
+  /** Extra scale on top of the manifest's single-frame display size. */
+  scale?: number;
+  /** Keep the last frame on screen this long after the animation ends. */
+  holdMs?: number;
+  depth?: number;
+}
+
+/**
+ * Plays the sprite strip `id` once at (x, y), sized to the manifest's single-frame display size, holds the last frame
+ * for `holdMs`, then resolves with the sprite (the caller destroys it). Resolves null when the strip is unavailable.
+ */
+export function playSpriteOnce(scene: Phaser.Scene, id: string, x: number, y: number, opts: PlaySpriteOptions = {}): Promise<Phaser.GameObjects.Sprite | null> {
   const spec = ensureSpriteAnim(scene, id);
   if (!spec) return Promise.resolve(null);
-  const sprite = scene.add.sprite(x, y, id, '0').setDisplaySize(spec.w, spec.h);
+  const k = opts.scale ?? 1;
+  const sprite = scene.add.sprite(x, y, id, '0').setDisplaySize(spec.w * k, spec.h * k).setDepth(opts.depth ?? 10);
   return new Promise((resolve) => {
-    sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => resolve(sprite));
+    sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (opts.holdMs && opts.holdMs > 0) scene.time.delayedCall(opts.holdMs, () => resolve(sprite));
+      else resolve(sprite);
+    });
     sprite.play(id);
   });
 }
 
+export interface RobotView {
+  container: Phaser.GameObjects.Container;
+  /** One blink now (the `robot-blink` strip, else a squash tween). */
+  blink(): void;
+  /** A cheering moment: the `robot` art (cheering eyes) for a while, bouncing, then back to the idle still. */
+  cheer(ms?: number): void;
+  /** Blinks every 3-5 s until the scene ends. */
+  startIdleBlinks(): void;
+}
+
 /**
- * One idle blink of the robot: the `robot-blink` strip when it loaded (frames and fps from the manifest), otherwise a
- * quick squash tween on the whole image.
+ * The robot. Idle still = `robot-blink` frame 0 (open eyes) when that strip loaded; `robot` (closed, cheering eyes) is
+ * only used for cheer moments. When `robot-blink` is missing the drawn/loaded `robot` art is the idle still too, and
+ * a blink is a squash tween. Sizes, frames and fps come from the manifest.
  */
-export function blinkRobot(scene: Phaser.Scene, robot: Phaser.GameObjects.Container): void {
-  if (!robot.scene) return;
-  if (ensureSpriteAnim(scene, 'robot-blink')) {
-    robot.setVisible(false);
-    void playSpriteOnce(scene, 'robot-blink', robot.x, robot.y).then((sprite) => {
-      sprite?.destroy();
-      if (robot.scene) robot.setVisible(true);
-    });
-    return;
-  }
-  scene.tweens.add({ targets: robot, scaleY: 0.92, duration: 80, yoyo: true });
+export function createRobot(scene: Phaser.Scene, x: number, y: number): RobotView {
+  const { w, h } = displaySize('robot');
+  const container = scene.add.container(x, y);
+  container.setSize(w, h);
+  const blinkSpec = ensureSpriteAnim(scene, 'robot-blink');
+  const sprite = blinkSpec ? scene.add.sprite(0, 0, 'robot-blink', '0').setDisplaySize(blinkSpec.w, blinkSpec.h) : null;
+  const idle: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Visible = sprite ?? eggArt(scene, 'robot', 0, 0);
+  const cheerArt = eggArt(scene, 'robot', 0, 0).setVisible(false);
+  container.add([idle, cheerArt]);
+  let cheering = false;
+  const alive = (): boolean => Boolean(container.scene);
+  const view: RobotView = {
+    container,
+    blink() {
+      if (!alive() || cheering) return;
+      if (sprite) {
+        sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sprite.setFrame('0'));
+        sprite.play('robot-blink');
+      } else {
+        scene.tweens.add({ targets: container, scaleY: container.scaleY * 0.92, duration: 80, yoyo: true });
+      }
+    },
+    cheer(ms = 2200) {
+      if (!alive()) return;
+      cheering = true;
+      idle.setVisible(false);
+      cheerArt.setVisible(true);
+      scene.tweens.add({ targets: container, y: container.y - 22, duration: 160, yoyo: true, repeat: 3, ease: 'Sine.easeOut' });
+      scene.time.delayedCall(ms, () => {
+        if (!alive()) return;
+        cheering = false;
+        cheerArt.setVisible(false);
+        idle.setVisible(true);
+      });
+    },
+    startIdleBlinks() {
+      const next = (): void => {
+        scene.time.delayedCall(3000 + Math.random() * 2000, () => {
+          if (!alive()) return;
+          view.blink();
+          next();
+        });
+      };
+      next();
+    },
+  };
+  return view;
 }
 
 /** Cream rounded panel (cards, tray). */

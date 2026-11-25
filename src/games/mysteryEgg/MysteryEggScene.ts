@@ -6,17 +6,18 @@ import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { transitionTo } from '../../anim/transitions';
 import { floatIdle, popIn } from '../../anim/tweens';
-import { blinkRobot, eggArt } from './art';
+import { createRobot, eggArt } from './art';
+import { displaySize } from './assets';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
+import { heartSlotCentres } from './layout';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, nestTreasures, type MysteryEggProgress } from './progress';
 import type { EggTarget, MysteryEggInfo } from './types';
 import { drawGearIcon, drawHomeIcon, makeButton, type EggButton } from './ui';
 
-/** Heart slot centres inside the heart panel (board px). */
-const PANEL = { x: 640, y: 100 } as const;
-const SLOT_STEP = 112;
+/** The heart panel, drawn at 1.5x its 1x manifest size; socket positions follow Gemini's geometry (layout.ts). */
+const PANEL = { x: 640, y: 100, scale: 1.5 } as const;
 
 export class MysteryEggScene extends Phaser.Scene {
   private context!: AppContext;
@@ -25,7 +26,6 @@ export class MysteryEggScene extends Phaser.Scene {
   private alive = false;
   private feather: Phaser.GameObjects.Container | null = null;
   private readonly buttons = new Map<EggTarget, EggButton>();
-  private blinkTimer?: Phaser.Time.TimerEvent;
 
   constructor() {
     super('MysteryEggScene');
@@ -44,7 +44,6 @@ export class MysteryEggScene extends Phaser.Scene {
     fitBoard(this, '#cdeaff');
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.alive = false;
-      this.blinkTimer?.remove();
       this.context.audio.stopAll();
     });
     loadEggAssets(this, import.meta.env.BASE_URL, () => {
@@ -62,11 +61,12 @@ export class MysteryEggScene extends Phaser.Scene {
     eggArt(this, 'hub-bg', 640, 400).setDepth(0);
 
     // Robot heart panel with its 5 slots (filled ones glow).
-    eggArt(this, 'heart-panel', PANEL.x, PANEL.y).setDepth(5);
+    eggArt(this, 'heart-panel', PANEL.x, PANEL.y).setDepth(5).setScale(PANEL.scale);
+    const sockets = heartSlotCentres(PANEL.x, PANEL.y, displaySize('heart-panel'), PANEL.scale);
     for (let i = 0; i < HEART_SLOT_COUNT; i++) {
       const filled = lit.has(i);
-      const slot = eggArt(this, filled ? 'slot-filled' : 'slot-empty', PANEL.x + (i - 2) * SLOT_STEP, PANEL.y).setDepth(6);
-      if (filled) this.tweens.add({ targets: slot, scale: 1.12, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      const slot = eggArt(this, filled ? 'slot-filled' : 'slot-empty', sockets[i].x, sockets[i].y).setDepth(6).setScale(PANEL.scale);
+      if (filled) this.tweens.add({ targets: slot, scale: PANEL.scale * 1.12, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
     // The egg in its nest: glow level from progress; a gentle wiggle that grows with the level.
@@ -78,13 +78,15 @@ export class MysteryEggScene extends Phaser.Scene {
     });
     this.tweens.add({ targets: egg, angle: 1.5 + level * 0.8, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     if (nestTreasures(this.progress).includes('feather')) {
-      this.feather = eggArt(this, 'feather', 716, 472).setDepth(12).setAngle(-35);
+      this.feather = eggArt(this, 'feather', 722, 470).setDepth(12).setAngle(-35).setScale(0.7);
     }
 
     // Friends. Idle motion = whole-image tweens (bob).
+    // Sizes follow the hub mock: bunny about 300 px tall, capybara about 250, robot about 130-145.
     const bunny = eggArt(this, 'bunny', 250, 560).setDepth(10);
-    const capybara = eggArt(this, 'capybara', 1100, 690).setDepth(10);
-    const robot = eggArt(this, 'robot', 1010, 500).setDepth(10);
+    const capybara = eggArt(this, 'capybara', 1100, 650).setDepth(10).setScale(0.9);
+    const robotView = createRobot(this, 1010, 540);
+    const robot = robotView.container.setDepth(10).setScale(0.8);
     for (const c of [bunny, capybara, robot]) {
       floatIdle(this, c, 8, 1500 + Math.random() * 500);
       c.setInteractive({ useHandCursor: true });
@@ -95,7 +97,7 @@ export class MysteryEggScene extends Phaser.Scene {
     });
     bunny.on('pointerdown', () => this.wiggle(bunny, 4));
     capybara.on('pointerdown', () => this.wiggle(capybara, 4));
-    this.scheduleBlink(robot);
+    robotView.startIdleBlinks();
 
     // The one big Workshop button, and the way back to the map.
     const workshop = makeButton(this, 640, 700, 320, 120, drawGearIcon, () => this.openWorkshop());
@@ -112,15 +114,6 @@ export class MysteryEggScene extends Phaser.Scene {
   /** A short wiggle (angle) of the whole image, then back to rest. */
   private wiggle(target: Phaser.GameObjects.Container, deg: number): void {
     this.tweens.add({ targets: target, angle: { from: -deg, to: deg }, duration: 90, yoyo: true, repeat: 2, onComplete: () => target.setAngle(0) });
-  }
-
-  /** The robot blinks now and then (the `robot-blink` strip when it exists, else a squash tween; see art.ts). */
-  private scheduleBlink(robot: Phaser.GameObjects.Container): void {
-    this.blinkTimer = this.time.addEvent({
-      delay: 4500,
-      loop: true,
-      callback: () => blinkRobot(this, robot),
-    });
   }
 
   private openWorkshop(): void {
