@@ -5,7 +5,7 @@
  *  - 2nd failed run: `vo-he-robot-help-1`, the GOAL hint (explains the request, never the solution). No pointer.
  *  - 3rd failed run and every later one: `vo-he-robot-help-2`, the GLOWING-SLOT hint (GDD hint step 3), together with
  *    the pulsing pointer at the empty slot.
- * The robot's ear button is separate: it always replays the French instruction (`vo-fr-instruction`).
+ * The robot's ear button is separate: it plays help-1 at any time (`EAR_LINE_ID`) and is not a ladder step.
  */
 export const HINT_LADDER = [
   { afterFailedRuns: 2, lineId: 'vo-he-robot-help-1', step: 'goal', pointer: false },
@@ -14,6 +14,13 @@ export const HINT_LADDER = [
 export const HINT_AFTER_FAILS = HINT_LADDER[0].afterFailedRuns;
 export type HintLineId = (typeof HINT_LADDER)[number]['lineId'];
 export type HintStep = (typeof HINT_LADDER)[number]['step'];
+
+/**
+ * The robot ear button gives HEBREW help at any time (intro and build): it plays the goal hint, `vo-he-robot-help-1`
+ * (decided by Maor via the team lead, 2026-11-25). It is not a ladder step: it never counts as a failed run and never
+ * shows the pointer; `vo-he-robot-help-2` stays the last automatic rung.
+ */
+export const EAR_LINE_ID: HintLineId = HINT_LADDER[0].lineId;
 
 /** Fixed simulation step (60 Hz). Outcomes depend on step counts, never on frame times. */
 export const STEP_MS = 1000 / 60;

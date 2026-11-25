@@ -15,7 +15,7 @@ import { playEggSfx } from './eggSound';
 import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_BODY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
-import { RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
+import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
 import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
@@ -295,12 +295,12 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     return done;
   }
 
-  /** The robot's ear button: replays the request at any time. */
+  /** The robot's ear button: Hebrew help (the goal hint, `vo-he-robot-help-1`) at any time; not a ladder step. */
   private onEar(): void {
     if (!this.alive) return;
     playEggSfx('sfx-robot-beep-2');
     this.tweens.add({ targets: this.robotView, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.robotView.setAngle(0) });
-    void this.speak('vo-fr-instruction');
+    void this.speak(EAR_LINE_ID);
   }
 
   /** One rung of the help ladder (run.ts): the goal hint says it in Hebrew; the slot hint adds the pulsing pointer. */
