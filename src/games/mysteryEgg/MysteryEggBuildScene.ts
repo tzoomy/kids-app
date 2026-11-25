@@ -18,6 +18,7 @@ import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSa
 import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
 import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
+import { IntroVoice, type VoiceAction } from './introVoice';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
 
 const MISSION_ID = '1.1';
@@ -71,7 +72,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   private bellView!: Phaser.GameObjects.Container;
   private robot!: RobotView;
   private robotView!: Phaser.GameObjects.Container;
-  private speechToken = 0;
+  private introVoice = new IntroVoice();
+  private bunnyView!: Phaser.GameObjects.Container;
   private slotGlow!: Phaser.GameObjects.Container;
   private hintPointer: Phaser.GameObjects.Container | null = null;
   private hintActive = false;
@@ -112,6 +114,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.occupied.clear();
     this.buttons.clear();
     this.dragging = null;
+    this.introVoice = new IntroVoice();
     this.introLayer = null;
     this.continueBtn = null;
     this.featherArrived = false;
@@ -180,7 +183,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
     // Goal card (top-left), friends, tray.
     goalCard(this, 310, 85).setDepth(40);
-    eggArt(this, 'bunny', 120, 640).setDepth(10).setScale(0.9).setInteractive({ useHandCursor: true }).on('pointerdown', () => undefined);
+    // The bunny replays the French request at any time (it sits above the intro overlay while the intro is up).
+    this.bunnyView = eggArt(this, 'bunny', 120, 640).setDepth(10).setScale(0.9).setInteractive({ useHandCursor: true });
+    this.bunnyView.on('pointerdown', () => this.onBunny());
     this.robot = createRobot(this, ROBOT_POS.x, ROBOT_POS.y);
     this.robotView = this.robot.container.setDepth(10).setScale(1.2);
     floatIdle(this, this.robotView, 6, 1600);
@@ -264,12 +269,32 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.tweens.add({ targets: go.container, scale: 1.08, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.buttons.set('goBtn', go);
     this.introLayer = layer;
-    // The story line first, then the request (unless the child taps the ear or leaves the intro meanwhile).
-    const story = this.speak('vo-fr-story');
-    const storyToken = this.speechToken;
-    void story.then(() => {
-      if (this.alive && this.phase === 'intro' && this.speechToken === storyToken) void this.speak('vo-fr-instruction');
-    });
+    // The story line first; when it ends the request follows, once (introVoice.ts). Go before that cuts the story and
+    // plays the request at build start. The bunny rises above the dim so it can be tapped during the intro.
+    this.bunnyView.setDepth(650);
+    this.runVoice(this.introVoice.start());
+  }
+
+  /** Turns the sequencer's actions into audio calls. A speak of the story chains `storyEnded` when its promise settles. */
+  private runVoice(actions: VoiceAction[]): void {
+    for (const action of actions) {
+      if (action.type === 'stop') {
+        this.context.audio.stopAll();
+      } else if (action.lineId === 'vo-fr-story') {
+        void this.speak('vo-fr-story').then(() => {
+          if (this.alive) this.runVoice(this.introVoice.storyEnded());
+        });
+      } else {
+        void this.speak(action.lineId);
+      }
+    }
+  }
+
+  /** The bunny: replays the French request at any time, cutting whatever line is playing first. */
+  private onBunny(): void {
+    if (!this.alive || this.phase === 'success') return;
+    this.tweens.add({ targets: this.bunnyView, angle: { from: -4, to: 4 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.bunnyView.setAngle(0) });
+    this.runVoice(this.introVoice.bunnyTapped());
   }
 
   private endIntro(): void {
@@ -279,7 +304,10 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.buttons.delete('goBtn');
     this.introLayer?.destroy();
     this.introLayer = null;
+    this.bunnyView.setDepth(10);
     this.phase = 'build';
+    // The request must be heard by the time the build starts, even when Go was tapped before the story ended.
+    this.runVoice(this.introVoice.goTapped());
   }
 
   // ---------------------------------------------------------------- voice and help
@@ -288,7 +316,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   private speak(lineId: string): Promise<boolean> {
     const entry = assetEntry(lineId);
     if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve(false);
-    ++this.speechToken;
+    // Any voice other than the intro's own French lines takes the floor: the story must not chain the request after it.
+    if (lineId !== 'vo-fr-story' && lineId !== 'vo-fr-instruction') this.introVoice.otherVoice();
     const done = this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
     if (entry.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 90, this.robotView.y - 190);
     else speechCue(this, this.catView.x - 210, this.catView.y - 110);
@@ -640,6 +669,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     for (const [target, b] of this.buttons) {
       rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
     }
+    rects.bunny = boardRectToPage(this, this.bunnyView.x, this.bunnyView.y, this.bunnyView.width * this.bunnyView.scaleX, this.bunnyView.height * this.bunnyView.scaleY);
     rects.slot = boardRectToPage(this, RAMP_SLOT.x, RAMP_SLOT.y, RAMP_SLOT.w, 120);
     const partTarget = { ball: 'partBall', ramp: 'partRamp', bell: 'partBell' } as const;
     const inTray: PartKind[] = [];

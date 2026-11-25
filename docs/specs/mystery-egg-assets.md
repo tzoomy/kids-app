@@ -64,7 +64,7 @@ All 41 ids, exactly (a unit test pins this list: `tests/unit/mystery-egg.assets.
 | `part-domino` | `art/mystery-egg/part-domino.webp` | webp | 48×110 display px (file 96×220, 2x) | Domino (listed for later missions; not used in 1.1). | — | none | Cream tile with dots. |
 | `part-spring` | `art/mystery-egg/part-spring.webp` | webp | 80×110 display px (file 160×220, 2x) | Golden spring (listed for later missions; not used in 1.1). | — | none | Stacked gold rings. |
 | `feather` | `art/mystery-egg/feather.webp` | webp | 120×120 display px (file 240×240, 2x) | Teal nest-treasure feather. | — | flies cat → nest (arc, spin 720°, scale 1.2 → 0.8, 1.1 s); rests on the nest rim (angle -35°) | Teal leaf shape with a quill line. |
-| `vo-fr-instruction` | `audio/mystery-egg/vo-fr-instruction.ogg` | vo | Opus mono, short line | Hero: the request. Plays automatically after `vo-fr-story` in the intro (no longer on the ear button). | “Réveille Monsieur Moustache ! Fais rouler la balle pour sonner la cloche.” (`fr`) | — | Chime + speech-bubble cue above the cat. |
+| `vo-fr-instruction` | `audio/mystery-egg/vo-fr-instruction.ogg` | vo | Opus mono, short line | Hero: the request. Plays automatically once after `vo-fr-story` in the intro; at build start if Go cut the story (story cut, never doubled); and on every bunny tap (not on the ear button). | “Réveille Monsieur Moustache ! Fais rouler la balle pour sonner la cloche.” (`fr`) | — | Chime + speech-bubble cue above the cat. |
 | `vo-fr-story` | `audio/mystery-egg/vo-fr-story.ogg` | vo | Opus mono, short line | Hero: the story beat. Plays first in the intro, then `vo-fr-instruction`. | “Oh non ! Monsieur Moustache dort, et il n'y a pas de croissants !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
 | `vo-fr-success` | `audio/mystery-egg/vo-fr-success.ogg` | vo | Opus mono, short line | Hero: success line after the feather reaches the nest. | “Bravo ! Tu as réveillé Monsieur Moustache !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
 | `vo-fr-presque` | `audio/mystery-egg/vo-fr-presque.ogg` | vo | Opus mono, short line | Hero: gentle near-miss line after a failed run in which the ball passed close to the bell (and no hint is due). | “Presque !” (`fr`) | — | Chime + speech-bubble cue above the cat. |
@@ -89,6 +89,8 @@ All 41 ids, exactly (a unit test pins this list: `tests/unit/mystery-egg.assets.
 
 | Trigger | What plays | Pointer at the slot |
 |---|---|---|
+| Bunny tap, any time (intro and build) | `vo-fr-instruction` (cuts any playing line first) | no |
+| Go tapped before the story ended | story cut, `vo-fr-instruction` once at build start | no |
 | Robot ear button, any time (intro and build); not a ladder step | `vo-he-robot-help-1` (Hebrew goal hint) + `sfx-robot-beep-2` | no |
 | 2nd failed run | `vo-he-robot-help-1` (goal hint) + `sfx-robot-beep-1` | no |
 | 3rd failed run and every later one | `vo-he-robot-help-2` (glowing-slot hint) + `sfx-robot-beep-1` | yes, pulsing until the ramp is placed |
