@@ -14,15 +14,21 @@ export const BALL = { x: 150, y: 232, radius: 34 } as const;
 /** The fixed shelf the ball starts on (static), tilted slightly down to the right so the ball rolls off by itself. Centre + size + angle (rad). */
 export const SHELF = { x: 210, y: 300, w: 300, h: 28, angle: 0.22 } as const;
 
-/** The slot the missing ramp piece goes into: a board tilted down to the right. `angle` in radians. */
-export const RAMP_SLOT = { x: 470, y: 440, w: 240, h: 140, angle: 0.457 } as const;
+/** The slot the missing ramp piece goes into: its centre, and the display size of the ramp art (the drop zone). */
+export const RAMP_SLOT = { x: 470, y: 440, w: 240, h: 140 } as const;
 
 /**
- * The solid board of the ramp piece, measured on Gemini's `part-ramp.webp` (480x280 file, 240x140 display): the board's
- * top surface slopes at 0.457 rad (26.2 deg), its centre sits (+20, +15) display px from the art centre and it is about
- * 192 x 33 display px. The physics body is built from this, so the drawn ramp and the body coincide with no extra rotation.
+ * The solid wedge of the ramp piece: a convex polygon in display px relative to the slot (art) centre, matching the
+ * painterly `part-ramp.webp` of Gemini's PR #110 (a wedge sloping down to the right, about 0.63 rad). It is NOT the
+ * silhouette's peak: the ball would park on the crest. The physics body, the slot glow and the drawn placeholder all
+ * use this polygon, unrotated.
  */
-export const RAMP_BODY = { dx: 20, dy: 15, w: 192, h: 33 } as const;
+export const RAMP_POLY = [
+  { x: -64, y: -52 },
+  { x: 72, y: 48 },
+  { x: 32, y: 65 },
+  { x: -82, y: 26 },
+] as const;
 
 /** Workbench the ramp feeds onto, with the bell hanging over it. */
 export const TABLE = { x: 750, y: 552, w: 300, h: 24 } as const;

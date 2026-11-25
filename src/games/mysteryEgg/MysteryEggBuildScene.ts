@@ -12,7 +12,7 @@ import { createRobot, ensureSpriteAnim, ensureSpriteFrames, eggArt, playSpriteOn
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
-import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_BODY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
+import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
 import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
@@ -169,15 +169,16 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.ballView = eggArt(this, 'part-ball', BALL.x, BALL.y).setDepth(30).setScale(BALL_SCALE);
 
     // The one glowing slot.
-    // The glow hugs the ramp's board (same centre, angle and size the physics body will have).
-    this.slotGlow = this.add.container(RAMP_SLOT.x + RAMP_BODY.dx, RAMP_SLOT.y + RAMP_BODY.dy).setDepth(8).setRotation(RAMP_SLOT.angle);
+    // The glow is the wedge polygon itself (the same shape the physics body will have), a little grown.
+    this.slotGlow = this.add.container(RAMP_SLOT.x, RAMP_SLOT.y).setDepth(8);
     const glow = this.add.graphics();
-    const gw = RAMP_BODY.w + 36;
-    const gh = RAMP_BODY.h + 40;
+    const cx = RAMP_POLY.reduce((a, p) => a + p.x, 0) / RAMP_POLY.length;
+    const cy = RAMP_POLY.reduce((a, p) => a + p.y, 0) / RAMP_POLY.length;
+    const grown = RAMP_POLY.map((p) => new Phaser.Math.Vector2(cx + (p.x - cx) * 1.18, cy + (p.y - cy) * 1.18));
     glow.fillStyle(0xfff176, 0.35);
-    glow.fillRoundedRect(-gw / 2, -gh / 2, gw, gh, 16);
+    glow.fillPoints(grown, true);
     glow.lineStyle(6, 0xffc400, 1);
-    glow.strokeRoundedRect(-gw / 2, -gh / 2, gw, gh, 16);
+    glow.strokePoints(grown, true);
     this.slotGlow.add(glow);
     this.tweens.add({ targets: this.slotGlow, alpha: 0.45, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 

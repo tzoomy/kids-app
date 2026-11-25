@@ -1,7 +1,7 @@
 // Mystery Egg physics: builds the mission-1.1 board on a Matter engine and steps it at a fixed 60 Hz.
 // Pure TS: the Matter library is passed in (Phaser's bundled build in the scene, the same build headless in tests).
 // Spec: docs/specs/mystery-egg.md (AC-09).
-import { BALL, BELL, FLOOR, LAUNCH_SPEED, PIT_WALL, RAMP_BODY, RAMP_SLOT, RIGHT_WALL, SHELF, TABLE } from './layout';
+import { BALL, BELL, FLOOR, LAUNCH_SPEED, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, TABLE } from './layout';
 import { RUN_TIMEOUT_STEPS, RunWatcher, STEP_MS, type RunResult, type RunSample, type RunWatcherConfig } from './run';
 
 /** The few Matter calls this module uses, so it needs neither Phaser nor the matter-js typings. */
@@ -9,6 +9,7 @@ export interface MBody {
   position: { x: number; y: number };
   speed: number;
   angle: number;
+  vertices: Array<{ x: number; y: number }>;
 }
 export interface MEngine {
   world: unknown;
@@ -18,7 +19,9 @@ export interface MatterLib {
   Bodies: {
     circle(x: number, y: number, r: number, opts?: object): MBody;
     rectangle(x: number, y: number, w: number, h: number, opts?: object): MBody;
+    fromVertices(x: number, y: number, vertexSets: Array<Array<{ x: number; y: number }>>, opts?: object): MBody;
   };
+  Vertices: { centre(vertices: Array<{ x: number; y: number }>): { x: number; y: number } };
   Body: {
     setPosition(b: MBody, p: { x: number; y: number }): void;
     setVelocity(b: MBody, v: { x: number; y: number }): void;
@@ -91,10 +94,18 @@ export class Machine {
   /** Puts the ramp into the slot (the snap already put the part at the slot centre). Idempotent. */
   placeRamp(offset: Offset = { x: 0, y: 0 }): void {
     if (this.ramp) return;
-    const { Bodies, Body, Composite } = this.M;
-    this.ramp = Bodies.rectangle(RAMP_SLOT.x + RAMP_BODY.dx + offset.x, RAMP_SLOT.y + RAMP_BODY.dy + offset.y, RAMP_BODY.w, RAMP_BODY.h, STATIC);
-    Body.setAngle(this.ramp, RAMP_SLOT.angle);
+    const { Bodies, Vertices, Composite } = this.M;
+    // The wedge is a convex polygon around the slot centre, unrotated. fromVertices puts the body's centre of mass at the
+    // given position, so we pass slot centre + the polygon's centroid and the vertices land on slot centre + RAMP_POLY.
+    const verts = RAMP_POLY.map((p) => ({ ...p }));
+    const com = Vertices.centre(verts);
+    this.ramp = Bodies.fromVertices(RAMP_SLOT.x + com.x + offset.x, RAMP_SLOT.y + com.y + offset.y, [verts], STATIC);
     Composite.add(this.engine.world, this.ramp);
+  }
+
+  /** World vertices of the placed ramp (empty when none is placed). */
+  rampVertices(): Array<{ x: number; y: number }> {
+    return this.ramp ? this.ramp.vertices.map((v) => ({ x: v.x, y: v.y })) : [];
   }
 
   removeRamp(): void {
