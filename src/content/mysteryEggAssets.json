@@ -74,8 +74,8 @@
   "heart-panel": {
     "path": "art/mystery-egg/heart-panel.webp",
     "kind": "webp",
-    "w": 440,
-    "h": 110
+    "w": 600,
+    "h": 130
   },
   "slot-empty": {
     "path": "art/mystery-egg/slot-empty.webp",

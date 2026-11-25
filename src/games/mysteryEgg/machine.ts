@@ -37,7 +37,8 @@ const BALL_OPTS = { restitution: 0.1, friction: 0.02, frictionStatic: 0.05, fric
 
 export const RUN_WATCHER_CONFIG: RunWatcherConfig = {
   reach: BALL.radius + BELL.radius,
-  bounds: { minX: -100, maxX: 1380, maxY: 900 },
+  // maxY: below the table (y 540) the ball has fallen into the pit under the shelf, so the failed run ends early.
+  bounds: { minX: -100, maxX: 1380, maxY: 620 },
   restSpeed: 0.08,
   restSteps: 45,
   timeoutSteps: RUN_TIMEOUT_STEPS,

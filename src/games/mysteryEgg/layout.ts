@@ -24,7 +24,7 @@ export const FLOOR = { x: 640, y: 712, w: 1500, h: 24 } as const;
 export const PIT_WALL = { x: 585, y: 650, w: 20, h: 100 } as const;
 
 /** The bed with the sleeping cat (scenery only). */
-export const BED = { x: 1060, y: 650, w: 300, h: 100 } as const;
+export const BED = { x: 1080, y: 400, w: 300, h: 40 } as const;
 
 /** The one glowing slot. The ramp is the only part it accepts in mission 1.1. */
 export const SLOTS: readonly SlotDef[] = [{ id: 'ramp-slot', x: RAMP_SLOT.x, y: RAMP_SLOT.y, accepts: ['ramp'] }];
