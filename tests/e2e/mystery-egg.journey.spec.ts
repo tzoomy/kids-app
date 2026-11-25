@@ -198,7 +198,7 @@ test.describe('mystery-egg', () => {
     expect(placed.failedRuns).toBe(3);
   });
 
-  test('[AC-11] @single-orientation the robot ear button is there in the intro and in the build view and replays the French request', async ({ page }, testInfo) => {
+  test('[AC-11] @single-orientation the robot ear button is there in the intro and in the build view and gives HEBREW help (vo-he-robot-help-1), not the French request', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(60_000);
     await enterMapByTap(page, 'profile-a');
@@ -206,15 +206,23 @@ test.describe('mystery-egg', () => {
     const intro = await openWorkshopByTap(page);
     const ear = intro.rects.earBtn as Rect;
     expect(ear.width).toBeGreaterThanOrEqual(MIN_TAP_PX);
+    // Let the intro's own automatic French lines (story, then request) settle before the first tap.
+    await expect.poll(async () => (await getSpokenLines(page)).some((s) => s.lineId === 'vo-fr-instruction'), { timeout: 15_000 }).toBe(true);
 
     let since = (await getSpokenLines(page)).length;
     await tap(page, 'earBtn');
-    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => [s.lineId, s.lang]), { timeout: 5000 }).toContainEqual(['vo-fr-instruction', 'fr']);
+    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => [s.lineId, s.lang]), { timeout: 5000 }).toContainEqual(['vo-he-robot-help-1', 'he']);
+    expect((await getSpokenLines(page, since)).map((s) => s.lineId)).not.toContain('vo-fr-instruction');
 
     await startBuildByTap(page);
     since = (await getSpokenLines(page)).length;
     await tap(page, 'earBtn');
-    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => [s.lineId, s.lang]), { timeout: 5000 }).toContainEqual(['vo-fr-instruction', 'fr']);
+    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => [s.lineId, s.lang]), { timeout: 5000 }).toContainEqual(['vo-he-robot-help-1', 'he']);
+    expect((await getSpokenLines(page, since)).map((s) => s.lineId)).not.toContain('vo-fr-instruction');
+    // The ear is not a ladder step: it leaves the failed-run counter and the pointer alone.
+    const after = await info(page);
+    expect(after?.failedRuns).toBe(0);
+    expect(after?.hintVisible).toBe(false);
   });
 
   test('[AC-12] @single-orientation a part dropped far away, or the ball or bell dropped on the slot, goes back to the tray and the board is unchanged', async ({ page }, testInfo) => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   HINT_AFTER_FAILS,
+  EAR_LINE_ID,
   HINT_LADDER,
   RUN_TIMEOUT_STEPS,
   RunWatcher,
@@ -118,5 +119,13 @@ describe('mystery-egg run outcome', () => {
     expect(w.minBellDistance).toBe(150);
     expect(isNearMiss(150, cfg.reach)).toBe(true);
     expect(isNearMiss(400, cfg.reach)).toBe(false);
+  });
+
+  it('[AC-11] the robot ear button gives Hebrew help: it plays help-1 (the goal hint), which is also the first ladder rung, and help-2 stays the last rung', () => {
+    expect(EAR_LINE_ID).toBe('vo-he-robot-help-1');
+    expect(EAR_LINE_ID).toBe(HINT_LADDER[0].lineId);
+    expect(HINT_LADDER[HINT_LADDER.length - 1].lineId).toBe('vo-he-robot-help-2');
+    // Tapping the ear is not a failed run: recordRun is never involved, so the ladder cannot advance from it.
+    expect(EAR_LINE_ID).not.toBe('vo-fr-instruction');
   });
 });
