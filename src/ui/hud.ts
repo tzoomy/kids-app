@@ -22,6 +22,8 @@ export interface MapChromeOptions {
   onSwitchProfile: () => void;
   /** Opens the Wardrobe (docs/specs/wardrobe.md). The button is hidden when it is not given. */
   onWardrobe?: () => void;
+  /** Opens the Mystery Egg prototype (docs/specs/mystery-egg.md): one big egg button, picture only. Hidden when not given. */
+  onMysteryEgg?: () => void;
   pins: MapPin[];
   canvas: HTMLCanvasElement;
   gameWidth: number;
@@ -55,6 +57,13 @@ export function renderMapChrome(root: HTMLElement, opts: MapChromeOptions): void
   if (opts.showTime !== false) right.appendChild(balance);
   bar.appendChild(right);
   root.appendChild(bar);
+  if (opts.onMysteryEgg) {
+    const eggBtn = el('button', 'shell-egg-btn', '🥚');
+    eggBtn.dataset.testid = 'mystery-egg-btn';
+    eggBtn.setAttribute('aria-label', heStrings.mysteryEgg.button);
+    eggBtn.addEventListener('click', opts.onMysteryEgg);
+    root.appendChild(eggBtn);
+  }
   renderMapPins(root, opts);
 }
 

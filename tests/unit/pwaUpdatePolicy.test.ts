@@ -59,6 +59,8 @@ describe('isSafeToApplyUpdate', () => {
     ['seed-flower', false],
     ['potion-lab', false],
     ['wardrobe', false],
+    ['mystery-egg', false],
+    ['mystery-egg-build', false],
     ['sink-or-float', false],
     ['parent', false],
     ['loading', false],

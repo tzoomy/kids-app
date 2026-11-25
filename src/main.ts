@@ -8,6 +8,7 @@ import './styles/shell.css';
 import type Phaser from 'phaser';
 import { Store } from './core/storage/store';
 import { AudioManager, DeviceTtsProvider, StaticFileProvider, SfxPlayer } from './core/audio';
+import { MysteryEggVoiceProvider } from './games/mysteryEgg/voiceProvider';
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
@@ -24,7 +25,12 @@ if (!shellRoot) throw new Error('#shell-root missing from web/index.html');
 
 const store = new Store();
 installEarlyTimeEarningHook(store);
-const audioManager = new AudioManager([new StaticFileProvider(loadAudioManifest(), import.meta.env.BASE_URL), new DeviceTtsProvider()]);
+const audioManager = new AudioManager([
+  new StaticFileProvider(loadAudioManifest(), import.meta.env.BASE_URL),
+  // Mystery Egg voice ids only; a missing file plays a chime and counts as handled (no device TTS).
+  new MysteryEggVoiceProvider(import.meta.env.BASE_URL),
+  new DeviceTtsProvider(),
+]);
 const sfx = new SfxPlayer();
 const shell = new AppShell(shellRoot);
 
@@ -198,6 +204,8 @@ function returnToProfileSelect(): void {
   game?.scene.stop('SinkFloatScene');
   game?.scene.stop('BubblesScene');
   game?.scene.stop('BalloonScene');
+  game?.scene.stop('MysteryEggScene');
+  game?.scene.stop('MysteryEggBuildScene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
   shell.clearChrome();
@@ -242,6 +250,8 @@ function pickProfile(profileId: string): void {
     game.scene.stop('SinkFloatScene');
     game.scene.stop('BubblesScene');
     game.scene.stop('BalloonScene');
+    game.scene.stop('MysteryEggScene');
+    game.scene.stop('MysteryEggBuildScene');
     game.scene.start('MapScene');
   }
 }

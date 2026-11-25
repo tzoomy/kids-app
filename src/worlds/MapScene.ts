@@ -172,6 +172,12 @@ export class MapScene extends Phaser.Scene {
           context.shell.hideGamePicker();
           transitionTo(this, 'WardrobeScene', { style: 'fade' });
         },
+        onMysteryEgg: () => {
+          context.sfx.tap();
+          context.audio.stopAll();
+          context.shell.hideGamePicker();
+          transitionTo(this, 'MysteryEggScene', { style: 'fade' });
+        },
         pins,
         canvas: this.game.canvas,
         gameWidth: this.scale.width,
