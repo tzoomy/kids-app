@@ -2,7 +2,7 @@
 // Uses the Matter build bundled inside Phaser, the same one the scene runs on.
 import { describe, expect, it } from 'vitest';
 import MatterModule from 'phaser/src/physics/matter-js/CustomMain.js';
-import { simulateRun, type MatterLib } from '../../src/games/mysteryEgg/machine';
+import { Machine, simulateRun, type MatterLib } from '../../src/games/mysteryEgg/machine';
 import { BALL, BELL, RAMP_SLOT, SLOTS } from '../../src/games/mysteryEgg/layout';
 import { STEP_MS } from '../../src/games/mysteryEgg/run';
 
@@ -71,5 +71,28 @@ describe('mystery-egg physics (headless, fixed 60 Hz)', () => {
   it('[AC-09] the ball starts on the shelf, left of the slot, and the bell is right of the slot', () => {
     expect(BALL.x).toBeLessThan(RAMP_SLOT.x);
     expect(BELL.x).toBeGreaterThan(RAMP_SLOT.x);
+  });
+
+  it('[AC-10] after a failed run the ball is back on the shelf at rest and a placed ramp stays in the slot', () => {
+    const engine = Matter.Engine.create();
+    const machine = new Machine(Matter, engine);
+    machine.placeRamp();
+    machine.launch();
+    for (let i = 0; i < 200; i++) machine.step();
+    expect(machine.ball.position.x).toBeGreaterThan(BALL.x + 50);
+    machine.resetBall();
+    expect(machine.rampPlaced).toBe(true);
+    expect(machine.ball.position).toMatchObject({ x: BALL.x, y: BALL.y });
+    // Parked: stepping before Play does not move the ball.
+    for (let i = 0; i < 30; i++) machine.step();
+    expect(machine.ball.position).toMatchObject({ x: BALL.x, y: BALL.y });
+    // And a second Play from the reset state still succeeds.
+    machine.launch();
+    let rang = false;
+    for (let i = 0; i < 500 && !rang; i++) {
+      const s = machine.step();
+      rang = s.bellDistance < BELL.radius + BALL.radius;
+    }
+    expect(rang).toBe(true);
   });
 });

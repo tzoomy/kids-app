@@ -6,7 +6,7 @@ import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { transitionTo } from '../../anim/transitions';
 import { floatIdle, popIn } from '../../anim/tweens';
-import { eggArt } from './art';
+import { blinkRobot, eggArt } from './art';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
@@ -39,6 +39,8 @@ export class MysteryEggScene extends Phaser.Scene {
     this.alive = true;
     this.feather = null;
     this.buttons.clear();
+    // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
+    this.context.shell.clearChrome();
     fitBoard(this, '#cdeaff');
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.alive = false;
@@ -71,7 +73,7 @@ export class MysteryEggScene extends Phaser.Scene {
     const egg = eggArt(this, `egg-nest-${level}`, 640, 400).setDepth(10);
     egg.setInteractive({ useHandCursor: true });
     egg.on('pointerdown', () => {
-      playEggSfx(this, 'sfx-robot-beep-2');
+      playEggSfx('sfx-robot-beep-2');
       this.wiggle(egg, 6 + level * 2);
     });
     this.tweens.add({ targets: egg, angle: 1.5 + level * 0.8, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -81,14 +83,14 @@ export class MysteryEggScene extends Phaser.Scene {
 
     // Friends. Idle motion = whole-image tweens (bob).
     const bunny = eggArt(this, 'bunny', 250, 560).setDepth(10);
-    const capybara = eggArt(this, 'capybara', 450, 660).setDepth(10);
-    const robot = eggArt(this, 'robot', 1030, 540).setDepth(10);
+    const capybara = eggArt(this, 'capybara', 1100, 690).setDepth(10);
+    const robot = eggArt(this, 'robot', 1010, 500).setDepth(10);
     for (const c of [bunny, capybara, robot]) {
       floatIdle(this, c, 8, 1500 + Math.random() * 500);
       c.setInteractive({ useHandCursor: true });
     }
     robot.on('pointerdown', () => {
-      playEggSfx(this, 'sfx-robot-beep-1');
+      playEggSfx('sfx-robot-beep-1');
       this.wiggle(robot, 5);
     });
     bunny.on('pointerdown', () => this.wiggle(bunny, 4));
@@ -112,15 +114,12 @@ export class MysteryEggScene extends Phaser.Scene {
     this.tweens.add({ targets: target, angle: { from: -deg, to: deg }, duration: 90, yoyo: true, repeat: 2, onComplete: () => target.setAngle(0) });
   }
 
-  /** The robot blinks now and then: a squash tween here; when `robot-blink` art lands, art.ts' sprite helper plays it. */
+  /** The robot blinks now and then (the `robot-blink` strip when it exists, else a squash tween; see art.ts). */
   private scheduleBlink(robot: Phaser.GameObjects.Container): void {
     this.blinkTimer = this.time.addEvent({
       delay: 4500,
       loop: true,
-      callback: () => {
-        if (!robot.scene) return;
-        this.tweens.add({ targets: robot, scaleY: 0.92, duration: 80, yoyo: true });
-      },
+      callback: () => blinkRobot(this, robot),
     });
   }
 

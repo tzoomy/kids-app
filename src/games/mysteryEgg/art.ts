@@ -269,6 +269,23 @@ export function playSpriteOnce(scene: Phaser.Scene, id: string, x: number, y: nu
   });
 }
 
+/**
+ * One idle blink of the robot: the `robot-blink` strip when it loaded (frames and fps from the manifest), otherwise a
+ * quick squash tween on the whole image.
+ */
+export function blinkRobot(scene: Phaser.Scene, robot: Phaser.GameObjects.Container): void {
+  if (!robot.scene) return;
+  if (ensureSpriteAnim(scene, 'robot-blink')) {
+    robot.setVisible(false);
+    void playSpriteOnce(scene, 'robot-blink', robot.x, robot.y).then((sprite) => {
+      sprite?.destroy();
+      if (robot.scene) robot.setVisible(true);
+    });
+    return;
+  }
+  scene.tweens.add({ targets: robot, scaleY: 0.92, duration: 80, yoyo: true });
+}
+
 /** Cream rounded panel (cards, tray). */
 export function panel(scene: Phaser.Scene, x: number, y: number, w: number, h: number, fill = CREAM): Phaser.GameObjects.Graphics {
   const g = scene.add.graphics();

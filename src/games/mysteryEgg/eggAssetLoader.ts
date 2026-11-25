@@ -1,5 +1,5 @@
-// Queues the Mystery Egg art and sfx on a scene's Phaser loader and TOLERATES missing files: a failed file is marked
-// missing (drawn placeholder / synthesized sound) and never throws. Voice files are handled by the voice provider.
+// Queues the Mystery Egg art on a scene's Phaser loader and TOLERATES missing files: a failed file is marked missing
+// (drawn placeholder) and never throws. Voice and sfx files are played with audio elements (voiceProvider.ts, eggSound.ts).
 // The Gemini PR adds the files at the manifest paths; nothing here changes when they land.
 import Phaser from 'phaser';
 import { assetUrl, mysteryEggManifest } from './assets';
@@ -11,14 +11,12 @@ const LOAD_TIMEOUT_MS = 4000;
 export function loadEggAssets(scene: Phaser.Scene, base: string, done: () => void): void {
   let queued = 0;
   for (const [id, entry] of Object.entries(mysteryEggManifest())) {
-    if (entry.kind === 'vo' || eggAvailability.isMissing(id)) continue;
-    const have = entry.kind === 'sfx' ? scene.cache.audio.exists(id) : scene.textures.exists(id);
-    if (have) {
+    if (entry.kind === 'vo' || entry.kind === 'sfx' || eggAvailability.isMissing(id)) continue;
+    if (scene.textures.exists(id)) {
       eggAvailability.markLoaded(id);
       continue;
     }
-    if (entry.kind === 'sfx') scene.load.audio(id, assetUrl(id, base));
-    else scene.load.image(id, assetUrl(id, base));
+    scene.load.image(id, assetUrl(id, base));
     queued++;
   }
   if (queued === 0) {

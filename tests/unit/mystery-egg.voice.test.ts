@@ -95,3 +95,57 @@ describe('mystery-egg voice provider (missing-file tolerance)', () => {
     expect(chime).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('mystery-egg sfx (missing-file tolerance)', () => {
+  it('[AC-15] a missing sfx file is marked missing without an unhandled rejection, and is not requested again', async () => {
+    const { playEggSfx } = await import('../../src/games/mysteryEgg/eggSound');
+    const { eggAvailability } = await import('../../src/games/mysteryEgg/voiceProvider');
+    const created: string[] = [];
+    class RejectingAudio {
+      volume = 1;
+      constructor(public url: string) {
+        created.push(url);
+      }
+      addEventListener(): void {}
+      play(): Promise<void> {
+        const err = new Error('The element has no supported sources.');
+        err.name = 'NotSupportedError';
+        return Promise.reject(err);
+      }
+    }
+    vi.stubGlobal('Audio', RejectingAudio);
+    try {
+      playEggSfx('sfx-bell');
+      await new Promise((r) => setTimeout(r, 0));
+      expect(created).toEqual(['/audio/mystery-egg/sfx-bell.ogg']);
+      expect(eggAvailability.isMissing('sfx-bell')).toBe(true);
+      playEggSfx('sfx-bell');
+      await new Promise((r) => setTimeout(r, 0));
+      expect(created).toHaveLength(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('[AC-15] a blocked autoplay (NotAllowedError) is silent and does not mark the file missing', async () => {
+    const { playEggSfx } = await import('../../src/games/mysteryEgg/eggSound');
+    const { eggAvailability } = await import('../../src/games/mysteryEgg/voiceProvider');
+    class BlockedAudio {
+      volume = 1;
+      addEventListener(): void {}
+      play(): Promise<void> {
+        const err = new Error('blocked');
+        err.name = 'NotAllowedError';
+        return Promise.reject(err);
+      }
+    }
+    vi.stubGlobal('Audio', BlockedAudio);
+    try {
+      playEggSfx('sfx-ball-roll');
+      await new Promise((r) => setTimeout(r, 0));
+      expect(eggAvailability.isMissing('sfx-ball-roll')).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
