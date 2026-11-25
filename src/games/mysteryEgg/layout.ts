@@ -1,0 +1,33 @@
+// Mystery Egg mission 1.1 board: geometry in board coordinates (1280x800, y down). Pure data, no Phaser.
+// The scene draws from these numbers and the physics (machine.ts) builds its bodies from them, so they cannot drift apart.
+import type { SlotDef } from './snap';
+
+export const BOARD = { width: 1280, height: 800 } as const;
+
+export const BALL = { x: 150, y: 232, radius: 34 } as const;
+
+/** The fixed shelf the ball starts on (static), tilted slightly down to the right so the ball rolls off by itself. Centre + size + angle (rad). */
+export const SHELF = { x: 210, y: 300, w: 300, h: 28, angle: 0.22 } as const;
+
+/** The slot the missing ramp piece goes into: a board tilted down to the right. `angle` in radians. */
+export const RAMP_SLOT = { x: 500, y: 440, w: 240, h: 22, angle: 0.4 } as const;
+
+/** Workbench the ramp feeds onto, with the bell hanging over it. */
+export const TABLE = { x: 750, y: 552, w: 300, h: 24 } as const;
+export const RIGHT_WALL = { x: 912, y: 470, w: 24, h: 220 } as const;
+
+/** The bell (a goal zone, not a solid): the ball rings it when its centre comes within BALL.radius + BELL.radius. */
+export const BELL = { x: 800, y: 490, radius: 44 } as const;
+
+/** Floor below everything and a low wall that keeps the failed ball in the pit under the shelf. */
+export const FLOOR = { x: 640, y: 712, w: 1500, h: 24 } as const;
+export const PIT_WALL = { x: 585, y: 650, w: 20, h: 100 } as const;
+
+/** The bed with the sleeping cat (scenery only). */
+export const BED = { x: 1060, y: 650, w: 300, h: 100 } as const;
+
+/** The one glowing slot. The ramp is the only part it accepts in mission 1.1. */
+export const SLOTS: readonly SlotDef[] = [{ id: 'ramp-slot', x: RAMP_SLOT.x, y: RAMP_SLOT.y, accepts: ['ramp'] }];
+
+/** Small push (px per step) given at Play; gravity on the tilted shelf does the rest. */
+export const LAUNCH_SPEED = 2;
