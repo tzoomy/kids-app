@@ -112,7 +112,7 @@ describe('mystery-egg asset loading tolerance', () => {
 
   it('[AC-15] sprite frames, fps, w and h are read from the manifest, never hardcoded', () => {
     const spec = spriteSpec('cat-wake');
-    const raw = (rawManifest as Record<string, { frames: number; fps: number; w: number; h: number }>)['cat-wake'];
+    const raw = (rawManifest as unknown as Record<string, { frames: number; fps: number; w: number; h: number }>)['cat-wake'];
     expect(spec).toEqual({ id: 'cat-wake', frames: raw.frames, fps: raw.fps, w: raw.w, h: raw.h });
     expect(() => spriteSpec('hub-bg')).toThrow();
   });
