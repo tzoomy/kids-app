@@ -10,7 +10,7 @@ export interface EggPageRect {
 
 export type EggPhase = 'hub' | 'intro' | 'build' | 'playing' | 'success';
 
-export type EggTarget = 'workshopBtn' | 'backBtn' | 'goBtn' | 'playBtn' | 'earBtn' | 'continueBtn' | 'slot' | 'partBall' | 'partRamp' | 'partBell';
+export type EggTarget = 'workshopBtn' | 'backBtn' | 'goBtn' | 'playBtn' | 'earBtn' | 'bunny' | 'continueBtn' | 'slot' | 'partBall' | 'partRamp' | 'partBell';
 
 /** Read-only snapshot for the e2e hook `getMysteryEggInfo` (page CSS px rectangles; a target that is not on screen is absent). */
 export interface MysteryEggInfo {

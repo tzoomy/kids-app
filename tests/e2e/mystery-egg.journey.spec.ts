@@ -225,6 +225,50 @@ test.describe('mystery-egg', () => {
     expect(after?.hintVisible).toBe(false);
   });
 
+  test('[AC-18] @single-orientation Go tapped right away (before the story line ends) cuts the story and requests vo-fr-instruction at build start, once', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterMapByTap(page, 'profile-a');
+    await openHubByTap(page);
+    await openWorkshopByTap(page);
+    const ids = async () => (await getSpokenLines(page)).map((s) => s.lineId);
+    // The story has just been requested; do not wait for it to end.
+    await tap(page, 'goBtn');
+    await waitInfo(page, (i) => i.phase === 'build', 'build phase never started');
+    await expect.poll(ids, { timeout: 5000 }).toContain('vo-fr-instruction');
+    // Give any late chained callback time to fire a duplicate, then count.
+    await page.waitForTimeout(4000);
+    const all = await ids();
+    expect(all.filter((id) => id === 'vo-fr-instruction')).toHaveLength(1);
+    expect(all.filter((id) => id === 'vo-fr-story')).toHaveLength(1);
+    expect(all.indexOf('vo-fr-story')).toBeLessThan(all.indexOf('vo-fr-instruction'));
+  });
+
+  test('[AC-19] @single-orientation the bunny replays vo-fr-instruction in the intro and in the build view; the ear stays Hebrew', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterMapByTap(page, 'profile-a');
+    await openHubByTap(page);
+    const intro = await openWorkshopByTap(page);
+    const bunny = intro.rects.bunny as Rect;
+    expect(bunny.width).toBeGreaterThanOrEqual(MIN_TAP_PX);
+    expect(bunny.height).toBeGreaterThanOrEqual(MIN_TAP_PX);
+
+    let since = (await getSpokenLines(page)).length;
+    await tap(page, 'bunny');
+    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => [s.lineId, s.lang]), { timeout: 5000 }).toContainEqual(['vo-fr-instruction', 'fr']);
+
+    await startBuildByTap(page);
+    since = (await getSpokenLines(page)).length;
+    await tap(page, 'bunny');
+    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => s.lineId), { timeout: 5000 }).toContain('vo-fr-instruction');
+
+    since = (await getSpokenLines(page)).length;
+    await tap(page, 'earBtn');
+    await expect.poll(async () => (await getSpokenLines(page, since)).map((s) => s.lineId), { timeout: 5000 }).toContain('vo-he-robot-help-1');
+    expect((await getSpokenLines(page, since)).map((s) => s.lineId)).not.toContain('vo-fr-instruction');
+  });
+
   test('[AC-12] @single-orientation a part dropped far away, or the ball or bell dropped on the slot, goes back to the tray and the board is unchanged', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(60_000);
