@@ -35,14 +35,28 @@ describe('game-shell friend sizes', () => {
     expect(H('robot')).toBeLessThan(H('capybara'));
   });
 
-  it('[AC-23] one scale per friend serves idle and walk: the walk frames are within 4% of the idle height, so the swap does not shrink or grow anyone, and the feet stay on one line', () => {
+  it('[AC-23] on the idle <-> walk swap every friend\'s displayed visible height stays within 5% (measured heights), and the feet stay level', () => {
     for (const id of MAP_FRIENDS) {
       const sp = FRIEND_SPRITES[id];
-      expect(Math.abs(sp.walkVisible / sp.visible - 1), id).toBeLessThanOrEqual(0.04);
+      const shown = (state: 'idle' | 'walk') => ((state === 'idle' ? sp.visible : sp.walkVisible) * sp.box.h * friendBoxScale(id, state)) / sp.canvas.h;
+      expect(Math.abs(shown('walk') / shown('idle') - 1), `${id} swap`).toBeLessThanOrEqual(0.05);
+      expect(shown('idle'), id).toBeCloseTo(sp.height, 5);
       // The art box is placed so the lowest visible pixel (the feet) is `height / 2` below the friend's root, in both states.
-      const feet = friendArtY(id) + (sp.feet / sp.canvas.h - 0.5) * sp.box.h * friendBoxScale(id);
-      expect(feet, id).toBeCloseTo(H(id) / 2, 5);
+      for (const state of ['idle', 'walk'] as const) {
+        const feet = friendArtY(id, state) + (sp.feet / sp.canvas.h - 0.5) * sp.box.h * friendBoxScale(id, state);
+        expect(feet, `${id} ${state} feet`).toBeCloseTo(sp.height / 2, 5);
+      }
     }
+  });
+
+  it('[AC-23] only a friend whose walk frames differ by more than 5% from the idle art gets its own walk scale (the frog: 174 vs 228 visible px)', () => {
+    for (const id of MAP_FRIENDS) {
+      const sp = FRIEND_SPRITES[id];
+      const differs = Math.abs(sp.walkVisible / sp.visible - 1) > 0.05;
+      expect(friendBoxScale(id, 'walk') === friendBoxScale(id, 'idle'), id).toBe(!differs);
+    }
+    expect(FRIEND_SPRITES.frog.walkVisible).toBe(174);
+    expect(friendBoxScale('frog', 'walk') / friendBoxScale('frog', 'idle')).toBeCloseTo(228 / 174, 5);
   });
 
   it('[AC-23] a placeholder (missing file) keeps the idle size: the box scale is the same number the real art would use', () => {

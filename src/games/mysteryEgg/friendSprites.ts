@@ -29,7 +29,7 @@ export const FRIEND_SPRITES: Readonly<Record<FriendId, FriendSprite>> = {
   bunny: { box: { w: 160, h: 200 }, canvas: { w: 320, h: 400 }, visible: 384, walkVisible: 380, feet: 392, visibleWidth: 169, height: 190 },
   robot: { box: { w: 120, h: 150 }, canvas: { w: 240, h: 300 }, visible: 287, walkVisible: 288, feet: 292, visibleWidth: 191, height: 150 },
   capybara: { box: { w: 160, h: 190 }, canvas: { w: 320, h: 380 }, visible: 364, walkVisible: 365, feet: 372, visibleWidth: 235, height: 182 },
-  frog: { box: { w: 110, h: 130 }, canvas: { w: 220, h: 260 }, visible: 228, walkVisible: 222, feet: 252, visibleWidth: 204, height: 120 },
+  frog: { box: { w: 110, h: 130 }, canvas: { w: 220, h: 260 }, visible: 228, walkVisible: 174, feet: 252, visibleWidth: 204, height: 120 },
 };
 
 /** Scale of the manifest's 1x box (what `eggArt` draws, placeholders included) that makes the visible friend `height` px tall. */
