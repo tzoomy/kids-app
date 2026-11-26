@@ -43,7 +43,9 @@ const ART = { w: 320, h: 260 } as const;
  * nest art), leaves the nest on its painted branch and ends in front of the tile's door on the clearing.
  */
 const WORKSHOP_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 470, y: 368 }, { x: 385, y: 362 }, { x: 305, y: 345 }, { x: 275, y: 335 }];
-const BAKERY_PATH: readonly Point2[] = [NEST, { x: 640, y: 370 }, { x: 632, y: 335 }, { x: 615, y: 312 }];
+// The painted cobbles to the bakery run straight over the top of the egg, so the walk leaves the nest on its left side and
+// reaches the shop's door panel from the left (the door stands beside the egg top, never on it; see the keep-out test).
+const BAKERY_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 518, y: 335 }, { x: 545, y: 305 }, { x: 560, y: 298 }];
 const DETECTIVE_PATH: readonly Point2[] = [NEST, { x: 745, y: 392 }, { x: 830, y: 380 }, { x: 920, y: 362 }, { x: 985, y: 345 }, { x: 1025, y: 340 }];
 const JUNGLE_PATH: readonly Point2[] = [NEST, { x: 540, y: 490 }, { x: 485, y: 530 }, { x: 430, y: 585 }, { x: 385, y: 630 }, { x: 320, y: 690 }];
 const GARDEN_PATH: readonly Point2[] = [NEST, { x: 740, y: 500 }, { x: 800, y: 540 }, { x: 860, y: 590 }, { x: 900, y: 640 }, { x: 975, y: 700 }];
@@ -56,7 +58,7 @@ const last = (path: readonly Point2[]): Point2 => path[path.length - 1];
  */
 export const WORLDS: readonly WorldDef[] = [
   { id: 'workshop', open: true, levels: 1, heartSlot: 0, piece: 'feather', x: 220, y: 230, artW: ART.w, artH: ART.h, hit: { x: 221, y: 250, w: 201, h: 204 }, door: last(WORKSHOP_PATH), path: WORKSHOP_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }], gameScene: 'MysteryEggBuildScene' },
-  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 180, artW: ART.w, artH: ART.h, hit: { x: 640, y: 214, w: 210, h: 174 }, door: last(BAKERY_PATH), path: BAKERY_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }, { x: 520, y: 345 }, { x: 575, y: 322 }] },
+  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 180, artW: ART.w, artH: ART.h, hit: { x: 640, y: 214, w: 210, h: 174 }, door: last(BAKERY_PATH), path: BAKERY_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }, { x: 495, y: 372 }] },
   { id: 'detective', open: false, levels: 3, heartSlot: 2, piece: 'pebble', x: 1060, y: 230, artW: ART.w, artH: ART.h, hit: { x: 1059, y: 262, w: 220, h: 178 }, door: last(DETECTIVE_PATH), path: DETECTIVE_PATH, approach: [{ x: 825, y: 600 }, { x: 825, y: 430 }] },
   { id: 'jungle', open: false, levels: 3, heartSlot: 3, piece: 'leaf', x: 220, y: 650, artW: ART.w, artH: ART.h, hit: { x: 220, y: 649, w: 234, h: 244 }, door: last(JUNGLE_PATH), path: JUNGLE_PATH, approach: [{ x: 600, y: 610 }] },
   { id: 'garden', open: false, levels: 3, heartSlot: 4, piece: 'flower', x: 1060, y: 650, artW: ART.w, artH: ART.h, hit: { x: 1061, y: 666, w: 244, h: 210 }, door: last(GARDEN_PATH), path: GARDEN_PATH, approach: [{ x: 680, y: 610 }] },

@@ -3,6 +3,33 @@ import { describe, expect, it } from 'vitest';
 import { FRIEND_HOMES, MAP_FRIENDS, NEST, PIECE_NEST_SPOTS, WORLDS, WORLD_IDS, worldArtId, worldDef } from '../../src/games/mysteryEgg/worlds';
 import { friendRoute, pointAtDistance, polylineLength, walkFrame } from '../../src/games/mysteryEgg/walk';
 
+
+/**
+ * The painted nest of `map-nest-home` as drawn at the nest anchor (art 360x300 at (640,420)): the egg tops out at y 278 and is
+ * widest (x 547..739) near y 370, the bowl is widest (x 482..798) at y 450..500. Rows are [y, xMin, xMax] in board px, measured
+ * on the 2x file (alpha > 60) every 10 px; the keep-out is that silhouette plus `margin` px on every side.
+ */
+const NEST_ROWS: readonly (readonly [number, number, number])[] = [
+  [280, 616, 660], [290, 594, 684], [300, 580, 697], [310, 571, 707], [320, 564, 714], [330, 558, 720], [340, 553, 724], [350, 550, 727],
+  [360, 548, 728], [370, 547, 739], [380, 520, 748], [390, 510, 770], [400, 497, 782], [410, 492, 784], [420, 485, 793], [430, 484, 794],
+  [440, 484, 797], [450, 482, 798], [460, 482, 797], [470, 482, 795], [480, 483, 798], [490, 486, 798], [500, 482, 794],
+];
+
+function inNestKeepOut(p: { x: number; y: number }, margin = 10): boolean {
+  const top = NEST_ROWS[0];
+  const bottom = NEST_ROWS[NEST_ROWS.length - 1];
+  if (p.y < top[0] - margin || p.y > bottom[0]) return false;
+  if (p.y < top[0]) return Math.abs(p.x - (top[1] + top[2]) / 2) <= (top[2] - top[1]) / 2 + margin;
+  let k = NEST_ROWS.findIndex((r) => r[0] >= p.y);
+  if (k <= 0) k = 1;
+  const a = NEST_ROWS[k - 1];
+  const b = NEST_ROWS[k];
+  const t = (p.y - a[0]) / (b[0] - a[0]);
+  const xMin = a[1] + (b[1] - a[1]) * t;
+  const xMax = a[2] + (b[2] - a[2]) * t;
+  return p.x >= xMin - margin && p.x <= xMax + margin;
+}
+
 describe('game-shell world table', () => {
   it('[AC-02] five worlds with distinct ids and heart slots 0..4; the Workshop is the only open one and has slot 0', () => {
     expect(WORLD_IDS).toEqual(['workshop', 'bakery', 'detective', 'jungle', 'garden']);
@@ -116,19 +143,21 @@ describe('game-shell walk geometry', () => {
     expect(route.slice(1 + w.approach.length)).toEqual(w.path.slice(2));
   });
 
-  it('[AC-06] no friend walks across the egg on the way to any world (every route sampled every 4 px)', () => {
-    // map-nest-home: the painted egg is about x 550..730, y 300..475; the test box is a little tighter than that.
-    const inEgg = (p: { x: number; y: number }) => p.x > 565 && p.x < 715 && p.y > 335 && p.y < 475;
+  it('[AC-06] no friend walks across the painted egg or the nest on the way to any world (every route sampled every 4 px, 10 px margin)', () => {
     for (const w of WORLDS) {
       for (const id of MAP_FRIENDS) {
         const route = friendRoute(FRIEND_HOMES[id], w);
         const len = polylineLength(route);
         for (let d = 0; d <= len; d += 4) {
           const p = pointAtDistance(route, d);
-          expect(inEgg(p), `${id} to ${w.id} at ${Math.round(d)} px: (${Math.round(p.x)}, ${Math.round(p.y)})`).toBe(false);
+          expect(inNestKeepOut(p), `${id} to ${w.id} at ${Math.round(d)} px: (${Math.round(p.x)}, ${Math.round(p.y)})`).toBe(false);
         }
       }
     }
+  });
+
+  it('[AC-06] the door of every world is outside the painted egg and nest (the bakery door sits beside the egg top, not on it)', () => {
+    for (const w of WORLDS) expect(inNestKeepOut(w.door), w.id).toBe(false);
   });
 
   it('[AC-06] followers start later, trail the leader and everyone ends exactly at the door', () => {
