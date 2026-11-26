@@ -9,8 +9,10 @@ import { boardRectToPage } from './boardView';
 import { BOARD } from './layout';
 import { SlidePlayer, SlideVoice, type SlideDef } from './slides';
 import { eggSpeechRequest } from './speech';
+import { holdCueWhilePlaying } from './cueTiming';
+import { eggAvailability } from './voiceProvider';
 import type { EggPageRect, SlideInfo } from './types';
-import { MIN_TAP, drawSkipIcon, makeButton, speechCue } from './ui';
+import { MIN_TAP, dismissCue, drawSkipIcon, makeButton, speechCue } from './ui';
 import type { WorldId } from './worlds';
 
 const DEPTH = 2000;
@@ -32,6 +34,7 @@ export class SlideOverlay {
   private picture: Phaser.GameObjects.Container | null = null;
   private readonly voice: SlideVoice;
   private cues: Phaser.GameObjects.Container[] = [];
+  private cueCancels: (() => void)[] = [];
   private closed = false;
 
   constructor(
@@ -108,6 +111,8 @@ export class SlideOverlay {
     this.voice.stop();
     this.context.audio.stopAll();
     // The speech cues belong to the slide whose lines they mark.
+    for (const cancel of this.cueCancels) cancel();
+    this.cueCancels = [];
     for (const cue of this.cues) if (cue.scene) cue.destroy();
     this.cues = [];
   }
@@ -138,7 +143,21 @@ export class SlideOverlay {
     // Slide voice-over plays at the recorded speed (SLIDE_SPEECH_RATE), not at the in-game rate.
     const request = eggSpeechRequest(lineId, 'slide');
     if (this.closed || !request) return Promise.resolve();
-    this.cues.push(speechCue(this.scene, request.lang === 'fr' ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
-    return this.context.audio.play(request).catch(() => false);
+    // The bubble stays up while the clip plays (from its start to its end); without a clip (missing file) it keeps the old 1.8 s.
+    const cue = speechCue(this.scene, request.lang === 'fr' ? 420 : 860, BOARD.height - 120, Infinity).setDepth(DEPTH + 10);
+    this.cues.push(cue);
+    const played = this.context.audio.play(request).catch(() => false);
+    this.cueCancels.push(
+      holdCueWhilePlaying(played, {
+        now: () => this.scene.time.now,
+        chimed: () => eggAvailability.isMissing(lineId),
+        schedule: (fn, ms) => {
+          const timer = this.scene.time.delayedCall(ms, fn);
+          return () => timer.remove(false);
+        },
+        hide: () => dismissCue(this.scene, cue),
+      }),
+    );
+    return played;
   }
 }
