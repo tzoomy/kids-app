@@ -2,7 +2,7 @@
 // Phaser-drawn placeholder. Idle and reaction motion are tweens on the whole container (docs/specs/mystery-egg-assets.md).
 import Phaser from 'phaser';
 import { animatedSpriteSpec, displaySize, spriteFrameRects, spriteSpec, type SpriteSpec } from './assets';
-import { RAMP_POLY } from './layout';
+import { rampPlaceholderShape } from './layout';
 import { drawShellPlaceholder } from './shellArt';
 import { eggAvailability } from './voiceProvider';
 
@@ -185,14 +185,14 @@ export function drawPlaceholder(g: G, id: string): void {
       for (const [dx, dy] of [[-16, -14], [14, -22], [22, 12], [-6, 20], [-26, 14]]) g.fillCircle(dx, dy, 7);
       break;
     case 'part-ramp': {
-      // A wedge sloping down to the right, the same polygon as the physics body (layout.ts RAMP_POLY).
-      const pts = RAMP_POLY.map((p) => new Phaser.Math.Vector2(p.x, p.y));
+      // The whole RAMP_POLY silhouette (the physics body), with a lighter inner shade derived from it.
+      const shape = rampPlaceholderShape();
       g.fillStyle(BLUE, 1);
-      g.fillPoints(pts, true);
-      g.lineStyle(4, DARK, 1);
-      g.strokePoints(pts, true);
+      g.fillPoints(shape.outline.map((p) => new Phaser.Math.Vector2(p.x, p.y)), true);
       g.fillStyle(0x7f93ee, 1);
-      g.fillTriangle(RAMP_POLY[0].x + 8, RAMP_POLY[0].y + 10, RAMP_POLY[1].x - 14, RAMP_POLY[1].y - 4, RAMP_POLY[3].x + 14, RAMP_POLY[3].y - 8);
+      g.fillPoints(shape.shade.map((p) => new Phaser.Math.Vector2(p.x, p.y)), true);
+      g.lineStyle(4, DARK, 1);
+      g.strokePoints(shape.outline.map((p) => new Phaser.Math.Vector2(p.x, p.y)), true);
       break;
     }
     case 'part-bell':

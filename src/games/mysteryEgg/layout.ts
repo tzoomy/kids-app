@@ -45,6 +45,18 @@ export const RAMP_POLY = [
   { x: -100.5, y: 17 },
 ] as const;
 
+/**
+ * The ramp placeholder (drawn while `part-ramp.webp` is missing): the outline is the whole RAMP_POLY silhouette, the shading is
+ * the same outline shrunk towards its centroid (never indexed vertices, so it follows the polygon when the art is re-measured).
+ */
+export function rampPlaceholderShape(): { outline: Point2[]; shade: Point2[] } {
+  const outline = RAMP_POLY.map((p) => ({ x: p.x, y: p.y }));
+  const cx = outline.reduce((t, p) => t + p.x, 0) / outline.length;
+  const cy = outline.reduce((t, p) => t + p.y, 0) / outline.length;
+  const shade = outline.map((p) => ({ x: cx + (p.x - cx) * 0.72, y: cy + (p.y - cy) * 0.72 }));
+  return { outline, shade };
+}
+
 /** Workbench the ramp feeds onto, with the bell hanging over it. */
 export const TABLE = { x: 750, y: 552, w: 300, h: 24 } as const;
 export const RIGHT_WALL = { x: 912, y: 470, w: 24, h: 220 } as const;
