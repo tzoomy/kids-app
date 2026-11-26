@@ -196,6 +196,18 @@ export function drawPieceShape(g: G, piece: string, size: number): void {
       g.lineStyle(3, 0x8e7bd0, 1);
       for (let i = -2; i <= 2; i++) g.lineBetween(-36 * k, i * 14 * k, 36 * k, i * 14 * k);
       break;
+    case 'feather':
+      g.fillStyle(0xfffaf0, 1);
+      g.fillEllipse(0, 0, 38 * k, 112 * k);
+      g.lineStyle(4, 0xb9a98c, 1);
+      g.strokeEllipse(0, 0, 38 * k, 112 * k);
+      g.lineBetween(0, -50 * k, 0, 62 * k);
+      g.lineStyle(2, 0xd8cbb0, 1);
+      for (let i = -3; i <= 3; i++) {
+        g.lineBetween(0, i * 13 * k, -14 * k, (i * 13 - 9) * k);
+        g.lineBetween(0, i * 13 * k, 14 * k, (i * 13 - 9) * k);
+      }
+      break;
     case 'pebble':
       g.fillStyle(0xb9b4c4, 1);
       g.fillEllipse(0, 6 * k, 76 * k, 52 * k);

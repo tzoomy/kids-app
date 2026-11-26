@@ -43,7 +43,9 @@ const ART = { w: 320, h: 260 } as const;
  * nest art), leaves the nest on its painted branch and ends in front of the tile's door on the clearing.
  */
 const WORKSHOP_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 470, y: 368 }, { x: 385, y: 362 }, { x: 305, y: 345 }, { x: 275, y: 335 }];
-const BAKERY_PATH: readonly Point2[] = [NEST, { x: 640, y: 370 }, { x: 632, y: 335 }, { x: 615, y: 312 }];
+// The painted cobbles to the bakery run straight over the top of the egg, so the walk leaves the nest on its left side and
+// reaches the shop's door panel from the left (the door stands beside the egg top, never on it; see the keep-out test).
+const BAKERY_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 518, y: 335 }, { x: 545, y: 305 }, { x: 560, y: 298 }];
 const DETECTIVE_PATH: readonly Point2[] = [NEST, { x: 745, y: 392 }, { x: 830, y: 380 }, { x: 920, y: 362 }, { x: 985, y: 345 }, { x: 1025, y: 340 }];
 const JUNGLE_PATH: readonly Point2[] = [NEST, { x: 540, y: 490 }, { x: 485, y: 530 }, { x: 430, y: 585 }, { x: 385, y: 630 }, { x: 320, y: 690 }];
 const GARDEN_PATH: readonly Point2[] = [NEST, { x: 740, y: 500 }, { x: 800, y: 540 }, { x: 860, y: 590 }, { x: 900, y: 640 }, { x: 975, y: 700 }];
@@ -56,7 +58,7 @@ const last = (path: readonly Point2[]): Point2 => path[path.length - 1];
  */
 export const WORLDS: readonly WorldDef[] = [
   { id: 'workshop', open: true, levels: 1, heartSlot: 0, piece: 'feather', x: 220, y: 230, artW: ART.w, artH: ART.h, hit: { x: 221, y: 250, w: 201, h: 204 }, door: last(WORKSHOP_PATH), path: WORKSHOP_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }], gameScene: 'MysteryEggBuildScene' },
-  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 180, artW: ART.w, artH: ART.h, hit: { x: 640, y: 214, w: 210, h: 174 }, door: last(BAKERY_PATH), path: BAKERY_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }, { x: 520, y: 345 }, { x: 575, y: 322 }] },
+  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 180, artW: ART.w, artH: ART.h, hit: { x: 640, y: 214, w: 210, h: 174 }, door: last(BAKERY_PATH), path: BAKERY_PATH, approach: [{ x: 455, y: 600 }, { x: 455, y: 430 }, { x: 495, y: 372 }] },
   { id: 'detective', open: false, levels: 3, heartSlot: 2, piece: 'pebble', x: 1060, y: 230, artW: ART.w, artH: ART.h, hit: { x: 1059, y: 262, w: 220, h: 178 }, door: last(DETECTIVE_PATH), path: DETECTIVE_PATH, approach: [{ x: 825, y: 600 }, { x: 825, y: 430 }] },
   { id: 'jungle', open: false, levels: 3, heartSlot: 3, piece: 'leaf', x: 220, y: 650, artW: ART.w, artH: ART.h, hit: { x: 220, y: 649, w: 234, h: 244 }, door: last(JUNGLE_PATH), path: JUNGLE_PATH, approach: [{ x: 600, y: 610 }] },
   { id: 'garden', open: false, levels: 3, heartSlot: 4, piece: 'flower', x: 1060, y: 650, artW: ART.w, artH: ART.h, hit: { x: 1061, y: 666, w: 244, h: 210 }, door: last(GARDEN_PATH), path: GARDEN_PATH, approach: [{ x: 680, y: 610 }] },
@@ -79,25 +81,41 @@ export function worldArtId(def: Pick<WorldDef, 'id' | 'open'>): string {
   return `map-world-${def.id}-${def.open ? 'open' : 'closed'}`;
 }
 
-/** Nest piece placeholders: only the feather has art (`feather`, Mystery Egg); the other pieces are drawn shapes. */
-export const PIECE_ART: Readonly<Record<string, string | null>> = { feather: 'feather', 'knit-square': null, pebble: null, leaf: null, flower: null };
+/**
+ * Nest pieces are drawn by code (`drawPieceShape`), none from an art id: the final `map-nest-home` is a whole-egg nest with no
+ * blanket and no feather painted in, so the feather is a drawn piece too.
+ */
+export const PIECE_ART: Readonly<Record<string, string | null>> = { feather: null, 'knit-square': null, pebble: null, leaf: null, flower: null };
 
-/** Where each earned piece rests on the nest rim of `map-nest-home` (board px, degrees); the painted blanket and feather stay. */
+/**
+ * Where each earned piece rests on the rim of the final `map-nest-home` (board px, degrees): the bowl is x 482..798 and
+ * y 380..560 on the board, the rim is its outer ~35 px. Nudge here to move a piece (the unit test keeps them on the rim,
+ * off the egg and apart).
+ */
 export const PIECE_NEST_SPOTS: Readonly<Record<string, { x: number; y: number; angle: number }>> = {
-  feather: { x: 700, y: 512, angle: -35 },
-  'knit-square': { x: 565, y: 505, angle: 8 },
-  pebble: { x: 632, y: 535, angle: 0 },
-  leaf: { x: 775, y: 470, angle: -20 },
-  flower: { x: 508, y: 465, angle: 15 },
+  feather: { x: 714, y: 512, angle: -35 },
+  'knit-square': { x: 566, y: 512, angle: 8 },
+  pebble: { x: 640, y: 543, angle: 0 },
+  leaf: { x: 772, y: 468, angle: -20 },
+  flower: { x: 506, y: 460, angle: 15 },
 };
+
+/**
+ * The egg-progress glow is code only, drawn BEHIND the nest art (a halo round the painted egg): its centre is this far above
+ * the nest anchor (the egg's middle), its radius grows with the egg level (docs/PENDING-DECISIONS.md, "Game shell").
+ */
+export const NEST_GLOW = { dy: -25, baseRadius: 105, perLevel: 18, ring: 24 } as const;
 
 /** The friends on the shared map, for every profile (the frog included; pending Maor decision). The bunny leads the walk. */
 export const MAP_FRIENDS: readonly FriendId[] = ['bunny', 'robot', 'capybara', 'frog'];
 
-/** Where each friend stands: in front of and beside the nest, never on the egg (the bunny as in Gemini's map mock). */
+/**
+ * Where each friend stands (the centre of its visible body, see `friendSprites.ts`): in front of and beside the nest, never on
+ * the egg, with the feet on a loose line at y 650..690 (above the heart panel) and a clear gap between neighbours.
+ */
 export const FRIEND_HOMES: Readonly<Record<FriendId, Point2>> = {
-  bunny: { x: 462, y: 560 },
-  robot: { x: 550, y: 640 },
-  capybara: { x: 825, y: 575 },
-  frog: { x: 735, y: 640 },
+  bunny: { x: 440, y: 555 },
+  robot: { x: 560, y: 615 },
+  capybara: { x: 855, y: 564 },
+  frog: { x: 725, y: 630 },
 };

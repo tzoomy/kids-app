@@ -59,7 +59,11 @@ export interface MapInfo {
   friends: FriendId[];
   /** Board px of each friend on screen (they move while walking). */
   friendPositions: Partial<Record<FriendId, { x: number; y: number }>>;
+  /** Which way each friend faces: 1 = default (right), -1 = flipped while walking left; always 1 when not walking. */
+  friendFacing: Partial<Record<FriendId, 1 | -1>>;
   worlds: Record<WorldId, WorldInfo>;
+  /** Current rotation (degrees) of each world's tile art: 0 at rest, never accumulates over repeated taps. */
+  worldAngles: Record<WorldId, number>;
   slide: SlideInfo | null;
   introSeen: boolean;
   entrySeen: WorldId[];

@@ -35,6 +35,13 @@ Spec: `docs/specs/game-shell.md` (draft, Pass 1 in progress). Branch `feat/myste
 - To re-check when the walk strips and the other idle sprites land: friend homes, `FRIEND_HOMES`, walk speed, robot/capybara/frog sizes.
 - How to look: copy `public/art/game-shell` and `public/audio/game-shell` from `pr112` into the working tree (untracked), build, and run `/tmp/shell-shot2.mjs`-style screenshots; delete them again before committing.
 
+## Follow-up fixes (branch fix/game-shell-followups, after #111)
+
+- Done (AC-19..AC-25): bakery route and door clear the painted egg; non-stacking wiggle (`mapRules.ts`) and map-phase guard; facing reset (`facingFor`); back button 96 CSS px in portrait (`backButton.ts`); friend sizes from the real sprites (`friendSprites.ts`: one scale per friend, plus a frog-only walk scale x1.31 because #113 b8cb8ba's walk frames are 174 vs 228 px visible; feet kept level per state; `footprintWidth` feeds the spacing test), new `FRIEND_HOMES`, `planWalk` (shortest route leads, followers queue `ARRIVAL_GAP_PX` = 140 behind, depth sorted by y); nest pieces all code-drawn on the rim and the glow behind the art (`PIECE_NEST_SPOTS`, `NEST_GLOW`).
+- The egg keep-out in `tests/unit/game-shell.worlds.test.ts` (`NEST_ROWS`) and the egg box in `game-shell.friends.test.ts` are measured on the FINAL `map-nest-home` (PR #113 head 438f6fc: egg tip y 284, widest x 554..738 at y 370, bowl x 482..798). **Re-measure both whenever Gemini changes `map-nest-home`** (alpha columns per 10 px row of the 2x file, board = 640 - 180 + x/2, 420 - 150 + y/2).
+- Gemini's #113 media (friend sprites, final `map-nest-home`, re-derived `map-frog-walk`) is on main and merged into this branch, so the real art is tracked: screenshots need no copying any more. Re-measure the friend table in `friendSprites.ts` and the nest rows in the tests whenever a sprite or the nest is re-delivered.
+- Portrait e2e (AC-22) runs only in the repo's `portrait-800x1280` project; the temp e2e config needs that project added.
+
 ## Next step
 
 Gemini's media PR (files at the manifest paths; no code change), then re-check the anchors and the walk strips against the real art. Then Maor's tablet check (AC-18) and the pending decisions in `docs/PENDING-DECISIONS.md` (2026-11-26 rows). Next code work: the other four worlds' games, hatching behind `readyToHatch`.
