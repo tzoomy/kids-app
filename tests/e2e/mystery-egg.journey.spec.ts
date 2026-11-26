@@ -147,9 +147,10 @@ test.describe('mystery-egg', () => {
     const afterWin = await waitInfo(page, (i) => i.featherInNest && Boolean(i.rects.continueBtn), 'the success view never finished');
     expect(afterWin.heartsLit).toEqual([0]);
     expect(afterWin.eggLevel).toBe(1);
-    const ids = (await getSpokenLines(page)).map((s) => s.lineId);
-    expect(ids).toContain('vo-fr-cat-croissants');
-    expect(ids).toContain('vo-fr-success');
+    // The success line queues behind the cat line (AC-21), so it is requested once the cat line has played out.
+    await expect
+      .poll(async () => (await getSpokenLines(page)).map((s) => s.lineId), { timeout: 20_000 })
+      .toEqual(expect.arrayContaining(['vo-fr-cat-croissants', 'vo-fr-success']));
 
     // Back to the hub: 1 lit heart, the brighter egg, the feather in the nest.
     await tap(page, 'continueBtn');
