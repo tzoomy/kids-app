@@ -12,8 +12,8 @@ export interface EggPageRect {
 
 /**
  * Map scene phases (game shell): `intro` = the intro slides, `map` = the interactive map, `walking` = the friends walk
- * to an open world (input locked), `entry` = the world's entry slides, `hub` = back from a game while a nest piece flies
- * into the nest (input locked). Build scene phases: `intro` (the Workshop goal card), `build`, `playing`, `success`.
+ * to an open world (input locked), `entry` = the world's entry slides, `hub` = the map is not tappable yet: its assets are loading, or
+ * a nest piece is flying into the nest on the return from a game (input locked). Build scene phases: `intro` (the Workshop goal card), `build`, `playing`, `success`.
  */
 export type EggPhase = 'hub' | 'map' | 'walking' | 'entry' | 'intro' | 'build' | 'playing' | 'success';
 

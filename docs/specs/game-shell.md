@@ -27,7 +27,7 @@ Views (all in `MysteryEggScene`; the Workshop game is the unchanged `MysteryEggB
 2. **Map** (phase `map`): `hub-bg` is replaced by `map-bg`; the nest and egg in the centre (glow level = nest pieces earned, idle wiggle, tap = wiggle + beep), nest pieces resting on the nest, the robot's 5-slot heart panel (a lit slot per world with a placeholder gear-fill arc), the home button (back to the old map), the friends standing by the nest, and the five worlds with their paths. No button enters a world.
 3. **Walking** (phase `walking`): tapping an open world locks input; the friends walk from the nest along the path to the world door, following the bunny in a line with small offsets and a little walk bob (`sfx-walk`).
 4. **Entry slides** (phase `entry`): on the first arrival per profile (`entrySeen` lacks the world) the world's entry slides play (Workshop: 2). On later arrivals the world game starts straight away.
-5. **Return** (phase `hub` while a piece flies, then `map`): after a game, the map shows the progress; a nest piece earned since the map was last shown flies from the world into the nest and the egg glow steps up.
+5. **Return** (phase `hub` while the map loads and while a piece flies, then `map`): after a game, the map shows the progress; a nest piece earned since the map was last shown flies from the world into the nest and the egg glow steps up.
 
 **Slide player** (`slides.ts` pure model + `slideView.ts` thin Phaser view): a slide = one image id + an ordered list of voice line ids (French hero line, then Hebrew robot line), played through the Mystery Egg voice path (`context.audio.play`). A tap anywhere advances to the next slide and stops the current voice; the tap on the last slide ends the sequence. A picture-only skip button (>= 96 CSS px, `skipBtn`) skips the whole sequence. No video, no auto-advance. Ending or skipping marks it seen for the profile.
 
@@ -139,3 +139,4 @@ All are rows in `docs/PENDING-DECISIONS.md` (2026-11-26, "Game shell"):
 
 - `2026-11-26` — created from the owner's task of 2026-11-26 (game shell: map, slides, progression, save v2) — substantive
 - `2026-11-26` — read hook gets `friendPositions` (board px per friend) so the walk can be asserted — minor
+- `2026-11-26` — phase `hub` also covers the map's loading time, so `map` always means tappable — minor

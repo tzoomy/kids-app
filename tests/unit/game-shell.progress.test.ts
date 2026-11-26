@@ -22,6 +22,7 @@ import {
   recordLevel,
   recordMissionAndSave,
   saveProgress,
+  seedToSave,
   worldLevel,
 } from '../../src/games/mysteryEgg/progress';
 import { WORLDS, type WorldDef } from '../../src/games/mysteryEgg/worlds';
@@ -274,5 +275,19 @@ describe('game-shell persistence and migration', () => {
     const back = loadProgress(storage, 'p');
     expect(back.introSeen).toBe(true);
     expect(back.entrySeen).toEqual(['workshop']);
+  });
+});
+
+describe('game-shell seed hook', () => {
+  it('[AC-16] a v1 seed is stored raw so the migration runs on load; a v2 seed is repaired and stored as v2', () => {
+    expect(seedToSave({ completed: ['1.1'] })).toEqual({ v: 1, completed: ['1.1'] });
+    const v2 = seedToSave({ v: 2, introSeen: true, worlds: { bakery: { completed: [1, 2, 3] } } }) as ReturnType<typeof createProgress>;
+    expect(v2.v).toBe(2);
+    expect(v2.introSeen).toBe(true);
+    expect(v2.pieces).toEqual(['knit-square']);
+    expect(v2.worlds.workshop).toEqual({ level: 1, completed: [] });
+    // The raw v1 seed loads as a migrated v2 state.
+    const storage = memoryStorage({ [mysteryEggKey('p')]: JSON.stringify(seedToSave({ completed: ['1.1'] })) });
+    expect(litHearts(loadProgress(storage, 'p'))).toEqual([0]);
   });
 });

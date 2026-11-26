@@ -61,16 +61,26 @@ async function dragPartToSlot(page: Page, part: 'partRamp' | 'partBall' | 'partB
   await dragBetween(page, from, to);
 }
 
+/** Egg button -> the world map (docs/specs/game-shell.md). The first-visit intro slides are skipped with the skip button. */
 async function openHubByTap(page: Page): Promise<MysteryEggInfo> {
   await tapTestId(page, 'mystery-egg-btn');
   await waitForScene(page, 'MysteryEggScene');
-  return waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'hub never became ready');
+  const first = await waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'hub never became ready');
+  if (first.phase === 'intro') await tap(page, 'skipBtn');
+  return waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never became interactive');
 }
 
+/** Tap the Workshop on the map (the friends walk there); the first-arrival entry slides are skipped. */
 async function openWorkshopByTap(page: Page): Promise<MysteryEggInfo> {
-  await tap(page, 'workshopBtn');
-  await waitForScene(page, 'MysteryEggBuildScene');
-  return waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggBuildScene' && i.phase === 'intro', 'intro never became ready');
+  await tap(page, 'world-workshop');
+  const deadline = Date.now() + 40_000;
+  for (;;) {
+    const i = await info(page);
+    if (i?.scene === 'MysteryEggBuildScene' && i.ready && i.phase === 'intro') return i;
+    if (i?.scene === 'MysteryEggScene' && i.phase === 'entry' && i.rects.skipBtn) await tap(page, 'skipBtn');
+    if (Date.now() > deadline) throw new Error(`the Workshop never opened; last info: ${JSON.stringify(i)}`);
+    await page.waitForTimeout(100);
+  }
 }
 
 async function startBuildByTap(page: Page): Promise<MysteryEggInfo> {
@@ -99,12 +109,12 @@ test.describe('mystery-egg', () => {
     test.setTimeout(120_000);
     await enterMapByTap(page, 'profile-a');
 
-    // Hub: the egg in its nest, 5 empty heart slots, one big Workshop button.
+    // Map: the egg in its nest, 5 empty heart slots, the Workshop as a big world on the map (no Workshop button).
     const hub = await openHubByTap(page);
     expect(hub.heartsLit).toEqual([]);
     expect(hub.eggLevel).toBe(0);
     expect(hub.featherInNest).toBe(false);
-    for (const t of ['workshopBtn', 'backBtn'] as const) {
+    for (const t of ['world-workshop', 'backBtn'] as const) {
       const r = hub.rects[t] as Rect;
       expect(r.width, t).toBeGreaterThanOrEqual(MIN_TAP_PX);
       expect(r.height, t).toBeGreaterThanOrEqual(MIN_TAP_PX);
@@ -144,7 +154,7 @@ test.describe('mystery-egg', () => {
     // Back to the hub: 1 lit heart, the brighter egg, the feather in the nest.
     await tap(page, 'continueBtn');
     await waitForScene(page, 'MysteryEggScene');
-    const hubAfter = await waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'hub never came back');
+    const hubAfter = await waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'hub never came back');
     expect(hubAfter.heartsLit).toEqual([0]);
     expect(hubAfter.eggLevel).toBe(1);
     expect(hubAfter.featherInNest).toBe(true);
@@ -319,7 +329,7 @@ test.describe('mystery-egg', () => {
     expect(again.eggLevel).toBe(1);
     await tap(page, 'continueBtn');
     await waitForScene(page, 'MysteryEggScene');
-    const hubAfter = await waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'hub never came back');
+    const hubAfter = await waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'hub never came back');
     expect(hubAfter.heartsLit).toEqual([0]);
     expect(hubAfter.eggLevel).toBe(1);
   });

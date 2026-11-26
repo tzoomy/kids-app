@@ -548,7 +548,14 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       window.localStorage.setItem(mysteryEggKey(context.requireProfileId()), JSON.stringify(seedToSave(seed)));
     },
     getMysteryEggInfo() {
-      if (game.scene.isActive('MysteryEggBuildScene')) return (game.scene.getScene('MysteryEggBuildScene') as MysteryEggBuildScene).getMysteryEggInfo();
+      if (game.scene.isActive('MysteryEggBuildScene')) {
+        // Null until the scene has drawn (its assets may still be loading), instead of throwing mid-load.
+        try {
+          return (game.scene.getScene('MysteryEggBuildScene') as MysteryEggBuildScene).getMysteryEggInfo();
+        } catch {
+          return null;
+        }
+      }
       if (game.scene.isActive('MysteryEggScene')) return (game.scene.getScene('MysteryEggScene') as MysteryEggScene).getMysteryEggInfo();
       return null;
     },

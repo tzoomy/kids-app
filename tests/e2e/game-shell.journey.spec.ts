@@ -297,10 +297,10 @@ test.describe('game-shell', () => {
     await enterMapByTap(page, 'profile-a');
     await seed(page, { v: 2, introSeen: true });
     await openMapByTap(page);
+    const since = (await getSpokenLines(page)).length;
     await tap(page, 'world-workshop');
     const entry = await waitInfo(page, (i) => i.phase === 'entry', 'the entry slides never showed', 20_000);
     expect(entry.map?.slide).toMatchObject({ kind: 'entry', world: 'workshop', index: 0, count: 2 });
-    const since = (await getSpokenLines(page)).length;
     await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-fr-workshop-entry-1', 'fr'], ['vo-he-workshop-entry-1', 'he']]));
     expect((entry.rects.skipBtn as Rect).width).toBeGreaterThanOrEqual(MIN_TAP_PX);
     await tap(page, 'skipBtn');
