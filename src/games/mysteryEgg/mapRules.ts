@@ -42,6 +42,11 @@ export class WiggleGuard<T> {
     this.running.clear();
   }
 
+  /** How many wiggles are running (one per target at most). */
+  get size(): number {
+    return this.running.size;
+  }
+
   isRunning(target: T): boolean {
     return this.running.has(target);
   }

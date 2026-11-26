@@ -1,3 +1,4 @@
+import { baseSizeFor } from './baseSize';
 import Phaser from 'phaser';
 import { MapScene } from '../worlds/MapScene';
 import { RestaurantScene, seedRestaurantKind, type RoundInfo } from '../games/restaurant/RestaurantScene';
@@ -179,8 +180,7 @@ export function isE2e(): boolean {
 }
 
 function pickBaseSize(): { width: number; height: number } {
-  // Landscape 1280x800, portrait 800x1280 — matches the two supported tablet orientations.
-  return window.innerWidth >= window.innerHeight ? { width: 1280, height: 800 } : { width: 800, height: 1280 };
+  return baseSizeFor(window.innerWidth, window.innerHeight);
 }
 
 /** ?e2e=1 only. Installs seedTimeEarningEnabled before the Phaser game exists (profile-select). */

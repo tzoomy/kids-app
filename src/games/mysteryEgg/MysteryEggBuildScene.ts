@@ -20,6 +20,7 @@ import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { IntroVoice, type VoiceAction } from './introVoice';
 import { eggSpeechRequest, voicePlayMode } from './speech';
+import { followOrientation } from './orientation';
 import { showContinueAfterVoice } from './successTiming';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
 
@@ -127,8 +128,14 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.successToken++;
     // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
     this.context.shell.clearChrome();
+    followOrientation(this);
     fitBoard(this, '#f1dcc2');
+    const refit = (): void => {
+      if (this.alive) fitBoard(this, '#f1dcc2');
+    };
+    this.scale.on('resize', refit);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', refit);
       this.alive = false;
       this.cancelContinue?.();
       this.cancelContinue = null;

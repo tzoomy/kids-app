@@ -15,6 +15,7 @@ import { backButtonPlacementForView } from './backButton';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
 import { WiggleGuard, mapTapAllowed } from './mapRules';
+import { followOrientation } from './orientation';
 import { playEggSfx } from './eggSound';
 import { heartSlotCentres, type Point2 } from './layout';
 import {
@@ -129,6 +130,7 @@ export class MysteryEggScene extends Phaser.Scene {
     this.wiggles.clear();
     // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
     this.context.shell.clearChrome();
+    followOrientation(this);
     fitBoard(this, '#fdeee0');
     this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -577,6 +579,7 @@ export class MysteryEggScene extends Phaser.Scene {
         friendFacing,
         worlds,
         worldAngles,
+        wiggling: this.wiggles.size,
         slide: this.overlay ? this.overlay.info : null,
         introSeen: this.progress.introSeen,
         introSeenVersion: this.progress.introSeenVersion,
