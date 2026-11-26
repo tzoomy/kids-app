@@ -75,6 +75,9 @@ export interface MapInfo {
   lockedTaps: number;
   /** Pieces that flew into the nest in this scene (on the return from a game). */
   pieceFlights: string[];
+  /** Taps on a friend / on the nest that counted (only in phase `map`) so far in this scene. */
+  friendTaps: number;
+  nestTaps: number;
 }
 
 /** Read-only snapshot for the e2e hook `getMysteryEggInfo` (page CSS px rectangles; a target that is not on screen is absent). */

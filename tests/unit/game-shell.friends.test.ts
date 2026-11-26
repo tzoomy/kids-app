@@ -5,6 +5,7 @@ import gameShellAssets from '../../src/content/gameShellAssets.json';
 import { FRIEND_SPRITES, displayedVisibleWidth, footprintWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
 import { ARRIVAL_GAP_PX, WALK_OPTIONS, planWalk, walkFrame } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS, type FriendId } from '../../src/games/mysteryEgg/worlds';
+import { EGG_BOX, overlapsEgg } from './helpers/nestKeepOut';
 
 const manifest = gameShellAssets as unknown as Record<string, { w: number; h: number; frames?: number }>;
 /** Displayed visible height of the idle art (board px): visible canvas px x the box scale x the 1x box / 2x canvas ratio. */
@@ -77,10 +78,10 @@ const rectOf = (id: FriendId, c: { x: number; y: number }) => ({
 
 describe('game-shell friend homes', () => {
   it('[AC-24] at rest the friends stand in front of and beside the nest: no body covers the painted egg, the heart panel or each other', () => {
-    // The painted egg of the final map-nest-home at (640,420): x 554..738, y 284..455 (re-measure if the art changes); the heart panel starts at y 715.
+    // The painted egg is EGG_BOX of helpers/nestKeepOut.ts (the one shared measurement); the heart panel starts at y 715.
     for (const id of MAP_FRIENDS) {
       const r = rectOf(id, FRIEND_HOMES[id]);
-      const overEgg = r.x1 > 554 && r.x0 < 738 && r.y1 > 284 && r.y0 < 455;
+      const overEgg = overlapsEgg(r);
       expect(overEgg, `${id} covers the egg`).toBe(false);
       expect(r.y1, `${id} reaches the heart panel`).toBeLessThanOrEqual(705);
       expect(r.x0, id).toBeGreaterThanOrEqual(40);
@@ -100,8 +101,12 @@ describe('game-shell friend homes', () => {
 describe('game-shell walk spacing', () => {
   /**
    * Smallest centre distance between any two friends over the whole walk (every 20 ms) and at the end, and the smallest
-   * margin against their footprints (the walking frog is wider than the idle one): distance - 0.8 x (width a + width b) / 2.
+   * footprint margin (the walking frog is wider than the idle one): distance - OVERLAP_ALLOWED x (width a + width b) / 2.
+   * A margin >= 0 means the footprints overlap by at most `1 - OVERLAP_ALLOWED` (20%) of their half-widths summed; it is NOT a
+   * no-overlap check (at full widths the Workshop walk dips 0.09 px below touching).
    */
+  /** Footprints may overlap by up to 20% (a little overlap reads as a group; the depth sort puts the lower friend in front). */
+  const OVERLAP_ALLOWED = 0.8;
   function spacing(worldId: string) {
     const world = WORLDS.find((w) => w.id === worldId);
     if (!world) throw new Error(worldId);
@@ -117,7 +122,7 @@ describe('game-shell walk spacing', () => {
           const d = Math.hypot(frame.friends[i].x - frame.friends[j].x, frame.friends[i].y - frame.friends[j].y);
           if (frame.done) minEnd = Math.min(minEnd, d);
           else minMid = Math.min(minMid, d);
-          footMargin = Math.min(footMargin, d - (0.8 * (footprintWidth(plan.ids[i]) + footprintWidth(plan.ids[j]))) / 2);
+          footMargin = Math.min(footMargin, d - (OVERLAP_ALLOWED * (footprintWidth(plan.ids[i]) + footprintWidth(plan.ids[j]))) / 2);
         }
       }
       if (frame.done) { end = t; break; }
@@ -125,14 +130,47 @@ describe('game-shell walk spacing', () => {
     return { plan, minMid, minEnd, footMargin, end };
   }
 
-  it('[AC-24] on every route consecutive friends stay at least about one friend width apart while walking, and keep a gap when they arrive', () => {
+  it('[AC-24] on every route consecutive friends stay at least 95 px apart while walking and when they arrive, and their footprints overlap by at most 20% (walking frog included)', () => {
     for (const w of WORLDS) {
       const { minMid, minEnd, footMargin, end } = spacing(w.id);
       expect(end, `${w.id} never finished`).toBeGreaterThan(0);
       expect(minMid, `${w.id} mid-walk`).toBeGreaterThanOrEqual(95);
       expect(minEnd, `${w.id} on arrival`).toBeGreaterThanOrEqual(95);
-      expect(footMargin, `${w.id}: footprints (walking frog included) overlap`).toBeGreaterThanOrEqual(0);
+      expect(footMargin, `${w.id}: footprints (walking frog included) overlap by more than 20%`).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it('[AC-29] on the bakery route the bunny (the leader) never touches the painted egg with its visible footprint: at least 8 px clear at every step and at the door', () => {
+    const bakery = WORLDS.find((w) => w.id === 'bakery');
+    if (!bakery) throw new Error('no bakery');
+    const plan = planWalk(FRIEND_HOMES, MAP_FRIENDS, bakery);
+    expect(plan.ids[0]).toBe('bunny');
+    // The visible footprint: the widest visible width (idle or walking frame) by the displayed height, centred on the friend's root.
+    // (Followers queue in front of the bowl, below the egg, so only the leader's route is held to the egg.)
+    const gapToEgg = (id: FriendId, f: { x: number; y: number; bob: number }) => {
+      const hw = footprintWidth(id) / 2;
+      const hh = FRIEND_SPRITES[id].height / 2;
+      const dx = Math.max(EGG_BOX.x0 - (f.x + hw), f.x - hw - EGG_BOX.x1);
+      const dy = Math.max(EGG_BOX.y0 - (f.y + f.bob + hh), f.y + f.bob - hh - EGG_BOX.y1);
+      return Math.max(dx, dy);
+    };
+    let worst = Infinity;
+    let where = '';
+    let end = 0;
+    for (let t = 0; t < 40_000; t += 20) {
+      const frame = walkFrame(plan.routes, t, WALK_OPTIONS);
+      const g = gapToEgg('bunny', frame.friends[0]);
+      if (g < worst) {
+        worst = g;
+        where = `at ${t} ms (${Math.round(frame.friends[0].x)}, ${Math.round(frame.friends[0].y)})`;
+      }
+      if (frame.done) {
+        end = t;
+        break;
+      }
+    }
+    expect(end, 'the walk never finished').toBeGreaterThan(0);
+    expect(worst, `the bunny's closest approach to the egg ${where}`).toBeGreaterThanOrEqual(8);
   });
 
   it('[AC-24] the walk plan starts the friend with the shortest route first (the leader), truncates followers behind it and the leader ends at the door', () => {

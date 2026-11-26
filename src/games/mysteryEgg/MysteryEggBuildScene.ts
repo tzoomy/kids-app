@@ -20,6 +20,7 @@ import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { IntroVoice, type VoiceAction } from './introVoice';
 import { eggSpeechRequest, voicePlayMode } from './speech';
+import { showContinueAfterVoice } from './successTiming';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
 
 const MISSION_ID = '1.1';
@@ -637,17 +638,23 @@ export class MysteryEggBuildScene extends Phaser.Scene {
           slots[idx]?.destroy();
           this.tweens.add({ targets: filled, scale: { from: HEART_VIEW.scale * 0.2, to: HEART_VIEW.scale * 1.15 }, duration: 480, yoyo: true, ease: 'Back.easeOut', onComplete: () => filled.setScale(HEART_VIEW.scale) });
           playEggSfx('sfx-robot-beep-3');
-          void this.speak('vo-fr-success');
-          this.time.delayedCall(700, () => this.addContinue());
+          this.continueAfterBravo();
         },
       });
     } else {
       feather.destroy();
       this.featherArrived = true;
-      void this.speak('vo-fr-success');
-      this.time.delayedCall(700, () => this.addContinue());
+      this.continueAfterBravo();
     }
     this.tweens.add({ targets: egg, angle: 2, duration: 700, yoyo: true, repeat: -1 });
+  }
+
+  /** Speaks the Bravo line and shows Continue once it has finished (a missing clip chimes at once; capped, see successTiming.ts). */
+  private continueAfterBravo(): void {
+    const token = this.successToken;
+    showContinueAfterVoice(this.speak('vo-fr-success'), () => {
+      if (this.alive && token === this.successToken) this.addContinue();
+    });
   }
 
   private addContinue(): void {

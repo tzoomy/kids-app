@@ -167,12 +167,16 @@ export function speechCue(scene: Phaser.Scene, x: number, y: number, durationMs 
   c.add(g);
   c.setScale(0);
   scene.tweens.add({ targets: c, scale: 1, duration: 140, ease: 'Back.easeOut' });
-  scene.tweens.add({
-    targets: c,
-    alpha: 0,
-    delay: durationMs,
-    duration: 250,
-    onComplete: () => c.destroy(),
-  });
+  // `Infinity`: the caller keeps the bubble up for as long as its line plays and calls `dismissCue` at the end.
+  if (Number.isFinite(durationMs)) fadeCue(scene, c, durationMs);
   return c;
+}
+
+function fadeCue(scene: Phaser.Scene, c: Phaser.GameObjects.Container, delay: number): void {
+  scene.tweens.add({ targets: c, alpha: 0, delay, duration: 250, onComplete: () => c.destroy() });
+}
+
+/** Fades a bubble made with an endless duration out and removes it. */
+export function dismissCue(scene: Phaser.Scene, c: Phaser.GameObjects.Container): void {
+  if (c.scene) fadeCue(scene, c, 0);
 }

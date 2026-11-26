@@ -30,3 +30,17 @@ export function backButtonPlacement(v: { gameWidth: number; gameHeight: number; 
 }
 
 const round = (n: number): number => Math.round(n * 1000) / 1000;
+
+/**
+ * The same placement from what the scene can read at any time: the game size and the canvas element's CSS width. The board is
+ * fitted like `fitBoard` does (zoom = the smaller of the two axis ratios). Call it again whenever the canvas is resized or
+ * rotated, because the CSS size per board px changes with the window, not with the game size.
+ */
+export function backButtonPlacementForView(v: { gameWidth: number; gameHeight: number; canvasCssWidth: number }): BackButtonPlacement {
+  return backButtonPlacement({
+    gameWidth: v.gameWidth,
+    gameHeight: v.gameHeight,
+    zoom: Math.min(v.gameWidth / BOARD.width, v.gameHeight / BOARD.height),
+    cssPerGamePx: v.canvasCssWidth > 0 ? v.canvasCssWidth / v.gameWidth : 1,
+  });
+}

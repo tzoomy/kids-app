@@ -46,3 +46,7 @@ See the `2026-11-25` "Mystery Egg" rows in `docs/PENDING-DECISIONS.md` (names, e
 ## Next step
 
 Merge Gemini's assets PR, then Maor's tablet check (AC-17). Pass 2 only after Maor approves Pass 1.
+
+## #117 additions
+
+- AC-24 ramp placeholder (`rampPlaceholderShape` in `layout.ts`), AC-25 truthful speech spy (`AudioProvider.playedSource`, `SpeechObserver.onOutcome`), AC-26 Continue after Bravo (`successTiming.ts`, e2e in `mystery-egg.journey.spec.ts`). The Continue wait is a team-lead default (pending decision row).

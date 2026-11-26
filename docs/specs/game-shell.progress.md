@@ -58,3 +58,14 @@ Spec: `docs/specs/game-shell.md` (draft, Pass 1 in progress). Branch `feat/myste
 ## Next step
 
 Gemini's media PR (files at the manifest paths; no code change), then re-check the anchors and the walk strips against the real art. Then Maor's tablet check (AC-18) and the pending decisions in `docs/PENDING-DECISIONS.md` (2026-11-26 rows). Next code work: the other four worlds' games, hatching behind `readyToHatch`.
+
+## Review nits of #114 (branch fix/game-shell-nits)
+
+- Done (AC-28..AC-30): back button re-placed on `scale` resize (`placeBackButton`, `backButtonPlacementForView`); `mapTapAllowed` guards world, friend and nest taps (hook: `friendTaps`, `nestTaps`); bakery door moved to (490, 300) so the bunny clears the egg; one shared egg/nest measurement in `tests/unit/helpers/nestKeepOut.ts` (`EGG_BOX`, `NEST_ROWS`; re-measure when `map-nest-home` changes); honest friend-overlap test (<= 20%); stale walk-scale comment fixed.
+- E2E: `tests/e2e/game-shell.nits.spec.ts` (landscape project; it rotates the viewport itself), registered in `scripts/affected-e2e.mjs`.
+- Gotcha: walkers queue in front of the nest bowl (below the egg), so only the bunny's route is held to the egg box; the followers' footprints touch it only by their rectangle corner.
+
+## After #116 (merged into fix/game-shell-nits)
+
+- Merge of origin/main: one conflict in the spec (AC table and changelog kept from both sides; AC-26/27 are #116's, AC-28..30 #117's). Then: ramp placeholder from the full `RAMP_POLY` (mystery-egg AC-24), spy source `clip`/`chime`/`tts` (mystery-egg AC-25), success Continue after the Bravo line (mystery-egg AC-26, `successTiming.ts`), slide bubbles follow their clip (game-shell AC-31, `cueTiming.ts`).
+- Gotcha: the bubble timing has no e2e (the bubble is not in the read hook); the pure logic is unit-tested and the e2e journeys still pass.

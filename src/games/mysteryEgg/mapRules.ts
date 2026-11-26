@@ -1,11 +1,17 @@
-// Game shell map rules (docs/specs/game-shell.md AC-19, AC-20): when a world tap counts, and a wiggle that never stacks.
+// Game shell map rules (docs/specs/game-shell.md AC-19, AC-20, AC-30): when a map tap counts, and a wiggle that never stacks.
 // Pure, no Phaser: the scene passes its own tween factory.
 import type { EggPhase } from './types';
 
-/** A world tap (open or closed) counts only on a live, loaded map in phase `map`: not while walking, in slides, on a transition or while a piece flies. */
-export function worldTapAllowed(s: { alive: boolean; ready: boolean; phase: EggPhase }): boolean {
+/**
+ * A tap on the map counts only on a live, loaded map in phase `map`: not while walking, in slides, on a transition or while a
+ * piece flies. One guard for every map tap: a world (open or closed), a friend and the nest.
+ */
+export function mapTapAllowed(s: { alive: boolean; ready: boolean; phase: EggPhase }): boolean {
   return s.alive && s.ready && s.phase === 'map';
 }
+
+/** The guard's original name (world taps); the same rule. */
+export const worldTapAllowed = mapTapAllowed;
 
 export interface StoppableTween {
   stop(): unknown;

@@ -2,36 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { FRIEND_HOMES, MAP_FRIENDS, NEST, PIECE_ART, PIECE_NEST_SPOTS, WORLDS, WORLD_IDS, worldArtId, worldDef } from '../../src/games/mysteryEgg/worlds';
 import { friendRoute, pointAtDistance, polylineLength, walkFrame } from '../../src/games/mysteryEgg/walk';
+import { EGG_BOX, inNestKeepOut } from './helpers/nestKeepOut';
 
-
-/**
- * The painted nest of the FINAL `map-nest-home` (Gemini's PR #113 head 438f6fc: a whole-egg nest, no blanket, no feather, no
- * baked glow) as drawn at the nest anchor (art 360x300 at (640,420), 2x file 720x600): the egg tips at y 284 and is widest
- * (x 554..738) near y 370, the bowl is widest (x 482..798) at y 450..500. Rows are [y, xMin, xMax] in board px, measured on
- * the 2x file (alpha > 60) every 10 px; the keep-out is the whole nest (egg and bowl) silhouette plus `margin` px on every side.
- * RE-MEASURE these rows whenever Gemini changes `map-nest-home` (script: alpha columns per 10 px row of the 2x file).
- */
-const NEST_ROWS: readonly (readonly [number, number, number])[] = [
-  [280, 630, 650], [290, 608, 672], [300, 596, 684], [310, 587, 692], [320, 580, 700], [330, 573, 706], [340, 567, 710], [350, 562, 715],
-  [360, 558, 718], [370, 554, 738], [380, 520, 747], [390, 511, 770], [400, 496, 781], [410, 492, 784], [420, 484, 792], [430, 484, 794],
-  [440, 484, 797], [450, 482, 798], [460, 482, 796], [470, 481, 795], [480, 482, 798], [490, 486, 798], [500, 482, 794],
-  [510, 488, 789], [520, 501, 784], [530, 506, 778], [540, 510, 762], [550, 521, 734], [560, 584, 697],
-];
-
-function inNestKeepOut(p: { x: number; y: number }, margin = 10): boolean {
-  const top = NEST_ROWS[0];
-  const bottom = NEST_ROWS[NEST_ROWS.length - 1];
-  if (p.y < top[0] - margin || p.y > bottom[0]) return false;
-  if (p.y < top[0]) return Math.abs(p.x - (top[1] + top[2]) / 2) <= (top[2] - top[1]) / 2 + margin;
-  let k = NEST_ROWS.findIndex((r) => r[0] >= p.y);
-  if (k <= 0) k = 1;
-  const a = NEST_ROWS[k - 1];
-  const b = NEST_ROWS[k];
-  const t = (p.y - a[0]) / (b[0] - a[0]);
-  const xMin = a[1] + (b[1] - a[1]) * t;
-  const xMax = a[2] + (b[2] - a[2]) * t;
-  return p.x >= xMin - margin && p.x <= xMax + margin;
-}
 
 describe('game-shell world table', () => {
   it('[AC-02] five worlds with distinct ids and heart slots 0..4; the Workshop is the only open one and has slot 0', () => {
@@ -85,10 +57,10 @@ describe('game-shell world table', () => {
   });
 
   it('[AC-02] friends stand beside the nest, never on the egg, and nest pieces rest on the nest rim (inside the board)', () => {
-    // map-nest-home art 360x300 at (640,420); the painted egg is about x 554..738, y 284..455 (the box below is looser).
+    // The painted egg is EGG_BOX of helpers/nestKeepOut.ts (measured on the final map-nest-home); a home is the friend's centre.
     for (const id of MAP_FRIENDS) {
       const f = FRIEND_HOMES[id];
-      const onEgg = f.x > 550 && f.x < 730 && f.y > 300 && f.y < 475;
+      const onEgg = f.x > EGG_BOX.x0 && f.x < EGG_BOX.x1 && f.y > EGG_BOX.y0 && f.y < EGG_BOX.y1;
       expect(onEgg, id).toBe(false);
       expect(f.x, id).toBeGreaterThan(80);
       expect(f.x, id).toBeLessThan(1200);
@@ -113,7 +85,7 @@ describe('game-shell nest pieces', () => {
     for (const [piece, spot] of spots) {
       // Inside the bowl (silhouette rows, 12 px inset) and below the egg's shoulders, or well off the egg sideways.
       expect(inNestKeepOut(spot, -12), `${piece} is off the nest`).toBe(true);
-      const onEgg = spot.x > 554 + 20 && spot.x < 738 - 20 && spot.y < 455;
+      const onEgg = spot.x > EGG_BOX.x0 + 20 && spot.x < EGG_BOX.x1 - 20 && spot.y < EGG_BOX.y1;
       expect(onEgg, `${piece} sits on the egg`).toBe(false);
     }
     for (let i = 0; i < spots.length; i++) {

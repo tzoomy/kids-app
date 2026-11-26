@@ -6,14 +6,16 @@ export interface SpeechObserver {
   onRequest(request: SpeechRequest): void;
   /** A provider is about to try the line; the last attempt for a request is the one that handled it. */
   onAttempt(request: SpeechRequest, providerId: string): void;
+  /** The provider that handled the line says what it really played (only providers with a placeholder fallback report). */
+  onOutcome?(request: SpeechRequest, providerId: string, source: 'clip' | 'chime'): void;
 }
 
 export interface SpokenLine {
   index: number;
   lineId: string;
   lang: string;
-  /** 'clip' = recorded static file, 'tts' = device speech synthesis fallback. */
-  source: 'clip' | 'tts';
+  /** 'clip' = a recorded file played, 'tts' = device speech synthesis, 'chime' = the missing-file placeholder chime. */
+  source: 'clip' | 'tts' | 'chime';
   text?: string;
   /** The requested playback rate (1 = recorded speed); undefined when the caller did not ask for one. */
   rate?: number;
@@ -21,7 +23,8 @@ export interface SpokenLine {
   at: number;
 }
 
-const STATIC_PROVIDER_ID = 'static-file';
+/** Providers that play recorded files: a line they handle counts as a clip until they report a chime instead. */
+const CLIP_PROVIDER_IDS = new Set(['static-file', 'mystery-egg-voice']);
 
 /** Records every requested spoken line (e2e only). */
 export class SpeechRecorder implements SpeechObserver {
@@ -47,7 +50,12 @@ export class SpeechRecorder implements SpeechObserver {
 
   onAttempt(request: SpeechRequest, providerId: string): void {
     const line = this.byRequest.get(request);
-    if (line) line.source = providerId === STATIC_PROVIDER_ID ? 'clip' : 'tts';
+    if (line) line.source = CLIP_PROVIDER_IDS.has(providerId) ? 'clip' : 'tts';
+  }
+
+  onOutcome(request: SpeechRequest, _providerId: string, source: 'clip' | 'chime'): void {
+    const line = this.byRequest.get(request);
+    if (line) line.source = source;
   }
 
   /** Lines with index >= sinceIndex (all lines by default). Returns copies. */
