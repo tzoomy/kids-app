@@ -3,7 +3,7 @@
 // the line as handled, so the AudioManager does not fall through to device TTS (media come from the Gemini PR).
 // The speech spy still sees every request (lineId + lang) because AudioManager notifies its observer first.
 import type { AudioProvider, SpeechRequest } from '../../core/audio/types';
-import { AssetAvailability, assetUrl, entriesOfKind } from './assets';
+import { AssetAvailability, allVoiceIds, assetUrl } from './assets';
 import { synthChime } from './placeholderSfx';
 
 export interface VoiceAudio {
@@ -33,7 +33,7 @@ export const eggAvailability = new AssetAvailability();
 
 export class MysteryEggVoiceProvider implements AudioProvider {
   readonly id = 'mystery-egg-voice';
-  private readonly voiceIds = new Set(entriesOfKind('vo').map(([id]) => id));
+  private readonly voiceIds = new Set(allVoiceIds());
   private readonly createAudio: (url: string) => VoiceAudio;
   private readonly chime: () => void;
   private readonly availability: AssetAvailability;

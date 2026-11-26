@@ -69,3 +69,71 @@ export function synthPop(): void {
 export function synthSuccess(): void {
   [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.28, 'triangle', i * 0.13, 0.14));
 }
+
+// --- Workshop L20 placeholders (docs/specs/workshop-l20-assets.md, section 4): short synths until Gemini's files land. ---
+
+/** Wood click (sfx-ws-trapdoor). */
+export function synthTrapdoor(): void {
+  tone(180, 0.07, 'square', 0, 0.1);
+  tone(120, 0.09, 'triangle', 0.04, 0.1);
+}
+
+/** Scissors: a click pair (sfx-ws-snip). */
+export function synthSnip(): void {
+  tone(1400, 0.05, 'square', 0, 0.08);
+  tone(1000, 0.06, 'square', 0.12, 0.08);
+}
+
+/** Rope swish (sfx-ws-rope-swish). */
+export function synthSwish(): void {
+  tone(600, 0.25, 'sawtooth', 0, 0.025);
+  tone(300, 0.25, 'sawtooth', 0.05, 0.02);
+}
+
+/** Dry wood tick (sfx-ws-domino-clack); `pitch` 0.92..1.08 varies it so a row sounds like a cascade. */
+export function synthClack(pitch = 1): void {
+  tone(900 * pitch, 0.05, 'square', 0, 0.09);
+  tone(500 * pitch, 0.06, 'triangle', 0.01, 0.08);
+}
+
+/** Soft heavy thud (sfx-ws-sandbag-thump). */
+export function synthThump(): void {
+  tone(70, 0.4, 'sine', 0, 0.3);
+  tone(110, 0.25, 'triangle', 0, 0.12);
+}
+
+/** Wood creak (sfx-ws-seesaw-creak). */
+export function synthCreak(): void {
+  tone(220, 0.3, 'sawtooth', 0, 0.04);
+  tone(260, 0.2, 'sawtooth', 0.15, 0.04);
+}
+
+/** Deep warm morning bell with a long tail (sfx-ws-bell-morning). */
+export function synthMorningBell(): void {
+  tone(196, 2.0, 'sine', 0, 0.28);
+  tone(392, 1.4, 'sine', 0, 0.1);
+  tone(588, 0.9, 'triangle', 0, 0.05);
+}
+
+/** Light metal clonk (sfx-ws-lantern-clonk). */
+export function synthClonk(): void {
+  tone(740, 0.12, 'triangle', 0, 0.12);
+  tone(1110, 0.08, 'square', 0, 0.04);
+}
+
+/** Morning flourish (sfx-ws-town-wake): rising notes and a little ta-da. */
+export function synthTownWake(): void {
+  [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.3, 'triangle', i * 0.18, 0.12));
+  tone(1568, 0.6, 'sine', 0.95, 0.1);
+}
+
+/** A cute yawn: a falling slide (sfx-ws-yawn). */
+export function synthYawn(): void {
+  [500, 440, 380, 320, 260].forEach((f, i) => tone(f, 0.22, 'sine', i * 0.16, 0.1));
+}
+
+/** A soft snore (sfx-ws-snore), quiet. */
+export function synthSnore(): void {
+  tone(90, 0.5, 'sawtooth', 0, 0.02);
+  tone(80, 0.5, 'sawtooth', 0.6, 0.02);
+}
