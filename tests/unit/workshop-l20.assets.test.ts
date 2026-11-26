@@ -37,19 +37,19 @@ const VO = [
 const ALL = [...ART, ...SFX, ...VO];
 
 describe('workshop L20 asset manifest', () => {
-  it('[L20-AC8] workshopAssets.json holds exactly the 47 agreed keys and parses with the shared zod schema', () => {
+  it('[AC-08] workshopAssets.json holds exactly the 47 agreed keys and parses with the shared zod schema', () => {
     expect(ALL).toHaveLength(47);
     expect(Object.keys(parseWorkshopManifest(rawWorkshop)).sort()).toEqual([...ALL].sort());
     expect([...WORKSHOP_ASSET_IDS].sort()).toEqual([...ALL].sort());
   });
 
-  it('[L20-AC8] no key is duplicated from the 1.1 or shell manifests, and the 1.1 manifest is unchanged', () => {
+  it('[AC-08] no key is duplicated from the 1.1 or shell manifests, and the 1.1 manifest is unchanged', () => {
     const old = new Set(Object.keys(mysteryEggManifest()));
     for (const id of ALL) expect(old.has(id), id).toBe(false);
     expect(old.size).toBe(78);
   });
 
-  it('[L20-AC8] paths follow the contract: art/mystery-egg/<key>.webp and audio/mystery-egg/<key>.ogg', () => {
+  it('[AC-08] paths follow the contract: art/mystery-egg/<key>.webp and audio/mystery-egg/<key>.ogg', () => {
     for (const [id, e] of Object.entries(workshopManifest())) {
       if (e.kind === 'vo' || e.kind === 'sfx') expect(e.path, id).toBe(`audio/mystery-egg/${id}.ogg`);
       else expect(e.path, id).toBe(`art/mystery-egg/${id}.webp`);
@@ -57,14 +57,14 @@ describe('workshop L20 asset manifest', () => {
     expect(assetUrl('ws-domino', '/kids-app/')).toBe('/kids-app/art/mystery-egg/ws-domino.webp');
   });
 
-  it('[L20-AC8] key prefixes: sfx-ws-*, vo-<lang>-ws-*, sleepers ws-sleeper-<id>-<state>', () => {
+  it('[AC-08] key prefixes: sfx-ws-*, vo-<lang>-ws-*, sleepers ws-sleeper-<id>-<state>', () => {
     for (const id of SFX) expect(workshopManifest()[id].kind, id).toBe('sfx');
     for (const id of VO) expect(workshopManifest()[id].kind, id).toBe('vo');
     expect(workshopManifest()['ws-scissors-snip'].kind).toBe('sprite');
     for (const id of ART.filter((k) => k !== 'ws-scissors-snip')) expect(workshopManifest()[id].kind, id).toBe('webp');
   });
 
-  it('[L20-AC8] display sizes in world px (the contract tables; the file is 2x, both backgrounds 1x)', () => {
+  it('[AC-08] display sizes in world px (the contract tables; the file is 2x, both backgrounds 1x)', () => {
     const sizes: Record<string, [number, number]> = {
       'ws-l20-bg-dawn': [1280, 800], 'ws-l20-bg-morning': [1280, 800], 'ws-l20-fixtures': [1280, 800],
       'ws-domino': [28, 114], 'ws-seesaw': [336, 30], 'ws-sandbag': [84, 96], 'ws-lantern': [56, 76],
@@ -81,13 +81,13 @@ describe('workshop L20 asset manifest', () => {
     expect(spriteSpec('ws-scissors-snip')).toEqual({ id: 'ws-scissors-snip', frames: 2, fps: 12, w: 96, h: 64 });
   });
 
-  it('[L20-AC8] both backgrounds are 1x like hub-bg; every other Workshop art file is 2x', () => {
+  it('[AC-08] both backgrounds are 1x like hub-bg; every other Workshop art file is 2x', () => {
     expect([...WORKSHOP_ONE_X_ART_IDS]).toEqual(['ws-l20-bg-dawn', 'ws-l20-bg-morning']);
     expect(ALL_ONE_X_ART_IDS).toEqual(expect.arrayContaining(['hub-bg', 'ws-l20-bg-dawn', 'ws-l20-bg-morning']));
     expect(ALL_ONE_X_ART_IDS).not.toContain('ws-l20-fixtures');
   });
 
-  it('[L20-AC8] VO transcripts and languages are the agreed ones; Hebrew is Bip\'s hints only, feminine singular', () => {
+  it('[AC-08] VO transcripts and languages are the agreed ones; Hebrew is Bip\'s hints only, feminine singular', () => {
     const expected: Record<string, [string, string]> = {
       'vo-fr-ws-l20-story': ['fr', 'Toute la ville dort encore ! Il faut sonner les deux cloches !'],
       'vo-he-ws-l20-goal': ['he', 'בואי נעיר את כל העיר! צריך לצלצל בשני הפעמונים, les cloches: בפעמון הקטן וגם בפעמון הגדול.'],
@@ -102,7 +102,7 @@ describe('workshop L20 asset manifest', () => {
     for (const id of VO) expect(assetEntry(id).lang, id).toBe(id.startsWith('vo-he-') ? 'he' : 'fr');
   });
 
-  it('[L20-AC8] the schema rejects a missing key, an extra key and a vo without transcript', () => {
+  it('[AC-08] the schema rejects a missing key, an extra key and a vo without transcript', () => {
     const base = parseWorkshopManifest(rawWorkshop);
     const { 'ws-domino': _drop, ...fewer } = base;
     expect(() => parseWorkshopManifest(fewer)).toThrow();
@@ -112,12 +112,12 @@ describe('workshop L20 asset manifest', () => {
 });
 
 describe('workshop L20 placeholders (a missing file never breaks the level)', () => {
-  it('[L20-AC8] every sfx-ws-* key is in the sfx id union and has a synth placeholder', () => {
+  it('[AC-08] every sfx-ws-* key is in the sfx id union and has a synth placeholder', () => {
     const ids = eggSfxIds();
     for (const id of SFX) expect(ids, id).toContain(id);
   });
 
-  it('[L20-AC8] every Workshop art key has a code-drawn placeholder (not the grey fallback box)', () => {
+  it('[AC-08] every Workshop art key has a code-drawn placeholder (not the grey fallback box)', () => {
     for (const id of ART) {
       const calls: string[] = [];
       const g = new Proxy({}, { get: (_t, name: string) => (...args: unknown[]) => { calls.push(`${name}:${args[0]}`); return g; } });

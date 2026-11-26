@@ -11,13 +11,13 @@ const STEPS_PER_SECOND = 60;
 const solution = (slots: number[]): L20Config => ({ ramp: 'down-right', slots, scissors: 'A' });
 
 describe('workshop L20 physics', () => {
-  it('[L20-AC1] the level data lists the strip slots and the fixed dominoes of the sim', () => {
+  it('[AC-01] the level data lists the strip slots and the fixed dominoes of the sim', () => {
     expect([...DOMINO_SLOTS]).toEqual([460, 500, 580, 620]);
     expect([...FIXED_DOMINOES]).toEqual([400, 540, 700, 780, 860, 940]);
     expect(L20_TIMEOUT_STEPS).toBe(16 * STEPS_PER_SECOND);
   });
 
-  it('[L20-AC1] the valid set {460,620} + ramp down-right + scissors on A rings both bells with the right bodies', () => {
+  it('[AC-01] the valid set {460,620} + ramp down-right + scissors on A rings both bells with the right bodies', () => {
     const run = simulateL20(Matter, solution([460, 620]));
     const ids = run.events.map((e) => e.id);
     expect(ids).toContain('snip:A');
@@ -34,7 +34,7 @@ describe('workshop L20 physics', () => {
     ['{500,620}', [500, 620]],
   ];
   for (const [name, slots] of VALID) {
-    it(`[L20-AC1] ${name} + ramp down-right + scissors A: both bells within 11.5 s in at least 95% of 10 jittered runs (+-2 px)`, () => {
+    it(`[AC-01] ${name} + ramp down-right + scissors A: both bells within 11.5 s in at least 95% of 10 jittered runs (+-2 px)`, () => {
       let wins = 0;
       for (let seed = 1; seed <= 10; seed++) {
         const run = simulateL20(Matter, solution(slots), { seed, jitter: 2 });
@@ -46,7 +46,7 @@ describe('workshop L20 physics', () => {
     });
   }
 
-  it('[L20-AC1] the morning bell rings first (about 1 s) and Coco\'s bell at about 7 s, like the sim', () => {
+  it('[AC-01] the morning bell rings first (about 1 s) and Coco\'s bell at about 7 s, like the sim', () => {
     const run = simulateL20(Matter, solution([460, 620]));
     const morning = run.events.find((e) => e.id === 'bell:morning:seesaw')!;
     const coco = run.events.find((e) => e.id.startsWith('bell:coco:'))!;
@@ -67,7 +67,7 @@ describe('workshop L20 physics', () => {
     ['empty board', { ramp: 'none', slots: [], scissors: 'none' }],
   ];
   for (const [name, config] of WRONG) {
-    it(`[L20-AC2] ${name}: never both bells (4 jittered runs)`, () => {
+    it(`[AC-02] ${name}: never both bells (4 jittered runs)`, () => {
       for (let seed = 1; seed <= 4; seed++) {
         const run = simulateL20(Matter, config, { seed, jitter: 2 });
         expect(run.run.result, `${name} seed ${seed}`).toBe('fail');
@@ -78,7 +78,7 @@ describe('workshop L20 physics', () => {
     });
   }
 
-  it('[L20-AC2] scissors on B cut the lantern: the morning bell stays silent and the lantern falls', () => {
+  it('[AC-02] scissors on B cut the lantern: the morning bell stays silent and the lantern falls', () => {
     const run = simulateL20(Matter, { ramp: 'down-right', slots: [460, 620], scissors: 'B' });
     const ids = run.events.map((e) => e.id);
     expect(ids).toContain('snip:B');
@@ -87,19 +87,19 @@ describe('workshop L20 physics', () => {
     expect(run.run).toMatchObject({ result: 'fail', reason: 'coco-only' });
   });
 
-  it('[L20-AC2] the failure reasons name which bell rang (none, one of them)', () => {
+  it('[AC-02] the failure reasons name which bell rang (none, one of them)', () => {
     expect(simulateL20(Matter, { ramp: 'none', slots: [], scissors: 'none' }).run.reason).toBe('no-bell');
     expect(simulateL20(Matter, { ramp: 'none', slots: [460, 620], scissors: 'A' }).run.reason).toBe('morning-only');
   });
 
-  it('[L20-AC1] each Play is a fresh engine: the same config twice gives the identical event list', () => {
+  it('[AC-01] each Play is a fresh engine: the same config twice gives the identical event list', () => {
     const a = simulateL20(Matter, solution([460, 620]));
     const b = simulateL20(Matter, solution([460, 620]));
     expect(b.events).toEqual(a.events);
     expect(b.run).toEqual(a.run);
   });
 
-  it('[L20-AC1] the world exposes the bodies the scene draws, and bells ring once only', () => {
+  it('[AC-01] the world exposes the bodies the scene draws, and bells ring once only', () => {
     const world = new L20World(Matter, solution([460, 620]));
     expect(world.bodies.dominoes.map((d) => d.label).sort()).toEqual(
       ['dom400', 'dom460', 'dom540', 'dom620', 'dom700', 'dom780', 'dom860', 'dom940'].sort(),
