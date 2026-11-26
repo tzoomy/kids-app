@@ -12,7 +12,7 @@ import { createRobot, ensureSpriteAnim, ensureSpriteFrames, eggArt, playSpriteOn
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
-import { BALL, BELL, BOARD, FLOOR, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
+import { BALL, BALL_ART_SCALE, BELL, BOARD, FLOOR, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
 import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
 import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
@@ -31,7 +31,7 @@ const PART_HOME: Record<PartKind, { x: number; y: number; scale: number }> = {
   ramp: { x: 540, y: 722, scale: 0.95 },
   bell: { x: 740, y: 722, scale: 1.1 },
 };
-const BALL_SCALE = (BALL.radius * 2) / displaySize('part-ball').w;
+const BALL_SCALE = BALL_ART_SCALE;
 const BELL_SCALE = (BELL.radius * 2 + 8) / displaySize('part-bell').w;
 const CAT_POS = { x: BED.x + 20, y: 290 } as const;
 /** The cat art is drawn at 1.15x; asleep and awake/wake art share the bed line (their bottoms line up). */

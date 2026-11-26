@@ -11,6 +11,14 @@ export const BOARD = { width: 1280, height: 800 } as const;
 
 export const BALL = { x: 150, y: 232, radius: 34 } as const;
 
+/**
+ * `part-ball.webp` is a 64 px display box whose painted disc is only 59 px wide (measured on the alpha of the 128 px file:
+ * a transparent margin of 2.5 px each side). The ball view is scaled so the VISIBLE disc has the physics diameter, otherwise
+ * the painted ball floats about 2.7 px (radius) above the surface it rolls on. Re-measure if the ball art changes.
+ */
+export const BALL_ART_VISIBLE_1X = 59;
+export const BALL_ART_SCALE = (BALL.radius * 2) / BALL_ART_VISIBLE_1X;
+
 /** The fixed shelf the ball starts on (static), tilted slightly down to the right so the ball rolls off by itself. Centre + size + angle (rad). */
 export const SHELF = { x: 210, y: 300, w: 300, h: 28, angle: 0.22 } as const;
 
@@ -18,16 +26,23 @@ export const SHELF = { x: 210, y: 300, w: 300, h: 28, angle: 0.22 } as const;
 export const RAMP_SLOT = { x: 470, y: 440, w: 240, h: 140 } as const;
 
 /**
- * The solid wedge of the ramp piece: a convex polygon in display px relative to the slot (art) centre, matching the
- * painterly `part-ramp.webp` of Gemini's PR #110 (a wedge sloping down to the right, about 0.63 rad). It is NOT the
- * silhouette's peak: the ball would park on the crest. The physics body, the slot glow and the drawn placeholder all
- * use this polygon, unrotated.
+ * The solid wedge of the ramp piece: a convex polygon in display px relative to the slot (art) centre. It is the SILHOUETTE
+ * of the painted `part-ramp.webp` (alpha >= 128 on the 480x280 file, drawn 240x140 centred on the slot, scale 1): its top
+ * edge follows the painted top surface (left shoulder, crest at about (-29, -59), then the slope down to the right tip), so
+ * a ball resting on the body touches the painted slope instead of sinking into it. The older wedge sat about 34 px (one
+ * ball radius) below the painted surface, so the ball looked as if it rolled inside the ramp. Measured with
+ * `tests/unit/mystery-egg.physics.test.ts` (RAMP_ART_TOP): re-measure when Gemini re-delivers the ramp art. The physics
+ * body, the slot glow and the drawn placeholder all use this polygon, unrotated.
  */
 export const RAMP_POLY = [
-  { x: -64, y: -52 },
-  { x: 72, y: 48 },
-  { x: 32, y: 65 },
-  { x: -82, y: 26 },
+  { x: -100.5, y: -42 },
+  { x: -94, y: -46 },
+  { x: -29, y: -59 },
+  { x: 99, y: 34 },
+  { x: 101, y: 39 },
+  { x: 33, y: 65.5 },
+  { x: -97.5, y: 20 },
+  { x: -100.5, y: 17 },
 ] as const;
 
 /** Workbench the ramp feeds onto, with the bell hanging over it. */
