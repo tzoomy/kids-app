@@ -67,6 +67,18 @@ export function drawEarIcon(g: Phaser.GameObjects.Graphics, w: number, h: number
   }
 }
 
+/** Picture-only skip icon (code UI, no art id): a green round button with a double "next" arrow. */
+export function drawSkipIcon(g: Phaser.GameObjects.Graphics, w: number, h: number): void {
+  const r = Math.min(w, h) / 2;
+  g.fillStyle(0x4caf50, 1);
+  g.fillCircle(0, 0, r);
+  g.lineStyle(6, 0x2e7d32, 1);
+  g.strokeCircle(0, 0, r);
+  g.fillStyle(0xffffff, 1);
+  const s = r * 0.32;
+  for (const dx of [-s * 0.9, s * 0.7]) g.fillTriangle(dx - s * 0.7, -s, dx - s * 0.7, s, dx + s * 0.8, 0);
+}
+
 export function drawGearIcon(g: Phaser.GameObjects.Graphics, w: number, h: number): void {
   g.fillStyle(0xf2b632, 1);
   g.fillRoundedRect(-w / 2, -h / 2, w, h, 34);

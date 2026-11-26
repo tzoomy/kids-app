@@ -31,12 +31,16 @@ const AGREED_IDS = [
   'sfx-success', 'sfx-pop',
 ];
 
+/** The combined manifest also holds Gemini's game shell ids (src/content/gameShellAssets.json, pinned in game-shell.assets.test.ts). */
+const isShell = (id: string): boolean => mysteryEggManifest()[id]?.path.includes('/game-shell/') === true;
+const prototypeOnly = <T,>(entries: Array<[string, T]>): Array<[string, T]> => entries.filter(([id]) => !isShell(id));
+
 describe('mystery-egg asset manifest', () => {
-  it('[AC-14] parses with zod and contains exactly the agreed ids', () => {
+  it('[AC-14] mysteryEggAssets.json parses with zod and contains exactly the agreed ids; the combined manifest adds only the game shell file', () => {
     const parsed = parseAssetManifest(rawManifest);
     expect(Object.keys(parsed).sort()).toEqual([...AGREED_IDS].sort());
-    expect([...MYSTERY_EGG_ASSET_IDS].sort()).toEqual([...AGREED_IDS].sort());
-    expect(Object.keys(mysteryEggManifest()).sort()).toEqual([...AGREED_IDS].sort());
+    expect(MYSTERY_EGG_ASSET_IDS.filter((id) => !isShell(id)).sort()).toEqual([...AGREED_IDS].sort());
+    expect(Object.keys(mysteryEggManifest()).filter((id) => !isShell(id)).sort()).toEqual([...AGREED_IDS].sort());
   });
 
   it('[AC-14] paths follow the contract: art/mystery-egg/<id>.webp and audio/mystery-egg/<id>.ogg, relative to the app base', () => {
@@ -50,7 +54,7 @@ describe('mystery-egg asset manifest', () => {
 
   it('[AC-14] kinds: all static art is webp, exactly three sprite strips (cat-wake, robot-blink, confetti), no svg paths', () => {
     const m = parseAssetManifest(rawManifest);
-    expect(entriesOfKind('sprite').map(([id]) => id).sort()).toEqual(['cat-wake', 'confetti', 'robot-blink']);
+    expect(prototypeOnly(entriesOfKind('sprite')).map(([id]) => id).sort()).toEqual(['cat-wake', 'confetti', 'robot-blink']);
     expect(Object.values(m).some((e) => e.kind === 'svg')).toBe(false);
     expect(Object.values(m).some((e) => e.path.endsWith('.svg'))).toBe(false);
     for (const id of ['hub-bg', 'bunny', 'robot', 'feather', 'part-ramp', 'egg-nest-3']) expect(m[id].kind, id).toBe('webp');
@@ -58,7 +62,7 @@ describe('mystery-egg asset manifest', () => {
   });
 
   it('[AC-14] every vo-* entry has a transcript and a language; the transcripts are the ones Gemini verified (PR #108) and the Hebrew ones do not name the child', () => {
-    const vos = entriesOfKind('vo');
+    const vos = prototypeOnly(entriesOfKind('vo'));
     expect(vos.map(([id]) => id).sort()).toEqual([
       'vo-fr-cat-croissants', 'vo-fr-instruction', 'vo-fr-presque', 'vo-fr-robot-aide', 'vo-fr-robot-regarde', 'vo-fr-story', 'vo-fr-success',
       'vo-he-robot-breathe', 'vo-he-robot-help-1', 'vo-he-robot-help-2',

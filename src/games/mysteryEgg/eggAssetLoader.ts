@@ -2,16 +2,30 @@
 // (drawn placeholder) and never throws. Voice and sfx files are played with audio elements (voiceProvider.ts, eggSound.ts).
 // The Gemini PR adds the files at the manifest paths; nothing here changes when they land.
 import Phaser from 'phaser';
-import { assetUrl, mysteryEggManifest } from './assets';
+import { GAME_SHELL_ASSET_IDS, assetUrl, mysteryEggManifest } from './assets';
 import { eggAvailability } from './voiceProvider';
 
 /** Longest the scene waits for the loader before it draws with what it has. */
 const LOAD_TIMEOUT_MS = 4000;
 
-export function loadEggAssets(scene: Phaser.Scene, base: string, done: () => void): void {
+const SHELL = new Set<string>(GAME_SHELL_ASSET_IDS);
+
+/** Art the map needs: the prototype's art and the shell's map, tiles and friends (the `shell-*` slide images load on demand). */
+export function mapArtIds(): string[] {
+  return Object.entries(mysteryEggManifest())
+    .filter(([id, e]) => e.kind !== 'vo' && e.kind !== 'sfx' && !id.startsWith('shell-'))
+    .map(([id]) => id);
+}
+
+/**
+ * Queues art of the manifest (not the audio). By default only the prototype's art is queued (the Workshop game never
+ * needs the shell's map, tiles or slides); with `ids`, exactly those art ids are queued (the map and the slide player).
+ */
+export function loadEggAssets(scene: Phaser.Scene, base: string, done: () => void, ids?: readonly string[]): void {
   let queued = 0;
   for (const [id, entry] of Object.entries(mysteryEggManifest())) {
     if (entry.kind === 'vo' || entry.kind === 'sfx' || eggAvailability.isMissing(id)) continue;
+    if (ids ? !ids.includes(id) : SHELL.has(id)) continue;
     if (scene.textures.exists(id)) {
       eggAvailability.markLoaded(id);
       continue;

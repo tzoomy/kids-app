@@ -57,7 +57,7 @@ describe('mystery-egg progress', () => {
   it('[AC-05] wrong field types and unknown mission ids are repaired, keeping what is valid', () => {
     const key = mysteryEggKey('p');
     const storage = memoryStorage({ [key]: JSON.stringify({ v: 1, completed: ['1.1', '9.9', 7, null, '1.1', {}] }) });
-    expect(loadProgress(storage, 'p').completed).toEqual(['1.1']);
+    expect(loadProgress(storage, 'p').worlds.workshop.completed).toEqual([1]);
     const storage2 = memoryStorage({ [key]: JSON.stringify({ v: 1, completed: 'nope' }) });
     expect(loadProgress(storage2, 'p')).toEqual(createProgress());
   });

@@ -1,6 +1,6 @@
 # `mystery-egg` — asset contract (code agent ↔ Gemini agent)
 
-Status: **approved** (agreed between the code agent and the Gemini agent as part of Maor's approved task of 2026-11-25).
+Status: **approved** (agreed between the code agent and the Gemini agent as part of Maor's approved task of 2026-11-25; the "Game shell assets" section at the end was added 2026-11-26 for `docs/specs/game-shell.md`, which is still a draft).
 Pass in progress: **1** (same pass as the main spec; this file has no acceptance criteria of its own, its checks are AC-14 and AC-15 in `docs/specs/mystery-egg.md`).
 Companion of `docs/specs/mystery-egg.md`. Ids, paths, and kinds below are **frozen**: changing one is a spec change.
 
@@ -105,3 +105,54 @@ Wired where cheap and natural: `vo-fr-story` (intro, before `vo-fr-instruction`)
 - Keep the **centre** of each image at the visual centre: the code positions every image by its centre. `cat-wake` and `cat-awake` share one 640×640 frame (the code lines the cat's bottom up with the bed), and `robot`, `robot-blink` share one 280×360 frame.
 - `egg-nest-0` … `egg-nest-5` must share the same canvas and egg position so the glow can step up in place.
 - `part-ramp` (painterly, PR #110) is a solid wedge sloping down to the right (about 0.63 rad), 240×140 display. The code builds the physics body from a convex polygon in display px relative to the art centre (`layout.ts` `RAMP_POLY`: (-64,-52), (72,48), (32,65), (-82,26)), unrotated; the glow and the drawn placeholder use the same polygon. It is deliberately not the silhouette's peak (the ball would park on the crest). **If the ramp art is redrawn, keep that wedge geometry or update `RAMP_POLY`** so the drawn ramp and the solid ramp coincide.
+
+## Game shell assets
+
+Gemini's media contract for `docs/specs/game-shell.md` (their `game-shell/plan.md`, section (d)), adopted 2026-11-26. **37 ids**, kept in the sibling manifest **`src/content/gameShellAssets.json`** (verbatim from Gemini's snippet) and merged with `mysteryEggAssets.json` at load time into one manifest (78 ids; the same id in both files is an error: `tests/unit/game-shell.assets.test.ts` pins this list). `mysteryEggAssets.json` and the files under `art/mystery-egg` and `audio/mystery-egg` are unchanged.
+
+- **Paths:** `public/art/game-shell/<id>.webp` and `public/audio/game-shell/<id>.ogg`, in the manifest as `art/game-shell/<id>.webp` and `audio/game-shell/<id>.ogg` (relative to the app base).
+- **Sizes:** manifest `w`,`h` are the 1x display size (a sprite entry gives the single-frame size). File pixels: 2x for tiles, friends and the nest, **1x for `map-bg` and the six `shell-*` slide images** (display 1280×800). A walk strip is `frames × w × 2` wide.
+- **Missing files:** these files arrive with Gemini's media PR. Until then the code draws placeholders (art), or plays a chime with a speech-bubble cue (voice); the files guard (`tests/unit/mystery-egg.files.test.ts`) accepts a missing `game-shell` file and still checks any that exist (sizes and listing).
+- **Code only (no id):** the skip button, the path glow, the nest glow around `map-nest-home` that grows with the egg level, and the earned nest-piece placeholders (the feather reuses `art/mystery-egg/feather.webp`; the other pieces are drawn shapes). A closed world only wiggles: no voice and no sfx id.
+- **Voice:** two-clip slides play the French hero clip, then the Hebrew clip after a 400 ms gap; ws-2 has the robot clip only. No names in the voice-over this pass. Hebrew clips are feminine singular where they address the child.
+- **Anchors** (tile centres, 1280×800 board): nest-home (640,420), workshop (220,230), bakery (640,180), detective (1060,230), jungle (220,650), garden (1060,650).
+
+| id | path | kind | size | depicts | transcript + lang (`vo-*`) |
+|---|---|---|---|---|---|
+| `shell-intro-1` | `art/game-shell/shell-intro-1.webp` | webp | 1280×800 display | Intro beat 1: the egg is found in the sunny square; friends run up, surprised and glad. | — |
+| `shell-intro-2` | `art/game-shell/shell-intro-2.webp` | webp | 1280×800 display | Intro beat 2: close on the robot looking at its 5 empty heart slots; the bunny kneels beside it. | — |
+| `shell-intro-3` | `art/game-shell/shell-intro-3.webp` | webp | 1280×800 display | Intro beat 3: the friends tuck a blanket and a feather around the egg in a cozy nest. | — |
+| `shell-intro-4` | `art/game-shell/shell-intro-4.webp` | webp | 1280×800 display | Intro beat 4: the storybook map, Workshop open, the others cutely closed; a heart-glow and a treasure hint. | — |
+| `shell-ws-1` | `art/game-shell/shell-ws-1.webp` | webp | 1280×800 display | Workshop entry 1: the friends at the open door; Monsieur Moustache asleep through a side window. | — |
+| `shell-ws-2` | `art/game-shell/shell-ws-2.webp` | webp | 1280×800 display | Workshop entry 2: ramp, red ball rolling toward a bell; a glow toward the first heart slot. | — |
+| `map-bg` | `art/game-shell/map-bg.webp` | webp | 1280×800 display | Ground and the five cobblestone paths from the centre clearing to five clearings (opaque, 1x file). No buildings, nest or characters. | — |
+| `map-nest-home` | `art/game-shell/map-nest-home.webp` | webp | 360×300 display | Map-scale cozy nest with the speckled egg, blanket and feather (transparent, 2x file). Do not reuse `egg-nest-*`. | — |
+| `map-world-workshop-open` | `art/game-shell/map-world-workshop-open.webp` | webp | 320×260 display | World tile `workshop`, open look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-workshop-closed` | `art/game-shell/map-world-workshop-closed.webp` | webp | 320×260 display | World tile `workshop`, closed look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-bakery-open` | `art/game-shell/map-world-bakery-open.webp` | webp | 320×260 display | World tile `bakery`, open look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-bakery-closed` | `art/game-shell/map-world-bakery-closed.webp` | webp | 320×260 display | World tile `bakery`, closed look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-detective-open` | `art/game-shell/map-world-detective-open.webp` | webp | 320×260 display | World tile `detective`, open look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-detective-closed` | `art/game-shell/map-world-detective-closed.webp` | webp | 320×260 display | World tile `detective`, closed look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-jungle-open` | `art/game-shell/map-world-jungle-open.webp` | webp | 320×260 display | World tile `jungle`, open look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-jungle-closed` | `art/game-shell/map-world-jungle-closed.webp` | webp | 320×260 display | World tile `jungle`, closed look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-garden-open` | `art/game-shell/map-world-garden-open.webp` | webp | 320×260 display | World tile `garden`, open look (transparent, 2x file); anchor in the layout table. | — |
+| `map-world-garden-closed` | `art/game-shell/map-world-garden-closed.webp` | webp | 320×260 display | World tile `garden`, closed look (transparent, 2x file); anchor in the layout table. | — |
+| `map-bunny-idle` | `art/game-shell/map-bunny-idle.webp` | webp | 160×200 display | Friend at rest, 3/4 pose facing slightly right (transparent, 2x file). | — |
+| `map-bunny-walk` | `art/game-shell/map-bunny-walk.webp` | sprite | single frame 160×200 display; 4 frames, 8 fps | Walk strip: 4 equal frames side by side, facing right (the code flips it when going left); 8 fps. | — |
+| `map-robot-idle` | `art/game-shell/map-robot-idle.webp` | webp | 120×150 display | Friend at rest, 3/4 pose facing slightly right (transparent, 2x file). | — |
+| `map-robot-walk` | `art/game-shell/map-robot-walk.webp` | sprite | single frame 120×150 display; 4 frames, 8 fps | Walk strip: 4 equal frames side by side, facing right (the code flips it when going left); 8 fps. | — |
+| `map-capybara-idle` | `art/game-shell/map-capybara-idle.webp` | webp | 160×190 display | Friend at rest, 3/4 pose facing slightly right (transparent, 2x file). | — |
+| `map-capybara-walk` | `art/game-shell/map-capybara-walk.webp` | sprite | single frame 160×190 display; 4 frames, 8 fps | Walk strip: 4 equal frames side by side, facing right (the code flips it when going left); 8 fps. | — |
+| `map-frog-idle` | `art/game-shell/map-frog-idle.webp` | webp | 110×130 display | Friend at rest, 3/4 pose facing slightly right (transparent, 2x file). | — |
+| `map-frog-walk` | `art/game-shell/map-frog-walk.webp` | sprite | single frame 110×130 display; 4 frames, 8 fps | Walk strip: 4 equal frames side by side, facing right (the code flips it when going left); 8 fps. | — |
+| `vo-shell-intro-1-hero` | `audio/game-shell/vo-shell-intro-1-hero.ogg` | vo | Opus mono | Voice clip. | “Oh ! Un œuf !” (`fr`) |
+| `vo-shell-intro-1-narr` | `audio/game-shell/vo-shell-intro-1-narr.ogg` | vo | Opus mono | Voice clip. | “ביצה חמה התגלגלה לכיכר!” (`he`) |
+| `vo-shell-intro-2-hero` | `audio/game-shell/vo-shell-intro-2-hero.ogg` | vo | Opus mono | Voice clip. | “Mon petit robot… tu ne sais pas encore sentir.” (`fr`) |
+| `vo-shell-intro-2-robot` | `audio/game-shell/vo-shell-intro-2-robot.ogg` | vo | Opus mono | Voice clip. | “הלב שלי עוד ריק. אני לא יודע להרגיש.” (`he`) |
+| `vo-shell-intro-3-hero` | `audio/game-shell/vo-shell-intro-3-hero.ogg` | vo | Opus mono | Voice clip. | “On va t'aider, petit œuf. Promis !” (`fr`) |
+| `vo-shell-intro-3-robot` | `audio/game-shell/vo-shell-intro-3-robot.ogg` | vo | Opus mono | Voice clip. | “נבנה לך קן חם, un nid. וגם אני אלמד להרגיש.” (`he`) |
+| `vo-shell-intro-4-hero` | `audio/game-shell/vo-shell-intro-4-hero.ogg` | vo | Opus mono | Voice clip. | “Regarde ! Des cœurs… et des trésors pour le nid.” (`fr`) |
+| `vo-shell-intro-4-narr` | `audio/game-shell/vo-shell-intro-4-narr.ogg` | vo | Opus mono | Voice clip. | “מצליחים — הרובוט מקבל לב, un cœur. כמה משחקים — מתנה לקן. ככה הביצה תבקע!” (`he`) |
+| `vo-shell-ws-1-hero` | `audio/game-shell/vo-shell-ws-1-hero.ogg` | vo | Opus mono | Voice clip. | “Voici l'atelier ! Monsieur Moustache dort !” (`fr`) |
+| `vo-shell-ws-1-narr` | `audio/game-shell/vo-shell-ws-1-narr.ogg` | vo | Opus mono | Voice clip. | “החתול האופה ישן. בואי נעיר אותו!” (`he`) |
+| `vo-shell-ws-2-robot` | `audio/game-shell/vo-shell-ws-2-robot.ogg` | vo | Opus mono | Voice clip. | “שמים חלקים, לוחצים על נגן, והכדור, la balle, מתגלגל!” (`he`) |

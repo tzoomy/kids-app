@@ -3,6 +3,7 @@
 // this code reads sizes, frames and fps from `src/content/mysteryEggAssets.json` and tolerates any file being absent.
 import { z } from 'zod';
 import rawManifest from '../../content/mysteryEggAssets.json';
+import rawShellManifest from '../../content/gameShellAssets.json';
 
 export const assetKindSchema = z.enum(['svg', 'webp', 'sprite', 'vo', 'sfx']);
 export type AssetKind = z.infer<typeof assetKindSchema>;
@@ -32,14 +33,14 @@ export const assetEntrySchema = z
     // fps is optional: a strip of particle frames (confetti) is not an animation.
     if (e.kind === 'sprite') need(e.frames !== undefined, 'sprite needs frames');
     if (e.kind === 'vo') need(Boolean(e.transcript) && e.lang !== undefined, 'vo needs transcript and lang');
-    if (e.kind === 'webp' || e.kind === 'sprite') need(/^art\/mystery-egg\/[a-z0-9-]+\.webp$/.test(e.path), 'art path must be art/mystery-egg/<id>.webp');
-    if (e.kind === 'vo' || e.kind === 'sfx') need(/^audio\/mystery-egg\/[a-z0-9-]+\.ogg$/.test(e.path), 'audio path must be audio/mystery-egg/<id>.ogg');
+    if (e.kind === 'webp' || e.kind === 'sprite') need(/^art\/(mystery-egg|game-shell)\/[a-z0-9-]+\.webp$/.test(e.path), 'art path must be art/<mystery-egg|game-shell>/<id>.webp');
+    if (e.kind === 'vo' || e.kind === 'sfx') need(/^audio\/(mystery-egg|game-shell)\/[a-z0-9-]+\.ogg$/.test(e.path), 'audio path must be audio/<mystery-egg|game-shell>/<id>.ogg');
   });
 
 export type AssetEntry = z.infer<typeof assetEntrySchema>;
 
-/** Exactly the ids agreed with the Gemini agent, incl. the extras of PR #108 (a spec change is needed to add one). */
-export const MYSTERY_EGG_ASSET_IDS = [
+/** The prototype's ids agreed with the Gemini agent, incl. the extras of PR #108 (a spec change is needed to add one). */
+const PROTOTYPE_ASSET_IDS = [
   'hub-bg',
   'egg-nest-0', 'egg-nest-1', 'egg-nest-2', 'egg-nest-3', 'egg-nest-4', 'egg-nest-5',
   'bunny', 'robot', 'capybara', 'cat-asleep', 'cat-awake',
@@ -53,22 +54,65 @@ export const MYSTERY_EGG_ASSET_IDS = [
   'vo-fr-story', 'vo-fr-presque', 'vo-fr-robot-regarde', 'vo-fr-robot-aide', 'vo-he-robot-breathe',
   'sfx-success', 'sfx-pop',
 ] as const;
+
+/**
+ * The game shell ids: Gemini's media contract (`src/content/gameShellAssets.json`, paths under art|audio/game-shell/).
+ * The files arrive with Gemini's media PR; until then every one falls back to a placeholder.
+ */
+export const GAME_SHELL_ASSET_IDS = [
+  'shell-intro-1', 'shell-intro-2', 'shell-intro-3', 'shell-intro-4', 'shell-ws-1', 'shell-ws-2',
+  'map-bg', 'map-nest-home',
+  'map-world-workshop-open', 'map-world-workshop-closed', 'map-world-bakery-open', 'map-world-bakery-closed',
+  'map-world-detective-open', 'map-world-detective-closed', 'map-world-jungle-open', 'map-world-jungle-closed',
+  'map-world-garden-open', 'map-world-garden-closed',
+  'map-bunny-idle', 'map-bunny-walk', 'map-robot-idle', 'map-robot-walk', 'map-capybara-idle', 'map-capybara-walk', 'map-frog-idle', 'map-frog-walk',
+  'vo-shell-intro-1-hero', 'vo-shell-intro-1-narr', 'vo-shell-intro-2-hero', 'vo-shell-intro-2-robot',
+  'vo-shell-intro-3-hero', 'vo-shell-intro-3-robot', 'vo-shell-intro-4-hero', 'vo-shell-intro-4-narr',
+  'vo-shell-ws-1-hero', 'vo-shell-ws-1-narr', 'vo-shell-ws-2-robot',
+] as const;
+
+/** Every id of the combined manifest. */
+export const MYSTERY_EGG_ASSET_IDS = [...PROTOTYPE_ASSET_IDS, ...GAME_SHELL_ASSET_IDS] as const;
 export type MysteryEggAssetId = (typeof MYSTERY_EGG_ASSET_IDS)[number];
+
+/** Full-screen images delivered at 1x (file px = display px); every other art file is 2x. */
+export const ONE_X_ART_IDS: readonly string[] = ['hub-bg', 'map-bg', 'shell-intro-1', 'shell-intro-2', 'shell-intro-3', 'shell-intro-4', 'shell-ws-1', 'shell-ws-2'];
 
 export type AssetManifest = Record<string, AssetEntry>;
 
-/** Validates a manifest and requires exactly the agreed ids. Throws a ZodError / Error on any violation. */
-export function parseAssetManifest(input: unknown): AssetManifest {
+function parseExact(input: unknown, ids: readonly string[], label: string): AssetManifest {
   const parsed = z.record(assetEntrySchema).parse(input);
   const have = Object.keys(parsed).sort().join(',');
-  const want = [...MYSTERY_EGG_ASSET_IDS].sort().join(',');
-  if (have !== want) throw new Error(`Mystery Egg manifest ids differ from the agreed set.\nhave: ${have}\nwant: ${want}`);
+  const want = [...ids].sort().join(',');
+  if (have !== want) throw new Error(`${label} ids differ from the agreed set.\nhave: ${have}\nwant: ${want}`);
   return parsed;
+}
+
+/** Validates `mysteryEggAssets.json` and requires exactly the prototype's agreed ids. Throws on any violation. */
+export function parseAssetManifest(input: unknown): AssetManifest {
+  return parseExact(input, PROTOTYPE_ASSET_IDS, 'Mystery Egg manifest');
+}
+
+/** Validates `gameShellAssets.json` (Gemini's media contract) and requires exactly its ids. */
+export function parseGameShellManifest(input: unknown): AssetManifest {
+  return parseExact(input, GAME_SHELL_ASSET_IDS, 'Game shell manifest');
+}
+
+/** One combined manifest from several files; the same id in two files is an error. */
+export function mergeManifests(...parts: AssetManifest[]): AssetManifest {
+  const out: AssetManifest = {};
+  for (const part of parts) {
+    for (const [id, entry] of Object.entries(part)) {
+      if (id in out) throw new Error(`Duplicate asset id across manifest files: ${id}`);
+      out[id] = entry;
+    }
+  }
+  return out;
 }
 
 let cached: AssetManifest | null = null;
 export function mysteryEggManifest(): AssetManifest {
-  cached ??= parseAssetManifest(rawManifest);
+  cached ??= mergeManifests(parseAssetManifest(rawManifest), parseGameShellManifest(rawShellManifest));
   return cached;
 }
 
