@@ -533,7 +533,7 @@ export class MysteryEggScene extends Phaser.Scene {
   /** ?e2e=1 read hook. */
   getMysteryEggInfo(): MysteryEggInfo {
     const rects: MysteryEggInfo['rects'] = {};
-    for (const [target, b] of this.buttons) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
+    for (const [target, b] of this.buttons) if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
     for (const def of WORLDS) rects[`world-${def.id}`] = boardRectToPage(this, def.hit.x, def.hit.y, def.hit.w, def.hit.h);
     const slideRects: { skipBtn?: EggPageRect; slideTap?: EggPageRect } = this.overlay?.rects() ?? {};
     if (this.overlay && slideRects.skipBtn && slideRects.slideTap) {

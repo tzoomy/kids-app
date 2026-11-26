@@ -691,8 +691,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   /** ?e2e=1 read hook: state and page-px rectangles of everything the child can tap or drag. */
   getMysteryEggInfo(): MysteryEggInfo {
     const rects: MysteryEggInfo['rects'] = {};
+    // A button is reported only once it is really tappable (see `EggButton.ready`).
     for (const [target, b] of this.buttons) {
-      rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
+      if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
     }
     rects.bunny = boardRectToPage(this, this.bunnyView.x, this.bunnyView.y, this.bunnyView.width * this.bunnyView.scaleX, this.bunnyView.height * this.bunnyView.scaleY);
     rects.slot = boardRectToPage(this, RAMP_SLOT.x, RAMP_SLOT.y, RAMP_SLOT.w, 120);
