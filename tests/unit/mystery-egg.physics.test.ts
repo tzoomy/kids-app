@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import MatterModule from 'phaser/src/physics/matter-js/CustomMain.js';
 import { Machine, simulateRun, type MatterLib } from '../../src/games/mysteryEgg/machine';
 import * as layout from '../../src/games/mysteryEgg/layout';
-import { BALL, BELL, RAMP_POLY, RAMP_SLOT, SLOTS } from '../../src/games/mysteryEgg/layout';
+import { BALL, BALL_ART_SCALE, BALL_ART_VISIBLE_1X, BELL, RAMP_POLY, RAMP_SLOT, SLOTS } from '../../src/games/mysteryEgg/layout';
 import { STEP_MS } from '../../src/games/mysteryEgg/run';
 
 const Matter = MatterModule as unknown as MatterLib;
@@ -98,12 +98,12 @@ describe('mystery-egg physics (headless, fixed 60 Hz)', () => {
   });
 
   it('[AC-09] the ramp body is the wedge RAMP_POLY (display px relative to the slot centre), unrotated, and the plank is gone', () => {
-    expect(RAMP_POLY).toEqual([{ x: -64, y: -52 }, { x: 72, y: 48 }, { x: 32, y: 65 }, { x: -82, y: 26 }]);
     expect('RAMP_BODY' in layout).toBe(false);
     // Convex: all cross products of consecutive edges have the same sign.
+    const n = RAMP_POLY.length;
     const cross = RAMP_POLY.map((p, i) => {
-      const q = RAMP_POLY[(i + 1) % 4];
-      const r = RAMP_POLY[(i + 2) % 4];
+      const q = RAMP_POLY[(i + 1) % n];
+      const r = RAMP_POLY[(i + 2) % n];
       return (q.x - p.x) * (r.y - q.y) - (q.y - p.y) * (r.x - q.x);
     });
     expect(cross.every((c) => c > 0) || cross.every((c) => c < 0)).toBe(true);
@@ -112,7 +112,7 @@ describe('mystery-egg physics (headless, fixed 60 Hz)', () => {
     const machine = new Machine(Matter, engine);
     machine.placeRamp();
     const world = machine.rampVertices();
-    expect(world).toHaveLength(4);
+    expect(world).toHaveLength(n);
     for (const p of RAMP_POLY) {
       const hit = world.some((v) => Math.abs(v.x - (RAMP_SLOT.x + p.x)) < 1e-6 && Math.abs(v.y - (RAMP_SLOT.y + p.y)) < 1e-6);
       expect(hit, `vertex ${p.x},${p.y}`).toBe(true);
@@ -132,4 +132,75 @@ describe('mystery-egg physics (headless, fixed 60 Hz)', () => {
     }
     expect(wins).toBe(225);
   });
+
+  // ---- The ball must ride ON the painted ramp, not inside it (tablet feedback 2026-11-26) -------------------------------------
+
+  it('[AC-22] the body top edge follows the painted top surface of part-ramp.webp within 3 px along its whole width', () => {
+    const engine = Matter.Engine.create();
+    const machine = new Machine(Matter, engine);
+    machine.placeRamp();
+    const world = machine.rampVertices();
+    for (const [dx, artTop] of RAMP_ART_TOP) {
+      const x = RAMP_SLOT.x + dx;
+      const top = bodyTopAt(world, x);
+      expect(top, `body has no surface at dx ${dx}`).not.toBeNull();
+      expect(Math.abs((top as number) - (RAMP_SLOT.y + artTop)), `dx ${dx}: body top ${top} vs art top ${RAMP_SLOT.y + artTop}`).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it('[AC-22] a rolling ball touches the painted slope: its centre stays one ball radius (+-3 px) off the art surface line while it is on the ramp', () => {
+    // The painted slope: least-squares line through the measured samples of the sloping part (dx -24..96).
+    const slope = RAMP_ART_TOP.filter(([dx]) => dx >= -24);
+    const n = slope.length;
+    const mx = slope.reduce((a, [dx]) => a + dx, 0) / n;
+    const my = slope.reduce((a, [, t]) => a + t, 0) / n;
+    const b = slope.reduce((a, [dx, t]) => a + (dx - mx) * (t - my), 0) / slope.reduce((a, [dx]) => a + (dx - mx) ** 2, 0);
+    const a0 = my - b * mx;
+    const engine = Matter.Engine.create();
+    const machine = new Machine(Matter, engine);
+    machine.placeRamp();
+    machine.launch();
+    const distances: number[] = [];
+    for (let i = 0; i < 400; i++) {
+      const s = machine.step();
+      const dx = s.x - RAMP_SLOT.x;
+      const dy = s.y - RAMP_SLOT.y;
+      if (dx >= 0 && dx <= 80) distances.push(((dy - (a0 + b * dx)) * -1) / Math.sqrt(1 + b * b)); // perpendicular distance above the line
+    }
+    expect(distances.length).toBeGreaterThan(5);
+    const sorted = [...distances].sort((x, y) => x - y);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    expect(Math.abs(median - BALL.radius)).toBeLessThanOrEqual(3);
+    // It never sinks into the painted ramp: never closer than the radius minus 3 px.
+    expect(Math.min(...distances)).toBeGreaterThanOrEqual(BALL.radius - 3);
+  });
+
+  it('[AC-22] the ball art is drawn so its VISIBLE disc has the physics diameter (the art has a transparent margin)', () => {
+    expect(BALL_ART_VISIBLE_1X).toBe(59);
+    expect(BALL_ART_SCALE * BALL_ART_VISIBLE_1X).toBeCloseTo(BALL.radius * 2, 6);
+  });
 });
+
+/**
+ * Top edge of the painted ramp (`public/art/mystery-egg/part-ramp.webp`, 480x280, drawn 240x140 centred on the slot at
+ * scale 1): for each display x relative to the slot centre, the first opaque row (alpha >= 128) relative to the slot centre.
+ * Measured with a throwaway script reading the file's alpha; re-measure when Gemini re-delivers the ramp art.
+ */
+const RAMP_ART_TOP: ReadonlyArray<readonly [number, number]> = [
+  [-96, -46], [-88, -47.5], [-80, -49.5], [-72, -51], [-64, -53], [-56, -54.5], [-48, -56.5], [-40, -58], [-32, -59.5],
+  [-24, -55.5], [-16, -50], [-8, -44.5], [0, -38.5], [8, -32.5], [16, -27], [24, -21], [32, -15], [40, -9.5], [48, -3.5],
+  [56, 2], [64, 8], [72, 14], [80, 19.5], [88, 25.5], [96, 31.5],
+];
+
+/** The smallest y of the polygon along the vertical line at x (null when x is outside it). */
+function bodyTopAt(poly: ReadonlyArray<{ x: number; y: number }>, x: number): number | null {
+  let top: number | null = null;
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i];
+    const q = poly[(i + 1) % poly.length];
+    if ((p.x - x) * (q.x - x) > 0 || p.x === q.x) continue;
+    const y = p.y + ((q.y - p.y) * (x - p.x)) / (q.x - p.x);
+    top = top === null ? y : Math.min(top, y);
+  }
+  return top;
+}

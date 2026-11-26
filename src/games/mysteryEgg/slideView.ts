@@ -5,10 +5,10 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { eggArt } from './art';
-import { assetEntry } from './assets';
 import { boardRectToPage } from './boardView';
 import { BOARD } from './layout';
 import { SlidePlayer, SlideVoice, type SlideDef } from './slides';
+import { eggSpeechRequest } from './speech';
 import type { EggPageRect, SlideInfo } from './types';
 import { MIN_TAP, drawSkipIcon, makeButton, speechCue } from './ui';
 import type { WorldId } from './worlds';
@@ -135,9 +135,10 @@ export class SlideOverlay {
 
   /** One clip (its file, or a chime plus a speech cue when it is missing); resolves when it ends or is cut. */
   private playClip(lineId: string): Promise<unknown> {
-    const entry = assetEntry(lineId);
-    if (this.closed || entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve();
-    this.cues.push(speechCue(this.scene, entry.lang === 'fr' ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
-    return this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
+    // Slide voice-over plays at the recorded speed (SLIDE_SPEECH_RATE), not at the in-game rate.
+    const request = eggSpeechRequest(lineId, 'slide');
+    if (this.closed || !request) return Promise.resolve();
+    this.cues.push(speechCue(this.scene, request.lang === 'fr' ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
+    return this.context.audio.play(request).catch(() => false);
   }
 }

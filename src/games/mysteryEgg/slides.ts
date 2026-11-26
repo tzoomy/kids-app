@@ -86,7 +86,11 @@ export class SlidePlayer {
   }
 }
 
-/** Pause between the French hero clip and the Hebrew clip of a two-clip slide. */
+/**
+ * Pause between the French hero clip and the Hebrew clip of a two-clip slide. The clips play at their natural 1.0x length
+ * (PR #115): the intro speaks 26.06 s (27.66 s with its four gaps), the Workshop entry 11.77 s (12.17 s). Nothing here assumes
+ * a total: each clip is awaited to its end and a slide only advances on a tap.
+ */
 export const SLIDE_LINE_GAP_MS = 400;
 
 export interface SlideVoiceDeps {
