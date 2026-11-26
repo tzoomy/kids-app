@@ -95,3 +95,15 @@ export function walkFrame(routes: readonly (readonly Point2[])[], elapsedMs: num
 export function walkDurationMs(routes: readonly (readonly Point2[])[], opts: WalkOptions): number {
   return Math.max(0, ...routes.map((r, i) => (polylineLength(r) / opts.speed) * 1000 + i * opts.staggerMs));
 }
+
+/**
+ * Which way a friend faces (the art faces right): a walking friend turns to its heading and keeps its side while the heading
+ * is nearly vertical; a friend that is not walking always goes back to the default side (1), so nobody stays flipped.
+ */
+export function facingFor(s: { moving: boolean; angle: number; current: 1 | -1 }): 1 | -1 {
+  if (!s.moving) return 1;
+  const c = Math.cos(s.angle);
+  if (c < -0.2) return -1;
+  if (c > 0.2) return 1;
+  return s.current;
+}

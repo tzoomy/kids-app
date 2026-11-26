@@ -301,6 +301,37 @@ test.describe('game-shell', () => {
     expect((await info(page))?.map?.lockedTaps).toBe(0);
   });
 
+  test('[AC-21] @single-orientation friends flip while walking left and face the default side again on arrival and on a re-entered map', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterMapByTap(page, 'profile-a');
+    await seed(page, { v: 2, introSeen: true });
+    const before = await openMapByTap(page);
+    expect(Object.values(before.map?.friendFacing ?? {})).toEqual([1, 1, 1, 1]);
+    await tap(page, 'world-workshop');
+    let flipped = false;
+    const deadline = Date.now() + 30_000;
+    for (;;) {
+      const i = await info(page);
+      if (Object.values(i?.map?.friendFacing ?? {}).includes(-1)) flipped = true;
+      if (i?.phase === 'entry') break;
+      if (Date.now() > deadline) throw new Error(`the walk never arrived; last info: ${JSON.stringify(i)}`);
+      await page.waitForTimeout(60);
+    }
+    expect(flipped).toBe(true);
+    // Arrived (the entry slides are up): nobody stays flipped.
+    const entry = await info(page);
+    expect(Object.values(entry?.map?.friendFacing ?? {})).toEqual([1, 1, 1, 1]);
+    await tap(page, 'skipBtn');
+    await waitForScene(page, 'MysteryEggBuildScene');
+    // Back on the re-entered map everyone faces the default side.
+    await waitInfo(page, (i) => i.scene === 'MysteryEggBuildScene' && i.ready, 'the Workshop never opened');
+    await tap(page, 'backBtn');
+    await waitForScene(page, 'MysteryEggScene');
+    const map = await waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never came back');
+    expect(Object.values(map.map?.friendFacing ?? {})).toEqual([1, 1, 1, 1]);
+  });
+
   test('[AC-10] @single-orientation the intro: 4 slides on the first visit, a tap advances and requests the French then the Hebrew line, the skip button skips all, and the next visit goes straight to the map', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);

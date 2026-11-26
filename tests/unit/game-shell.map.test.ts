@@ -1,6 +1,8 @@
 // Game shell map rules (docs/specs/game-shell.md): the map-phase tap guard and the non-stacking wiggle. Pure modules only.
 import { describe, expect, it } from 'vitest';
 import { WiggleGuard, worldTapAllowed } from '../../src/games/mysteryEgg/mapRules';
+import { facingFor, friendRoute, polylineLength, pointAtDistance } from '../../src/games/mysteryEgg/walk';
+import { FRIEND_HOMES, MAP_FRIENDS, WORLDS } from '../../src/games/mysteryEgg/worlds';
 import type { EggPhase } from '../../src/games/mysteryEgg/types';
 
 describe('game-shell map tap guard', () => {
@@ -70,5 +72,37 @@ describe('game-shell wiggle guard', () => {
     guard.start(a, run);
     guard.start(b, run);
     expect(tweens.map((t) => t.stopped)).toEqual([false, false]);
+  });
+});
+
+describe('game-shell friend facing', () => {
+  it('[AC-21] a walking friend faces its heading (left flips, right and up or down keep the current side)', () => {
+    expect(facingFor({ moving: true, angle: 0, current: 1 })).toBe(1);
+    expect(facingFor({ moving: true, angle: Math.PI, current: 1 })).toBe(-1);
+    expect(facingFor({ moving: true, angle: Math.PI * 0.9, current: 1 })).toBe(-1);
+    // Walking straight up or down does not flip the friend back and forth.
+    expect(facingFor({ moving: true, angle: -Math.PI / 2, current: -1 })).toBe(-1);
+    expect(facingFor({ moving: true, angle: Math.PI / 2, current: 1 })).toBe(1);
+    expect(facingFor({ moving: true, angle: 0.1, current: -1 })).toBe(1);
+  });
+
+  it('[AC-21] a friend that is not walking always faces the default side again, whatever it did before', () => {
+    expect(facingFor({ moving: false, angle: Math.PI, current: -1 })).toBe(1);
+    expect(facingFor({ moving: false, angle: 0, current: -1 })).toBe(1);
+    expect(facingFor({ moving: false, angle: Math.PI, current: 1 })).toBe(1);
+  });
+
+  it('[AC-21] the walks to the left-hand worlds do flip a friend on the way, so the reset on arrival matters', () => {
+    const w = WORLDS.find((x) => x.id === 'workshop');
+    if (!w) throw new Error('no workshop');
+    let facing: 1 | -1 = 1;
+    let flipped = false;
+    const route = friendRoute(FRIEND_HOMES[MAP_FRIENDS[0]], w);
+    for (let d = 0; d <= polylineLength(route); d += 4) {
+      facing = facingFor({ moving: true, angle: pointAtDistance(route, d).angle, current: facing });
+      if (facing === -1) flipped = true;
+    }
+    expect(flipped).toBe(true);
+    expect(facingFor({ moving: false, angle: 0, current: facing })).toBe(1);
   });
 });

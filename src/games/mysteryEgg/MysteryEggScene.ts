@@ -34,7 +34,7 @@ import { ENTRY_SLIDES, INTRO_SLIDES, entrySlides } from './slides';
 import { drawPieceShape } from './shellArt';
 import type { EggPageRect, EggPhase, EggTarget, MysteryEggInfo, WorldInfo } from './types';
 import { drawHomeIcon, makeButton, type EggButton } from './ui';
-import { friendRoute, walkDurationMs, walkFrame, type WalkOptions } from './walk';
+import { facingFor, friendRoute, walkDurationMs, walkFrame, type WalkOptions } from './walk';
 import {
   FRIEND_HOMES,
   MAP_FRIENDS,
@@ -65,6 +65,8 @@ interface Friend {
   /** `map-<friend>-walk` strip (4 frames, 8 fps), null while the strip is missing: the idle art walks instead. */
   walkSprite: Phaser.GameObjects.Sprite | null;
   walking: boolean;
+  /** 1 = default side (the art faces right), -1 = flipped while walking left. */
+  facing: 1 | -1;
 }
 
 interface WorldView {
@@ -286,7 +288,7 @@ export class MysteryEggScene extends Phaser.Scene {
         if (id === 'robot') playEggSfx('sfx-robot-beep-1');
         this.wiggle(body, 5);
       });
-      this.friends.set(id, { id, root, body, idle, walkSprite, walking: false });
+      this.friends.set(id, { id, root, body, idle, walkSprite, walking: false, facing: 1 });
     }
   }
 
@@ -299,6 +301,12 @@ export class MysteryEggScene extends Phaser.Scene {
     f.walkSprite.setVisible(on);
     if (on) f.walkSprite.play(`map-${f.id}-walk`);
     else f.walkSprite.stop().setFrame('0');
+  }
+
+  /** Face the walking direction (the art faces right); back to the default side whenever the friend is idle. */
+  private setFacing(f: Friend, facing: 1 | -1): void {
+    f.facing = facing;
+    f.body.setScale(facing, 1);
   }
 
   /** A short wiggle (angle) of the whole image, then back to rest. */
@@ -395,12 +403,14 @@ export class MysteryEggScene extends Phaser.Scene {
       const w = frame.friends[i];
       f.root.setPosition(w.x, w.y + w.bob);
       this.setWalking(f, w.moving);
-      // Face the walking direction (the art faces right): flip while the current path segment goes left.
-      if (w.moving) f.body.setScale(Math.cos(w.angle) < -0.2 ? -1 : 1, 1);
+      this.setFacing(f, facingFor({ moving: w.moving, angle: w.angle, current: f.facing }));
     });
     if (frame.done || walk.elapsed > walkDurationMs(walk.routes, WALK) + 400) {
       this.walk = null;
-      for (const f of this.friends.values()) this.setWalking(f, false);
+      for (const f of this.friends.values()) {
+        this.setWalking(f, false);
+        this.setFacing(f, 1);
+      }
       this.arrive(walk.world);
     }
   }
@@ -488,6 +498,8 @@ export class MysteryEggScene extends Phaser.Scene {
     }
     const worldAngles = {} as Record<WorldId, number>;
     for (const def of WORLDS) worldAngles[def.id] = Math.round((this.worldViews.get(def.id)?.art.angle ?? 0) * 100) / 100;
+    const friendFacing: Partial<Record<FriendId, 1 | -1>> = {};
+    for (const [id, f] of this.friends) friendFacing[id] = f.facing;
     const friendPositions: Partial<Record<FriendId, { x: number; y: number }>> = {};
     for (const [id, f] of this.friends) friendPositions[id] = { x: Math.round(f.root.x), y: Math.round(f.root.y) };
     return {
@@ -513,6 +525,7 @@ export class MysteryEggScene extends Phaser.Scene {
         readyToHatch: readyToHatch(this.progress),
         friends: [...this.friends.keys()],
         friendPositions,
+        friendFacing,
         worlds,
         worldAngles,
         slide: this.overlay ? this.overlay.info : null,
