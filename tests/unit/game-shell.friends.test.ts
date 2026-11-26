@@ -5,7 +5,7 @@ import gameShellAssets from '../../src/content/gameShellAssets.json';
 import { FRIEND_SPRITES, displayedVisibleWidth, footprintWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
 import { ARRIVAL_GAP_PX, WALK_OPTIONS, planWalk, walkFrame } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS, type FriendId } from '../../src/games/mysteryEgg/worlds';
-import { overlapsEgg } from './helpers/nestKeepOut';
+import { EGG_BOX, overlapsEgg } from './helpers/nestKeepOut';
 
 const manifest = gameShellAssets as unknown as Record<string, { w: number; h: number; frames?: number }>;
 /** Displayed visible height of the idle art (board px): visible canvas px x the box scale x the 1x box / 2x canvas ratio. */
@@ -134,6 +134,32 @@ describe('game-shell walk spacing', () => {
       expect(minEnd, `${w.id} on arrival`).toBeGreaterThanOrEqual(95);
       expect(footMargin, `${w.id}: footprints (walking frog included) overlap`).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it('[AC-29] along the bakery route (the leader\'s walk and every follower\'s) no friend\'s visible footprint touches the painted egg: at least 8 px clear at every step and at the door', () => {
+    const bakery = WORLDS.find((w) => w.id === 'bakery');
+    if (!bakery) throw new Error('no bakery');
+    const plan = planWalk(FRIEND_HOMES, MAP_FRIENDS, bakery);
+    let worst = Infinity;
+    let where = '';
+    for (let t = 0; t < 40_000; t += 20) {
+      const frame = walkFrame(plan.routes, t, WALK_OPTIONS);
+      frame.friends.forEach((f, i) => {
+        const id = plan.ids[i];
+        // The visible footprint: the widest visible width (idle or walking frame) by the displayed height, centred on the friend's root.
+        const hw = footprintWidth(id) / 2;
+        const hh = FRIEND_SPRITES[id].height / 2;
+        const dx = Math.max(EGG_BOX.x0 - (f.x + hw), f.x - hw - EGG_BOX.x1);
+        const dy = Math.max(EGG_BOX.y0 - (f.y + f.bob + hh), f.y + f.bob - hh - EGG_BOX.y1);
+        const gap = Math.max(dx, dy);
+        if (gap < worst) {
+          worst = gap;
+          where = `${id} at ${t} ms (${Math.round(f.x)}, ${Math.round(f.y)})`;
+        }
+      });
+      if (frame.done) break;
+    }
+    expect(worst, `closest approach to the egg: ${where}`).toBeGreaterThanOrEqual(8);
   });
 
   it('[AC-24] the walk plan starts the friend with the shortest route first (the leader), truncates followers behind it and the leader ends at the door', () => {
