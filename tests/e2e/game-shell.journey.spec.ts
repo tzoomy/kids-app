@@ -41,6 +41,11 @@ async function waitInfo(page: Page, check: (i: MysteryEggInfo) => boolean, messa
   }
 }
 
+/** Every wiggle tween has finished (hook field `wiggling`): only then is a tile's angle of 0 its rest angle. */
+async function waitWiggleDone(page: Page): Promise<MysteryEggInfo> {
+  return waitInfo(page, (i) => i.map?.wiggling === 0, 'a wiggle never finished', 10_000);
+}
+
 async function rectOf(page: Page, target: Target): Promise<Rect> {
   const i = await waitInfo(page, (x) => Boolean(x.rects[target]), `target ${target} never appeared`);
   return i.rects[target] as Rect;
@@ -235,13 +240,11 @@ test.describe('game-shell', () => {
       const i = await waitInfo(page, (x) => (x.map?.lockedTaps ?? 0) === taps, `no locked feedback for ${id}`);
       expect(i.phase, id).toBe('map');
       expect(i.map?.walkingTo, id).toBeNull();
-      // A wiggle only: no voice line is requested for a closed world.
-      await page.waitForTimeout(300);
+      // A wiggle only: no voice line is requested for a closed world. Wait for the wiggle to end (state), then look.
+      await waitWiggleDone(page);
       expect(await spoken(page, since), id).toEqual([]);
-      await page.waitForTimeout(400);
     }
-    // Still on the map after a pause: no walk, no entry, nothing opened.
-    await page.waitForTimeout(1500);
+    // Still on the map once the last wiggle ended: no walk, no entry, nothing opened.
     const after = await info(page);
     expect(after?.scene).toBe('MysteryEggScene');
     expect(after?.phase).toBe('map');
@@ -265,9 +268,9 @@ test.describe('game-shell', () => {
     expect((await info(page))?.map?.lockedTaps).toBe(8);
     // The wiggle is +-4 degrees: eight overlapping taps stay inside it.
     for (const a of angles) expect(Math.abs(a)).toBeLessThanOrEqual(4.01);
-    await expect.poll(async () => (await info(page))?.map?.worldAngles.bakery, { timeout: 5_000 }).toBe(0);
-    const rest = (await info(page))?.map?.worldAngles;
-    for (const id of WORLDS) expect(rest?.[id], id).toBe(0);
+    // An angle of 0 is not "at rest" (a wiggle swings through 0 and starts from 0), so wait for the wiggle itself to end.
+    const rest = await waitWiggleDone(page);
+    for (const id of WORLDS) expect(rest.map?.worldAngles[id], id).toBe(0);
     expect((await info(page))?.phase).toBe('map');
   });
 
