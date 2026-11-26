@@ -11,10 +11,10 @@ import { floatIdle } from '../../anim/tweens';
 import { ensureSpriteAnim, eggArt } from './art';
 import { displaySize } from './assets';
 import { FRIEND_SPRITES, displayedVisibleWidth, friendArtY, friendBoxScale } from './friendSprites';
-import { backButtonPlacement } from './backButton';
+import { backButtonPlacementForView } from './backButton';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
-import { WiggleGuard, worldTapAllowed } from './mapRules';
+import { WiggleGuard, mapTapAllowed } from './mapRules';
 import { playEggSfx } from './eggSound';
 import { heartSlotCentres, type Point2 } from './layout';
 import {
@@ -94,6 +94,8 @@ export class MysteryEggScene extends Phaser.Scene {
   private walk: { world: WorldDef; ids: FriendId[]; routes: Point2[][]; elapsed: number } | null = null;
   private walkingTo: WorldId | null = null;
   private lockedTaps = 0;
+  private friendTaps = 0;
+  private nestTaps = 0;
   private pieceFlights: string[] = [];
   /** One wiggle per target: a new tap stops the running one and restores the rest angle (no stacking). */
   private readonly wiggles = new WiggleGuard<Phaser.GameObjects.Container>((t) => t.setAngle(0));
@@ -121,12 +123,16 @@ export class MysteryEggScene extends Phaser.Scene {
     this.walk = null;
     this.walkingTo = null;
     this.lockedTaps = 0;
+    this.friendTaps = 0;
+    this.nestTaps = 0;
     this.pieceFlights = [];
     this.wiggles.clear();
     // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
     this.context.shell.clearChrome();
     fitBoard(this, '#fdeee0');
+    this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', this.onResize, this);
       this.alive = false;
       this.overlay?.destroy();
       this.overlay = null;
@@ -164,16 +170,7 @@ export class MysteryEggScene extends Phaser.Scene {
     this.addFriends();
 
     // The home button keeps 96 CSS px even when the board is scaled down (portrait), in the visible canvas corner.
-    const box = this.game.canvas.getBoundingClientRect();
-    const spot = backButtonPlacement({
-      gameWidth: this.scale.width,
-      gameHeight: this.scale.height,
-      zoom: this.cameras.main.zoom,
-      cssPerGamePx: box.width > 0 ? box.width / this.scale.width : 1,
-    });
-    const back = makeButton(this, spot.x, spot.y, spot.size, spot.size, drawHomeIcon, () => this.goBack());
-    back.container.setDepth(40);
-    this.buttons.set('backBtn', back);
+    this.placeBackButton();
 
     if (!this.progress.introSeen) this.startSlides('intro', null, INTRO_SLIDES, () => {
       this.progress = markIntroSeen(this.progress);
@@ -181,6 +178,30 @@ export class MysteryEggScene extends Phaser.Scene {
       this.afterIntro(arriving);
     });
     else this.afterIntro(arriving);
+  }
+
+  /** (Re)builds the home button for the canvas' current size: its CSS size per board px changes when the window is resized or rotated. */
+  private placeBackButton(): void {
+    const old = this.buttons.get('backBtn');
+    if (old) {
+      this.tweens.killTweensOf(old.container);
+      old.container.destroy();
+    }
+    const spot = backButtonPlacementForView({ gameWidth: this.scale.width, gameHeight: this.scale.height, canvasCssWidth: this.game.canvas.getBoundingClientRect().width });
+    const back = makeButton(this, spot.x, spot.y, spot.size, spot.size, drawHomeIcon, () => this.goBack());
+    back.container.setDepth(40);
+    this.buttons.set('backBtn', back);
+  }
+
+  private onResize(): void {
+    if (!this.alive || !this.buttons.has('backBtn')) return;
+    fitBoard(this, '#fdeee0');
+    this.placeBackButton();
+  }
+
+  /** The one guard of every map tap (a world, a friend, the nest): only on a live, loaded map in phase `map`. */
+  private mapTapOk(): boolean {
+    return mapTapAllowed({ alive: this.alive, ready: this.ready, phase: this.phase });
   }
 
   private afterIntro(arriving: string[]): void {
@@ -218,6 +239,8 @@ export class MysteryEggScene extends Phaser.Scene {
     const nest = eggArt(this, 'map-nest-home', NEST.x, NEST.y).setDepth(3);
     nest.setInteractive({ useHandCursor: true });
     nest.on('pointerdown', () => {
+      if (!this.mapTapOk()) return;
+      this.nestTaps++;
       playEggSfx('sfx-robot-beep-2');
       this.wiggle(nest, 6 + this.eggShownLevel * 2);
     });
@@ -304,6 +327,8 @@ export class MysteryEggScene extends Phaser.Scene {
       floatIdle(this, body, 6, 1500 + Math.random() * 500);
       body.setInteractive({ useHandCursor: true });
       body.on('pointerdown', () => {
+        if (!this.mapTapOk()) return;
+        this.friendTaps++;
         if (id === 'robot') playEggSfx('sfx-robot-beep-1');
         this.wiggle(body, 5);
       });
@@ -373,7 +398,7 @@ export class MysteryEggScene extends Phaser.Scene {
   // ---------------------------------------------------------------- tapping a world
 
   private onWorldTap(def: WorldDef): void {
-    if (!worldTapAllowed({ alive: this.alive, ready: this.ready, phase: this.phase })) return;
+    if (!this.mapTapOk()) return;
     if (def.open) this.startWalk(def);
     else this.lockedFeedback(def);
   }
@@ -558,6 +583,8 @@ export class MysteryEggScene extends Phaser.Scene {
         walkingTo: this.walkingTo,
         lockedTaps: this.lockedTaps,
         pieceFlights: [...this.pieceFlights],
+        friendTaps: this.friendTaps,
+        nestTaps: this.nestTaps,
       },
     };
   }

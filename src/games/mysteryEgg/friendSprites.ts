@@ -8,7 +8,7 @@ export interface FriendSprite {
   canvas: { w: number; h: number };
   /** Height of the visible (non-transparent) pixels of the idle art on the 2x canvas. */
   visible: number;
-  /** Typical visible height of the walk frames (documentation and guard: within a few % of `visible`, so one scale serves both). */
+  /** Typical visible height of the walk frames on the 2x canvas. Within `WALK_SCALE_TOLERANCE` of `visible` the walk strip shares the idle scale; beyond it (the frog) the strip gets its own. */
   walkVisible: number;
   /** Canvas row just below the lowest visible pixel (the feet) on the 2x canvas; idle and walk frames share it. */
   feet: number;
@@ -59,7 +59,7 @@ export function displayedVisibleWidth(id: FriendId): number {
 
 /**
  * y of the art box centre relative to the friend's root (the centre of its visible body) so that the feet are `height / 2`
- * below the root in the given state: with a different scale per state the box is moved so the feet stay level on the swap.
+ * below the root in the given state: where a state has its own scale (the frog's walk strip) the box is moved so the feet stay level on the swap.
  */
 export function friendArtY(id: FriendId, state: FriendState = 'idle'): number {
   const s = FRIEND_SPRITES[id];

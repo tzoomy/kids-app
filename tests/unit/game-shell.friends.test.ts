@@ -101,8 +101,12 @@ describe('game-shell friend homes', () => {
 describe('game-shell walk spacing', () => {
   /**
    * Smallest centre distance between any two friends over the whole walk (every 20 ms) and at the end, and the smallest
-   * margin against their footprints (the walking frog is wider than the idle one): distance - 0.8 x (width a + width b) / 2.
+   * footprint margin (the walking frog is wider than the idle one): distance - OVERLAP_ALLOWED x (width a + width b) / 2.
+   * A margin >= 0 means the footprints overlap by at most `1 - OVERLAP_ALLOWED` (20%) of their half-widths summed; it is NOT a
+   * no-overlap check (at full widths the Workshop walk dips 0.09 px below touching).
    */
+  /** Footprints may overlap by up to 20% (a little overlap reads as a group; the depth sort puts the lower friend in front). */
+  const OVERLAP_ALLOWED = 0.8;
   function spacing(worldId: string) {
     const world = WORLDS.find((w) => w.id === worldId);
     if (!world) throw new Error(worldId);
@@ -118,7 +122,7 @@ describe('game-shell walk spacing', () => {
           const d = Math.hypot(frame.friends[i].x - frame.friends[j].x, frame.friends[i].y - frame.friends[j].y);
           if (frame.done) minEnd = Math.min(minEnd, d);
           else minMid = Math.min(minMid, d);
-          footMargin = Math.min(footMargin, d - (0.8 * (footprintWidth(plan.ids[i]) + footprintWidth(plan.ids[j]))) / 2);
+          footMargin = Math.min(footMargin, d - (OVERLAP_ALLOWED * (footprintWidth(plan.ids[i]) + footprintWidth(plan.ids[j]))) / 2);
         }
       }
       if (frame.done) { end = t; break; }
@@ -126,13 +130,13 @@ describe('game-shell walk spacing', () => {
     return { plan, minMid, minEnd, footMargin, end };
   }
 
-  it('[AC-24] on every route consecutive friends stay at least about one friend width apart while walking, and keep a gap when they arrive', () => {
+  it('[AC-24] on every route consecutive friends stay at least 95 px apart while walking and when they arrive, and their footprints overlap by at most 20% (walking frog included)', () => {
     for (const w of WORLDS) {
       const { minMid, minEnd, footMargin, end } = spacing(w.id);
       expect(end, `${w.id} never finished`).toBeGreaterThan(0);
       expect(minMid, `${w.id} mid-walk`).toBeGreaterThanOrEqual(95);
       expect(minEnd, `${w.id} on arrival`).toBeGreaterThanOrEqual(95);
-      expect(footMargin, `${w.id}: footprints (walking frog included) overlap`).toBeGreaterThanOrEqual(0);
+      expect(footMargin, `${w.id}: footprints (walking frog included) overlap by more than 20%`).toBeGreaterThanOrEqual(0);
     }
   });
 

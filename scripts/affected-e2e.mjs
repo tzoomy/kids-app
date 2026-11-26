@@ -276,7 +276,7 @@ export const GAME_RULES = [
       /^public\/(art|audio)\/mystery-egg\//,
       /^tests\/unit\/(mystery-egg|game-shell)[^/]*$/,
     ],
-    specs: ['tests/e2e/mystery-egg.journey.spec.ts', 'tests/e2e/game-shell.journey.spec.ts'],
+    specs: ['tests/e2e/mystery-egg.journey.spec.ts', 'tests/e2e/game-shell.journey.spec.ts', 'tests/e2e/game-shell.nits.spec.ts'],
   },
   {
     id: 'science-world',
