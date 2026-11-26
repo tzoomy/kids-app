@@ -35,16 +35,18 @@ export function drawArrowIcon(g: Phaser.GameObjects.Graphics, w: number, h: numb
 }
 
 export function drawHomeIcon(g: Phaser.GameObjects.Graphics, w: number, h: number): void {
+  // Drawn for a 96 px button; a bigger button (portrait, where the board is scaled down) scales the whole icon.
+  const k = Math.min(w, h) / MIN_TAP;
   g.fillStyle(0xfff3d6, 0.95);
   g.fillCircle(0, 0, Math.min(w, h) / 2);
-  g.lineStyle(5, 0x8a5a33, 1);
+  g.lineStyle(5 * k, 0x8a5a33, 1);
   g.strokeCircle(0, 0, Math.min(w, h) / 2);
   g.fillStyle(0xc0504d, 1);
-  g.fillTriangle(-24, -2, 24, -2, 0, -26);
+  g.fillTriangle(-24 * k, -2 * k, 24 * k, -2 * k, 0, -26 * k);
   g.fillStyle(0x8a5a33, 1);
-  g.fillRect(-16, -2, 32, 26);
+  g.fillRect(-16 * k, -2 * k, 32 * k, 26 * k);
   g.fillStyle(0xfff3d6, 1);
-  g.fillRect(-5, 8, 10, 16);
+  g.fillRect(-5 * k, 8 * k, 10 * k, 16 * k);
 }
 
 export function drawEarIcon(g: Phaser.GameObjects.Graphics, w: number, h: number): void {

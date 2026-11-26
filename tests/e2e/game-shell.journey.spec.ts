@@ -6,6 +6,7 @@ import type { MysteryEggInfo } from '../../src/games/mysteryEgg/types';
 import { enterMapByTap, getActiveScenes, getBuildingHit, getSpokenLines, tapTestId, waitForScene } from './helpers/journey';
 
 const LANDSCAPE = 'landscape-1280x800';
+const PORTRAIT = 'portrait-800x1280';
 const MIN_TAP_PX = 96;
 const WORLDS = ['workshop', 'bakery', 'detective', 'jungle', 'garden'] as const;
 const LOCKED = ['bakery', 'detective', 'jungle', 'garden'] as const;
@@ -330,6 +331,29 @@ test.describe('game-shell', () => {
     await waitForScene(page, 'MysteryEggScene');
     const map = await waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never came back');
     expect(Object.values(map.map?.friendFacing ?? {})).toEqual([1, 1, 1, 1]);
+  });
+
+  test('[AC-22] @single-orientation (portrait only, where the board is scaled down) the map\'s back button is still at least 96 CSS px, on screen, and a real tap on it leaves the map', async ({ page }, testInfo) => {
+    if (testInfo.project.name !== PORTRAIT) test.skip();
+    test.setTimeout(60_000);
+    await enterMapByTap(page, 'profile-a');
+    await seed(page, SEEN);
+    const m = await openMapByTap(page);
+    const back = m.rects.backBtn as Rect;
+    expect(back.width).toBeGreaterThanOrEqual(MIN_TAP_PX - 0.5);
+    expect(back.height).toBeGreaterThanOrEqual(MIN_TAP_PX - 0.5);
+    const vp = page.viewportSize() as { width: number; height: number };
+    expect(back.x).toBeGreaterThanOrEqual(0);
+    expect(back.y).toBeGreaterThanOrEqual(0);
+    expect(back.x + back.width).toBeLessThanOrEqual(vp.width);
+    expect(back.y + back.height).toBeLessThanOrEqual(vp.height);
+    // The five world tap areas are 0.625 x board scale here (not child-facing 96 px targets); the button does not sit on them.
+    for (const id of WORLDS) {
+      const r = m.rects[`world-${id}` as Target] as Rect;
+      expect(back.x < r.x + r.width && back.x + back.width > r.x && back.y < r.y + r.height && back.y + back.height > r.y, id).toBe(false);
+    }
+    await tap(page, 'backBtn');
+    await waitForScene(page, 'MapScene');
   });
 
   test('[AC-10] @single-orientation the intro: 4 slides on the first visit, a tap advances and requests the French then the Hebrew line, the skip button skips all, and the next visit goes straight to the map', async ({ page }, testInfo) => {

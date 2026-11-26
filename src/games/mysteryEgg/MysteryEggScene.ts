@@ -10,6 +10,7 @@ import { transitionTo } from '../../anim/transitions';
 import { floatIdle } from '../../anim/tweens';
 import { ensureSpriteAnim, eggArt } from './art';
 import { displaySize } from './assets';
+import { backButtonPlacement } from './backButton';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
 import { WiggleGuard, worldTapAllowed } from './mapRules';
@@ -161,7 +162,15 @@ export class MysteryEggScene extends Phaser.Scene {
     this.addHeartPanel();
     this.addFriends();
 
-    const back = makeButton(this, 70, 70, 96, 96, drawHomeIcon, () => this.goBack());
+    // The home button keeps 96 CSS px even when the board is scaled down (portrait), in the visible canvas corner.
+    const box = this.game.canvas.getBoundingClientRect();
+    const spot = backButtonPlacement({
+      gameWidth: this.scale.width,
+      gameHeight: this.scale.height,
+      zoom: this.cameras.main.zoom,
+      cssPerGamePx: box.width > 0 ? box.width / this.scale.width : 1,
+    });
+    const back = makeButton(this, spot.x, spot.y, spot.size, spot.size, drawHomeIcon, () => this.goBack());
     back.container.setDepth(40);
     this.buttons.set('backBtn', back);
 
