@@ -140,3 +140,4 @@ All are rows in `docs/PENDING-DECISIONS.md` (2026-11-26, "Game shell"):
 - `2026-11-26` — created from the owner's task of 2026-11-26 (game shell: map, slides, progression, save v2) — substantive
 - `2026-11-26` — read hook gets `friendPositions` (board px per friend) so the walk can be asserted — minor
 - `2026-11-26` — phase `hub` also covers the map's loading time, so `map` always means tappable — minor
+- `2026-11-26` — the phase flips to `intro` / `entry` only once the slide overlay exists (a slide is always present in the hook then); the Workshop game's hook returns null until it has drawn — minor

@@ -65,7 +65,7 @@ async function dragPartToSlot(page: Page, part: 'partRamp' | 'partBall' | 'partB
 async function openHubByTap(page: Page): Promise<MysteryEggInfo> {
   await tapTestId(page, 'mystery-egg-btn');
   await waitForScene(page, 'MysteryEggScene');
-  const first = await waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'hub never became ready');
+  const first = await waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene' && i.phase !== 'hub', 'hub never became ready');
   if (first.phase === 'intro') await tap(page, 'skipBtn');
   return waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never became interactive');
 }

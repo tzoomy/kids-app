@@ -287,13 +287,14 @@ export class MysteryEggScene extends Phaser.Scene {
   // ---------------------------------------------------------------- slides
 
   private startSlides(kind: 'intro' | 'entry', world: WorldId | null, slides: typeof INTRO_SLIDES, done: (end: SlideEnd) => void): void {
-    this.phase = kind === 'intro' ? 'intro' : 'entry';
+    // The phase flips to `intro` / `entry` only once the overlay exists, so it always comes with a slide in the read hook.
     // The slide images are loaded on demand (the map itself never needs them).
     loadEggAssets(
       this,
       import.meta.env.BASE_URL,
       () => {
         if (!this.alive) return;
+        this.phase = kind === 'intro' ? 'intro' : 'entry';
         this.overlay = new SlideOverlay(this, this.context, {
           kind,
           world,

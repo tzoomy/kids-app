@@ -59,7 +59,8 @@ const SEEN: Seed = { v: 2, introSeen: true, entrySeen: ['workshop'] };
 async function openShellByTap(page: Page): Promise<MysteryEggInfo> {
   await tapTestId(page, 'mystery-egg-btn');
   await waitForScene(page, 'MysteryEggScene');
-  return waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene', 'the shell never became ready');
+  // `hub` = not tappable yet (assets or the intro images are still loading), so wait for `intro` or `map`.
+  return waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene' && i.phase !== 'hub', 'the shell never became ready');
 }
 
 async function openMapByTap(page: Page): Promise<MysteryEggInfo> {
@@ -319,7 +320,7 @@ test.describe('game-shell', () => {
       const i = await info(page);
       if (i?.phase === 'entry') sawEntry = true;
       if (i?.scene === 'MysteryEggBuildScene' && i.ready) break;
-      if (Date.now() > deadline) throw new Error('the second arrival never opened the game');
+      if (Date.now() > deadline) throw new Error(`the second arrival never opened the game; last info: ${JSON.stringify(i)}`);
       await page.waitForTimeout(80);
     }
     expect(sawEntry).toBe(false);

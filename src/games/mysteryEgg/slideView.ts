@@ -31,6 +31,7 @@ export class SlideOverlay {
   private readonly dots: Phaser.GameObjects.Graphics;
   private picture: Phaser.GameObjects.Container | null = null;
   private voiceToken = 0;
+  private cues: Phaser.GameObjects.Container[] = [];
   private closed = false;
 
   constructor(
@@ -102,6 +103,9 @@ export class SlideOverlay {
   private stopVoice(): void {
     this.voiceToken++;
     this.context.audio.stopAll();
+    // The speech cues belong to the slide whose lines they mark.
+    for (const cue of this.cues) if (cue.scene) cue.destroy();
+    this.cues = [];
   }
 
   private showCurrent(): void {
@@ -133,7 +137,7 @@ export class SlideOverlay {
       const entry = assetEntry(lineId);
       if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) continue;
       const hero = entry.lang === 'fr';
-      speechCue(this.scene, hero ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10);
+      this.cues.push(speechCue(this.scene, hero ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
       await this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
     }
   }
