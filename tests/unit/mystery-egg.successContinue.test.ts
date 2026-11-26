@@ -73,4 +73,61 @@ describe('mystery-egg success Continue timing', () => {
     await vi.advanceTimersByTimeAsync(5000);
     expect(show).toHaveBeenCalledTimes(1);
   });
+
+  it('[AC-27] when the cap wins, the voice-end timer that was already waiting is cleared: show runs once and no timer is left', async () => {
+    const v = deferred();
+    const show = start(v.promise);
+    await vi.advanceTimersByTimeAsync(SUCCESS_VO_CAP_MS - CONTINUE_AFTER_VO_MS / 2); // the line ends 125 ms before the cap...
+    v.resolve(true); // ...so its 250 ms timer is still pending when the cap fires
+    await vi.advanceTimersByTimeAsync(1);
+    expect(vi.getTimerCount()).toBe(2);
+    await vi.advanceTimersByTimeAsync(CONTINUE_AFTER_VO_MS / 2 + 1); // the cap fires; the voice-end timer (due 125 ms later) must be gone
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('[AC-27] when the voice end wins, the cap timer is cleared: show runs once and no timer is left', async () => {
+    const v = deferred();
+    const show = start(v.promise);
+    await vi.advanceTimersByTimeAsync(3000);
+    v.resolve(true);
+    await vi.advanceTimersByTimeAsync(CONTINUE_AFTER_VO_MS + 1);
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('[AC-27] a line that settles after the cap already fired schedules nothing', async () => {
+    const v = deferred();
+    const show = start(v.promise);
+    await vi.advanceTimersByTimeAsync(SUCCESS_VO_CAP_MS + 1);
+    expect(show).toHaveBeenCalledTimes(1);
+    v.resolve(true);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('[AC-27] cancelling (the scene shut down) clears both timers and show never runs, even if the line ends later', async () => {
+    const v = deferred();
+    const show = vi.fn();
+    const cancel = showContinueAfterVoice(v.promise, show);
+    await vi.advanceTimersByTimeAsync(2000);
+    v.resolve(true);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(vi.getTimerCount()).toBe(2);
+    cancel();
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(SUCCESS_VO_CAP_MS * 2);
+    expect(show).not.toHaveBeenCalled();
+  });
+
+  it('[AC-27] cancelling before the line ends: a late end schedules nothing', async () => {
+    const v = deferred();
+    const show = vi.fn();
+    const cancel = showContinueAfterVoice(v.promise, show);
+    cancel();
+    v.resolve(true);
+    await vi.advanceTimersByTimeAsync(SUCCESS_VO_CAP_MS * 2);
+    expect(show).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });
