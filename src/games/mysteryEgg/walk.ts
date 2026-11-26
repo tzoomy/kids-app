@@ -36,10 +36,19 @@ export function pointAtDistance(points: readonly Point2[], distance: number): Pa
 
 /**
  * A friend's route: its resting spot, then the world's approach waypoints (round the nest, never across the egg), then the
- * painted path after its nest-edge point (`path[0]` is the nest centre, `path[1]` is replaced by the approach).
+ * painted path after its nest-edge point (`path[0]` is the nest centre, `path[1]` is replaced by the approach). A leading
+ * approach waypoint that is farther from the next point than the friend already is would only make it double back, so a
+ * friend that starts on the right side of the nest skips it.
  */
 export function friendRoute(home: Point2, world: { path: readonly Point2[]; approach: readonly Point2[] }): Point2[] {
-  return [home, ...world.approach, ...world.path.slice(2)];
+  const rest = world.path.slice(2);
+  const approach = [...world.approach];
+  while (approach.length > 0) {
+    const next = approach[1] ?? rest[0];
+    if (!next || Math.hypot(home.x - next.x, home.y - next.y) >= Math.hypot(approach[0].x - next.x, approach[0].y - next.y)) break;
+    approach.shift();
+  }
+  return [home, ...approach, ...rest];
 }
 
 export interface WalkOptions {
@@ -62,7 +71,7 @@ export interface WalkFrame {
 }
 
 /** Sideways offsets of the followers (px): small, so they walk in a loose line behind the leader. */
-const LATERAL = [0, 14, -14, 10] as const;
+const LATERAL = [0, 40, -40, 30] as const;
 const BOB_PX = 6;
 const BOB_HZ = 3.2;
 const OFFSET_EASE_PX = 60;
@@ -106,4 +115,43 @@ export function facingFor(s: { moving: boolean; angle: number; current: 1 | -1 }
   if (c < -0.2) return -1;
   if (c > 0.2) return 1;
   return s.current;
+}
+
+/** The scene's walk: px per second and the delay between one friend's start and the next one's (a follow distance of 150 px). */
+export const WALK_OPTIONS: WalkOptions = { speed: 300, staggerMs: 500 };
+/** Followers stop this far (px along their route) behind the one in front of them, so they queue up at the door. */
+export const ARRIVAL_GAP_PX = 130;
+
+/** The route without its last `cut` px (clamped so at least a quarter of it stays). */
+export function truncateRoute(route: readonly Point2[], cut: number): Point2[] {
+  const len = polylineLength(route);
+  const keep = Math.max(len * 0.25, len - cut);
+  if (keep >= len) return [...route];
+  const out: Point2[] = [route[0]];
+  let left = keep;
+  for (let i = 1; i < route.length; i++) {
+    const seg = Math.hypot(route[i].x - route[i - 1].x, route[i].y - route[i - 1].y);
+    if (left <= seg) {
+      const k = seg > 0 ? left / seg : 0;
+      out.push({ x: route[i - 1].x + (route[i].x - route[i - 1].x) * k, y: route[i - 1].y + (route[i].y - route[i - 1].y) * k });
+      return out;
+    }
+    left -= seg;
+    out.push(route[i]);
+  }
+  return out;
+}
+
+/**
+ * Who walks in which order and where each one stops: the friend with the shortest route leads (it ends at the door), the
+ * others start one stagger later each and stop `ARRIVAL_GAP_PX` further back, so nobody overtakes or stands on another.
+ */
+export function planWalk<Id extends string>(
+  homes: Readonly<Record<Id, Point2>>,
+  ids: readonly Id[],
+  world: { path: readonly Point2[]; approach: readonly Point2[] },
+): { ids: Id[]; routes: Point2[][] } {
+  const full = ids.map((id) => ({ id, route: friendRoute(homes[id], world) }));
+  full.sort((a, b) => polylineLength(a.route) - polylineLength(b.route));
+  return { ids: full.map((f) => f.id), routes: full.map((f, rank) => truncateRoute(f.route, rank * ARRIVAL_GAP_PX)) };
 }

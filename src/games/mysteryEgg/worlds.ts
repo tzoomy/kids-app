@@ -81,25 +81,41 @@ export function worldArtId(def: Pick<WorldDef, 'id' | 'open'>): string {
   return `map-world-${def.id}-${def.open ? 'open' : 'closed'}`;
 }
 
-/** Nest piece placeholders: only the feather has art (`feather`, Mystery Egg); the other pieces are drawn shapes. */
-export const PIECE_ART: Readonly<Record<string, string | null>> = { feather: 'feather', 'knit-square': null, pebble: null, leaf: null, flower: null };
+/**
+ * Nest pieces are drawn by code (`drawPieceShape`), none from an art id: the final `map-nest-home` is a whole-egg nest with no
+ * blanket and no feather painted in, so the feather is a drawn piece too.
+ */
+export const PIECE_ART: Readonly<Record<string, string | null>> = { feather: null, 'knit-square': null, pebble: null, leaf: null, flower: null };
 
-/** Where each earned piece rests on the nest rim of `map-nest-home` (board px, degrees); the painted blanket and feather stay. */
+/**
+ * Where each earned piece rests on the rim of the final `map-nest-home` (board px, degrees): the bowl is x 482..798 and
+ * y 380..560 on the board, the rim is its outer ~35 px. Nudge here to move a piece (the unit test keeps them on the rim,
+ * off the egg and apart).
+ */
 export const PIECE_NEST_SPOTS: Readonly<Record<string, { x: number; y: number; angle: number }>> = {
-  feather: { x: 700, y: 512, angle: -35 },
-  'knit-square': { x: 565, y: 505, angle: 8 },
-  pebble: { x: 632, y: 535, angle: 0 },
-  leaf: { x: 775, y: 470, angle: -20 },
-  flower: { x: 508, y: 465, angle: 15 },
+  feather: { x: 714, y: 512, angle: -35 },
+  'knit-square': { x: 566, y: 512, angle: 8 },
+  pebble: { x: 640, y: 543, angle: 0 },
+  leaf: { x: 772, y: 468, angle: -20 },
+  flower: { x: 506, y: 460, angle: 15 },
 };
+
+/**
+ * The egg-progress glow is code only, drawn BEHIND the nest art (a halo round the painted egg): its centre is this far above
+ * the nest anchor (the egg's middle), its radius grows with the egg level (docs/PENDING-DECISIONS.md, "Game shell").
+ */
+export const NEST_GLOW = { dy: -25, baseRadius: 105, perLevel: 18, ring: 24 } as const;
 
 /** The friends on the shared map, for every profile (the frog included; pending Maor decision). The bunny leads the walk. */
 export const MAP_FRIENDS: readonly FriendId[] = ['bunny', 'robot', 'capybara', 'frog'];
 
-/** Where each friend stands: in front of and beside the nest, never on the egg (the bunny as in Gemini's map mock). */
+/**
+ * Where each friend stands (the centre of its visible body, see `friendSprites.ts`): in front of and beside the nest, never on
+ * the egg, with the feet on a loose line at y 650..690 (above the heart panel) and a clear gap between neighbours.
+ */
 export const FRIEND_HOMES: Readonly<Record<FriendId, Point2>> = {
-  bunny: { x: 462, y: 560 },
-  robot: { x: 550, y: 640 },
-  capybara: { x: 825, y: 575 },
-  frog: { x: 735, y: 640 },
+  bunny: { x: 440, y: 555 },
+  robot: { x: 560, y: 615 },
+  capybara: { x: 855, y: 564 },
+  frog: { x: 725, y: 630 },
 };

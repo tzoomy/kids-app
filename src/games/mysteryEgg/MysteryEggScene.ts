@@ -10,6 +10,7 @@ import { transitionTo } from '../../anim/transitions';
 import { floatIdle } from '../../anim/tweens';
 import { ensureSpriteAnim, eggArt } from './art';
 import { displaySize } from './assets';
+import { FRIEND_SPRITES, displayedVisibleWidth, friendArtY, friendBoxScale } from './friendSprites';
 import { backButtonPlacement } from './backButton';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
@@ -34,12 +35,13 @@ import { SlideOverlay, type SlideEnd } from './slideView';
 import { ENTRY_SLIDES, INTRO_SLIDES, entrySlides } from './slides';
 import { drawPieceShape } from './shellArt';
 import type { EggPageRect, EggPhase, EggTarget, MysteryEggInfo, WorldInfo } from './types';
-import { drawHomeIcon, makeButton, type EggButton } from './ui';
-import { facingFor, friendRoute, walkDurationMs, walkFrame, type WalkOptions } from './walk';
+import { MIN_TAP, drawHomeIcon, makeButton, type EggButton } from './ui';
+import { WALK_OPTIONS, facingFor, planWalk, walkDurationMs, walkFrame } from './walk';
 import {
   FRIEND_HOMES,
   MAP_FRIENDS,
   NEST,
+  NEST_GLOW,
   PIECE_ART,
   PIECE_NEST_SPOTS,
   WORLDS,
@@ -51,7 +53,6 @@ import {
 
 /** The robot's heart panel (bottom centre, 1x scale); socket positions follow Gemini's geometry (layout.ts). */
 const PANEL = { x: 640, y: 755, scale: 1 } as const;
-const WALK: WalkOptions = { speed: 300, staggerMs: 260 };
 const FLIGHT_MS = 1100;
 
 const shownPiecesKey = (profileId: string): string => `mystery-egg-shown-pieces:${profileId}`;
@@ -90,7 +91,7 @@ export class MysteryEggScene extends Phaser.Scene {
   private glow: Phaser.GameObjects.Container | null = null;
   private eggShownLevel = 0;
   private readonly piecesInNest = new Set<string>();
-  private walk: { world: WorldDef; routes: Point2[][]; elapsed: number } | null = null;
+  private walk: { world: WorldDef; ids: FriendId[]; routes: Point2[][]; elapsed: number } | null = null;
   private walkingTo: WorldId | null = null;
   private lockedTaps = 0;
   private pieceFlights: string[] = [];
@@ -232,7 +233,7 @@ export class MysteryEggScene extends Phaser.Scene {
     const g = this.add.graphics();
     for (let i = 0; i < level + 1 && level > 0; i++) {
       g.fillStyle(0xfff2a8, 0.1 + level * 0.025);
-      g.fillCircle(0, -25, 105 + level * 18 + i * 24);
+      g.fillCircle(0, NEST_GLOW.dy, NEST_GLOW.baseRadius + level * NEST_GLOW.perLevel + i * NEST_GLOW.ring);
     }
     const glow = this.add.container(NEST.x, NEST.y, [g]).setDepth(2);
     if (level > 0) this.tweens.add({ targets: glow, alpha: { from: 1, to: 0.6 }, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -279,17 +280,25 @@ export class MysteryEggScene extends Phaser.Scene {
     }
   }
 
-  /** The friends stand by the nest: idle art at rest, the 4-frame walk strip while walking. */
+  /**
+   * The friends stand by the nest: idle art at rest, the 4-frame walk strip while walking. One scale per friend (friendSprites.ts)
+   * gives the visible friend the same height in both states, and both stand on the same feet line.
+   */
   private addFriends(): void {
     for (const id of MAP_FRIENDS) {
       const home = FRIEND_HOMES[id];
       const root = this.add.container(home.x, home.y).setDepth(14);
-      const idle = eggArt(this, `map-${id}-idle`, 0, 0);
+      const idle = eggArt(this, `map-${id}-idle`, 0, friendArtY(id)).setScale(friendBoxScale(id));
       const walkId = `map-${id}-walk`;
       const spec = ensureSpriteAnim(this, walkId, -1);
-      const walkSprite = spec ? this.add.sprite(0, 0, walkId, '0').setDisplaySize(spec.w, spec.h).setVisible(false) : null;
+      const walkSprite = spec
+        ? this.add
+            .sprite(0, friendArtY(id), walkId, '0')
+            .setDisplaySize(spec.w * friendBoxScale(id), spec.h * friendBoxScale(id))
+            .setVisible(false)
+        : null;
       const body = this.add.container(0, 0, walkSprite ? [idle, walkSprite] : [idle]);
-      body.setSize(idle.width, idle.height);
+      body.setSize(Math.max(MIN_TAP, displayedVisibleWidth(id)), FRIEND_SPRITES[id].height);
       root.add(body);
       floatIdle(this, body, 6, 1500 + Math.random() * 500);
       body.setInteractive({ useHandCursor: true });
@@ -399,22 +408,27 @@ export class MysteryEggScene extends Phaser.Scene {
   private startWalk(def: WorldDef): void {
     this.phase = 'walking';
     this.walkingTo = def.id;
-    const routes = [...this.friends.values()].map((f) => friendRoute(FRIEND_HOMES[f.id], def));
-    this.walk = { world: def, routes, elapsed: 0 };
+    // The friend with the shortest route leads; the others follow in a line and queue up behind it at the door.
+    const plan = planWalk(FRIEND_HOMES, MAP_FRIENDS, def);
+    this.walk = { world: def, ids: plan.ids, routes: plan.routes, elapsed: 0 };
   }
 
   update(_time: number, delta: number): void {
     const walk = this.walk;
     if (!walk || !this.alive) return;
     walk.elapsed += Math.min(delta, 120);
-    const frame = walkFrame(walk.routes, walk.elapsed, WALK);
-    [...this.friends.values()].forEach((f, i) => {
+    const frame = walkFrame(walk.routes, walk.elapsed, WALK_OPTIONS);
+    walk.ids.forEach((id, i) => {
+      const f = this.friends.get(id);
+      if (!f) return;
       const w = frame.friends[i];
       f.root.setPosition(w.x, w.y + w.bob);
+      // Whoever stands lower on the map is in front, so friends that overlap a little look like a group.
+      f.root.setDepth(14 + w.y / 1000);
       this.setWalking(f, w.moving);
       this.setFacing(f, facingFor({ moving: w.moving, angle: w.angle, current: f.facing }));
     });
-    if (frame.done || walk.elapsed > walkDurationMs(walk.routes, WALK) + 400) {
+    if (frame.done || walk.elapsed > walkDurationMs(walk.routes, WALK_OPTIONS) + 400) {
       this.walk = null;
       for (const f of this.friends.values()) {
         this.setWalking(f, false);
