@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import rawManifest from '../../src/content/mysteryEggAssets.json';
 import {
   AssetAvailability,
+  GAME_SHELL_ASSET_IDS,
   MYSTERY_EGG_ASSET_IDS,
   assetEntry,
   assetUrl,
@@ -31,12 +32,16 @@ const AGREED_IDS = [
   'sfx-success', 'sfx-pop',
 ];
 
+/** The 38 game shell ids are pinned in tests/unit/game-shell.assets.test.ts; here only the prototype ids are. */
+const SHELL = new Set<string>(GAME_SHELL_ASSET_IDS);
+const prototypeIds = (ids: string[]): string[] => ids.filter((id) => !SHELL.has(id)).sort();
+
 describe('mystery-egg asset manifest', () => {
-  it('[AC-14] parses with zod and contains exactly the agreed ids', () => {
+  it('[AC-14] parses with zod and contains exactly the agreed ids (41 prototype ids plus the game shell ids)', () => {
     const parsed = parseAssetManifest(rawManifest);
-    expect(Object.keys(parsed).sort()).toEqual([...AGREED_IDS].sort());
-    expect([...MYSTERY_EGG_ASSET_IDS].sort()).toEqual([...AGREED_IDS].sort());
-    expect(Object.keys(mysteryEggManifest()).sort()).toEqual([...AGREED_IDS].sort());
+    expect(prototypeIds(Object.keys(parsed))).toEqual([...AGREED_IDS].sort());
+    expect([...MYSTERY_EGG_ASSET_IDS].sort()).toEqual([...AGREED_IDS, ...GAME_SHELL_ASSET_IDS].sort());
+    expect(Object.keys(mysteryEggManifest()).sort()).toEqual([...MYSTERY_EGG_ASSET_IDS].sort());
   });
 
   it('[AC-14] paths follow the contract: art/mystery-egg/<id>.webp and audio/mystery-egg/<id>.ogg, relative to the app base', () => {
@@ -58,7 +63,7 @@ describe('mystery-egg asset manifest', () => {
   });
 
   it('[AC-14] every vo-* entry has a transcript and a language; the transcripts are the ones Gemini verified (PR #108) and the Hebrew ones do not name the child', () => {
-    const vos = entriesOfKind('vo');
+    const vos = entriesOfKind('vo').filter(([id]) => !SHELL.has(id));
     expect(vos.map(([id]) => id).sort()).toEqual([
       'vo-fr-cat-croissants', 'vo-fr-instruction', 'vo-fr-presque', 'vo-fr-robot-aide', 'vo-fr-robot-regarde', 'vo-fr-story', 'vo-fr-success',
       'vo-he-robot-breathe', 'vo-he-robot-help-1', 'vo-he-robot-help-2',

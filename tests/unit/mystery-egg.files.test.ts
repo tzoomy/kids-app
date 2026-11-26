@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
+import { ONE_X_ART_IDS, mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
 
 const publicDir = path.resolve(__dirname, '..', '..', 'public');
 
@@ -25,8 +25,11 @@ function webpSize(file: string): { width: number; height: number } {
 describe('mystery-egg media files (Gemini PR #108)', () => {
   const manifest = mysteryEggManifest();
 
-  it('[AC-14] every manifest path is a real file under public/', () => {
-    for (const [id, e] of Object.entries(manifest)) expect(fs.existsSync(path.join(publicDir, e.path)), `${id}: ${e.path}`).toBe(true);
+  it('[AC-14] every manifest path is a real file under public/, unless the entry is `pending` (game shell media not delivered yet)', () => {
+    for (const [id, e] of Object.entries(manifest)) {
+      if (e.pending) continue;
+      expect(fs.existsSync(path.join(publicDir, e.path)), `${id}: ${e.path}`).toBe(true);
+    }
   });
 
   it('[AC-14] every file in public/art/mystery-egg and public/audio/mystery-egg is listed in the manifest', () => {
@@ -36,10 +39,11 @@ describe('mystery-egg media files (Gemini PR #108)', () => {
     }
   });
 
-  it('[AC-14] WebP pixel sizes are 2x the display size (hub-bg 1x), times the frame count for a strip', () => {
+  it('[AC-14] WebP pixel sizes are 2x the display size (1x for hub-bg, map-bg and the slides), times the frame count for a strip', () => {
     for (const [id, e] of Object.entries(manifest)) {
       if (e.kind !== 'webp' && e.kind !== 'sprite') continue;
-      const k = id === 'hub-bg' ? 1 : 2;
+      if (!fs.existsSync(path.join(publicDir, e.path))) continue; // only a pending entry can be missing (checked above)
+      const k = ONE_X_ART_IDS.includes(id) ? 1 : 2;
       const { width, height } = webpSize(path.join(publicDir, e.path));
       expect([width, height], id).toEqual([(e.w as number) * k * (e.frames ?? 1), (e.h as number) * k]);
     }
