@@ -79,8 +79,15 @@ test.describe('game-shell review nits', () => {
     await backIsRight({ width: 1280, height: 800 }, 'landscape at start');
     await backIsRight({ width: 800, height: 1280 }, 'after rotating to portrait');
     await backIsRight({ width: 1280, height: 800 }, 'after rotating back to landscape');
-    // The re-placed button still works: a real tap leaves the map.
-    const back = (await info(page))?.rects.backBtn as Rect;
+    // The re-placed button still works: a real tap leaves the map. (The browser may still be settling the canvas after the
+    // viewport change: tap once the button's rectangle has stopped moving.)
+    let back = (await info(page))?.rects.backBtn as Rect;
+    for (let settled = 0; settled < 3; ) {
+      await page.waitForTimeout(200);
+      const now = (await info(page))?.rects.backBtn as Rect;
+      settled = now.x === back.x && now.y === back.y && now.width === back.width ? settled + 1 : 0;
+      back = now;
+    }
     await page.mouse.click(back.x + back.width / 2, back.y + back.height / 2);
     await waitForScene(page, 'MapScene');
   });
