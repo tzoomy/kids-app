@@ -246,6 +246,61 @@ test.describe('game-shell', () => {
     expect(await getActiveScenes(page)).not.toContain('MysteryEggBuildScene');
   });
 
+  test('[AC-19] @single-orientation repeated taps on a closed world never accumulate rotation: the tile swings within its wiggle and returns to rest', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(60_000);
+    await enterMapByTap(page, 'profile-a');
+    await seed(page, SEEN);
+    await openMapByTap(page);
+    const rect = centre(await rectOf(page, 'world-bakery'));
+    const angles: number[] = [];
+    for (let n = 0; n < 8; n++) {
+      await page.mouse.click(rect.x, rect.y);
+      await page.waitForTimeout(35);
+      angles.push((await info(page))?.map?.worldAngles.bakery ?? 99);
+    }
+    expect((await info(page))?.map?.lockedTaps).toBe(8);
+    // The wiggle is +-4 degrees: eight overlapping taps stay inside it.
+    for (const a of angles) expect(Math.abs(a)).toBeLessThanOrEqual(4.01);
+    await expect.poll(async () => (await info(page))?.map?.worldAngles.bakery, { timeout: 5_000 }).toBe(0);
+    const rest = (await info(page))?.map?.worldAngles;
+    for (const id of WORLDS) expect(rest?.[id], id).toBe(0);
+    expect((await info(page))?.phase).toBe('map');
+  });
+
+  test('[AC-20] @single-orientation world taps do nothing unless the map is up: not during the intro slides, not while the friends walk', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterMapByTap(page, 'profile-a');
+    const first = await openShellByTap(page);
+    expect(first.phase).toBe('intro');
+    // A tap where a closed world sits only advances the slide: no wiggle, no walk.
+    const bakery = centre(first.rects['world-bakery'] as Rect);
+    const workshop = centre(first.rects['world-workshop'] as Rect);
+    await page.mouse.click(bakery.x, bakery.y);
+    const second = await waitInfo(page, (i) => i.map?.slide?.index === 1, 'the tap did not advance the slide');
+    expect(second.map?.lockedTaps).toBe(0);
+    await page.mouse.click(workshop.x, workshop.y);
+    await waitInfo(page, (i) => i.map?.slide?.index === 2, 'the tap did not advance the slide');
+    expect((await info(page))?.map?.walkingTo).toBeNull();
+    await tap(page, 'skipBtn');
+    await waitInfo(page, (i) => i.phase === 'map', 'the map never opened');
+
+    // While walking, taps on the walked-to world and on a closed world are ignored too.
+    await tap(page, 'world-workshop');
+    await waitInfo(page, (i) => i.phase === 'walking', 'the walk never started');
+    await page.mouse.click(bakery.x, bakery.y);
+    await page.mouse.click(workshop.x, workshop.y);
+    const walking = await info(page);
+    if (walking?.phase === 'walking') {
+      expect(walking.map?.lockedTaps).toBe(0);
+      expect(walking.map?.walkingTo).toBe('workshop');
+      expect(walking.map?.worldAngles.bakery).toBe(0);
+    }
+    await waitInfo(page, (i) => i.phase === 'entry', 'the entry slides never showed', 20_000);
+    expect((await info(page))?.map?.lockedTaps).toBe(0);
+  });
+
   test('[AC-10] @single-orientation the intro: 4 slides on the first visit, a tap advances and requests the French then the Hebrew line, the skip button skips all, and the next visit goes straight to the map', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);

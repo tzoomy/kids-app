@@ -12,6 +12,7 @@ import { ensureSpriteAnim, eggArt } from './art';
 import { displaySize } from './assets';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
+import { WiggleGuard, worldTapAllowed } from './mapRules';
 import { playEggSfx } from './eggSound';
 import { heartSlotCentres, type Point2 } from './layout';
 import {
@@ -90,6 +91,8 @@ export class MysteryEggScene extends Phaser.Scene {
   private walkingTo: WorldId | null = null;
   private lockedTaps = 0;
   private pieceFlights: string[] = [];
+  /** One wiggle per target: a new tap stops the running one and restores the rest angle (no stacking). */
+  private readonly wiggles = new WiggleGuard<Phaser.GameObjects.Container>((t) => t.setAngle(0));
 
   constructor() {
     super('MysteryEggScene');
@@ -115,6 +118,7 @@ export class MysteryEggScene extends Phaser.Scene {
     this.walkingTo = null;
     this.lockedTaps = 0;
     this.pieceFlights = [];
+    this.wiggles.clear();
     // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
     this.context.shell.clearChrome();
     fitBoard(this, '#fdeee0');
@@ -299,7 +303,19 @@ export class MysteryEggScene extends Phaser.Scene {
 
   /** A short wiggle (angle) of the whole image, then back to rest. */
   private wiggle(target: Phaser.GameObjects.Container, deg: number): void {
-    this.tweens.add({ targets: target, angle: { from: -deg, to: deg }, duration: 90, yoyo: true, repeat: 2, onComplete: () => target.setAngle(0) });
+    this.wiggles.start(target, () =>
+      this.tweens.add({
+        targets: target,
+        angle: { from: -deg, to: deg },
+        duration: 90,
+        yoyo: true,
+        repeat: 2,
+        onComplete: () => {
+          target.setAngle(0);
+          this.wiggles.finish(target);
+        },
+      }),
+    );
   }
 
   // ---------------------------------------------------------------- slides
@@ -330,7 +346,7 @@ export class MysteryEggScene extends Phaser.Scene {
   // ---------------------------------------------------------------- tapping a world
 
   private onWorldTap(def: WorldDef): void {
-    if (!this.alive || !this.ready || this.phase !== 'map') return;
+    if (!worldTapAllowed({ alive: this.alive, ready: this.ready, phase: this.phase })) return;
     if (def.open) this.startWalk(def);
     else this.lockedFeedback(def);
   }
@@ -470,6 +486,8 @@ export class MysteryEggScene extends Phaser.Scene {
       const w = this.progress.worlds[def.id];
       worlds[def.id] = { open: def.open, level: w.level, completed: [...w.completed], fill: gearFill(this.progress, def.id) };
     }
+    const worldAngles = {} as Record<WorldId, number>;
+    for (const def of WORLDS) worldAngles[def.id] = Math.round((this.worldViews.get(def.id)?.art.angle ?? 0) * 100) / 100;
     const friendPositions: Partial<Record<FriendId, { x: number; y: number }>> = {};
     for (const [id, f] of this.friends) friendPositions[id] = { x: Math.round(f.root.x), y: Math.round(f.root.y) };
     return {
@@ -496,6 +514,7 @@ export class MysteryEggScene extends Phaser.Scene {
         friends: [...this.friends.keys()],
         friendPositions,
         worlds,
+        worldAngles,
         slide: this.overlay ? this.overlay.info : null,
         introSeen: this.progress.introSeen,
         entrySeen: [...this.progress.entrySeen],
