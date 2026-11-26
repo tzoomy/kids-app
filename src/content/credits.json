@@ -1,1 +1,29 @@
-{ "items": [] }
+{
+  "items": [
+    {
+      "title": "Impact Sounds (1.0)",
+      "author": "Kenney (www.kenney.nl)",
+      "source": "https://kenney.nl/assets/impact-sounds",
+      "licence": "CC0",
+      "files": [
+        "public/audio/mystery-egg/sfx-ws-domino-clack.ogg",
+        "public/audio/mystery-egg/sfx-ws-sandbag-thump.ogg",
+        "public/audio/mystery-egg/sfx-ws-bell-morning.ogg",
+        "public/audio/mystery-egg/sfx-ws-lantern-clonk.ogg",
+        "public/audio/mystery-egg/sfx-ws-town-wake.ogg",
+        "public/audio/mystery-egg/sfx-ws-trapdoor.ogg"
+      ]
+    },
+    {
+      "title": "RPG Audio",
+      "author": "Kenney (www.kenney.nl)",
+      "source": "https://kenney.nl/assets/rpg-audio",
+      "licence": "CC0",
+      "files": [
+        "public/audio/mystery-egg/sfx-ws-snip.ogg",
+        "public/audio/mystery-egg/sfx-ws-seesaw-creak.ogg",
+        "public/audio/mystery-egg/sfx-ws-trapdoor.ogg"
+      ]
+    }
+  ]
+}

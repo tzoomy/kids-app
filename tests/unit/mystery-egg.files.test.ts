@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ONE_X_ART_IDS, mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
+import workshopManifest from '../../src/content/workshopAssets.json';
 
 const publicDir = path.resolve(__dirname, '..', '..', 'public');
 
@@ -33,7 +34,8 @@ describe('mystery-egg media files (Gemini PR #108)', () => {
   });
 
   it('[AC-14] every file in public/art/mystery-egg and public/audio/mystery-egg is listed in the manifest', () => {
-    const listed = new Set(Object.values(manifest).map((e) => e.path));
+    // Workshop media (L20 contract, src/content/workshopAssets.json) shares the mystery-egg folders.
+    const listed = new Set([...Object.values(manifest), ...Object.values(workshopManifest)].map((e) => e.path));
     for (const dir of ['art/mystery-egg', 'audio/mystery-egg', 'art/game-shell', 'audio/game-shell']) {
       if (!fs.existsSync(path.join(publicDir, dir))) continue; // the game shell folders arrive with Gemini's media PR
       for (const name of fs.readdirSync(path.join(publicDir, dir))) expect(listed.has(`${dir}/${name}`), `${dir}/${name}`).toBe(true);

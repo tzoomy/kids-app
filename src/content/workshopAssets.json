@@ -1,0 +1,46 @@
+{
+  "sfx-ws-snip": {
+    "path": "audio/mystery-egg/sfx-ws-snip.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-rope-swish": {
+    "path": "audio/mystery-egg/sfx-ws-rope-swish.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-domino-clack": {
+    "path": "audio/mystery-egg/sfx-ws-domino-clack.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-sandbag-thump": {
+    "path": "audio/mystery-egg/sfx-ws-sandbag-thump.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-seesaw-creak": {
+    "path": "audio/mystery-egg/sfx-ws-seesaw-creak.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-bell-morning": {
+    "path": "audio/mystery-egg/sfx-ws-bell-morning.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-lantern-clonk": {
+    "path": "audio/mystery-egg/sfx-ws-lantern-clonk.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-town-wake": {
+    "path": "audio/mystery-egg/sfx-ws-town-wake.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-yawn": {
+    "path": "audio/mystery-egg/sfx-ws-yawn.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-snore": {
+    "path": "audio/mystery-egg/sfx-ws-snore.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-trapdoor": {
+    "path": "audio/mystery-egg/sfx-ws-trapdoor.ogg",
+    "kind": "sfx"
+  }
+}
