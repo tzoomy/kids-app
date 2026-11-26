@@ -42,6 +42,18 @@ Spec: `docs/specs/game-shell.md` (draft, Pass 1 in progress). Branch `feat/myste
 - Gemini's #113 media (friend sprites, final `map-nest-home`, re-derived `map-frog-walk`) is on main and merged into this branch, so the real art is tracked: screenshots need no copying any more. Re-measure the friend table in `friendSprites.ts` and the nest rows in the tests whenever a sprite or the nest is re-delivered.
 - Portrait e2e (AC-22) runs only in the repo's `portrait-800x1280` project; the temp e2e config needs that project added.
 
+## Tablet fixes (branch fix/tablet-feedback, after #114)
+
+- Done: AC-26 (versioned intro flag: `introSeenVersion`, `INTRO_VERSION = 2`; unit + e2e) and AC-27 (slide voice at 1.0x; unit + e2e). Same PR, mystery-egg spec: AC-21 (one voice, queue), AC-22 (ramp), AC-23 (in-game 1.2x).
+- **Intro root cause (evidence, throwaway scripts in /tmp against local builds):**
+  - (a) migration/repair: ruled out. Fresh, v1, and v2 `introSeen: false` saves all show the intro (phase `intro`, 4 slides); only a v2 save with `introSeen: true` goes straight to the map (`repairProgress` only reads the stored value).
+  - (b) **an existing save: the cause.** The gate was a one-shot boolean persisted forever. Maor tried the first shell release (#111, deployed 2026-11-26 12:26) and saw or skipped the intro, which wrote `introSeen: true` to his tablet; every later build (#114 at 14:39 and this update) reads it and skips. Reproduced on the real upgrade path: build #111 with that save -> auto update to the fix build -> the intro shows once (phase `intro`, hearts still `[0]`).
+  - (c) service worker: not a cause. `registerType: 'prompt'` + `PwaAutoUpdate` applies a waiting worker at once on the profile or map screen: a #111 build was replaced by the new build about 2 s after a relaunch, no manual reload, and the offline reload still works afterwards. (A game screen defers the reload until the child is back on the profile or map screen, by design.) No SW change made.
+  - (d) slides failing to load: not a cause. No failed request, no page error under `/kids-app/`; `shell-intro-1..4` and the 11 slide clips exist and load; a missing texture only draws a placeholder and still shows the overlay.
+  - (e) entry path and phase race: not a cause (the HUD egg button opens the scene; the intro starts after the images load, `phase` flips to `intro` only once the overlay exists).
+- Fix: `introSeenVersion` in the save (additive, still v2); the gate is `introSeenVersion < INTRO_VERSION`; a legacy `introSeen: true` does not count. The e2e seed `introSeen: true` means "current version" so existing tests are unchanged; seed `introSeenVersion: 0` to get an old save. Bump `INTRO_VERSION` when the slides change substantively.
+- Gotcha: the e2e for AC-26 writes the raw legacy save with `localStorage.setItem` (seed only), exactly the bytes #111 wrote.
+
 ## Next step
 
 Gemini's media PR (files at the manifest paths; no code change), then re-check the anchors and the walk strips against the real art. Then Maor's tablet check (AC-18) and the pending decisions in `docs/PENDING-DECISIONS.md` (2026-11-26 rows). Next code work: the other four worlds' games, hatching behind `readyToHatch`.
