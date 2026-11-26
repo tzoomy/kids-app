@@ -28,6 +28,13 @@ Spec: `docs/specs/game-shell.md` (draft, Pass 1 in progress). Branch `feat/myste
 - Missing `game-shell` files are normal until Gemini's media PR lands: placeholders everywhere; the files guard skips missing ones and checks the rest.
 - The gear fill is `completed / min(PIECE_LEVELS, levels)` (pending decision), so the Workshop gear is full after its single level.
 
+## Anchors vs the real art (PR #112, 2026-11-26)
+
+- Verified against #112's `map-bg`, `map-nest-home` and tiles with the files in the working tree (never committed to this PR). Tiles sit on the painted clearings at Gemini's anchors; tile ground baselines are at tile-y + 251 (display px); tap areas are the visible tile art.
+- Paths: the painted cobbles start at the nest rim and end on the clearings; `WORLDS[].path` follows them and `approach` routes walkers round the nest (a unit test samples every route and fails if one crosses the egg).
+- To re-check when the walk strips and the other idle sprites land: friend homes, `FRIEND_HOMES`, walk speed, robot/capybara/frog sizes.
+- How to look: copy `public/art/game-shell` and `public/audio/game-shell` from `pr112` into the working tree (untracked), build, and run `/tmp/shell-shot2.mjs`-style screenshots; delete them again before committing.
+
 ## Next step
 
 Gemini's media PR (files at the manifest paths; no code change), then re-check the anchors and the walk strips against the real art. Then Maor's tablet check (AC-18) and the pending decisions in `docs/PENDING-DECISIONS.md` (2026-11-26 rows). Next code work: the other four worlds' games, hatching behind `readyToHatch`.

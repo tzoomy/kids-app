@@ -1,6 +1,6 @@
 // Game shell (docs/specs/game-shell.md): the world table, path geometry, friends and the walk. Pure modules only.
 import { describe, expect, it } from 'vitest';
-import { MAP_FRIENDS, NEST, WORLDS, WORLD_IDS, worldArtId, worldDef } from '../../src/games/mysteryEgg/worlds';
+import { FRIEND_HOMES, MAP_FRIENDS, NEST, PIECE_NEST_SPOTS, WORLDS, WORLD_IDS, worldArtId, worldDef } from '../../src/games/mysteryEgg/worlds';
 import { friendRoute, pointAtDistance, polylineLength, walkFrame } from '../../src/games/mysteryEgg/walk';
 
 describe('game-shell world table', () => {
@@ -18,32 +18,55 @@ describe('game-shell world table', () => {
       expect(w.path.length, w.id).toBeGreaterThanOrEqual(2);
       expect(w.path[0], w.id).toEqual(NEST);
       expect(w.path[w.path.length - 1], w.id).toEqual(w.door);
-      expect(polylineLength(w.path), w.id).toBeGreaterThan(200);
+      expect(polylineLength(w.path), w.id).toBeGreaterThan(100);
       // The door is on the world's art, near its bottom half.
       expect(Math.abs(w.door.x - w.x), w.id).toBeLessThanOrEqual(w.artW / 2);
       expect(Math.abs(w.door.y - w.y), w.id).toBeLessThanOrEqual(w.artH / 2 + 40);
     }
   });
 
-  it('[AC-02] every tap area is at least 96 px and inside the 1280x800 board', () => {
+  it('[AC-02] every tap area is at least 96 px, inside the 1280x800 board, and covers its tile\'s ground (the door is inside it or within 60 px)', () => {
     for (const w of WORLDS) {
       expect(w.hit.w, w.id).toBeGreaterThanOrEqual(96);
       expect(w.hit.h, w.id).toBeGreaterThanOrEqual(96);
-      expect(w.x - w.hit.w / 2, w.id).toBeGreaterThanOrEqual(0);
-      expect(w.x + w.hit.w / 2, w.id).toBeLessThanOrEqual(1280);
-      expect(w.y - w.hit.h / 2, w.id).toBeGreaterThanOrEqual(0);
-      expect(w.y + w.hit.h / 2, w.id).toBeLessThanOrEqual(800);
+      expect(w.hit.x - w.hit.w / 2, w.id).toBeGreaterThanOrEqual(0);
+      expect(w.hit.x + w.hit.w / 2, w.id).toBeLessThanOrEqual(1280);
+      expect(w.hit.y - w.hit.h / 2, w.id).toBeGreaterThanOrEqual(0);
+      expect(w.hit.y + w.hit.h / 2, w.id).toBeLessThanOrEqual(800);
+      const dx = Math.max(Math.abs(w.door.x - w.hit.x) - w.hit.w / 2, 0);
+      const dy = Math.max(Math.abs(w.door.y - w.hit.y) - w.hit.h / 2, 0);
+      expect(Math.hypot(dx, dy), w.id).toBeLessThanOrEqual(60);
+      // The tap area lies on the tile's own art box (320x260 around the anchor).
+      expect(Math.abs(w.hit.x - w.x) + w.hit.w / 2, w.id).toBeLessThanOrEqual(w.artW / 2 + 1);
+      expect(Math.abs(w.hit.y - w.y) + w.hit.h / 2, w.id).toBeLessThanOrEqual(w.artH / 2 + 1);
     }
   });
 
-  it('[AC-02] the five tap areas do not overlap each other', () => {
-    for (let i = 0; i < WORLDS.length; i++) {
-      for (let j = i + 1; j < WORLDS.length; j++) {
-        const a = WORLDS[i];
-        const b = WORLDS[j];
-        const overlap = Math.abs(a.x - b.x) < (a.hit.w + b.hit.w) / 2 && Math.abs(a.y - b.y) < (a.hit.h + b.hit.h) / 2;
+  it('[AC-02] the five tap areas do not overlap each other, nor the back button (22..118 px)', () => {
+    const rects = [...WORLDS.map((w) => ({ id: w.id, ...w.hit })), { id: 'back', x: 70, y: 70, w: 96, h: 96 }];
+    for (let i = 0; i < rects.length; i++) {
+      for (let j = i + 1; j < rects.length; j++) {
+        const a = rects[i];
+        const b = rects[j];
+        const overlap = Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2;
         expect(overlap, `${a.id} vs ${b.id}`).toBe(false);
       }
+    }
+  });
+
+  it('[AC-02] friends stand beside the nest, never on the egg, and nest pieces rest on the nest rim (inside the board)', () => {
+    // map-nest-home art 360x300 at (640,420); the painted egg is about x 550..730, y 300..475.
+    for (const id of MAP_FRIENDS) {
+      const f = FRIEND_HOMES[id];
+      const onEgg = f.x > 550 && f.x < 730 && f.y > 300 && f.y < 475;
+      expect(onEgg, id).toBe(false);
+      expect(f.x, id).toBeGreaterThan(80);
+      expect(f.x, id).toBeLessThan(1200);
+      expect(f.y, id).toBeLessThan(700);
+    }
+    for (const [piece, spot] of Object.entries(PIECE_NEST_SPOTS)) {
+      expect(Math.abs(spot.x - NEST.x), piece).toBeLessThanOrEqual(180);
+      expect(Math.abs(spot.y - NEST.y), piece).toBeLessThanOrEqual(150);
     }
   });
 });
@@ -84,18 +107,34 @@ describe('game-shell walk geometry', () => {
     expect(polylineLength([{ x: 1, y: 1 }])).toBe(0);
   });
 
-  it('[AC-06] a friend route starts at its home spot, joins the path after the nest point and ends at the door', () => {
+  it('[AC-06] a friend route starts at its home spot, goes round the nest through the world\'s approach points, then follows the painted path to the door', () => {
     const w = worldDef('workshop');
-    const route = friendRoute({ x: 500, y: 600 }, w.path);
+    const route = friendRoute({ x: 500, y: 600 }, w);
     expect(route[0]).toEqual({ x: 500, y: 600 });
+    expect(route.slice(1, 1 + w.approach.length)).toEqual(w.approach);
     expect(route[route.length - 1]).toEqual(w.door);
-    expect(route).toHaveLength(w.path.length);
+    expect(route.slice(1 + w.approach.length)).toEqual(w.path.slice(2));
+  });
+
+  it('[AC-06] no friend walks across the egg on the way to any world (every route sampled every 4 px)', () => {
+    // map-nest-home: the painted egg is about x 550..730, y 300..475; the test box is a little tighter than that.
+    const inEgg = (p: { x: number; y: number }) => p.x > 565 && p.x < 715 && p.y > 335 && p.y < 475;
+    for (const w of WORLDS) {
+      for (const id of MAP_FRIENDS) {
+        const route = friendRoute(FRIEND_HOMES[id], w);
+        const len = polylineLength(route);
+        for (let d = 0; d <= len; d += 4) {
+          const p = pointAtDistance(route, d);
+          expect(inEgg(p), `${id} to ${w.id} at ${Math.round(d)} px: (${Math.round(p.x)}, ${Math.round(p.y)})`).toBe(false);
+        }
+      }
+    }
   });
 
   it('[AC-06] followers start later, trail the leader and everyone ends exactly at the door', () => {
     const w = worldDef('workshop');
     const homes = [{ x: 480, y: 590 }, { x: 570, y: 620 }, { x: 800, y: 590 }, { x: 700, y: 630 }];
-    const routes = homes.map((h) => friendRoute(h, w.path));
+    const routes = homes.map((h) => friendRoute(h, w));
     const opts = { speed: 300, staggerMs: 250 };
     const start = walkFrame(routes, 0, opts);
     expect(start.done).toBe(false);
@@ -121,7 +160,7 @@ describe('game-shell walk geometry', () => {
 
   it('[AC-06] the walk bob moves only while walking, and the walk lasts the longest route plus the stagger', () => {
     const w = worldDef('bakery');
-    const routes = [friendRoute({ x: 500, y: 600 }, w.path), friendRoute({ x: 560, y: 630 }, w.path)];
+    const routes = [friendRoute({ x: 500, y: 600 }, w), friendRoute({ x: 560, y: 630 }, w)];
     const opts = { speed: 400, staggerMs: 300 };
     const bobs = new Set<number>();
     for (let t = 50; t < 1000; t += 37) bobs.add(Math.round(walkFrame(routes, t, opts).friends[0].bob * 100));

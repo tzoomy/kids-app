@@ -34,9 +34,12 @@ export function pointAtDistance(points: readonly Point2[], distance: number): Pa
   return { x: last.x, y: last.y, angle: Math.atan2(last.y - prev.y, last.x - prev.x) };
 }
 
-/** A friend's route: its resting spot, then the world's path after the nest point (the friends stand beside the nest). */
-export function friendRoute(home: Point2, path: readonly Point2[]): Point2[] {
-  return [home, ...path.slice(1)];
+/**
+ * A friend's route: its resting spot, then the world's approach waypoints (round the nest, never across the egg), then the
+ * painted path after its nest-edge point (`path[0]` is the nest centre, `path[1]` is replaced by the approach).
+ */
+export function friendRoute(home: Point2, world: { path: readonly Point2[]; approach: readonly Point2[] }): Point2[] {
+  return [home, ...world.approach, ...world.path.slice(2)];
 }
 
 export interface WalkOptions {

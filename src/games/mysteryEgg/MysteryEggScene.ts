@@ -176,7 +176,7 @@ export class MysteryEggScene extends Phaser.Scene {
   private drawPathGlow(): void {
     for (const def of WORLDS) {
       const g = this.add.graphics().setDepth(1);
-      g.lineStyle(60, 0xfff2a8, def.open ? 0.5 : 0.12);
+      g.lineStyle(64, 0xffd45e, def.open ? 0.4 : 0.08);
       g.beginPath();
       def.path.forEach((p, i) => (i === 0 ? g.moveTo(p.x, p.y) : g.lineTo(p.x, p.y)));
       g.strokePath();
@@ -192,8 +192,8 @@ export class MysteryEggScene extends Phaser.Scene {
       floatIdle(this, art, 4, 1800 + Math.random() * 400);
     }
     this.worldViews.set(def.id, { def, art });
-    // The tap area is a fixed rectangle (80% of the art, >= 96 px), above everything, so a wiggling art never moves it.
-    const zone = this.add.zone(def.x, def.y, def.hit.w, def.hit.h).setDepth(30).setInteractive({ useHandCursor: true });
+    // The tap area is a fixed rectangle (the visible art, >= 96 px), above everything, so a wiggling art never moves it.
+    const zone = this.add.zone(def.hit.x, def.hit.y, def.hit.w, def.hit.h).setDepth(30).setInteractive({ useHandCursor: true });
     zone.on('pointerdown', () => this.onWorldTap(def));
   }
 
@@ -217,7 +217,7 @@ export class MysteryEggScene extends Phaser.Scene {
     const g = this.add.graphics();
     for (let i = 0; i < level + 1 && level > 0; i++) {
       g.fillStyle(0xfff2a8, 0.1 + level * 0.025);
-      g.fillCircle(0, -10, 120 + level * 16 + i * 26);
+      g.fillCircle(0, -25, 105 + level * 18 + i * 24);
     }
     const glow = this.add.container(NEST.x, NEST.y, [g]).setDepth(2);
     if (level > 0) this.tweens.add({ targets: glow, alpha: { from: 1, to: 0.6 }, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -366,7 +366,7 @@ export class MysteryEggScene extends Phaser.Scene {
   private startWalk(def: WorldDef): void {
     this.phase = 'walking';
     this.walkingTo = def.id;
-    const routes = [...this.friends.values()].map((f) => friendRoute(FRIEND_HOMES[f.id], def.path));
+    const routes = [...this.friends.values()].map((f) => friendRoute(FRIEND_HOMES[f.id], def));
     this.walk = { world: def, routes, elapsed: 0 };
   }
 
@@ -459,7 +459,7 @@ export class MysteryEggScene extends Phaser.Scene {
   getMysteryEggInfo(): MysteryEggInfo {
     const rects: MysteryEggInfo['rects'] = {};
     for (const [target, b] of this.buttons) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
-    for (const def of WORLDS) rects[`world-${def.id}`] = boardRectToPage(this, def.x, def.y, def.hit.w, def.hit.h);
+    for (const def of WORLDS) rects[`world-${def.id}`] = boardRectToPage(this, def.hit.x, def.hit.y, def.hit.w, def.hit.h);
     const slideRects: { skipBtn?: EggPageRect; slideTap?: EggPageRect } = this.overlay?.rects() ?? {};
     if (this.overlay && slideRects.skipBtn && slideRects.slideTap) {
       rects.skipBtn = slideRects.skipBtn;
