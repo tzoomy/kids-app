@@ -7,8 +7,8 @@ import { enterMapByTap, getActiveScenes, getBuildingHit, getSpokenLines, tapTest
 
 const LANDSCAPE = 'landscape-1280x800';
 const MIN_TAP_PX = 96;
-const WORLDS = ['workshop', 'bakery', 'owl-house', 'jungle', 'garden'] as const;
-const LOCKED = ['bakery', 'owl-house', 'jungle', 'garden'] as const;
+const WORLDS = ['workshop', 'bakery', 'detective', 'jungle', 'garden'] as const;
+const LOCKED = ['bakery', 'detective', 'jungle', 'garden'] as const;
 
 function skipIfNotLandscape(testInfo: { project: { name: string } }): void {
   if (testInfo.project.name !== LANDSCAPE) test.skip();
@@ -181,19 +181,15 @@ test.describe('game-shell', () => {
     expect((await info(page))?.phase).toBe('map');
   });
 
-  test('[AC-05] @single-orientation the younger (age-2) profile shows the baby frog on the map, the older (age-5) profile does not', async ({ page }, testInfo) => {
+  test('[AC-05] @single-orientation the shared map shows the same four friends, the frog included, for both profiles', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
-    await enterMapByTap(page, 'profile-a');
-    await seed(page, SEEN);
-    const young = await openMapByTap(page);
-    expect(young.map?.friends).toEqual(['bunny', 'robot', 'capybara', 'frog']);
-    expect(Object.keys(young.map?.friendPositions ?? {}).sort()).toEqual(['bunny', 'capybara', 'frog', 'robot']);
-
-    await enterMapByTap(page, 'profile-b');
-    await seed(page, SEEN);
-    const older = await openMapByTap(page);
-    expect(older.map?.friends).toEqual(['bunny', 'robot', 'capybara']);
-    expect(older.map?.friendPositions).not.toHaveProperty('frog');
+    for (const profile of ['profile-a', 'profile-b'] as const) {
+      await enterMapByTap(page, profile);
+      await seed(page, SEEN);
+      const m = await openMapByTap(page);
+      expect(m.map?.friends, profile).toEqual(['bunny', 'robot', 'capybara', 'frog']);
+      expect(Object.keys(m.map?.friendPositions ?? {}).sort(), profile).toEqual(['bunny', 'capybara', 'frog', 'robot']);
+    }
   });
 
   test('[AC-07] @single-orientation tapping the Workshop makes the friends walk along the path (input locked), and arriving enters the world', async ({ page }, testInfo) => {
@@ -222,7 +218,7 @@ test.describe('game-shell', () => {
     expect(intro.phase).toBe('intro');
   });
 
-  test('[AC-08] @single-orientation a locked world wiggles and says its line, nobody walks and the child stays on the map', async ({ page }, testInfo) => {
+  test('[AC-08] @single-orientation a closed world only wiggles (no voice line), nobody walks and the child stays on the map', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(60_000);
     await enterMapByTap(page, 'profile-a');
@@ -236,7 +232,9 @@ test.describe('game-shell', () => {
       const i = await waitInfo(page, (x) => (x.map?.lockedTaps ?? 0) === taps, `no locked feedback for ${id}`);
       expect(i.phase, id).toBe('map');
       expect(i.map?.walkingTo, id).toBeNull();
-      await expect.poll(() => spoken(page, since), { timeout: 5000 }).toContainEqual(['vo-he-robot-locked', 'he']);
+      // A wiggle only: no voice line is requested for a closed world.
+      await page.waitForTimeout(300);
+      expect(await spoken(page, since), id).toEqual([]);
       await page.waitForTimeout(400);
     }
     // Still on the map after a pause: no walk, no entry, nothing opened.
@@ -261,16 +259,16 @@ test.describe('game-shell', () => {
     expect(first.rects.slideTap).toBeDefined();
 
     // Slide 1: French hero line, then the Hebrew robot line.
-    await expect.poll(() => spoken(page), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-fr-intro-1', 'fr'], ['vo-he-intro-1', 'he']]));
+    await expect.poll(() => spoken(page), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-intro-1-hero', 'fr'], ['vo-shell-intro-1-narr', 'he']]));
     const ids = (await spoken(page)).map(([id]) => id);
-    expect(ids.indexOf('vo-fr-intro-1')).toBeLessThan(ids.indexOf('vo-he-intro-1'));
+    expect(ids.indexOf('vo-shell-intro-1-hero')).toBeLessThan(ids.indexOf('vo-shell-intro-1-narr'));
 
     // A tap anywhere advances; slide 2 requests its own lines.
     const since = (await getSpokenLines(page)).length;
     await tap(page, 'slideTap');
     const second = await waitInfo(page, (i) => i.map?.slide?.index === 1, 'the tap did not advance');
     expect(second.phase).toBe('intro');
-    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-fr-intro-2', 'fr'], ['vo-he-intro-2', 'he']]));
+    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-intro-2-hero', 'fr'], ['vo-shell-intro-2-robot', 'he']]));
 
     // Skip: the whole intro is over, the map is up and the intro counts as seen.
     await tap(page, 'skipBtn');
@@ -302,7 +300,7 @@ test.describe('game-shell', () => {
     await tap(page, 'world-workshop');
     const entry = await waitInfo(page, (i) => i.phase === 'entry', 'the entry slides never showed', 20_000);
     expect(entry.map?.slide).toMatchObject({ kind: 'entry', world: 'workshop', index: 0, count: 2 });
-    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-fr-workshop-entry-1', 'fr'], ['vo-he-workshop-entry-1', 'he']]));
+    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-ws-1-hero', 'fr'], ['vo-shell-ws-1-narr', 'he']]));
     expect((entry.rects.skipBtn as Rect).width).toBeGreaterThanOrEqual(MIN_TAP_PX);
     await tap(page, 'skipBtn');
     await waitForScene(page, 'MysteryEggBuildScene');
@@ -352,7 +350,7 @@ test.describe('game-shell', () => {
     expect(v2.eggLevel).toBe(2);
     expect(v2.map?.heartFill?.[1]).toBe(1);
     expect(v2.map?.heartFill?.[3]).toBeCloseTo(1 / 3, 2);
-    expect(v2.map?.worlds['owl-house'].fill).toBe(0);
+    expect(v2.map?.worlds['detective'].fill).toBe(0);
     expect(v2.map?.readyToHatch).toBe(false);
   });
 });

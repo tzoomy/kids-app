@@ -1,11 +1,11 @@
 // Game shell (docs/specs/game-shell.md): the world table, path geometry, friends and the walk. Pure modules only.
 import { describe, expect, it } from 'vitest';
-import { NEST, WORLDS, WORLD_IDS, friendsFor, worldDef } from '../../src/games/mysteryEgg/worlds';
+import { MAP_FRIENDS, NEST, WORLDS, WORLD_IDS, worldArtId, worldDef } from '../../src/games/mysteryEgg/worlds';
 import { friendRoute, pointAtDistance, polylineLength, walkFrame } from '../../src/games/mysteryEgg/walk';
 
 describe('game-shell world table', () => {
   it('[AC-02] five worlds with distinct ids and heart slots 0..4; the Workshop is the only open one and has slot 0', () => {
-    expect(WORLD_IDS).toEqual(['workshop', 'bakery', 'owl-house', 'jungle', 'garden']);
+    expect(WORLD_IDS).toEqual(['workshop', 'bakery', 'detective', 'jungle', 'garden']);
     expect(new Set(WORLDS.map((w) => w.id)).size).toBe(5);
     expect(WORLDS.map((w) => w.heartSlot)).toEqual([0, 1, 2, 3, 4]);
     expect(WORLDS.filter((w) => w.open).map((w) => w.id)).toEqual(['workshop']);
@@ -48,14 +48,23 @@ describe('game-shell world table', () => {
   });
 });
 
-describe('game-shell friends', () => {
-  it('[AC-04] bunny, robot and capybara for everyone, plus the baby frog only on the age-2 profile', () => {
-    expect(friendsFor({ ageTrack: 'age5' })).toEqual(['bunny', 'robot', 'capybara']);
-    expect(friendsFor({ ageTrack: 'age2' })).toEqual(['bunny', 'robot', 'capybara', 'frog']);
+describe('game-shell friends and tiles', () => {
+  it('[AC-04] the map shows the same four friends for every profile: bunny, robot, capybara and the frog', () => {
+    expect(MAP_FRIENDS).toEqual(['bunny', 'robot', 'capybara', 'frog']);
   });
 
-  it('[AC-04] an unknown track gets the default three (no frog)', () => {
-    expect(friendsFor({ ageTrack: 'other' as never })).toEqual(['bunny', 'robot', 'capybara']);
+  it('[AC-02] anchors follow Gemini\'s layout table: nest (640,420), workshop (220,230), bakery (640,180), detective (1060,230), jungle (220,650), garden (1060,650)', () => {
+    expect(NEST).toEqual({ x: 640, y: 420 });
+    expect(WORLDS.map((w) => [w.id, w.x, w.y])).toEqual([
+      ['workshop', 220, 230], ['bakery', 640, 180], ['detective', 1060, 230], ['jungle', 220, 650], ['garden', 1060, 650],
+    ]);
+  });
+
+  it('[AC-02] tile art is map-world-<id>-open for the open Workshop and map-world-<id>-closed for the four others', () => {
+    expect(WORLDS.map(worldArtId)).toEqual([
+      'map-world-workshop-open', 'map-world-bakery-closed', 'map-world-detective-closed', 'map-world-jungle-closed', 'map-world-garden-closed',
+    ]);
+    expect(WORLDS.every((w) => w.artW === 320 && w.artH === 260)).toBe(true);
   });
 });
 

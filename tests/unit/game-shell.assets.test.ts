@@ -1,84 +1,108 @@
-// Game shell asset contract (docs/specs/game-shell.md AC-17, docs/specs/mystery-egg-assets.md "Game shell assets").
+// Game shell asset contract (docs/specs/game-shell.md AC-17; Gemini's media contract, game-shell/plan.md section (d)):
+// src/content/gameShellAssets.json is merged with mysteryEggAssets.json at load time.
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import rawManifest from '../../src/content/mysteryEggAssets.json';
-import { GAME_SHELL_ASSET_IDS, ONE_X_ART_IDS, assetEntry, assetEntrySchema, mysteryEggManifest, parseAssetManifest } from '../../src/games/mysteryEgg/assets';
+import rawShell from '../../src/content/gameShellAssets.json';
+import rawProto from '../../src/content/mysteryEggAssets.json';
+import {
+  GAME_SHELL_ASSET_IDS,
+  MYSTERY_EGG_ASSET_IDS,
+  ONE_X_ART_IDS,
+  assetEntry,
+  entriesOfKind,
+  mergeManifests,
+  mysteryEggManifest,
+  parseAssetManifest,
+  parseGameShellManifest,
+  spriteSpec,
+} from '../../src/games/mysteryEgg/assets';
 
-/** The 38 new ids, pinned here (a spec change is needed to add one). */
+/** Gemini's 37 ids, pinned here (the contract: a spec change is needed to add one). */
 const SHELL_IDS = [
-  'map-bg', 'map-path',
-  'world-workshop', 'world-bakery', 'world-bakery-locked', 'world-owl-house', 'world-owl-house-locked',
-  'world-jungle', 'world-jungle-locked', 'world-garden', 'world-garden-locked',
-  'frog', 'piece-knit-square', 'piece-pebble', 'piece-leaf', 'piece-flower', 'icon-skip',
-  'slide-intro-1', 'slide-intro-2', 'slide-intro-3', 'slide-intro-4', 'slide-workshop-1', 'slide-workshop-2',
-  'vo-fr-intro-1', 'vo-he-intro-1', 'vo-fr-intro-2', 'vo-he-intro-2', 'vo-fr-intro-3', 'vo-he-intro-3', 'vo-fr-intro-4', 'vo-he-intro-4',
-  'vo-fr-workshop-entry-1', 'vo-he-workshop-entry-1', 'vo-fr-workshop-entry-2', 'vo-he-workshop-entry-2',
-  'vo-he-robot-locked',
-  'sfx-locked', 'sfx-walk',
+  'shell-intro-1', 'shell-intro-2', 'shell-intro-3', 'shell-intro-4', 'shell-ws-1', 'shell-ws-2',
+  'map-bg', 'map-nest-home',
+  'map-world-workshop-open', 'map-world-workshop-closed', 'map-world-bakery-open', 'map-world-bakery-closed',
+  'map-world-detective-open', 'map-world-detective-closed', 'map-world-jungle-open', 'map-world-jungle-closed',
+  'map-world-garden-open', 'map-world-garden-closed',
+  'map-bunny-idle', 'map-bunny-walk', 'map-robot-idle', 'map-robot-walk', 'map-capybara-idle', 'map-capybara-walk', 'map-frog-idle', 'map-frog-walk',
+  'vo-shell-intro-1-hero', 'vo-shell-intro-1-narr', 'vo-shell-intro-2-hero', 'vo-shell-intro-2-robot',
+  'vo-shell-intro-3-hero', 'vo-shell-intro-3-robot', 'vo-shell-intro-4-hero', 'vo-shell-intro-4-narr',
+  'vo-shell-ws-1-hero', 'vo-shell-ws-1-narr', 'vo-shell-ws-2-robot',
 ];
 
 const publicDir = path.resolve(__dirname, '..', '..', 'public');
 
 describe('game-shell asset manifest', () => {
-  it('[AC-17] the manifest parses and has exactly the 38 game shell ids on top of the 41 prototype ids (79)', () => {
-    expect(SHELL_IDS).toHaveLength(38);
+  it('[AC-17] gameShellAssets.json has exactly Gemini\'s 37 ids and parses; the combined manifest has the 41 prototype ids plus them (78)', () => {
+    expect(SHELL_IDS).toHaveLength(37);
     expect([...GAME_SHELL_ASSET_IDS].sort()).toEqual([...SHELL_IDS].sort());
-    const parsed = parseAssetManifest(rawManifest);
-    expect(Object.keys(parsed)).toHaveLength(79);
-    for (const id of SHELL_IDS) expect(parsed[id], id).toBeDefined();
+    expect(Object.keys(parseGameShellManifest(rawShell)).sort()).toEqual([...SHELL_IDS].sort());
+    expect(Object.keys(mysteryEggManifest())).toHaveLength(78);
+    expect([...MYSTERY_EGG_ASSET_IDS]).toHaveLength(78);
+    // mysteryEggAssets.json is untouched by the shell: no shell id lives in it.
+    for (const id of SHELL_IDS) expect(Object.keys(rawProto), id).not.toContain(id);
+    expect(Object.keys(parseAssetManifest(rawProto))).toHaveLength(41);
   });
 
-  it('[AC-17] every new entry is pending or has its file under public/ (pending is the only excuse for a missing file)', () => {
+  it('[AC-17] a duplicate id across the two files is an error, and an id outside Gemini\'s list is rejected', () => {
+    const proto = parseAssetManifest(rawProto);
+    const shell = parseGameShellManifest(rawShell);
+    expect(() => mergeManifests(proto, shell)).not.toThrow();
+    expect(() => mergeManifests(proto, { ...shell, bunny: shell['map-bg'] })).toThrow(/duplicate/i);
+    expect(() => parseGameShellManifest({ ...rawShell, extra: { path: 'art/game-shell/extra.webp', kind: 'webp', w: 1, h: 1 } })).toThrow();
+    const { 'map-bg': _removed, ...fewer } = rawShell as Record<string, unknown>;
+    expect(() => parseGameShellManifest(fewer)).toThrow();
+  });
+
+  it('[AC-17] paths are art/game-shell/<id>.webp and audio/game-shell/<id>.ogg, relative to public/', () => {
     for (const id of SHELL_IDS) {
       const e = assetEntry(id);
-      const exists = fs.existsSync(path.join(publicDir, e.path));
-      expect(exists || e.pending === true, `${id}: ${e.path} is missing and not pending`).toBe(true);
+      if (e.kind === 'vo' || e.kind === 'sfx') expect(e.path, id).toBe(`audio/game-shell/${id}.ogg`);
+      else expect(e.path, id).toBe(`art/game-shell/${id}.webp`);
     }
   });
 
-  it('[AC-17] pending must be a boolean in the schema, and an old entry without it still parses', () => {
-    expect(assetEntrySchema.safeParse({ path: 'art/mystery-egg/x.webp', kind: 'webp', w: 1, h: 1, pending: true }).success).toBe(true);
-    expect(assetEntrySchema.safeParse({ path: 'art/mystery-egg/x.webp', kind: 'webp', w: 1, h: 1, pending: 'yes' }).success).toBe(false);
-    expect(mysteryEggManifest()['hub-bg'].pending).toBeUndefined();
-  });
-
-  it('[AC-17] paths follow the pattern; vo entries have a transcript and the language of their id', () => {
-    for (const id of SHELL_IDS) {
-      const e = assetEntry(id);
-      if (e.kind === 'vo' || e.kind === 'sfx') expect(e.path, id).toBe(`audio/mystery-egg/${id}.ogg`);
-      else expect(e.path, id).toBe(`art/mystery-egg/${id}.webp`);
-      if (e.kind === 'vo') {
-        expect(e.transcript, id).toBeTruthy();
-        expect(e.lang, id).toBe(id.startsWith('vo-he-') ? 'he' : 'fr');
-      }
-    }
-    expect(SHELL_IDS.filter((id) => assetEntry(id).kind === 'vo')).toHaveLength(13);
-    expect(SHELL_IDS.filter((id) => assetEntry(id).kind === 'sfx')).toEqual(['sfx-locked', 'sfx-walk']);
-  });
-
-  it('[AC-17] display sizes follow the contract; map-bg and the six slides are 1x files like hub-bg, everything else is 2x', () => {
+  it('[AC-17] sizes, frames and fps are Gemini\'s: 1x w/h, walk strips of 4 frames at 8 fps', () => {
     const sizes: Record<string, [number, number]> = {
-      'map-bg': [1280, 800], 'map-path': [96, 96], 'world-workshop': [340, 280], 'world-garden-locked': [340, 280],
-      frog: [140, 160], 'piece-leaf': [120, 120], 'icon-skip': [96, 96], 'slide-intro-1': [1280, 800], 'slide-workshop-2': [1280, 800],
+      'shell-intro-1': [1280, 800], 'shell-ws-2': [1280, 800], 'map-bg': [1280, 800], 'map-nest-home': [360, 300],
+      'map-world-workshop-open': [320, 260], 'map-world-garden-closed': [320, 260],
+      'map-bunny-idle': [160, 200], 'map-robot-idle': [120, 150], 'map-capybara-idle': [160, 190], 'map-frog-idle': [110, 130],
     };
     for (const [id, [w, h]] of Object.entries(sizes)) expect([assetEntry(id).w, assetEntry(id).h], id).toEqual([w, h]);
-    expect([...ONE_X_ART_IDS].sort()).toEqual(['hub-bg', 'map-bg', 'slide-intro-1', 'slide-intro-2', 'slide-intro-3', 'slide-intro-4', 'slide-workshop-1', 'slide-workshop-2']);
-    // Tap targets: every world art is big enough that its tap area (80%) is at least 96 px.
-    for (const w of ['workshop', 'bakery', 'owl-house', 'jungle', 'garden']) expect(assetEntry(`world-${w}`).w as number * 0.8).toBeGreaterThanOrEqual(96);
-  });
-
-  it('[AC-17] the locked worlds have a locked look, the Workshop only the open one', () => {
-    for (const w of ['bakery', 'owl-house', 'jungle', 'garden']) {
-      expect(mysteryEggManifest()[`world-${w}`], w).toBeDefined();
-      expect(mysteryEggManifest()[`world-${w}-locked`], w).toBeDefined();
+    const walks: Record<string, [number, number]> = { bunny: [160, 200], robot: [120, 150], capybara: [160, 190], frog: [110, 130] };
+    for (const [f, [w, h]] of Object.entries(walks)) {
+      expect(assetEntry(`map-${f}-walk`).kind).toBe('sprite');
+      expect(spriteSpec(`map-${f}-walk`), f).toEqual({ id: `map-${f}-walk`, frames: 4, fps: 8, w, h });
     }
-    expect(mysteryEggManifest()['world-workshop-locked']).toBeUndefined();
+    expect(entriesOfKind('sprite').map(([id]) => id).sort()).toEqual([
+      'cat-wake', 'confetti', 'map-bunny-walk', 'map-capybara-walk', 'map-frog-walk', 'map-robot-walk', 'robot-blink',
+    ]);
+    expect([...ONE_X_ART_IDS].sort()).toEqual(['hub-bg', 'map-bg', 'shell-intro-1', 'shell-intro-2', 'shell-intro-3', 'shell-intro-4', 'shell-ws-1', 'shell-ws-2']);
   });
 
-  it('[AC-17] the locked line is the proposed feminine-singular Hebrew line and names nobody', () => {
-    const t = assetEntry('vo-he-robot-locked').transcript as string;
-    expect(t).toBe('העולם הזה עוד ישן. בואי נלך לסדנה!');
-    expect(t).not.toMatch(/elli|shai/i);
+  it('[AC-17] the 11 voice clips have a transcript and the language of their kind; there is no sfx and no locked line', () => {
+    const vos = SHELL_IDS.filter((id) => assetEntry(id).kind === 'vo');
+    expect(vos).toHaveLength(11);
+    for (const id of vos) {
+      const e = assetEntry(id);
+      expect(e.transcript, id).toBeTruthy();
+      expect(e.lang, id).toBe(id.endsWith('-hero') ? 'fr' : 'he');
+      if (e.lang === 'he') expect(e.transcript, id).not.toMatch(/lumi|bip|elli|shai/i);
+    }
+    expect(SHELL_IDS.filter((id) => assetEntry(id).kind === 'sfx')).toEqual([]);
+  });
+
+  it('[AC-17] every world has an open and a closed tile', () => {
+    for (const w of ['workshop', 'bakery', 'detective', 'jungle', 'garden']) {
+      expect(assetEntry(`map-world-${w}-open`)).toBeDefined();
+      expect(assetEntry(`map-world-${w}-closed`)).toBeDefined();
+    }
+  });
+
+  it('[AC-17] a shell file that is not in the repo yet is fine (Gemini\'s media PR adds it); one that exists is checked by the files guard', () => {
+    const missing = SHELL_IDS.filter((id) => !fs.existsSync(path.join(publicDir, assetEntry(id).path)));
+    // Either none are missing (media landed) or the rest fall back to placeholders; never an id outside the shell.
+    for (const id of missing) expect(assetEntry(id).path.includes('/game-shell/'), id).toBe(true);
   });
 });

@@ -161,7 +161,7 @@ describe('game-shell hearts, pieces and the egg', () => {
     let p = createProgress();
     expect(eggLevel(p)).toBe(0);
     expect(readyToHatch(p)).toBe(false);
-    const order = ['workshop', 'bakery', 'owl-house', 'jungle', 'garden'] as const;
+    const order = ['workshop', 'bakery', 'detective', 'jungle', 'garden'] as const;
     order.forEach((id, i) => {
       for (const l of [1, 2, 3]) p = recordLevel(p, id, l, MORE_LEVELS).progress;
       expect(eggLevel(p, MORE_LEVELS)).toBe(Math.min(5, i + 1));
@@ -243,7 +243,7 @@ describe('game-shell persistence and migration', () => {
     expect(p.worlds.workshop).toEqual({ level: 1, completed: [1] });
     expect(p.worlds.bakery).toEqual({ level: 1, completed: [] });
     expect(p.worlds.jungle.level).toBeLessThanOrEqual(3);
-    expect(Object.keys(p.worlds)).toEqual(['workshop', 'bakery', 'owl-house', 'jungle', 'garden']);
+    expect(Object.keys(p.worlds)).toEqual(['workshop', 'bakery', 'detective', 'jungle', 'garden']);
     expect(p.pieces).toEqual(['feather']);
     expect(p.introSeen).toBe(false);
     expect(p.entrySeen).toEqual(['workshop']);
