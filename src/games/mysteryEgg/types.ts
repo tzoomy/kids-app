@@ -1,5 +1,7 @@
 // Mystery Egg: shapes shared by the scenes and the ?e2e=1 read hook. Types only.
 import type { PartKind } from './snap';
+import type { ProgressSeed } from './progress';
+import type { FriendId, WorldId } from './worlds';
 
 export interface EggPageRect {
   x: number;
@@ -8,9 +10,63 @@ export interface EggPageRect {
   height: number;
 }
 
-export type EggPhase = 'hub' | 'intro' | 'build' | 'playing' | 'success';
+/**
+ * Map scene phases (game shell): `intro` = the intro slides, `map` = the interactive map, `walking` = the friends walk
+ * to an open world (input locked), `entry` = the world's entry slides, `hub` = back from a game while a nest piece flies
+ * into the nest (input locked). Build scene phases: `intro` (the Workshop goal card), `build`, `playing`, `success`.
+ */
+export type EggPhase = 'hub' | 'map' | 'walking' | 'entry' | 'intro' | 'build' | 'playing' | 'success';
 
-export type EggTarget = 'workshopBtn' | 'backBtn' | 'goBtn' | 'playBtn' | 'earBtn' | 'bunny' | 'continueBtn' | 'slot' | 'partBall' | 'partRamp' | 'partBell';
+export type WorldTarget = `world-${WorldId}`;
+
+export type EggTarget =
+  | WorldTarget
+  | 'skipBtn'
+  | 'slideTap'
+  | 'backBtn'
+  | 'goBtn'
+  | 'playBtn'
+  | 'earBtn'
+  | 'bunny'
+  | 'continueBtn'
+  | 'slot'
+  | 'partBall'
+  | 'partRamp'
+  | 'partBell';
+
+/** Per world, on the map (read hook). */
+export interface WorldInfo {
+  open: boolean;
+  /** The level to play next. */
+  level: number;
+  completed: number[];
+  /** Gear fill 0..1. */
+  fill: number;
+}
+
+export interface SlideInfo {
+  kind: 'intro' | 'entry';
+  world: WorldId | null;
+  index: number;
+  count: number;
+}
+
+/** Map-only fields of the snapshot (absent in the build scene). */
+export interface MapInfo {
+  heartFill: number[];
+  pieces: string[];
+  readyToHatch: boolean;
+  friends: FriendId[];
+  worlds: Record<WorldId, WorldInfo>;
+  slide: SlideInfo | null;
+  introSeen: boolean;
+  entrySeen: WorldId[];
+  walkingTo: WorldId | null;
+  /** Taps on a locked world so far in this scene. */
+  lockedTaps: number;
+  /** Pieces that flew into the nest in this scene (on the return from a game). */
+  pieceFlights: string[];
+}
 
 /** Read-only snapshot for the e2e hook `getMysteryEggInfo` (page CSS px rectangles; a target that is not on screen is absent). */
 export interface MysteryEggInfo {
@@ -32,9 +88,9 @@ export interface MysteryEggInfo {
   ballAtStart: boolean;
   partsInTray: PartKind[];
   rects: Partial<Record<EggTarget, EggPageRect>>;
+  /** Present on the map scene only. */
+  map?: MapInfo;
 }
 
-/** Seed for `seedMysteryEggProgress`: mission ids to mark completed (unknown ids are dropped by the loader's repair). */
-export interface MysteryEggSeed {
-  completed: string[];
-}
+/** Seed for `seedMysteryEggProgress`: a v1 save (mission ids) or a v2 save (all fields optional; repaired on write). */
+export type MysteryEggSeed = ProgressSeed;

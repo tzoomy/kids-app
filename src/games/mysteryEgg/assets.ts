@@ -23,6 +23,8 @@ export const assetEntrySchema = z
     fps: z.number().positive().optional(),
     transcript: z.string().min(1).optional(),
     lang: z.enum(['fr', 'he']).optional(),
+    /** The media file has not been delivered yet (game shell assets). Only the files guard test reads this. */
+    pending: z.boolean().optional(),
   })
   .superRefine((e, ctx) => {
     const need = (ok: boolean, message: string): void => {
@@ -38,8 +40,8 @@ export const assetEntrySchema = z
 
 export type AssetEntry = z.infer<typeof assetEntrySchema>;
 
-/** Exactly the ids agreed with the Gemini agent, incl. the extras of PR #108 (a spec change is needed to add one). */
-export const MYSTERY_EGG_ASSET_IDS = [
+/** The prototype's ids agreed with the Gemini agent, incl. the extras of PR #108 (a spec change is needed to add one). */
+const PROTOTYPE_ASSET_IDS = [
   'hub-bg',
   'egg-nest-0', 'egg-nest-1', 'egg-nest-2', 'egg-nest-3', 'egg-nest-4', 'egg-nest-5',
   'bunny', 'robot', 'capybara', 'cat-asleep', 'cat-awake',
@@ -53,7 +55,25 @@ export const MYSTERY_EGG_ASSET_IDS = [
   'vo-fr-story', 'vo-fr-presque', 'vo-fr-robot-regarde', 'vo-fr-robot-aide', 'vo-he-robot-breathe',
   'sfx-success', 'sfx-pop',
 ] as const;
+
+/** The game shell ids (docs/specs/mystery-egg-assets.md, "Game shell assets"): the map, worlds, slides, lines and sfx. */
+export const GAME_SHELL_ASSET_IDS = [
+  'map-bg', 'map-path',
+  'world-workshop', 'world-bakery', 'world-bakery-locked', 'world-owl-house', 'world-owl-house-locked',
+  'world-jungle', 'world-jungle-locked', 'world-garden', 'world-garden-locked',
+  'frog', 'piece-knit-square', 'piece-pebble', 'piece-leaf', 'piece-flower', 'icon-skip',
+  'slide-intro-1', 'slide-intro-2', 'slide-intro-3', 'slide-intro-4', 'slide-workshop-1', 'slide-workshop-2',
+  'vo-fr-intro-1', 'vo-he-intro-1', 'vo-fr-intro-2', 'vo-he-intro-2', 'vo-fr-intro-3', 'vo-he-intro-3', 'vo-fr-intro-4', 'vo-he-intro-4',
+  'vo-fr-workshop-entry-1', 'vo-he-workshop-entry-1', 'vo-fr-workshop-entry-2', 'vo-he-workshop-entry-2',
+  'vo-he-robot-locked',
+  'sfx-locked', 'sfx-walk',
+] as const;
+
+export const MYSTERY_EGG_ASSET_IDS = [...PROTOTYPE_ASSET_IDS, ...GAME_SHELL_ASSET_IDS] as const;
 export type MysteryEggAssetId = (typeof MYSTERY_EGG_ASSET_IDS)[number];
+
+/** Full-screen images delivered at 1x (file px = display px); every other art file is 2x. */
+export const ONE_X_ART_IDS: readonly string[] = ['hub-bg', 'map-bg', 'slide-intro-1', 'slide-intro-2', 'slide-intro-3', 'slide-intro-4', 'slide-workshop-1', 'slide-workshop-2'];
 
 export type AssetManifest = Record<string, AssetEntry>;
 

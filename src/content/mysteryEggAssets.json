@@ -235,5 +235,267 @@
     "w": 32,
     "h": 32,
     "frames": 6
+  },
+  "map-bg": {
+    "path": "art/mystery-egg/map-bg.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "map-path": {
+    "path": "art/mystery-egg/map-path.webp",
+    "kind": "webp",
+    "w": 96,
+    "h": 96,
+    "pending": true
+  },
+  "world-workshop": {
+    "path": "art/mystery-egg/world-workshop.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-bakery": {
+    "path": "art/mystery-egg/world-bakery.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-bakery-locked": {
+    "path": "art/mystery-egg/world-bakery-locked.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-owl-house": {
+    "path": "art/mystery-egg/world-owl-house.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-owl-house-locked": {
+    "path": "art/mystery-egg/world-owl-house-locked.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-jungle": {
+    "path": "art/mystery-egg/world-jungle.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-jungle-locked": {
+    "path": "art/mystery-egg/world-jungle-locked.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-garden": {
+    "path": "art/mystery-egg/world-garden.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "world-garden-locked": {
+    "path": "art/mystery-egg/world-garden-locked.webp",
+    "kind": "webp",
+    "w": 340,
+    "h": 280,
+    "pending": true
+  },
+  "frog": {
+    "path": "art/mystery-egg/frog.webp",
+    "kind": "webp",
+    "w": 140,
+    "h": 160,
+    "pending": true
+  },
+  "piece-knit-square": {
+    "path": "art/mystery-egg/piece-knit-square.webp",
+    "kind": "webp",
+    "w": 120,
+    "h": 120,
+    "pending": true
+  },
+  "piece-pebble": {
+    "path": "art/mystery-egg/piece-pebble.webp",
+    "kind": "webp",
+    "w": 120,
+    "h": 120,
+    "pending": true
+  },
+  "piece-leaf": {
+    "path": "art/mystery-egg/piece-leaf.webp",
+    "kind": "webp",
+    "w": 120,
+    "h": 120,
+    "pending": true
+  },
+  "piece-flower": {
+    "path": "art/mystery-egg/piece-flower.webp",
+    "kind": "webp",
+    "w": 120,
+    "h": 120,
+    "pending": true
+  },
+  "icon-skip": {
+    "path": "art/mystery-egg/icon-skip.webp",
+    "kind": "webp",
+    "w": 96,
+    "h": 96,
+    "pending": true
+  },
+  "slide-intro-1": {
+    "path": "art/mystery-egg/slide-intro-1.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "slide-intro-2": {
+    "path": "art/mystery-egg/slide-intro-2.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "slide-intro-3": {
+    "path": "art/mystery-egg/slide-intro-3.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "slide-intro-4": {
+    "path": "art/mystery-egg/slide-intro-4.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "slide-workshop-1": {
+    "path": "art/mystery-egg/slide-workshop-1.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "slide-workshop-2": {
+    "path": "art/mystery-egg/slide-workshop-2.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800,
+    "pending": true
+  },
+  "vo-fr-intro-1": {
+    "path": "audio/mystery-egg/vo-fr-intro-1.ogg",
+    "kind": "vo",
+    "transcript": "Oh ! Un œuf ! Il est tout chaud…",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-intro-1": {
+    "path": "audio/mystery-egg/vo-he-intro-1.ogg",
+    "kind": "vo",
+    "transcript": "ביצה? איזו הפתעה… יש מישהו בפנים.",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-fr-intro-2": {
+    "path": "audio/mystery-egg/vo-fr-intro-2.ogg",
+    "kind": "vo",
+    "transcript": "Mon petit robot… tu ne sais pas encore sentir.",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-intro-2": {
+    "path": "audio/mystery-egg/vo-he-intro-2.ogg",
+    "kind": "vo",
+    "transcript": "אני יודע לחשוב ולבנות. אבל הלב שלי עוד ריק. אני לא יודע להרגיש.",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-fr-intro-3": {
+    "path": "audio/mystery-egg/vo-fr-intro-3.ogg",
+    "kind": "vo",
+    "transcript": "Regarde ! Il y a des mondes à explorer.",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-intro-3": {
+    "path": "audio/mystery-egg/vo-he-intro-3.ogg",
+    "kind": "vo",
+    "transcript": "זאת המפה. בכל עולם יש משחק אחר. אפשר ללכת לשם עם החברים, על השביל.",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-fr-intro-4": {
+    "path": "audio/mystery-egg/vo-fr-intro-4.ogg",
+    "kind": "vo",
+    "transcript": "Des cœurs pour mon robot… et des trésors pour le nid.",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-intro-4": {
+    "path": "audio/mystery-egg/vo-he-intro-4.ogg",
+    "kind": "vo",
+    "transcript": "כשמסיימים משחק, אני מקבל גלגל לב ולומד להרגיש. ואחרי כמה משחקים בעולם, הביצה מקבלת חלק חשוב לקן. ככה היא תוכל לבקוע.",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-fr-workshop-entry-1": {
+    "path": "audio/mystery-egg/vo-fr-workshop-entry-1.ogg",
+    "kind": "vo",
+    "transcript": "Voici l'atelier ! Ici, on construit des machines.",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-workshop-entry-1": {
+    "path": "audio/mystery-egg/vo-he-workshop-entry-1.ogg",
+    "kind": "vo",
+    "transcript": "זאת הסדנה! כאן בונים מכונות מצחיקות, אחת אחרי השנייה, כמו שרשרת.",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-fr-workshop-entry-2": {
+    "path": "audio/mystery-egg/vo-fr-workshop-entry-2.ogg",
+    "kind": "vo",
+    "transcript": "Clic, clac… boum ! On y va ?",
+    "lang": "fr",
+    "pending": true
+  },
+  "vo-he-workshop-entry-2": {
+    "path": "audio/mystery-egg/vo-he-workshop-entry-2.ogg",
+    "kind": "vo",
+    "transcript": "כשמצליחים, אני מקבל קצת צחוק לגלגל הלב. ואחרי כמה משחקים, הביצה מקבלת חלק חשוב. יאללה, בואו נשחק!",
+    "lang": "he",
+    "pending": true
+  },
+  "vo-he-robot-locked": {
+    "path": "audio/mystery-egg/vo-he-robot-locked.ogg",
+    "kind": "vo",
+    "transcript": "העולם הזה עוד ישן. בואי נלך לסדנה!",
+    "lang": "he",
+    "pending": true
+  },
+  "sfx-locked": {
+    "path": "audio/mystery-egg/sfx-locked.ogg",
+    "kind": "sfx",
+    "pending": true
+  },
+  "sfx-walk": {
+    "path": "audio/mystery-egg/sfx-walk.ogg",
+    "kind": "sfx",
+    "pending": true
   }
 }

@@ -53,7 +53,7 @@ import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import { MysteryEggScene } from '../games/mysteryEgg/MysteryEggScene';
 import { MysteryEggBuildScene } from '../games/mysteryEgg/MysteryEggBuildScene';
 import type { MysteryEggInfo, MysteryEggSeed } from '../games/mysteryEgg/types';
-import { saveProgress } from '../games/mysteryEgg/progress';
+import { seedToSave, mysteryEggKey } from '../games/mysteryEgg/progress';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
 import { seedProfileLanguage } from '../core/storage/schema';
@@ -545,7 +545,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       return scene && game.scene.isActive('MagnetScene') ? scene.getMagnetInfo() : null;
     },
     seedMysteryEggProgress(seed) {
-      saveProgress(window.localStorage, context.requireProfileId(), { v: 1, completed: [...seed.completed] });
+      window.localStorage.setItem(mysteryEggKey(context.requireProfileId()), JSON.stringify(seedToSave(seed)));
     },
     getMysteryEggInfo() {
       if (game.scene.isActive('MysteryEggBuildScene')) return (game.scene.getScene('MysteryEggBuildScene') as MysteryEggBuildScene).getMysteryEggInfo();

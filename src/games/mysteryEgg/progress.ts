@@ -1,63 +1,121 @@
-// Mystery Egg progress: which missions are done, and what that lights up. Pure TS, no Phaser.
-// Spec: docs/specs/mystery-egg.md (AC-04, AC-05, AC-06).
-// Key: kids-app-mystery-egg:<profileId>. Schema: { v: 1, completed: string[] } (mission ids, distinct).
-// Hearts, the nest treasure and the egg glow are DERIVED from `completed`, so replaying never adds a second heart.
+// Mystery Egg progress: per-world levels, robot hearts, nest pieces and the egg glow. Pure TS, no Phaser.
+// Spec: docs/specs/game-shell.md (AC-13..AC-15), docs/specs/mystery-egg.md (AC-04..AC-06, mission 1.1).
+// Key: kids-app-mystery-egg:<profileId>.
+// Save v2: { v: 2, worlds: { [worldId]: { level, completed: number[] } }, pieces: string[], introSeen: boolean, entrySeen: string[] }.
+// Save v1 ({ v: 1, completed: ['1.1'] }) migrates on load: mission 1.1 is Workshop level 1.
+// Hearts and the gear fill derive from `completed`; nest PIECES are persisted so an earned piece is never lost when a
+// later release adds levels to a world (the threshold min(PIECE_LEVELS, levels) would otherwise move).
 import type { StorageDriver } from '../../core/storage/store';
+import { WORLDS, isWorldId, worldDef, type WorldDef, type WorldId } from './worlds';
 
-export const MYSTERY_EGG_SAVE_VERSION = 1;
+export const MYSTERY_EGG_SAVE_VERSION = 2;
 export const MYSTERY_EGG_KEY_PREFIX = 'kids-app-mystery-egg:';
 export const HEART_SLOT_COUNT = 5;
-/** Egg art has glow levels 0..5 (`egg-nest-0` .. `egg-nest-5`). */
+/** Egg art has glow levels 0..5 (`egg-nest-0` .. `egg-nest-5`): one step per nest piece. */
 export const MAX_EGG_LEVEL = 5;
+/** Distinct levels a world needs before it gives its nest piece (capped by the world's own level count). */
+export const PIECE_LEVELS = 3;
 
 export interface MissionDef {
   id: string;
-  /** Robot heart slot (0-based) this mission lights. Pending Maor decision: per mission vs per episode. */
-  heartSlot: number;
-  /** Nest treasure the neighbour gives (art id). */
-  treasure: string;
+  world: WorldId;
+  /** 1-based level in that world. */
+  level: number;
 }
 
-/** Prototype: one mission. */
-export const MISSIONS: readonly MissionDef[] = [{ id: '1.1', heartSlot: 0, treasure: 'feather' }];
+/** Mission 1.1 (the existing Workshop game) is Workshop level 1. */
+export const MISSIONS: readonly MissionDef[] = [{ id: '1.1', world: 'workshop', level: 1 }];
 
 const findMission = (id: string): MissionDef | undefined => MISSIONS.find((m) => m.id === id);
 
+export interface WorldProgress {
+  /** The level the child plays next in this world (1-based, capped at the world's last level). */
+  level: number;
+  /** Distinct completed levels, ascending. */
+  completed: number[];
+}
+
 export interface MysteryEggProgress {
   v: typeof MYSTERY_EGG_SAVE_VERSION;
-  completed: string[];
+  worlds: Record<WorldId, WorldProgress>;
+  /** Earned nest pieces (persisted), in world order. */
+  pieces: string[];
+  introSeen: boolean;
+  /** Worlds whose entry slides were seen or skipped. */
+  entrySeen: WorldId[];
 }
 
 export function createProgress(): MysteryEggProgress {
-  return { v: MYSTERY_EGG_SAVE_VERSION, completed: [] };
+  return repairProgress({});
 }
 
 export function mysteryEggKey(profileId: string): string {
   return `${MYSTERY_EGG_KEY_PREFIX}${profileId}`;
 }
 
-/** Field-by-field repair of anything read from storage or passed in: unknown ids and wrong types are dropped. */
-function sanitize(input: unknown): MysteryEggProgress {
-  const progress = createProgress();
-  if (typeof input !== 'object' || input === null || Array.isArray(input)) return progress;
-  const completed = (input as { completed?: unknown }).completed;
-  if (!Array.isArray(completed)) return progress;
-  const seen = new Set<string>();
-  for (const id of completed) {
-    if (typeof id === 'string' && findMission(id) && !seen.has(id)) seen.add(id);
+/** Slides and pieces needed: `min(PIECE_LEVELS, levels)`, 0 for a world with no levels. */
+export function pieceThreshold(levels: number): number {
+  return levels <= 0 ? 0 : Math.min(PIECE_LEVELS, levels);
+}
+
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+function levelsOf(raw: unknown, def: WorldDef): number[] {
+  const list = isObject(raw) && Array.isArray(raw.completed) ? raw.completed : [];
+  const seen = new Set<number>();
+  for (const l of list) if (typeof l === 'number' && Number.isInteger(l) && l >= 1 && l <= def.levels) seen.add(l);
+  return [...seen].sort((a, b) => a - b);
+}
+
+const nextLevel = (completed: readonly number[], def: WorldDef): number => Math.max(1, Math.min(def.levels, (completed[completed.length - 1] ?? 0) + 1));
+
+/**
+ * Field-by-field repair of a v2-shaped value (anything read from storage or passed in): unknown worlds, ids and wrong
+ * types are dropped, the world level is derived, and a piece is earned when its world meets the threshold. Stored pieces
+ * are KEPT even when the threshold moved (levels added later).
+ */
+export function repairProgress(input: unknown, defs: readonly WorldDef[] = WORLDS): MysteryEggProgress {
+  const src = isObject(input) ? input : {};
+  const rawWorlds = isObject(src.worlds) ? src.worlds : {};
+  const worlds = {} as Record<WorldId, WorldProgress>;
+  const pieces = new Set<string>(Array.isArray(src.pieces) ? src.pieces.filter((p): p is string => typeof p === 'string') : []);
+  for (const def of defs) {
+    const completed = levelsOf(rawWorlds[def.id], def);
+    worlds[def.id] = { level: nextLevel(completed, def), completed };
+    const need = pieceThreshold(def.levels);
+    if (need > 0 && completed.length >= need) pieces.add(def.piece);
   }
-  // Keep mission-table order so equal states compare equal.
-  progress.completed = MISSIONS.filter((m) => seen.has(m.id)).map((m) => m.id);
-  return progress;
+  const entrySeen = Array.isArray(src.entrySeen) ? src.entrySeen : [];
+  return {
+    v: MYSTERY_EGG_SAVE_VERSION,
+    worlds,
+    pieces: defs.filter((d) => pieces.has(d.piece)).map((d) => d.piece),
+    introSeen: src.introSeen === true,
+    entrySeen: defs.filter((d) => entrySeen.includes(d.id)).map((d) => d.id),
+  };
+}
+
+/** v1 -> v2 (mission ids become world levels) and v2 repair; anything else is a fresh state. Idempotent. */
+export function migrateProgress(input: unknown): MysteryEggProgress {
+  if (!isObject(input)) return createProgress();
+  if (input.v === 1) {
+    const worlds: Record<string, { completed: number[] }> = {};
+    const done = Array.isArray(input.completed) ? input.completed : [];
+    for (const id of done) {
+      const mission = typeof id === 'string' ? findMission(id) : undefined;
+      if (mission) (worlds[mission.world] ??= { completed: [] }).completed.push(mission.level);
+    }
+    return repairProgress({ worlds });
+  }
+  if (input.v === MYSTERY_EGG_SAVE_VERSION) return repairProgress(input);
+  return createProgress();
 }
 
 export function loadProgress(storage: Pick<StorageDriver, 'getItem'>, profileId: string): MysteryEggProgress {
   try {
     const raw = storage.getItem(mysteryEggKey(profileId));
     if (!raw) return createProgress();
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null || (parsed as { v?: unknown }).v !== MYSTERY_EGG_SAVE_VERSION) return createProgress();
-    return sanitize(parsed);
+    return migrateProgress(JSON.parse(raw));
   } catch {
     return createProgress();
   }
@@ -65,43 +123,107 @@ export function loadProgress(storage: Pick<StorageDriver, 'getItem'>, profileId:
 
 export function saveProgress(storage: Pick<StorageDriver, 'setItem'>, profileId: string, progress: MysteryEggProgress): void {
   try {
-    storage.setItem(mysteryEggKey(profileId), JSON.stringify(sanitize(progress)));
+    storage.setItem(mysteryEggKey(profileId), JSON.stringify(repairProgress(progress)));
   } catch {
     // Storage full or blocked: progress is best-effort and must never break the game.
   }
 }
 
-export function completeMission(progress: MysteryEggProgress, missionId: string): { progress: MysteryEggProgress; newlyCompleted: boolean } {
-  if (!findMission(missionId) || progress.completed.includes(missionId)) return { progress: sanitize(progress), newlyCompleted: false };
-  return { progress: sanitize({ ...progress, completed: [...progress.completed, missionId] }), newlyCompleted: true };
+export interface RecordResult {
+  progress: MysteryEggProgress;
+  newlyCompleted: boolean;
+  /** The nest piece this success earned for the first time, else null. */
+  newPiece: string | null;
+}
+
+/** A success at `level` of `worldId`: records it, raises the world's level, and earns the piece at the threshold. */
+export function recordLevel(progress: MysteryEggProgress, worldId: WorldId, level: number, defs: readonly WorldDef[] = WORLDS): RecordResult {
+  const current = repairProgress(progress, defs);
+  const def = defs.find((d) => d.id === worldId);
+  const valid = def !== undefined && Number.isInteger(level) && level >= 1 && level <= def.levels;
+  if (!valid || current.worlds[worldId].completed.includes(level)) return { progress: current, newlyCompleted: false, newPiece: null };
+  const completed = [...current.worlds[worldId].completed, level].sort((a, b) => a - b);
+  const next = repairProgress({ ...current, worlds: { ...current.worlds, [worldId]: { completed } } }, defs);
+  const newPiece = next.pieces.includes(def.piece) && !current.pieces.includes(def.piece) ? def.piece : null;
+  return { progress: next, newlyCompleted: true, newPiece };
+}
+
+/** Mission 1.1 = Workshop level 1; an unknown mission changes nothing. */
+export function completeMission(progress: MysteryEggProgress, missionId: string): RecordResult {
+  const mission = findMission(missionId);
+  if (!mission) return { progress: repairProgress(progress), newlyCompleted: false, newPiece: null };
+  return recordLevel(progress, mission.world, mission.level);
 }
 
 /** Loads, completes one mission, saves. */
-export function recordMissionAndSave(
-  storage: Pick<StorageDriver, 'getItem' | 'setItem'>,
-  profileId: string,
-  missionId: string,
-): { progress: MysteryEggProgress; newlyCompleted: boolean } {
+export function recordMissionAndSave(storage: Pick<StorageDriver, 'getItem' | 'setItem'>, profileId: string, missionId: string): RecordResult {
   const res = completeMission(loadProgress(storage, profileId), missionId);
   if (res.newlyCompleted) saveProgress(storage, profileId, res.progress);
   return res;
 }
 
-const completedMissions = (progress: MysteryEggProgress): MissionDef[] =>
-  progress.completed.map(findMission).filter((m): m is MissionDef => m !== undefined);
-
-/** Lit heart slots, ascending, distinct. */
-export function litHearts(progress: MysteryEggProgress): number[] {
-  const slots = new Set(completedMissions(progress).map((m) => m.heartSlot).filter((s) => s >= 0 && s < HEART_SLOT_COUNT));
-  return [...slots].sort((a, b) => a - b);
+export function markIntroSeen(progress: MysteryEggProgress): MysteryEggProgress {
+  return repairProgress({ ...progress, introSeen: true });
 }
 
-/** Treasures in the nest, in mission order. */
-export function nestTreasures(progress: MysteryEggProgress): string[] {
-  return completedMissions(progress).map((m) => m.treasure);
+export function markEntrySeen(progress: MysteryEggProgress, worldId: WorldId): MysteryEggProgress {
+  if (!isWorldId(worldId)) return repairProgress(progress);
+  return repairProgress({ ...progress, entrySeen: [...progress.entrySeen, worldId] });
 }
 
-/** Egg glow level 0..5: one step per nest treasure. */
-export function eggLevel(progress: MysteryEggProgress): number {
-  return Math.min(MAX_EGG_LEVEL, nestTreasures(progress).length);
+/** The level the child plays next in a world. */
+export function worldLevel(progress: MysteryEggProgress, worldId: WorldId, defs: readonly WorldDef[] = WORLDS): number {
+  return repairProgress(progress, defs).worlds[worldId].level;
+}
+
+/** Lit heart slots, ascending, distinct: a world's slot lights on its first success. */
+export function litHearts(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): number[] {
+  const slots = defs
+    .filter((d) => (progress.worlds[d.id]?.completed.length ?? 0) > 0)
+    .map((d) => d.heartSlot)
+    .filter((s) => s >= 0 && s < HEART_SLOT_COUNT);
+  return [...new Set(slots)].sort((a, b) => a - b);
+}
+
+/** How full the world's gear is, 0..1: completed levels / `min(PIECE_LEVELS, levels)`. */
+export function gearFill(progress: MysteryEggProgress, worldId: WorldId, defs: readonly WorldDef[] = WORLDS): number {
+  const def = defs.find((d) => d.id === worldId) ?? worldDef(worldId);
+  const need = pieceThreshold(def.levels);
+  if (need === 0) return 0;
+  return Math.min(1, (progress.worlds[worldId]?.completed.length ?? 0) / need);
+}
+
+/** Earned nest pieces (persisted ones included), in world order. */
+export function earnedPieces(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): string[] {
+  return repairProgress(progress, defs).pieces;
+}
+
+/** The earned nest pieces (kept under its prototype name: the feather is the Workshop's piece). */
+export function nestTreasures(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): string[] {
+  return earnedPieces(progress, defs);
+}
+
+/** Egg glow level 0..5: one step per nest piece. */
+export function eggLevel(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): number {
+  return Math.min(MAX_EGG_LEVEL, earnedPieces(progress, defs).length);
+}
+
+/** All five pieces: the egg is ready to hatch (hatching itself is out of scope). */
+export function readyToHatch(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): boolean {
+  return earnedPieces(progress, defs).length >= MAX_EGG_LEVEL;
+}
+
+/** Earned pieces the map has not shown yet (they fly into the nest on the return to the map). */
+export function newPieces(progress: MysteryEggProgress, shown: readonly string[], defs: readonly WorldDef[] = WORLDS): string[] {
+  return earnedPieces(progress, defs).filter((p) => !shown.includes(p));
+}
+
+/** A seed for the e2e hook: v1 `{ completed }` is stored raw (so the migration runs on load); v2 is repaired and stored as v2. */
+export type ProgressSeed =
+  | { v?: 1; completed: string[] }
+  | { v: 2; worlds?: Partial<Record<WorldId, { level?: number; completed?: number[] }>>; pieces?: string[]; introSeen?: boolean; entrySeen?: WorldId[] };
+
+export function seedToSave(seed: ProgressSeed): unknown {
+  if ('completed' in seed) return { v: 1, completed: [...seed.completed] };
+  return repairProgress(seed);
 }
