@@ -1,7 +1,11 @@
 // Mystery Egg progress: per-world levels, robot hearts, nest pieces and the egg glow. Pure TS, no Phaser.
 // Spec: docs/specs/game-shell.md (AC-13..AC-15), docs/specs/mystery-egg.md (AC-04..AC-06, mission 1.1).
 // Key: kids-app-mystery-egg:<profileId>.
-// Save v2: { v: 2, worlds: { [worldId]: { level, completed: number[] } }, pieces: string[], introSeen: boolean, entrySeen: string[] }.
+// Save v2: { v: 2, worlds: { [worldId]: { level, completed: number[] } }, pieces: string[], introSeen: boolean,
+//   introSeenVersion: number, entrySeen: string[] }.
+// `introSeenVersion` is the INTRO_VERSION the child last saw. The map shows the intro while it is below INTRO_VERSION, so an
+// existing save (introSeen true, no version) sees the current intro once after an update. `introSeen` stays in the JSON
+// (readable by older builds) and means "the current intro was seen".
 // Save v1 ({ v: 1, completed: ['1.1'] }) migrates on load: mission 1.1 is Workshop level 1.
 // Hearts and the gear fill derive from `completed`; nest PIECES are persisted so an earned piece is never lost when a
 // later release adds levels to a world (the threshold min(PIECE_LEVELS, levels) would otherwise move).
@@ -10,6 +14,12 @@ import { WORLDS, isWorldId, worldDef, type WorldDef, type WorldId } from './worl
 
 export const MYSTERY_EGG_SAVE_VERSION = 2;
 export const MYSTERY_EGG_KEY_PREFIX = 'kids-app-mystery-egg:';
+/**
+ * The intro's version. A profile sees the intro again once when this goes up past the version it saw (bump it when the
+ * slides change substantively). 2 = the first version that stores `introSeenVersion`: saves from the first shell
+ * release only had a boolean, which never counts as having seen the current one.
+ */
+export const INTRO_VERSION = 2;
 export const HEART_SLOT_COUNT = 5;
 /** Egg art has glow levels 0..5 (`egg-nest-0` .. `egg-nest-5`): one step per nest piece. */
 export const MAX_EGG_LEVEL = 5;
@@ -40,7 +50,10 @@ export interface MysteryEggProgress {
   worlds: Record<WorldId, WorldProgress>;
   /** Earned nest pieces (persisted), in world order. */
   pieces: string[];
+  /** The current intro (INTRO_VERSION) was seen or skipped; derived from `introSeenVersion`, kept in the save for older readers. */
   introSeen: boolean;
+  /** The INTRO_VERSION last seen or skipped; 0 = never (a legacy boolean `introSeen: true` does not count). */
+  introSeenVersion: number;
   /** Worlds whose entry slides were seen or skipped. */
   entrySeen: WorldId[];
 }
@@ -86,11 +99,14 @@ export function repairProgress(input: unknown, defs: readonly WorldDef[] = WORLD
     if (need > 0 && completed.length >= need) pieces.add(def.piece);
   }
   const entrySeen = Array.isArray(src.entrySeen) ? src.entrySeen : [];
+  const v = src.introSeenVersion;
+  const introSeenVersion = typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : 0;
   return {
     v: MYSTERY_EGG_SAVE_VERSION,
     worlds,
     pieces: defs.filter((d) => pieces.has(d.piece)).map((d) => d.piece),
-    introSeen: src.introSeen === true,
+    introSeen: introSeenVersion >= INTRO_VERSION,
+    introSeenVersion,
     entrySeen: defs.filter((d) => entrySeen.includes(d.id)).map((d) => d.id),
   };
 }
@@ -163,7 +179,7 @@ export function recordMissionAndSave(storage: Pick<StorageDriver, 'getItem' | 's
 }
 
 export function markIntroSeen(progress: MysteryEggProgress): MysteryEggProgress {
-  return repairProgress({ ...progress, introSeen: true });
+  return repairProgress({ ...progress, introSeenVersion: Math.max(progress.introSeenVersion, INTRO_VERSION) });
 }
 
 export function markEntrySeen(progress: MysteryEggProgress, worldId: WorldId): MysteryEggProgress {
@@ -221,9 +237,19 @@ export function newPieces(progress: MysteryEggProgress, shown: readonly string[]
 /** A seed for the e2e hook: v1 `{ completed }` is stored raw (so the migration runs on load); v2 is repaired and stored as v2. */
 export type ProgressSeed =
   | { v?: 1; completed: string[] }
-  | { v: 2; worlds?: Partial<Record<WorldId, { level?: number; completed?: number[] }>>; pieces?: string[]; introSeen?: boolean; entrySeen?: WorldId[] };
+  | {
+      v: 2;
+      worlds?: Partial<Record<WorldId, { level?: number; completed?: number[] }>>;
+      pieces?: string[];
+      /** true = the current intro was seen (unless `introSeenVersion` says otherwise). */
+      introSeen?: boolean;
+      /** An explicit saved version, e.g. 0 with `introSeen: true` to seed an old save written before the version existed. */
+      introSeenVersion?: number;
+      entrySeen?: WorldId[];
+    };
 
 export function seedToSave(seed: ProgressSeed): unknown {
   if ('completed' in seed) return { v: 1, completed: [...seed.completed] };
-  return repairProgress(seed);
+  const introSeenVersion = seed.introSeenVersion ?? (seed.introSeen === true ? INTRO_VERSION : 0);
+  return repairProgress({ ...seed, introSeenVersion });
 }

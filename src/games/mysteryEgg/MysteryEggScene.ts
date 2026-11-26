@@ -554,6 +554,7 @@ export class MysteryEggScene extends Phaser.Scene {
         worldAngles,
         slide: this.overlay ? this.overlay.info : null,
         introSeen: this.progress.introSeen,
+        introSeenVersion: this.progress.introSeenVersion,
         entrySeen: [...this.progress.entrySeen],
         walkingTo: this.walkingTo,
         lockedTaps: this.lockedTaps,
