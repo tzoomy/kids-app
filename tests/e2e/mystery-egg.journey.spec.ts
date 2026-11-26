@@ -460,3 +460,37 @@ test.describe('mystery-egg success Continue timing', () => {
     });
   });
 });
+
+test.describe('mystery-egg success Continue readiness', () => {
+  test('[AC-28] @single-orientation Continue is reported only once it is really tappable: a tap fired in the same task as its first report leaves the success view', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(150_000);
+    await reachBuild(page);
+    await playToSuccess(page);
+    // A CDP click always arrives some milliseconds after the read, which hides the race this guards against (Phaser lists a new
+    // interactive object only at the scene's next frame). So this one tap is dispatched in the SAME task that first sees the
+    // rectangle, as a mouse event on the canvas (the events Phaser listens to); every other tap in the suite is a real click.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const hooks = (window as unknown as { __testHooks__: { getMysteryEggInfo: () => { rects: Record<string, { x: number; y: number; width: number; height: number }> } | null } }).__testHooks__;
+          const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+          const tick = (): void => {
+            const r = hooks.getMysteryEggInfo()?.rects.continueBtn;
+            if (!r) {
+              setTimeout(tick, 0);
+              return;
+            }
+            const at = { clientX: r.x + r.width / 2, clientY: r.y + r.height / 2, bubbles: true, button: 0 };
+            canvas.dispatchEvent(new MouseEvent('mousemove', at));
+            canvas.dispatchEvent(new MouseEvent('mousedown', { ...at, buttons: 1 }));
+            canvas.dispatchEvent(new MouseEvent('mouseup', at));
+            resolve();
+          };
+          tick();
+        }),
+    );
+    await waitForScene(page, 'MysteryEggScene');
+    await waitInfo(page, (i) => i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never came back after the Continue tap');
+  });
+});
