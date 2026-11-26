@@ -25,7 +25,8 @@ export interface VoiceProviderOptions {
   timeoutMs?: number;
 }
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+/** Longest a clip may take before it counts as finished (the longest slide clip is 6.91 s at 1.0x). */
+export const VOICE_CLIP_TIMEOUT_MS = 15_000;
 
 /** Shared with the scenes, so a voice file that failed once is not asked for again in this page session. */
 export const eggAvailability = new AssetAvailability();
@@ -47,7 +48,7 @@ export class MysteryEggVoiceProvider implements AudioProvider {
     this.createAudio = opts.createAudio ?? ((url) => new Audio(url));
     this.chime = opts.chime ?? synthChime;
     this.availability = opts.availability ?? eggAvailability;
-    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    this.timeoutMs = opts.timeoutMs ?? VOICE_CLIP_TIMEOUT_MS;
   }
 
   isAvailable(): boolean {

@@ -2,6 +2,7 @@
 // 1.2x, the slide voice-over (intro and world entry) at 1.0x; the voice provider applies the rate with natural pitch.
 import { describe, expect, it, vi } from 'vitest';
 import { AssetAvailability, mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
+import { ENTRY_SLIDES, INTRO_SLIDES } from '../../src/games/mysteryEgg/slides';
 import { GAME_SPEECH_RATE, SLIDE_SPEECH_RATE, eggSpeechRequest } from '../../src/games/mysteryEgg/speech';
 import { MysteryEggVoiceProvider, type VoiceAudio } from '../../src/games/mysteryEgg/voiceProvider';
 
@@ -29,6 +30,15 @@ describe('mystery-egg speech rate', () => {
     const slides = voiceIds.filter((id) => id.startsWith('vo-shell-'));
     expect(slides.length).toBe(11);
     for (const id of slides) expect(eggSpeechRequest(id, 'slide')?.rate, id).toBe(1);
+  });
+
+  it('[AC-27] every clip the slide player actually plays (intro and Workshop entry data) is requested at exactly 1.0, never 1.2', () => {
+    const lines = [...INTRO_SLIDES, ...(ENTRY_SLIDES.workshop ?? [])].flatMap((s) => s.lines);
+    expect(lines).toHaveLength(11);
+    for (const id of lines) {
+      expect(eggSpeechRequest(id, 'slide')?.rate, id).toBe(1);
+      expect(eggSpeechRequest(id, 'slide')?.rate, id).not.toBe(GAME_SPEECH_RATE);
+    }
   });
 
   it('[AC-23] a line that is not a voice line has no request', () => {
