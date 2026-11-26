@@ -463,4 +463,42 @@ test.describe('game-shell', () => {
     expect(v2.map?.worlds['detective'].fill).toBe(0);
     expect(v2.map?.readyToHatch).toBe(false);
   });
+
+  test('[AC-26] @single-orientation an old v2 save with introSeen true (the first shell release) sees the intro once, keeps its progress, and never sees it again', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterMapByTap(page, 'profile-a');
+    // Exactly what the first shell release stored for a child who had seen the intro: a boolean, no version (seed only).
+    await page.evaluate(() =>
+      window.localStorage.setItem(
+        'kids-app-mystery-egg:a',
+        JSON.stringify({ v: 2, worlds: { workshop: { level: 1, completed: [1] } }, pieces: ['feather'], introSeen: true, entrySeen: ['workshop'] }),
+      ),
+    );
+    const first = await openShellByTap(page);
+    expect(first.phase).toBe('intro');
+    expect(first.map?.slide).toMatchObject({ kind: 'intro', index: 0, count: 4 });
+    expect(first.map?.introSeen).toBe(false);
+    expect(first.map?.introSeenVersion).toBe(0);
+    await tap(page, 'skipBtn');
+    const map = await waitInfo(page, (i) => i.phase === 'map', 'the map never opened after the intro');
+    expect(map.map?.introSeen).toBe(true);
+    expect(map.map?.introSeenVersion).toBe(2);
+    // The old progress is untouched.
+    expect(map.heartsLit).toEqual([0]);
+    expect(map.map?.pieces).toEqual(['feather']);
+    expect(map.map?.entrySeen).toEqual(['workshop']);
+
+    // Not again: back to the old map and in again, then after a full reload of the app.
+    await tap(page, 'backBtn');
+    await waitForScene(page, 'MapScene');
+    const again = await openShellByTap(page);
+    expect(again.phase).toBe('map');
+    expect(again.map?.slide).toBeNull();
+    await enterMapByTap(page, 'profile-a');
+    const reloaded = await openShellByTap(page);
+    expect(reloaded.phase).toBe('map');
+    expect(reloaded.map?.slide).toBeNull();
+    expect(reloaded.heartsLit).toEqual([0]);
+  });
 });
