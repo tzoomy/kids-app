@@ -1,6 +1,6 @@
 # `mystery-egg` — asset contract (code agent ↔ Gemini agent)
 
-Status: **approved** (agreed between the code agent and the Gemini agent as part of Maor's approved task of 2026-11-25).
+Status: **approved** (agreed between the code agent and the Gemini agent as part of Maor's approved task of 2026-11-25; the "Game shell assets" section at the end was added 2026-11-26 for `docs/specs/game-shell.md`, which is still a draft).
 Pass in progress: **1** (same pass as the main spec; this file has no acceptance criteria of its own, its checks are AC-14 and AC-15 in `docs/specs/mystery-egg.md`).
 Companion of `docs/specs/mystery-egg.md`. Ids, paths, and kinds below are **frozen**: changing one is a spec change.
 
@@ -105,3 +105,54 @@ Wired where cheap and natural: `vo-fr-story` (intro, before `vo-fr-instruction`)
 - Keep the **centre** of each image at the visual centre: the code positions every image by its centre. `cat-wake` and `cat-awake` share one 640×640 frame (the code lines the cat's bottom up with the bed), and `robot`, `robot-blink` share one 280×360 frame.
 - `egg-nest-0` … `egg-nest-5` must share the same canvas and egg position so the glow can step up in place.
 - `part-ramp` (painterly, PR #110) is a solid wedge sloping down to the right (about 0.63 rad), 240×140 display. The code builds the physics body from a convex polygon in display px relative to the art centre (`layout.ts` `RAMP_POLY`: (-64,-52), (72,48), (32,65), (-82,26)), unrotated; the glow and the drawn placeholder use the same polygon. It is deliberately not the silhouette's peak (the ball would park on the crest). **If the ramp art is redrawn, keep that wedge geometry or update `RAMP_POLY`** so the drawn ramp and the solid ramp coincide.
+
+## Game shell assets
+
+Added 2026-11-26 for `docs/specs/game-shell.md` (the map, the slides and the progression). **38 new ids** (79 in total; a unit test pins the list: `tests/unit/game-shell.assets.test.ts`). Same paths, formats and 2x rule as above, with these additions:
+
+- **`pending: true`** (new optional manifest field): the entry's file has not been delivered yet. The code never reads it (a missing file already falls back to a placeholder); only the files guard (`tests/unit/mystery-egg.files.test.ts`) does: a **missing file is allowed only for a `pending` entry**. When a file lands, nothing has to change; removing `"pending": true` from the entry is optional tidying.
+- **1x files:** `hub-bg`, `map-bg` and the six slide images are 1280×800 files at 1x (display 1280×800). Everything else is 2x (file = 2 × display).
+- **Placeholders** (file missing): art is drawn by `shellArt.ts` (storybook meadow, simple houses with a padlock, a sleeping animal or fog, a cobble patch, drawn pieces); voice is the chime plus a speech-bubble cue; sfx are synthesized.
+
+| id | path | kind | display px (file px) | depicts | transcript + lang (`vo-*`) | where it is used | placeholder |
+|---|---|---|---|---|---|---|---|
+| `map-bg` | `art/mystery-egg/map-bg.webp` | webp | 1280×800 (1x) | Soft pastel storybook ground for the map: meadow, flowers, a few clouds. No buildings, no paths, no characters (the code draws the nest, worlds and paths on top). Keep the middle clear for the nest. | — | the map scene backdrop (replaces `hub-bg` there) | Drawn pastel sky and meadow. |
+| `map-path` | `art/mystery-egg/map-path.webp` | webp | 96×96 (192×192) | ONE cobblestone patch (a few round beige stones with mortar), centred, soft edges, transparent outside. The code stamps it along each path every ~56 px with a small random rotation, so it must tile visually in any rotation. | — | cobblestone paths from the nest to each world | Drawn beige cobble ellipse. |
+| `world-workshop` | `art/mystery-egg/world-workshop.webp` | webp | 340×280 (680×560) | Machine Workshop house, OPEN and glowing: wooden house with gear decorations, warm light in the arched door (see `map-v1.jpg`). Door at the bottom centre. | — | the Workshop on the map; wiggle on tap | Drawn brown house, glowing door. |
+| `world-bakery` | `art/mystery-egg/world-bakery.webp` | webp | 340×280 (680×560) | Pink bakery with a striped awning, OPEN look (awake baker-cat in the window). Not shown until the world unlocks. | — | future open look | Drawn pink house. |
+| `world-bakery-locked` | `art/mystery-egg/world-bakery-locked.webp` | webp | 340×280 (680×560) | The same bakery closed in a cute way: a sleeping baker-cat with a chef hat in the window, "z z z". | — | the locked bakery | Drawn pink house, sleeping cat, z's. |
+| `world-owl-house` | `art/mystery-egg/world-owl-house.webp` | webp | 340×280 (680×560) | Purple house, OPEN look (clear door, no fog). | — | future open look | Drawn purple house. |
+| `world-owl-house-locked` | `art/mystery-egg/world-owl-house-locked.webp` | webp | 340×280 (680×560) | The purple house with a padlock sign hanging by the door and an owl in a foggy doorway. | — | the locked owl house | Drawn purple house, padlock, fog. |
+| `world-jungle` | `art/mystery-egg/world-jungle.webp` | webp | 340×280 (680×560) | Jungle arch of vines, OPEN look (clear green forest inside). | — | future open look | Drawn vine arch. |
+| `world-jungle-locked` | `art/mystery-egg/world-jungle-locked.webp` | webp | 340×280 (680×560) | The jungle arch full of mist with a sleeping owl on top. | — | the locked jungle | Drawn arch, mist, sleeping owl. |
+| `world-garden` | `art/mystery-egg/world-garden.webp` | webp | 340×280 (680×560) | Garden door in a hill, OPEN look (door ajar, flowers blooming). | — | future open look | Drawn round door. |
+| `world-garden-locked` | `art/mystery-egg/world-garden-locked.webp` | webp | 340×280 (680×560) | The garden door tied shut with flowers, a watering can beside it. | — | the locked garden | Drawn round door with a flower tie. |
+| `frog` | `art/mystery-egg/frog.webp` | webp | 140×160 (280×320) | The baby frog friend, standing, happy, bib. Same character scale as `robot`. | — | walks with the friends on the age-2 profile; idle bob | Green rounded body, big eyes. |
+| `piece-knit-square` | `art/mystery-egg/piece-knit-square.webp` | webp | 120×120 (240×240) | Nest piece: a small knitted purple square (placeholder id; bakery). | — | rests in the nest; flies in when earned | Purple square with stitches. |
+| `piece-pebble` | `art/mystery-egg/piece-pebble.webp` | webp | 120×120 (240×240) | Nest piece: a smooth speckled pebble (owl house). | — | same | Grey ellipse. |
+| `piece-leaf` | `art/mystery-egg/piece-leaf.webp` | webp | 120×120 (240×240) | Nest piece: a big green leaf (jungle). | — | same | Green leaf. |
+| `piece-flower` | `art/mystery-egg/piece-flower.webp` | webp | 120×120 (240×240) | Nest piece: a flower (garden). | — | same | Pink flower. |
+| `icon-skip` | `art/mystery-egg/icon-skip.webp` | webp | 96×96 (192×192) | Picture-only skip icon: a round button with a "next, next" double arrow (no text). | — | the skip button of the slide player | Drawn round button with a double arrow. |
+| `slide-intro-1` | `art/mystery-egg/slide-intro-1.webp` | webp | 1280×800 (1x) | Film scene 1: sunny town square, the speckled egg has rolled in and glows, Lumi and Bip run up, surprised. | — | intro slide 1 | Pastel card with a drawn egg. |
+| `slide-intro-2` | `art/mystery-egg/slide-intro-2.webp` | webp | 1280×800 (1x) | Scene 2: close on Bip, five empty heart slots on the tummy panel, Lumi kneeling beside him. | — | intro slide 2 | Pastel card with a drawn robot panel. |
+| `slide-intro-3` | `art/mystery-egg/slide-intro-3.webp` | webp | 1280×800 (1x) | Scene 4: the storybook map from above, the nest in the middle, five worlds, the Workshop door glowing. | — | intro slide 3 | Pastel card with five dots round a nest. |
+| `slide-intro-4` | `art/mystery-egg/slide-intro-4.webp` | webp | 1280×800 (1x) | Scene 5: a heart gear clicks into Bip's panel; a feather and a knitted square fly into the glowing nest. | — | intro slide 4 | Pastel card with a gear and a feather. |
+| `slide-workshop-1` | `art/mystery-egg/slide-workshop-1.webp` | webp | 1280×800 (1x) | Entry scene 1: the friends at the open Workshop door, warm light, ramps, red ball, gears inside. | — | Workshop entry slide 1 | Pastel card with a drawn door. |
+| `slide-workshop-2` | `art/mystery-egg/slide-workshop-2.webp` | webp | 1280×800 (1x) | Entry scene 4: a laugh-light runs into Bip's first heart gear; a nest piece flies to the egg; Lumi ready to play. | — | Workshop entry slide 2 | Pastel card with a gear and a heart. |
+| `vo-fr-intro-1` | `audio/mystery-egg/vo-fr-intro-1.ogg` | vo | Opus mono | Lumi (hero), French, surprised and warm. | “Oh ! Un œuf ! Il est tout chaud…” (`fr`) | intro slide 1, first | chime + bubble |
+| `vo-he-intro-1` | `audio/mystery-egg/vo-he-intro-1.ogg` | vo | Opus mono | Bip (Puck, +8% pitch), Hebrew. | “ביצה? איזו הפתעה… יש מישהו בפנים.” (`he`) | intro slide 1, after the French line | chime + bubble |
+| `vo-fr-intro-2` | `audio/mystery-egg/vo-fr-intro-2.ogg` | vo | Opus mono | Lumi, French, kind. | “Mon petit robot… tu ne sais pas encore sentir.” (`fr`) | intro slide 2 | chime + bubble |
+| `vo-he-intro-2` | `audio/mystery-egg/vo-he-intro-2.ogg` | vo | Opus mono | Bip, Hebrew. | “אני יודע לחשוב ולבנות. אבל הלב שלי עוד ריק. אני לא יודע להרגיש.” (`he`) | intro slide 2 | chime + bubble |
+| `vo-fr-intro-3` | `audio/mystery-egg/vo-fr-intro-3.ogg` | vo | Opus mono | Lumi, French. | “Regarde ! Il y a des mondes à explorer.” (`fr`) | intro slide 3 | chime + bubble |
+| `vo-he-intro-3` | `audio/mystery-egg/vo-he-intro-3.ogg` | vo | Opus mono | Bip, Hebrew. | “זאת המפה. בכל עולם יש משחק אחר. אפשר ללכת לשם עם החברים, על השביל.” (`he`) | intro slide 3 | chime + bubble |
+| `vo-fr-intro-4` | `audio/mystery-egg/vo-fr-intro-4.ogg` | vo | Opus mono | Lumi, French. | “Des cœurs pour mon robot… et des trésors pour le nid.” (`fr`) | intro slide 4 | chime + bubble |
+| `vo-he-intro-4` | `audio/mystery-egg/vo-he-intro-4.ogg` | vo | Opus mono | Bip, Hebrew (the longest line, about 12 s). | “כשמסיימים משחק, אני מקבל גלגל לב ולומד להרגיש. ואחרי כמה משחקים בעולם, הביצה מקבלת חלק חשוב לקן. ככה היא תוכל לבקוע.” (`he`) | intro slide 4 | chime + bubble |
+| `vo-fr-workshop-entry-1` | `audio/mystery-egg/vo-fr-workshop-entry-1.ogg` | vo | Opus mono | Lumi, French. | “Voici l'atelier ! Ici, on construit des machines.” (`fr`) | Workshop entry slide 1 | chime + bubble |
+| `vo-he-workshop-entry-1` | `audio/mystery-egg/vo-he-workshop-entry-1.ogg` | vo | Opus mono | Bip, Hebrew. | “זאת הסדנה! כאן בונים מכונות מצחיקות, אחת אחרי השנייה, כמו שרשרת.” (`he`) | Workshop entry slide 1 | chime + bubble |
+| `vo-fr-workshop-entry-2` | `audio/mystery-egg/vo-fr-workshop-entry-2.ogg` | vo | Opus mono | Lumi, French, excited. | “Clic, clac… boum ! On y va ?” (`fr`) | Workshop entry slide 2 | chime + bubble |
+| `vo-he-workshop-entry-2` | `audio/mystery-egg/vo-he-workshop-entry-2.ogg` | vo | Opus mono | Bip, Hebrew. | “כשמצליחים, אני מקבל קצת צחוק לגלגל הלב. ואחרי כמה משחקים, הביצה מקבלת חלק חשוב. יאללה, בואו נשחק!” (`he`) | Workshop entry slide 2 | chime + bubble |
+| `vo-he-robot-locked` | `audio/mystery-egg/vo-he-robot-locked.ogg` | vo | Opus mono, short | Bip, Hebrew, **feminine singular**, gentle. **A proposal: the scripts have no locked line (pending Maor).** | “העולם הזה עוד ישן. בואי נלך לסדנה!” (`he`) | a tap on a locked world | chime + bubble next to the robot |
+| `sfx-locked` | `audio/mystery-egg/sfx-locked.ogg` | sfx | Opus mono, short | A sleepy, soft "zzz" / low yawn-like boop (about 0.6 s). | — | a tap on a locked world | Synthesized low two-note sine. |
+| `sfx-walk` | `audio/mystery-egg/sfx-walk.ogg` | sfx | Opus mono, short | A light, cheerful footstep patter (about 0.5 s, played once as the walk starts). | — | the friends start walking | Synthesized three soft pops. |
+
+**Notes for Gemini (shell):** the hero lines (French) and robot lines (Hebrew) are copied exactly from `design/game-shell-scripts.md`, minus the guillemets. The Hebrew robot lines of the script use the robot's own voice (masculine "אני") and plural addresses; the only child-facing line the code agent wrote (`vo-he-robot-locked`) is feminine singular. The map is landscape-first; `map-bg` is letterboxed in portrait like `hub-bg`. World art is centred on its canvas with the door at the bottom centre; the code tints nothing and wiggles the whole image.
