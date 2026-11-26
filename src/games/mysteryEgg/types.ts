@@ -64,6 +64,11 @@ export interface MapInfo {
   worlds: Record<WorldId, WorldInfo>;
   /** Current rotation (degrees) of each world's tile art: 0 at rest, never accumulates over repeated taps. */
   worldAngles: Record<WorldId, number>;
+  /**
+   * Wiggle tweens still running (tiles, friends, nest). An angle of 0 does NOT mean at rest: a wiggle swings through 0 and
+   * starts from 0 until its first frame. `wiggling === 0` together with angles of 0 means every wiggle has finished.
+   */
+  wiggling: number;
   slide: SlideInfo | null;
   /** The current intro was seen (`introSeenVersion >= INTRO_VERSION`). */
   introSeen: boolean;

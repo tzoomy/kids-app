@@ -3,7 +3,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import type { MysteryEggInfo } from '../../src/games/mysteryEgg/types';
 import { NEST, WORLDS } from '../../src/games/mysteryEgg/worlds';
-import { enterMapByTap, tapTestId, waitForScene } from './helpers/journey';
+import { enterMapByTap, getGameSize, tapTestId, waitForScene } from './helpers/journey';
 
 const LANDSCAPE = 'landscape-1280x800';
 const MIN_TAP_PX = 96;
@@ -38,6 +38,12 @@ async function openMapByTap(page: Page): Promise<MysteryEggInfo> {
   await tapTestId(page, 'mystery-egg-btn');
   await waitForScene(page, 'MysteryEggScene');
   return waitInfo(page, (i) => i.ready && i.scene === 'MysteryEggScene' && i.phase === 'map', 'the map never became interactive');
+}
+
+async function centreOf(page: Page, target: 'world-workshop'): Promise<[number, number]> {
+  const i = await waitInfo(page, (x) => Boolean(x.rects[target]), `target ${target} never appeared`);
+  const r = i.rects[target] as Rect;
+  return [r.x + r.width / 2, r.y + r.height / 2];
 }
 
 /** Board px -> page px, read off the Workshop's tap rectangle (its board position is known), so it holds in any orientation. */
@@ -81,13 +87,15 @@ test.describe('game-shell review nits', () => {
     await backIsRight({ width: 1280, height: 800 }, 'after rotating back to landscape');
     // The re-placed button still works: a real tap leaves the map. (The browser may still be settling the canvas after the
     // viewport change: tap once the button's rectangle has stopped moving.)
-    let back = (await info(page))?.rects.backBtn as Rect;
+    // (A re-placed button is reported again one frame after it was made, so a missing rectangle only means "not settled yet".)
+    let back: Rect | undefined;
     for (let settled = 0; settled < 3; ) {
       await page.waitForTimeout(200);
-      const now = (await info(page))?.rects.backBtn as Rect;
-      settled = now.x === back.x && now.y === back.y && now.width === back.width ? settled + 1 : 0;
+      const now = (await info(page))?.rects.backBtn as Rect | undefined;
+      settled = now && back && now.x === back.x && now.y === back.y && now.width === back.width ? settled + 1 : 0;
       back = now;
     }
+    if (!back) throw new Error('the back button never settled');
     await page.mouse.click(back.x + back.width / 2, back.y + back.height / 2);
     await waitForScene(page, 'MapScene');
   });
@@ -121,5 +129,70 @@ test.describe('game-shell review nits', () => {
     }
     expect(after?.map?.friendTaps).toBe(1);
     expect(after?.map?.nestTaps).toBe(1);
+  });
+
+  for (const [boot, then] of [
+    [{ width: 800, height: 1280 }, { width: 1280, height: 800 }],
+    [{ width: 1280, height: 800 }, { width: 800, height: 1280 }],
+  ] as const) {
+    const label = `${boot.width}x${boot.height} -> ${then.width}x${then.height}`;
+    test(`[AC-33] @single-orientation booting at ${label}: after the rotation the game and its canvas match the new orientation, the map re-fits, the back button stays at least 96 CSS px and the Workshop tile still takes a real tap`, async ({ page }, testInfo) => {
+      if (testInfo.project.name !== LANDSCAPE) test.skip();
+      test.setTimeout(90_000);
+      await page.setViewportSize(boot);
+      await openMapByTap(page);
+      expect(await getGameSize(page), 'game size at boot').toEqual(boot);
+
+      await page.setViewportSize(then);
+      await expect.poll(() => getGameSize(page), { message: 'the game size follows the rotation', timeout: 10_000 }).toEqual(then);
+      // The canvas fills the viewport exactly (same aspect as the game: FIT leaves no bars).
+      await expect
+        .poll(async () => {
+          const box = await page.locator('canvas').boundingBox();
+          return box ? [Math.round(box.x), Math.round(box.y), Math.round(box.width), Math.round(box.height)] : null;
+        }, { message: 'the canvas box fills the rotated viewport', timeout: 10_000 })
+        .toEqual([0, 0, then.width, then.height]);
+      // The map re-fits: the back button (>= 96 CSS px, inside the viewport) and the Workshop tile are where the fit puts them.
+      const settled = await waitInfo(page, (i) => {
+        const back = i.rects.backBtn as Rect | undefined;
+        const ws = i.rects['world-workshop'] as Rect | undefined;
+        return Boolean(back && ws && back.width >= MIN_TAP_PX - 0.5 && back.height >= MIN_TAP_PX - 0.5);
+      }, 'the map never re-fitted to the new size');
+      for (const target of ['backBtn', 'world-workshop'] as const) {
+        const r = settled.rects[target] as Rect;
+        expect(r.x, target).toBeGreaterThanOrEqual(0);
+        expect(r.y, target).toBeGreaterThanOrEqual(0);
+        expect(r.x + r.width, target).toBeLessThanOrEqual(then.width + 0.5);
+        expect(r.y + r.height, target).toBeLessThanOrEqual(then.height + 0.5);
+      }
+      // A real tap on the re-fitted tile starts the walk.
+      const ws = settled.rects['world-workshop'] as Rect;
+      await page.mouse.click(ws.x + ws.width / 2, ws.y + ws.height / 2);
+      await waitInfo(page, (i) => i.phase === 'walking', 'the Workshop tap did not start the walk after the rotation', 15_000);
+    });
+  }
+
+  test('[AC-33] @single-orientation the Workshop board re-fits when the window rotates (portrait boot -> landscape): the game follows and every control stays on screen', async ({ page }, testInfo) => {
+    if (testInfo.project.name !== LANDSCAPE) test.skip();
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 800, height: 1280 });
+    await openMapByTap(page);
+    await page.mouse.click(...(await centreOf(page, 'world-workshop')));
+    // The walk takes a few seconds; the first-visit entry slides are already seen by the seed.
+    await waitInfo(page, (i) => i.scene === 'MysteryEggBuildScene' && i.ready && i.phase === 'intro', 'the Workshop never opened', 45_000);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await expect.poll(() => getGameSize(page), { timeout: 10_000 }).toEqual({ width: 1280, height: 800 });
+    const board = await waitInfo(page, (i) => i.scene === 'MysteryEggBuildScene' && Boolean(i.rects.goBtn), 'the board never re-fitted');
+    // At 1280x800 the board is zoom 1: the Go button is the board's own 160 px wide, and the tray parts are on screen.
+    expect((board.rects.goBtn as Rect).width).toBeCloseTo(160, 0);
+    for (const target of ['goBtn', 'backBtn', 'partRamp', 'slot'] as const) {
+      const r = (board.rects[target] ?? (await info(page))?.rects[target]) as Rect | undefined;
+      expect(r, target).toBeDefined();
+      const rr = r as Rect;
+      expect(rr.x, target).toBeGreaterThanOrEqual(-0.5);
+      expect(rr.y, target).toBeGreaterThanOrEqual(-0.5);
+      expect(rr.x + rr.width, target).toBeLessThanOrEqual(1280.5);
+      expect(rr.y + rr.height, target).toBeLessThanOrEqual(800.5);
+    }
   });
 });

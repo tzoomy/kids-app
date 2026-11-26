@@ -50,3 +50,9 @@ Merge Gemini's assets PR, then Maor's tablet check (AC-17). Pass 2 only after Ma
 ## #117 additions
 
 - AC-24 ramp placeholder (`rampPlaceholderShape` in `layout.ts`), AC-25 truthful speech spy (`AudioProvider.playedSource`, `SpeechObserver.onOutcome`), AC-26 Continue after Bravo (`successTiming.ts`, e2e in `mystery-egg.journey.spec.ts`). The Continue wait is a team-lead default (pending decision row).
+
+## e2e hardening and #117 nits (branch fix/e2e-harden)
+
+- AC-27: `showContinueAfterVoice` returns `cancel`; the losing timer is cleared on either path and the scene cancels both on shutdown and restart (fake-timer unit tests count `vi.getTimerCount()`).
+- AC-28 (the lost Continue tap): root cause = Phaser lists a new interactive object for hit tests only at the scene's NEXT pre-update, so a tap in the frame of the button's creation is lost, while the hook reported the rect at once. `EggButton.ready` is set on the scene's next `update`; both scenes' hooks report only ready buttons. The e2e dispatches one mouse event in the same task as the first report (reproduced 7 of 8 before the fix, 0 after); every other tap stays a real click.
+- Gotcha: after this, a re-placed button (the map's back button after a resize) is absent from the hook for one frame: waits must treat a missing rect as "not yet", not as a crash.

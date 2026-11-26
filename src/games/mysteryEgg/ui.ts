@@ -9,6 +9,11 @@ export interface EggButton {
   container: Phaser.GameObjects.Container;
   width: number;
   height: number;
+  /**
+   * False until the scene's next frame after creation: Phaser lists a new interactive object (for hit tests) only at the next
+   * pre-update, so a tap in the same frame is lost. The e2e read hook reports a button only once this is true.
+   */
+  readonly ready: boolean;
   setEnabled(on: boolean): void;
 }
 
@@ -115,6 +120,11 @@ export function makeButton(
   container.setSize(width, height);
   container.setInteractive({ useHandCursor: true });
   let enabled = true;
+  let ready = false;
+  // 'update' follows the input plugin's pre-update, which is what adds the new object to the hit-test list.
+  scene.events.once(Phaser.Scenes.Events.UPDATE, () => {
+    ready = true;
+  });
   container.on('pointerdown', () => {
     if (!enabled) return;
     scene.tweens.add({ targets: container, scaleX: 0.92, scaleY: 0.92, duration: 70, yoyo: true });
@@ -124,6 +134,9 @@ export function makeButton(
     container,
     width,
     height,
+    get ready() {
+      return ready;
+    },
     setEnabled(on: boolean) {
       enabled = on;
       container.setAlpha(on ? 1 : 0.45);

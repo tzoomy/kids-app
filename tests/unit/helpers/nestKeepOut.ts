@@ -45,3 +45,27 @@ export function inNestKeepOut(p: { x: number; y: number }, margin = 10): boolean
 export function overlapsEgg(r: { x0: number; x1: number; y0: number; y1: number }, margin = 0): boolean {
   return r.x1 > EGG_BOX.x0 - margin && r.x0 < EGG_BOX.x1 + margin && r.y1 > EGG_BOX.y0 - margin && r.y0 < EGG_BOX.y1 + margin;
 }
+
+/**
+ * The smallest distance (board px) between a board rectangle and the nest silhouette (egg and bowl, `NEST_ROWS`; each row is
+ * the span between its first and last opaque pixel, sampled every 2 px of y and interpolated between rows). 0 = touching or
+ * overlapping. This is the OUTER outline, so the bowl's twigs count, not only the egg.
+ */
+export function gapToNest(r: { x0: number; x1: number; y0: number; y1: number }): number {
+  let best = Infinity;
+  const first = NEST_ROWS[0][0];
+  const last = NEST_ROWS[NEST_ROWS.length - 1][0];
+  for (let y = first; y <= last; y += 2) {
+    let k = NEST_ROWS.findIndex((row) => row[0] >= y);
+    if (k <= 0) k = 1;
+    const a = NEST_ROWS[k - 1];
+    const b = NEST_ROWS[k];
+    const t = Math.min(1, Math.max(0, (y - a[0]) / (b[0] - a[0])));
+    const xMin = a[1] + (b[1] - a[1]) * t;
+    const xMax = a[2] + (b[2] - a[2]) * t;
+    const dx = Math.max(xMin - r.x1, r.x0 - xMax, 0);
+    const dy = Math.max(r.y0 - y, y - r.y1, 0);
+    best = Math.min(best, Math.hypot(dx, dy));
+  }
+  return best;
+}

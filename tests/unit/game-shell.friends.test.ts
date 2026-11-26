@@ -5,7 +5,7 @@ import gameShellAssets from '../../src/content/gameShellAssets.json';
 import { FRIEND_SPRITES, displayedVisibleWidth, footprintWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
 import { ARRIVAL_GAP_PX, WALK_OPTIONS, planWalk, walkFrame } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS, type FriendId } from '../../src/games/mysteryEgg/worlds';
-import { EGG_BOX, overlapsEgg } from './helpers/nestKeepOut';
+import { EGG_BOX, gapToNest, overlapsEgg } from './helpers/nestKeepOut';
 
 const manifest = gameShellAssets as unknown as Record<string, { w: number; h: number; frames?: number }>;
 /** Displayed visible height of the idle art (board px): visible canvas px x the box scale x the 1x box / 2x canvas ratio. */
@@ -171,6 +171,38 @@ describe('game-shell walk spacing', () => {
     }
     expect(end, 'the walk never finished').toBeGreaterThan(0);
     expect(worst, `the bunny's closest approach to the egg ${where}`).toBeGreaterThanOrEqual(8);
+  });
+
+  it('[AC-32] on the bakery route the bunny\'s footprint also clears the OUTER nest outline (bowl and twigs, not only the egg) by at least 6 px at every step after it leaves its home, and idle at the door', () => {
+    const bakery = WORLDS.find((w) => w.id === 'bakery');
+    if (!bakery) throw new Error('no bakery');
+    const plan = planWalk(FRIEND_HOMES, MAP_FRIENDS, bakery);
+    expect(plan.ids[0]).toBe('bunny');
+    const home = FRIEND_HOMES.bunny;
+    const hw = footprintWidth('bunny') / 2;
+    const hh = FRIEND_SPRITES.bunny.height / 2;
+    let worst = Infinity;
+    let where = '';
+    let doorGap = Infinity;
+    let end = 0;
+    for (let t = 0; t < 40_000; t += 20) {
+      const frame = walkFrame(plan.routes, t, WALK_OPTIONS);
+      const f = frame.friends[0];
+      const g = gapToNest({ x0: f.x - hw, x1: f.x + hw, y0: f.y + f.bob - hh, y1: f.y + f.bob + hh });
+      // The first 40 px leave the idle home spot (a pre-existing corner touch of the bowl's left twig tip, not part of the route).
+      if (Math.hypot(f.x - home.x, f.y - home.y) >= 40 && g < worst) {
+        worst = g;
+        where = `at ${t} ms (${Math.round(f.x)}, ${Math.round(f.y)})`;
+      }
+      if (frame.done) {
+        doorGap = g;
+        end = t;
+        break;
+      }
+    }
+    expect(end, 'the walk never finished').toBeGreaterThan(0);
+    expect(worst, `the bunny's closest approach to the nest outline ${where}`).toBeGreaterThanOrEqual(6);
+    expect(doorGap, 'idle at the door').toBeGreaterThanOrEqual(6);
   });
 
   it('[AC-24] the walk plan starts the friend with the shortest route first (the leader), truncates followers behind it and the leader ends at the door', () => {

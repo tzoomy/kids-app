@@ -15,21 +15,29 @@ export const SUCCESS_VO_CAP_MS = 8000;
 /**
  * Calls `show` once: `CONTINUE_AFTER_VO_MS` after `voice` settles (played out, chime, or failed) but not before
  * `CONTINUE_MIN_DELAY_MS`, and at the latest at `SUCCESS_VO_CAP_MS`. A missing clip settles at once, so the
- * placeholder path shows Continue after the minimum delay.
+ * placeholder path shows Continue after the minimum delay. Whichever path wins clears the other timer, and the returned
+ * `cancel` (call it when the scene shuts down) clears both: nothing fires afterwards.
  */
-export function showContinueAfterVoice(voice: Promise<unknown>, show: () => void): void {
-  let shown = false;
-  const fire = (): void => {
-    if (shown) return;
-    shown = true;
+export function showContinueAfterVoice(voice: Promise<unknown>, show: () => void): () => void {
+  let done = false;
+  let afterVoice: ReturnType<typeof setTimeout> | undefined;
+  const finish = (): void => {
+    done = true;
     clearTimeout(cap);
+    clearTimeout(afterVoice);
+  };
+  const fire = (): void => {
+    if (done) return;
+    finish();
     show();
   };
   const cap = setTimeout(fire, SUCCESS_VO_CAP_MS);
   const started = Date.now();
   const settled = (): void => {
+    if (done) return;
     const wait = Math.max(CONTINUE_AFTER_VO_MS, CONTINUE_MIN_DELAY_MS - (Date.now() - started));
-    setTimeout(fire, wait);
+    afterVoice = setTimeout(fire, wait);
   };
   voice.then(settled, settled);
+  return finish;
 }

@@ -15,6 +15,7 @@ import { backButtonPlacementForView } from './backButton';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
 import { WiggleGuard, mapTapAllowed } from './mapRules';
+import { followOrientation } from './orientation';
 import { playEggSfx } from './eggSound';
 import { heartSlotCentres, type Point2 } from './layout';
 import {
@@ -129,6 +130,7 @@ export class MysteryEggScene extends Phaser.Scene {
     this.wiggles.clear();
     // The map's DOM chrome (top bar, world labels, egg button) must not stay on top of this canvas scene.
     this.context.shell.clearChrome();
+    followOrientation(this);
     fitBoard(this, '#fdeee0');
     this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -533,7 +535,7 @@ export class MysteryEggScene extends Phaser.Scene {
   /** ?e2e=1 read hook. */
   getMysteryEggInfo(): MysteryEggInfo {
     const rects: MysteryEggInfo['rects'] = {};
-    for (const [target, b] of this.buttons) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
+    for (const [target, b] of this.buttons) if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
     for (const def of WORLDS) rects[`world-${def.id}`] = boardRectToPage(this, def.hit.x, def.hit.y, def.hit.w, def.hit.h);
     const slideRects: { skipBtn?: EggPageRect; slideTap?: EggPageRect } = this.overlay?.rects() ?? {};
     if (this.overlay && slideRects.skipBtn && slideRects.slideTap) {
@@ -577,6 +579,7 @@ export class MysteryEggScene extends Phaser.Scene {
         friendFacing,
         worlds,
         worldAngles,
+        wiggling: this.wiggles.size,
         slide: this.overlay ? this.overlay.info : null,
         introSeen: this.progress.introSeen,
         introSeenVersion: this.progress.introSeenVersion,
