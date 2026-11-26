@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   HEART_SLOT_COUNT,
+  INTRO_VERSION,
   MYSTERY_EGG_SAVE_VERSION,
   PIECE_LEVELS,
   completeMission,
@@ -277,6 +278,73 @@ describe('game-shell persistence and migration', () => {
     expect(back.entrySeen).toEqual(['workshop']);
   });
 });
+
+describe('game-shell intro version (tablet fix: existing players see the new intro once)', () => {
+  const legacyV2 = { v: 2, worlds: { workshop: { level: 1, completed: [1] } }, pieces: ['feather'], introSeen: true, entrySeen: ['workshop'] };
+
+  it('[AC-26] INTRO_VERSION is 2 and a fresh state has seen no intro version', () => {
+    expect(INTRO_VERSION).toBe(2);
+    const p = createProgress();
+    expect(p.introSeenVersion).toBe(0);
+    expect(p.introSeen).toBe(false);
+  });
+
+  it('[AC-26] an old v2 save with introSeen true (written before the version existed) has NOT seen the current intro, and loses nothing else', () => {
+    const storage = memoryStorage({ [mysteryEggKey('p')]: JSON.stringify(legacyV2) });
+    const p = loadProgress(storage, 'p');
+    expect(p.introSeenVersion).toBe(0);
+    expect(p.introSeen).toBe(false);
+    expect(p.worlds.workshop).toEqual({ level: 1, completed: [1] });
+    expect(p.pieces).toEqual(['feather']);
+    expect(p.entrySeen).toEqual(['workshop']);
+  });
+
+  it('[AC-26] a v1 save still migrates to an unseen intro', () => {
+    expect(migrateProgress({ v: 1, completed: ['1.1'] }).introSeenVersion).toBe(0);
+  });
+
+  it('[AC-26] markIntroSeen stores the current version, stays readable as introSeen, and persists both fields', () => {
+    const storage = memoryStorage({ [mysteryEggKey('p')]: JSON.stringify(legacyV2) });
+    const seen = markIntroSeen(loadProgress(storage, 'p'));
+    expect(seen.introSeenVersion).toBe(INTRO_VERSION);
+    expect(seen.introSeen).toBe(true);
+    saveProgress(storage, 'p', seen);
+    const raw = JSON.parse(storage.data.get(mysteryEggKey('p')) as string);
+    expect(raw.introSeen).toBe(true);
+    expect(raw.introSeenVersion).toBe(INTRO_VERSION);
+    expect(loadProgress(storage, 'p').introSeen).toBe(true);
+    expect(markIntroSeen(seen)).toEqual(seen);
+  });
+
+  it('[AC-26] a save from a newer build (higher version) counts as seen, so a downgrade never replays the intro', () => {
+    expect(repairNewer().introSeen).toBe(true);
+  });
+
+  it('[AC-26] a wrong-typed introSeenVersion is repaired to 0 and never throws', () => {
+    for (const bad of ['2', -1, 1.5, Number.NaN, null, {}, [2], true]) {
+      const p = migrateProgress({ v: 2, introSeen: true, introSeenVersion: bad });
+      expect(p.introSeenVersion).toBe(0);
+      expect(p.introSeen).toBe(false);
+    }
+  });
+
+  it('[AC-26] winning a level on an old save does not mark the intro seen (only the intro itself does)', () => {
+    const storage = memoryStorage({ [mysteryEggKey('p')]: JSON.stringify({ ...legacyV2, worlds: {}, pieces: [] }) });
+    recordMissionAndSave(storage, 'p', '1.1');
+    expect(loadProgress(storage, 'p').introSeen).toBe(false);
+  });
+
+  it('[AC-26] the e2e seed: introSeen true means the current intro was seen; an explicit old version keeps it unseen', () => {
+    expect((seedToSave({ v: 2, introSeen: true }) as ReturnType<typeof createProgress>).introSeenVersion).toBe(INTRO_VERSION);
+    const old = seedToSave({ v: 2, introSeen: true, introSeenVersion: 0 }) as ReturnType<typeof createProgress>;
+    expect(old.introSeen).toBe(false);
+    expect((seedToSave({ v: 2 }) as ReturnType<typeof createProgress>).introSeenVersion).toBe(0);
+  });
+});
+
+function repairNewer(): ReturnType<typeof createProgress> {
+  return migrateProgress({ v: 2, introSeen: true, introSeenVersion: INTRO_VERSION + 1 });
+}
 
 describe('game-shell seed hook', () => {
   it('[AC-16] a v1 seed is stored raw so the migration runs on load; a v2 seed is repaired and stored as v2', () => {
