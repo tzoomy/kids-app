@@ -281,20 +281,21 @@ export class MysteryEggScene extends Phaser.Scene {
   }
 
   /**
-   * The friends stand by the nest: idle art at rest, the 4-frame walk strip while walking. One scale per friend (friendSprites.ts)
-   * gives the visible friend the same height in both states, and both stand on the same feet line.
+   * The friends stand by the nest: idle art at rest, the 4-frame walk strip while walking. Scales come from friendSprites.ts: one per
+   * friend, plus its own walk scale where the strip's frames are smaller (the frog), so the visible friend keeps its height
+   * across the swap and both states stand on the same feet line.
    */
   private addFriends(): void {
     for (const id of MAP_FRIENDS) {
       const home = FRIEND_HOMES[id];
       const root = this.add.container(home.x, home.y).setDepth(14);
-      const idle = eggArt(this, `map-${id}-idle`, 0, friendArtY(id)).setScale(friendBoxScale(id));
+      const idle = eggArt(this, `map-${id}-idle`, 0, friendArtY(id, 'idle')).setScale(friendBoxScale(id, 'idle'));
       const walkId = `map-${id}-walk`;
       const spec = ensureSpriteAnim(this, walkId, -1);
       const walkSprite = spec
         ? this.add
-            .sprite(0, friendArtY(id), walkId, '0')
-            .setDisplaySize(spec.w * friendBoxScale(id), spec.h * friendBoxScale(id))
+            .sprite(0, friendArtY(id, 'walk'), walkId, '0')
+            .setDisplaySize(spec.w * friendBoxScale(id, 'walk'), spec.h * friendBoxScale(id, 'walk'))
             .setVisible(false)
         : null;
       const body = this.add.container(0, 0, walkSprite ? [idle, walkSprite] : [idle]);

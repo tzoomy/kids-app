@@ -120,7 +120,7 @@ export function facingFor(s: { moving: boolean; angle: number; current: 1 | -1 }
 /** The scene's walk: px per second and the delay between one friend's start and the next one's (a follow distance of 150 px). */
 export const WALK_OPTIONS: WalkOptions = { speed: 300, staggerMs: 500 };
 /** Followers stop this far (px along their route) behind the one in front of them, so they queue up at the door. */
-export const ARRIVAL_GAP_PX = 130;
+export const ARRIVAL_GAP_PX = 140;
 
 /** The route without its last `cut` px (clamped so at least a quarter of it stays). */
 export function truncateRoute(route: readonly Point2[], cut: number): Point2[] {

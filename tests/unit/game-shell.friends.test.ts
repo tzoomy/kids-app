@@ -2,7 +2,7 @@
 // the idle art and the walk strip, resting spots, and the spacing of the walk. Pure modules only.
 import { describe, expect, it } from 'vitest';
 import gameShellAssets from '../../src/content/gameShellAssets.json';
-import { FRIEND_SPRITES, displayedVisibleWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
+import { FRIEND_SPRITES, displayedVisibleWidth, footprintWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
 import { ARRIVAL_GAP_PX, WALK_OPTIONS, planWalk, walkFrame } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS, type FriendId } from '../../src/games/mysteryEgg/worlds';
 
@@ -98,13 +98,17 @@ describe('game-shell friend homes', () => {
 });
 
 describe('game-shell walk spacing', () => {
-  /** Smallest centre distance between any two friends over the whole walk (every 20 ms), and at the end. */
+  /**
+   * Smallest centre distance between any two friends over the whole walk (every 20 ms) and at the end, and the smallest
+   * margin against their footprints (the walking frog is wider than the idle one): distance - 0.8 x (width a + width b) / 2.
+   */
   function spacing(worldId: string) {
     const world = WORLDS.find((w) => w.id === worldId);
     if (!world) throw new Error(worldId);
     const plan = planWalk(FRIEND_HOMES, MAP_FRIENDS, world);
     let minMid = Infinity;
     let minEnd = Infinity;
+    let footMargin = Infinity;
     let end = 0;
     for (let t = 0; t < 40_000; t += 20) {
       const frame = walkFrame(plan.routes, t, WALK_OPTIONS);
@@ -113,19 +117,21 @@ describe('game-shell walk spacing', () => {
           const d = Math.hypot(frame.friends[i].x - frame.friends[j].x, frame.friends[i].y - frame.friends[j].y);
           if (frame.done) minEnd = Math.min(minEnd, d);
           else minMid = Math.min(minMid, d);
+          footMargin = Math.min(footMargin, d - (0.8 * (footprintWidth(plan.ids[i]) + footprintWidth(plan.ids[j]))) / 2);
         }
       }
       if (frame.done) { end = t; break; }
     }
-    return { plan, minMid, minEnd, end };
+    return { plan, minMid, minEnd, footMargin, end };
   }
 
   it('[AC-24] on every route consecutive friends stay at least about one friend width apart while walking, and keep a gap when they arrive', () => {
     for (const w of WORLDS) {
-      const { minMid, minEnd, end } = spacing(w.id);
+      const { minMid, minEnd, footMargin, end } = spacing(w.id);
       expect(end, `${w.id} never finished`).toBeGreaterThan(0);
       expect(minMid, `${w.id} mid-walk`).toBeGreaterThanOrEqual(95);
       expect(minEnd, `${w.id} on arrival`).toBeGreaterThanOrEqual(95);
+      expect(footMargin, `${w.id}: footprints (walking frog included) overlap`).toBeGreaterThanOrEqual(0);
     }
   });
 
