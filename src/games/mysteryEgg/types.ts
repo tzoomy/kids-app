@@ -57,6 +57,8 @@ export interface MapInfo {
   pieces: string[];
   readyToHatch: boolean;
   friends: FriendId[];
+  /** Board px of each friend on screen (they move while walking). */
+  friendPositions: Partial<Record<FriendId, { x: number; y: number }>>;
   worlds: Record<WorldId, WorldInfo>;
   slide: SlideInfo | null;
   introSeen: boolean;
