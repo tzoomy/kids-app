@@ -86,6 +86,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   private readonly buttons = new Map<EggTarget, EggButton>();
   private introLayer: Phaser.GameObjects.Container | null = null;
   private continueBtn: EggButton | null = null;
+  /** Cancels the pending Continue timers (successTiming.ts); cleared on shutdown so nothing fires after leaving. */
+  private cancelContinue: (() => void) | null = null;
   private featherArrived = false;
   private successToken = 0;
 
@@ -118,6 +120,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     this.dragging = null;
     this.introVoice = new IntroVoice();
     this.introLayer = null;
+    this.cancelContinue?.();
+    this.cancelContinue = null;
     this.continueBtn = null;
     this.featherArrived = false;
     this.successToken++;
@@ -126,6 +130,8 @@ export class MysteryEggBuildScene extends Phaser.Scene {
     fitBoard(this, '#f1dcc2');
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.alive = false;
+      this.cancelContinue?.();
+      this.cancelContinue = null;
       this.input.off('pointermove', this.onPointerMove, this);
       this.input.off('pointerup', this.onPointerUp, this);
       this.context.audio.stopAll();
@@ -652,7 +658,9 @@ export class MysteryEggBuildScene extends Phaser.Scene {
   /** Speaks the Bravo line and shows Continue once it has finished (a missing clip chimes at once; capped, see successTiming.ts). */
   private continueAfterBravo(): void {
     const token = this.successToken;
-    showContinueAfterVoice(this.speak('vo-fr-success'), () => {
+    this.cancelContinue?.();
+    this.cancelContinue = showContinueAfterVoice(this.speak('vo-fr-success'), () => {
+      this.cancelContinue = null;
       if (this.alive && token === this.successToken) this.addContinue();
     });
   }
