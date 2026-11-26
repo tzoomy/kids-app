@@ -5,6 +5,7 @@ import gameShellAssets from '../../src/content/gameShellAssets.json';
 import { FRIEND_SPRITES, displayedVisibleWidth, footprintWidth, friendArtY, friendBoxScale } from '../../src/games/mysteryEgg/friendSprites';
 import { ARRIVAL_GAP_PX, WALK_OPTIONS, planWalk, walkFrame } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS, type FriendId } from '../../src/games/mysteryEgg/worlds';
+import { overlapsEgg } from './helpers/nestKeepOut';
 
 const manifest = gameShellAssets as unknown as Record<string, { w: number; h: number; frames?: number }>;
 /** Displayed visible height of the idle art (board px): visible canvas px x the box scale x the 1x box / 2x canvas ratio. */
@@ -77,10 +78,10 @@ const rectOf = (id: FriendId, c: { x: number; y: number }) => ({
 
 describe('game-shell friend homes', () => {
   it('[AC-24] at rest the friends stand in front of and beside the nest: no body covers the painted egg, the heart panel or each other', () => {
-    // The painted egg of the final map-nest-home at (640,420): x 554..738, y 284..455 (re-measure if the art changes); the heart panel starts at y 715.
+    // The painted egg is EGG_BOX of helpers/nestKeepOut.ts (the one shared measurement); the heart panel starts at y 715.
     for (const id of MAP_FRIENDS) {
       const r = rectOf(id, FRIEND_HOMES[id]);
-      const overEgg = r.x1 > 554 && r.x0 < 738 && r.y1 > 284 && r.y0 < 455;
+      const overEgg = overlapsEgg(r);
       expect(overEgg, `${id} covers the egg`).toBe(false);
       expect(r.y1, `${id} reaches the heart panel`).toBeLessThanOrEqual(705);
       expect(r.x0, id).toBeGreaterThanOrEqual(40);
