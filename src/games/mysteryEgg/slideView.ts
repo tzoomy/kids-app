@@ -8,9 +8,9 @@ import { eggArt } from './art';
 import { assetEntry } from './assets';
 import { boardRectToPage } from './boardView';
 import { BOARD } from './layout';
-import { SlidePlayer, type SlideDef } from './slides';
+import { SlidePlayer, SlideVoice, type SlideDef } from './slides';
 import type { EggPageRect, SlideInfo } from './types';
-import { MIN_TAP, speechCue } from './ui';
+import { MIN_TAP, drawSkipIcon, makeButton, speechCue } from './ui';
 import type { WorldId } from './worlds';
 
 const DEPTH = 2000;
@@ -30,7 +30,7 @@ export class SlideOverlay {
   private readonly layer: Phaser.GameObjects.Container;
   private readonly dots: Phaser.GameObjects.Graphics;
   private picture: Phaser.GameObjects.Container | null = null;
-  private voiceToken = 0;
+  private readonly voice: SlideVoice;
   private cues: Phaser.GameObjects.Container[] = [];
   private closed = false;
 
@@ -40,6 +40,13 @@ export class SlideOverlay {
     private readonly opts: SlideOverlayOptions,
   ) {
     this.player = new SlidePlayer(opts.slides);
+    this.voice = new SlideVoice({
+      play: (lineId) => this.playClip(lineId),
+      schedule: (fn, ms) => {
+        const timer = scene.time.delayedCall(ms, fn);
+        return () => timer.remove(false);
+      },
+    });
     this.layer = scene.add.container(0, 0).setDepth(DEPTH);
     this.layer.add(scene.add.rectangle(BOARD.width / 2, BOARD.height / 2, BOARD.width + 1200, BOARD.height + 1200, 0x2b1d14, 1));
     this.dots = scene.add.graphics();
@@ -48,11 +55,8 @@ export class SlideOverlay {
     const tapZone = scene.add.zone(BOARD.width / 2, BOARD.height / 2, BOARD.width + 1200, BOARD.height + 1200).setInteractive();
     tapZone.on('pointerdown', () => this.advance());
 
-    const skip = scene.add.container(SKIP.x, SKIP.y);
-    skip.add(eggArt(scene, 'icon-skip', 0, 0).setScale(SKIP.size / 96));
-    skip.setSize(SKIP.size, SKIP.size);
-    skip.setInteractive({ useHandCursor: true });
-    skip.on('pointerdown', () => this.skip());
+    // Skip is code UI (drawn, no art id) and always shown: on the intro and on every entry, the first time included.
+    const skip = makeButton(scene, SKIP.x, SKIP.y, SKIP.size, SKIP.size, drawSkipIcon, () => this.skip()).container;
     this.layer.add([tapZone, this.dots, skip]);
     this.layer.bringToTop(skip);
     scene.tweens.add({ targets: skip, scale: 1.06, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -101,7 +105,7 @@ export class SlideOverlay {
   }
 
   private stopVoice(): void {
-    this.voiceToken++;
+    this.voice.stop();
     this.context.audio.stopAll();
     // The speech cues belong to the slide whose lines they mark.
     for (const cue of this.cues) if (cue.scene) cue.destroy();
@@ -116,7 +120,7 @@ export class SlideOverlay {
     // Behind the dim backdrop's neighbours: the picture sits just above the backdrop (index 1), below the tap zone.
     this.layer.addAt(this.picture, 1);
     this.drawDots();
-    void this.playLines(slide);
+    this.voice.start(slide.lines);
   }
 
   private drawDots(): void {
@@ -129,16 +133,11 @@ export class SlideOverlay {
     }
   }
 
-  /** French hero line, then the Hebrew robot line (each a chime plus a speech cue when its file is missing). */
-  private async playLines(slide: SlideDef): Promise<void> {
-    const token = ++this.voiceToken;
-    for (const lineId of slide.lines) {
-      if (this.closed || token !== this.voiceToken) return;
-      const entry = assetEntry(lineId);
-      if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) continue;
-      const hero = entry.lang === 'fr';
-      this.cues.push(speechCue(this.scene, hero ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
-      await this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
-    }
+  /** One clip (its file, or a chime plus a speech cue when it is missing); resolves when it ends or is cut. */
+  private playClip(lineId: string): Promise<unknown> {
+    const entry = assetEntry(lineId);
+    if (this.closed || entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve();
+    this.cues.push(speechCue(this.scene, entry.lang === 'fr' ? 420 : 860, BOARD.height - 120).setDepth(DEPTH + 10));
+    return this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
   }
 }

@@ -69,14 +69,3 @@ export function synthPop(): void {
 export function synthSuccess(): void {
   [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.28, 'triangle', i * 0.13, 0.14));
 }
-
-/** Sleepy "zzz" (sfx-locked): two low, soft notes falling. */
-export function synthLocked(): void {
-  tone(330, 0.28, 'sine', 0, 0.12);
-  tone(247, 0.4, 'sine', 0.2, 0.1);
-}
-
-/** Light footstep patter (sfx-walk): three soft pops. */
-export function synthWalk(): void {
-  [0, 0.14, 0.28].forEach((d, i) => tone(380 + i * 30, 0.06, 'triangle', d, 0.1));
-}

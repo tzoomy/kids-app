@@ -1,15 +1,15 @@
 // Mystery Egg game shell: the interactive world map (docs/specs/game-shell.md). The nest and egg are HOME in the centre,
 // five worlds sit around it joined by cobblestone paths. Tapping the open world makes the friends walk along its path,
-// then the world's entry slides (first arrival) and its game start; tapping a locked world wiggles it and plays a sleepy
-// cue. A first-visit intro (4 slides) tells the story. Entry: the big egg button on the map HUD (`mystery-egg-btn`);
+// then the world's entry slides (first arrival) and its game start; tapping a closed world only wiggles it (no voice).
+// A first-visit intro (4 slides) tells the story. Entry: the big egg button on the map HUD (`mystery-egg-btn`);
 // exit: the home button. All media is optional: missing art is drawn, missing sounds are synthesized.
 import Phaser from 'phaser';
 import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { transitionTo } from '../../anim/transitions';
 import { floatIdle } from '../../anim/tweens';
-import { createRobot, eggArt } from './art';
-import { assetEntry, displaySize } from './assets';
+import { ensureSpriteAnim, eggArt } from './art';
+import { displaySize } from './assets';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets, mapArtIds } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
@@ -30,16 +30,17 @@ import {
 } from './progress';
 import { SlideOverlay, type SlideEnd } from './slideView';
 import { ENTRY_SLIDES, INTRO_SLIDES, entrySlides } from './slides';
+import { drawPieceShape } from './shellArt';
 import type { EggPageRect, EggPhase, EggTarget, MysteryEggInfo, WorldInfo } from './types';
-import { drawHomeIcon, makeButton, speechCue, type EggButton } from './ui';
+import { drawHomeIcon, makeButton, type EggButton } from './ui';
 import { friendRoute, walkDurationMs, walkFrame, type WalkOptions } from './walk';
 import {
   FRIEND_HOMES,
+  MAP_FRIENDS,
   NEST,
+  PIECE_ART,
   PIECE_NEST_SPOTS,
   WORLDS,
-  friendsFor,
-  pieceArtId,
   worldArtId,
   type FriendId,
   type WorldDef,
@@ -49,18 +50,20 @@ import {
 /** The robot's heart panel (bottom centre, 1x scale); socket positions follow Gemini's geometry (layout.ts). */
 const PANEL = { x: 640, y: 755, scale: 1 } as const;
 const WALK: WalkOptions = { speed: 300, staggerMs: 260 };
-const PATH_STAMP_SPACING = 56;
 const FLIGHT_MS = 1100;
-const ROBOT_LINE_LOCKED = 'vo-he-robot-locked';
 
 const shownPiecesKey = (profileId: string): string => `mystery-egg-shown-pieces:${profileId}`;
 
 interface Friend {
   id: FriendId;
-  /** Positioned by the walk; its child `body` keeps the idle bob and wiggles. */
+  /** Positioned by the walk; its child `body` keeps the idle bob, the wiggle and the left/right flip. */
   root: Phaser.GameObjects.Container;
   body: Phaser.GameObjects.Container;
-  scale: number;
+  /** `map-<friend>-idle` (drawn placeholder when the file is missing). */
+  idle: Phaser.GameObjects.Container;
+  /** `map-<friend>-walk` strip (4 frames, 8 fps), null while the strip is missing: the idle art walks instead. */
+  walkSprite: Phaser.GameObjects.Sprite | null;
+  walking: boolean;
 }
 
 interface WorldView {
@@ -79,8 +82,8 @@ export class MysteryEggScene extends Phaser.Scene {
   private readonly buttons = new Map<EggTarget, EggButton>();
   private readonly worldViews = new Map<WorldId, WorldView>();
   private readonly friends = new Map<FriendId, Friend>();
-  private robotView: ReturnType<typeof createRobot> | null = null;
-  private egg: Phaser.GameObjects.Container | null = null;
+  private nest: Phaser.GameObjects.Container | null = null;
+  private glow: Phaser.GameObjects.Container | null = null;
   private eggShownLevel = 0;
   private readonly piecesInNest = new Set<string>();
   private walk: { world: WorldDef; routes: Point2[][]; elapsed: number } | null = null;
@@ -105,8 +108,8 @@ export class MysteryEggScene extends Phaser.Scene {
     this.buttons.clear();
     this.worldViews.clear();
     this.friends.clear();
-    this.robotView = null;
-    this.egg = null;
+    this.nest = null;
+    this.glow = null;
     this.piecesInNest.clear();
     this.walk = null;
     this.walkingTo = null;
@@ -144,10 +147,11 @@ export class MysteryEggScene extends Phaser.Scene {
     const arriving = newPieces(this.progress, shown);
     registry.set(key, earnedPieces(this.progress));
 
+    // Layers (Gemini's contract): map-bg at (0,0), a procedural path glow, the centre, the tiles, then the characters.
     eggArt(this, 'map-bg', 640, 400).setDepth(0);
-    this.drawPaths();
-    for (const def of WORLDS) this.addWorld(def);
+    this.drawPathGlow();
     this.addNest(arriving);
+    for (const def of WORLDS) this.addWorld(def);
     this.addHeartPanel();
     this.addFriends();
 
@@ -168,29 +172,22 @@ export class MysteryEggScene extends Phaser.Scene {
     else this.phase = 'map';
   }
 
-  /** Cobblestone patches stamped along each world's path, under everything else. */
-  private drawPaths(): void {
+  /** A soft glow drawn in code along each path (the cobblestones are baked into `map-bg`); the open world's path pulses. */
+  private drawPathGlow(): void {
     for (const def of WORLDS) {
-      let n = 0;
-      for (let i = 1; i < def.path.length; i++) {
-        const a = def.path[i - 1];
-        const b = def.path[i];
-        const len = Math.hypot(b.x - a.x, b.y - a.y);
-        for (let d = 0; d < len; d += PATH_STAMP_SPACING) {
-          const k = d / len;
-          const stamp = eggArt(this, 'map-path', a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k).setDepth(2);
-          stamp.setAngle((n * 47) % 360);
-          n++;
-        }
-      }
-      eggArt(this, 'map-path', def.door.x, def.door.y).setDepth(2).setAngle((n * 47) % 360);
+      const g = this.add.graphics().setDepth(1);
+      g.lineStyle(60, 0xfff2a8, def.open ? 0.5 : 0.12);
+      g.beginPath();
+      def.path.forEach((p, i) => (i === 0 ? g.moveTo(p.x, p.y) : g.lineTo(p.x, p.y)));
+      g.strokePath();
+      if (def.open) this.tweens.add({ targets: g, alpha: { from: 1, to: 0.35 }, duration: 1300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
   }
 
   private addWorld(def: WorldDef): void {
-    const art = eggArt(this, worldArtId(def), def.x, def.y).setDepth(4);
+    const art = eggArt(this, worldArtId(def), def.x, def.y).setDepth(8);
     if (def.open) {
-      const glow = this.add.ellipse(def.x, def.y + 30, def.artW * 0.9, def.artH * 0.7, 0xffe9a8, 0.35).setDepth(3);
+      const glow = this.add.ellipse(def.x, def.y + 30, def.artW * 0.9, def.artH * 0.7, 0xffe9a8, 0.35).setDepth(7);
       this.tweens.add({ targets: glow, alpha: 0.12, scale: 1.08, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       floatIdle(this, art, 4, 1800 + Math.random() * 400);
     }
@@ -200,29 +197,47 @@ export class MysteryEggScene extends Phaser.Scene {
     zone.on('pointerdown', () => this.onWorldTap(def));
   }
 
+  /** The centrepiece: `map-nest-home`, a procedural glow that grows with the egg level, and the earned piece placeholders. */
   private addNest(arriving: string[]): void {
-    this.eggShownLevel = eggLevel(this.progress) - arriving.length;
-    this.setEgg(this.eggShownLevel);
+    const nest = eggArt(this, 'map-nest-home', NEST.x, NEST.y).setDepth(3);
+    nest.setInteractive({ useHandCursor: true });
+    nest.on('pointerdown', () => {
+      playEggSfx('sfx-robot-beep-2');
+      this.wiggle(nest, 6 + this.eggShownLevel * 2);
+    });
+    this.tweens.add({ targets: nest, angle: 1.2, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.nest = nest;
+    this.setGlow(eggLevel(this.progress) - arriving.length);
     for (const piece of earnedPieces(this.progress)) if (!arriving.includes(piece)) this.restPiece(piece);
   }
 
-  private setEgg(level: number, pop = false): void {
-    this.egg?.destroy();
-    const egg = eggArt(this, `egg-nest-${level}`, NEST.x, NEST.y).setDepth(10);
-    egg.setInteractive({ useHandCursor: true });
-    egg.on('pointerdown', () => {
-      playEggSfx('sfx-robot-beep-2');
-      this.wiggle(egg, 6 + level * 2);
-    });
-    this.tweens.add({ targets: egg, angle: 1.5 + level * 0.8, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    if (pop) this.tweens.add({ targets: egg, scale: { from: 1.18, to: 1 }, duration: 420, ease: 'Back.easeOut' });
-    this.egg = egg;
+  /** The egg-progress glow around the nest (level 0..5): more and bigger soft rings as the level rises. */
+  private setGlow(level: number, pop = false): void {
+    this.glow?.destroy();
+    const g = this.add.graphics();
+    for (let i = 0; i < level + 1 && level > 0; i++) {
+      g.fillStyle(0xfff2a8, 0.1 + level * 0.025);
+      g.fillCircle(0, -10, 120 + level * 16 + i * 26);
+    }
+    const glow = this.add.container(NEST.x, NEST.y, [g]).setDepth(2);
+    if (level > 0) this.tweens.add({ targets: glow, alpha: { from: 1, to: 0.6 }, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    if (pop) this.tweens.add({ targets: this.nest, scale: { from: 1.15, to: 1 }, duration: 420, ease: 'Back.easeOut' });
+    this.glow = glow;
     this.eggShownLevel = level;
+  }
+
+  /** A nest piece: the feather has art, the other pieces are drawn placeholders (no art id yet). */
+  private pieceView(piece: string, x: number, y: number): Phaser.GameObjects.Container {
+    const art = PIECE_ART[piece];
+    if (art) return eggArt(this, art, x, y);
+    const g = this.add.graphics();
+    drawPieceShape(g, piece, 120);
+    return this.add.container(x, y, [g]);
   }
 
   private restPiece(piece: string): void {
     const spot = PIECE_NEST_SPOTS[piece] ?? { x: NEST.x, y: NEST.y + 40, angle: 0 };
-    eggArt(this, pieceArtId(piece), spot.x, spot.y).setDepth(12).setAngle(spot.angle).setScale(0.7);
+    this.pieceView(piece, spot.x, spot.y).setDepth(4).setAngle(spot.angle).setScale(0.7);
     this.piecesInNest.add(piece);
   }
 
@@ -249,24 +264,17 @@ export class MysteryEggScene extends Phaser.Scene {
     }
   }
 
-  /** The friends stand by the nest; each has a positioned root and an idle-bobbing body. */
+  /** The friends stand by the nest: idle art at rest, the 4-frame walk strip while walking. */
   private addFriends(): void {
-    const track = this.context.currentAgeTrack();
-    const make = (id: FriendId): Friend => {
+    for (const id of MAP_FRIENDS) {
       const home = FRIEND_HOMES[id];
       const root = this.add.container(home.x, home.y).setDepth(14);
-      let body: Phaser.GameObjects.Container;
-      let scale = 1;
-      if (id === 'robot') {
-        this.robotView = createRobot(this, 0, 0);
-        body = this.robotView.container;
-        scale = 0.8;
-        this.robotView.startIdleBlinks();
-      } else {
-        body = eggArt(this, id, 0, 0);
-        scale = { bunny: 0.72, capybara: 0.62, frog: 0.8 }[id];
-      }
-      body.setScale(scale);
+      const idle = eggArt(this, `map-${id}-idle`, 0, 0);
+      const walkId = `map-${id}-walk`;
+      const spec = ensureSpriteAnim(this, walkId, -1);
+      const walkSprite = spec ? this.add.sprite(0, 0, walkId, '0').setDisplaySize(spec.w, spec.h).setVisible(false) : null;
+      const body = this.add.container(0, 0, walkSprite ? [idle, walkSprite] : [idle]);
+      body.setSize(idle.width, idle.height);
       root.add(body);
       floatIdle(this, body, 6, 1500 + Math.random() * 500);
       body.setInteractive({ useHandCursor: true });
@@ -274,9 +282,19 @@ export class MysteryEggScene extends Phaser.Scene {
         if (id === 'robot') playEggSfx('sfx-robot-beep-1');
         this.wiggle(body, 5);
       });
-      return { id, root, body, scale };
-    };
-    for (const id of friendsFor({ ageTrack: track })) this.friends.set(id, make(id));
+      this.friends.set(id, { id, root, body, idle, walkSprite, walking: false });
+    }
+  }
+
+  /** Swaps a friend between its idle art and its walk strip (the idle art keeps going while the strip is missing). */
+  private setWalking(f: Friend, on: boolean): void {
+    if (f.walking === on) return;
+    f.walking = on;
+    if (!f.walkSprite) return;
+    f.idle.setVisible(!on);
+    f.walkSprite.setVisible(on);
+    if (on) f.walkSprite.play(`map-${f.id}-walk`);
+    else f.walkSprite.stop().setFrame('0');
   }
 
   /** A short wiggle (angle) of the whole image, then back to rest. */
@@ -317,19 +335,13 @@ export class MysteryEggScene extends Phaser.Scene {
     else this.lockedFeedback(def);
   }
 
-  /** A closed world: a wiggle, floating z's, a sleepy sound and the robot's line. The child stays on the map. */
+  /** A closed world: a cute wiggle, floating z's and a soft pop. No voice line; the child stays on the map. */
   private lockedFeedback(def: WorldDef): void {
     this.lockedTaps++;
     const view = this.worldViews.get(def.id);
     if (view) this.wiggle(view.art, 4);
     this.floatZs(def);
-    playEggSfx('sfx-locked');
-    const entry = assetEntry(ROBOT_LINE_LOCKED);
-    if (entry.lang && entry.transcript) {
-      void this.context.audio.play({ lineId: ROBOT_LINE_LOCKED, lang: entry.lang, text: entry.transcript }).catch(() => false);
-      const robot = this.friends.get('robot');
-      if (robot) speechCue(this, robot.root.x - 70, robot.root.y - 150);
-    }
+    playEggSfx('sfx-pop');
   }
 
   private floatZs(def: WorldDef): void {
@@ -354,7 +366,6 @@ export class MysteryEggScene extends Phaser.Scene {
   private startWalk(def: WorldDef): void {
     this.phase = 'walking';
     this.walkingTo = def.id;
-    playEggSfx('sfx-walk');
     const routes = [...this.friends.values()].map((f) => friendRoute(FRIEND_HOMES[f.id], def.path));
     this.walk = { world: def, routes, elapsed: 0 };
   }
@@ -367,13 +378,13 @@ export class MysteryEggScene extends Phaser.Scene {
     [...this.friends.values()].forEach((f, i) => {
       const w = frame.friends[i];
       f.root.setPosition(w.x, w.y + w.bob);
-      // Face the walking direction (the art faces right) and tilt a little with the bob.
-      const left = Math.cos(w.angle) < -0.2;
-      f.body.setScale(left ? -f.scale : f.scale, f.scale);
-      f.root.setAngle(w.moving ? Math.sin(walk.elapsed / 90 + i) * 3 : 0);
+      this.setWalking(f, w.moving);
+      // Face the walking direction (the art faces right): flip while the current path segment goes left.
+      if (w.moving) f.body.setScale(Math.cos(w.angle) < -0.2 ? -1 : 1, 1);
     });
     if (frame.done || walk.elapsed > walkDurationMs(walk.routes, WALK) + 400) {
       this.walk = null;
+      for (const f of this.friends.values()) this.setWalking(f, false);
       this.arrive(walk.world);
     }
   }
@@ -403,7 +414,7 @@ export class MysteryEggScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- a piece flies into the nest
 
-  /** Back from a game: each newly earned piece flies from its world's door into the nest and the egg glows brighter. */
+  /** Back from a game: each newly earned piece flies from its world's door into the nest and the nest glow grows. */
   private async flyPieces(pieces: string[]): Promise<void> {
     this.phase = 'hub';
     for (const piece of pieces) {
@@ -411,7 +422,7 @@ export class MysteryEggScene extends Phaser.Scene {
       const world = WORLDS.find((w) => w.piece === piece);
       const from = world?.door ?? { x: NEST.x, y: NEST.y - 200 };
       const spot = PIECE_NEST_SPOTS[piece] ?? { x: NEST.x, y: NEST.y + 40, angle: 0 };
-      const flyer = eggArt(this, pieceArtId(piece), from.x, from.y).setDepth(50).setScale(1);
+      const flyer = this.pieceView(piece, from.x, from.y).setDepth(50).setScale(1);
       await new Promise<void>((resolve) => {
         this.tweens.add({
           targets: flyer,
@@ -428,7 +439,7 @@ export class MysteryEggScene extends Phaser.Scene {
       if (!this.alive) return;
       flyer.destroy();
       this.restPiece(piece);
-      this.setEgg(this.eggShownLevel + 1, true);
+      this.setGlow(this.eggShownLevel + 1, true);
       playEggSfx('sfx-robot-beep-3');
       this.pieceFlights.push(piece);
       await new Promise<void>((resolve) => this.time.delayedCall(450, () => resolve()));

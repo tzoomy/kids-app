@@ -3,9 +3,9 @@
 // (Phaser's audio loader is deliberately not used: its decode failure for a missing file is an unhandled rejection.)
 import { assetUrl } from './assets';
 import { eggAvailability } from './voiceProvider';
-import { synthBeep, synthBell, synthLocked, synthPop, synthRoll, synthSuccess, synthWalk } from './placeholderSfx';
+import { synthBeep, synthBell, synthPop, synthRoll, synthSuccess } from './placeholderSfx';
 
-export type EggSfx = 'sfx-robot-beep-1' | 'sfx-robot-beep-2' | 'sfx-robot-beep-3' | 'sfx-bell' | 'sfx-ball-roll' | 'sfx-success' | 'sfx-pop' | 'sfx-locked' | 'sfx-walk';
+export type EggSfx = 'sfx-robot-beep-1' | 'sfx-robot-beep-2' | 'sfx-robot-beep-3' | 'sfx-bell' | 'sfx-ball-roll' | 'sfx-success' | 'sfx-pop';
 
 const SYNTH: Record<EggSfx, () => void> = {
   'sfx-robot-beep-1': () => synthBeep(1),
@@ -15,8 +15,6 @@ const SYNTH: Record<EggSfx, () => void> = {
   'sfx-ball-roll': synthRoll,
   'sfx-success': synthSuccess,
   'sfx-pop': synthPop,
-  'sfx-locked': synthLocked,
-  'sfx-walk': synthWalk,
 };
 
 export function playEggSfx(id: EggSfx): void {

@@ -70,8 +70,8 @@ function catShape(g: G, awake: boolean, w: number, h: number): void {
 export function drawPlaceholder(g: G, id: string): void {
   const { w, h } = displaySize(id);
   const nest = /^egg-nest-(\d)$/.exec(id);
-  if (nest) {
-    const level = Number(nest[1]);
+  if (nest || id === 'map-nest-home') {
+    const level = nest ? Number(nest[1]) : 0;
     for (let i = 0; i < 4; i++) {
       g.fillStyle(0xfff2a8, (0.05 + level * 0.035) * (4 - i) / 2);
       g.fillCircle(0, -20, 90 + level * 14 + i * 24);
@@ -101,6 +101,7 @@ export function drawPlaceholder(g: G, id: string): void {
       g.fillEllipse(w * 0.34, h * 0.16, w * 0.6, 140);
       break;
     case 'bunny':
+    case 'map-bunny-idle':
       g.fillStyle(0xfdf3ee, 1);
       g.fillEllipse(-26, -h * 0.34, 44, 130);
       g.fillEllipse(26, -h * 0.34, 44, 130);
@@ -117,6 +118,7 @@ export function drawPlaceholder(g: G, id: string): void {
       g.fillRoundedRect(-w * 0.3, h * 0.1, w * 0.6, h * 0.3, 18); // overalls
       break;
     case 'robot':
+    case 'map-robot-idle':
       g.fillStyle(0xeae6f7, 1);
       g.fillRoundedRect(-w * 0.34, h * 0.0, w * 0.68, h * 0.42, 22);
       g.fillRoundedRect(-w * 0.42, -h * 0.4, w * 0.84, h * 0.4, 28);
@@ -135,6 +137,7 @@ export function drawPlaceholder(g: G, id: string): void {
       g.fillRoundedRect(-w * 0.2, h * 0.08, w * 0.4, h * 0.2, 10);
       break;
     case 'capybara':
+    case 'map-capybara-idle':
       g.fillStyle(0xb98a5b, 1);
       g.fillRoundedRect(-w * 0.42, -h * 0.05, w * 0.84, h * 0.5, 40);
       g.fillRoundedRect(w * 0.1, -h * 0.4, w * 0.36, h * 0.46, 30);
@@ -262,7 +265,8 @@ export function ensureSpriteFrames(scene: Phaser.Scene, id: string): SpriteSpec 
 }
 
 /** Frames plus a play-once animation (fps from the manifest). Null when the strip did not load or is not animated. */
-export function ensureSpriteAnim(scene: Phaser.Scene, id: string): (SpriteSpec & { fps: number }) | null {
+/** `repeat` -1 loops (the walk strips); the default plays once. A key is created once, so one id keeps one mode. */
+export function ensureSpriteAnim(scene: Phaser.Scene, id: string, repeat = 0): (SpriteSpec & { fps: number }) | null {
   if (!ensureSpriteFrames(scene, id)) return null;
   const spec = animatedSpriteSpec(id);
   if (!scene.anims.exists(id)) {
@@ -270,7 +274,7 @@ export function ensureSpriteAnim(scene: Phaser.Scene, id: string): (SpriteSpec &
       key: id,
       frames: Array.from({ length: spec.frames }, (_, i) => ({ key: id, frame: String(i) })),
       frameRate: spec.fps,
-      repeat: 0,
+      repeat,
     });
   }
   return spec;

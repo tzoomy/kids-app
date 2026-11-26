@@ -1,9 +1,9 @@
 // Game shell world table (docs/specs/game-shell.md): the five worlds of the Mystery Egg map, their cobblestone paths
 // from the nest, their robot-heart slots and nest pieces, and which friends walk with each child. Pure data, no Phaser.
-// World ids, names and placement are placeholders (docs/PENDING-DECISIONS.md, 2026-11-26).
+// World ids follow Gemini's media contract (game-shell/plan.md); names and placement are pending Maor (docs/PENDING-DECISIONS.md).
 import type { Point2 } from './layout';
 
-export type WorldId = 'workshop' | 'bakery' | 'owl-house' | 'jungle' | 'garden';
+export type WorldId = 'workshop' | 'bakery' | 'detective' | 'jungle' | 'garden';
 export type FriendId = 'bunny' | 'robot' | 'capybara' | 'frog';
 
 export interface WorldDef {
@@ -31,23 +31,25 @@ export interface WorldDef {
   gameScene?: 'MysteryEggBuildScene';
 }
 
-/** The nest (home): the first point of every path. */
-export const NEST: Point2 = { x: 640, y: 440 };
+/** The nest (home), the centre of the map (Gemini's layout anchor): the first point of every path. */
+export const NEST: Point2 = { x: 640, y: 420 };
 
-const ART = { w: 340, h: 280 } as const;
-const HIT = { w: 272, h: 224 } as const;
+const ART = { w: 320, h: 260 } as const;
+const HIT = { w: 256, h: 208 } as const;
 
 const mirror = (p: Point2): Point2 => ({ x: 1280 - p.x, y: p.y });
+const mirrored = (path: readonly Point2[]): Point2[] => path.map((p, i) => (i === 0 ? p : mirror(p)));
 
-const WORKSHOP_PATH: readonly Point2[] = [NEST, { x: 540, y: 430 }, { x: 440, y: 400 }, { x: 350, y: 372 }, { x: 270, y: 345 }];
-const JUNGLE_PATH: readonly Point2[] = [NEST, { x: 560, y: 490 }, { x: 470, y: 525 }, { x: 380, y: 525 }, { x: 300, y: 510 }];
+const WORKSHOP_PATH: readonly Point2[] = [NEST, { x: 560, y: 410 }, { x: 470, y: 380 }, { x: 370, y: 350 }, { x: 270, y: 320 }];
+const JUNGLE_PATH: readonly Point2[] = [NEST, { x: 560, y: 470 }, { x: 470, y: 520 }, { x: 370, y: 555 }, { x: 270, y: 570 }];
 
+/** Tile anchors (centres) are Gemini's table: workshop (220,230), bakery (640,180), detective (1060,230), jungle (220,650), garden (1060,650). */
 export const WORLDS: readonly WorldDef[] = [
-  { id: 'workshop', open: true, levels: 1, heartSlot: 0, piece: 'feather', x: 250, y: 235, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 270, y: 345 }, path: WORKSHOP_PATH, gameScene: 'MysteryEggBuildScene' },
-  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 140, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 640, y: 262 }, path: [NEST, { x: 560, y: 390 }, { x: 555, y: 320 }, { x: 600, y: 275 }, { x: 640, y: 262 }] },
-  { id: 'owl-house', open: false, levels: 3, heartSlot: 2, piece: 'pebble', x: 1030, y: 235, artW: ART.w, artH: ART.h, hit: HIT, door: mirror({ x: 270, y: 345 }), path: WORKSHOP_PATH.map((p, i) => (i === 0 ? p : mirror(p))) },
-  { id: 'jungle', open: false, levels: 3, heartSlot: 3, piece: 'leaf', x: 250, y: 590, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 300, y: 510 }, path: JUNGLE_PATH },
-  { id: 'garden', open: false, levels: 3, heartSlot: 4, piece: 'flower', x: 1030, y: 590, artW: ART.w, artH: ART.h, hit: HIT, door: mirror({ x: 300, y: 510 }), path: JUNGLE_PATH.map((p, i) => (i === 0 ? p : mirror(p))) },
+  { id: 'workshop', open: true, levels: 1, heartSlot: 0, piece: 'feather', x: 220, y: 230, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 270, y: 320 }, path: WORKSHOP_PATH, gameScene: 'MysteryEggBuildScene' },
+  { id: 'bakery', open: false, levels: 3, heartSlot: 1, piece: 'knit-square', x: 640, y: 180, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 640, y: 290 }, path: [NEST, { x: 565, y: 385 }, { x: 550, y: 335 }, { x: 585, y: 300 }, { x: 640, y: 290 }] },
+  { id: 'detective', open: false, levels: 3, heartSlot: 2, piece: 'pebble', x: 1060, y: 230, artW: ART.w, artH: ART.h, hit: HIT, door: mirror({ x: 270, y: 320 }), path: mirrored(WORKSHOP_PATH) },
+  { id: 'jungle', open: false, levels: 3, heartSlot: 3, piece: 'leaf', x: 220, y: 650, artW: ART.w, artH: ART.h, hit: HIT, door: { x: 270, y: 570 }, path: JUNGLE_PATH },
+  { id: 'garden', open: false, levels: 3, heartSlot: 4, piece: 'flower', x: 1060, y: 650, artW: ART.w, artH: ART.h, hit: HIT, door: mirror({ x: 270, y: 570 }), path: mirrored(JUNGLE_PATH) },
 ];
 
 export const WORLD_IDS: readonly WorldId[] = WORLDS.map((w) => w.id);
@@ -62,38 +64,30 @@ export function worldDef(id: WorldId): WorldDef {
   return def;
 }
 
-/** Art id of a world on the map: the open look, or the locked look for a closed world. */
+/** Art id of a world tile on the map: the open look for an open world, the closed look for the others. */
 export function worldArtId(def: Pick<WorldDef, 'id' | 'open'>): string {
-  return def.open ? `world-${def.id}` : `world-${def.id}-locked`;
+  return `map-world-${def.id}-${def.open ? 'open' : 'closed'}`;
 }
 
-/** Art id of a nest piece (`feather` is the prototype's own art). */
-export function pieceArtId(piece: string): string {
-  return piece === 'feather' ? 'feather' : `piece-${piece}`;
-}
+/** Nest piece placeholders: only the feather has art (`feather`, Mystery Egg); the other pieces are drawn shapes. */
+export const PIECE_ART: Readonly<Record<string, string | null>> = { feather: 'feather', 'knit-square': null, pebble: null, leaf: null, flower: null };
 
-/** Where each earned piece rests in the nest (board px, degrees). */
+/** Where each earned piece rests around the nest (board px, degrees). */
 export const PIECE_NEST_SPOTS: Readonly<Record<string, { x: number; y: number; angle: number }>> = {
-  feather: { x: 722, y: 470, angle: -35 },
-  'knit-square': { x: 568, y: 498, angle: 8 },
-  pebble: { x: 690, y: 522, angle: 0 },
-  leaf: { x: 556, y: 452, angle: -20 },
-  flower: { x: 730, y: 430, angle: 15 },
+  feather: { x: 740, y: 470, angle: -35 },
+  'knit-square': { x: 560, y: 490, angle: 8 },
+  pebble: { x: 690, y: 520, angle: 0 },
+  leaf: { x: 548, y: 440, angle: -20 },
+  flower: { x: 745, y: 410, angle: 15 },
 };
 
-export type AgeTrackLike = 'age2' | 'age5';
+/** The friends on the shared map, for every profile (the frog included; pending Maor decision). The bunny leads the walk. */
+export const MAP_FRIENDS: readonly FriendId[] = ['bunny', 'robot', 'capybara', 'frog'];
 
-/** Friends that walk with the child: bunny, robot, capybara, and the baby frog on the younger (age-2) profile. */
-export function friendsFor(profile: { ageTrack: AgeTrackLike }): FriendId[] {
-  const friends: FriendId[] = ['bunny', 'robot', 'capybara'];
-  if (profile.ageTrack === 'age2') friends.push('frog');
-  return friends;
-}
-
-/** Where each friend stands by the nest (board px). The bunny leads the walk. */
+/** Where each friend stands by the nest (board px). */
 export const FRIEND_HOMES: Readonly<Record<FriendId, Point2>> = {
-  bunny: { x: 490, y: 585 },
-  robot: { x: 578, y: 628 },
-  capybara: { x: 800, y: 590 },
-  frog: { x: 705, y: 632 },
+  bunny: { x: 480, y: 540 },
+  robot: { x: 570, y: 590 },
+  capybara: { x: 800, y: 545 },
+  frog: { x: 710, y: 600 },
 };

@@ -11,20 +11,23 @@ export interface SlideDef {
   lines: readonly string[];
 }
 
-/** The intro: 4 slides from the film scenes 1 (egg found), 2 (the robot's empty heart), 4 (the map), 5 (the goal). */
-export const INTRO_SLIDES: readonly SlideDef[] = [1, 2, 3, 4].map((n) => ({
-  id: `intro-${n}`,
-  image: `slide-intro-${n}`,
-  lines: [`vo-fr-intro-${n}`, `vo-he-intro-${n}`],
-}));
+/**
+ * The intro: 4 beats (Gemini's contract): 1 the egg is found, 2 the robot's five empty hearts, 3 the friends promise to
+ * help and build a nest, 4 the map and the goal. Clips per slide: the French hero line first, then a Hebrew line.
+ */
+export const INTRO_SLIDES: readonly SlideDef[] = [
+  { id: 'intro-1', image: 'shell-intro-1', lines: ['vo-shell-intro-1-hero', 'vo-shell-intro-1-narr'] },
+  { id: 'intro-2', image: 'shell-intro-2', lines: ['vo-shell-intro-2-hero', 'vo-shell-intro-2-robot'] },
+  { id: 'intro-3', image: 'shell-intro-3', lines: ['vo-shell-intro-3-hero', 'vo-shell-intro-3-robot'] },
+  { id: 'intro-4', image: 'shell-intro-4', lines: ['vo-shell-intro-4-hero', 'vo-shell-intro-4-narr'] },
+];
 
-/** World entry slides, shown on the first arrival per profile. Only the Workshop is open: its scenes 1 and 4. */
+/** World entry slides, shown on the first arrival per profile. Only the Workshop is open: 2 slides. */
 export const ENTRY_SLIDES: Partial<Record<WorldId, readonly SlideDef[]>> = {
-  workshop: [1, 2].map((n) => ({
-    id: `workshop-${n}`,
-    image: `slide-workshop-${n}`,
-    lines: [`vo-fr-workshop-entry-${n}`, `vo-he-workshop-entry-${n}`],
-  })),
+  workshop: [
+    { id: 'workshop-1', image: 'shell-ws-1', lines: ['vo-shell-ws-1-hero', 'vo-shell-ws-1-narr'] },
+    { id: 'workshop-2', image: 'shell-ws-2', lines: ['vo-shell-ws-2-robot'] },
+  ],
 };
 
 export function entrySlides(world: WorldId): readonly SlideDef[] {
@@ -80,5 +83,49 @@ export class SlidePlayer {
     if (this.status !== 'playing') return { outcome: 'ignored', finished: true };
     this.status = 'skipped';
     return { outcome: 'skipped', finished: true };
+  }
+}
+
+/** Pause between the French hero clip and the Hebrew clip of a two-clip slide. */
+export const SLIDE_LINE_GAP_MS = 400;
+
+export interface SlideVoiceDeps {
+  /** Plays one clip; resolves when it ends (or is cut). */
+  play(lineId: string): Promise<unknown>;
+  /** Runs `fn` after `ms`; returns a cancel function. */
+  schedule(fn: () => void, ms: number): () => void;
+}
+
+/**
+ * Plays one slide's clips in order with a short gap, and can be stopped at any moment: a stop (or a newer `start`)
+ * also cancels a pending second clip, so a late callback of an old slide never plays. Pure logic over injected
+ * `play` and `schedule`.
+ */
+export class SlideVoice {
+  private token = 0;
+  private cancelGap: (() => void) | null = null;
+
+  constructor(private readonly deps: SlideVoiceDeps) {}
+
+  start(lines: readonly string[]): void {
+    this.stop();
+    this.playFrom(lines, 0, this.token);
+  }
+
+  stop(): void {
+    this.token++;
+    this.cancelGap?.();
+    this.cancelGap = null;
+  }
+
+  private playFrom(lines: readonly string[], i: number, token: number): void {
+    if (token !== this.token || i >= lines.length) return;
+    void this.deps.play(lines[i]).then(() => {
+      if (token !== this.token || i + 1 >= lines.length) return;
+      this.cancelGap = this.deps.schedule(() => {
+        this.cancelGap = null;
+        this.playFrom(lines, i + 1, token);
+      }, SLIDE_LINE_GAP_MS);
+    });
   }
 }

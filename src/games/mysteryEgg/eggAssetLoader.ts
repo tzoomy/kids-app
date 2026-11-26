@@ -10,16 +10,16 @@ const LOAD_TIMEOUT_MS = 4000;
 
 const SHELL = new Set<string>(GAME_SHELL_ASSET_IDS);
 
-/** Art the map needs: the prototype's art and the shell's map, worlds, pieces and frog (slide images load on demand). */
+/** Art the map needs: the prototype's art and the shell's map, tiles and friends (the `shell-*` slide images load on demand). */
 export function mapArtIds(): string[] {
   return Object.entries(mysteryEggManifest())
-    .filter(([id, e]) => e.kind !== 'vo' && e.kind !== 'sfx' && !id.startsWith('slide-'))
+    .filter(([id, e]) => e.kind !== 'vo' && e.kind !== 'sfx' && !id.startsWith('shell-'))
     .map(([id]) => id);
 }
 
 /**
  * Queues art of the manifest (not the audio). By default only the prototype's art is queued (the Workshop game never
- * needs the shell's map, worlds or slides); with `ids`, exactly those art ids are queued (the map and the slide player).
+ * needs the shell's map, tiles or slides); with `ids`, exactly those art ids are queued (the map and the slide player).
  */
 export function loadEggAssets(scene: Phaser.Scene, base: string, done: () => void, ids?: readonly string[]): void {
   let queued = 0;
