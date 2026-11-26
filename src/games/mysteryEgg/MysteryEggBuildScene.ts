@@ -7,7 +7,7 @@ import type { AppContext } from '../../game/appContext';
 import { setAppScreen } from '../../pwa';
 import { transitionTo } from '../../anim/transitions';
 import { floatIdle } from '../../anim/tweens';
-import { assetEntry, displaySize } from './assets';
+import { displaySize } from './assets';
 import { createRobot, ensureSpriteAnim, ensureSpriteFrames, eggArt, playSpriteOnce, panel, type RobotView } from './art';
 import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
@@ -19,6 +19,7 @@ import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordR
 import { resolveDrop, type PartKind } from './snap';
 import type { EggPhase, EggTarget, MysteryEggInfo } from './types';
 import { IntroVoice, type VoiceAction } from './introVoice';
+import { eggSpeechRequest, voicePlayMode } from './speech';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, goalCard, makeButton, speechCue, type EggButton } from './ui';
 
 const MISSION_ID = '1.1';
@@ -313,15 +314,23 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- voice and help
 
-  /** Requests a manifest voice line (file if it exists, otherwise a chime) and shows a speech cue by the speaker. */
+  /**
+   * Requests a manifest voice line (file if it exists, otherwise a chime) at the in-game rate and shows a speech cue by the
+   * speaker. A line interrupts the current clip, except the success line, which queues behind the cat's line (speech.ts).
+   */
   private speak(lineId: string): Promise<boolean> {
-    const entry = assetEntry(lineId);
-    if (entry.kind !== 'vo' || !entry.lang || !entry.transcript) return Promise.resolve(false);
+    const request = eggSpeechRequest(lineId, 'game');
+    if (!request) return Promise.resolve(false);
     // Any voice other than the intro's own French lines takes the floor: the story must not chain the request after it.
     if (lineId !== 'vo-fr-story' && lineId !== 'vo-fr-instruction') this.introVoice.otherVoice();
-    const done = this.context.audio.play({ lineId, lang: entry.lang, text: entry.transcript }).catch(() => false);
-    if (entry.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 90, this.robotView.y - 190);
-    else speechCue(this, this.catView.x - 210, this.catView.y - 110);
+    const cue = (): void => {
+      if (!this.alive) return;
+      if (request.lang === 'he' || lineId.startsWith('vo-fr-robot')) speechCue(this, this.robotView.x - 90, this.robotView.y - 190);
+      else speechCue(this, this.catView.x - 210, this.catView.y - 110);
+    };
+    if (voicePlayMode(lineId) === 'queue') return this.context.audio.playQueued(request, cue).catch(() => false);
+    const done = this.context.audio.play(request).catch(() => false);
+    cue();
     return done;
   }
 

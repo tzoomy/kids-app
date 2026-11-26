@@ -102,6 +102,22 @@ describe('mystery-egg single voice (AudioManager queue)', () => {
     expect(t.maxActive).toBe(1);
   });
 
+  it('[AC-21] a queued clip reports its start only when it really starts, and never if it is dropped', async () => {
+    const t = controlled();
+    const started: string[] = [];
+    void t.manager.play(req('a'));
+    void t.manager.playQueued(req('b'), () => started.push('b'));
+    void t.manager.playQueued(req('c'), () => started.push('c'));
+    await flush();
+    expect(started).toEqual([]);
+    t.finish();
+    await flush();
+    expect(started).toEqual(['b']);
+    t.manager.stopAll();
+    await flush();
+    expect(started).toEqual(['b']);
+  });
+
   it('[AC-21] a queued clip with nothing playing starts at once, and queues behind a plain play too', async () => {
     const t = controlled();
     void t.manager.playQueued(req('a'));
