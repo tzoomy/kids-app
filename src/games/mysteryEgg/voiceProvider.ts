@@ -40,6 +40,7 @@ export class MysteryEggVoiceProvider implements AudioProvider {
   private readonly timeoutMs: number;
   private current: VoiceAudio | null = null;
   private settleCurrent: (() => void) | null = null;
+  private lastSource: 'clip' | 'chime' = 'clip';
 
   constructor(
     private readonly baseUrl: string,
@@ -59,6 +60,11 @@ export class MysteryEggVoiceProvider implements AudioProvider {
     // Nothing to warm: clips are tiny and created on demand.
   }
 
+  /** What the last `play()` produced: the recorded file or the missing-file chime (the speech spy logs it). */
+  playedSource(): 'clip' | 'chime' {
+    return this.lastSource;
+  }
+
   stop(): void {
     const settle = this.settleCurrent;
     // Mute as well as pause: a pause that lands late on a device must never be heard under the next line.
@@ -72,7 +78,9 @@ export class MysteryEggVoiceProvider implements AudioProvider {
   play(request: SpeechRequest): Promise<boolean> {
     if (!this.voiceIds.has(request.lineId)) return Promise.resolve(false);
     this.stop();
+    this.lastSource = 'clip';
     if (this.availability.isMissing(request.lineId)) {
+      this.lastSource = 'chime';
       this.chime();
       return Promise.resolve(true);
     }
@@ -98,6 +106,7 @@ export class MysteryEggVoiceProvider implements AudioProvider {
       const missing = (): void => {
         if (settled) return;
         this.availability.markMissing(request.lineId);
+        this.lastSource = 'chime';
         this.chime();
         finish();
       };

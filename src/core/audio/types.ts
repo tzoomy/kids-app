@@ -14,6 +14,11 @@ export interface AudioProvider {
   isAvailable(): boolean;
   /** Resolves true if audio actually played, false if this provider could not handle it. */
   play(request: SpeechRequest): Promise<boolean>;
+  /**
+   * What the last `play()` really produced, for providers that can fall back to a placeholder: 'clip' = the recorded file,
+   * 'chime' = the missing-file chime. Providers that never fall back leave it out.
+   */
+  playedSource?(): 'clip' | 'chime';
   /** Call after the first user gesture to reduce first-sound latency. */
   warmup(): void;
   stop(): void;

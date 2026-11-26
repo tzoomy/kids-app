@@ -74,7 +74,11 @@ export class AudioManager {
       if (!provider.isAvailable()) continue;
       this.observer?.onAttempt(request, provider.id);
       const played = await provider.play(request);
-      if (played) return true;
+      if (played) {
+        const source = provider.playedSource?.();
+        if (source) this.observer?.onOutcome?.(request, provider.id, source);
+        return true;
+      }
     }
     return false;
   }
