@@ -464,7 +464,7 @@ test.describe('game-shell', () => {
     expect(v2.map?.readyToHatch).toBe(false);
   });
 
-  test('[AC-26] @single-orientation an old v2 save with introSeen true (the first shell release) sees the intro once, keeps its progress, and never sees it again', async ({ page }, testInfo) => {
+  test('[AC-26] [AC-27] @single-orientation an old v2 save with introSeen true (the first shell release) sees the intro once, keeps its progress, and never sees it again', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(90_000);
     await enterMapByTap(page, 'profile-a');
@@ -480,6 +480,8 @@ test.describe('game-shell', () => {
     expect(first.map?.slide).toMatchObject({ kind: 'intro', index: 0, count: 4 });
     expect(first.map?.introSeen).toBe(false);
     expect(first.map?.introSeenVersion).toBe(0);
+    // Slide voice-over stays at the recorded speed (the in-game lines run at 1.2x).
+    await expect.poll(async () => (await getSpokenLines(page)).map((s) => [s.lineId, s.rate]), { timeout: 5000 }).toContainEqual(['vo-shell-intro-1-hero', 1]);
     await tap(page, 'skipBtn');
     const map = await waitInfo(page, (i) => i.phase === 'map', 'the map never opened after the intro');
     expect(map.map?.introSeen).toBe(true);
