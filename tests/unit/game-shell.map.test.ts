@@ -1,7 +1,7 @@
 // Game shell map rules (docs/specs/game-shell.md): the map-phase tap guard and the non-stacking wiggle. Pure modules only.
 import { describe, expect, it } from 'vitest';
-import { WiggleGuard, worldTapAllowed } from '../../src/games/mysteryEgg/mapRules';
-import { backButtonPlacement, BACK_BUTTON_CSS_PX } from '../../src/games/mysteryEgg/backButton';
+import { WiggleGuard, mapTapAllowed, worldTapAllowed } from '../../src/games/mysteryEgg/mapRules';
+import { backButtonPlacement, backButtonPlacementForView, BACK_BUTTON_CSS_PX } from '../../src/games/mysteryEgg/backButton';
 import { facingFor, friendRoute, polylineLength, pointAtDistance } from '../../src/games/mysteryEgg/walk';
 import { FRIEND_HOMES, MAP_FRIENDS, WORLDS } from '../../src/games/mysteryEgg/worlds';
 import type { EggPhase } from '../../src/games/mysteryEgg/types';
@@ -14,6 +14,16 @@ describe('game-shell map tap guard', () => {
     }
     expect(worldTapAllowed({ alive: false, ready: true, phase: 'map' })).toBe(false);
     expect(worldTapAllowed({ alive: true, ready: false, phase: 'map' })).toBe(false);
+  });
+
+  it('[AC-30] friend, nest and world taps share one guard: all of them count only on a live, ready map in phase `map`', () => {
+    const phases: EggPhase[] = ['hub', 'intro', 'map', 'walking', 'entry', 'build', 'success'];
+    for (const phase of phases) {
+      expect(mapTapAllowed({ alive: true, ready: true, phase }), phase).toBe(phase === 'map');
+      expect(mapTapAllowed({ alive: true, ready: true, phase }), phase).toBe(worldTapAllowed({ alive: true, ready: true, phase }));
+    }
+    expect(mapTapAllowed({ alive: false, ready: true, phase: 'map' })).toBe(false);
+    expect(mapTapAllowed({ alive: true, ready: false, phase: 'map' })).toBe(false);
   });
 });
 
@@ -136,5 +146,44 @@ describe('game-shell back button', () => {
     const c = css(800, 1280);
     expect(c.b.size).toBeCloseTo(96 / 0.625, 5);
     expect(c.size).toBeCloseTo(96, 5);
+  });
+});
+
+describe('game-shell back button on rotate', () => {
+  /** The button in page CSS px for a canvas of `gw x gh` game px shown `cssW` CSS px wide (FIT: the same aspect ratio). */
+  const shown = (gw: number, gh: number, cssW: number) => {
+    const b = backButtonPlacementForView({ gameWidth: gw, gameHeight: gh, canvasCssWidth: cssW });
+    const zoom = Math.min(gw / 1280, gh / 800);
+    const k = zoom * (cssW / gw); // CSS px per board px
+    const left = 640 - gw / (2 * zoom);
+    const top = 400 - gh / (2 * zoom);
+    return { b, size: b.size * k, x: (b.x - b.size / 2 - left) * k, y: (b.y - b.size / 2 - top) * k, canvasH: (cssW / gw) * gh };
+  };
+
+  it('[AC-28] a landscape game (1280x800) rotated into an 800x1280 window is drawn 800 CSS px wide: the button must be re-placed to stay 96 CSS px and in the corner', () => {
+    const rotated = shown(1280, 800, 800);
+    expect(rotated.size).toBeCloseTo(96, 3);
+    expect(rotated.x).toBeGreaterThanOrEqual(16);
+    expect(rotated.y).toBeGreaterThanOrEqual(16);
+    // The creation-time placement of the landscape view (what the scene used to keep) would be 60 CSS px here.
+    const stale = backButtonPlacement({ gameWidth: 1280, gameHeight: 800, zoom: 1, cssPerGamePx: 1 });
+    expect(stale.size * (800 / 1280)).toBeLessThan(96 - 30);
+  });
+
+  it('[AC-28] a portrait game (800x1280) rotated into a 1280x800 window is drawn 500 CSS px wide: 96 CSS px, inside the canvas corner', () => {
+    const rotated = shown(800, 1280, 500);
+    expect(rotated.size).toBeCloseTo(96, 3);
+    expect(rotated.x).toBeGreaterThanOrEqual(16);
+    expect(rotated.y).toBeGreaterThanOrEqual(16);
+    expect(rotated.x + rotated.size).toBeLessThanOrEqual(500);
+    expect(rotated.y + rotated.size).toBeLessThanOrEqual(800);
+  });
+
+  it('[AC-28] the view-based placement equals the explicit one for the unrotated views, and an unmeasured canvas (width 0) falls back to 1 CSS px per game px', () => {
+    expect(backButtonPlacementForView({ gameWidth: 1280, gameHeight: 800, canvasCssWidth: 1280 })).toEqual({ x: 70, y: 70, size: 96 });
+    expect(backButtonPlacementForView({ gameWidth: 800, gameHeight: 1280, canvasCssWidth: 800 })).toEqual(
+      backButtonPlacement({ gameWidth: 800, gameHeight: 1280, zoom: 0.625, cssPerGamePx: 1 }),
+    );
+    expect(backButtonPlacementForView({ gameWidth: 1280, gameHeight: 800, canvasCssWidth: 0 })).toEqual({ x: 70, y: 70, size: 96 });
   });
 });
