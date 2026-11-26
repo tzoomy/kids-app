@@ -84,6 +84,24 @@ describe('game-shell wiggle guard', () => {
     guard.start(b, run);
     expect(tweens.map((t) => t.stopped)).toEqual([false, false]);
   });
+
+  it('[AC-19] `size` counts the running wiggles (the e2e read hook\'s `wiggling`): one per target however often it restarts, 0 after finish and clear', () => {
+    const a = { angle: 0 };
+    const b = { angle: 0 };
+    const guard = new WiggleGuard<{ angle: number }>((t) => { t.angle = 0; });
+    const run = (): FakeTween => ({ stopped: false, stop() { this.stopped = true; } });
+    expect(guard.size).toBe(0);
+    guard.start(a, run);
+    guard.start(a, run);
+    guard.start(a, run);
+    expect(guard.size).toBe(1);
+    guard.start(b, run);
+    expect(guard.size).toBe(2);
+    guard.finish(a);
+    expect(guard.size).toBe(1);
+    guard.clear();
+    expect(guard.size).toBe(0);
+  });
 });
 
 describe('game-shell friend facing', () => {
