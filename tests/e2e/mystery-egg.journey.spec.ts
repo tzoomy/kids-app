@@ -404,3 +404,59 @@ test.describe('mystery-egg', () => {
     expect(await getActiveScenes(page)).toContain('MapScene');
   });
 });
+
+test.describe('mystery-egg success Continue timing', () => {
+  test('[AC-26] @single-orientation Continue is not there while the Bravo line plays and appears right after it ends', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(150_000);
+    // Passive spy on the real audio elements: when the Bravo clip starts and ends.
+    await page.addInitScript(() => {
+      const clips: { src: string; start: number; end: number | null }[] = [];
+      (window as unknown as { __bravo: typeof clips }).__bravo = clips;
+      const play = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+        const src = (this.currentSrc || this.src || '').split('/').pop() ?? '';
+        if (src.startsWith('vo-fr-success')) {
+          const rec = { src, start: performance.now(), end: null as number | null };
+          clips.push(rec);
+          const done = () => {
+            if (rec.end === null) rec.end = performance.now();
+          };
+          this.addEventListener('ended', done);
+          this.addEventListener('pause', done);
+        }
+        // eslint-disable-next-line prefer-rest-params
+        return play.apply(this, arguments as unknown as []);
+      };
+    });
+    const bravo = () => page.evaluate(() => (window as unknown as { __bravo: { start: number; end: number | null }[] }).__bravo[0] ?? null);
+    await reachBuild(page);
+    await playToSuccess(page);
+    await expect.poll(bravo, { timeout: 30_000, message: 'the Bravo clip never started' }).not.toBeNull();
+    // While the line plays there is no Continue button to skip it.
+    expect((await info(page))?.rects.continueBtn).toBeUndefined();
+    await page.waitForTimeout(1000);
+    expect((await bravo())?.end).toBeNull();
+    expect((await info(page))?.rects.continueBtn).toBeUndefined();
+    // It ends, and Continue follows within moments (margin 250 ms, 3 s of slack for polling).
+    await expect.poll(async () => (await bravo())?.end ?? null, { timeout: 15_000, message: 'the Bravo clip never ended' }).not.toBeNull();
+    await waitInfo(page, (i) => Boolean(i.rects.continueBtn), 'Continue never appeared after the Bravo line', 3_000);
+  });
+
+  test.describe('without the voice files', () => {
+    // The service worker would serve the cached clips: block it so the 404 below is what the page sees.
+    test.use({ serviceWorkers: 'block' });
+
+    test('[AC-26] [AC-25] @single-orientation a missing Bravo file chimes (spy source "chime") and Continue still appears quickly, long before the 8 s cap', async ({ page }, testInfo) => {
+      skipIfNotLandscape(testInfo);
+      test.setTimeout(150_000);
+      await page.route('**/audio/mystery-egg/vo-*.ogg', (route) => route.fulfill({ status: 404, body: '' }));
+      await reachBuild(page);
+      await playToSuccess(page);
+      // The panel shows ~3.3 s after the win and the placeholder path adds 0.7 s: well under the 8 s cap.
+      await waitInfo(page, (i) => Boolean(i.rects.continueBtn), 'Continue never appeared with the voice files missing', 7_000);
+      const bravo = (await getSpokenLines(page)).find((l) => l.lineId === 'vo-fr-success');
+      expect(bravo?.source).toBe('chime');
+    });
+  });
+});
