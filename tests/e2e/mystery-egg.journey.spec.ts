@@ -147,9 +147,10 @@ test.describe('mystery-egg', () => {
     const afterWin = await waitInfo(page, (i) => i.featherInNest && Boolean(i.rects.continueBtn), 'the success view never finished');
     expect(afterWin.heartsLit).toEqual([0]);
     expect(afterWin.eggLevel).toBe(1);
-    const ids = (await getSpokenLines(page)).map((s) => s.lineId);
-    expect(ids).toContain('vo-fr-cat-croissants');
-    expect(ids).toContain('vo-fr-success');
+    // The success line queues behind the cat line (AC-21), so it is requested once the cat line has played out.
+    await expect
+      .poll(async () => (await getSpokenLines(page)).map((s) => s.lineId), { timeout: 20_000 })
+      .toEqual(expect.arrayContaining(['vo-fr-cat-croissants', 'vo-fr-success']));
 
     // Back to the hub: 1 lit heart, the brighter egg, the feather in the nest.
     await tap(page, 'continueBtn');
@@ -170,6 +171,57 @@ test.describe('mystery-egg', () => {
     await tap(page, 'backBtn');
     await waitForScene(page, 'MapScene');
     expect(await getBuildingHit(page, 'language-house')).not.toBeNull();
+  });
+
+  test('[AC-21] [AC-23] @single-orientation the cat wakes: the cat line and the success line never play at once (the success line waits for the cat line to end), and in-game lines are requested at 1.2x', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(150_000);
+    // Passive spy on the real audio elements: every voice clip's start and how it ended ('ended' = played out, 'cut' = stopped early).
+    await page.addInitScript(() => {
+      const clips: { src: string; start: number; end: number | null; how: string }[] = [];
+      (window as unknown as { __voiceClips: typeof clips }).__voiceClips = clips;
+      const play = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+        const src = (this.currentSrc || this.src || '').split('/').pop() ?? '';
+        if (src.startsWith('vo-')) {
+          const rec = { src, start: performance.now(), end: null as number | null, how: '' };
+          clips.push(rec);
+          const done = (how: string) => () => {
+            if (rec.end === null) Object.assign(rec, { end: performance.now(), how });
+          };
+          // A clip that plays out fires `pause` and then `ended`; a cut one fires `pause` while still before its end.
+          this.addEventListener('ended', done('ended'));
+          this.addEventListener('pause', (e) => done((e.target as HTMLMediaElement).ended ? 'ended' : 'cut')());
+        }
+        // eslint-disable-next-line prefer-rest-params
+        return play.apply(this, arguments as unknown as []);
+      };
+    });
+    await reachBuild(page);
+    await playToSuccess(page);
+    await expect
+      .poll(async () => (await getSpokenLines(page)).map((s) => s.lineId), { timeout: 30_000 })
+      .toEqual(expect.arrayContaining(['vo-fr-cat-croissants', 'vo-fr-success']));
+    const lines = await getSpokenLines(page);
+    const cat = lines.find((s) => s.lineId === 'vo-fr-cat-croissants');
+    const success = lines.find((s) => s.lineId === 'vo-fr-success');
+    expect(cat && success && cat.index < success.index).toBe(true);
+    // In-game speech is requested at 1.2x.
+    for (const l of lines.filter((x) => !x.lineId.startsWith('vo-shell-'))) expect(l.rate, l.lineId).toBe(1.2);
+    // The clips themselves: let the success line finish, then no two voice clips overlapped and the cat clip was not cut.
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __voiceClips: { src: string; end: number | null }[] }).__voiceClips.find((c) => c.src.startsWith('vo-fr-success'))?.end ?? null), { timeout: 30_000 })
+      .not.toBeNull();
+    const clips = await page.evaluate(() => (window as unknown as { __voiceClips: { src: string; start: number; end: number | null; how: string }[] }).__voiceClips);
+    // (A cut clip's `pause` event is dispatched a few tens of ms after the next clip's play(): 250 ms of slack, far below any real overlap.)
+    for (let a = 0; a < clips.length; a++) {
+      for (let b = a + 1; b < clips.length; b++) {
+        const overlap = Math.min(clips[a].end ?? Infinity, clips[b].end ?? Infinity) - Math.max(clips[a].start, clips[b].start);
+        expect(overlap, `${clips[a].src} and ${clips[b].src} overlap`).toBeLessThanOrEqual(250);
+      }
+    }
+    const catClip = clips.find((c) => c.src.startsWith('vo-fr-cat-croissants'));
+    expect(catClip?.how).toBe('ended');
   });
 
   test('[AC-10] @single-orientation a failed run resets the ball and touches no part; the help ladder: 2nd failed run = Hebrew goal hint (help-1), next failed run = glowing-slot hint (help-2) with the slot pointer, which goes away once the ramp is placed', async ({ page }, testInfo) => {

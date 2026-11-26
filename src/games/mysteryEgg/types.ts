@@ -65,7 +65,10 @@ export interface MapInfo {
   /** Current rotation (degrees) of each world's tile art: 0 at rest, never accumulates over repeated taps. */
   worldAngles: Record<WorldId, number>;
   slide: SlideInfo | null;
+  /** The current intro was seen (`introSeenVersion >= INTRO_VERSION`). */
   introSeen: boolean;
+  /** The intro version last seen (0 = never). */
+  introSeenVersion: number;
   entrySeen: WorldId[];
   walkingTo: WorldId | null;
   /** Taps on a locked world so far in this scene. */

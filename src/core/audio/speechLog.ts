@@ -15,6 +15,8 @@ export interface SpokenLine {
   /** 'clip' = recorded static file, 'tts' = device speech synthesis fallback. */
   source: 'clip' | 'tts';
   text?: string;
+  /** The requested playback rate (1 = recorded speed); undefined when the caller did not ask for one. */
+  rate?: number;
   /** Timestamp (ms, from the injected clock) when the line was requested. */
   at: number;
 }
@@ -36,6 +38,7 @@ export class SpeechRecorder implements SpeechObserver {
       lang: request.lang,
       source: 'tts',
       text: request.text,
+      rate: request.rate,
       at: this.clock(),
     };
     this.lines.push(line);

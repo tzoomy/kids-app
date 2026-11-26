@@ -3,6 +3,8 @@
 // Landscape tablet first: every test is @single-orientation and runs in the landscape project only.
 import { test, expect, type Page } from '@playwright/test';
 import type { MysteryEggInfo } from '../../src/games/mysteryEgg/types';
+import { ENTRY_SLIDES, INTRO_SLIDES } from '../../src/games/mysteryEgg/slides';
+import { slideSeconds, slideWaitMs } from './helpers/slideTimings';
 import { enterMapByTap, getActiveScenes, getBuildingHit, getSpokenLines, tapTestId, waitForScene } from './helpers/journey';
 
 const LANDSCAPE = 'landscape-1280x800';
@@ -369,7 +371,8 @@ test.describe('game-shell', () => {
     expect(first.rects.slideTap).toBeDefined();
 
     // Slide 1: French hero line, then the Hebrew robot line.
-    await expect.poll(() => spoken(page), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-intro-1-hero', 'fr'], ['vo-shell-intro-1-narr', 'he']]));
+    // (Waits are sized from the real 1.0x clip durations: tests/e2e/helpers/slideTimings.ts.)
+    await expect.poll(() => spoken(page), { timeout: slideWaitMs(INTRO_SLIDES[0].lines) }).toEqual(expect.arrayContaining([['vo-shell-intro-1-hero', 'fr'], ['vo-shell-intro-1-narr', 'he']]));
     const ids = (await spoken(page)).map(([id]) => id);
     expect(ids.indexOf('vo-shell-intro-1-hero')).toBeLessThan(ids.indexOf('vo-shell-intro-1-narr'));
 
@@ -378,7 +381,7 @@ test.describe('game-shell', () => {
     await tap(page, 'slideTap');
     const second = await waitInfo(page, (i) => i.map?.slide?.index === 1, 'the tap did not advance');
     expect(second.phase).toBe('intro');
-    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-intro-2-hero', 'fr'], ['vo-shell-intro-2-robot', 'he']]));
+    await expect.poll(() => spoken(page, since), { timeout: slideWaitMs(INTRO_SLIDES[1].lines) }).toEqual(expect.arrayContaining([['vo-shell-intro-2-hero', 'fr'], ['vo-shell-intro-2-robot', 'he']]));
 
     // Skip: the whole intro is over, the map is up and the intro counts as seen.
     await tap(page, 'skipBtn');
@@ -400,6 +403,34 @@ test.describe('game-shell', () => {
     await waitInfo(page, (i) => i.phase === 'map', 'four taps did not end the intro');
   });
 
+  test('[AC-10] [AC-27] @single-orientation the longest intro slide (4) plays both clips through at 1.0x with no auto-advance, and only a tap ends the intro', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(120_000);
+    const lines = INTRO_SLIDES[3].lines;
+    await enterMapByTap(page, 'profile-a');
+    const first = await openShellByTap(page);
+    expect(first.phase).toBe('intro');
+    let since = 0;
+    for (let n = 0; n < 3; n++) {
+      await waitInfo(page, (i) => i.map?.slide?.index === n, `slide ${n + 1} never showed`);
+      // The count just before the tap that opens slide 4 (its hero line is requested the moment it shows).
+      since = (await getSpokenLines(page)).length;
+      await tap(page, 'slideTap');
+    }
+    await waitInfo(page, (i) => i.map?.slide?.index === 3, 'slide 4 never showed');
+    const arrived = Date.now();
+    // Hero (3.61 s) then the narrator (6.91 s) after the 400 ms gap: both are requested, hero first, at the slide rate.
+    await expect.poll(() => spoken(page, since), { timeout: slideWaitMs(lines) }).toEqual([['vo-shell-intro-4-hero', 'fr'], ['vo-shell-intro-4-narr', 'he']]);
+    expect((await getSpokenLines(page, since)).map((l) => l.rate)).toEqual([1, 1]);
+    // Let both clips play out (11 s with real files; a chime stands in without them): the slide is still there, nothing advanced.
+    await page.waitForTimeout(Math.max(0, slideSeconds(lines) * 1000 + 1500 - (Date.now() - arrived)));
+    const still = await info(page);
+    expect(still?.phase).toBe('intro');
+    expect(still?.map?.slide).toMatchObject({ kind: 'intro', index: 3, count: 4 });
+    await tap(page, 'slideTap');
+    await waitInfo(page, (i) => i.phase === 'map', 'the last tap did not end the intro');
+  });
+
   test('[AC-11] @single-orientation the Workshop entry: 2 slides on the first arrival, skippable, and later arrivals go straight into the game', async ({ page }, testInfo) => {
     skipIfNotLandscape(testInfo);
     test.setTimeout(120_000);
@@ -410,7 +441,7 @@ test.describe('game-shell', () => {
     await tap(page, 'world-workshop');
     const entry = await waitInfo(page, (i) => i.phase === 'entry', 'the entry slides never showed', 20_000);
     expect(entry.map?.slide).toMatchObject({ kind: 'entry', world: 'workshop', index: 0, count: 2 });
-    await expect.poll(() => spoken(page, since), { timeout: 10_000 }).toEqual(expect.arrayContaining([['vo-shell-ws-1-hero', 'fr'], ['vo-shell-ws-1-narr', 'he']]));
+    await expect.poll(() => spoken(page, since), { timeout: slideWaitMs((ENTRY_SLIDES.workshop ?? [])[0].lines) }).toEqual(expect.arrayContaining([['vo-shell-ws-1-hero', 'fr'], ['vo-shell-ws-1-narr', 'he']]));
     expect((entry.rects.skipBtn as Rect).width).toBeGreaterThanOrEqual(MIN_TAP_PX);
     await tap(page, 'skipBtn');
     await waitForScene(page, 'MysteryEggBuildScene');
@@ -462,5 +493,45 @@ test.describe('game-shell', () => {
     expect(v2.map?.heartFill?.[3]).toBeCloseTo(1 / 3, 2);
     expect(v2.map?.worlds['detective'].fill).toBe(0);
     expect(v2.map?.readyToHatch).toBe(false);
+  });
+
+  test('[AC-26] [AC-27] @single-orientation an old v2 save with introSeen true (the first shell release) sees the intro once, keeps its progress, and never sees it again', async ({ page }, testInfo) => {
+    skipIfNotLandscape(testInfo);
+    test.setTimeout(90_000);
+    await enterMapByTap(page, 'profile-a');
+    // Exactly what the first shell release stored for a child who had seen the intro: a boolean, no version (seed only).
+    await page.evaluate(() =>
+      window.localStorage.setItem(
+        'kids-app-mystery-egg:a',
+        JSON.stringify({ v: 2, worlds: { workshop: { level: 1, completed: [1] } }, pieces: ['feather'], introSeen: true, entrySeen: ['workshop'] }),
+      ),
+    );
+    const first = await openShellByTap(page);
+    expect(first.phase).toBe('intro');
+    expect(first.map?.slide).toMatchObject({ kind: 'intro', index: 0, count: 4 });
+    expect(first.map?.introSeen).toBe(false);
+    expect(first.map?.introSeenVersion).toBe(0);
+    // Slide voice-over stays at the recorded speed (the in-game lines run at 1.2x).
+    await expect.poll(async () => (await getSpokenLines(page)).map((s) => [s.lineId, s.rate]), { timeout: 5000 }).toContainEqual(['vo-shell-intro-1-hero', 1]);
+    await tap(page, 'skipBtn');
+    const map = await waitInfo(page, (i) => i.phase === 'map', 'the map never opened after the intro');
+    expect(map.map?.introSeen).toBe(true);
+    expect(map.map?.introSeenVersion).toBe(2);
+    // The old progress is untouched.
+    expect(map.heartsLit).toEqual([0]);
+    expect(map.map?.pieces).toEqual(['feather']);
+    expect(map.map?.entrySeen).toEqual(['workshop']);
+
+    // Not again: back to the old map and in again, then after a full reload of the app.
+    await tap(page, 'backBtn');
+    await waitForScene(page, 'MapScene');
+    const again = await openShellByTap(page);
+    expect(again.phase).toBe('map');
+    expect(again.map?.slide).toBeNull();
+    await enterMapByTap(page, 'profile-a');
+    const reloaded = await openShellByTap(page);
+    expect(reloaded.phase).toBe('map');
+    expect(reloaded.map?.slide).toBeNull();
+    expect(reloaded.heartsLit).toEqual([0]);
   });
 });

@@ -32,6 +32,13 @@ Manifest now has 41 ids (display w/h = half of the 2x files, hub-bg 1x; `cat-wak
 
 Run only the new e2e spec: `NODE_PATH=<repo>/node_modules npx playwright test -c /tmp/pw-mystery-egg.config.ts tests/e2e/mystery-egg.journey.spec.ts --project=landscape-1280x800`.
 
+## Tablet fixes (branch fix/tablet-feedback, 2026-11-26)
+
+- AC-21 (one voice at a time): `AudioManager.playQueued()` (waits for the current clip to end; an interrupting `play()` or `stopAll()` drops the queue), `speech.ts` (`voicePlayMode`: only `vo-fr-success` queues), unit `mystery-egg.voiceQueue.test.ts`, e2e `[AC-21] [AC-23]` in `mystery-egg.journey.spec.ts` (a passive spy on the real audio elements: the cat clip must end by itself, no two voice clips overlap). What was heard at the cat wake: `vo-fr-success` (feather lands, about 3.3 s after the bell) CUT the 6.0 s `vo-fr-cat-croissants` after about 3.4 s, over the bell, success and pop sfx. Two voice clips never overlapped before (the manager already stopped the previous one); the voice provider now also mutes a cut clip.
+- AC-23 (1.2x): `speech.ts` (`GAME_SPEECH_RATE`, `SLIDE_SPEECH_RATE`, `eggSpeechRequest`), `voiceProvider.ts` applies `playbackRate` and `preservesPitch = true`; `getSpokenLines` entries carry `rate`.
+- AC-22 (ramp): `RAMP_POLY` (layout.ts) is the measured silhouette of `part-ramp.webp`; the old wedge sat about 34 px (one ball radius) below the painted top surface (the body did line up with the art centre: the centre-of-mass compensation in `Machine.placeRamp` was right and is still pinned). `BALL_ART_SCALE`: the ball art's visible disc is 59 of 64 px, scaled to the physics diameter. `RAMP_ART_TOP` in `mystery-egg.physics.test.ts` holds the measured samples: **re-measure it and `RAMP_POLY` when `part-ramp` or `part-ball` is re-delivered** (alpha >= 128 on the 2x file; display = file / 2, relative to the slot centre).
+- Run: `npx vitest run tests/unit/mystery-egg tests/unit/game-shell tests/unit/audio` and the two Playwright specs (see game-shell.progress.md).
+
 ## Open (needs Maor)
 
 See the `2026-11-25` "Mystery Egg" rows in `docs/PENDING-DECISIONS.md` (names, entry placement, hint timing, heart mapping, tray decoys, missing-media behaviour, progress storage, orientation).

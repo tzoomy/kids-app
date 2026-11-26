@@ -86,6 +86,8 @@ export interface SpokenLine {
   lang: string;
   source: 'clip' | 'tts';
   text?: string;
+  /** Requested playback rate (1 = recorded speed). */
+  rate?: number;
   at: number;
 }
 

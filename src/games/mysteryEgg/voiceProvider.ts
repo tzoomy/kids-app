@@ -11,6 +11,10 @@ export interface VoiceAudio {
   removeEventListener(type: string, listener: () => void): void;
   play(): Promise<void>;
   pause(): void;
+  /** Optional on fakes; real audio elements have all three. */
+  playbackRate?: number;
+  preservesPitch?: boolean;
+  muted?: boolean;
 }
 
 export interface VoiceProviderOptions {
@@ -21,7 +25,8 @@ export interface VoiceProviderOptions {
   timeoutMs?: number;
 }
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+/** Longest a clip may take before it counts as finished (the longest slide clip is 6.91 s at 1.0x). */
+export const VOICE_CLIP_TIMEOUT_MS = 15_000;
 
 /** Shared with the scenes, so a voice file that failed once is not asked for again in this page session. */
 export const eggAvailability = new AssetAvailability();
@@ -43,7 +48,7 @@ export class MysteryEggVoiceProvider implements AudioProvider {
     this.createAudio = opts.createAudio ?? ((url) => new Audio(url));
     this.chime = opts.chime ?? synthChime;
     this.availability = opts.availability ?? eggAvailability;
-    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    this.timeoutMs = opts.timeoutMs ?? VOICE_CLIP_TIMEOUT_MS;
   }
 
   isAvailable(): boolean {
@@ -56,6 +61,8 @@ export class MysteryEggVoiceProvider implements AudioProvider {
 
   stop(): void {
     const settle = this.settleCurrent;
+    // Mute as well as pause: a pause that lands late on a device must never be heard under the next line.
+    if (this.current) this.current.muted = true;
     this.current?.pause();
     this.current = null;
     this.settleCurrent = null;
@@ -104,6 +111,9 @@ export class MysteryEggVoiceProvider implements AudioProvider {
       }
       this.current = audio;
       this.settleCurrent = finish;
+      // The request's rate (in-game lines 1.2, slides 1.0) with natural pitch (set explicitly, not left to the default).
+      audio.playbackRate = request.rate && request.rate > 0 ? request.rate : 1;
+      audio.preservesPitch = true;
       audio.addEventListener('ended', onEnded);
       audio.addEventListener('error', onError);
       timer = setTimeout(finish, this.timeoutMs);
