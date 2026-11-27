@@ -221,15 +221,18 @@ test.describe('workshop L20', () => {
     expect(i.eggPiece).toBe(false);
     expect(i.background).toBe('dawn');
   });
-  test('[AC-13] [AC-14] [AC-15] @single-orientation empty board, real Play taps: a break-point marker after each failure, the 4th shows the ramp ghost, the 5th has Bip place the ramp (only)', async ({ page }, testInfo) => {
+  test('[AC-13] [AC-14] [AC-15] [AC-17] @single-orientation empty board, real Play taps: break-point marker after each failure, the 4th shows the trajectory, the 5th the ramp ghost, the 6th has Bip place the ramp (only)', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
-    test.setTimeout(240_000);
+    test.setTimeout(300_000);
     await openL20(page);
     const failOnce = async (n: number): Promise<WorkshopL20Info> => {
       await tapPlay(page);
       // [AC-15] hidden the moment Play is tapped, shown again after the failed run.
       await waitInfo(page, (x) => x.phase === 'playing', 'the run never started');
-      expect((await info(page))!.breakPoint).toBeNull();
+      const playing = (await info(page))!;
+      expect(playing.breakPoint).toBeNull();
+      // [AC-17] the trajectory is hidden while a run plays.
+      if (n > 4) expect(playing.trajectory?.visible).toBe(false);
       const i = await waitInfo(page, (x) => x.phase === 'feedback' && x.failedRuns === n, `failure ${n} never came`, 90_000);
       expect(i.run).toMatchObject({ result: 'fail', reason: 'no-bell' });
       return i;
@@ -241,26 +244,47 @@ test.describe('workshop L20', () => {
       expect(i.ghost).toBeNull();
       expect(i.bipPlaced).toEqual([]);
       expect(i.hintRung).toBe(n);
+      // [AC-17] no trajectory before the 4th failure.
+      expect(i.trajectory).toBeNull();
       await waitInfo(page, (x) => x.phase === 'build', 'the board never reset', 15_000);
     }
-    // [AC-13] 4th failure: rung 4, a ghost of the ramp (down-right) in R1; nothing is placed for her.
+    // [AC-17] 4th failure: the dotted trajectory of the empty board (the ball drops straight down from the chute); no ghost yet.
     let i = await failOnce(4);
     expect(i.hintRung).toBe(4);
-    expect(i.ghost).toEqual({ part: 'ramp', socketId: 'R1', orientation: 'down-right' });
-    expect(i.breakPoint).toMatchObject({ kind: 'ramp' });
-    await expect.poll(async () => spoken(page), { timeout: 15_000 }).toContain('vo-fr-robot-regarde');
-    i = await waitInfo(page, (x) => x.phase === 'build', 'the board never reset', 15_000);
-    expect(i.ghost).not.toBeNull();
+    expect(i.ghost).toBeNull();
     expect(i.bipPlaced).toEqual([]);
-    expect(i.partsInTrayCount).toBe(4);
+    i = await waitInfo(page, (x) => x.phase === 'build' && x.trajectory?.visible === true, 'the trajectory never showed after the 4th failure', 15_000);
+    expect(i.trajectory!.points).toBeGreaterThan(5);
+    expect(Math.abs(i.trajectory!.first.x - 200)).toBeLessThan(10);
+    expect(i.trajectory!.last.y).toBeGreaterThan(600);
+    expect(Math.abs(i.trajectory!.last.x - 200)).toBeLessThan(20);
+    const emptyLast = i.trajectory!.last;
+    expect(await spoken(page)).not.toContain('vo-fr-robot-regarde');
+    // [AC-17] placing the ramp in R1 by a real drag changes the path: its last point moves right (into the cup).
+    i = await dragPartToSocket(page, 'ramp', 'R1');
+    i = await waitInfo(page, (x) => x.trajectory?.visible === true && x.trajectory.last.x > 280, 'the trajectory never followed the ramp', 10_000);
+    expect(i.trajectory!.last.x).toBeGreaterThan(emptyLast.x + 80);
+    // Dragging the ramp off puts the empty-board path back.
+    await drag(page, centre(i.rects.partRamp as Rect), { x: 640, y: 600 });
+    i = await waitInfo(page, (x) => x.config.ramp === 'none' && x.trajectory?.visible === true && Math.abs(x.trajectory.last.x - 200) < 20, 'the trajectory never went back to the empty board', 10_000);
+    // [AC-13] 5th failure: the ghost of the ramp (down-right) in R1, "Regarde ici !"; the trajectory stays on; nothing is placed for her.
     // [AC-15] touching the board hides the marker (a tap on a tray part is enough).
     await tapRect(page, i.rects.partDomino1 as Rect);
     await waitInfo(page, (x) => x.breakPoint === null, 'the marker stayed after a touch');
-    // [AC-14] 5th failure: rung 5, Bip places the ramp into R1 (the ONLY part), with its voice; she never pressed Play for it.
     i = await failOnce(5);
     expect(i.hintRung).toBe(5);
+    expect(i.ghost).toEqual({ part: 'ramp', socketId: 'R1', orientation: 'down-right' });
+    expect(i.breakPoint).toMatchObject({ kind: 'ramp' });
+    await expect.poll(async () => spoken(page), { timeout: 15_000 }).toContain('vo-fr-robot-regarde');
+    i = await waitInfo(page, (x) => x.phase === 'build' && x.trajectory?.visible === true, 'the trajectory did not come back after the run', 15_000);
+    expect(i.ghost).not.toBeNull();
+    expect(i.bipPlaced).toEqual([]);
+    expect(i.partsInTrayCount).toBe(4);
+    // [AC-14] 6th failure: Bip places the ramp into R1 (the ONLY part), with its voice; she never pressed Play for it.
+    i = await failOnce(6);
+    expect(i.hintRung).toBe(6);
     i = await waitInfo(page, (x) => x.bipPlaced.length === 1, 'Bip never placed a part', 15_000);
-    expect(i.bipPlaced[0]).toMatchObject({ part: 'ramp', socketId: 'R1', run: 5 });
+    expect(i.bipPlaced[0]).toMatchObject({ part: 'ramp', socketId: 'R1', run: 6 });
     i = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'ramp')?.socketId === 'R1' && Math.abs(x.parts.find((p) => p.id === 'ramp')!.x - 200) < 2, 'the ramp never landed in R1');
     expect(i.config).toEqual({ ramp: 'down-right', slots: [], scissors: 'none' });
     expect(i.ghost).toBeNull();
@@ -270,5 +294,7 @@ test.describe('workshop L20', () => {
     expect(i.partsInTrayCount).toBe(3);
     expect(i.run.state).toBe('ended');
     await expect.poll(async () => spoken(page), { timeout: 15_000 }).toContain('vo-fr-robot-aide');
+    // [AC-17] the trajectory stays on with Bip's ramp and follows it.
+    i = await waitInfo(page, (x) => x.trajectory?.visible === true && x.trajectory.last.x > 280, 'the trajectory did not follow Bip\'s ramp', 10_000);
   });
 });

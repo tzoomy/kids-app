@@ -21,6 +21,7 @@ import type { EggPhase, EggTarget, WorkshopL20Info } from '../types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
 import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
+import { dotsAlong, trajectoryFor, type TrajectoryPoint } from './l20Trajectory';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import {
   BALL_START,
@@ -103,9 +104,15 @@ const STUB_FULL = SCISSORS_Y - ROPE_A.top;
 const STUB_SHORT = 30;
 
 const PALETTE = { wall: '#f1dcc2' } as const;
-/** Bip's rung-5 placement tween, and the break-point circle radius (board px). */
+/** Bip's step-6 placement tween, and the break-point circle radius (board px). */
 const BIP_PLACE_MS = 700;
 const BREAK_RADIUS = 46;
+/** Trajectory dots (board px): spacing along the path, radius, the debounce after the last board change, the depth (behind the parts). */
+const TRAJ_SPACING = 30;
+const TRAJ_DOT = 5.5;
+const TRAJ_DEBOUNCE_MS = 200;
+const TRAJ_DEPTH = 12.5;
+const TRAJ_COLOR = 0x5b6fd6;
 
 interface PartView {
   def: PartDef;
@@ -187,6 +194,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private bipPlaced: WorkshopL20Info['bipPlaced'] = [];
   private breakPoint: BreakPoint | null = null;
   private breakView: Phaser.GameObjects.Graphics | null = null;
+  private trajectoryOn = false;
+  private trajectoryPoints: readonly TrajectoryPoint[] = [];
+  private trajectoryView: Phaser.GameObjects.Graphics | null = null;
+  private trajectoryTimer: Phaser.Time.TimerEvent | null = null;
   private feedback: WorkshopL20Info['feedback'] = null;
   private introDone = false;
   private introCut = false;
@@ -238,6 +249,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.bipPlaced = [];
     this.breakPoint = null;
     this.breakView = null;
+    this.trajectoryOn = false;
+    this.trajectoryPoints = [];
+    this.trajectoryView = null;
+    this.trajectoryTimer = null;
     this.feedback = null;
     this.introDone = false;
     this.introCut = false;
@@ -260,6 +275,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.input.off('pointermove', this.onPointerMove, this);
       this.input.off('pointerup', this.onPointerUp, this);
       this.input.off('gameout', this.onPointerUp, this);
+      this.trajectoryTimer?.remove(false);
+      this.trajectoryTimer = null;
       this.context.audio.stopAll();
     });
     loadEggAssets(
@@ -609,6 +626,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       .map((p) => ({ part: p.def.kind, socketId: p.socketId as string, flipped: p.flipped }));
     this.config = configFromPlacements(placed);
     this.refreshMarkers();
+    this.scheduleTrajectory();
   }
 
   private glowSatisfied(id: string): boolean {
@@ -630,7 +648,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- hint rungs 4-5 and the break-point marker
 
-  /** Rung 4: a translucent ghost of the right part, in the right orientation, pulsing in its socket until it is placed. */
+  /** Step 5: a translucent ghost of the right part, in the right orientation, pulsing in its socket until it is placed. */
   private setGhost(next: NextNeeded | null): void {
     if (this.ghostView) {
       this.tweens.killTweensOf(this.ghostView);
@@ -649,7 +667,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.ghostView = view;
   }
 
-  /** Rung 5: Bip places ONE correct part, tweening it from the tray (or from the wrong socket it frees first) into the socket. */
+  /** Step 6: Bip places ONE correct part, tweening it from the tray (or from the wrong socket it frees first) into the socket. */
   private bipPlace(next: NextNeeded, run: number): void {
     const part = this.parts.get(next.partId);
     const socket = L20_SOCKETS.find((s) => s.id === next.socketId);
@@ -685,6 +703,58 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.tweens.killTweensOf(this.breakView);
     this.breakView.destroy();
     this.breakView = null;
+  }
+
+  // ---------------------------------------------------------------- trajectory preview (ladder step 4 and later)
+
+  /** Turns the preview on (from the 4th failure) and draws the path of the current setup at once. */
+  private enableTrajectory(): void {
+    this.trajectoryOn = true;
+    this.refreshTrajectory();
+  }
+
+  /** The board changed: redraw the path once she stops touching it (debounced, never every drag frame). */
+  private scheduleTrajectory(): void {
+    if (!this.trajectoryOn || !this.alive) return;
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = this.time.delayedCall(TRAJ_DEBOUNCE_MS, () => {
+      this.trajectoryTimer = null;
+      if (!this.alive || !this.trajectoryOn) return;
+      if (this.dragging) this.scheduleTrajectory();
+      else if (this.phase === 'build') this.refreshTrajectory();
+    });
+  }
+
+  /** The path of the CURRENT placements from a fresh headless world (the same code as Play; cached by config), drawn as soft dots. */
+  private refreshTrajectory(): void {
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = null;
+    const matter = (Phaser.Physics.Matter as unknown as { Matter: L20Matter }).Matter;
+    this.trajectoryPoints = trajectoryFor(matter, this.config);
+    const dots = dotsAlong(this.trajectoryPoints, TRAJ_SPACING);
+    const g = this.trajectoryView ?? this.add.graphics().setDepth(TRAJ_DEPTH);
+    this.trajectoryView = g;
+    g.clear();
+    dots.forEach((d, i) => {
+      const t = dots.length > 1 ? i / (dots.length - 1) : 0;
+      const alpha = 0.85 - 0.5 * t;
+      g.fillStyle(0xffffff, alpha * 0.45);
+      g.fillCircle(d.x, d.y, TRAJ_DOT + 3);
+      g.fillStyle(TRAJ_COLOR, alpha);
+      g.fillCircle(d.x, d.y, TRAJ_DOT);
+    });
+    g.setVisible(this.phase === 'build');
+  }
+
+  private trajectoryInfo(): NonNullable<WorkshopL20Info['trajectory']> {
+    const pts = this.trajectoryPoints;
+    return { points: pts.length, visible: this.trajectoryView?.visible === true, first: { ...pts[0] }, last: { ...pts[pts.length - 1] } };
+  }
+
+  private hideTrajectory(): void {
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = null;
+    this.trajectoryView?.setVisible(false);
   }
 
   // ---------------------------------------------------------------- rest pose and sync
@@ -790,6 +860,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.cutIntro();
     this.context.audio.stopAll();
     this.hideBreakPoint();
+    this.hideTrajectory();
     this.ghostView?.setVisible(false);
     this.phase = 'playing';
     this.accumulator = 0;
@@ -920,6 +991,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     });
     this.hintRung = plan.rung;
     this.setGhost(plan.ghost);
+    if (plan.trajectory) this.trajectoryOn = true;
     this.showBreakPoint(chooseBreakPoint({ reason, events: w.events, config: this.config }));
     this.feedback = {
       kind: plan.feedback.kind,
@@ -944,7 +1016,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.phase = 'build';
       this.playBtn.setEnabled(true);
       this.ghostView?.setVisible(true);
-      // Rung 5: Bip places ONE part (never presses Play); the rest stays hers.
+      // Step 4+: the dotted path of the current setup comes back after the run (the 4th failure beeps once for the new dots).
+      if (plan.trajectory) {
+        this.enableTrajectory();
+        if (plan.trajectorySfx) playEggSfx(plan.trajectorySfx);
+      }
+      // Step 6: Bip places ONE part (never presses Play); the rest stays hers.
       if (plan.bip) {
         if (plan.bipSfx) playEggSfx(plan.bipSfx);
         this.bipPlace(plan.bip, this.failedRuns);
@@ -1197,6 +1274,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       hintGlow: this.hintGlow,
       hintRung: this.hintRung,
       ghost: this.ghost ? { part: this.ghost.partId, socketId: this.ghost.socketId, orientation: this.ghost.orientation } : null,
+      trajectory: this.trajectoryPoints.length > 0 ? this.trajectoryInfo() : null,
       bipPlaced: this.bipPlaced.map((b) => ({ ...b })),
       breakPoint: this.breakPoint ? { ...this.breakPoint } : null,
       eggPieceInNest: this.eggPieceInNest,
