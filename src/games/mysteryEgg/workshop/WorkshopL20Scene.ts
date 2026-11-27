@@ -259,6 +259,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.cancelContinue = null;
       this.input.off('pointermove', this.onPointerMove, this);
       this.input.off('pointerup', this.onPointerUp, this);
+      this.input.off('gameout', this.onPointerUp, this);
       this.context.audio.stopAll();
     });
     loadEggAssets(
@@ -980,6 +981,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       const art = eggArt(this, key, this.capy.x, this.capy.y).setScale(CAPYBARA.scale).setDepth(11);
       this.capy.setVisible(false);
       this.time.delayedCall(ms, () => {
+        if (!this.alive) return;
         art.destroy();
         this.capy.setVisible(true);
         this.capyPose = 'idle';

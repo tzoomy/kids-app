@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ONE_X_ART_IDS, mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
+import { ALL_ONE_X_ART_IDS, mysteryEggManifest } from '../../src/games/mysteryEgg/assets';
 import workshopManifest from '../../src/content/workshopAssets.json';
 
 const publicDir = path.resolve(__dirname, '..', '..', 'public');
@@ -42,11 +42,14 @@ describe('mystery-egg media files (Gemini PR #108)', () => {
     }
   });
 
-  it('[AC-14] WebP pixel sizes are 2x the display size (1x for hub-bg, map-bg and the shell slides), times the frame count for a strip; only files that exist are checked', () => {
-    for (const [id, e] of Object.entries(manifest)) {
+  it('[AC-14] WebP pixel sizes are 2x the display size (1x for hub-bg, map-bg, the shell slides and the Workshop backgrounds), times the frame count for a strip; only files that exist are checked', () => {
+    // Both manifests: the mystery-egg one and the Workshop L20 one (its dawn/morning backgrounds are 1x, every other art file 2x).
+    type Entry = { path: string; kind: string; w?: number; h?: number; frames?: number };
+    const entries: Array<[string, Entry]> = [...Object.entries(manifest), ...Object.entries(workshopManifest)];
+    for (const [id, e] of entries) {
       if (e.kind !== 'webp' && e.kind !== 'sprite') continue;
-      if (!fs.existsSync(path.join(publicDir, e.path))) continue; // a game shell file not delivered yet
-      const k = ONE_X_ART_IDS.includes(id) ? 1 : 2;
+      if (!fs.existsSync(path.join(publicDir, e.path))) continue; // media not delivered yet
+      const k = ALL_ONE_X_ART_IDS.includes(id) ? 1 : 2;
       const { width, height } = webpSize(path.join(publicDir, e.path));
       expect([width, height], id).toEqual([(e.w as number) * k * (e.frames ?? 1), (e.h as number) * k]);
     }
