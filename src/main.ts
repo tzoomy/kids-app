@@ -12,6 +12,7 @@ import { MysteryEggVoiceProvider } from './games/mysteryEgg/voiceProvider';
 import { AppShell } from './ui/shell';
 import { AppContext } from './game/appContext';
 import { createGame, installEarlyTimeEarningHook, isE2e } from './game/createGame';
+import { parsePreviewRoute } from './game/previewRoute';
 import { initPwa, setAppScreen, setPersistBeforePwaUpdate } from './pwa';
 import { loadWorlds, loadAnimalRestaurant, loadKitchenOrchestra, loadSortingBeds, loadPicnicTrain, loadWhosHiding, loadWhoLivesHere, loadLeisureColouring, loadStickerBoard, loadShadowMatch, loadBalloonPop, loadLetterMonster, loadTravelSuitcase, loadWordTrain, loadNumberBridge, loadSeedToFlower, loadPotionLab, loadSinkOrFloat, loadMagicMagnet, loadHeStrings, loadAudioManifest } from './content/loadContent';
 import { heLine } from './content/voiceLines';
@@ -206,13 +207,14 @@ function returnToProfileSelect(): void {
   game?.scene.stop('BalloonScene');
   game?.scene.stop('MysteryEggScene');
   game?.scene.stop('MysteryEggBuildScene');
+  game?.scene.stop('WorkshopL20Scene');
   game?.scene.stop('MapScene');
   context.currentProfileId = null;
   shell.clearChrome();
   showProfileSelectScreen();
 }
 
-function pickProfile(profileId: string): void {
+function pickProfile(profileId: string, startScene?: string): void {
   setAppScreen('loading');
   context.currentProfileId = profileId;
   audioManager.stopAll();
@@ -230,7 +232,7 @@ function pickProfile(profileId: string): void {
         game?.scene.getScene('MapScene')?.scene.restart();
       });
     context.onExitToProfileSelect = returnToProfileSelect;
-    game = createGame(document.getElementById('game-root')!, context);
+    game = createGame(document.getElementById('game-root')!, context, startScene);
   } else {
     game.scene.stop('RestaurantScene');
     game.scene.stop('HidingScene');
@@ -252,8 +254,15 @@ function pickProfile(profileId: string): void {
     game.scene.stop('BalloonScene');
     game.scene.stop('MysteryEggScene');
     game.scene.stop('MysteryEggBuildScene');
+    game.scene.stop('WorkshopL20Scene');
     game.scene.start('MapScene');
   }
 }
 
-showProfileSelectScreen();
+// Preview route (`?level=20` / `#/workshop/20`): straight into Workshop level 20 with the age-5 profile (else the first), no profile screen,
+// intro or map. Without it the app starts on the profile select exactly as before.
+const previewRoute = parsePreviewRoute(window.location.search, window.location.hash);
+const previewProfiles = store.getState().profiles;
+const previewProfile = (previewProfiles.find((p) => p.ageTrack === 'age5') ?? previewProfiles[0])?.id;
+if (previewRoute && previewProfile) pickProfile(previewProfile, previewRoute.scene);
+else showProfileSelectScreen();
