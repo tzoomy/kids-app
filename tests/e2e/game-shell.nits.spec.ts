@@ -88,14 +88,20 @@ test.describe('game-shell review nits', () => {
     // The re-placed button still works: a real tap leaves the map. (The browser may still be settling the canvas after the
     // viewport change: tap once the button's rectangle has stopped moving.)
     // (A re-placed button is reported again one frame after it was made, so a missing rectangle only means "not settled yet".)
-    let back: Rect | undefined;
-    for (let settled = 0; settled < 3; ) {
-      await page.waitForTimeout(200);
-      const now = (await info(page))?.rects.backBtn as Rect | undefined;
-      settled = now && back && now.x === back.x && now.y === back.y && now.width === back.width ? settled + 1 : 0;
-      back = now;
-    }
-    if (!back) throw new Error('the back button never settled');
+    let prev: Rect | undefined;
+    let stable = 0;
+    await expect
+      .poll(
+        async () => {
+          const now = (await info(page))?.rects.backBtn as Rect | undefined;
+          stable = now && prev && now.x === prev.x && now.y === prev.y && now.width === prev.width && now.height === prev.height ? stable + 1 : 0;
+          prev = now;
+          return stable >= 3;
+        },
+        { message: 'the back button never settled', timeout: 10_000, intervals: [100] },
+      )
+      .toBe(true);
+    const back = prev as Rect;
     await page.mouse.click(back.x + back.width / 2, back.y + back.height / 2);
     await waitForScene(page, 'MapScene');
   });
