@@ -20,7 +20,8 @@ import { showContinueAfterVoice } from '../successTiming';
 import type { EggPhase, EggTarget, WorkshopL20Info } from '../types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
 import { eggAvailability } from '../voiceProvider';
-import { EAR_LINE, planFailure, type FailPlan } from './l20Hints';
+import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
+import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import {
   BALL_START,
   BELL_RADIUS,
@@ -102,6 +103,9 @@ const STUB_FULL = SCISSORS_Y - ROPE_A.top;
 const STUB_SHORT = 30;
 
 const PALETTE = { wall: '#f1dcc2' } as const;
+/** Bip's rung-5 placement tween, and the break-point circle radius (board px). */
+const BIP_PLACE_MS = 700;
+const BREAK_RADIUS = 46;
 
 interface PartView {
   def: PartDef;
@@ -177,6 +181,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private oneBellFails = 0;
   private hintsGiven = 0;
   private hintGlow: string | null = null;
+  private hintRung = 0;
+  private ghost: NextNeeded | null = null;
+  private ghostView: Phaser.GameObjects.Container | null = null;
+  private bipPlaced: WorkshopL20Info['bipPlaced'] = [];
+  private breakPoint: BreakPoint | null = null;
+  private breakView: Phaser.GameObjects.Graphics | null = null;
   private feedback: WorkshopL20Info['feedback'] = null;
   private introDone = false;
   private introCut = false;
@@ -222,6 +232,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.oneBellFails = 0;
     this.hintsGiven = 0;
     this.hintGlow = null;
+    this.hintRung = 0;
+    this.ghost = null;
+    this.ghostView = null;
+    this.bipPlaced = [];
+    this.breakPoint = null;
+    this.breakView = null;
     this.feedback = null;
     this.introDone = false;
     this.introCut = false;
@@ -499,6 +515,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   private onPartDown(part: PartView, pointer: Phaser.Input.Pointer): void {
     if (this.phase !== 'build' || this.dragging) return;
+    this.hideBreakPoint();
     const p = this.worldPoint(pointer);
     this.dragging = { part, dx: part.container.x - p.x, dy: part.container.y - p.y, startX: p.x, startY: p.y, moved: false };
     part.container.setDepth(400);
@@ -551,11 +568,11 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.syncConfig();
   }
 
-  private place(part: PartView, socketId: string, x: number, y: number): void {
+  private place(part: PartView, socketId: string, x: number, y: number, duration = 160, ease = 'Back.easeOut'): void {
     part.socketId = socketId;
     part.container.setDepth(14);
     playEggSfx('sfx-pop');
-    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: part.flipped ? -1 : 1, scaleY: 1, duration: 160, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: part.flipped ? -1 : 1, scaleY: 1, duration, ease });
     this.syncConfig();
   }
 
@@ -603,10 +620,70 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private refreshMarkers(): void {
     const taken = new Set(this.occupiedSockets());
     if (this.hintGlow && this.glowSatisfied(this.hintGlow)) this.hintGlow = null;
+    if (this.ghost && this.glowSatisfied(this.ghost.socketId)) this.setGhost(null);
     for (const [id, m] of this.markers) {
       m.marker.setVisible(!taken.has(id));
       m.glow.setVisible(this.hintGlow === id);
     }
+  }
+
+  // ---------------------------------------------------------------- hint rungs 4-5 and the break-point marker
+
+  /** Rung 4: a translucent ghost of the right part, in the right orientation, pulsing in its socket until it is placed. */
+  private setGhost(next: NextNeeded | null): void {
+    if (this.ghostView) {
+      this.tweens.killTweensOf(this.ghostView);
+      this.ghostView.destroy();
+      this.ghostView = null;
+    }
+    this.ghost = next;
+    const socket = next ? L20_SOCKETS.find((s) => s.id === next.socketId) : undefined;
+    const def = next ? PARTS.find((d) => d.id === next.partId) : undefined;
+    if (!next || !socket || !def) {
+      this.ghost = null;
+      return;
+    }
+    const view = eggArt(this, def.art, socket.x, socket.y).setDepth(13).setAlpha(0.5);
+    this.tweens.add({ targets: view, alpha: 0.22, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.ghostView = view;
+  }
+
+  /** Rung 5: Bip places ONE correct part, tweening it from the tray (or from the wrong socket it frees first) into the socket. */
+  private bipPlace(next: NextNeeded, run: number): void {
+    const part = this.parts.get(next.partId);
+    const socket = L20_SOCKETS.find((s) => s.id === next.socketId);
+    if (!part || !socket) return;
+    this.hideBreakPoint();
+    if (part.socketId) this.release(part);
+    part.flipped = false;
+    this.tweens.killTweensOf(part.container);
+    part.container.setAngle(0);
+    this.applyHit(part, 1);
+    this.place(part, socket.id, socket.x, socket.y, BIP_PLACE_MS, 'Sine.easeInOut');
+    this.bipPlaced.push({ part: part.def.id, socketId: socket.id, run });
+    this.tweens.add({ targets: this.robotView, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.robotView.setAngle(0) });
+  }
+
+  /** The pulsing circle where the chain first stopped; cosmetic. */
+  private showBreakPoint(bp: BreakPoint | null): void {
+    this.hideBreakPoint();
+    if (!bp) return;
+    this.breakPoint = bp;
+    const g = this.add.graphics().setDepth(16).setPosition(bp.x, bp.y);
+    g.fillStyle(0xff7043, 0.18);
+    g.fillCircle(0, 0, BREAK_RADIUS);
+    g.lineStyle(7, 0xff7043, 0.95);
+    g.strokeCircle(0, 0, BREAK_RADIUS);
+    this.tweens.add({ targets: g, scale: { from: 0.82, to: 1.12 }, alpha: { from: 1, to: 0.55 }, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.breakView = g;
+  }
+
+  private hideBreakPoint(): void {
+    this.breakPoint = null;
+    if (!this.breakView) return;
+    this.tweens.killTweensOf(this.breakView);
+    this.breakView.destroy();
+    this.breakView = null;
   }
 
   // ---------------------------------------------------------------- rest pose and sync
@@ -711,6 +788,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     if (this.phase !== 'build' || this.dragging || !this.alive) return;
     this.cutIntro();
     this.context.audio.stopAll();
+    this.hideBreakPoint();
+    this.ghostView?.setVisible(false);
     this.phase = 'playing';
     this.accumulator = 0;
     this.eventsSeen = 0;
@@ -836,7 +915,11 @@ export class WorkshopL20Scene extends Phaser.Scene {
       reason,
       dominoRowStopped: w.dominoRowStopped,
       config: this.config,
+      parts: [...this.parts.values()].map((p) => ({ id: p.def.id, kind: p.def.kind, socketId: p.socketId, flipped: p.flipped })),
     });
+    this.hintRung = plan.rung;
+    this.setGhost(plan.ghost);
+    this.showBreakPoint(chooseBreakPoint({ reason, events: w.events, config: this.config }));
     this.feedback = {
       kind: plan.feedback.kind,
       sleepersFallAsleep: plan.feedback.sleepersFallAsleep,
@@ -859,6 +942,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.world = null;
       this.phase = 'build';
       this.playBtn.setEnabled(true);
+      this.ghostView?.setVisible(true);
+      // Rung 5: Bip places ONE part (never presses Play); the rest stays hers.
+      if (plan.bip) {
+        if (plan.bipSfx) playEggSfx(plan.bipSfx);
+        this.bipPlace(plan.bip, this.failedRuns);
+      }
     });
     this.playBtn.setEnabled(false);
   }
@@ -917,6 +1006,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.phase = 'success';
     const token = ++this.runToken;
     this.playBtn.setEnabled(false);
+    this.setGhost(null);
     this.hintGlow = null;
     this.refreshMarkers();
     // Progress: the egg piece is the final shell piece, set once.
@@ -1103,6 +1193,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
       capybara: this.capyPose,
       feedback: this.feedback,
       hintGlow: this.hintGlow,
+      hintRung: this.hintRung,
+      ghost: this.ghost ? { part: this.ghost.partId, socketId: this.ghost.socketId, orientation: this.ghost.orientation } : null,
+      bipPlaced: this.bipPlaced.map((b) => ({ ...b })),
+      breakPoint: this.breakPoint ? { ...this.breakPoint } : null,
       eggPieceInNest: this.eggPieceInNest,
       partsInTrayCount: parts.filter((p) => p.inTray).length,
       rects,
