@@ -6,6 +6,7 @@
 // `introSeenVersion` is the INTRO_VERSION the child last saw. The map shows the intro while it is below INTRO_VERSION, so an
 // existing save (introSeen true, no version) sees the current intro once after an update. `introSeen` stays in the JSON
 // (readable by older builds) and means "the current intro was seen".
+// Optional `eggPiece: true` (Workshop level 20, the final shell piece that completes the egg) is an additive v2 field.
 // Save v1 ({ v: 1, completed: ['1.1'] }) migrates on load: mission 1.1 is Workshop level 1.
 // Hearts and the gear fill derive from `completed`; nest PIECES are persisted so an earned piece is never lost when a
 // later release adds levels to a world (the threshold min(PIECE_LEVELS, levels) would otherwise move).
@@ -56,6 +57,11 @@ export interface MysteryEggProgress {
   introSeenVersion: number;
   /** Worlds whose entry slides were seen or skipped. */
   entrySeen: WorldId[];
+  /**
+   * Workshop level 20's reward: the FINAL SHELL PIECE that completes the egg (v4 L20-AC3). An additive field of the v2 save,
+   * present (true) only once earned, so older saves and older builds are untouched. Separate from the five world pieces.
+   */
+  eggPiece?: true;
 }
 
 export function createProgress(): MysteryEggProgress {
@@ -102,6 +108,7 @@ export function repairProgress(input: unknown, defs: readonly WorldDef[] = WORLD
   const v = src.introSeenVersion;
   const introSeenVersion = typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : 0;
   return {
+    ...(src.eggPiece === true ? { eggPiece: true as const } : {}),
     v: MYSTERY_EGG_SAVE_VERSION,
     worlds,
     pieces: defs.filter((d) => pieces.has(d.piece)).map((d) => d.piece),
@@ -219,9 +226,35 @@ export function nestTreasures(progress: MysteryEggProgress, defs: readonly World
   return earnedPieces(progress, defs);
 }
 
-/** Egg glow level 0..5: one step per nest piece. */
+/** Egg glow level 0..5: one step per nest piece; the egg piece (Workshop L20) completes the egg: full glow. */
 export function eggLevel(progress: MysteryEggProgress, defs: readonly WorldDef[] = WORLDS): number {
+  if (progress.eggPiece === true) return MAX_EGG_LEVEL;
   return Math.min(MAX_EGG_LEVEL, earnedPieces(progress, defs).length);
+}
+
+/** The final shell piece (Workshop level 20) is in: the egg is complete. */
+export function eggComplete(progress: MysteryEggProgress): boolean {
+  return progress.eggPiece === true;
+}
+
+export interface EggPieceResult {
+  progress: MysteryEggProgress;
+  /** True only the first time the piece is earned. */
+  newlyEarned: boolean;
+}
+
+/** Workshop level 20 won: sets the egg piece once. A repeat changes nothing. */
+export function recordEggPiece(progress: MysteryEggProgress): EggPieceResult {
+  const current = repairProgress(progress);
+  if (current.eggPiece === true) return { progress: current, newlyEarned: false };
+  return { progress: repairProgress({ ...current, eggPiece: true }), newlyEarned: true };
+}
+
+/** Loads, records the egg piece, saves (only when it was new). */
+export function recordEggPieceAndSave(storage: Pick<StorageDriver, 'getItem' | 'setItem'>, profileId: string): EggPieceResult {
+  const res = recordEggPiece(loadProgress(storage, profileId));
+  if (res.newlyEarned) saveProgress(storage, profileId, res.progress);
+  return res;
 }
 
 /** All five pieces: the egg is ready to hatch (hatching itself is out of scope). */
@@ -246,6 +279,8 @@ export type ProgressSeed =
       /** An explicit saved version, e.g. 0 with `introSeen: true` to seed an old save written before the version existed. */
       introSeenVersion?: number;
       entrySeen?: WorldId[];
+      /** true = the Workshop level 20 egg piece is earned. */
+      eggPiece?: boolean;
     };
 
 export function seedToSave(seed: ProgressSeed): unknown {

@@ -1,0 +1,264 @@
+{
+  "ws-l20-bg-dawn": {
+    "path": "art/mystery-egg/ws-l20-bg-dawn.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-l20-bg-morning": {
+    "path": "art/mystery-egg/ws-l20-bg-morning.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-l20-fixtures": {
+    "path": "art/mystery-egg/ws-l20-fixtures.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-domino": {
+    "path": "art/mystery-egg/ws-domino.webp",
+    "kind": "webp",
+    "w": 28,
+    "h": 114
+  },
+  "ws-seesaw": {
+    "path": "art/mystery-egg/ws-seesaw.webp",
+    "kind": "webp",
+    "w": 336,
+    "h": 30
+  },
+  "ws-sandbag": {
+    "path": "art/mystery-egg/ws-sandbag.webp",
+    "kind": "webp",
+    "w": 84,
+    "h": 96
+  },
+  "ws-lantern": {
+    "path": "art/mystery-egg/ws-lantern.webp",
+    "kind": "webp",
+    "w": 56,
+    "h": 76
+  },
+  "ws-rope": {
+    "path": "art/mystery-egg/ws-rope.webp",
+    "kind": "webp",
+    "w": 10,
+    "h": 64
+  },
+  "ws-scissors": {
+    "path": "art/mystery-egg/ws-scissors.webp",
+    "kind": "webp",
+    "w": 96,
+    "h": 64
+  },
+  "ws-scissors-snip": {
+    "path": "art/mystery-egg/ws-scissors-snip.webp",
+    "kind": "sprite",
+    "w": 96,
+    "h": 64,
+    "frames": 2,
+    "fps": 12
+  },
+  "ws-bell-morning": {
+    "path": "art/mystery-egg/ws-bell-morning.webp",
+    "kind": "webp",
+    "w": 150,
+    "h": 170
+  },
+  "ws-window-frame": {
+    "path": "art/mystery-egg/ws-window-frame.webp",
+    "kind": "webp",
+    "w": 110,
+    "h": 110
+  },
+  "ws-egg-piece": {
+    "path": "art/mystery-egg/ws-egg-piece.webp",
+    "kind": "webp",
+    "w": 110,
+    "h": 110
+  },
+  "ws-capybara-facepalm": {
+    "path": "art/mystery-egg/ws-capybara-facepalm.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-capybara-ring": {
+    "path": "art/mystery-egg/ws-capybara-ring.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-capybara-cheer": {
+    "path": "art/mystery-egg/ws-capybara-cheer.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-sleeper-moustache-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-moustache-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-moustache-awake": {
+    "path": "art/mystery-egg/ws-sleeper-moustache-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-bruno-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-bruno-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-bruno-awake": {
+    "path": "art/mystery-egg/ws-sleeper-bruno-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-plume-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-plume-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-plume-awake": {
+    "path": "art/mystery-egg/ws-sleeper-plume-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-cocopom-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-cocopom-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-cocopom-awake": {
+    "path": "art/mystery-egg/ws-sleeper-cocopom-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-pip-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-pip-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-pip-awake": {
+    "path": "art/mystery-egg/ws-sleeper-pip-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-grandpere-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-grandpere-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-grandpere-awake": {
+    "path": "art/mystery-egg/ws-sleeper-grandpere-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "sfx-ws-trapdoor": {
+    "path": "audio/mystery-egg/sfx-ws-trapdoor.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-snip": {
+    "path": "audio/mystery-egg/sfx-ws-snip.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-rope-swish": {
+    "path": "audio/mystery-egg/sfx-ws-rope-swish.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-domino-clack": {
+    "path": "audio/mystery-egg/sfx-ws-domino-clack.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-sandbag-thump": {
+    "path": "audio/mystery-egg/sfx-ws-sandbag-thump.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-seesaw-creak": {
+    "path": "audio/mystery-egg/sfx-ws-seesaw-creak.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-bell-morning": {
+    "path": "audio/mystery-egg/sfx-ws-bell-morning.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-lantern-clonk": {
+    "path": "audio/mystery-egg/sfx-ws-lantern-clonk.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-town-wake": {
+    "path": "audio/mystery-egg/sfx-ws-town-wake.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-yawn": {
+    "path": "audio/mystery-egg/sfx-ws-yawn.ogg",
+    "kind": "sfx"
+  },
+  "sfx-ws-snore": {
+    "path": "audio/mystery-egg/sfx-ws-snore.ogg",
+    "kind": "sfx"
+  },
+  "vo-fr-ws-l20-story": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-story.ogg",
+    "kind": "vo",
+    "transcript": "Toute la ville dort encore ! Il faut sonner les deux cloches !",
+    "lang": "fr"
+  },
+  "vo-he-ws-l20-goal": {
+    "path": "audio/mystery-egg/vo-he-ws-l20-goal.ogg",
+    "kind": "vo",
+    "transcript": "בואי נעיר את כל העיר! צריך לצלצל בשני הפעמונים, les cloches: בפעמון הקטן וגם בפעמון הגדול.",
+    "lang": "he"
+  },
+  "vo-he-ws-dominoes-gap": {
+    "path": "audio/mystery-egg/vo-he-ws-dominoes-gap.ogg",
+    "kind": "vo",
+    "transcript": "בשורת הדומינו אסור שיהיה חור גדול.",
+    "lang": "he"
+  },
+  "vo-he-ws-scissors-which": {
+    "path": "audio/mystery-egg/vo-he-ws-scissors-which.ogg",
+    "kind": "vo",
+    "transcript": "איזה חוט מחזיק את השק? את החוט הזה גוזרים, עם המספריים.",
+    "lang": "he"
+  },
+  "vo-fr-ws-l20-one-bell": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-one-bell.ogg",
+    "kind": "vo",
+    "transcript": "Mmm… encore une cloche… Zzz…",
+    "lang": "fr"
+  },
+  "vo-fr-ws-l20-bonjour": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-bonjour.ogg",
+    "kind": "vo",
+    "transcript": "Bonjour, Ville des Surprises !",
+    "lang": "fr"
+  },
+  "vo-fr-ws-l20-success": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-success.ogg",
+    "kind": "vo",
+    "transcript": "Bravo ! Tu as réveillé toute la ville !",
+    "lang": "fr"
+  },
+  "vo-he-ws-egg-piece": {
+    "path": "audio/mystery-egg/vo-he-ws-egg-piece.ogg",
+    "kind": "vo",
+    "transcript": "חתיכה חדשה לקן של הביצה!",
+    "lang": "he"
+  }
+}

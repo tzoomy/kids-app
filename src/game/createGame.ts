@@ -53,7 +53,8 @@ import { applyWardrobeSeed, buildWardrobeInfo } from '../games/wardrobe/wardrobe
 import { loadWardrobeState, saveWardrobeState } from '../core/wardrobe/store';
 import { MysteryEggScene } from '../games/mysteryEgg/MysteryEggScene';
 import { MysteryEggBuildScene } from '../games/mysteryEgg/MysteryEggBuildScene';
-import type { MysteryEggInfo, MysteryEggSeed } from '../games/mysteryEgg/types';
+import { WorkshopL20Scene } from '../games/mysteryEgg/workshop/WorkshopL20Scene';
+import type { MysteryEggInfo, MysteryEggSeed, WorkshopL20Info } from '../games/mysteryEgg/types';
 import { seedToSave, mysteryEggKey } from '../games/mysteryEgg/progress';
 import type { AppContext } from './appContext';
 import type { Store } from '../core/storage/store';
@@ -159,7 +160,7 @@ declare global {
       /** Writes the active profile's Mystery Egg progress key only (seed only; no navigation, no game action). Call on the map. */
       seedMysteryEggProgress: (seed: MysteryEggSeed) => void;
       /** Read-only snapshot of the active Mystery Egg scene (hub or mission); null when neither is active. Rectangles are page CSS px. */
-      getMysteryEggInfo: () => MysteryEggInfo | null;
+      getMysteryEggInfo: () => MysteryEggInfo | WorkshopL20Info | null;
       /** Whether the current learning session is reporting listening. Read-only, ?e2e=1 only. */
       isListening: () => boolean;
       /** Names of the currently active scenes. */
@@ -203,7 +204,8 @@ function seedWardrobeStateForProfile(profileId: string, seed: WardrobeSeed): voi
   saveWardrobeState(window.localStorage, profileId, applyWardrobeSeed(seed));
 }
 
-export function createGame(parent: HTMLElement, context: AppContext): Phaser.Game {
+/** `startScene` boots straight into a scene after preload (the `?level=20` preview route); the default is the map. */
+export function createGame(parent: HTMLElement, context: AppContext, startScene?: string): Phaser.Game {
   const { width, height } = pickBaseSize();
   registerProjectArt();
 
@@ -221,6 +223,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
     // Map/Restaurant/Bubbles are added inactive and started explicitly on navigation,
     // so their create() doesn't fire until entered.
     scene: [PreloadScene],
+    callbacks: { preBoot: (g) => g.registry.set('startScene', startScene ?? null) },
   });
 
   game.scene.add('MapScene', MapScene, false);
@@ -246,6 +249,7 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
   game.scene.add('MagnetScene', MagnetScene, false);
   game.scene.add('MysteryEggScene', MysteryEggScene, false);
   game.scene.add('MysteryEggBuildScene', MysteryEggBuildScene, false);
+  game.scene.add('WorkshopL20Scene', WorkshopL20Scene, false);
 
   game.registry.set('appContext', context);
 
@@ -548,6 +552,13 @@ export function createGame(parent: HTMLElement, context: AppContext): Phaser.Gam
       window.localStorage.setItem(mysteryEggKey(context.requireProfileId()), JSON.stringify(seedToSave(seed)));
     },
     getMysteryEggInfo() {
+      if (game.scene.isActive('WorkshopL20Scene')) {
+        try {
+          return (game.scene.getScene('WorkshopL20Scene') as WorkshopL20Scene).getWorkshopL20Info();
+        } catch {
+          return null;
+        }
+      }
       if (game.scene.isActive('MysteryEggBuildScene')) {
         // Null until the scene has drawn (its assets may still be loading), instead of throwing mid-load.
         try {

@@ -25,7 +25,8 @@ export class PreloadScene extends Phaser.Scene {
 
   init(data: PreloadData): void {
     setAppScreen('loading');
-    this.next = data?.next ?? 'MapScene';
+    // `startScene` (registry) is set by the `?level=20` preview route; without it the app starts on the map as always.
+    this.next = data?.next ?? (this.registry.get('startScene') as string | null | undefined) ?? 'MapScene';
     this.started = false;
   }
 

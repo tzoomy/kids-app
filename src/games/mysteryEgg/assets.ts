@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import rawManifest from '../../content/mysteryEggAssets.json';
 import rawShellManifest from '../../content/gameShellAssets.json';
+import rawWorkshopManifest from '../../content/workshopAssets.json';
 
 export const assetKindSchema = z.enum(['svg', 'webp', 'sprite', 'vo', 'sfx']);
 export type AssetKind = z.infer<typeof assetKindSchema>;
@@ -71,12 +72,36 @@ export const GAME_SHELL_ASSET_IDS = [
   'vo-shell-ws-1-hero', 'vo-shell-ws-1-narr', 'vo-shell-ws-2-robot',
 ] as const;
 
+const WORKSHOP_SLEEPERS = ['moustache', 'bruno', 'plume', 'cocopom', 'pip', 'grandpere'] as const;
+
+/**
+ * Workshop level 20 ids: the media contract `docs/specs/workshop-l20-assets.md`, manifest `src/content/workshopAssets.json`
+ * (a separate file: the 1.1 manifest's ids are pinned). Existing keys (part-ramp, part-bell, capybara, egg-nest-N, ...) are
+ * reused by their existing key and never listed here. `ws-string-socket` is code-only (no file).
+ */
+export const WORKSHOP_ASSET_IDS = [
+  'ws-l20-bg-dawn', 'ws-l20-bg-morning', 'ws-l20-fixtures',
+  'ws-domino', 'ws-seesaw', 'ws-sandbag', 'ws-lantern', 'ws-rope', 'ws-scissors', 'ws-scissors-snip',
+  'ws-bell-morning', 'ws-window-frame', 'ws-egg-piece',
+  'ws-capybara-facepalm', 'ws-capybara-ring', 'ws-capybara-cheer',
+  ...WORKSHOP_SLEEPERS.flatMap((id) => [`ws-sleeper-${id}-asleep`, `ws-sleeper-${id}-awake`]),
+  'sfx-ws-trapdoor', 'sfx-ws-snip', 'sfx-ws-rope-swish', 'sfx-ws-domino-clack', 'sfx-ws-sandbag-thump', 'sfx-ws-seesaw-creak',
+  'sfx-ws-bell-morning', 'sfx-ws-lantern-clonk', 'sfx-ws-town-wake', 'sfx-ws-yawn', 'sfx-ws-snore',
+  'vo-fr-ws-l20-story', 'vo-he-ws-l20-goal', 'vo-he-ws-dominoes-gap', 'vo-he-ws-scissors-which',
+  'vo-fr-ws-l20-one-bell', 'vo-fr-ws-l20-bonjour', 'vo-fr-ws-l20-success', 'vo-he-ws-egg-piece',
+] as const;
+
 /** Every id of the combined manifest. */
 export const MYSTERY_EGG_ASSET_IDS = [...PROTOTYPE_ASSET_IDS, ...GAME_SHELL_ASSET_IDS] as const;
 export type MysteryEggAssetId = (typeof MYSTERY_EGG_ASSET_IDS)[number];
 
 /** Full-screen images delivered at 1x (file px = display px); every other art file is 2x. */
 export const ONE_X_ART_IDS: readonly string[] = ['hub-bg', 'map-bg', 'shell-intro-1', 'shell-intro-2', 'shell-intro-3', 'shell-intro-4', 'shell-ws-1', 'shell-ws-2'];
+
+/** The Workshop L20 full-screen backgrounds, also delivered at 1x (every other Workshop art file is 2x). */
+export const WORKSHOP_ONE_X_ART_IDS: readonly string[] = ['ws-l20-bg-dawn', 'ws-l20-bg-morning'];
+/** Every 1x art id of every manifest. */
+export const ALL_ONE_X_ART_IDS: readonly string[] = [...ONE_X_ART_IDS, ...WORKSHOP_ONE_X_ART_IDS];
 
 export type AssetManifest = Record<string, AssetEntry>;
 
@@ -98,6 +123,11 @@ export function parseGameShellManifest(input: unknown): AssetManifest {
   return parseExact(input, GAME_SHELL_ASSET_IDS, 'Game shell manifest');
 }
 
+/** Validates `workshopAssets.json` (the Workshop L20 contract) and requires exactly its ids. */
+export function parseWorkshopManifest(input: unknown): AssetManifest {
+  return parseExact(input, WORKSHOP_ASSET_IDS, 'Workshop manifest');
+}
+
 /** One combined manifest from several files; the same id in two files is an error. */
 export function mergeManifests(...parts: AssetManifest[]): AssetManifest {
   const out: AssetManifest = {};
@@ -116,8 +146,27 @@ export function mysteryEggManifest(): AssetManifest {
   return cached;
 }
 
+let cachedWorkshop: AssetManifest | null = null;
+/** The Workshop L20 manifest alone. */
+export function workshopManifest(): AssetManifest {
+  cachedWorkshop ??= parseWorkshopManifest(rawWorkshopManifest);
+  return cachedWorkshop;
+}
+
+let cachedAll: AssetManifest | null = null;
+/** Every manifest file merged (1.1 + game shell + Workshop); a duplicated key throws. Lookups by id use this. */
+export function allAssetsManifest(): AssetManifest {
+  cachedAll ??= mergeManifests(mysteryEggManifest(), workshopManifest());
+  return cachedAll;
+}
+
+/** Voice line ids of every manifest (the voice provider plays all of them). */
+export function allVoiceIds(): string[] {
+  return Object.entries(allAssetsManifest()).filter(([, e]) => e.kind === 'vo').map(([id]) => id);
+}
+
 export function assetEntry(id: string): AssetEntry {
-  const entry = mysteryEggManifest()[id];
+  const entry = allAssetsManifest()[id];
   if (!entry) throw new Error(`Unknown Mystery Egg asset id: ${id}`);
   return entry;
 }

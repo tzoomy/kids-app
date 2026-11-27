@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 import { animatedSpriteSpec, displaySize, spriteFrameRects, spriteSpec, type SpriteSpec } from './assets';
 import { rampPlaceholderShape } from './layout';
 import { drawShellPlaceholder } from './shellArt';
+import { drawWorkshopPlaceholder } from './workshop/l20Art';
 import { eggAvailability } from './voiceProvider';
 
 const BROWN = 0x8a5a33;
@@ -226,6 +227,7 @@ export function drawPlaceholder(g: G, id: string): void {
       g.fillRect(-w * 0.3, -h * 0.15, w * 0.6, h * 0.3);
       break;
     default:
+      if (drawWorkshopPlaceholder(g, id)) return;
       if (drawShellPlaceholder(g, id, w, h)) return;
       g.fillStyle(0xcccccc, 0.5);
       g.fillRect(-w / 2, -h / 2, w, h);
