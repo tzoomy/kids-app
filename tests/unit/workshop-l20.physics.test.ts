@@ -78,6 +78,47 @@ describe('workshop L20 physics', () => {
     });
   }
 
+  // Live regression (QA 2026-11-27): Phaser's MatterPhysics plugin constructor (any Matter-enabled scene, e.g. the egg build scene)
+  // overwrites the GLOBAL Resolver constants (_restingThresh 2 -> 4, _restingThreshTangent sqrt(6) -> 6), so the browser ran a
+  // different world than the headless tests and {500,580} won live. The world pins its own constants for every Matter call.
+  describe('[AC-02] independent of the global Resolver constants (Phaser plugin overwrite)', () => {
+    type Resolver = { _restingThresh: number; _restingThreshTangent: number; _positionDampen: number; _positionWarming: number; _frictionNormalMultiplier: number };
+    const R = (Matter as unknown as { Resolver: Resolver }).Resolver;
+    const PHASER_PLUGIN = { _restingThresh: 4, _restingThreshTangent: 6, _positionDampen: 0.9, _positionWarming: 0.8, _frictionNormalMultiplier: 5 };
+    const withPluginValues = <T>(fn: () => T): T => {
+      const saved = { ...R };
+      Object.assign(R, PHASER_PLUGIN);
+      try {
+        return fn();
+      } finally {
+        Object.assign(R, saved);
+      }
+    };
+
+    it('{500,580} + ramp down-right + scissors A fails with morning-only, with the same events as the library defaults', () => {
+      const base = simulateL20(Matter, solution([500, 580]));
+      const plugin = withPluginValues(() => simulateL20(Matter, solution([500, 580])));
+      expect(plugin.run).toMatchObject({ result: 'fail', reason: 'morning-only' });
+      expect(plugin.events).toEqual(base.events);
+      expect(plugin.run).toEqual(base.run);
+    });
+
+    it('both valid sets give the same events under the plugin values as under the library defaults', () => {
+      for (const slots of [[460, 620], [500, 620]]) {
+        const base = simulateL20(Matter, solution(slots));
+        expect(withPluginValues(() => simulateL20(Matter, solution(slots))).events).toEqual(base.events);
+      }
+    });
+
+    it('does not leak: the global constants are restored after a run', () => {
+      withPluginValues(() => {
+        simulateL20(Matter, solution([460, 620]));
+        expect(R._restingThresh).toBe(4);
+        expect(R._restingThreshTangent).toBe(6);
+      });
+    });
+  });
+
   it('[AC-02] scissors on B cut the lantern: the morning bell stays silent and the lantern falls', () => {
     const run = simulateL20(Matter, { ramp: 'down-right', slots: [460, 620], scissors: 'B' });
     const ids = run.events.map((e) => e.id);

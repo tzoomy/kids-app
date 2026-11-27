@@ -55,7 +55,25 @@ interface L20Engine {
   world: unknown;
   gravity: { x: number; y: number; scale: number };
 }
+/** Matter's global collision-resolver constants. Phaser's MatterPhysics plugin overwrites them at scene creation. */
+export type L20ResolverConstants = Record<'_restingThresh' | '_restingThreshTangent' | '_positionDampen' | '_positionWarming' | '_frictionNormalMultiplier', number>;
+
+/**
+ * The constants the v4 simulator and the unit tests run with (the Matter library defaults of Phaser 3.90's bundled build).
+ * Phaser's MatterPhysics plugin constructor sets the GLOBAL Resolver to _restingThresh 4 / _restingThreshTangent 6 as soon as any
+ * Matter-enabled scene exists (the egg build scene), which made the live game a different world: {500,580} won live (QA 2026-11-27).
+ * The world pins these for every Engine.update and restores the caller's values afterwards, so live == headless == sim.
+ */
+export const L20_RESOLVER: Readonly<L20ResolverConstants> = {
+  _restingThresh: 2,
+  _restingThreshTangent: Math.sqrt(6),
+  _positionDampen: 0.9,
+  _positionWarming: 0.8,
+  _frictionNormalMultiplier: 5,
+};
+
 export interface L20Matter {
+  Resolver?: Partial<L20ResolverConstants>;
   Engine: { create(opts?: object): L20Engine; update(engine: L20Engine, delta?: number): void };
   Bodies: {
     circle(x: number, y: number, r: number, opts?: object): L20Body;
@@ -231,7 +249,7 @@ export class L20World {
     this.ropes = { A: this.ropeA, B: this.ropeB };
     this.bodies = { ball: null, sandbag, lantern, seesaw, ramp, dominoes };
 
-    for (let i = 0; i < L20_SETTLE_STEPS; i++) Engine.update(this.engine, L20_STEP_MS);
+    for (let i = 0; i < L20_SETTLE_STEPS; i++) this.advance();
 
     M.Events.on(this.engine, 'collisionStart', (e) => {
       for (const pair of e.pairs) {
@@ -248,6 +266,22 @@ export class L20World {
         }
       }
     });
+  }
+
+  /** One Matter step with the pinned Resolver constants (see L20_RESOLVER); the caller's global values are restored. */
+  private advance(): void {
+    const resolver = this.M.Resolver;
+    if (!resolver) {
+      this.M.Engine.update(this.engine, L20_STEP_MS);
+      return;
+    }
+    const saved = { ...resolver };
+    Object.assign(resolver, L20_RESOLVER);
+    try {
+      this.M.Engine.update(this.engine, L20_STEP_MS);
+    } finally {
+      Object.assign(resolver, saved);
+    }
   }
 
   /** The sim's jitter: v +- opts.jitter px, drawn from the seeded generator in creation order. */
@@ -304,7 +338,7 @@ export class L20World {
   /** One fixed step; returns true while the run goes on. */
   step(): boolean {
     if (this.run.state !== 'running') return false;
-    const { Engine, Collision } = this.M;
+    const { Collision } = this.M;
     for (const g of [this.goals.coco, this.goals.morning]) {
       if (!g || g.hit !== null) continue;
       for (const b of this.dynamics()) {
@@ -325,7 +359,7 @@ export class L20World {
         this.ev(`domino:${d.label.slice(3)}:fallen`);
       }
     }
-    Engine.update(this.engine, L20_STEP_MS);
+    this.advance();
     if (this.n > L20_SETTLE_STEPS) {
       const moving = this.dynamics().some((b) => b.speed > L20_REST_SPEED || b.angularSpeed > L20_REST_ANGULAR);
       this.restSteps = moving ? 0 : this.restSteps + 1;
