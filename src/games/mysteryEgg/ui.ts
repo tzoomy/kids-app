@@ -7,8 +7,14 @@ export const MIN_TAP = 96;
 
 export interface EggButton {
   container: Phaser.GameObjects.Container;
+  /** The drawn (art) size, board px. */
   width: number;
   height: number;
+  /** The tappable size, board px: the art size, grown by `fitHit` (invisible; the art keeps its size). */
+  readonly hitWidth: number;
+  readonly hitHeight: number;
+  /** Grows the hit area to at least `minWorld` board px per side (the 48 CSS px touch minimum at the current board scale). */
+  fitHit(minWorld: number): void;
   /**
    * False until the scene's next frame after creation: Phaser lists a new interactive object (for hit tests) only at the next
    * pre-update, so a tap in the same frame is lost. The e2e read hook reports a button only once this is true.
@@ -119,6 +125,8 @@ export function makeButton(
   container.add(g);
   container.setSize(width, height);
   container.setInteractive({ useHandCursor: true });
+  let hitW = width;
+  let hitH = height;
   let enabled = true;
   let ready = false;
   // 'update' follows the input plugin's pre-update, which is what adds the new object to the hit-test list.
@@ -134,6 +142,19 @@ export function makeButton(
     container,
     width,
     height,
+    get hitWidth() {
+      return hitW;
+    },
+    get hitHeight() {
+      return hitH;
+    },
+    fitHit(minWorld: number) {
+      hitW = Math.max(width, minWorld);
+      hitH = Math.max(height, minWorld);
+      container.setSize(hitW, hitH);
+      // Resize the existing hit area in place (a removeInteractive + setInteractive in one frame loses the interactive).
+      if (container.input?.hitArea) (container.input.hitArea as Phaser.Geom.Rectangle).setSize(hitW, hitH);
+    },
     get ready() {
       return ready;
     },

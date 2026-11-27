@@ -209,6 +209,75 @@ test.describe('workshop L20', () => {
     });
   }
 
+  // [AC-18] touch targets: every interactive hit rect (the hook's `rects` ARE the hit rects) is at least 48 CSS px on its shortest
+  // side at every supported viewport; the viewport is set BEFORE navigation (the board is letterboxed in portrait).
+  const VIEWPORTS = [
+    { name: 'landscape 1280x800', width: 1280, height: 800 },
+    { name: 'landscape 1180x820', width: 1180, height: 820 },
+    { name: 'portrait 820x1180', width: 820, height: 1180 },
+    { name: 'portrait 800x1280', width: 800, height: 1280 },
+  ];
+  const shortest = (i: WorkshopL20Info): Array<[string, number]> =>
+    Object.entries(i.rects)
+      .filter(([, r]) => Boolean(r))
+      .map(([k, r]) => [k, Math.min((r as Rect).width, (r as Rect).height)] as [string, number]);
+  const expectAllHitsBig = (i: WorkshopL20Info, label: string): number => {
+    const sizes = shortest(i);
+    expect(sizes.length, `${label}: rects reported`).toBeGreaterThanOrEqual(15);
+    const small = sizes.filter(([, v]) => v < 48);
+    expect(small, `${label}: hit rects under 48 CSS px`).toEqual([]);
+    return Math.min(...sizes.map(([, v]) => v));
+  };
+
+  test('[AC-18] every interactive hit rect is at least 48 CSS px in the project viewport, at the start and with the parts placed', async ({ page }, testInfo) => {
+    let i = await openL20(page);
+    const start = expectAllHitsBig(i, 'start');
+    for (const k of ['playBtn', 'earBtn', 'backBtn', 'bunny', 'partRamp', 'partDomino1', 'partDomino2', 'partScissors', 'socket-R1', 'socket-slot-460', 'socket-string-A']) expect(i.rects[k as keyof typeof i.rects], k).toBeTruthy();
+    await placeSolution(page);
+    i = (await info(page))!;
+    const placed = expectAllHitsBig(i, 'placed');
+    testInfo.annotations.push({ type: 'min-hit-css-px', description: `${page.viewportSize()?.width}x${page.viewportSize()?.height}: start ${start.toFixed(1)}, placed ${placed.toFixed(1)}` });
+  });
+
+  for (const vp of VIEWPORTS) {
+    test(`[AC-18] hit rects at the explicit viewport ${vp.name}: all at least 48 CSS px, also after the parts are placed`, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      let i = await openL20(page);
+      const start = expectAllHitsBig(i, `${vp.name} start`);
+      await placeSolution(page);
+      i = (await info(page))!;
+      const placed = expectAllHitsBig(i, `${vp.name} placed`);
+      // A rotation (or a resize) re-applies the sizes: the next viewport's minimum holds without a reload.
+      await page.setViewportSize({ width: vp.height, height: vp.width });
+      i = await waitInfo(page, (x) => shortest(x).every(([, v]) => v >= 48) && x.ready, `${vp.name} rotated: hit rects did not grow back to 48 CSS px`, 10_000);
+      const rotated = expectAllHitsBig(i, `${vp.name} rotated`);
+      testInfo.annotations.push({ type: 'min-hit-css-px', description: `${vp.name}: start ${start.toFixed(1)}, placed ${placed.toFixed(1)}, rotated ${rotated.toFixed(1)}` });
+    });
+  }
+
+  test('[AC-18] @single-orientation portrait 820x1180: dropping a domino on each strip slot centre lands in that slot, and a press on a placed domino picks the NEAREST centre (slots are 40 px apart)', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await openL20(page);
+    const slotCentre = async (id: string) => centre((await info(page))!.sockets.find((s) => s.id === id)!.rect);
+    // Both dominoes next to each other first (the worst overlap): 500 then 460.
+    await dragPartToSocket(page, 'domino2', 'slot-500');
+    await dragPartToSocket(page, 'domino1', 'slot-460');
+    // A press exactly on the placed 500 picks domino2, a press on 460 picks domino1 (not the neighbour with the overlapping hit).
+    await drag(page, centre((await info(page))!.rects.partDomino2 as Rect), await slotCentre('slot-580'));
+    let i = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'domino2')?.socketId === 'slot-580', 'domino2 was not the one picked from slot 500');
+    expect(i.parts.find((p) => p.id === 'domino1')?.socketId).toBe('slot-460');
+    // Every slot centre, one after another, with the other domino standing beside it.
+    for (const slot of ['slot-500', 'slot-620', 'slot-500', 'slot-460']) {
+      const other = slot === 'slot-460' ? 'domino2' : 'domino1';
+      void other;
+      await drag(page, centre((await info(page))!.rects.partDomino1 as Rect), await slotCentre(slot));
+      i = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'domino1')?.socketId === slot && x.lastDrop?.accepted === true, `a domino dropped on the centre of ${slot} did not land there`);
+      expect(i.lastDrop).toMatchObject({ part: 'domino1', accepted: true, socketId: slot });
+      expect(i.parts.find((p) => p.id === 'domino2')?.socketId).toBe('slot-580');
+    }
+  });
+
   test('[AC-07] @single-orientation an empty board: Play fails with no win, no buzzer; the capybara mimes and Bip hints; the board resets', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await openL20(page);

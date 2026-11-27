@@ -22,6 +22,7 @@ import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, spe
 import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
 import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from './l20Trajectory';
+import { hitSide, minHitWorld, nearestHit } from './l20Touch';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import {
   BALL_START,
@@ -48,7 +49,7 @@ import {
   type L20Socket,
   type SleeperId,
 } from './l20Level';
-import { configFromPlacements, resolveL20Drop, type Placement } from './l20Sockets';
+import { configFromPlacements, resolveL20Drop, socketZoneSize, type Placement } from './l20Sockets';
 import { L20World, type L20Event, type L20Matter, type L20Run } from './l20World';
 import { RopeView, SleeperView, drawDashedCircle } from './l20Views';
 import { BELL_FRIENDS } from './l20Hints';
@@ -84,6 +85,9 @@ const PARTS: readonly PartDef[] = [
 const PLAY_POS = { x: 955, y: 750, w: 210, h: 100 } as const;
 const ROBOT_POS = { x: 1190, y: 748 } as const;
 const BUNNY_POS = { x: 60, y: 748 } as const;
+const BUNNY_SCALE = 0.38;
+/** The bunny's hit size in its own (unscaled) pixels; grown by `refreshTouch` to the 48 CSS px minimum. */
+const BUNNY_HIT = { w: 120, h: 200 } as const;
 const EAR_POS = { x: 1200, y: 620 } as const;
 /** A drag counts once the finger moved this far (board px); less is a tap (a tap on the placed ramp flips it). */
 const DRAG_THRESHOLD = 8;
@@ -204,6 +208,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private eggPieceInNest = false;
   private morningShown = false;
   private runToken = 0;
+  /** Touch targets (spec AC-18): CSS px per world px of the letterboxed board, and the 48 CSS px minimum hit side in world px. */
+  private touchScale = 1;
+  private touchMin = minHitWorld(1);
+  private touchTick = 0;
 
   constructor() {
     // No Matter plugin here: the world builds its own engine from Phaser's bundled library, fresh for every Play.
@@ -264,7 +272,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     followOrientation(this);
     fitBoard(this, PALETTE.wall);
     const refit = (): void => {
-      if (this.alive) fitBoard(this, PALETTE.wall);
+      if (!this.alive) return;
+      fitBoard(this, PALETTE.wall);
+      this.refreshTouch();
+      // The page may lay the canvas out a moment after the resize event (rotation): measure again.
+      this.time.delayedCall(120, () => this.refreshTouch());
+      this.time.delayedCall(500, () => this.refreshTouch());
     };
     this.scale.on('resize', refit);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -285,6 +298,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       () => {
         if (!this.alive) return;
         this.build();
+        this.refreshTouch(true);
         this.ready = true;
         window.__GAME_READY__ = true;
       },
@@ -294,6 +308,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     this.updateRopeStubs();
+    if (++this.touchTick % 30 === 0) this.refreshTouch();
     if (this.phase !== 'playing' || !this.world || this.world.run.state !== 'running') return;
     this.accumulator += Math.min(delta, MAX_FRAME_MS);
     let steps = 0;
@@ -424,8 +439,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.capy = eggArt(this, 'capybara', CAPYBARA.x, CAPYBARA.y).setScale(CAPYBARA.scale).setDepth(10);
     this.capyBob = this.tweens.add({ targets: this.capy, y: CAPYBARA.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.nest = eggArt(this, `egg-nest-${eggLevel(this.progress)}`, EGG_NEST.x, EGG_NEST.y).setScale(EGG_NEST.scale).setDepth(10);
-    this.bunny = eggArt(this, 'bunny', BUNNY_POS.x, BUNNY_POS.y).setDepth(25).setScale(0.38);
-    this.bunny.setSize(120, 200).setInteractive({ useHandCursor: true });
+    this.bunny = eggArt(this, 'bunny', BUNNY_POS.x, BUNNY_POS.y).setDepth(25).setScale(BUNNY_SCALE);
+    this.bunny.setSize(BUNNY_HIT.w, BUNNY_HIT.h).setInteractive({ useHandCursor: true });
     this.bunny.on('pointerdown', () => {
       if (this.phase === 'build') void this.speak('vo-fr-ws-l20-story');
     });
@@ -459,15 +474,59 @@ export class WorkshopL20Scene extends Phaser.Scene {
     if (def.id === 'ramp') this.tweens.add({ targets: container, angle: 3, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
-  /** Hit area at least `minHit` board px at the current scale (thin parts like the domino get a wider target). */
+  /**
+   * Hit area at least `minHit` board px at the current scale (thin parts like the domino get a wider target), and never under
+   * 48 CSS px (`touchMin`, world px, from the live board scale). The art keeps its size; the hit is invisible.
+   */
   private applyHit(part: PartView, scale: number): void {
     const c = part.container;
-    const min = part.def.minHit / Math.max(0.1, Math.abs(scale));
-    c.setSize(Math.max(part.artW, min), Math.max(part.artH, min));
+    const k = Math.max(0.1, Math.abs(scale));
+    const floor = Math.max(part.def.minHit, this.touchMin);
+    c.setSize(hitSide(part.artW, floor / k, 0), hitSide(part.artH, floor / k, 0));
     // Resize the existing hit area in place: removeInteractive + setInteractive in one frame loses the interactive (Phaser
     // queues the removal and nulls the new input on the next pre-update).
     if (c.input?.hitArea) (c.input.hitArea as Phaser.Geom.Rectangle).setSize(c.width, c.height);
     else c.setInteractive({ useHandCursor: true });
+  }
+
+  // ---------------------------------------------------------------- touch targets (AC-18)
+
+  /** The scale a part is drawn at right now (tray scale, or 1 on the board and while held). */
+  private partScale(part: PartView): number {
+    return part.socketId || this.dragging?.part === part ? 1 : part.def.trayScale;
+  }
+
+  /**
+   * Re-computes the board scale (CSS px per world px: the board is letterboxed, in portrait one world px is fewer CSS px) and
+   * grows every invisible hit area to 48 CSS px: tray and placed parts, the buttons and the bunny. Called after the build, on
+   * every resize (and shortly after, the page lays the canvas out late) and about twice a second as a safety net.
+   */
+  private refreshTouch(force = false): void {
+    if (!this.alive || !this.game.canvas) return;
+    const unit = boardRectToPage(this, 0, 0, 1, 1);
+    const s = unit.width;
+    if (!Number.isFinite(s) || s <= 0) return;
+    if (!force && Math.abs(s - this.touchScale) < 0.002) return;
+    this.touchScale = s;
+    this.touchMin = minHitWorld(s);
+    for (const part of this.parts.values()) this.applyHit(part, this.partScale(part));
+    for (const b of this.buttons.values()) b.fitHit(this.touchMin);
+    const side = Math.max(this.touchMin / BUNNY_SCALE, 1);
+    this.bunny.setSize(hitSide(BUNNY_HIT.w, 0, side), hitSide(BUNNY_HIT.h, 0, side));
+    if (this.bunny.input?.hitArea) (this.bunny.input.hitArea as Phaser.Geom.Rectangle).setSize(this.bunny.width, this.bunny.height);
+  }
+
+  /** The part under a press: overlapping hit areas (placed dominoes are 40 px apart) resolve to the nearest CENTRE. */
+  private partAt(x: number, y: number, fallback: PartView): PartView {
+    const cands = [...this.parts.values()].map((p) => ({
+      id: p.def.id,
+      x: p.container.x,
+      y: p.container.y,
+      w: p.container.width * Math.abs(p.container.scaleX),
+      h: p.container.height * Math.abs(p.container.scaleY),
+    }));
+    const id = nearestHit(cands, { x, y });
+    return (id ? this.parts.get(id as PartView['def']['id']) : undefined) ?? fallback;
   }
 
   // ---------------------------------------------------------------- voice
@@ -535,6 +594,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     if (this.phase !== 'build' || this.dragging) return;
     this.hideBreakPoint();
     const p = this.worldPoint(pointer);
+    part = this.partAt(p.x, p.y, part);
     this.dragging = { part, dx: part.container.x - p.x, dy: part.container.y - p.y, startX: p.x, startY: p.y, moved: false };
     part.container.setDepth(400);
   }
@@ -567,7 +627,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       return;
     }
     const occupied = new Set(this.occupiedSockets());
-    const drop = resolveL20Drop(part.def.kind, { x: part.container.x, y: part.container.y }, occupied);
+    const drop = resolveL20Drop(part.def.kind, { x: part.container.x, y: part.container.y }, occupied, L20_SOCKETS, this.touchMin);
     if (drop.accepted) {
       this.lastDrop = { part: part.def.id, accepted: true, reason: null, socketId: drop.socketId };
       this.place(part, drop.socketId, drop.x, drop.y);
@@ -1208,6 +1268,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.tweens.add({ targets: btn.container, scale: 1.08, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.continueBtn = btn;
     this.buttons.set('continueBtn', btn);
+    btn.fitHit(this.touchMin);
   }
 
   // ---------------------------------------------------------------- leaving
@@ -1228,9 +1289,9 @@ export class WorkshopL20Scene extends Phaser.Scene {
   getWorkshopL20Info(): WorkshopL20Info {
     const rects: WorkshopL20Info['rects'] = {};
     for (const [target, b] of this.buttons) {
-      if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
+      if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.hitWidth, b.hitHeight);
     }
-    rects.bunny = boardRectToPage(this, this.bunny.x, this.bunny.y, 120, 200);
+    rects.bunny = boardRectToPage(this, this.bunny.x, this.bunny.y, this.bunny.width * BUNNY_SCALE, this.bunny.height * BUNNY_SCALE);
     const targetOf = { ramp: 'partRamp', domino1: 'partDomino1', domino2: 'partDomino2', scissors: 'partScissors' } as const;
     const parts: WorkshopL20Info['parts'] = [];
     for (const part of this.parts.values()) {
@@ -1243,7 +1304,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     const taken = new Map<string, string>();
     for (const part of this.parts.values()) if (part.socketId) taken.set(part.socketId, part.def.id);
     const sockets: WorkshopL20Info['sockets'] = L20_SOCKETS.map((s) => {
-      const rect = boardRectToPage(this, s.x, s.y, s.type === 'ramp' ? 240 : 60, s.type === 'ramp' ? 140 : 60);
+      const zone = socketZoneSize(s.type, this.touchMin);
+      const rect = boardRectToPage(this, s.x, s.y, zone.w, zone.h);
       rects[`socket-${s.id}`] = rect;
       return { id: s.id, type: s.type, accepts: s.accepts, x: s.x, y: s.y, occupiedBy: taken.get(s.id) ?? null, glowing: this.hintGlow === s.id, rect };
     });

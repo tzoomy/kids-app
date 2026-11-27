@@ -17,15 +17,33 @@ export type L20Drop = { accepted: true; socketId: string; x: number; y: number }
 export const SNAP_RADIUS: Record<L20Socket['type'], number> = { ramp: 150, strip: 60, string: 110 };
 
 /**
+ * The drop zone every socket is guaranteed (world px, centred on the socket) for the read hook and the touch-size check: the
+ * socket's own size (ramp 240x140, others 60x60) grown to the 48 CSS px minimum `minHit`. The real snap zone is the circle of
+ * SNAP_RADIUS around the centre, which contains this rect for the strip and the strings; the nearest centre always decides.
+ */
+export function socketZoneSize(type: L20Socket['type'], minHit: number): { w: number; h: number } {
+  const base = type === 'ramp' ? { w: 240, h: 140 } : { w: 60, h: 60 };
+  return { w: Math.max(base.w, minHit), h: Math.max(base.h, minHit) };
+}
+
+/**
  * Where a dropped part lands. The nearest socket within its own radius decides: if it accepts the part and is free the part
  * snaps to it; a socket of another type springs the part back (`wrong-part`), a taken one too (`occupied`, never hopping to
  * a neighbour); nothing in range is `too-far`. A return is always harmless: the part goes back to the tray.
  */
-export function resolveL20Drop(part: L20PartKind, at: Point, occupied: ReadonlySet<string>, sockets: readonly L20Socket[] = L20_SOCKETS): L20Drop {
+export function resolveL20Drop(
+  part: L20PartKind,
+  at: Point,
+  occupied: ReadonlySet<string>,
+  sockets: readonly L20Socket[] = L20_SOCKETS,
+  minHit = 0,
+): L20Drop {
   let nearest: { socket: L20Socket; d: number } | null = null;
   for (const socket of sockets) {
     const d = Math.hypot(at.x - socket.x, at.y - socket.y);
-    if (d > SNAP_RADIUS[socket.type]) continue;
+    // A zone is never narrower than the 48 CSS px hit (`minHit`, world px, from l20Touch): overlapping zones, the strip slots
+    // are 40 px apart, resolve to the socket whose CENTRE is nearest.
+    if (d > Math.max(SNAP_RADIUS[socket.type], minHit / 2)) continue;
     if (!nearest || d < nearest.d) nearest = { socket, d };
   }
   if (!nearest) return { accepted: false, reason: 'too-far' };
