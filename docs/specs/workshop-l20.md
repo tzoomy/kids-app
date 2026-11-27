@@ -1,0 +1,95 @@
+# `workshop-l20` — Workshop level 20 "Bonjour, Ville des Surprises !" (the finale, preview build)
+
+Status: **draft — pending owner approval** (built for a tablet preview at Maor's request; the numbers come from the v4 simulator, the level design from `workshop-levels-20-v4.md`, both kept outside the repo).
+Pass in progress: **1** (read by `npm run check:ac`).
+
+Design sources (outside the repo): `design/workshop-levels-20-v4.md` §1 (rules, hook conventions §1.9), §L20, §0.8 (the egg piece); the reference simulator `design/v4-sim/l20.cjs` + `lib4.cjs` (50/50 on both valid sets); the mockups `L20-start.jpg`, `L20-solved.jpg`. Media contract: `docs/specs/workshop-l20-assets.md`.
+
+## Summary
+
+The last level of the Workshop. The whole town still sleeps. The child sets up **four placements** — the ramp, two dominoes and the scissors — then presses Play. Two machines run at once: the **low machine** (ball down the chute, onto the ramp, into the domino row, to Coco's small bell) and the **high machine** (the scissors snip a string at Play, the sandbag falls on a seesaw, the seesaw hammers the big morning bell). Ringing **both** bells wakes the town: six friends wake in their windows and wave, the town crossfades to morning, and the **egg piece** (the final shell piece that completes the egg) flies to the nest.
+
+The level is reachable by the preview route `?level=20` (or `#/workshop/20`), independent of progress; without it the app boots exactly as before.
+
+## Learning goals
+
+- **Age 5:** planning two cause-and-effect chains at once, spatial reasoning (where a domino row has no big hole, which string holds the sack), persistence after a failed run, French listening (« Bonjour, Ville des Surprises ! »). The Hebrew robot hints explain the goal and name the problem, never the solution until the 3rd failed run (a glowing socket).
+- **Age 2:** none (the Workshop is the age-5 world).
+
+## World and why
+
+The Machine Workshop, level 20 of 20. Until the other 19 levels exist the level is entered only by the preview route; where it sits on the map afterwards is an open decision (`docs/PENDING-DECISIONS.md`).
+
+## Mechanic
+
+**Board** (world px, 1280×800, y down; `src/games/mysteryEgg/workshop/l20Level.ts` is the single source, the physics and the scene both read it): ceiling y 40–60, walls x 20–40 / 1250–1270, floor top y 700. The tray is a UI strip below the floor (y 700–800).
+
+- **Low machine** (L5 geometry): chute x 200 (walls ±42–48, y 40–150); ramp socket **R1** (200,440); the sunk cup; the domino table x 390–1100, top 560; fixed dominoes 400, 540, 700, 780, 860, 940; **strip slots 460 / 500 / 580 / 620** for the child's two dominoes (540 is pre-placed); Coco's bell (1050,470), a sensor circle r 44.
+- **High machine:** a seesaw (compound body, pivot (1000,340), arms 160/160, thickness 16, hanging from a ceiling bracket x 996–1004, right end resting on a ledge x 1150–1240, top 408); the **sandbag** (mass 24, r 36, at (860,200)) on **rope A** from the ceiling (length 140) above the left end, with a sand tray under it; a **lantern** (mass 3, r 24, at (640,220)) on **rope B** (length 160), a decoy; the **morning bell** (1150,230), sensor r 44.
+- **Parts (tray):** the ramp (arrives down-right ↘; a tap on the placed ramp flips ↘/↙), two dominoes, the scissors.
+- **Typed sockets (v4 §1.4):** R1 accepts the ramp only; the four strip slots accept dominoes only; **string A (860,110)** and **string B (640,110)** accept the scissors only. A part dropped on a socket that does not accept it springs back to the tray with `{accepted:false, reason}` (`wrong-part`, `occupied`, `too-far`); a placed part can be dragged off. The scissors sit at the **top** of the string (y 110, under the ceiling), never over the sack (this fixes the mockup mismatch).
+- **Play (a fresh engine every time, v4 §1.1):** the world is rebuilt from level data, 60 settle steps run, the scissors snip (strip `ws-scissors-snip` or a squeeze tween, `sfx-ws-snip`), the rope under them is removed (the piece below falls with the object, the top stub shrinks to 30 px) and the ball is released from the chute at (200,95) with zero speed, all on one step, as in the simulator. Fixed step 1/60 s. A run ends when every body has rested 1 s, or at the timeout (16 s).
+- **Bells:** a bell rings once when a moving body (speed ≥ 0.2 or angular speed ≥ 0.01) touches its sensor, and records which body did. **Win = Coco's bell rung by a domino AND the morning bell rung by the seesaw** (either order).
+- **Solution:** ramp ↘ in R1, dominoes in {460, 620} or {500, 620}, scissors on A. The morning bell rings at about 1 s, Coco's bell at 7.1–8.0 s. **Wrong:** {460,500}, {580,620}, {500,580}, {460,580}; R1 ↙ or empty; scissors on B or none; empty board.
+- **Town:** six windows (110×110) with their friends (busts 92×92) behind the machines: moustache (300,195), bruno (460,195), pip (760,195), grandpere (300,325), cocopom (460,325), plume (620,325). They breathe while asleep and twitch (cosmetic) when a bell rings during the run. The egg nest (centre (380,98), scale 0.35) and the capybara (feet on the floor near (120,616)) are on the board.
+- **Win finale (after the run ends):** staggered wake (150 ms per window: squash-stretch pop, asleep → awake, wave ±8°), `vo-fr-ws-l20-bonjour`, crossfade dawn → morning 1.2 s with `sfx-ws-town-wake`, confetti, the capybara cheers, the egg glows and wiggles, `ws-egg-piece` flies from the morning bell to the nest, `vo-fr-ws-l20-success`, optional `vo-he-ws-egg-piece`, `sfx-success`; the profile's egg piece is saved **once** (see Persistence); then a Continue button returns to the map.
+- **Failure (no buzzer, ever):** exactly one bell rang → the friends of that bell wake and fall asleep again (droop tween, swap back), the capybara "rings an imaginary bell", `sfx-ws-yawn`, and `vo-fr-ws-l20-one-bell` (Moustache) or `vo-fr-presque`. No bell → the capybara mime (facepalm) and a hint. The board then resets for another try (parts stay placed).
+- **Hint ladder (v4 §1.8):** the robot ear button, and the 2nd failed run → the goal hint `vo-he-ws-l20-goal` (never the solution); a failure where the domino row stopped → `vo-he-ws-dominoes-gap`; where the morning bell did not ring → `vo-he-ws-scissors-which`; the 3rd and later failures → a glowing socket (the ramp first, with `vo-he-robot-help-2`, then the scissors on A, then a domino slot); after 3 failures `vo-he-robot-breathe`.
+- **Intro:** `vo-fr-ws-l20-story`, then the goal hint (a Play cuts it).
+
+**Missing media:** every new key has a code-drawn art placeholder, a synthesized sfx and a chime + speech-bubble cue for voice; a missing file never breaks the level (the existing loader, `playEggSfx` and voice provider behaviour). Gemini delivers the files on `media/workshop-l20`; nothing in code changes when they land.
+
+## Difficulty curve
+
+Not adaptive (one fixed level, the finale). No leisure earning, no learning session, no adaptive skill key. Failed runs cost nothing.
+
+## Leisure
+
+None (`earnsLeisure` not applicable).
+
+## Player journey from the map
+
+Not wired into the map yet (see World). Preview journey: open `?level=20` → drag the ramp onto R1, two dominoes onto strip slots, the scissors onto string A → tap Play → both bells ring → the town wakes → the egg piece flies to the nest → Continue → the map.
+
+- Map building hit target: none. Entry: `?level=20` (plus `?e2e=1` for the hooks). This is a deviation from the "enter through the map" rule: there is no map entry for L20 yet; the e2e therefore starts from the preview route.
+- Seed and read hooks under `?e2e=1` (read-only, none seeds or performs a game action): `getMysteryEggInfo()` returns a `WorkshopL20Info` (`scene: 'WorkshopL20Scene'`) while the L20 scene is active: `phase` (`build` / `playing` / `feedback` / `success`), `ready`, `introDone`, `failedRuns`, `hintsGiven`, `eggPiece`, `eggLevel`, `config` (the physics config the placements make), `sockets[]` (id, type, accepts, centre, `occupiedBy`, `glowing`, page rect), `parts[]` (id, kind, position, `socketId`, `inTray`, `flipped`, page rect), `lastDrop` (`{part, accepted, reason, socketId}`), `run {state, result, reason, endStep}`, `events[] {id, step}` (v4 §1.9: `snip:A|B`, `domino:<x>:fallen`, `bell:coco:<body>`, `bell:morning:<body>`, plus `sandbag:hit-seesaw`, `lantern:floor`), `sleepers{id: {state, history}}`, `background` (`dawn` / `morning`), `capybara`, `feedback` (the last failure's kind, friends who fell asleep, mime, sfx, voice lines), `hintGlow`, `eggPieceInNest`, `partsInTrayCount`, and `rects` (page CSS px) for `playBtn`, `earBtn`, `backBtn`, `continueBtn`, `bunny`, `partRamp`, `partDomino1`, `partDomino2`, `partScissors` and `socket-<id>`.
+- Existing shared hooks used: `getActiveScenes`, `getSpokenLines`.
+- Scene key: `WorkshopL20Scene`.
+
+## Persistence
+
+The egg piece is the **final shell piece that completes the egg** (team-lead decision, 2026-11-27). It is an additive field `eggPiece: true` of the v2 Mystery Egg save (present only once earned, so older saves and builds are untouched; the save version is not bumped), set once on the first win; it gives the egg its full glow level (`eggLevel` = 5). The feather and the world pieces of older saves are untouched.
+
+## Acceptance criteria
+
+| ID | Criterion | Pass | Verified by | Orientation | Hooks used |
+|---|---|---|---|---|---|
+| AC-01 | (v4 L20-AC1) Each valid set — ramp ↘ + dominoes {460,620} + scissors on A, and {500,620} + A — rings both bells (`bell:coco:dom<x>` and `bell:morning:seesaw`) within 11.5 s, in at least 95% of jittered (±2 px, seeded) runs; the headless world matches the simulator | 1 | unit, e2e | @single-orientation | `getMysteryEggInfo` |
+| AC-02 | (v4 L20-AC2) Each listed wrong setup — dominoes {460,500}, {580,620}, {500,580}, {460,580}; ramp ↙; no ramp; scissors on B; no scissors; an empty board — never rings both bells; the failure reason says which bell rang (`coco-only`, `morning-only`, `no-bell`) | 1 | unit | @single-orientation | |
+| AC-03 | (v4 L20-AC3) After the win the profile's `eggPiece` is set exactly once (a repeat changes nothing) and completes the egg; the feather and levels of older saves are untouched | 1 | unit | @single-orientation | |
+| AC-04 | Typed sockets: R1 accepts only the ramp, the strip slots only dominoes, the strings only the scissors; a wrong, taken or far drop springs back with `{accepted:false, reason}` and never hops to a neighbouring strip slot; the config follows the placements | 1 | unit, e2e | @single-orientation | `getMysteryEggInfo` |
+| AC-05 | The scissors sit at the top of the string (socket y 110, never over the sack) and the snip is the first event of the run (`snip:A`) | 1 | e2e | both | `getMysteryEggInfo` |
+| AC-06 | Win finale: after both bells the run ends in `success`; all six friends are awake, the background is `morning`, `ws-egg-piece` reached the nest, the voice lines `vo-fr-ws-l20-bonjour` and `vo-fr-ws-l20-success` were requested, Continue appears, and the egg piece is saved once | 1 | e2e | both | `getMysteryEggInfo`, `getSpokenLines` |
+| AC-07 | Failure feedback, never a buzzer: no bell → no win, the capybara mimes, a hint line plays and the board resets; exactly one bell → the friends who woke fall asleep again (`asleep → awake → asleep`), the capybara rings an imaginary bell, `sfx-ws-yawn`, `vo-fr-ws-l20-one-bell` or `vo-fr-presque` | 1 | unit, e2e | @single-orientation | `getMysteryEggInfo`, `getSpokenLines` |
+| AC-08 | The Workshop asset manifest `src/content/workshopAssets.json` parses with the shared zod schema and holds exactly the 47 agreed keys (paths, kinds, display sizes, sprite frames/fps, transcripts and languages as in the contract; no key duplicated from the other manifests; both backgrounds 1x); every `sfx-ws-*` key has a synth placeholder and every art key a code-drawn one | 1 | unit | @single-orientation | |
+| AC-09 | Hint ladder: the ear = the goal hint; 1st failure = a targeted hint (which string / no big hole); 2nd = the goal hint; 3rd and later = a glowing socket (ramp first, with `vo-he-robot-help-2`) and `vo-he-robot-breathe` once on the 3rd; voice lines play in order and never twice | 1 | unit | @single-orientation | |
+| AC-10 | `?level=20` (or `#/workshop/20`) boots straight into the L20 board, with no profile screen and no map, independent of progress | 1 | unit, e2e | both | `getActiveScenes`, `getMysteryEggInfo` |
+| AC-11 | Without `?level=20` the app boots exactly as before: the profile screen, no L20 scene; other `level` values do nothing | 1 | unit, e2e | @single-orientation | `getActiveScenes` |
+| AC-12 | Real drag gestures solve the level: ramp → R1, dominoes → strip slots, scissors → string A, tap Play → both bells and the win; a tap flips the placed ramp; a placed part can be dragged back to the tray | 1 | e2e | both | `getMysteryEggInfo` |
+| AC-13 | Device check: touch drag and tap, 60 fps on the family tablet, audible voice and sfx once Gemini's files land, art over the physics bodies in both orientations | 1 | device | both | |
+
+## Art, animation, and audio
+
+Contract and keys: `docs/specs/workshop-l20-assets.md` (47 new keys, plus the reused `part-ramp`, `part-bell`, `part-ball`, `capybara`, `egg-nest-N`, `confetti`, `bunny`, `robot`). All media is Gemini's, delivered on `media/workshop-l20`. **Pass 1 ships code placeholders for every new key** (listed in the assets doc).
+
+## Out of scope
+
+Levels 1–19, the map entry for L20, the hint rungs 4–5 (trajectory, ghost part, Bip placing a part) and the break-point marker, the optional `ws-sleeper-<id>-wake` strips, the stage window scale (v4 §6.1, open decision), portrait-specific layout of the tray.
+
+## Open decisions for the owner
+
+See `docs/PENDING-DECISIONS.md` (rows dated 2026-11-27, "Workshop L20").
+
+## Changelog
+
+- `2026-11-27` — first draft, built with the preview route `?level=20` (branch `feat/workshop-l20-preview`).

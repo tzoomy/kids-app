@@ -269,14 +269,17 @@ export const GAME_RULES = [
     // Mystery Egg prototype (docs/specs/mystery-egg.md) and its game shell (docs/specs/game-shell.md): the folder, asset
     // manifest, media (added by the Gemini PR) and unit tests select both journeys (the shell map is the entry of the
     // Workshop game). The map button lives in shared files (MapScene, hud, shell.css) that already select the smoke set.
+    // Workshop level 20 (docs/specs/workshop-l20.md) lives in the same folder and shares its modules, so it selects its spec too.
     id: 'mystery-egg',
     match: [
       /^src\/games\/mysteryEgg\//,
-      /^src\/content\/mysteryEggAssets\.json$/,
+      /^src\/content\/(mysteryEgg|workshop)Assets\.json$/,
+      /^src\/game\/previewRoute\.ts$/,
+      /^tests\/unit\/workshop-l20[^/]*$/,
       /^public\/(art|audio)\/mystery-egg\//,
       /^tests\/unit\/(mystery-egg|game-shell)[^/]*$/,
     ],
-    specs: ['tests/e2e/mystery-egg.journey.spec.ts', 'tests/e2e/game-shell.journey.spec.ts', 'tests/e2e/game-shell.nits.spec.ts'],
+    specs: ['tests/e2e/mystery-egg.journey.spec.ts', 'tests/e2e/game-shell.journey.spec.ts', 'tests/e2e/game-shell.nits.spec.ts', 'tests/e2e/workshop-l20.spec.ts'],
   },
   {
     id: 'science-world',

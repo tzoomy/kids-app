@@ -146,7 +146,7 @@ test.describe('workshop L20', () => {
     expect(i.sockets.find((s) => s.id === 'R1')!.occupiedBy).toBeNull();
   });
 
-  test('[AC-12] the solution by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> both bells, the town wakes, the egg piece completes the egg', async ({ page }) => {
+  test('[AC-05] [AC-06] [AC-12] the solution by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> both bells, the town wakes, the egg piece completes the egg', async ({ page }) => {
     await openL20(page);
     await placeSolution(page);
     let i = (await info(page))!;
