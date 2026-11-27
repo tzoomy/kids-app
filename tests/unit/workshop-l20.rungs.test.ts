@@ -1,5 +1,5 @@
-// Workshop L20 hint rungs 4-5 (ghost part, Bip places one part) and the break-point marker (v4 §1.8; docs/specs/workshop-l20.md
-// AC-13, AC-14, AC-15). Pure, no Phaser.
+// Workshop L20 hint rungs 4-6 (trajectory, ghost part, Bip places one part) and the break-point marker (v4 §1.8; docs/specs/workshop-l20.md
+// AC-13, AC-14, AC-15, AC-17). Pure, no Phaser.
 import { describe, expect, it } from 'vitest';
 import { nextNeeded, partsFromConfig, planFailure, rungFor, type FailInput, type PartState } from '../../src/games/mysteryEgg/workshop/l20Hints';
 import { chooseBreakPoint } from '../../src/games/mysteryEgg/workshop/l20BreakPoint';
@@ -10,8 +10,8 @@ const withPlaced = (over: Record<string, [string | null, boolean?]>): PartState[
   tray().map((p) => (over[p.id] ? { ...p, socketId: over[p.id][0], flipped: over[p.id][1] ?? false } : p));
 
 describe('workshop L20 ladder: which rung at which fail count', () => {
-  it('[AC-13] [AC-14] rung = the fail count up to 5 (3 glow, 4 ghost, 5 Bip places one part)', () => {
-    expect([0, 1, 2, 3, 4, 5, 6, 9].map(rungFor)).toEqual([0, 1, 2, 3, 4, 5, 5, 5]);
+  it('[AC-13] [AC-14] [AC-17] ladder step = the fail count up to 6 (3 glow, 4 trajectory, 5 ghost, 6 Bip places one part)', () => {
+    expect([0, 1, 2, 3, 4, 5, 6, 7, 9].map(rungFor)).toEqual([0, 1, 2, 3, 4, 5, 6, 6, 6]);
   });
 });
 
@@ -66,39 +66,62 @@ describe('workshop L20 ladder: what each failure plans', () => {
   const emptyInput: FailInput = { failedRuns: 1, oneBellFails: 0, reason: 'no-bell', dominoRowStopped: false, config: { ramp: 'none', slots: [], scissors: 'none' } };
   const plan = (n: number, over: Partial<FailInput> = {}) => planFailure({ ...emptyInput, failedRuns: n, ...over });
 
-  it('[AC-13] 4th failure: rung 4, a ghost of the next part, "Regarde ici !", Bip places nothing', () => {
+  it('[AC-17] 4th failure: the trajectory only (beep, no new voice line), no ghost, Bip places nothing', () => {
     const p = plan(4);
     expect(p.rung).toBe(4);
+    expect(p.trajectory).toBe(true);
+    expect(p.trajectorySfx).toBe('sfx-robot-beep-1');
+    expect(p.ghost).toBeNull();
+    expect(p.bip).toBeNull();
+    expect(p.voices).not.toContain('vo-fr-robot-regarde');
+    expect(p.voices).not.toContain('vo-fr-robot-aide');
+    expect(p.voices).not.toContain('vo-he-robot-help-2');
+  });
+
+  it('[AC-13] 5th failure: the ghost of the next part, "Regarde ici !", the trajectory stays on, Bip places nothing', () => {
+    const p = plan(5);
+    expect(p.rung).toBe(5);
+    expect(p.trajectory).toBe(true);
+    expect(p.trajectorySfx).toBeNull();
     expect(p.ghost).toEqual({ partId: 'ramp', kind: 'ramp', socketId: 'R1', orientation: 'down-right', fromSocketId: null });
     expect(p.bip).toBeNull();
     expect(p.voices).toContain('vo-fr-robot-regarde');
     expect(p.voices).not.toContain('vo-fr-robot-aide');
   });
 
-  it('[AC-14] 5th and later failures: rung 5, Bip places exactly ONE part, "Je t\'aide un peu !" + beep, no ghost', () => {
-    for (const n of [5, 6, 12]) {
+  it('[AC-14] 6th and later failures: Bip places exactly ONE part, "Je t\'aide un peu !" + beep, no ghost, the trajectory stays on', () => {
+    for (const n of [6, 7, 12]) {
       const p = plan(n);
-      expect(p.rung).toBe(5);
+      expect(p.rung).toBe(6);
+      expect(p.trajectory).toBe(true);
       expect(p.bip).toMatchObject({ partId: 'ramp', socketId: 'R1' });
       expect(p.ghost).toBeNull();
       expect(p.bipSfx).toBe('sfx-robot-beep-1');
+      expect(p.trajectorySfx).toBeNull();
       expect(p.voices).toContain('vo-fr-robot-aide');
       expect(p.voices).not.toContain('vo-fr-robot-regarde');
     }
   });
 
-  it('[AC-14] rung 5 never needs the child to press Play: the plan only names a part to place', () => {
-    const p = plan(5);
+  it('[AC-17] the "Regarde ici !" line is never used twice in a row across the ladder (4th beep only, 5th speaks it)', () => {
+    const lines = [4, 5, 6].map((n) => plan(n).voices.filter((v) => v === 'vo-fr-robot-regarde').length);
+    expect(lines).toEqual([0, 1, 0]);
+  });
+
+  it('[AC-14] rung 6 never needs the child to press Play: the plan only names a part to place', () => {
+    const p = plan(6);
     expect(Object.keys(p)).not.toContain('play');
   });
 
-  it('[AC-13] [AC-14] before rung 4 nothing is shown or placed; with nothing left to fix rungs 4-5 do nothing', () => {
+  it('[AC-13] [AC-14] [AC-17] before the trajectory nothing is shown or placed; with nothing left to fix the ghost and Bip do nothing', () => {
     for (const n of [1, 2, 3]) {
+      expect(plan(n).trajectory).toBe(false);
+      expect(plan(n).trajectorySfx).toBeNull();
       expect(plan(n).ghost).toBeNull();
       expect(plan(n).bip).toBeNull();
     }
     const solved = { ramp: 'down-right' as const, slots: [460, 620], scissors: 'A' as const };
-    for (const n of [4, 5]) {
+    for (const n of [5, 6]) {
       const p = plan(n, { config: solved });
       expect(p.ghost).toBeNull();
       expect(p.bip).toBeNull();
@@ -107,7 +130,7 @@ describe('workshop L20 ladder: what each failure plans', () => {
     }
   });
 
-  it('[AC-14] rung 5 over many partial setups places one part toward a valid solution until it is complete', () => {
+  it('[AC-14] rung 6 over many partial setups places one part toward a valid solution until it is complete', () => {
     // Simulate a child who fails over and over without touching the board: Bip fixes one thing per failure.
     let parts = tray();
     const order: string[] = [];

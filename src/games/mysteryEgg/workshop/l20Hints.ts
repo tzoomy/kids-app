@@ -21,7 +21,7 @@ export interface FailInput {
   /** The domino row stopped: dominoes tipped but the chain never reached Coco's bell. */
   dominoRowStopped: boolean;
   config: L20Config;
-  /** Where every tray part is right now (rungs 4-5 need it); defaults to the parts the config implies. */
+  /** Where every tray part is right now (the ghost and Bip need it); defaults to the parts the config implies. */
   parts?: readonly PartState[];
 }
 
@@ -61,11 +61,15 @@ export interface FailPlan {
   hint: Hint | null;
   /** After 3 failed runs Bip says to breathe (once, on the 3rd). */
   breathe: boolean;
-  /** The highest rung reached: the failed-run count, up to 5. */
+  /** The ladder step reached: the failed-run count, up to 6 (3 glow, 4 trajectory, 5 ghost, 6 Bip places one part). */
   rung: number;
-  /** Rung 4: a ghost of the next needed part, pulsing in its socket until it is placed. */
+  /** From the 4th failure on: the dotted trajectory of the current setup is on (it stays on with the ghost and Bip). */
+  trajectory: boolean;
+  /** The 4th failure speaks no new line: a beep marks the new dots (the "Regarde ici !" line is kept for the ghost, never twice in a row). */
+  trajectorySfx: 'sfx-robot-beep-1' | null;
+  /** Step 5: a ghost of the next needed part, pulsing in its socket until it is placed. */
   ghost: NextNeeded | null;
-  /** Rung 5: the ONE part Bip places itself (the next needed one). */
+  /** Step 6: the ONE part Bip places itself (the next needed one). */
   bip: NextNeeded | null;
   bipSfx: 'sfx-robot-beep-1' | null;
   /** Voice lines to play in this order (one at a time; the next Play cuts them). */
@@ -108,26 +112,45 @@ export function planFailure(input: FailInput): FailPlan {
   const hint = pickHint(input.failedRuns, input);
   const breathe = input.failedRuns === 3;
   const rung = rungFor(input.failedRuns);
-  const needed = rung >= 4 ? nextNeeded(input.parts ?? partsFromConfig(input.config)) : null;
-  const ghost = rung === 4 ? needed : null;
-  const bip = rung >= 5 ? needed : null;
+  const needed = rung >= RUNG_GHOST ? nextNeeded(input.parts ?? partsFromConfig(input.config)) : null;
+  const ghost = rung === RUNG_GHOST ? needed : null;
+  const bip = rung >= RUNG_BIP ? needed : null;
+  const trajectory = rung >= RUNG_TRAJECTORY;
   const voices: string[] = [];
   const push = (id: string | null | undefined): void => {
     if (id && !voices.includes(id)) voices.push(id);
   };
   push(feedback.voice);
   if (breathe) push('vo-he-robot-breathe');
-  // Rungs 4-5 speak their own line instead of the glowing-socket hint (only when there is something to show or place).
-  push(ghost ? RUNG_GHOST_LINE : bip ? RUNG_BIP_LINE : hint?.lineId);
-  return { feedback, hint, breathe, rung, ghost, bip, bipSfx: bip ? 'sfx-robot-beep-1' : null, voices };
+  // The ghost and Bip speak their own line; the trajectory step only beeps; the glowing-socket line is spoken on the 3rd failure
+  // only (the glow itself stays on until the part is placed).
+  if (rung >= RUNG_TRAJECTORY) push(ghost ? RUNG_GHOST_LINE : bip ? RUNG_BIP_LINE : null);
+  else push(hint?.lineId);
+  return {
+    feedback,
+    hint,
+    breathe,
+    rung,
+    trajectory,
+    trajectorySfx: rung === RUNG_TRAJECTORY ? 'sfx-robot-beep-1' : null,
+    ghost,
+    bip,
+    bipSfx: bip ? 'sfx-robot-beep-1' : null,
+    voices,
+  };
 }
 
 export const RUNG_GHOST_LINE = 'vo-fr-robot-regarde';
 export const RUNG_BIP_LINE = 'vo-fr-robot-aide';
 
-/** The ladder rung a failure count reaches: 3 glowing socket, 4 ghost part, 5 Bip places one part (v4 §1.8: L20 allows rung 5). */
+/** Ladder steps (the failed-run count that reaches them). v4 §1.8 numbers the trajectory "rung 2"; the team lead moved it after the glow. */
+export const RUNG_TRAJECTORY = 4;
+export const RUNG_GHOST = 5;
+export const RUNG_BIP = 6;
+
+/** The ladder step a failure count reaches: 3 glowing socket, 4 trajectory, 5 ghost part, 6 Bip places one part (the hook's `hintRung`). */
 export function rungFor(failedRuns: number): number {
-  return Math.max(0, Math.min(5, Math.floor(failedRuns)));
+  return Math.max(0, Math.min(RUNG_BIP, Math.floor(failedRuns)));
 }
 
 const TRAY_IDS: Record<L20PartKind, readonly string[]> = { ramp: ['ramp'], domino: ['domino1', 'domino2'], scissors: ['scissors'] };
@@ -150,7 +173,7 @@ const VALID_DOMINO_SETS: readonly (readonly number[])[] = [
 /**
  * The next socket that is still wrong or empty, in the order of rung 3: the ramp down-right in R1, then the scissors on string
  * A, then a domino slot that completes {460,620} or {500,620} given what is already placed. A part from the tray is used before
- * one that has to be lifted from a wrong socket. null when the setup is already a valid one (rungs 4-5 then do nothing).
+ * one that has to be lifted from a wrong socket. null when the setup is already a valid one (the ghost and Bip then do nothing).
  */
 export function nextNeeded(parts: readonly PartState[]): NextNeeded | null {
   const ramp = parts.find((p) => p.kind === 'ramp');

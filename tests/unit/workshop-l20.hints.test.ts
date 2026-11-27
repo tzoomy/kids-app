@@ -58,6 +58,8 @@ describe('workshop L20 hint ladder', () => {
     const fourth = plan({ failedRuns: 4, reason: 'no-bell', config: empty });
     expect(fourth.hint).toEqual({ lineId: 'vo-he-robot-help-2', glow: 'R1' });
     expect(fourth.breathe).toBe(false);
+    // The glow stays through the later rungs (4 trajectory, 5 ghost, 6 Bip); the 3rd failure is the only one that speaks its line.
+    expect(fourth.voices).not.toContain('vo-he-robot-help-2');
   });
 
   it('[AC-09] the glow goes to the first missing part: ramp (also a wrong direction), then the scissors on A, then a domino slot', () => {
