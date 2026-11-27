@@ -6,6 +6,7 @@
 // `introSeenVersion` is the INTRO_VERSION the child last saw. The map shows the intro while it is below INTRO_VERSION, so an
 // existing save (introSeen true, no version) sees the current intro once after an update. `introSeen` stays in the JSON
 // (readable by older builds) and means "the current intro was seen".
+// Optional `eggPiece: true` (Workshop level 20, the final shell piece that completes the egg) is an additive v2 field.
 // Save v1 ({ v: 1, completed: ['1.1'] }) migrates on load: mission 1.1 is Workshop level 1.
 // Hearts and the gear fill derive from `completed`; nest PIECES are persisted so an earned piece is never lost when a
 // later release adds levels to a world (the threshold min(PIECE_LEVELS, levels) would otherwise move).

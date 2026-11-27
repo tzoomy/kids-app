@@ -1,6 +1,7 @@
 # Workshop L20 "Bonjour, Ville des Surprises !": asset contract (code ↔ Gemini)
 
 Status: **agreed** with Gemini on 2026-11-27 (with Gemini's amendments, applied below). Team-lead decisions: egg piece = the final shell piece that completes the egg; FR story/gags + HE Bip hints; saves/progress may change; `?level=20` jumps to L20. Spec: `docs/specs/workshop-l20.md`; manifest: `src/content/workshopAssets.json` (47 keys, pinned by `tests/unit/workshop-l20.assets.test.ts`).
+Pass in progress: **1** (same pass as the main spec; this file has no acceptance criteria of its own, its check is AC-08 in `docs/specs/workshop-l20.md`).
 Gemini owns every media file listed here. Code builds against these keys and paths. Each key is drawn as a code placeholder until its file lands, and the final PR ships only with the real files.
 Source of geometry: `src/games/mysteryEgg/workshop/l20Level.ts` (from the v4 simulator `l20.cjs` + `lib4.cjs`). A to-scale layout guide (world px, 1280×800) is kept next to the design files (`l20-layout-guide.png`); paint art over it so it matches the physics bodies.
 
