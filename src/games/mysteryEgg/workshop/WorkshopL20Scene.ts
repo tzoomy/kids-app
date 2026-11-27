@@ -18,10 +18,11 @@ import { eggLevel, loadProgress, recordEggPieceAndSave, type MysteryEggProgress 
 import { eggSpeechRequest } from '../speech';
 import { showContinueAfterVoice } from '../successTiming';
 import type { EggPhase, EggTarget, WorkshopL20Info } from '../types';
-import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
+import { drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
 import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
 import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from './l20Trajectory';
+import { drawContinueIcon } from './l20Icons';
 import { hitSide, minHitWorld, nearestHit } from './l20Touch';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import {
@@ -1143,7 +1144,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private onWin(): void {
     this.phase = 'success';
     const token = ++this.runToken;
+    // The win screen has no Play: hidden (not just dimmed), so Continue cannot be confused with it and no second run starts.
     this.playBtn.setEnabled(false);
+    this.playBtn.container.setVisible(false);
+    this.tweens.killTweensOf(this.playBtn.container);
     this.setGhost(null);
     this.hintGlow = null;
     this.refreshMarkers();
@@ -1263,7 +1267,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   private addContinue(): void {
     if (!this.alive || this.continueBtn) return;
-    const btn = makeButton(this, 640, 640, 180, 112, drawArrowIcon, () => this.goHub());
+    const btn = makeButton(this, 640, 640, 180, 112, drawContinueIcon, () => this.goHub());
     btn.container.setDepth(1000);
     this.tweens.add({ targets: btn.container, scale: 1.08, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.continueBtn = btn;
@@ -1289,7 +1293,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
   getWorkshopL20Info(): WorkshopL20Info {
     const rects: WorkshopL20Info['rects'] = {};
     for (const [target, b] of this.buttons) {
-      if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.hitWidth, b.hitHeight);
+      if (b.ready && b.container.visible) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.hitWidth, b.hitHeight);
     }
     rects.bunny = boardRectToPage(this, this.bunny.x, this.bunny.y, this.bunny.width * BUNNY_SCALE, this.bunny.height * BUNNY_SCALE);
     const targetOf = { ramp: 'partRamp', domino1: 'partDomino1', domino2: 'partDomino2', scissors: 'partScissors' } as const;

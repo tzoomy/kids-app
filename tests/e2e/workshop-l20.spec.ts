@@ -146,7 +146,7 @@ test.describe('workshop L20', () => {
     expect(i.sockets.find((s) => s.id === 'R1')!.occupiedBy).toBeNull();
   });
 
-  test('[AC-05] [AC-06] [AC-12] the solution by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> both bells, the town wakes, the egg piece completes the egg', async ({ page }) => {
+  test('[AC-05] [AC-06] [AC-12] [AC-19] the solution by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> both bells, the town wakes, the egg piece completes the egg', async ({ page }) => {
     await openL20(page);
     await placeSolution(page);
     let i = (await info(page))!;
@@ -179,7 +179,14 @@ test.describe('workshop L20', () => {
     const lines = await spoken(page);
     expect(lines).toContain('vo-fr-ws-l20-bonjour');
     await expect.poll(async () => spoken(page), { timeout: 20_000 }).toContain('vo-fr-ws-l20-success');
+    // [AC-19] the win screen: the tray Play button is gone (hidden, not just dimmed) and nothing can start another run.
+    i = (await info(page))!;
+    expect(i.phase).toBe('success');
+    expect(i.rects.playBtn).toBeUndefined();
     i = await waitInfo(page, (x) => Boolean(x.rects.continueBtn), 'Continue never appeared', 20_000);
+    expect(i.rects.playBtn).toBeUndefined();
+    expect(i.rects.continueBtn).toBeTruthy();
+    expect(Math.min((i.rects.continueBtn as Rect).width, (i.rects.continueBtn as Rect).height)).toBeGreaterThanOrEqual(48);
     // Persisted once: the profile's save holds the egg piece.
     const saved = await page.evaluate(() => Object.entries(window.localStorage).filter(([k]) => k.startsWith('kids-app-mystery-egg:')).map(([, v]) => JSON.parse(v)));
     expect(saved.some((s) => s.eggPiece === true)).toBe(true);
