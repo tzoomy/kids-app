@@ -79,5 +79,23 @@ export function dotsAlong(points: readonly TrajectoryPoint[], spacing: number): 
     }
     carry = len - (d - spacing);
   }
+  // The last dot is the last sample: a path that is not a multiple of the spacing gets its end point appended; a residual under
+  // END_SNAP px (the last dot would sit on top of it) moves the last dot onto the end point instead.
+  const end = points[points.length - 1];
+  const tail = dots[dots.length - 1];
+  const residual = Math.hypot(end.x - tail.x, end.y - tail.y);
+  if (residual > 1e-6) {
+    if (residual < END_SNAP && dots.length > 1) dots[dots.length - 1] = { ...end };
+    else dots.push({ ...end });
+  }
   return dots;
+}
+
+/** A residual shorter than this does not get a dot of its own (the dots are about 10 px across). */
+const END_SNAP = 3;
+
+/** The read-only hook field for a path: null for an empty path (never reads `points[0]`), else the point count and copies of the ends. */
+export function trajectoryInfoOf(points: readonly TrajectoryPoint[], visible: boolean): { points: number; visible: boolean; first: TrajectoryPoint; last: TrajectoryPoint } | null {
+  if (points.length === 0) return null;
+  return { points: points.length, visible, first: { ...points[0] }, last: { ...points[points.length - 1] } };
 }

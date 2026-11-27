@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import MatterModule from 'phaser/src/physics/matter-js/CustomMain.js';
 import { L20_WORLD, type L20Config } from '../../src/games/mysteryEgg/workshop/l20Level';
 import { L20World, type L20Matter } from '../../src/games/mysteryEgg/workshop/l20World';
-import { dotsAlong, trajectoryFor } from '../../src/games/mysteryEgg/workshop/l20Trajectory';
+import { dotsAlong, trajectoryFor, trajectoryInfoOf } from '../../src/games/mysteryEgg/workshop/l20Trajectory';
 
 const Matter = MatterModule as unknown as L20Matter;
 const empty: L20Config = { ramp: 'none', slots: [], scissors: 'none' };
@@ -101,5 +101,32 @@ describe('workshop L20 trajectory preview', () => {
     expect(dots.map((d) => d.x)).toEqual([0, 25, 50, 75, 100]);
     expect(dotsAlong([{ x: 5, y: 5 }], 25)).toEqual([{ x: 5, y: 5 }]);
     expect(dotsAlong([], 25)).toEqual([]);
+  });
+
+  // Gemini's nits on #121.
+  it('[AC-17] dotsAlong always ends on the last sample: a path that is not a multiple of the spacing gets the last point appended', () => {
+    const line = (len: number) => [{ x: 0, y: 0 }, { x: len, y: 0 }];
+    expect(dotsAlong(line(100), 30).map((d) => d.x)).toEqual([0, 30, 60, 90, 100]);
+    expect(dotsAlong(line(10), 30)).toEqual([{ x: 0, y: 0 }, { x: 10, y: 0 }]);
+    // An exact multiple adds nothing; a residual under 3 px snaps the last dot onto the last point instead of piling a second dot on it.
+    expect(dotsAlong(line(90), 30).map((d) => d.x)).toEqual([0, 30, 60, 90]);
+    expect(dotsAlong(line(61), 30).map((d) => d.x)).toEqual([0, 30, 61]);
+    // A bent path: the residual is measured along the polyline, the last dot is the last point.
+    const bent = [{ x: 0, y: 0 }, { x: 40, y: 0 }, { x: 40, y: 40 }];
+    const dots = dotsAlong(bent, 30);
+    expect(dots[dots.length - 1]).toEqual({ x: 40, y: 40 });
+    for (let i = 1; i < dots.length - 1; i++) expect(Math.hypot(dots[i].x - dots[i - 1].x, dots[i].y - dots[i - 1].y)).toBeGreaterThan(0);
+    // The real path of a run ends on its last sample too.
+    const pts = trajectoryFor(Matter, ramp('down-right'));
+    expect(dotsAlong(pts, 30).at(-1)).toEqual(pts[pts.length - 1]);
+  });
+
+  it('[AC-17] the hook info of a trajectory is null for an empty path (no points[0] access) and reports first/last copies otherwise', () => {
+    expect(trajectoryInfoOf([], true)).toBeNull();
+    const pts = [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }];
+    const info = trajectoryInfoOf(pts, false)!;
+    expect(info).toEqual({ points: 3, visible: false, first: { x: 1, y: 2 }, last: { x: 5, y: 6 } });
+    info.first.x = 99;
+    expect(pts[0].x).toBe(1);
   });
 });

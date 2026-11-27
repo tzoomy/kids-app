@@ -21,7 +21,7 @@ import type { EggPhase, EggTarget, WorkshopL20Info } from '../types';
 import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
 import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
-import { dotsAlong, trajectoryFor, type TrajectoryPoint } from './l20Trajectory';
+import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from './l20Trajectory';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import {
   BALL_START,
@@ -746,9 +746,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     g.setVisible(this.phase === 'build');
   }
 
-  private trajectoryInfo(): NonNullable<WorkshopL20Info['trajectory']> {
-    const pts = this.trajectoryPoints;
-    return { points: pts.length, visible: this.trajectoryView?.visible === true, first: { ...pts[0] }, last: { ...pts[pts.length - 1] } };
+  private trajectoryInfo(): WorkshopL20Info['trajectory'] {
+    return trajectoryInfoOf(this.trajectoryPoints, this.trajectoryView?.visible === true);
   }
 
   private hideTrajectory(): void {
@@ -1274,7 +1273,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       hintGlow: this.hintGlow,
       hintRung: this.hintRung,
       ghost: this.ghost ? { part: this.ghost.partId, socketId: this.ghost.socketId, orientation: this.ghost.orientation } : null,
-      trajectory: this.trajectoryPoints.length > 0 ? this.trajectoryInfo() : null,
+      trajectory: this.trajectoryInfo(),
       bipPlaced: this.bipPlaced.map((b) => ({ ...b })),
       breakPoint: this.breakPoint ? { ...this.breakPoint } : null,
       eggPieceInNest: this.eggPieceInNest,
