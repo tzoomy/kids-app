@@ -42,5 +42,53 @@
   "sfx-ws-trapdoor": {
     "path": "audio/mystery-egg/sfx-ws-trapdoor.ogg",
     "kind": "sfx"
+  },
+  "vo-fr-ws-l20-story": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-story.ogg",
+    "kind": "vo",
+    "transcript": "Toute la ville dort encore ! Il faut sonner les deux cloches !",
+    "lang": "fr"
+  },
+  "vo-he-ws-l20-goal": {
+    "path": "audio/mystery-egg/vo-he-ws-l20-goal.ogg",
+    "kind": "vo",
+    "transcript": "בואי נעיר את כל העיר! צריך לצלצל בשני הפעמונים, les cloches: בפעמון הקטן וגם בפעמון הגדול.",
+    "lang": "he"
+  },
+  "vo-he-ws-dominoes-gap": {
+    "path": "audio/mystery-egg/vo-he-ws-dominoes-gap.ogg",
+    "kind": "vo",
+    "transcript": "בשורת הדומינו אסור שיהיה חור גדול.",
+    "lang": "he"
+  },
+  "vo-he-ws-scissors-which": {
+    "path": "audio/mystery-egg/vo-he-ws-scissors-which.ogg",
+    "kind": "vo",
+    "transcript": "איזה חוט מחזיק את השק? את החוט הזה גוזרים, עם המספריים.",
+    "lang": "he"
+  },
+  "vo-fr-ws-l20-one-bell": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-one-bell.ogg",
+    "kind": "vo",
+    "transcript": "Mmm… encore une cloche… Zzz…",
+    "lang": "fr"
+  },
+  "vo-fr-ws-l20-bonjour": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-bonjour.ogg",
+    "kind": "vo",
+    "transcript": "Bonjour, Ville des Surprises !",
+    "lang": "fr"
+  },
+  "vo-fr-ws-l20-success": {
+    "path": "audio/mystery-egg/vo-fr-ws-l20-success.ogg",
+    "kind": "vo",
+    "transcript": "Bravo ! Tu as réveillé toute la ville !",
+    "lang": "fr"
+  },
+  "vo-he-ws-egg-piece": {
+    "path": "audio/mystery-egg/vo-he-ws-egg-piece.ogg",
+    "kind": "vo",
+    "transcript": "חתיכה חדשה לקן של הביצה!",
+    "lang": "he"
   }
 }
