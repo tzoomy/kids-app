@@ -185,6 +185,30 @@ test.describe('workshop L20', () => {
     expect(saved.some((s) => s.eggPiece === true)).toBe(true);
   });
 
+  // Live regression (QA 2026-11-27): the listed-wrong set {500,580} + ramp down-right + scissors on A won live because Phaser's Matter
+  // plugin changed the global resolver constants and the fixed domino stood exactly where the fallen 580 reaches. Real drags only.
+  for (const slots of [[500, 580], [460, 580]]) {
+    test(`[AC-02] @single-orientation the distractor set {${slots.join(',')}} + ramp down-right + scissors on A: the row stops, the morning bell rings, Coco's bell never does (fail, no win)`, async ({ page }, testInfo) => {
+      landscapeOnly(testInfo);
+      await openL20(page);
+      await dragPartToSocket(page, 'ramp', 'R1');
+      await dragPartToSocket(page, 'domino1', `slot-${slots[0]}`);
+      await dragPartToSocket(page, 'domino2', `slot-${slots[1]}`);
+      await dragPartToSocket(page, 'scissors', 'string-A');
+      expect((await info(page))!.config).toEqual({ ramp: 'down-right', slots, scissors: 'A' });
+      await tapPlay(page);
+      const i = await waitInfo(page, (x) => x.run.state === 'ended', 'the run never ended', 60_000);
+      const ids = i.events.map((e) => e.id);
+      expect(ids).toContain('bell:morning:seesaw');
+      expect(ids.some((id) => id.startsWith('bell:coco:'))).toBe(false);
+      expect(ids).not.toContain('domino:710:fallen');
+      expect(i.run).toMatchObject({ result: 'fail', reason: 'morning-only' });
+      const after = await waitInfo(page, (x) => x.phase === 'feedback' || x.phase === 'build', 'no failure feedback', 20_000);
+      expect(after.eggPiece).toBe(false);
+      expect(after.phase).not.toBe('success');
+    });
+  }
+
   test('[AC-07] @single-orientation an empty board: Play fails with no win, no buzzer; the capybara mimes and Bip hints; the board resets', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await openL20(page);
