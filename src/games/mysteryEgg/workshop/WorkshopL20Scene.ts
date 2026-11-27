@@ -109,7 +109,7 @@ const BIP_PLACE_MS = 700;
 const BREAK_RADIUS = 46;
 /** Trajectory dots (board px): spacing along the path, radius, the debounce after the last board change, the depth (behind the parts). */
 const TRAJ_SPACING = 30;
-const TRAJ_DOT = 5.5;
+const TRAJ_DOT = 6.5;
 const TRAJ_DEBOUNCE_MS = 200;
 const TRAJ_DEPTH = 12.5;
 const TRAJ_COLOR = 0x5b6fd6;
@@ -737,8 +737,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     g.clear();
     dots.forEach((d, i) => {
       const t = dots.length > 1 ? i / (dots.length - 1) : 0;
-      const alpha = 0.85 - 0.5 * t;
-      g.fillStyle(0xffffff, alpha * 0.45);
+      const alpha = 0.95 - 0.5 * t;
+      g.fillStyle(0xffffff, alpha * 0.6);
       g.fillCircle(d.x, d.y, TRAJ_DOT + 3);
       g.fillStyle(TRAJ_COLOR, alpha);
       g.fillCircle(d.x, d.y, TRAJ_DOT);
