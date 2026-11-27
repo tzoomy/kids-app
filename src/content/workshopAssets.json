@@ -90,5 +90,131 @@
     "kind": "vo",
     "transcript": "חתיכה חדשה לקן של הביצה!",
     "lang": "he"
+  },
+  "ws-domino": {
+    "path": "art/mystery-egg/ws-domino.webp",
+    "kind": "webp",
+    "w": 28,
+    "h": 114
+  },
+  "ws-sandbag": {
+    "path": "art/mystery-egg/ws-sandbag.webp",
+    "kind": "webp",
+    "w": 84,
+    "h": 96
+  },
+  "ws-lantern": {
+    "path": "art/mystery-egg/ws-lantern.webp",
+    "kind": "webp",
+    "w": 56,
+    "h": 76
+  },
+  "ws-bell-morning": {
+    "path": "art/mystery-egg/ws-bell-morning.webp",
+    "kind": "webp",
+    "w": 150,
+    "h": 170
+  },
+  "ws-window-frame": {
+    "path": "art/mystery-egg/ws-window-frame.webp",
+    "kind": "webp",
+    "w": 110,
+    "h": 110
+  },
+  "ws-egg-piece": {
+    "path": "art/mystery-egg/ws-egg-piece.webp",
+    "kind": "webp",
+    "w": 110,
+    "h": 110
+  },
+  "ws-capybara-cheer": {
+    "path": "art/mystery-egg/ws-capybara-cheer.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-capybara-ring": {
+    "path": "art/mystery-egg/ws-capybara-ring.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-capybara-facepalm": {
+    "path": "art/mystery-egg/ws-capybara-facepalm.webp",
+    "kind": "webp",
+    "w": 220,
+    "h": 280
+  },
+  "ws-sleeper-moustache-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-moustache-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-moustache-awake": {
+    "path": "art/mystery-egg/ws-sleeper-moustache-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-bruno-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-bruno-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-bruno-awake": {
+    "path": "art/mystery-egg/ws-sleeper-bruno-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-plume-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-plume-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-plume-awake": {
+    "path": "art/mystery-egg/ws-sleeper-plume-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-cocopom-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-cocopom-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-cocopom-awake": {
+    "path": "art/mystery-egg/ws-sleeper-cocopom-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-pip-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-pip-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-pip-awake": {
+    "path": "art/mystery-egg/ws-sleeper-pip-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-grandpere-asleep": {
+    "path": "art/mystery-egg/ws-sleeper-grandpere-asleep.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
+  },
+  "ws-sleeper-grandpere-awake": {
+    "path": "art/mystery-egg/ws-sleeper-grandpere-awake.webp",
+    "kind": "webp",
+    "w": 92,
+    "h": 92
   }
 }
