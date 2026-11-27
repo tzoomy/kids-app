@@ -204,7 +204,7 @@ export class L20World {
       ramp = add(Bodies.fromVertices(x + c.x, y + c.y, [verts], STATIC));
     }
 
-    // Dominoes: the fixed ones and the child's, in the sim's order (400, 540, <slots ascending>, 700, 780, 860, 940).
+    // Dominoes: the fixed ones and the child's, in the sim's order (400, 540, <slots ascending>, 710, 780, 860, 940).
     const slots = [...config.slots].sort((a, b) => a - b);
     const dominoes: L20Body[] = [];
     for (const x of [FIXED_DOMINOES[0], FIXED_DOMINOES[1], ...slots, ...FIXED_DOMINOES.slice(2)]) {

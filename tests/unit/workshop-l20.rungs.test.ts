@@ -156,11 +156,11 @@ describe('workshop L20 break-point marker', () => {
   });
 
   it('[AC-15] the domino row stopped: the centre of the gap between the last fallen and the first standing domino', () => {
-    // Slots {500,580}: the row 400, 500, 540, 580 falls, 700 stands -> the gap between 580 and 700.
+    // Slots {500,580}: the row 400, 500, 540, 580 falls, 710 stands -> the gap between 580 and 710.
     const bp = chooseBreakPoint({ reason: 'no-bell', events: dom(400, 500, 540, 580), config: { ramp: 'down-right', slots: [500, 580], scissors: 'none' } });
-    expect(bp).toMatchObject({ kind: 'domino-gap', x: 640 });
-    // Slots {460,500}: the row 400, 460, 500, 540 falls, then a hole 540 -> 700.
-    expect(chooseBreakPoint({ reason: 'morning-only', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 620 });
+    expect(bp).toMatchObject({ kind: 'domino-gap', x: 645 });
+    // Slots {460,500}: the row 400, 460, 500, 540 falls, then a hole 540 -> 710.
+    expect(chooseBreakPoint({ reason: 'morning-only', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 625 });
     // Only the first fixed domino fell: the gap right after it (400 -> 540, no slot used).
     expect(chooseBreakPoint({ reason: 'no-bell', events: dom(400), config: { ramp: 'down-right', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'domino-gap', x: 470 });
   });
@@ -172,7 +172,7 @@ describe('workshop L20 break-point marker', () => {
   });
 
   it('[AC-15] Coco rang but the morning bell did not: the string socket A', () => {
-    expect(chooseBreakPoint({ reason: 'coco-only', events: dom(400, 460, 540, 620, 700, 780, 860, 940), config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'string', x: 860, y: 110 });
+    expect(chooseBreakPoint({ reason: 'coco-only', events: dom(400, 460, 540, 620, 710, 780, 860, 940), config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'string', x: 860, y: 110 });
     expect(chooseBreakPoint({ reason: 'coco-only', events: [], config: { ...solved, scissors: 'none' } })).toMatchObject({ kind: 'string' });
   });
 

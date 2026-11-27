@@ -27,7 +27,8 @@ export const L20_REST_ANGULAR = 0.005;
 
 /** Strip slots the child can fill; slot 540 is pre-placed. Fixed dominoes stand on the table at floorY 560. */
 export const DOMINO_SLOTS = [460, 500, 580, 620] as const;
-export const FIXED_DOMINOES = [400, 540, 700, 780, 860, 940] as const;
+/** Fixed 710, not the v4 sim's 700: the fallen 580 domino reaches x 690 = the left face of a domino at 700 (marginal, it won live); at 710 the gap is 10 px wider. */
+export const FIXED_DOMINOES = [400, 540, 710, 780, 860, 940] as const;
 export const DOMINO = { w: 20, h: 110, tableTop: 560 } as const;
 /** Standing domino centre y (table top - h/2). */
 export const DOMINO_Y = DOMINO.tableTop - DOMINO.h / 2;

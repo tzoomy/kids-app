@@ -13,7 +13,7 @@ const solution = (slots: number[]): L20Config => ({ ramp: 'down-right', slots, s
 describe('workshop L20 physics', () => {
   it('[AC-01] the level data lists the strip slots and the fixed dominoes of the sim', () => {
     expect([...DOMINO_SLOTS]).toEqual([460, 500, 580, 620]);
-    expect([...FIXED_DOMINOES]).toEqual([400, 540, 700, 780, 860, 940]);
+    expect([...FIXED_DOMINOES]).toEqual([400, 540, 710, 780, 860, 940]);
     expect(L20_TIMEOUT_STEPS).toBe(16 * STEPS_PER_SECOND);
   });
 
@@ -119,6 +119,23 @@ describe('workshop L20 physics', () => {
     });
   });
 
+  it('[AC-02] {500,580}: never wins in 10 jittered seeds, and the fixed domino after the gap is never touched hard (maxAngle < 0.3 rad)', () => {
+    // The fallen 580 (domino 110 px) reaches x 690; the fixed domino stands at 710 (left face 700), so the row stops with a gap.
+    // At 700 the tip rested exactly on its left face (marginal: the live game won with the plugin's resolver constants).
+    let worst = 0;
+    for (let seed = 1; seed <= 10; seed++) {
+      const world = new L20World(Matter, solution([500, 580]), { seed, jitter: 2 });
+      world.cut();
+      world.release();
+      const fixed = world.bodies.dominoes.find((d) => d.label === 'dom710')!;
+      while (world.step()) worst = Math.max(worst, Math.abs(fixed.angle));
+      expect(world.run, `seed ${seed}`).toMatchObject({ result: 'fail', reason: 'morning-only' });
+      expect(world.events.map((e) => e.id), `seed ${seed}`).not.toContain('domino:710:fallen');
+      expect(world.events.some((e) => e.id.startsWith('bell:coco:')), `seed ${seed}`).toBe(false);
+    }
+    expect(worst).toBeLessThan(0.3);
+  });
+
   it('[AC-02] scissors on B cut the lantern: the morning bell stays silent and the lantern falls', () => {
     const run = simulateL20(Matter, { ramp: 'down-right', slots: [460, 620], scissors: 'B' });
     const ids = run.events.map((e) => e.id);
@@ -143,7 +160,7 @@ describe('workshop L20 physics', () => {
   it('[AC-01] the world exposes the bodies the scene draws, and bells ring once only', () => {
     const world = new L20World(Matter, solution([460, 620]));
     expect(world.bodies.dominoes.map((d) => d.label).sort()).toEqual(
-      ['dom400', 'dom460', 'dom540', 'dom620', 'dom700', 'dom780', 'dom860', 'dom940'].sort(),
+      ['dom400', 'dom460', 'dom540', 'dom620', 'dom710', 'dom780', 'dom860', 'dom940'].sort(),
     );
     expect(world.bodies.ball).toBeNull();
     world.cut();
