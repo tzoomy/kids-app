@@ -46,7 +46,7 @@ const WORKSHOP_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 470, y:
 // The painted cobbles to the bakery run straight over the top of the egg, so the walk leaves the nest on its left side and
 // stops at the shop's LEFT flank, on the grass beside the egg. A friend's path point is the centre of its visible body (its
 // feet are ~95 px lower, its width up to ~100 px), so the whole route and the door keep that footprint 8+ px clear of the
-// painted egg (x >= 550 from y 284 down; see the footprint test): every point is at x <= 492.
+// painted egg (x >= 550 from y 284 down; see the footprint test): every point is at x <= 480 (the last point, the door).
 const BAKERY_PATH: readonly Point2[] = [NEST, { x: 540, y: 395 }, { x: 420, y: 430 }, { x: 428, y: 350 }, { x: 436, y: 318 }, { x: 448, y: 296 }, { x: 480, y: 272 }];
 const DETECTIVE_PATH: readonly Point2[] = [NEST, { x: 745, y: 392 }, { x: 830, y: 380 }, { x: 920, y: 362 }, { x: 985, y: 345 }, { x: 1025, y: 340 }];
 const JUNGLE_PATH: readonly Point2[] = [NEST, { x: 540, y: 490 }, { x: 485, y: 530 }, { x: 430, y: 585 }, { x: 385, y: 630 }, { x: 320, y: 690 }];

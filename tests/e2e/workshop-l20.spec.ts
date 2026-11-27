@@ -221,4 +221,54 @@ test.describe('workshop L20', () => {
     expect(i.eggPiece).toBe(false);
     expect(i.background).toBe('dawn');
   });
+  test('[AC-13] [AC-14] [AC-15] @single-orientation empty board, real Play taps: a break-point marker after each failure, the 4th shows the ramp ghost, the 5th has Bip place the ramp (only)', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(240_000);
+    await openL20(page);
+    const failOnce = async (n: number): Promise<WorkshopL20Info> => {
+      await tapPlay(page);
+      // [AC-15] hidden the moment Play is tapped, shown again after the failed run.
+      await waitInfo(page, (x) => x.phase === 'playing', 'the run never started');
+      expect((await info(page))!.breakPoint).toBeNull();
+      const i = await waitInfo(page, (x) => x.phase === 'feedback' && x.failedRuns === n, `failure ${n} never came`, 90_000);
+      expect(i.run).toMatchObject({ result: 'fail', reason: 'no-bell' });
+      return i;
+    };
+    for (const n of [1, 2, 3]) {
+      const i = await failOnce(n);
+      // [AC-15] the empty board never reached the ramp: the pulsing circle sits on the R1 socket.
+      expect(i.breakPoint).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
+      expect(i.ghost).toBeNull();
+      expect(i.bipPlaced).toEqual([]);
+      expect(i.hintRung).toBe(n);
+      await waitInfo(page, (x) => x.phase === 'build', 'the board never reset', 15_000);
+    }
+    // [AC-13] 4th failure: rung 4, a ghost of the ramp (down-right) in R1; nothing is placed for her.
+    let i = await failOnce(4);
+    expect(i.hintRung).toBe(4);
+    expect(i.ghost).toEqual({ part: 'ramp', socketId: 'R1', orientation: 'down-right' });
+    expect(i.breakPoint).toMatchObject({ kind: 'ramp' });
+    await expect.poll(async () => spoken(page), { timeout: 15_000 }).toContain('vo-fr-robot-regarde');
+    i = await waitInfo(page, (x) => x.phase === 'build', 'the board never reset', 15_000);
+    expect(i.ghost).not.toBeNull();
+    expect(i.bipPlaced).toEqual([]);
+    expect(i.partsInTrayCount).toBe(4);
+    // [AC-15] touching the board hides the marker (a tap on a tray part is enough).
+    await tapRect(page, i.rects.partDomino1 as Rect);
+    await waitInfo(page, (x) => x.breakPoint === null, 'the marker stayed after a touch');
+    // [AC-14] 5th failure: rung 5, Bip places the ramp into R1 (the ONLY part), with its voice; she never pressed Play for it.
+    i = await failOnce(5);
+    expect(i.hintRung).toBe(5);
+    i = await waitInfo(page, (x) => x.bipPlaced.length === 1, 'Bip never placed a part', 15_000);
+    expect(i.bipPlaced[0]).toMatchObject({ part: 'ramp', socketId: 'R1', run: 5 });
+    i = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'ramp')?.socketId === 'R1' && Math.abs(x.parts.find((p) => p.id === 'ramp')!.x - 200) < 2, 'the ramp never landed in R1');
+    expect(i.config).toEqual({ ramp: 'down-right', slots: [], scissors: 'none' });
+    expect(i.ghost).toBeNull();
+    expect(i.breakPoint).toBeNull();
+    expect(i.parts.find((p) => p.id === 'ramp')!.inTray).toBe(false);
+    for (const id of ['domino1', 'domino2', 'scissors']) expect(i.parts.find((p) => p.id === id)!.inTray).toBe(true);
+    expect(i.partsInTrayCount).toBe(3);
+    expect(i.run.state).toBe('ended');
+    await expect.poll(async () => spoken(page), { timeout: 15_000 }).toContain('vo-fr-robot-aide');
+  });
 });

@@ -149,6 +149,14 @@ export interface WorkshopL20Info {
   feedback: { kind: 'one-bell' | 'no-bell'; sleepersFallAsleep: SleeperId[]; capybara: string; sfx: string | null; voices: string[] } | null;
   /** The glowing socket of the hint ladder (rung 3), or null. */
   hintGlow: string | null;
+  /** The highest hint rung reached (the failed-run count up to 5): 3 glowing socket, 4 ghost part, 5 Bip places one part. */
+  hintRung: number;
+  /** Rung 4: the translucent ghost of the next needed part (part id, socket, orientation) until it is placed, or null. */
+  ghost: { part: string; socketId: string; orientation: 'down-right' | 'upright' } | null;
+  /** Rung 5: the parts Bip placed, one per rung-5 failure (`run` = the failed-run count that triggered it). */
+  bipPlaced: Array<{ part: string; socketId: string; run: number }>;
+  /** The pulsing circle where the chain first stopped after a failed run (hidden once the board is touched or Play is tapped). */
+  breakPoint: { x: number; y: number; kind: 'ramp' | 'domino-gap' | 'coco-bell' | 'string' | 'morning-bell' } | null;
   /** The egg piece flew to the nest and the egg glows (the win finale reached its end). */
   eggPieceInNest: boolean;
   partsInTrayCount: number;
