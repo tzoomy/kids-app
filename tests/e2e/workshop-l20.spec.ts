@@ -103,8 +103,23 @@ test.describe('workshop L20', () => {
     expect(i.partsInTrayCount).toBe(4);
     expect(i.config).toEqual({ ramp: 'none', slots: [], scissors: 'none' });
     await expect(page.locator('[data-testid="profile-a"]')).toHaveCount(0);
-    // The story line is requested at the start (a missing file plays a chime).
+    // The story line is requested at the start.
     await expect.poll(async () => spoken(page)).toContain('vo-fr-ws-l20-story');
+  });
+
+  test('[AC-08] @single-orientation the intro story line is the real recorded file: the .ogg answers HTTP 200 and the spy logs it as a clip (no chime, no device TTS)', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    const ogg = page.waitForResponse((r) => r.url().endsWith('/audio/mystery-egg/vo-fr-ws-l20-story.ogg'), { timeout: 30_000 });
+    await openL20(page);
+    const res = await ogg;
+    // An <audio> element asks with a Range header, so a healthy static server answers 206 (Partial Content); 200 when it does not.
+    expect([200, 206], `HTTP ${res.status()}`).toContain(res.status());
+    expect(res.url()).toContain('/kids-app/audio/mystery-egg/vo-fr-ws-l20-story.ogg');
+    await expect.poll(async () => (await getSpokenLines(page)).filter((l) => l.lineId === 'vo-fr-ws-l20-story').length).toBeGreaterThan(0);
+    const story = (await getSpokenLines(page)).filter((l) => l.lineId === 'vo-fr-ws-l20-story');
+    expect(story.every((l) => l.source === 'clip'), JSON.stringify(story)).toBe(true);
+    // No placeholder anywhere in the intro so far.
+    expect((await getSpokenLines(page)).filter((l) => l.source !== 'clip')).toEqual([]);
   });
 
   test('[AC-11] @single-orientation without ?level the app boots exactly as before: the profile screen, no L20 scene', async ({ page }, testInfo) => {
@@ -276,8 +291,6 @@ test.describe('workshop L20', () => {
     expect(i.parts.find((p) => p.id === 'domino1')?.socketId).toBe('slot-460');
     // Every slot centre, one after another, with the other domino standing beside it.
     for (const slot of ['slot-500', 'slot-620', 'slot-500', 'slot-460']) {
-      const other = slot === 'slot-460' ? 'domino2' : 'domino1';
-      void other;
       await drag(page, centre((await info(page))!.rects.partDomino1 as Rect), await slotCentre(slot));
       i = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'domino1')?.socketId === slot && x.lastDrop?.accepted === true, `a domino dropped on the centre of ${slot} did not land there`);
       expect(i.lastDrop).toMatchObject({ part: 'domino1', accepted: true, socketId: slot });
