@@ -216,13 +216,13 @@
   "vo-fr-ws-l20-story": {
     "path": "audio/mystery-egg/vo-fr-ws-l20-story.ogg",
     "kind": "vo",
-    "transcript": "Toute la ville dort encore ! Il faut sonner les deux cloches !",
+    "transcript": "Toute la ville dort encore ! Il faut sonner la grande cloche du matin !",
     "lang": "fr"
   },
   "vo-he-ws-l20-goal": {
     "path": "audio/mystery-egg/vo-he-ws-l20-goal.ogg",
     "kind": "vo",
-    "transcript": "בואי נעיר את כל העיר! צריך לצלצל בשני הפעמונים, les cloches: בפעמון הקטן וגם בפעמון הגדול.",
+    "transcript": "בואי נעיר את כל העיר! צריך לצלצל בפעמון הגדול של הבוקר, la grande cloche!",
     "lang": "he"
   },
   "vo-he-ws-dominoes-gap": {
@@ -234,7 +234,7 @@
   "vo-he-ws-scissors-which": {
     "path": "audio/mystery-egg/vo-he-ws-scissors-which.ogg",
     "kind": "vo",
-    "transcript": "איזה חוט מחזיק את השק? את החוט הזה גוזרים, עם המספריים.",
+    "transcript": "איזה חוט מחזיק את השק? את החוט הזה המספריים גוזרים, אחרי שהידית סוגרת אותם.",
     "lang": "he"
   },
   "vo-fr-ws-l20-one-bell": {
@@ -386,5 +386,67 @@
     "kind": "webp",
     "w": 92,
     "h": 92
+  },
+  "ws-l20-bg-dawn": {
+    "path": "art/mystery-egg/ws-l20-bg-dawn.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-l20-bg-morning": {
+    "path": "art/mystery-egg/ws-l20-bg-morning.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-l20-fixtures": {
+    "path": "art/mystery-egg/ws-l20-fixtures.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-l20-cord": {
+    "path": "art/mystery-egg/ws-l20-cord.webp",
+    "kind": "webp",
+    "w": 1280,
+    "h": 800
+  },
+  "ws-seesaw": {
+    "path": "art/mystery-egg/ws-seesaw.webp",
+    "kind": "webp",
+    "w": 336,
+    "h": 30
+  },
+  "ws-rope": {
+    "path": "art/mystery-egg/ws-rope.webp",
+    "kind": "webp",
+    "w": 10,
+    "h": 64
+  },
+  "ws-scissors": {
+    "path": "art/mystery-egg/ws-scissors.webp",
+    "kind": "webp",
+    "w": 96,
+    "h": 64
+  },
+  "ws-scissors-snip": {
+    "path": "art/mystery-egg/ws-scissors-snip.webp",
+    "kind": "sprite",
+    "w": 96,
+    "h": 64,
+    "frames": 2,
+    "fps": 12
+  },
+  "ws-lever": {
+    "path": "art/mystery-egg/ws-lever.webp",
+    "kind": "webp",
+    "w": 200,
+    "h": 32
+  },
+  "ws-lever-base": {
+    "path": "art/mystery-egg/ws-lever-base.webp",
+    "kind": "webp",
+    "w": 120,
+    "h": 40
   }
 }
