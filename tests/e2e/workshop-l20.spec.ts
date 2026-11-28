@@ -109,6 +109,21 @@ test.describe('workshop L20', () => {
     await expect.poll(async () => spoken(page)).toContain('vo-fr-ws-l20-story');
   });
 
+  test('[AC-10] slow assets (2.5 s per webp): the board still builds, with no page error (the touch refresh waits for the bunny)', async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', (e) => pageErrors.push(e.message));
+    await page.setViewportSize({ width: 1180, height: 820 });
+    await page.route('**/*.webp', async (route) => {
+      await new Promise((r) => setTimeout(r, 2500));
+      await route.continue().catch(() => undefined);
+    });
+    await page.goto('./?level=20&e2e=1');
+    await waitForScene(page, 'WorkshopL20Scene');
+    const i = await waitInfo(page, (x) => x.ready && x.sockets.length === 7 && x.partsInTrayCount === 4, 'slow-asset L20 board never rendered', 60_000);
+    expect(i.phase).toBe('build');
+    expect(pageErrors).toEqual([]);
+  });
+
   test('[AC-08] @single-orientation the intro story line is the real recorded file: the .ogg answers HTTP 200 and the spy logs it as a clip (no chime, no device TTS)', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     const ogg = page.waitForResponse((r) => r.url().endsWith('/audio/mystery-egg/vo-fr-ws-l20-story.ogg'), { timeout: 30_000 });

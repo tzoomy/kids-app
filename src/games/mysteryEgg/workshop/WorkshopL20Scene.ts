@@ -519,6 +519,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
    * every resize (and shortly after, the page lays the canvas out late) and about twice a second as a safety net.
    */
   private refreshTouch(force = false): void {
+    // update() ticks this from the first frame; the bunny only exists once build() ran (not gated on `ready`: build() calls it first).
+    if (!this.bunny) return;
     if (!this.alive || !this.game.canvas) return;
     const unit = boardRectToPage(this, 0, 0, 1, 1);
     const s = unit.width;
