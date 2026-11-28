@@ -1,5 +1,5 @@
-// Workshop L20 hint rungs 4-5 (ghost part, Bip places one part) and the break-point marker (v4 §1.8; docs/specs/workshop-l20.md
-// AC-13, AC-14, AC-15). Pure, no Phaser.
+// Workshop L20 hint rungs 4-6 (trajectory, ghost part, Bip places one part) and the break-point marker (v4 §1.8; docs/specs/workshop-l20.md
+// AC-13, AC-14, AC-15, AC-17). Pure, no Phaser.
 import { describe, expect, it } from 'vitest';
 import { nextNeeded, partsFromConfig, planFailure, rungFor, type FailInput, type PartState } from '../../src/games/mysteryEgg/workshop/l20Hints';
 import { chooseBreakPoint } from '../../src/games/mysteryEgg/workshop/l20BreakPoint';
@@ -10,8 +10,8 @@ const withPlaced = (over: Record<string, [string | null, boolean?]>): PartState[
   tray().map((p) => (over[p.id] ? { ...p, socketId: over[p.id][0], flipped: over[p.id][1] ?? false } : p));
 
 describe('workshop L20 ladder: which rung at which fail count', () => {
-  it('[AC-13] [AC-14] rung = the fail count up to 5 (3 glow, 4 ghost, 5 Bip places one part)', () => {
-    expect([0, 1, 2, 3, 4, 5, 6, 9].map(rungFor)).toEqual([0, 1, 2, 3, 4, 5, 5, 5]);
+  it('[AC-13] [AC-14] [AC-17] ladder step = the fail count up to 6 (3 glow, 4 trajectory, 5 ghost, 6 Bip places one part)', () => {
+    expect([0, 1, 2, 3, 4, 5, 6, 7, 9].map(rungFor)).toEqual([0, 1, 2, 3, 4, 5, 6, 6, 6]);
   });
 });
 
@@ -63,42 +63,65 @@ describe('workshop L20 ladder: the next needed part', () => {
 });
 
 describe('workshop L20 ladder: what each failure plans', () => {
-  const emptyInput: FailInput = { failedRuns: 1, oneBellFails: 0, reason: 'no-bell', dominoRowStopped: false, config: { ramp: 'none', slots: [], scissors: 'none' } };
+  const emptyInput: FailInput = { failedRuns: 1, oneBellFails: 0, cocoRang: false, reason: 'lever-not-hit', dominoRowStopped: false, config: { ramp: 'none', slots: [], scissors: 'none' } };
   const plan = (n: number, over: Partial<FailInput> = {}) => planFailure({ ...emptyInput, failedRuns: n, ...over });
 
-  it('[AC-13] 4th failure: rung 4, a ghost of the next part, "Regarde ici !", Bip places nothing', () => {
+  it('[AC-17] 4th failure: the trajectory only (beep, no new voice line), no ghost, Bip places nothing', () => {
     const p = plan(4);
     expect(p.rung).toBe(4);
+    expect(p.trajectory).toBe(true);
+    expect(p.trajectorySfx).toBe('sfx-robot-beep-1');
+    expect(p.ghost).toBeNull();
+    expect(p.bip).toBeNull();
+    expect(p.voices).not.toContain('vo-fr-robot-regarde');
+    expect(p.voices).not.toContain('vo-fr-robot-aide');
+    expect(p.voices).not.toContain('vo-he-robot-help-2');
+  });
+
+  it('[AC-13] 5th failure: the ghost of the next part, "Regarde ici !", the trajectory stays on, Bip places nothing', () => {
+    const p = plan(5);
+    expect(p.rung).toBe(5);
+    expect(p.trajectory).toBe(true);
+    expect(p.trajectorySfx).toBeNull();
     expect(p.ghost).toEqual({ partId: 'ramp', kind: 'ramp', socketId: 'R1', orientation: 'down-right', fromSocketId: null });
     expect(p.bip).toBeNull();
     expect(p.voices).toContain('vo-fr-robot-regarde');
     expect(p.voices).not.toContain('vo-fr-robot-aide');
   });
 
-  it('[AC-14] 5th and later failures: rung 5, Bip places exactly ONE part, "Je t\'aide un peu !" + beep, no ghost', () => {
-    for (const n of [5, 6, 12]) {
+  it('[AC-14] 6th and later failures: Bip places exactly ONE part, "Je t\'aide un peu !" + beep, no ghost, the trajectory stays on', () => {
+    for (const n of [6, 7, 12]) {
       const p = plan(n);
-      expect(p.rung).toBe(5);
+      expect(p.rung).toBe(6);
+      expect(p.trajectory).toBe(true);
       expect(p.bip).toMatchObject({ partId: 'ramp', socketId: 'R1' });
       expect(p.ghost).toBeNull();
       expect(p.bipSfx).toBe('sfx-robot-beep-1');
+      expect(p.trajectorySfx).toBeNull();
       expect(p.voices).toContain('vo-fr-robot-aide');
       expect(p.voices).not.toContain('vo-fr-robot-regarde');
     }
   });
 
-  it('[AC-14] rung 5 never needs the child to press Play: the plan only names a part to place', () => {
-    const p = plan(5);
+  it('[AC-17] the "Regarde ici !" line is never used twice in a row across the ladder (4th beep only, 5th speaks it)', () => {
+    const lines = [4, 5, 6].map((n) => plan(n).voices.filter((v) => v === 'vo-fr-robot-regarde').length);
+    expect(lines).toEqual([0, 1, 0]);
+  });
+
+  it('[AC-14] rung 6 never needs the child to press Play: the plan only names a part to place', () => {
+    const p = plan(6);
     expect(Object.keys(p)).not.toContain('play');
   });
 
-  it('[AC-13] [AC-14] before rung 4 nothing is shown or placed; with nothing left to fix rungs 4-5 do nothing', () => {
+  it('[AC-13] [AC-14] [AC-17] before the trajectory nothing is shown or placed; with nothing left to fix the ghost and Bip do nothing', () => {
     for (const n of [1, 2, 3]) {
+      expect(plan(n).trajectory).toBe(false);
+      expect(plan(n).trajectorySfx).toBeNull();
       expect(plan(n).ghost).toBeNull();
       expect(plan(n).bip).toBeNull();
     }
     const solved = { ramp: 'down-right' as const, slots: [460, 620], scissors: 'A' as const };
-    for (const n of [4, 5]) {
+    for (const n of [5, 6]) {
       const p = plan(n, { config: solved });
       expect(p.ghost).toBeNull();
       expect(p.bip).toBeNull();
@@ -107,7 +130,7 @@ describe('workshop L20 ladder: what each failure plans', () => {
     }
   });
 
-  it('[AC-14] rung 5 over many partial setups places one part toward a valid solution until it is complete', () => {
+  it('[AC-14] rung 6 over many partial setups places one part toward a valid solution until it is complete', () => {
     // Simulate a child who fails over and over without touching the board: Bip fixes one thing per failure.
     let parts = tray();
     const order: string[] = [];
@@ -127,33 +150,49 @@ describe('workshop L20 break-point marker', () => {
   const solved = { ramp: 'down-right' as const, slots: [460, 620], scissors: 'A' as const };
 
   it('[AC-15] the ball missed the ramp / rolled the wrong way / nothing happened: the R1 socket', () => {
-    expect(chooseBreakPoint({ reason: 'no-bell', events: [], config: { ramp: 'none', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
-    expect(chooseBreakPoint({ reason: 'morning-only', events: [], config: { ...solved, ramp: 'down-left' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
-    expect(chooseBreakPoint({ reason: 'morning-only', events: [], config: solved })).toMatchObject({ kind: 'ramp' });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: { ramp: 'none', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: { ...solved, ramp: 'down-left' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: solved })).toMatchObject({ kind: 'ramp' });
   });
 
   it('[AC-15] the domino row stopped: the centre of the gap between the last fallen and the first standing domino', () => {
-    // Slots {500,580}: the row 400, 500, 540, 580 falls, 700 stands -> the gap between 580 and 700.
-    const bp = chooseBreakPoint({ reason: 'no-bell', events: dom(400, 500, 540, 580), config: { ramp: 'down-right', slots: [500, 580], scissors: 'none' } });
-    expect(bp).toMatchObject({ kind: 'domino-gap', x: 640 });
-    // Slots {460,500}: the row 400, 460, 500, 540 falls, then a hole 540 -> 700.
-    expect(chooseBreakPoint({ reason: 'morning-only', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 620 });
+    // Slots {500,580}: the row 400, 500, 540, 580 falls, 710 stands -> the gap between 580 and 710.
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 500, 540, 580), config: { ramp: 'down-right', slots: [500, 580], scissors: 'none' } });
+    expect(bp).toMatchObject({ kind: 'domino-gap', x: 645 });
+    // Slots {460,500}: the row 400, 460, 500, 540 falls, then a hole 540 -> 710.
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 625 });
     // Only the first fixed domino fell: the gap right after it (400 -> 540, no slot used).
-    expect(chooseBreakPoint({ reason: 'no-bell', events: dom(400), config: { ramp: 'down-right', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'domino-gap', x: 470 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400), config: { ramp: 'down-right', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'domino-gap', x: 470 });
   });
 
   it('[AC-15] the gap uses only the dominoes that exist (placed slots + fixed), and counts the leading run of fallen ones', () => {
-    const bp = chooseBreakPoint({ reason: 'no-bell', events: dom(400, 540), config: { ramp: 'down-right', slots: [580, 620], scissors: 'none' } });
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 540), config: { ramp: 'down-right', slots: [580, 620], scissors: 'none' } });
     // 400 fell, 540 fell, 580 stands: the gap is between 540 and 580.
     expect(bp).toMatchObject({ kind: 'domino-gap', x: 560 });
   });
 
-  it('[AC-15] Coco rang but the morning bell did not: the string socket A', () => {
-    expect(chooseBreakPoint({ reason: 'coco-only', events: dom(400, 460, 540, 620, 700, 780, 860, 940), config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'string', x: 860, y: 110 });
-    expect(chooseBreakPoint({ reason: 'coco-only', events: [], config: { ...solved, scissors: 'none' } })).toMatchObject({ kind: 'string' });
+  const fell = dom(400, 460, 540, 620, 710, 780, 860, 940);
+
+  it('[AC-15] the whole row fell but the lever was not hit: the lever\'s left arm ("lever not hit")', () => {
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: fell, config: solved });
+    expect(bp).toMatchObject({ kind: 'lever' });
+    expect(bp?.x).toBeCloseTo(1046.5, 1);
+    expect(bp?.y).toBeCloseTo(532.7, 1);
+  });
+
+  it('[AC-15] the cord pulled an empty hook (no scissors): the string-A hook, where the scissors would sit', () => {
+    expect(chooseBreakPoint({ reason: 'empty-hook', events: fell, config: { ...solved, scissors: 'none' } })).toMatchObject({ kind: 'empty-hook', x: 860, y: 110 });
+  });
+
+  it('[AC-15] wrong string (B cut, the lantern dropped): the string-B socket', () => {
+    expect(chooseBreakPoint({ reason: 'wrong-string', events: fell, config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'wrong-string', x: 640, y: 110 });
+  });
+
+  it('[AC-15] cut the right string but the morning bell stayed silent: the morning bell', () => {
+    expect(chooseBreakPoint({ reason: 'no-goal', events: fell, config: solved })).toMatchObject({ kind: 'morning-bell', x: 1150, y: 230 });
   });
 
   it('[AC-15] a win has no break point', () => {
-    expect(chooseBreakPoint({ reason: 'both-bells', events: [], config: solved })).toBeNull();
+    expect(chooseBreakPoint({ reason: 'goal', events: [], config: solved })).toBeNull();
   });
 });

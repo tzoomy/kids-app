@@ -4,6 +4,7 @@ import type { ProgressSeed } from './progress';
 import type { FriendId, WorldId } from './worlds';
 import type { L20Config, L20PartKind, SleeperId } from './workshop/l20Level';
 import type { L20Event, L20Run } from './workshop/l20World';
+import type { BreakKind } from './workshop/l20BreakPoint';
 
 export interface EggPageRect {
   x: number;
@@ -134,7 +135,7 @@ export interface WorkshopL20Info {
   /** Every typed socket: its type, what it accepts, centre (world px), what sits in it, and its page rectangle. */
   sockets: Array<{ id: string; type: 'ramp' | 'strip' | 'string'; accepts: L20PartKind; x: number; y: number; occupiedBy: string | null; glowing: boolean; rect: EggPageRect }>;
   /** Every tray part: where it is (world px), which socket holds it, the ramp's direction. */
-  parts: Array<{ id: string; kind: L20PartKind; x: number; y: number; socketId: string | null; inTray: boolean; flipped: boolean; rect: EggPageRect }>;
+  parts: Array<{ id: string; kind: L20PartKind; x: number; y: number; socketId: string | null; inTray: boolean; flipped: boolean; /** The container's x scale (negative = facing left; the scissors are negative on the board and while dragged). */ scaleX: number; rect: EggPageRect }>;
   /** The last drop result: `{accepted, reason}` for a part that did not snap. */
   lastDrop: { part: string; accepted: boolean; reason: string | null; socketId: string | null } | null;
   run: L20Run;
@@ -149,14 +150,24 @@ export interface WorkshopL20Info {
   feedback: { kind: 'one-bell' | 'no-bell'; sleepersFallAsleep: SleeperId[]; capybara: string; sfx: string | null; voices: string[] } | null;
   /** The glowing socket of the hint ladder (rung 3), or null. */
   hintGlow: string | null;
-  /** The highest hint rung reached (the failed-run count up to 5): 3 glowing socket, 4 ghost part, 5 Bip places one part. */
+  /** The ladder step reached (the failed-run count up to 6): 3 glowing socket, 4 trajectory, 5 ghost part, 6 Bip places one part. */
   hintRung: number;
-  /** Rung 4: the translucent ghost of the next needed part (part id, socket, orientation) until it is placed, or null. */
+  /** Step 5: the translucent ghost of the next needed part (part id, socket, orientation) until it is placed, or null. */
   ghost: { part: string; socketId: string; orientation: 'down-right' | 'upright' } | null;
-  /** Rung 5: the parts Bip placed, one per rung-5 failure (`run` = the failed-run count that triggered it). */
+  /**
+   * Step 4 and later: the dotted trajectory of the current setup (read-only). `points` = the sampled ball positions of the headless
+   * run, `visible` = the dots are on screen (false while a run plays), `first`/`last` = the release point and the final resting
+   * position. null until the 4th failure.
+   */
+  trajectory: { points: number; visible: boolean; first: { x: number; y: number }; last: { x: number; y: number } } | null;
+  /** Step 6: the parts Bip placed, one per step-6 failure (`run` = the failed-run count that triggered it). */
   bipPlaced: Array<{ part: string; socketId: string; run: number }>;
   /** The pulsing circle where the chain first stopped after a failed run (hidden once the board is touched or Play is tapped). */
-  breakPoint: { x: number; y: number; kind: 'ramp' | 'domino-gap' | 'coco-bell' | 'string' | 'morning-bell' } | null;
+  breakPoint: { x: number; y: number; kind: BreakKind } | null;
+  /** v5.1 one chain: the lever tripped (the cord link fired) in the current or last run. */
+  leverTripped: boolean;
+  /** v5.1: the scissors closed (only when the lever trips with scissors on a string). */
+  scissorsClosed: boolean;
   /** The egg piece flew to the nest and the egg glows (the win finale reached its end). */
   eggPieceInNest: boolean;
   partsInTrayCount: number;

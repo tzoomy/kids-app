@@ -2,6 +2,7 @@
 // Pure TS: the Matter library is passed in (Phaser's bundled build in the scene, the same build headless in tests).
 // Spec: docs/specs/mystery-egg.md (AC-09).
 import { BALL, BELL, FLOOR, LAUNCH_SPEED, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, TABLE } from './layout';
+import { applyPhysicsConfig, withResolverPin } from './physicsConfig';
 import { RUN_TIMEOUT_STEPS, RunWatcher, STEP_MS, type RunResult, type RunSample, type RunWatcherConfig } from './run';
 
 /** The few Matter calls this module uses, so it needs neither Phaser nor the matter-js typings. */
@@ -13,8 +14,10 @@ export interface MBody {
 }
 export interface MEngine {
   world: unknown;
+  timing: { timeScale: number };
 }
 export interface MatterLib {
+  Resolver?: Partial<Record<'_restingThresh' | '_restingThreshTangent' | '_positionDampen' | '_positionWarming' | '_frictionNormalMultiplier', number>>;
   Engine: { create(opts?: object): MEngine; update(engine: MEngine, delta?: number): void };
   Bodies: {
     circle(x: number, y: number, r: number, opts?: object): MBody;
@@ -61,6 +64,7 @@ export class Machine {
     ballOffset: Offset = { x: 0, y: 0 },
   ) {
     const { Bodies, Composite } = M;
+    applyPhysicsConfig(engine);
     const shelf = Bodies.rectangle(SHELF.x, SHELF.y, SHELF.w, SHELF.h, STATIC);
     M.Body.setAngle(shelf, SHELF.angle);
     this.scenery.push(
@@ -138,7 +142,7 @@ export class Machine {
       this.M.Body.setVelocity(this.ball, { x: 0, y: 0 });
       return this.sample(0);
     }
-    this.M.Engine.update(this.engine, STEP_MS);
+    withResolverPin(this.M, () => this.M.Engine.update(this.engine, STEP_MS));
     this.steps++;
     return this.sample(this.steps);
   }

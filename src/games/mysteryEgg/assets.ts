@@ -80,7 +80,7 @@ const WORKSHOP_SLEEPERS = ['moustache', 'bruno', 'plume', 'cocopom', 'pip', 'gra
  * reused by their existing key and never listed here. `ws-string-socket` is code-only (no file).
  */
 export const WORKSHOP_ASSET_IDS = [
-  'ws-l20-bg-dawn', 'ws-l20-bg-morning', 'ws-l20-fixtures',
+  'ws-l20-bg-dawn', 'ws-l20-bg-morning', 'ws-l20-fixtures', 'ws-l20-cord', 'ws-lever', 'ws-lever-base',
   'ws-domino', 'ws-seesaw', 'ws-sandbag', 'ws-lantern', 'ws-rope', 'ws-scissors', 'ws-scissors-snip',
   'ws-bell-morning', 'ws-window-frame', 'ws-egg-piece',
   'ws-capybara-facepalm', 'ws-capybara-ring', 'ws-capybara-cheer',

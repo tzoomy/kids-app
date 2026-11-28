@@ -13,7 +13,7 @@ import { boardRectToPage, fitBoard } from './boardView';
 import { loadEggAssets } from './eggAssetLoader';
 import { playEggSfx } from './eggSound';
 import { BALL, BALL_ART_SCALE, BELL, BOARD, FLOOR, PIT_WALL, RAMP_POLY, RAMP_SLOT, RIGHT_WALL, SHELF, SLOTS, TABLE, BED, heartSlotCentres } from './layout';
-import { Machine, RUN_WATCHER_CONFIG, type MatterLib } from './machine';
+import { Machine, RUN_WATCHER_CONFIG, type MatterLib, type MEngine } from './machine';
 import { HEART_SLOT_COUNT, eggLevel, litHearts, loadProgress, recordMissionAndSave, type MysteryEggProgress } from './progress';
 import { EAR_LINE_ID, RunWatcher, STEP_MS, createRunTracker, isNearMiss, recordRun, type HintDue, type RunResult, type RunTrackerState } from './run';
 import { resolveDrop, type PartKind } from './snap';
@@ -173,7 +173,7 @@ export class MysteryEggBuildScene extends Phaser.Scene {
 
   private build(): void {
     const matter = (Phaser.Physics.Matter as unknown as { Matter: MatterLib }).Matter;
-    this.machine = new Machine(matter, this.matter.world.engine as unknown as { world: unknown });
+    this.machine = new Machine(matter, this.matter.world.engine as unknown as MEngine);
 
     this.drawBoard();
 

@@ -18,15 +18,21 @@ import { eggLevel, loadProgress, recordEggPieceAndSave, type MysteryEggProgress 
 import { eggSpeechRequest } from '../speech';
 import { showContinueAfterVoice } from '../successTiming';
 import type { EggPhase, EggTarget, WorkshopL20Info } from '../types';
-import { drawArrowIcon, drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
+import { drawEarIcon, drawHomeIcon, drawPlayIcon, makeButton, speechCue, type EggButton } from '../ui';
 import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
+import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from './l20Trajectory';
+import { drawContinueIcon } from './l20Icons';
+import { EAR_BUTTON, HOME_BUTTON, PLAY_BUTTON, ROBOT_POS } from './l20Hud';
+import { hitSide, minHitWorld, nearestHit } from './l20Touch';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
+import { LEVER } from './lever';
 import {
   BALL_START,
   BELL_RADIUS,
   CAPYBARA,
   COCO_BELL,
+  CORD,
   DOMINO_Y,
   EGG_NEST,
   FIXED_DOMINOES,
@@ -34,20 +40,21 @@ import {
   L20_STEP_MS,
   L20_WORLD,
   LANTERN,
+  LEVER_PIVOT,
   MORNING_BELL,
   PIVOT,
   ROPE_A,
   ROPE_B,
   SANDBAG,
   SCISSORS_Y,
-  SEESAW,
+  SEESAW_REST_ANGLE,
   SLEEPERS,
   type L20Config,
   type L20PartKind,
   type L20Socket,
   type SleeperId,
 } from './l20Level';
-import { configFromPlacements, resolveL20Drop, type Placement } from './l20Sockets';
+import { configFromPlacements, resolveL20Drop, socketZoneSize, type Placement } from './l20Sockets';
 import { L20World, type L20Event, type L20Matter, type L20Run } from './l20World';
 import { RopeView, SleeperView, drawDashedCircle } from './l20Views';
 import { BELL_FRIENDS } from './l20Hints';
@@ -80,19 +87,23 @@ const PARTS: readonly PartDef[] = [
   { id: 'domino2', kind: 'domino', art: 'ws-domino', home: { x: 490, y: TRAY_Y }, trayScale: 0.78, minHit: 56 },
   { id: 'scissors', kind: 'scissors', art: 'ws-scissors', home: { x: 640, y: TRAY_Y }, trayScale: 0.9, minHit: 70 },
 ];
-const PLAY_POS = { x: 955, y: 750, w: 210, h: 100 } as const;
-const ROBOT_POS = { x: 1190, y: 748 } as const;
 const BUNNY_POS = { x: 60, y: 748 } as const;
-const EAR_POS = { x: 1200, y: 620 } as const;
+const BUNNY_SCALE = 0.38;
+/** The bunny's hit size in its own (unscaled) pixels; grown by `refreshTouch` to the 48 CSS px minimum. */
+const BUNNY_HIT = { w: 120, h: 200 } as const;
 /** A drag counts once the finger moved this far (board px); less is a tap (a tap on the placed ramp flips it). */
 const DRAG_THRESHOLD = 8;
 const MAX_STEPS_PER_FRAME = 6;
 const MAX_FRAME_MS = 100;
-/** The scissors open and close before the cut (12 fps x 2 frames, then back), then the world is released. */
-const SNIP_MS = 200;
+/** The ball is released this long after Play (the world's 60 settle steps already ran inside the new engine). Nothing is cut at Play. */
+const RELEASE_MS = 120;
 /** A failed run is shown this long before the board resets. */
 const FEEDBACK_MS = 2800;
-const SEESAW_REST_ANGLE = Math.asin(Math.min(0.99, (SEESAW.ledge.top - 8 - PIVOT.y) / SEESAW.armRight));
+/** The lever art: `ws-lever` (image centre = the pin), `ws-lever-base` (120x40, the pin at display (20,6) sits on the lever pin). */
+const LEVER_REST_ANGLE = (LEVER.restDeg * Math.PI) / 180;
+const LEVER_BASE_OFFSET = { x: 60 - 20, y: 20 - 6 } as const;
+/** The scissors face left on the board (flipX): the handle then anchors the cord at H (880,98). */
+const SCISSORS_BOARD_SCALE_X = -1;
 /** Vertical offsets from an image centre to the physics body centre (sandbag: image (42,56) of 84x96; lantern: (28,44) of 56x76). */
 const SANDBAG_OFFSET = 8;
 const LANTERN_OFFSET = 6;
@@ -103,9 +114,15 @@ const STUB_FULL = SCISSORS_Y - ROPE_A.top;
 const STUB_SHORT = 30;
 
 const PALETTE = { wall: '#f1dcc2' } as const;
-/** Bip's rung-5 placement tween, and the break-point circle radius (board px). */
+/** Bip's step-6 placement tween, and the break-point circle radius (board px). */
 const BIP_PLACE_MS = 700;
 const BREAK_RADIUS = 46;
+/** Trajectory dots (board px): spacing along the path, radius, the debounce after the last board change, the depth (behind the parts). */
+const TRAJ_SPACING = 30;
+const TRAJ_DOT = 6.5;
+const TRAJ_DEBOUNCE_MS = 200;
+const TRAJ_DEPTH = 12.5;
+const TRAJ_COLOR = 0x5b6fd6;
 
 interface PartView {
   def: PartDef;
@@ -161,6 +178,11 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private ballView!: Phaser.GameObjects.Container;
   private ropeA!: RopeView;
   private ropeB!: RopeView;
+  private leverView!: Phaser.GameObjects.Container;
+  private cordLeg!: RopeView;
+  private cordTug: Phaser.GameObjects.Graphics | null = null;
+  private leverTripped = false;
+  private scissorsClosed = false;
   private stubs: Partial<Record<'A' | 'B', RopeView>> = {};
   private pieces: Partial<Record<'A' | 'B', RopeView>> = {};
   private stubLength = { A: STUB_FULL, B: STUB_FULL };
@@ -185,14 +207,24 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private ghost: NextNeeded | null = null;
   private ghostView: Phaser.GameObjects.Container | null = null;
   private bipPlaced: WorkshopL20Info['bipPlaced'] = [];
+  /** Bip's step-6 slide while it runs (stopped and finished at once by Play). */
+  private bipSlide: { part: PartView; tween: Phaser.Tweens.Tween; x: number; y: number } | null = null;
   private breakPoint: BreakPoint | null = null;
   private breakView: Phaser.GameObjects.Graphics | null = null;
+  private trajectoryOn = false;
+  private trajectoryPoints: readonly TrajectoryPoint[] = [];
+  private trajectoryView: Phaser.GameObjects.Graphics | null = null;
+  private trajectoryTimer: Phaser.Time.TimerEvent | null = null;
   private feedback: WorkshopL20Info['feedback'] = null;
   private introDone = false;
   private introCut = false;
   private eggPieceInNest = false;
   private morningShown = false;
   private runToken = 0;
+  /** Touch targets (spec AC-18): CSS px per world px of the letterboxed board, and the 48 CSS px minimum hit side in world px. */
+  private touchScale = 1;
+  private touchMin = minHitWorld(1);
+  private touchTick = 0;
 
   constructor() {
     // No Matter plugin here: the world builds its own engine from Phaser's bundled library, fresh for every Play.
@@ -223,6 +255,9 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.pieces = {};
     this.stubLength = { A: STUB_FULL, B: STUB_FULL };
     this.cutDone = { A: false, B: false };
+    this.leverTripped = false;
+    this.scissorsClosed = false;
+    this.cordTug = null;
     this.dragging = null;
     this.lastDrop = null;
     this.continueBtn = null;
@@ -236,8 +271,13 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.ghost = null;
     this.ghostView = null;
     this.bipPlaced = [];
+    this.bipSlide = null;
     this.breakPoint = null;
     this.breakView = null;
+    this.trajectoryOn = false;
+    this.trajectoryPoints = [];
+    this.trajectoryView = null;
+    this.trajectoryTimer = null;
     this.feedback = null;
     this.introDone = false;
     this.introCut = false;
@@ -249,7 +289,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     followOrientation(this);
     fitBoard(this, PALETTE.wall);
     const refit = (): void => {
-      if (this.alive) fitBoard(this, PALETTE.wall);
+      if (!this.alive) return;
+      fitBoard(this, PALETTE.wall);
+      this.refreshTouch();
+      // The page may lay the canvas out a moment after the resize event (rotation): measure again.
+      this.time.delayedCall(120, () => this.refreshTouch());
+      this.time.delayedCall(500, () => this.refreshTouch());
     };
     this.scale.on('resize', refit);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -260,6 +305,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.input.off('pointermove', this.onPointerMove, this);
       this.input.off('pointerup', this.onPointerUp, this);
       this.input.off('gameout', this.onPointerUp, this);
+      this.trajectoryTimer?.remove(false);
+      this.trajectoryTimer = null;
       this.context.audio.stopAll();
     });
     loadEggAssets(
@@ -268,6 +315,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       () => {
         if (!this.alive) return;
         this.build();
+        this.refreshTouch(true);
         this.ready = true;
         window.__GAME_READY__ = true;
       },
@@ -277,6 +325,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     this.updateRopeStubs();
+    if (++this.touchTick % 30 === 0) this.refreshTouch();
     if (this.phase !== 'playing' || !this.world || this.world.run.state !== 'running') return;
     this.accumulator += Math.min(delta, MAX_FRAME_MS);
     let steps = 0;
@@ -316,6 +365,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     eggArt(this, 'ws-l20-bg-dawn', 640, 400).setDepth(0);
     this.bgMorning = eggArt(this, 'ws-l20-bg-morning', 640, 400).setDepth(1).setAlpha(0);
     eggArt(this, 'ws-l20-fixtures', 640, 400).setDepth(5);
+    // The static part of the cord (P0 -> P1 -> P2 -> the scissors handle) sits above the fixtures; the lever-tip -> P0 leg is live.
+    eggArt(this, 'ws-l20-cord', 640, 400).setDepth(5.5);
   }
 
   /** Socket markers: a faint ramp outline at R1, dots on the strip slots, dashed circles on the strings; plus the hint glow. */
@@ -362,17 +413,16 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.lanternView = this.hangingObject('ws-lantern', LANTERN.x, LANTERN.y, LANTERN_OFFSET).setDepth(13);
     this.tweens.add({ targets: this.lanternView.getAt(0), alpha: 0.8, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.seesawView = eggArt(this, 'ws-seesaw', PIVOT.x, PIVOT.y).setDepth(9);
+    // The shared lever: its post and right stop are baked in `ws-lever-base` (it moves with the pin); the plank turns with the body.
+    eggArt(this, 'ws-lever-base', LEVER_PIVOT.x + LEVER_BASE_OFFSET.x, LEVER_PIVOT.y + LEVER_BASE_OFFSET.y).setDepth(5.8);
+    this.leverView = eggArt(this, 'ws-lever', LEVER_PIVOT.x, LEVER_PIVOT.y).setDepth(11).setRotation(LEVER_REST_ANGLE);
+    this.cordLeg = new RopeView(this, 8);
     for (const x of [FIXED_DOMINOES[0], FIXED_DOMINOES[1], ...FIXED_DOMINOES.slice(2)]) {
       this.dominoViews.set(`dom${x}`, eggArt(this, 'ws-domino', x, DOMINO_Y).setDepth(12));
     }
     this.ballView = eggArt(this, 'part-ball', BALL_START.x, BALL_START.y).setDepth(30).setScale(BALL_ART_SCALE);
 
-    // Coco's bell stands on a small pedestal on the table.
-    const stand = this.add.graphics().setDepth(11);
-    stand.fillStyle(0x9a6b45, 1);
-    stand.fillRect(COCO_BELL.x - 8, COCO_BELL.y + 50, 16, 40);
-    stand.lineStyle(3, 0x3b2a22, 1);
-    stand.strokeRect(COCO_BELL.x - 8, COCO_BELL.y + 50, 16, 40);
+    // Coco's small bell hangs free (the fixtures art holds its painted bracket; the old code-drawn pedestal sat on the lever's left tip).
     this.cocoBell = eggArt(this, 'part-bell', COCO_BELL.x, COCO_BELL.y).setDepth(12).setScale((BELL_RADIUS * 2 + 8) / displaySize('part-bell').w);
 
     // The morning bell: its body centre (sensor) is the image centre; it swings about the hook at 8% of the image height.
@@ -407,8 +457,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.capy = eggArt(this, 'capybara', CAPYBARA.x, CAPYBARA.y).setScale(CAPYBARA.scale).setDepth(10);
     this.capyBob = this.tweens.add({ targets: this.capy, y: CAPYBARA.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.nest = eggArt(this, `egg-nest-${eggLevel(this.progress)}`, EGG_NEST.x, EGG_NEST.y).setScale(EGG_NEST.scale).setDepth(10);
-    this.bunny = eggArt(this, 'bunny', BUNNY_POS.x, BUNNY_POS.y).setDepth(25).setScale(0.38);
-    this.bunny.setSize(120, 200).setInteractive({ useHandCursor: true });
+    this.bunny = eggArt(this, 'bunny', BUNNY_POS.x, BUNNY_POS.y).setDepth(25).setScale(BUNNY_SCALE);
+    this.bunny.setSize(BUNNY_HIT.w, BUNNY_HIT.h).setInteractive({ useHandCursor: true });
     this.bunny.on('pointerdown', () => {
       if (this.phase === 'build') void this.speak('vo-fr-ws-l20-story');
     });
@@ -420,14 +470,14 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private drawTrayAndButtons(): void {
     panel(this, TRAY.x, TRAY.y, TRAY.w, TRAY.h).setDepth(20);
     for (const def of PARTS) this.makePart(def);
-    this.playBtn = makeButton(this, PLAY_POS.x, PLAY_POS.y, PLAY_POS.w, PLAY_POS.h, drawPlayIcon, () => this.onPlay());
+    this.playBtn = makeButton(this, PLAY_BUTTON.x, PLAY_BUTTON.y, PLAY_BUTTON.w, PLAY_BUTTON.h, drawPlayIcon, () => this.onPlay());
     this.playBtn.container.setDepth(60);
     this.tweens.add({ targets: this.playBtn.container, scale: 1.05, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.buttons.set('playBtn', this.playBtn);
-    const ear = makeButton(this, EAR_POS.x, EAR_POS.y, 96, 96, drawEarIcon, () => this.onEar());
+    const ear = makeButton(this, EAR_BUTTON.x, EAR_BUTTON.y, EAR_BUTTON.w, EAR_BUTTON.h, drawEarIcon, () => this.onEar());
     ear.container.setDepth(700);
     this.buttons.set('earBtn', ear);
-    const back = makeButton(this, 1218, 68, 96, 96, drawHomeIcon, () => this.goBack());
+    const back = makeButton(this, HOME_BUTTON.x, HOME_BUTTON.y, HOME_BUTTON.w, HOME_BUTTON.h, drawHomeIcon, () => this.goBack());
     back.container.setDepth(700);
     this.buttons.set('backBtn', back);
   }
@@ -442,15 +492,61 @@ export class WorkshopL20Scene extends Phaser.Scene {
     if (def.id === 'ramp') this.tweens.add({ targets: container, angle: 3, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
-  /** Hit area at least `minHit` board px at the current scale (thin parts like the domino get a wider target). */
+  /**
+   * Hit area at least `minHit` board px at the current scale (thin parts like the domino get a wider target), and never under
+   * 48 CSS px (`touchMin`, world px, from the live board scale). The art keeps its size; the hit is invisible.
+   */
   private applyHit(part: PartView, scale: number): void {
     const c = part.container;
-    const min = part.def.minHit / Math.max(0.1, Math.abs(scale));
-    c.setSize(Math.max(part.artW, min), Math.max(part.artH, min));
+    const k = Math.max(0.1, Math.abs(scale));
+    const floor = Math.max(part.def.minHit, this.touchMin);
+    c.setSize(hitSide(part.artW, floor / k, 0), hitSide(part.artH, floor / k, 0));
     // Resize the existing hit area in place: removeInteractive + setInteractive in one frame loses the interactive (Phaser
     // queues the removal and nulls the new input on the next pre-update).
     if (c.input?.hitArea) (c.input.hitArea as Phaser.Geom.Rectangle).setSize(c.width, c.height);
     else c.setInteractive({ useHandCursor: true });
+  }
+
+  // ---------------------------------------------------------------- touch targets (AC-18)
+
+  /** The scale a part is drawn at right now (tray scale, or 1 on the board and while held). */
+  private partScale(part: PartView): number {
+    return part.socketId || this.dragging?.part === part ? 1 : part.def.trayScale;
+  }
+
+  /**
+   * Re-computes the board scale (CSS px per world px: the board is letterboxed, in portrait one world px is fewer CSS px) and
+   * grows every invisible hit area to 48 CSS px: tray and placed parts, the buttons and the bunny. Called after the build, on
+   * every resize (and shortly after, the page lays the canvas out late) and about twice a second as a safety net.
+   */
+  private refreshTouch(force = false): void {
+    // update() ticks this from the first frame; the bunny only exists once build() ran (not gated on `ready`: build() calls it first).
+    if (!this.bunny) return;
+    if (!this.alive || !this.game.canvas) return;
+    const unit = boardRectToPage(this, 0, 0, 1, 1);
+    const s = unit.width;
+    if (!Number.isFinite(s) || s <= 0) return;
+    if (!force && Math.abs(s - this.touchScale) < 0.002) return;
+    this.touchScale = s;
+    this.touchMin = minHitWorld(s);
+    for (const part of this.parts.values()) this.applyHit(part, this.partScale(part));
+    for (const b of this.buttons.values()) b.fitHit(this.touchMin);
+    const side = Math.max(this.touchMin / BUNNY_SCALE, 1);
+    this.bunny.setSize(hitSide(BUNNY_HIT.w, 0, side), hitSide(BUNNY_HIT.h, 0, side));
+    if (this.bunny.input?.hitArea) (this.bunny.input.hitArea as Phaser.Geom.Rectangle).setSize(this.bunny.width, this.bunny.height);
+  }
+
+  /** The part under a press: overlapping hit areas (placed dominoes are 40 px apart) resolve to the nearest CENTRE. */
+  private partAt(x: number, y: number, fallback: PartView): PartView {
+    const cands = [...this.parts.values()].map((p) => ({
+      id: p.def.id,
+      x: p.container.x,
+      y: p.container.y,
+      w: p.container.width * Math.abs(p.container.scaleX),
+      h: p.container.height * Math.abs(p.container.scaleY),
+    }));
+    const id = nearestHit(cands, { x, y });
+    return (id ? this.parts.get(id as PartView['def']['id']) : undefined) ?? fallback;
   }
 
   // ---------------------------------------------------------------- voice
@@ -518,6 +614,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     if (this.phase !== 'build' || this.dragging) return;
     this.hideBreakPoint();
     const p = this.worldPoint(pointer);
+    part = this.partAt(p.x, p.y, part);
     this.dragging = { part, dx: part.container.x - p.x, dy: part.container.y - p.y, startX: p.x, startY: p.y, moved: false };
     part.container.setDepth(400);
   }
@@ -532,7 +629,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       // Lifting a placed part opens its socket again; every lifted part is drawn at board size (1:1 with the physics).
       if (part.socketId) this.release(part);
       this.tweens.killTweensOf(part.container);
-      part.container.setAngle(0).setScale(1.04 * (part.flipped ? -1 : 1), 1.04);
+      part.container.setAngle(0).setScale(1.04 * Math.sign(this.boardScaleX(part)), 1.04);
       this.applyHit(part, 1);
     }
     if (drag.moved) drag.part.container.setPosition(p.x + drag.dx, p.y + drag.dy);
@@ -550,7 +647,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       return;
     }
     const occupied = new Set(this.occupiedSockets());
-    const drop = resolveL20Drop(part.def.kind, { x: part.container.x, y: part.container.y }, occupied);
+    const drop = resolveL20Drop(part.def.kind, { x: part.container.x, y: part.container.y }, occupied, L20_SOCKETS, this.touchMin);
     if (drop.accepted) {
       this.lastDrop = { part: part.def.id, accepted: true, reason: null, socketId: drop.socketId };
       this.place(part, drop.socketId, drop.x, drop.y);
@@ -569,12 +666,22 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.syncConfig();
   }
 
-  private place(part: PartView, socketId: string, x: number, y: number, duration = 160, ease = 'Back.easeOut'): void {
+  private place(part: PartView, socketId: string, x: number, y: number, duration = 160, ease = 'Back.easeOut'): Phaser.Tweens.Tween {
     part.socketId = socketId;
     part.container.setDepth(14);
     playEggSfx('sfx-pop');
-    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: part.flipped ? -1 : 1, scaleY: 1, duration, ease });
+    // Turn to the board facing at once (a flip tween would pass through scale 0 and shrink the hit rect for a moment).
+    const facing = this.boardScaleX(part);
+    part.container.scaleX = Math.sign(facing) * Math.abs(part.container.scaleX);
+    const tween = this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: facing, scaleY: 1, duration, ease });
     this.syncConfig();
+    return tween;
+  }
+
+  /** The sign of a part's x scale on the board: a flipped ramp points down-left; the scissors always face left (handle on the cord side). */
+  private boardScaleX(part: PartView): number {
+    if (part.def.kind === 'scissors') return SCISSORS_BOARD_SCALE_X;
+    return part.flipped ? -1 : 1;
   }
 
   private returnToTray(part: PartView, shake: boolean): void {
@@ -609,6 +716,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       .map((p) => ({ part: p.def.kind, socketId: p.socketId as string, flipped: p.flipped }));
     this.config = configFromPlacements(placed);
     this.refreshMarkers();
+    this.scheduleTrajectory();
   }
 
   private glowSatisfied(id: string): boolean {
@@ -630,7 +738,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- hint rungs 4-5 and the break-point marker
 
-  /** Rung 4: a translucent ghost of the right part, in the right orientation, pulsing in its socket until it is placed. */
+  /** Step 5: a translucent ghost of the right part, in the right orientation, pulsing in its socket until it is placed. */
   private setGhost(next: NextNeeded | null): void {
     if (this.ghostView) {
       this.tweens.killTweensOf(this.ghostView);
@@ -645,11 +753,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
       return;
     }
     const view = eggArt(this, def.art, socket.x, socket.y).setDepth(13).setAlpha(0.5);
+    if (def.kind === 'scissors') view.setScale(SCISSORS_BOARD_SCALE_X, 1);
     this.tweens.add({ targets: view, alpha: 0.22, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.ghostView = view;
   }
 
-  /** Rung 5: Bip places ONE correct part, tweening it from the tray (or from the wrong socket it frees first) into the socket. */
+  /** Step 6: Bip places ONE correct part, tweening it from the tray (or from the wrong socket it frees first) into the socket. */
   private bipPlace(next: NextNeeded, run: number): void {
     const part = this.parts.get(next.partId);
     const socket = L20_SOCKETS.find((s) => s.id === next.socketId);
@@ -660,7 +769,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.tweens.killTweensOf(part.container);
     part.container.setAngle(0);
     this.applyHit(part, 1);
-    this.place(part, socket.id, socket.x, socket.y, BIP_PLACE_MS, 'Sine.easeInOut');
+    this.bipSlide = { part, tween: this.place(part, socket.id, socket.x, socket.y, BIP_PLACE_MS, 'Sine.easeInOut'), x: socket.x, y: socket.y };
     this.bipPlaced.push({ part: part.def.id, socketId: socket.id, run });
     this.tweens.add({ targets: this.robotView, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.robotView.setAngle(0) });
   }
@@ -687,6 +796,57 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.breakView = null;
   }
 
+  // ---------------------------------------------------------------- trajectory preview (ladder step 4 and later)
+
+  /** Turns the preview on (from the 4th failure) and draws the path of the current setup at once. */
+  private enableTrajectory(): void {
+    this.trajectoryOn = true;
+    this.refreshTrajectory();
+  }
+
+  /** The board changed: redraw the path once she stops touching it (debounced, never every drag frame). */
+  private scheduleTrajectory(): void {
+    if (!this.trajectoryOn || !this.alive) return;
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = this.time.delayedCall(TRAJ_DEBOUNCE_MS, () => {
+      this.trajectoryTimer = null;
+      if (!this.alive || !this.trajectoryOn) return;
+      if (this.dragging) this.scheduleTrajectory();
+      else if (this.phase === 'build') this.refreshTrajectory();
+    });
+  }
+
+  /** The path of the CURRENT placements from a fresh headless world (the same code as Play; cached by config), drawn as soft dots. */
+  private refreshTrajectory(): void {
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = null;
+    const matter = (Phaser.Physics.Matter as unknown as { Matter: L20Matter }).Matter;
+    this.trajectoryPoints = trajectoryFor(matter, this.config);
+    const dots = dotsAlong(this.trajectoryPoints, TRAJ_SPACING);
+    const g = this.trajectoryView ?? this.add.graphics().setDepth(TRAJ_DEPTH);
+    this.trajectoryView = g;
+    g.clear();
+    dots.forEach((d, i) => {
+      const t = dots.length > 1 ? i / (dots.length - 1) : 0;
+      const alpha = 0.95 - 0.5 * t;
+      g.fillStyle(0xffffff, alpha * 0.6);
+      g.fillCircle(d.x, d.y, TRAJ_DOT + 3);
+      g.fillStyle(TRAJ_COLOR, alpha);
+      g.fillCircle(d.x, d.y, TRAJ_DOT);
+    });
+    g.setVisible(this.phase === 'build');
+  }
+
+  private trajectoryInfo(): WorkshopL20Info['trajectory'] {
+    return trajectoryInfoOf(this.trajectoryPoints, this.trajectoryView?.visible === true);
+  }
+
+  private hideTrajectory(): void {
+    this.trajectoryTimer?.remove(false);
+    this.trajectoryTimer = null;
+    this.trajectoryView?.setVisible(false);
+  }
+
   // ---------------------------------------------------------------- rest pose and sync
 
   /** Every moving thing at its rest pose: a fresh board, as at the start and after a failed run. */
@@ -703,6 +863,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     }
     this.ballView.setPosition(BALL_START.x, BALL_START.y).setRotation(0).setVisible(true);
     this.cutDone = { A: false, B: false };
+    this.leverTripped = false;
+    this.scissorsClosed = false;
+    this.cordTug?.destroy();
+    this.cordTug = null;
+    this.leverView.setRotation(LEVER_REST_ANGLE);
+    this.syncCordLeg(LEVER_REST_ANGLE);
     for (const k of ['A', 'B'] as const) {
       this.stubs[k]?.destroy();
       this.pieces[k]?.destroy();
@@ -751,6 +917,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     }
   }
 
+  /** The live leg of the cord: from the lever's right tip (it moves with the lever) to the fixed pulley P0, drawn with the rope tile. */
+  private syncCordLeg(angle: number): void {
+    const half = LEVER.length / 2;
+    this.cordLeg.set(LEVER_PIVOT.x + half * Math.cos(angle), LEVER_PIVOT.y + half * Math.sin(angle), CORD.P0.x, CORD.P0.y);
+  }
+
   private updateRopeStubs(): void {
     for (const key of ['A', 'B'] as const) {
       const stub = this.stubs[key];
@@ -767,6 +939,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     put(this.sandbagView, w.bodies.sandbag);
     put(this.lanternView, w.bodies.lantern);
     put(this.seesawView, w.bodies.seesaw);
+    this.leverView.setRotation(w.bodies.lever.angle);
+    this.syncCordLeg(w.bodies.lever.angle);
     for (const d of w.bodies.dominoes) {
       const view = this.dominoViewFor(d.label);
       if (view) put(view, d);
@@ -790,6 +964,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.cutIntro();
     this.context.audio.stopAll();
     this.hideBreakPoint();
+    this.hideTrajectory();
+    this.finishBipSlide();
     this.ghostView?.setVisible(false);
     this.phase = 'playing';
     this.accumulator = 0;
@@ -797,18 +973,25 @@ export class WorkshopL20Scene extends Phaser.Scene {
     const token = ++this.runToken;
     this.playBtn.setEnabled(false);
     const matter = (Phaser.Physics.Matter as unknown as { Matter: L20Matter }).Matter;
-    // A fresh engine for every Play; the 60 settle steps run before the cut (invisible: the objects only settle on their ropes).
+    // A fresh engine for every Play; the 60 settle steps run inside it (invisible: the objects only settle). NO snip at Play (v5.1
+    // decision 5): the scissors close only when the lever trips and the cord pulls them.
     this.restViews();
     this.world = new L20World(matter, { ...this.config, slots: [...this.config.slots] });
     this.syncViews();
     this.ballView.setVisible(false);
-    const scissors = this.parts.get('scissors');
-    const cutting = this.config.scissors !== 'none';
-    if (cutting) this.playSnip(scissors);
-    this.time.delayedCall(cutting ? SNIP_MS : 120, () => {
+    this.time.delayedCall(RELEASE_MS, () => {
       if (!this.alive || token !== this.runToken || !this.world) return;
       this.releaseWorld();
     });
+  }
+
+  /** Play stops Bip's slide: the part is put on its socket centre at once, so nothing is still moving into a socket during the run. */
+  private finishBipSlide(): void {
+    const slide = this.bipSlide;
+    this.bipSlide = null;
+    if (!slide?.tween.isPlaying()) return;
+    slide.tween.stop();
+    slide.part.container.setPosition(slide.x, slide.y).setAngle(0).setScale(this.boardScaleX(slide.part), 1);
   }
 
   /** The scissors snip at the top of the string: the 2-frame strip (open, closed, open) or a scaleX squeeze. */
@@ -817,7 +1000,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     playEggSfx('sfx-ws-snip');
     const spec = ensureSpriteAnim(this, 'ws-scissors-snip');
     if (spec) {
-      const sprite = this.add.sprite(part.container.x, part.container.y, 'ws-scissors-snip', '0').setDisplaySize(spec.w, spec.h).setDepth(15);
+      const sprite = this.add.sprite(part.container.x, part.container.y, 'ws-scissors-snip', '0').setDisplaySize(spec.w, spec.h).setFlipX(SCISSORS_BOARD_SCALE_X < 0).setDepth(15);
       this.snipSprite = sprite;
       part.container.setAlpha(0);
       if (!this.anims.exists('ws-scissors-snip-cycle')) {
@@ -825,29 +1008,46 @@ export class WorkshopL20Scene extends Phaser.Scene {
       }
       sprite.play('ws-scissors-snip-cycle');
     } else {
-      this.tweens.add({ targets: part.container, scaleX: 0.6, duration: 80, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => part.container.setScale(1) });
+      this.tweens.add({ targets: part.container, scaleY: 0.6, duration: 80, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => part.container.setScale(SCISSORS_BOARD_SCALE_X, 1) });
     }
   }
 
-  /** The cut and the release of the ball happen on the same step (like the sim); then the run is stepped by `update`. */
+  /** The ball leaves the chute (the run is stepped by `update`); the cord link and the snip come later, from the lever. */
   private releaseWorld(): void {
     const w = this.world;
     if (!w) return;
-    const which = this.config.scissors;
-    w.cut();
     w.release();
-    if (which !== 'none') {
-      this.cutDone[which] = true;
-      this.stubLength[which] = STUB_FULL;
-      this.stubs[which] = new RopeView(this, 8);
-      this.tweens.add({ targets: this.stubLength, [which]: STUB_SHORT, duration: 300, ease: 'Sine.easeOut' });
-      playEggSfx('sfx-ws-rope-swish');
-    }
     playEggSfx('sfx-ws-trapdoor');
     playEggSfx('sfx-ball-roll');
     this.ballView.setVisible(true);
     this.consumeEvents();
     this.syncViews();
+  }
+
+  /** The lever tripped: the cord tugs (a bright pulse along the drawn polyline). Only the scissors, if any, react to it. */
+  private tugCord(): void {
+    this.leverTripped = true;
+    playEggSfx('sfx-ws-rope-swish');
+    this.cordTug?.destroy();
+    const g = this.add.graphics().setDepth(5.6);
+    g.lineStyle(7, 0xfff1a8, 0.9);
+    const pts = [CORD.P0, CORD.P1, CORD.P2, CORD.handle];
+    g.beginPath();
+    g.moveTo(pts[0].x, pts[0].y);
+    for (const p of pts.slice(1)) g.lineTo(p.x, p.y);
+    g.strokePath();
+    this.cordTug = g;
+    this.tweens.add({ targets: g, alpha: 0, duration: 450, onComplete: () => g.destroy() });
+  }
+
+  /** The cord closed the scissors on string `which`: the snip animation, then the string's stub shrinks and its lower piece falls with its object. */
+  private cutString(which: 'A' | 'B'): void {
+    this.scissorsClosed = true;
+    this.playSnip(this.parts.get('scissors'));
+    this.cutDone[which] = true;
+    this.stubLength[which] = STUB_FULL;
+    this.stubs[which] = new RopeView(this, 8);
+    this.tweens.add({ targets: this.stubLength, [which]: STUB_SHORT, duration: 300, ease: 'Sine.easeOut' });
   }
 
   /** Turns the world's new events into sound and tweens. Cosmetic only: nothing here touches a body. */
@@ -860,6 +1060,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
       if (kind === 'domino' && b === 'fallen') {
         const pitch = 1 + (((Number(a) * 7) % 17) - 8) / 100;
         playEggSfx('sfx-ws-domino-clack', { pitch });
+      } else if (e.id === 'lever:tripped') {
+        this.tugCord();
+      } else if (kind === 'snip' && (a === 'A' || a === 'B')) {
+        this.cutString(a);
       } else if (e.id === 'sandbag:hit-seesaw') {
         playEggSfx('sfx-ws-sandbag-thump');
         this.tweens.add({ targets: this.sandbagView, scaleY: { from: 0.85, to: 1 }, duration: 150 });
@@ -908,11 +1112,14 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private onFail(w: L20World): void {
     this.phase = 'feedback';
     this.failedRuns++;
-    const reason = w.run.reason ?? 'no-bell';
-    if (reason === 'coco-only' || reason === 'morning-only') this.oneBellFails++;
+    const reason = w.run.reason ?? 'lever-not-hit';
+    // Coco's small bell stirred its friends mid-chain (cosmetic): when the chain then failed they fall back asleep.
+    const cocoRang = w.cocoRung;
+    if (cocoRang) this.oneBellFails++;
     const plan: FailPlan = planFailure({
       failedRuns: this.failedRuns,
-      oneBellFails: reason === 'coco-only' || reason === 'morning-only' ? this.oneBellFails : 0,
+      oneBellFails: cocoRang ? this.oneBellFails : 0,
+      cocoRang,
       reason,
       dominoRowStopped: w.dominoRowStopped,
       config: this.config,
@@ -920,6 +1127,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     });
     this.hintRung = plan.rung;
     this.setGhost(plan.ghost);
+    if (plan.trajectory) this.trajectoryOn = true;
     this.showBreakPoint(chooseBreakPoint({ reason, events: w.events, config: this.config }));
     this.feedback = {
       kind: plan.feedback.kind,
@@ -944,7 +1152,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
       this.phase = 'build';
       this.playBtn.setEnabled(true);
       this.ghostView?.setVisible(true);
-      // Rung 5: Bip places ONE part (never presses Play); the rest stays hers.
+      // Step 4+: the dotted path of the current setup comes back after the run (the 4th failure beeps once for the new dots).
+      if (plan.trajectory) {
+        this.enableTrajectory();
+        if (plan.trajectorySfx) playEggSfx(plan.trajectorySfx);
+      }
+      // Step 6: Bip places ONE part (never presses Play); the rest stays hers.
       if (plan.bip) {
         if (plan.bipSfx) playEggSfx(plan.bipSfx);
         this.bipPlace(plan.bip, this.failedRuns);
@@ -1007,7 +1220,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private onWin(): void {
     this.phase = 'success';
     const token = ++this.runToken;
+    // The win screen has no Play: hidden (not just dimmed), so Continue cannot be confused with it and no second run starts.
     this.playBtn.setEnabled(false);
+    this.playBtn.container.setVisible(false);
+    this.tweens.killTweensOf(this.playBtn.container);
     this.setGhost(null);
     this.hintGlow = null;
     this.refreshMarkers();
@@ -1127,11 +1343,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
 
   private addContinue(): void {
     if (!this.alive || this.continueBtn) return;
-    const btn = makeButton(this, 640, 640, 180, 112, drawArrowIcon, () => this.goHub());
+    const btn = makeButton(this, 640, 640, 180, 112, drawContinueIcon, () => this.goHub());
     btn.container.setDepth(1000);
     this.tweens.add({ targets: btn.container, scale: 1.08, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.continueBtn = btn;
     this.buttons.set('continueBtn', btn);
+    btn.fitHit(this.touchMin);
   }
 
   // ---------------------------------------------------------------- leaving
@@ -1152,9 +1369,9 @@ export class WorkshopL20Scene extends Phaser.Scene {
   getWorkshopL20Info(): WorkshopL20Info {
     const rects: WorkshopL20Info['rects'] = {};
     for (const [target, b] of this.buttons) {
-      if (b.ready) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.width, b.height);
+      if (b.ready && b.container.visible) rects[target] = boardRectToPage(this, b.container.x, b.container.y, b.hitWidth, b.hitHeight);
     }
-    rects.bunny = boardRectToPage(this, this.bunny.x, this.bunny.y, 120, 200);
+    rects.bunny = boardRectToPage(this, this.bunny.x, this.bunny.y, this.bunny.width * BUNNY_SCALE, this.bunny.height * BUNNY_SCALE);
     const targetOf = { ramp: 'partRamp', domino1: 'partDomino1', domino2: 'partDomino2', scissors: 'partScissors' } as const;
     const parts: WorkshopL20Info['parts'] = [];
     for (const part of this.parts.values()) {
@@ -1162,12 +1379,13 @@ export class WorkshopL20Scene extends Phaser.Scene {
       const rect = boardRectToPage(this, c.x, c.y, c.width * Math.abs(c.scaleX), c.height * Math.abs(c.scaleY));
       rects[targetOf[part.def.id]] = rect;
       const atHome = Math.abs(c.x - part.def.home.x) < 2 && Math.abs(c.y - part.def.home.y) < 2;
-      parts.push({ id: part.def.id, kind: part.def.kind, x: c.x, y: c.y, socketId: part.socketId, inTray: !part.socketId && this.dragging?.part !== part && atHome, flipped: part.flipped, rect });
+      parts.push({ id: part.def.id, kind: part.def.kind, x: c.x, y: c.y, socketId: part.socketId, inTray: !part.socketId && this.dragging?.part !== part && atHome, flipped: part.flipped, scaleX: c.scaleX, rect });
     }
     const taken = new Map<string, string>();
     for (const part of this.parts.values()) if (part.socketId) taken.set(part.socketId, part.def.id);
     const sockets: WorkshopL20Info['sockets'] = L20_SOCKETS.map((s) => {
-      const rect = boardRectToPage(this, s.x, s.y, s.type === 'ramp' ? 240 : 60, s.type === 'ramp' ? 140 : 60);
+      const zone = socketZoneSize(s.type, this.touchMin);
+      const rect = boardRectToPage(this, s.x, s.y, zone.w, zone.h);
       rects[`socket-${s.id}`] = rect;
       return { id: s.id, type: s.type, accepts: s.accepts, x: s.x, y: s.y, occupiedBy: taken.get(s.id) ?? null, glowing: this.hintGlow === s.id, rect };
     });
@@ -1197,8 +1415,11 @@ export class WorkshopL20Scene extends Phaser.Scene {
       hintGlow: this.hintGlow,
       hintRung: this.hintRung,
       ghost: this.ghost ? { part: this.ghost.partId, socketId: this.ghost.socketId, orientation: this.ghost.orientation } : null,
+      trajectory: this.trajectoryInfo(),
       bipPlaced: this.bipPlaced.map((b) => ({ ...b })),
       breakPoint: this.breakPoint ? { ...this.breakPoint } : null,
+      leverTripped: this.leverTripped,
+      scissorsClosed: this.scissorsClosed,
       eggPieceInNest: this.eggPieceInNest,
       partsInTrayCount: parts.filter((p) => p.inTray).length,
       rects,
