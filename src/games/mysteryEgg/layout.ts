@@ -22,8 +22,12 @@ export const BALL_ART_SCALE = (BALL.radius * 2) / BALL_ART_VISIBLE_1X;
 /** The fixed shelf the ball starts on (static), tilted slightly down to the right so the ball rolls off by itself. Centre + size + angle (rad). */
 export const SHELF = { x: 210, y: 300, w: 300, h: 28, angle: 0.22 } as const;
 
-/** The slot the missing ramp piece goes into: its centre, and the display size of the ramp art (the drop zone). */
-export const RAMP_SLOT = { x: 470, y: 440, w: 240, h: 140 } as const;
+/**
+ * The slot the missing ramp piece goes into: its centre, and the display size of the ramp art (the drop zone).
+ * x 450 (was 470): at timeScale 1.25 (physicsConfig.ts) the ball only just clears the ramp crest; in this build 470 won 73% of the
+ * jittered runs, the notes' 460 (v5.1 L1 slot 470 -> 460) about 80%, and 450 all 225 corner combinations (see PENDING-DECISIONS).
+ */
+export const RAMP_SLOT = { x: 450, y: 440, w: 240, h: 140 } as const;
 
 /**
  * The solid wedge of the ramp piece: a convex polygon in display px relative to the slot (art) centre. It is the SILHOUETTE
