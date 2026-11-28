@@ -495,4 +495,34 @@ test.describe('workshop L20', () => {
     // [AC-17] the trajectory stays on with Bip's ramp and follows it.
     i = await waitInfo(page, (x) => x.trajectory?.visible === true && x.trajectory.last.x > 280, 'the trajectory did not follow Bip\'s ramp', 10_000);
   });
+
+  test('[AC-14] @single-orientation Play tapped while Bip\'s part is still sliding in: the slide stops at once, the part sits in its socket and nothing moves after Play', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    test.setTimeout(300_000);
+    await openL20(page);
+    for (let n = 1; n <= 6; n++) {
+      await tapPlay(page);
+      await waitInfo(page, (x) => x.phase === 'playing', 'the run never started');
+      await waitInfo(page, (x) => x.phase === 'feedback' && x.failedRuns === n, `failure ${n} never came`, 90_000);
+      if (n < 6) await waitInfo(page, (x) => x.phase === 'build', `the board never reset after failure ${n}`, 15_000);
+    }
+    // A tight poll (no sleep): the moment the 700 ms slide starts, tap Play.
+    let i: WorkshopL20Info | null = null;
+    const deadline = Date.now() + 15_000;
+    while (!(i = await info(page)) || i.bipPlaced.length !== 1 || i.phase !== 'build') {
+      if (Date.now() > deadline) throw new Error('Bip never started placing a part');
+    }
+    await tapRect(page, i.rects.playBtn as Rect);
+    const after = await waitInfo(page, (x) => x.phase === 'playing', 'Play never started');
+    const socket = after.sockets.find((s) => s.id === 'R1')!;
+    const ramp = after.parts.find((p) => p.id === 'ramp')!;
+    expect(ramp.socketId).toBe('R1');
+    expect(Math.abs(ramp.x - socket.x), 'ramp x right after Play').toBeLessThan(2);
+    expect(Math.abs(ramp.y - socket.y), 'ramp y right after Play').toBeLessThan(2);
+    // And it stays there while the 700 ms slide would still have been running.
+    await page.waitForTimeout(800);
+    const later = (await info(page))!.parts.find((p) => p.id === 'ramp')!;
+    expect(later.x).toBe(ramp.x);
+    expect(later.y).toBe(ramp.y);
+  });
 });

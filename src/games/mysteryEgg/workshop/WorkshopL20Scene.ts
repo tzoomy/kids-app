@@ -209,6 +209,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private ghost: NextNeeded | null = null;
   private ghostView: Phaser.GameObjects.Container | null = null;
   private bipPlaced: WorkshopL20Info['bipPlaced'] = [];
+  /** Bip's step-6 slide while it runs (stopped and finished at once by Play). */
+  private bipSlide: { part: PartView; tween: Phaser.Tweens.Tween; x: number; y: number } | null = null;
   private breakPoint: BreakPoint | null = null;
   private breakView: Phaser.GameObjects.Graphics | null = null;
   private trajectoryOn = false;
@@ -271,6 +273,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.ghost = null;
     this.ghostView = null;
     this.bipPlaced = [];
+    this.bipSlide = null;
     this.breakPoint = null;
     this.breakView = null;
     this.trajectoryOn = false;
@@ -665,15 +668,16 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.syncConfig();
   }
 
-  private place(part: PartView, socketId: string, x: number, y: number, duration = 160, ease = 'Back.easeOut'): void {
+  private place(part: PartView, socketId: string, x: number, y: number, duration = 160, ease = 'Back.easeOut'): Phaser.Tweens.Tween {
     part.socketId = socketId;
     part.container.setDepth(14);
     playEggSfx('sfx-pop');
     // Turn to the board facing at once (a flip tween would pass through scale 0 and shrink the hit rect for a moment).
     const facing = this.boardScaleX(part);
     part.container.scaleX = Math.sign(facing) * Math.abs(part.container.scaleX);
-    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: facing, scaleY: 1, duration, ease });
+    const tween = this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: facing, scaleY: 1, duration, ease });
     this.syncConfig();
+    return tween;
   }
 
   /** The sign of a part's x scale on the board: a flipped ramp points down-left; the scissors always face left (handle on the cord side). */
@@ -767,7 +771,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.tweens.killTweensOf(part.container);
     part.container.setAngle(0);
     this.applyHit(part, 1);
-    this.place(part, socket.id, socket.x, socket.y, BIP_PLACE_MS, 'Sine.easeInOut');
+    this.bipSlide = { part, tween: this.place(part, socket.id, socket.x, socket.y, BIP_PLACE_MS, 'Sine.easeInOut'), x: socket.x, y: socket.y };
     this.bipPlaced.push({ part: part.def.id, socketId: socket.id, run });
     this.tweens.add({ targets: this.robotView, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 2, onComplete: () => this.robotView.setAngle(0) });
   }
@@ -963,6 +967,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.context.audio.stopAll();
     this.hideBreakPoint();
     this.hideTrajectory();
+    this.finishBipSlide();
     this.ghostView?.setVisible(false);
     this.phase = 'playing';
     this.accumulator = 0;
@@ -980,6 +985,15 @@ export class WorkshopL20Scene extends Phaser.Scene {
       if (!this.alive || token !== this.runToken || !this.world) return;
       this.releaseWorld();
     });
+  }
+
+  /** Play stops Bip's slide: the part is put on its socket centre at once, so nothing is still moving into a socket during the run. */
+  private finishBipSlide(): void {
+    const slide = this.bipSlide;
+    this.bipSlide = null;
+    if (!slide?.tween.isPlaying()) return;
+    slide.tween.stop();
+    slide.part.container.setPosition(slide.x, slide.y).setAngle(0).setScale(this.boardScaleX(slide.part), 1);
   }
 
   /** The scissors snip at the top of the string: the 2-frame strip (open, closed, open) or a scaleX squeeze. */
