@@ -373,8 +373,9 @@ test.describe('workshop L20', () => {
     expect(i.breakPoint).toMatchObject({ kind: 'empty-hook', x: 860, y: 110 });
     expect(i.feedback).toMatchObject({ kind: 'one-bell', capybara: 'ring', sfx: 'sfx-ws-yawn' });
     expect(i.feedback?.sleepersFallAsleep).toEqual(['moustache', 'bruno', 'cocopom']);
-    await expect.poll(async () => spoken(page)).toContain('vo-fr-ws-l20-one-bell');
-    await expect.poll(async () => spoken(page)).toContain('vo-he-ws-scissors-which');
+    // The voices play in sequence (playVoices awaits each clip): one-bell is 4.6 s, then 250 ms, then the 7.0 s hint starts; the default 5 s poll raced it.
+    await expect.poll(async () => spoken(page), { timeout: 20_000 }).toContain('vo-fr-ws-l20-one-bell');
+    await expect.poll(async () => spoken(page), { timeout: 20_000 }).toContain('vo-he-ws-scissors-which');
     // They woke, then fell asleep again: asleep -> awake -> asleep.
     i = await waitInfo(page, (x) => x.sleepers.cocopom.history.join('>') === 'asleep>awake>asleep', 'the friends never fell asleep again', 15_000);
     expect(i.sleepers.pip.history).toEqual(['asleep']);
