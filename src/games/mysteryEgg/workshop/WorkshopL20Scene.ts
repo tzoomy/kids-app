@@ -23,6 +23,7 @@ import { eggAvailability } from '../voiceProvider';
 import { EAR_LINE, planFailure, type FailPlan, type NextNeeded } from './l20Hints';
 import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from './l20Trajectory';
 import { drawContinueIcon } from './l20Icons';
+import { EAR_BUTTON, HOME_BUTTON, PLAY_BUTTON, ROBOT_POS } from './l20Hud';
 import { hitSide, minHitWorld, nearestHit } from './l20Touch';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
 import { LEVER } from './lever';
@@ -86,13 +87,10 @@ const PARTS: readonly PartDef[] = [
   { id: 'domino2', kind: 'domino', art: 'ws-domino', home: { x: 490, y: TRAY_Y }, trayScale: 0.78, minHit: 56 },
   { id: 'scissors', kind: 'scissors', art: 'ws-scissors', home: { x: 640, y: TRAY_Y }, trayScale: 0.9, minHit: 70 },
 ];
-const PLAY_POS = { x: 955, y: 750, w: 210, h: 100 } as const;
-const ROBOT_POS = { x: 1190, y: 748 } as const;
 const BUNNY_POS = { x: 60, y: 748 } as const;
 const BUNNY_SCALE = 0.38;
 /** The bunny's hit size in its own (unscaled) pixels; grown by `refreshTouch` to the 48 CSS px minimum. */
 const BUNNY_HIT = { w: 120, h: 200 } as const;
-const EAR_POS = { x: 1200, y: 620 } as const;
 /** A drag counts once the finger moved this far (board px); less is a tap (a tap on the placed ramp flips it). */
 const DRAG_THRESHOLD = 8;
 const MAX_STEPS_PER_FRAME = 6;
@@ -472,14 +470,14 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private drawTrayAndButtons(): void {
     panel(this, TRAY.x, TRAY.y, TRAY.w, TRAY.h).setDepth(20);
     for (const def of PARTS) this.makePart(def);
-    this.playBtn = makeButton(this, PLAY_POS.x, PLAY_POS.y, PLAY_POS.w, PLAY_POS.h, drawPlayIcon, () => this.onPlay());
+    this.playBtn = makeButton(this, PLAY_BUTTON.x, PLAY_BUTTON.y, PLAY_BUTTON.w, PLAY_BUTTON.h, drawPlayIcon, () => this.onPlay());
     this.playBtn.container.setDepth(60);
     this.tweens.add({ targets: this.playBtn.container, scale: 1.05, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.buttons.set('playBtn', this.playBtn);
-    const ear = makeButton(this, EAR_POS.x, EAR_POS.y, 96, 96, drawEarIcon, () => this.onEar());
+    const ear = makeButton(this, EAR_BUTTON.x, EAR_BUTTON.y, EAR_BUTTON.w, EAR_BUTTON.h, drawEarIcon, () => this.onEar());
     ear.container.setDepth(700);
     this.buttons.set('earBtn', ear);
-    const back = makeButton(this, 1218, 68, 96, 96, drawHomeIcon, () => this.goBack());
+    const back = makeButton(this, HOME_BUTTON.x, HOME_BUTTON.y, HOME_BUTTON.w, HOME_BUTTON.h, drawHomeIcon, () => this.goBack());
     back.container.setDepth(700);
     this.buttons.set('backBtn', back);
   }

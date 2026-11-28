@@ -145,6 +145,43 @@ test.describe('workshop L20', () => {
     await page.mouse.up();
   });
 
+  test('[AC-18] the ear button clears the lever (plank swing, post, stops), its cord, every part, socket, button and the bunny, and stays a 48 CSS px target (both orientations)', async ({ page }) => {
+    const i = await openL20(page);
+    const ear = i.rects.earBtn as Rect;
+    expect(Math.min(ear.width, ear.height)).toBeGreaterThanOrEqual(48);
+    const overlap = (a: Rect, b: Rect): boolean => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+    for (const [name, r] of Object.entries(i.rects)) {
+      if (name === 'earBtn' || !r) continue;
+      expect(overlap(ear, r as Rect), `earBtn vs ${name}`).toBe(false);
+    }
+    // World -> page: the board is a uniform scale plus an offset (letterboxed in portrait), read off two sockets.
+    const a = i.sockets.find((s) => s.id === 'R1')!;
+    const b = i.sockets.find((s) => s.id === 'string-A')!;
+    const k = (centre(b.rect).x - centre(a.rect).x) / (b.x - a.x);
+    const toPage = (p: { x: number; y: number }) => ({ x: centre(a.rect).x + (p.x - a.x) * k, y: centre(a.rect).y + (p.y - a.y) * k });
+    const hits = (p: { x: number; y: number }): boolean => p.x >= ear.x && p.x <= ear.x + ear.width && p.y >= ear.y && p.y <= ear.y + ear.height;
+    const segment = (p: { x: number; y: number }, q: { x: number; y: number }): boolean => {
+      for (let t = 0; t <= 100; t++) if (hits(toPage({ x: p.x + ((q.x - p.x) * t) / 100, y: p.y + ((q.y - p.y) * t) / 100 }))) return true;
+      return false;
+    };
+    // The lever: pivot (1125,548), arms 80 long; the right arm swings from 11 deg down to 19 deg up, the left arm mirrors it. Stops and post as in lever.ts.
+    const pivot = { x: 1125, y: 548 };
+    const rad = (d: number): number => (d * Math.PI) / 180;
+    const P0 = { x: 1238, y: 688 };
+    for (let d = 11; d >= -19; d -= 1) {
+      const tip = { x: pivot.x + 80 * Math.cos(rad(d)), y: pivot.y + 80 * Math.sin(rad(d)) };
+      expect(segment(pivot, tip), `right arm at ${d} deg`).toBe(false);
+      expect(segment(pivot, { x: pivot.x - (tip.x - pivot.x), y: pivot.y - (tip.y - pivot.y) }), `left arm at ${d} deg`).toBe(false);
+      expect(segment(tip, P0), `cord leg at ${d} deg`).toBe(false);
+    }
+    const tip = { x: pivot.x + 80 * Math.cos(rad(11)), y: pivot.y + 80 * Math.sin(rad(11)) };
+    const stop = [tip.x - 11, tip.y + 5, tip.x + 11, tip.y + 15];
+    for (const c of [{ x: stop[0], y: stop[1] }, { x: stop[2], y: stop[1] }, { x: stop[0], y: stop[3] }, { x: stop[2], y: stop[3] }]) expect(hits(toPage(c)), 'right stop corner').toBe(false);
+    // The cord: P0 -> P1 -> P2 -> the scissors handle.
+    const cord = [P0, { x: 1244, y: 72 }, { x: 896, y: 72 }, { x: 880, y: 98 }];
+    for (let n = 0; n < cord.length - 1; n++) expect(segment(cord[n], cord[n + 1]), `cord segment ${n}`).toBe(false);
+  });
+
   test('[AC-08] @single-orientation the intro story line is the real recorded file: the .ogg answers HTTP 200 and the spy logs it as a clip (no chime, no device TTS)', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     const ogg = page.waitForResponse((r) => r.url().endsWith('/audio/mystery-egg/vo-fr-ws-l20-story.ogg'), { timeout: 30_000 });
