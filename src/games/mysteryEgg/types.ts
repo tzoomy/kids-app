@@ -4,6 +4,7 @@ import type { ProgressSeed } from './progress';
 import type { FriendId, WorldId } from './worlds';
 import type { L20Config, L20PartKind, SleeperId } from './workshop/l20Level';
 import type { L20Event, L20Run } from './workshop/l20World';
+import type { BreakKind } from './workshop/l20BreakPoint';
 
 export interface EggPageRect {
   x: number;
@@ -162,7 +163,11 @@ export interface WorkshopL20Info {
   /** Step 6: the parts Bip placed, one per step-6 failure (`run` = the failed-run count that triggered it). */
   bipPlaced: Array<{ part: string; socketId: string; run: number }>;
   /** The pulsing circle where the chain first stopped after a failed run (hidden once the board is touched or Play is tapped). */
-  breakPoint: { x: number; y: number; kind: 'ramp' | 'domino-gap' | 'coco-bell' | 'string' | 'morning-bell' } | null;
+  breakPoint: { x: number; y: number; kind: BreakKind } | null;
+  /** v5.1 one chain: the lever tripped (the cord link fired) in the current or last run. */
+  leverTripped: boolean;
+  /** v5.1: the scissors closed (only when the lever trips with scissors on a string). */
+  scissorsClosed: boolean;
   /** The egg piece flew to the nest and the egg glows (the win finale reached its end). */
   eggPieceInNest: boolean;
   partsInTrayCount: number;

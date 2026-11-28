@@ -27,7 +27,6 @@ export function trajectoryFor(M: L20Matter, config: L20Config): readonly Traject
   const hit = cache.get(key);
   if (hit) return hit;
   const world = new L20World(M, { ...config, slots: [...config.slots] });
-  world.cut();
   world.release();
   const ball = world.bodies.ball;
   const points: TrajectoryPoint[] = [];

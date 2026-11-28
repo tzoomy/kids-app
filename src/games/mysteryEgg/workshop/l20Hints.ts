@@ -6,7 +6,7 @@ import type { L20Reason } from './l20World';
 /** The robot's ear button: the goal hint (never the solution), any time. */
 export const EAR_LINE = 'vo-he-ws-l20-goal';
 
-/** Which friends each bell wakes (cosmetic: they twitch mid-run and, on a one-bell failure, fall asleep again). */
+/** Which friends each bell wakes (cosmetic). Only Coco's small bell rings mid-chain: its friends stir and, if the chain then fails, fall back asleep. */
 export const BELL_FRIENDS: Record<'coco' | 'morning', readonly SleeperId[]> = {
   coco: ['moustache', 'bruno', 'cocopom'],
   morning: ['pip', 'grandpere', 'plume'],
@@ -15,8 +15,10 @@ export const BELL_FRIENDS: Record<'coco' | 'morning', readonly SleeperId[]> = {
 export interface FailInput {
   /** Failed runs so far, counting this one (1 = the first failure). */
   failedRuns: number;
-  /** One-bell failures so far, counting this one (0 when this failure is not one). */
+  /** Failures so far where the small bell had stirred its friends, counting this one (0 when this failure is not one). */
   oneBellFails: number;
+  /** Coco's small bell rang (by a domino) before the failure: the friends stirred and must fall back asleep. */
+  cocoRang: boolean;
   reason: L20Reason;
   /** The domino row stopped: dominoes tipped but the chain never reached Coco's bell. */
   dominoRowStopped: boolean;
@@ -89,21 +91,21 @@ function glowTarget(config: L20Config): Hint | null {
 const GOAL: Hint = { lineId: EAR_LINE, glow: null };
 
 function pickHint(n: number, input: FailInput): Hint | null {
-  const morningMissed = input.reason === 'coco-only' || input.reason === 'no-bell';
+  // The lever tripped but there is no goal: the cord pulled an empty hook or the wrong string -> "which string".
+  const leverTripped = input.reason === 'empty-hook' || input.reason === 'wrong-string' || input.reason === 'no-goal';
   if (n >= 3) return glowTarget(input.config) ?? GOAL;
   if (n === 2) return GOAL;
-  if (morningMissed) return { lineId: 'vo-he-ws-scissors-which', glow: null };
+  if (leverTripped) return { lineId: 'vo-he-ws-scissors-which', glow: null };
   if (input.dominoRowStopped) return { lineId: 'vo-he-ws-dominoes-gap', glow: null };
   return null;
 }
 
 /** Everything a failed run shows and says. */
 export function planFailure(input: FailInput): FailPlan {
-  const oneBell = input.reason === 'coco-only' || input.reason === 'morning-only';
-  const feedback: FailFeedback = oneBell
+  const feedback: FailFeedback = input.cocoRang
     ? {
         kind: 'one-bell',
-        sleepersFallAsleep: [...BELL_FRIENDS[input.reason === 'coco-only' ? 'coco' : 'morning']],
+        sleepersFallAsleep: [...BELL_FRIENDS.coco],
         capybara: 'ring',
         sfx: 'sfx-ws-yawn',
         voice: input.oneBellFails % 2 === 1 ? 'vo-fr-ws-l20-one-bell' : 'vo-fr-presque',

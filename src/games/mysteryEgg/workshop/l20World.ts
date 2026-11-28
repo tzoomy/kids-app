@@ -1,9 +1,13 @@
-// Workshop L20 physics world: Phaser-free (the Matter library is passed in: Phaser's bundled build in the scene, the same
-// build headless in tests). The geometry, masses, frictions, step and creation order match design/v4-sim/l20.cjs + lib4.cjs,
-// so a seeded jittered run here equals the simulator's. "Fresh engine for every Play" (v4 §1.1): the scene builds a new L20World.
-// Events (v4 §1.9): snip:A|B, domino:<x>:fallen, bell:coco:<body>, bell:morning:<body>, plus sandbag:hit-seesaw and
-// lantern:floor for sound. Steps are counted from the release of the ball (step 0).
+// Workshop L20 physics world (v5.1 one chain): Phaser-free (the Matter library is passed in: Phaser's bundled build in the scene, the
+// same build headless in tests). The geometry, masses, frictions, step and creation order match workshop-v5-notes sim/levels.cjs `X.L20`
+// + sim/core.cjs (timeScale 1.25, resolver pin, the shared lever), so a seeded jittered run here equals the simulator's.
+// "Fresh engine for every Play" (v4 §1.1): the scene builds a new L20World. There is NO snip at Play: the scissors close only when the
+// lever trips and the cord link fires. Events (decision 9, names not yet approved): bell:coco:<body> (cosmetic stir), lever:tripped,
+// snip:A|B (only with scissors on that string), bell:morning:<body> (any body), goal:morning (the seesaw rang it), domino:<x>:fallen,
+// plus sandbag:hit-seesaw and lantern:floor for sound. Steps are counted from the release of the ball (step 0).
 import { RAMP_POLY } from '../layout';
+import { applyPhysicsConfig, withResolverPin } from '../physicsConfig';
+import { createLever, type Lever, type LeverMatter } from './lever';
 import {
   BALL_START,
   BELL_MIN_ANGULAR,
@@ -17,6 +21,10 @@ import {
   DOMINO_Y,
   FIXED_DOMINOES,
   FLOOR_Y,
+  LEDGE,
+  LEVER_PIVOT,
+  POST,
+  SEESAW_REST_ANGLE,
   L20_REST_ANGULAR,
   L20_REST_SPEED,
   L20_REST_STEPS,
@@ -54,26 +62,10 @@ export interface L20Constraint {
 interface L20Engine {
   world: unknown;
   gravity: { x: number; y: number; scale: number };
+  timing: { timeScale: number };
 }
-/** Matter's global collision-resolver constants. Phaser's MatterPhysics plugin overwrites them at scene creation. */
-export type L20ResolverConstants = Record<'_restingThresh' | '_restingThreshTangent' | '_positionDampen' | '_positionWarming' | '_frictionNormalMultiplier', number>;
-
-/**
- * The constants the v4 simulator and the unit tests run with (the Matter library defaults of Phaser 3.90's bundled build).
- * Phaser's MatterPhysics plugin constructor sets the GLOBAL Resolver to _restingThresh 4 / _restingThreshTangent 6 as soon as any
- * Matter-enabled scene exists (the egg build scene), which made the live game a different world: {500,580} won live (QA 2026-11-27).
- * The world pins these for every Engine.update and restores the caller's values afterwards, so live == headless == sim.
- */
-export const L20_RESOLVER: Readonly<L20ResolverConstants> = {
-  _restingThresh: 2,
-  _restingThreshTangent: Math.sqrt(6),
-  _positionDampen: 0.9,
-  _positionWarming: 0.8,
-  _frictionNormalMultiplier: 5,
-};
-
-export interface L20Matter {
-  Resolver?: Partial<L20ResolverConstants>;
+export interface L20Matter extends LeverMatter {
+  Resolver?: Partial<Record<'_restingThresh' | '_restingThreshTangent' | '_positionDampen' | '_positionWarming' | '_frictionNormalMultiplier', number>>;
   Engine: { create(opts?: object): L20Engine; update(engine: L20Engine, delta?: number): void };
   Bodies: {
     circle(x: number, y: number, r: number, opts?: object): L20Body;
@@ -100,7 +92,11 @@ export interface L20Event {
 }
 
 export type L20RunState = 'idle' | 'running' | 'ended';
-export type L20Reason = 'both-bells' | 'coco-only' | 'morning-only' | 'no-bell';
+/**
+ * Why a run ended: `goal` (win), `lever-not-hit` (the chain stopped before the lever: wrong dominoes, no or wrong ramp), `empty-hook`
+ * (the lever tripped but there are no scissors), `wrong-string` (the scissors cut B: the lantern drops), `no-goal` (anything else).
+ */
+export type L20Reason = 'goal' | 'lever-not-hit' | 'empty-hook' | 'wrong-string' | 'no-goal';
 export interface L20Run {
   state: L20RunState;
   result: 'win' | 'fail' | null;
@@ -135,6 +131,7 @@ interface BellGoal {
 
 export interface L20Bodies {
   ball: L20Body | null;
+  lever: L20Body;
   sandbag: L20Body;
   lantern: L20Body;
   seesaw: L20Body;
@@ -152,6 +149,12 @@ export class L20World {
   /** Rope constraints still attached (A, B), for drawing. */
   readonly ropes: { A: L20Constraint | null; B: L20Constraint | null };
   readonly goals: { coco: BellGoal | null; morning: BellGoal | null } = { coco: null, morning: null };
+  /** The string the cord cut (null until the lever trips, and for ever with no scissors). */
+  snipped: 'A' | 'B' | null = null;
+  /** Step of the lever trip / of the snip (null = not yet). */
+  trippedAt: number | null = null;
+  snipAt: number | null = null;
+  private readonly lever: Lever;
   private readonly rng: () => number;
   private readonly fallen = new Set<string>();
   private n = 0;
@@ -169,6 +172,7 @@ export class L20World {
     const { Engine, Bodies, Body, Composite, Constraint, Vertices } = M;
     this.rng = mulberry(opts.seed ?? 1);
     this.engine = Engine.create();
+    applyPhysicsConfig(this.engine);
     const world = this.engine.world;
     const add = <T>(b: T): T => {
       Composite.add(world, b);
@@ -213,7 +217,7 @@ export class L20World {
     }
 
     // Ledge under the seesaw's right end, sand tray + lip under the left end (catches the bag).
-    box(SEESAW.ledge.x0, SEESAW.ledge.top, SEESAW.ledge.x1, SEESAW.ledge.top + 20);
+    box(LEDGE.x0, LEDGE.top, LEDGE.x1, LEDGE.top + LEDGE.thickness);
     box(SAND_TRAY.x0, SAND_TRAY.y0, SAND_TRAY.x1, SAND_TRAY.y1);
     box(SAND_LIP.x0, SAND_LIP.y0, SAND_LIP.x1, SAND_LIP.y1);
 
@@ -222,7 +226,7 @@ export class L20World {
     const cx = PIVOT.x + (SEESAW.armRight - SEESAW.armLeft) / 2;
     const plank = Bodies.rectangle(cx, PIVOT.y, len, SEESAW.thickness, { density: SEESAW.density });
     const seesaw = Body.create({ parts: [plank], friction: 0.4, restitution: 0 });
-    const phi = Math.asin(Math.min(0.99, (SEESAW.ledge.top - 8 - PIVOT.y) / SEESAW.armRight));
+    const phi = SEESAW_REST_ANGLE;
     Body.rotate(seesaw, phi, { x: PIVOT.x, y: PIVOT.y });
     add(seesaw);
     add(
@@ -247,7 +251,11 @@ export class L20World {
     this.ropeB = Constraint.create({ pointA: { x: LANTERN.x, y: LANTERN.anchorY }, bodyB: lantern, length: LANTERN.ropeLength, stiffness: ROPE_STIFFNESS });
     Composite.add(world, [this.ropeA, this.ropeB]);
     this.ropes = { A: this.ropeA, B: this.ropeB };
-    this.bodies = { ball: null, sandbag, lantern, seesaw, ramp, dominoes };
+
+    // The shared lever on its post (sim order: lever + stops, then the post), then the 60 settle steps.
+    this.lever = createLever(M, world, LEVER_PIVOT);
+    box(POST.x0, POST.y0, POST.x1, POST.y1);
+    this.bodies = { ball: null, lever: this.lever.body as unknown as L20Body, sandbag, lantern, seesaw, ramp, dominoes };
 
     for (let i = 0; i < L20_SETTLE_STEPS; i++) this.advance();
 
@@ -260,7 +268,8 @@ export class L20World {
           this.hitSeesaw = true;
           this.ev('sandbag:hit-seesaw');
         }
-        if (!this.lanternLanded && this.run.state === 'running' && has('lantern') && this.bodies.lantern.position.y > 600) {
+        // The cut lantern lands on the table (about y 536 now that the table runs to x 1150), not on the floor: any landing below y 500.
+        if (!this.lanternLanded && this.run.state === 'running' && has('lantern') && this.bodies.lantern.position.y > 500) {
           this.lanternLanded = true;
           this.ev('lantern:floor');
         }
@@ -268,20 +277,9 @@ export class L20World {
     });
   }
 
-  /** One Matter step with the pinned Resolver constants (see L20_RESOLVER); the caller's global values are restored. */
+  /** One Matter step with the v5.1 resolver pin (physicsConfig.ts); the caller's global values are restored. */
   private advance(): void {
-    const resolver = this.M.Resolver;
-    if (!resolver) {
-      this.M.Engine.update(this.engine, L20_STEP_MS);
-      return;
-    }
-    const saved = { ...resolver };
-    Object.assign(resolver, L20_RESOLVER);
-    try {
-      this.M.Engine.update(this.engine, L20_STEP_MS);
-    } finally {
-      Object.assign(resolver, saved);
-    }
+    withResolverPin(this.M, () => this.M.Engine.update(this.engine, L20_STEP_MS));
   }
 
   /** The sim's jitter: v +- opts.jitter px, drawn from the seeded generator in creation order. */
@@ -294,17 +292,24 @@ export class L20World {
     this.events.push({ id, step: this.n });
   }
 
-  /** The scissors snip: removes the rope under the scissors (A or B). No scissors, no cut. */
-  cut(): void {
+  /**
+   * The cord link (v5.1 §1.2): the lever tripped, so the cord pulls the scissors handle once. With scissors on A or B that rope is cut
+   * (`snip:A|B`); with an empty socket nothing is cut (only `lever:tripped` was emitted).
+   */
+  private pullCord(): void {
+    this.ev('lever:tripped');
+    this.trippedAt = this.n;
     const which = this.config.scissors;
     if (which === 'none') return;
     const rope = which === 'A' ? this.ropeA : this.ropeB;
     this.M.Composite.remove(this.engine.world, rope);
     this.ropes[which] = null;
+    this.snipped = which;
+    this.snipAt = this.n;
     this.ev(`snip:${which}`);
   }
 
-  /** Play's last step: the ball leaves the chute with zero velocity, the bells arm, the run starts. */
+  /** Play: the ball leaves the chute with zero velocity, the bells arm, the run starts. Nothing is cut here. */
   release(): void {
     const { Bodies, Body, Composite } = this.M;
     const b = Bodies.circle(this.j(BALL_START.x), this.j(BALL_START.y), BALL_START.radius, {
@@ -339,6 +344,7 @@ export class L20World {
   step(): boolean {
     if (this.run.state !== 'running') return false;
     const { Collision } = this.M;
+    if (this.lever.check()) this.pullCord();
     for (const g of [this.goals.coco, this.goals.morning]) {
       if (!g || g.hit !== null) continue;
       for (const b of this.dynamics()) {
@@ -348,6 +354,8 @@ export class L20World {
           g.hit = this.n;
           g.by = b.label;
           this.ev(`bell:${g.id}:${b.label}`);
+          // THE goal: the seesaw rang the morning bell after the small bell stirred and the cord cut a string (the order check).
+          if (g.id === 'morning' && b.label === 'seesaw' && this.cocoRung && this.snipAt !== null) this.ev('goal:morning');
           break;
         }
       }
@@ -369,12 +377,13 @@ export class L20World {
     return this.run.state === 'running';
   }
 
-  /** True when the morning bell was rung by the seesaw, and Coco's bell by a domino. */
+  /** Coco's small bell was rung by a domino (a cosmetic mid-chain stir, never a goal). */
   get cocoRung(): boolean {
     const g = this.goals.coco;
     return g !== null && g.hit !== null && (g.by ?? '').startsWith('dom');
   }
 
+  /** The morning bell was rung by the seesaw. */
   get morningRung(): boolean {
     const g = this.goals.morning;
     return g !== null && g.hit !== null && g.by === 'seesaw';
@@ -390,13 +399,27 @@ export class L20World {
     return !this.cocoRung && this.fallen.size > 0;
   }
 
+  /** The win: the seesaw rang the morning bell, Coco's bell by a domino, and bell:coco <= snip < goal:morning (the one-chain order check). */
+  private get won(): boolean {
+    const coco = this.goals.coco?.hit;
+    const morning = this.goals.morning?.hit;
+    const snip = this.snipAt;
+    return this.cocoRung && this.morningRung && coco != null && morning != null && snip !== null && coco <= snip && snip < morning;
+  }
+
   private finish(): void {
-    const coco = this.cocoRung;
-    const morning = this.morningRung;
     this.run.state = 'ended';
     this.run.endStep = this.n;
-    this.run.result = coco && morning ? 'win' : 'fail';
-    this.run.reason = coco && morning ? 'both-bells' : coco ? 'coco-only' : morning ? 'morning-only' : 'no-bell';
+    if (this.won) {
+      this.run.result = 'win';
+      this.run.reason = 'goal';
+      return;
+    }
+    this.run.result = 'fail';
+    if (this.trippedAt === null) this.run.reason = 'lever-not-hit';
+    else if (this.config.scissors === 'none') this.run.reason = 'empty-hook';
+    else if (this.snipped === 'B') this.run.reason = 'wrong-string';
+    else this.run.reason = 'no-goal';
   }
 }
 
@@ -405,10 +428,9 @@ export interface L20Outcome {
   events: L20Event[];
 }
 
-/** One complete headless Play on a fresh engine: settle, snip, release, step until the run ends. */
+/** One complete headless Play on a fresh engine: settle, release, step until the run ends (the lever's cord does the snip). */
 export function simulateL20(M: L20Matter, config: L20Config, opts: L20Options = {}): L20Outcome {
   const world = new L20World(M, config, opts);
-  world.cut();
   world.release();
   while (world.step()) {
     // stepping

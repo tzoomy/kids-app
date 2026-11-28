@@ -25,11 +25,13 @@ import { dotsAlong, trajectoryFor, trajectoryInfoOf, type TrajectoryPoint } from
 import { drawContinueIcon } from './l20Icons';
 import { hitSide, minHitWorld, nearestHit } from './l20Touch';
 import { chooseBreakPoint, type BreakPoint } from './l20BreakPoint';
+import { LEVER } from './lever';
 import {
   BALL_START,
   BELL_RADIUS,
   CAPYBARA,
   COCO_BELL,
+  CORD,
   DOMINO_Y,
   EGG_NEST,
   FIXED_DOMINOES,
@@ -37,13 +39,14 @@ import {
   L20_STEP_MS,
   L20_WORLD,
   LANTERN,
+  LEVER_PIVOT,
   MORNING_BELL,
   PIVOT,
   ROPE_A,
   ROPE_B,
   SANDBAG,
   SCISSORS_Y,
-  SEESAW,
+  SEESAW_REST_ANGLE,
   SLEEPERS,
   type L20Config,
   type L20PartKind,
@@ -94,11 +97,15 @@ const EAR_POS = { x: 1200, y: 620 } as const;
 const DRAG_THRESHOLD = 8;
 const MAX_STEPS_PER_FRAME = 6;
 const MAX_FRAME_MS = 100;
-/** The scissors open and close before the cut (12 fps x 2 frames, then back), then the world is released. */
-const SNIP_MS = 200;
+/** The ball is released this long after Play (the world's 60 settle steps already ran inside the new engine). Nothing is cut at Play. */
+const RELEASE_MS = 120;
 /** A failed run is shown this long before the board resets. */
 const FEEDBACK_MS = 2800;
-const SEESAW_REST_ANGLE = Math.asin(Math.min(0.99, (SEESAW.ledge.top - 8 - PIVOT.y) / SEESAW.armRight));
+/** The lever art: `ws-lever` (image centre = the pin), `ws-lever-base` (120x40, the pin at display (20,6) sits on the lever pin). */
+const LEVER_REST_ANGLE = (LEVER.restDeg * Math.PI) / 180;
+const LEVER_BASE_OFFSET = { x: 60 - 20, y: 20 - 6 } as const;
+/** The scissors face left on the board (flipX): the handle then anchors the cord at H (880,98). */
+const SCISSORS_BOARD_SCALE_X = -1;
 /** Vertical offsets from an image centre to the physics body centre (sandbag: image (42,56) of 84x96; lantern: (28,44) of 56x76). */
 const SANDBAG_OFFSET = 8;
 const LANTERN_OFFSET = 6;
@@ -173,6 +180,11 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private ballView!: Phaser.GameObjects.Container;
   private ropeA!: RopeView;
   private ropeB!: RopeView;
+  private leverView!: Phaser.GameObjects.Container;
+  private cordLeg!: RopeView;
+  private cordTug: Phaser.GameObjects.Graphics | null = null;
+  private leverTripped = false;
+  private scissorsClosed = false;
   private stubs: Partial<Record<'A' | 'B', RopeView>> = {};
   private pieces: Partial<Record<'A' | 'B', RopeView>> = {};
   private stubLength = { A: STUB_FULL, B: STUB_FULL };
@@ -243,6 +255,9 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.pieces = {};
     this.stubLength = { A: STUB_FULL, B: STUB_FULL };
     this.cutDone = { A: false, B: false };
+    this.leverTripped = false;
+    this.scissorsClosed = false;
+    this.cordTug = null;
     this.dragging = null;
     this.lastDrop = null;
     this.continueBtn = null;
@@ -349,6 +364,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     eggArt(this, 'ws-l20-bg-dawn', 640, 400).setDepth(0);
     this.bgMorning = eggArt(this, 'ws-l20-bg-morning', 640, 400).setDepth(1).setAlpha(0);
     eggArt(this, 'ws-l20-fixtures', 640, 400).setDepth(5);
+    // The static part of the cord (P0 -> P1 -> P2 -> the scissors handle) sits above the fixtures; the lever-tip -> P0 leg is live.
+    eggArt(this, 'ws-l20-cord', 640, 400).setDepth(5.5);
   }
 
   /** Socket markers: a faint ramp outline at R1, dots on the strip slots, dashed circles on the strings; plus the hint glow. */
@@ -395,6 +412,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
     this.lanternView = this.hangingObject('ws-lantern', LANTERN.x, LANTERN.y, LANTERN_OFFSET).setDepth(13);
     this.tweens.add({ targets: this.lanternView.getAt(0), alpha: 0.8, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.seesawView = eggArt(this, 'ws-seesaw', PIVOT.x, PIVOT.y).setDepth(9);
+    // The shared lever: its post and right stop are baked in `ws-lever-base` (it moves with the pin); the plank turns with the body.
+    eggArt(this, 'ws-lever-base', LEVER_PIVOT.x + LEVER_BASE_OFFSET.x, LEVER_PIVOT.y + LEVER_BASE_OFFSET.y).setDepth(5.8);
+    this.leverView = eggArt(this, 'ws-lever', LEVER_PIVOT.x, LEVER_PIVOT.y).setDepth(11).setRotation(LEVER_REST_ANGLE);
+    this.cordLeg = new RopeView(this, 8);
     for (const x of [FIXED_DOMINOES[0], FIXED_DOMINOES[1], ...FIXED_DOMINOES.slice(2)]) {
       this.dominoViews.set(`dom${x}`, eggArt(this, 'ws-domino', x, DOMINO_Y).setDepth(12));
     }
@@ -651,8 +672,14 @@ export class WorkshopL20Scene extends Phaser.Scene {
     part.socketId = socketId;
     part.container.setDepth(14);
     playEggSfx('sfx-pop');
-    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: part.flipped ? -1 : 1, scaleY: 1, duration, ease });
+    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: this.boardScaleX(part), scaleY: 1, duration, ease });
     this.syncConfig();
+  }
+
+  /** The sign of a part's x scale on the board: a flipped ramp points down-left; the scissors always face left (handle on the cord side). */
+  private boardScaleX(part: PartView): number {
+    if (part.def.kind === 'scissors') return SCISSORS_BOARD_SCALE_X;
+    return part.flipped ? -1 : 1;
   }
 
   private returnToTray(part: PartView, shake: boolean): void {
@@ -724,6 +751,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       return;
     }
     const view = eggArt(this, def.art, socket.x, socket.y).setDepth(13).setAlpha(0.5);
+    if (def.kind === 'scissors') view.setScale(SCISSORS_BOARD_SCALE_X, 1);
     this.tweens.add({ targets: view, alpha: 0.22, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.ghostView = view;
   }
@@ -833,6 +861,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     }
     this.ballView.setPosition(BALL_START.x, BALL_START.y).setRotation(0).setVisible(true);
     this.cutDone = { A: false, B: false };
+    this.leverTripped = false;
+    this.scissorsClosed = false;
+    this.cordTug?.destroy();
+    this.cordTug = null;
+    this.leverView.setRotation(LEVER_REST_ANGLE);
+    this.syncCordLeg(LEVER_REST_ANGLE);
     for (const k of ['A', 'B'] as const) {
       this.stubs[k]?.destroy();
       this.pieces[k]?.destroy();
@@ -881,6 +915,12 @@ export class WorkshopL20Scene extends Phaser.Scene {
     }
   }
 
+  /** The live leg of the cord: from the lever's right tip (it moves with the lever) to the fixed pulley P0, drawn with the rope tile. */
+  private syncCordLeg(angle: number): void {
+    const half = LEVER.length / 2;
+    this.cordLeg.set(LEVER_PIVOT.x + half * Math.cos(angle), LEVER_PIVOT.y + half * Math.sin(angle), CORD.P0.x, CORD.P0.y);
+  }
+
   private updateRopeStubs(): void {
     for (const key of ['A', 'B'] as const) {
       const stub = this.stubs[key];
@@ -897,6 +937,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
     put(this.sandbagView, w.bodies.sandbag);
     put(this.lanternView, w.bodies.lantern);
     put(this.seesawView, w.bodies.seesaw);
+    this.leverView.setRotation(w.bodies.lever.angle);
+    this.syncCordLeg(w.bodies.lever.angle);
     for (const d of w.bodies.dominoes) {
       const view = this.dominoViewFor(d.label);
       if (view) put(view, d);
@@ -928,15 +970,13 @@ export class WorkshopL20Scene extends Phaser.Scene {
     const token = ++this.runToken;
     this.playBtn.setEnabled(false);
     const matter = (Phaser.Physics.Matter as unknown as { Matter: L20Matter }).Matter;
-    // A fresh engine for every Play; the 60 settle steps run before the cut (invisible: the objects only settle on their ropes).
+    // A fresh engine for every Play; the 60 settle steps run inside it (invisible: the objects only settle). NO snip at Play (v5.1
+    // decision 5): the scissors close only when the lever trips and the cord pulls them.
     this.restViews();
     this.world = new L20World(matter, { ...this.config, slots: [...this.config.slots] });
     this.syncViews();
     this.ballView.setVisible(false);
-    const scissors = this.parts.get('scissors');
-    const cutting = this.config.scissors !== 'none';
-    if (cutting) this.playSnip(scissors);
-    this.time.delayedCall(cutting ? SNIP_MS : 120, () => {
+    this.time.delayedCall(RELEASE_MS, () => {
       if (!this.alive || token !== this.runToken || !this.world) return;
       this.releaseWorld();
     });
@@ -948,7 +988,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     playEggSfx('sfx-ws-snip');
     const spec = ensureSpriteAnim(this, 'ws-scissors-snip');
     if (spec) {
-      const sprite = this.add.sprite(part.container.x, part.container.y, 'ws-scissors-snip', '0').setDisplaySize(spec.w, spec.h).setDepth(15);
+      const sprite = this.add.sprite(part.container.x, part.container.y, 'ws-scissors-snip', '0').setDisplaySize(spec.w, spec.h).setFlipX(SCISSORS_BOARD_SCALE_X < 0).setDepth(15);
       this.snipSprite = sprite;
       part.container.setAlpha(0);
       if (!this.anims.exists('ws-scissors-snip-cycle')) {
@@ -956,29 +996,46 @@ export class WorkshopL20Scene extends Phaser.Scene {
       }
       sprite.play('ws-scissors-snip-cycle');
     } else {
-      this.tweens.add({ targets: part.container, scaleX: 0.6, duration: 80, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => part.container.setScale(1) });
+      this.tweens.add({ targets: part.container, scaleY: 0.6, duration: 80, yoyo: true, ease: 'Sine.easeInOut', onComplete: () => part.container.setScale(SCISSORS_BOARD_SCALE_X, 1) });
     }
   }
 
-  /** The cut and the release of the ball happen on the same step (like the sim); then the run is stepped by `update`. */
+  /** The ball leaves the chute (the run is stepped by `update`); the cord link and the snip come later, from the lever. */
   private releaseWorld(): void {
     const w = this.world;
     if (!w) return;
-    const which = this.config.scissors;
-    w.cut();
     w.release();
-    if (which !== 'none') {
-      this.cutDone[which] = true;
-      this.stubLength[which] = STUB_FULL;
-      this.stubs[which] = new RopeView(this, 8);
-      this.tweens.add({ targets: this.stubLength, [which]: STUB_SHORT, duration: 300, ease: 'Sine.easeOut' });
-      playEggSfx('sfx-ws-rope-swish');
-    }
     playEggSfx('sfx-ws-trapdoor');
     playEggSfx('sfx-ball-roll');
     this.ballView.setVisible(true);
     this.consumeEvents();
     this.syncViews();
+  }
+
+  /** The lever tripped: the cord tugs (a bright pulse along the drawn polyline). Only the scissors, if any, react to it. */
+  private tugCord(): void {
+    this.leverTripped = true;
+    playEggSfx('sfx-ws-rope-swish');
+    this.cordTug?.destroy();
+    const g = this.add.graphics().setDepth(5.6);
+    g.lineStyle(7, 0xfff1a8, 0.9);
+    const pts = [CORD.P0, CORD.P1, CORD.P2, CORD.handle];
+    g.beginPath();
+    g.moveTo(pts[0].x, pts[0].y);
+    for (const p of pts.slice(1)) g.lineTo(p.x, p.y);
+    g.strokePath();
+    this.cordTug = g;
+    this.tweens.add({ targets: g, alpha: 0, duration: 450, onComplete: () => g.destroy() });
+  }
+
+  /** The cord closed the scissors on string `which`: the snip animation, then the string's stub shrinks and its lower piece falls with its object. */
+  private cutString(which: 'A' | 'B'): void {
+    this.scissorsClosed = true;
+    this.playSnip(this.parts.get('scissors'));
+    this.cutDone[which] = true;
+    this.stubLength[which] = STUB_FULL;
+    this.stubs[which] = new RopeView(this, 8);
+    this.tweens.add({ targets: this.stubLength, [which]: STUB_SHORT, duration: 300, ease: 'Sine.easeOut' });
   }
 
   /** Turns the world's new events into sound and tweens. Cosmetic only: nothing here touches a body. */
@@ -991,6 +1048,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
       if (kind === 'domino' && b === 'fallen') {
         const pitch = 1 + (((Number(a) * 7) % 17) - 8) / 100;
         playEggSfx('sfx-ws-domino-clack', { pitch });
+      } else if (e.id === 'lever:tripped') {
+        this.tugCord();
+      } else if (kind === 'snip' && (a === 'A' || a === 'B')) {
+        this.cutString(a);
       } else if (e.id === 'sandbag:hit-seesaw') {
         playEggSfx('sfx-ws-sandbag-thump');
         this.tweens.add({ targets: this.sandbagView, scaleY: { from: 0.85, to: 1 }, duration: 150 });
@@ -1039,11 +1100,14 @@ export class WorkshopL20Scene extends Phaser.Scene {
   private onFail(w: L20World): void {
     this.phase = 'feedback';
     this.failedRuns++;
-    const reason = w.run.reason ?? 'no-bell';
-    if (reason === 'coco-only' || reason === 'morning-only') this.oneBellFails++;
+    const reason = w.run.reason ?? 'lever-not-hit';
+    // Coco's small bell stirred its friends mid-chain (cosmetic): when the chain then failed they fall back asleep.
+    const cocoRang = w.cocoRung;
+    if (cocoRang) this.oneBellFails++;
     const plan: FailPlan = planFailure({
       failedRuns: this.failedRuns,
-      oneBellFails: reason === 'coco-only' || reason === 'morning-only' ? this.oneBellFails : 0,
+      oneBellFails: cocoRang ? this.oneBellFails : 0,
+      cocoRang,
       reason,
       dominoRowStopped: w.dominoRowStopped,
       config: this.config,
@@ -1342,6 +1406,8 @@ export class WorkshopL20Scene extends Phaser.Scene {
       trajectory: this.trajectoryInfo(),
       bipPlaced: this.bipPlaced.map((b) => ({ ...b })),
       breakPoint: this.breakPoint ? { ...this.breakPoint } : null,
+      leverTripped: this.leverTripped,
+      scissorsClosed: this.scissorsClosed,
       eggPieceInNest: this.eggPieceInNest,
       partsInTrayCount: parts.filter((p) => p.inTray).length,
       rects,

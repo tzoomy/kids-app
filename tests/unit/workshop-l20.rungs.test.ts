@@ -63,7 +63,7 @@ describe('workshop L20 ladder: the next needed part', () => {
 });
 
 describe('workshop L20 ladder: what each failure plans', () => {
-  const emptyInput: FailInput = { failedRuns: 1, oneBellFails: 0, reason: 'no-bell', dominoRowStopped: false, config: { ramp: 'none', slots: [], scissors: 'none' } };
+  const emptyInput: FailInput = { failedRuns: 1, oneBellFails: 0, cocoRang: false, reason: 'lever-not-hit', dominoRowStopped: false, config: { ramp: 'none', slots: [], scissors: 'none' } };
   const plan = (n: number, over: Partial<FailInput> = {}) => planFailure({ ...emptyInput, failedRuns: n, ...over });
 
   it('[AC-17] 4th failure: the trajectory only (beep, no new voice line), no ghost, Bip places nothing', () => {
@@ -150,33 +150,49 @@ describe('workshop L20 break-point marker', () => {
   const solved = { ramp: 'down-right' as const, slots: [460, 620], scissors: 'A' as const };
 
   it('[AC-15] the ball missed the ramp / rolled the wrong way / nothing happened: the R1 socket', () => {
-    expect(chooseBreakPoint({ reason: 'no-bell', events: [], config: { ramp: 'none', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
-    expect(chooseBreakPoint({ reason: 'morning-only', events: [], config: { ...solved, ramp: 'down-left' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
-    expect(chooseBreakPoint({ reason: 'morning-only', events: [], config: solved })).toMatchObject({ kind: 'ramp' });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: { ramp: 'none', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: { ...solved, ramp: 'down-left' } })).toMatchObject({ kind: 'ramp', x: 200, y: 440 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: [], config: solved })).toMatchObject({ kind: 'ramp' });
   });
 
   it('[AC-15] the domino row stopped: the centre of the gap between the last fallen and the first standing domino', () => {
     // Slots {500,580}: the row 400, 500, 540, 580 falls, 710 stands -> the gap between 580 and 710.
-    const bp = chooseBreakPoint({ reason: 'no-bell', events: dom(400, 500, 540, 580), config: { ramp: 'down-right', slots: [500, 580], scissors: 'none' } });
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 500, 540, 580), config: { ramp: 'down-right', slots: [500, 580], scissors: 'none' } });
     expect(bp).toMatchObject({ kind: 'domino-gap', x: 645 });
     // Slots {460,500}: the row 400, 460, 500, 540 falls, then a hole 540 -> 710.
-    expect(chooseBreakPoint({ reason: 'morning-only', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 625 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 460, 500, 540), config: { ramp: 'down-right', slots: [460, 500], scissors: 'A' } })).toMatchObject({ kind: 'domino-gap', x: 625 });
     // Only the first fixed domino fell: the gap right after it (400 -> 540, no slot used).
-    expect(chooseBreakPoint({ reason: 'no-bell', events: dom(400), config: { ramp: 'down-right', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'domino-gap', x: 470 });
+    expect(chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400), config: { ramp: 'down-right', slots: [], scissors: 'none' } })).toMatchObject({ kind: 'domino-gap', x: 470 });
   });
 
   it('[AC-15] the gap uses only the dominoes that exist (placed slots + fixed), and counts the leading run of fallen ones', () => {
-    const bp = chooseBreakPoint({ reason: 'no-bell', events: dom(400, 540), config: { ramp: 'down-right', slots: [580, 620], scissors: 'none' } });
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: dom(400, 540), config: { ramp: 'down-right', slots: [580, 620], scissors: 'none' } });
     // 400 fell, 540 fell, 580 stands: the gap is between 540 and 580.
     expect(bp).toMatchObject({ kind: 'domino-gap', x: 560 });
   });
 
-  it('[AC-15] Coco rang but the morning bell did not: the string socket A', () => {
-    expect(chooseBreakPoint({ reason: 'coco-only', events: dom(400, 460, 540, 620, 710, 780, 860, 940), config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'string', x: 860, y: 110 });
-    expect(chooseBreakPoint({ reason: 'coco-only', events: [], config: { ...solved, scissors: 'none' } })).toMatchObject({ kind: 'string' });
+  const fell = dom(400, 460, 540, 620, 710, 780, 860, 940);
+
+  it('[AC-15] the whole row fell but the lever was not hit: the lever\'s left arm ("lever not hit")', () => {
+    const bp = chooseBreakPoint({ reason: 'lever-not-hit', events: fell, config: solved });
+    expect(bp).toMatchObject({ kind: 'lever' });
+    expect(bp?.x).toBeCloseTo(1046.5, 1);
+    expect(bp?.y).toBeCloseTo(532.7, 1);
+  });
+
+  it('[AC-15] the cord pulled an empty hook (no scissors): the string-A hook, where the scissors would sit', () => {
+    expect(chooseBreakPoint({ reason: 'empty-hook', events: fell, config: { ...solved, scissors: 'none' } })).toMatchObject({ kind: 'empty-hook', x: 860, y: 110 });
+  });
+
+  it('[AC-15] wrong string (B cut, the lantern dropped): the string-B socket', () => {
+    expect(chooseBreakPoint({ reason: 'wrong-string', events: fell, config: { ...solved, scissors: 'B' } })).toMatchObject({ kind: 'wrong-string', x: 640, y: 110 });
+  });
+
+  it('[AC-15] cut the right string but the morning bell stayed silent: the morning bell', () => {
+    expect(chooseBreakPoint({ reason: 'no-goal', events: fell, config: solved })).toMatchObject({ kind: 'morning-bell', x: 1150, y: 230 });
   });
 
   it('[AC-15] a win has no break point', () => {
-    expect(chooseBreakPoint({ reason: 'both-bells', events: [], config: solved })).toBeNull();
+    expect(chooseBreakPoint({ reason: 'goal', events: [], config: solved })).toBeNull();
   });
 });
