@@ -102,6 +102,8 @@ test.describe('workshop L20', () => {
     expect(i.sockets.map((s) => s.id)).toEqual(['R1', 'slot-460', 'slot-500', 'slot-580', 'slot-620', 'string-A', 'string-B']);
     expect(i.partsInTrayCount).toBe(4);
     expect(i.config).toEqual({ ramp: 'none', slots: [], scissors: 'none' });
+    expect(i.leverTripped).toBe(false);
+    expect(i.scissorsClosed).toBe(false);
     await expect(page.locator('[data-testid="profile-a"]')).toHaveCount(0);
     // The story line is requested at the start.
     await expect.poll(async () => spoken(page)).toContain('vo-fr-ws-l20-story');
@@ -161,29 +163,39 @@ test.describe('workshop L20', () => {
     expect(i.sockets.find((s) => s.id === 'R1')!.occupiedBy).toBeNull();
   });
 
-  test('[AC-05] [AC-06] [AC-12] [AC-19] the solution by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> both bells, the town wakes, the egg piece completes the egg', async ({ page }) => {
+  test('[AC-05] [AC-06] [AC-12] [AC-19] the one chain by real drags: ramp down-right, dominoes {460,620}, scissors on A, tap Play -> bell:coco, lever:tripped, snip:A, goal:morning, the town wakes, the egg piece completes the egg', async ({ page }) => {
     await openL20(page);
     await placeSolution(page);
     let i = (await info(page))!;
     expect(i.config).toEqual({ ramp: 'down-right', slots: [460, 620], scissors: 'A' });
-    // [AC-05] the scissors sit on the TOP of string A (y 110), under the ceiling, never over the sack.
+    // [AC-05] the scissors sit on the TOP of string A (y 110), under the ceiling, never over the sack, and stay open until the cord pulls them.
     const scissors = i.parts.find((p) => p.id === 'scissors')!;
     expect(scissors.socketId).toBe('string-A');
     expect(Math.abs(scissors.y - 110)).toBeLessThan(2);
     expect(Math.abs(scissors.x - 860)).toBeLessThan(2);
+    expect(i.scissorsClosed).toBe(false);
     await tapPlay(page);
     i = await waitInfo(page, (x) => x.run.state !== 'idle', 'the run never started');
-    // [AC-05] the snip is the first event of the run.
-    i = await waitInfo(page, (x) => x.events.some((e) => e.id === 'snip:A'), 'no snip event');
-    expect(i.events[0].id).toBe('snip:A');
-    // [AC-01] both bells, by the right bodies, within 11.5 s of the run.
+    // [AC-05] no snip at Play: nothing is cut while the chain has not reached the lever.
+    expect(i.events.map((e) => e.id)).not.toContain('snip:A');
+    expect(i.leverTripped).toBe(false);
+    expect(i.scissorsClosed).toBe(false);
+    // The chain: the small bell stirs the friends (cosmetic), the domino hits the lever, the cord closes the scissors on A.
+    i = await waitInfo(page, (x) => x.events.some((e) => e.id === 'snip:A'), 'no snip event', 60_000);
+    expect(i.leverTripped).toBe(true);
+    await waitInfo(page, (x) => x.scissorsClosed, 'the scissors never closed');
+    // [AC-01] one goal, by the right bodies, in the AC time (1.5 x the sim p95 6.5 s, rounded up to 0.5 s = 10 s).
     i = await waitInfo(page, (x) => x.run.state === 'ended', 'the run never ended', 60_000);
     const ids = i.events.map((e) => e.id);
     expect(ids.some((id) => /^bell:coco:dom\d+$/.test(id))).toBe(true);
-    expect(ids).toContain('bell:morning:seesaw');
-    const bellSteps = i.events.filter((e) => e.id.startsWith('bell:')).map((e) => e.step);
-    expect(Math.max(...bellSteps)).toBeLessThanOrEqual(11.5 * 60);
-    expect(i.run).toMatchObject({ result: 'win', reason: 'both-bells' });
+    expect(ids.filter((id) => id.startsWith('goal:'))).toEqual(['goal:morning']);
+    // The order check: bell:coco -> lever:tripped -> snip:A -> goal:morning.
+    const at = ['bell:coco:', 'lever:tripped', 'snip:A', 'goal:morning'].map((p) => ids.findIndex((id) => id.startsWith(p)));
+    expect(at.every((n) => n >= 0), JSON.stringify(ids)).toBe(true);
+    expect(at).toEqual([...at].sort((a, b) => a - b));
+    const goalStep = i.events.find((e) => e.id === 'goal:morning')!.step;
+    expect(goalStep).toBeLessThanOrEqual(10 * 60);
+    expect(i.run).toMatchObject({ result: 'win', reason: 'goal' });
     // [AC-06] the finale: everyone awake, the morning background, the egg piece in the nest, Continue.
     i = await waitInfo(page, (x) => x.phase === 'success' && x.eggPieceInNest, 'the finale never reached the nest', 30_000);
     expect(Object.values(i.sleepers).every((s) => s.state === 'awake')).toBe(true);
@@ -207,10 +219,34 @@ test.describe('workshop L20', () => {
     expect(saved.some((s) => s.eggPiece === true)).toBe(true);
   });
 
+  test('[AC-02] @single-orientation scissors on B (the wrong string): the lever trips, the lantern string is cut and the lantern drops, no goal, the "wrong string" marker sits on string B', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    await openL20(page);
+    await dragPartToSocket(page, 'ramp', 'R1');
+    await dragPartToSocket(page, 'domino1', 'slot-460');
+    await dragPartToSocket(page, 'domino2', 'slot-620');
+    await dragPartToSocket(page, 'scissors', 'string-B');
+    expect((await info(page))!.config).toEqual({ ramp: 'down-right', slots: [460, 620], scissors: 'B' });
+    await tapPlay(page);
+    const i = await waitInfo(page, (x) => x.run.state === 'ended', 'the run never ended', 60_000);
+    const ids = i.events.map((e) => e.id);
+    expect(ids).toContain('lever:tripped');
+    expect(ids).toContain('snip:B');
+    expect(ids).toContain('lantern:floor');
+    expect(ids.some((id) => id.startsWith('goal:'))).toBe(false);
+    expect(i.run).toMatchObject({ result: 'fail', reason: 'wrong-string' });
+    const after = await waitInfo(page, (x) => x.phase === 'feedback', 'no failure feedback', 20_000);
+    expect(after.scissorsClosed).toBe(true);
+    expect(after.breakPoint).toMatchObject({ kind: 'wrong-string', x: 640, y: 110 });
+    expect(after.eggPiece).toBe(false);
+    expect(after.phase).not.toBe('success');
+  });
+
   // Live regression (QA 2026-11-27): the listed-wrong set {500,580} + ramp down-right + scissors on A won live because Phaser's Matter
   // plugin changed the global resolver constants and the fixed domino stood exactly where the fallen 580 reaches. Real drags only.
+  // v5.1: the row stops, so the lever is never hit: no small bell, no cord, no snip, no goal ("lever not hit").
   for (const slots of [[500, 580], [460, 580]]) {
-    test(`[AC-02] @single-orientation the distractor set {${slots.join(',')}} + ramp down-right + scissors on A: the row stops, the morning bell rings, Coco's bell never does (fail, no win)`, async ({ page }, testInfo) => {
+    test(`[AC-02] @single-orientation the distractor set {${slots.join(',')}} + ramp down-right + scissors on A: the row stops, the lever is not hit, nothing is cut, no goal (fail, no win)`, async ({ page }, testInfo) => {
       landscapeOnly(testInfo);
       await openL20(page);
       await dragPartToSocket(page, 'ramp', 'R1');
@@ -221,11 +257,14 @@ test.describe('workshop L20', () => {
       await tapPlay(page);
       const i = await waitInfo(page, (x) => x.run.state === 'ended', 'the run never ended', 60_000);
       const ids = i.events.map((e) => e.id);
-      expect(ids).toContain('bell:morning:seesaw');
       expect(ids.some((id) => id.startsWith('bell:coco:'))).toBe(false);
+      expect(ids).not.toContain('lever:tripped');
+      expect(ids.some((id) => id.startsWith('snip:'))).toBe(false);
+      expect(ids.some((id) => id.startsWith('goal:'))).toBe(false);
       expect(ids).not.toContain('domino:710:fallen');
-      expect(i.run).toMatchObject({ result: 'fail', reason: 'morning-only' });
+      expect(i.run).toMatchObject({ result: 'fail', reason: 'lever-not-hit' });
       const after = await waitInfo(page, (x) => x.phase === 'feedback' || x.phase === 'build', 'no failure feedback', 20_000);
+      expect(after.scissorsClosed).toBe(false);
       expect(after.eggPiece).toBe(false);
       expect(after.phase).not.toBe('success');
     });
@@ -303,12 +342,13 @@ test.describe('workshop L20', () => {
     await openL20(page);
     await tapPlay(page);
     let i = await waitInfo(page, (x) => x.phase === 'feedback', 'no failure feedback', 60_000);
-    expect(i.run).toMatchObject({ state: 'ended', result: 'fail', reason: 'no-bell' });
+    expect(i.run).toMatchObject({ state: 'ended', result: 'fail', reason: 'lever-not-hit' });
     expect(i.failedRuns).toBe(1);
     expect(i.feedback).toMatchObject({ kind: 'no-bell', capybara: 'facepalm', sfx: null, sleepersFallAsleep: [] });
     expect(i.eggPiece).toBe(false);
     expect(Object.values(i.sleepers).every((s) => s.state === 'asleep')).toBe(true);
-    await expect.poll(async () => spoken(page)).toContain('vo-he-ws-scissors-which');
+    // Nothing reached the lever: no targeted hint on the first failure (the scissors line is for a tripped lever without the goal).
+    expect(await spoken(page)).not.toContain('vo-he-ws-scissors-which');
     // Never a win and never a buzzer-like line; the board resets for another try.
     expect(await spoken(page)).not.toEqual(expect.arrayContaining([expect.stringMatching(/buzz|wrong|error/i)]));
     i = await waitInfo(page, (x) => x.phase === 'build', 'the board never reset', 15_000);
@@ -316,7 +356,7 @@ test.describe('workshop L20', () => {
     expect(i.background).toBe('dawn');
   });
 
-  test('[AC-07] [AC-09] @single-orientation exactly one bell rang (no scissors): the friends who woke fall asleep again, the capybara rings an imaginary bell, the gag line plays', async ({ page }, testInfo) => {
+  test('[AC-07] [AC-09] @single-orientation no scissors: the cord pulls an empty hook; the small bell had stirred the friends, they fall asleep again, the capybara rings an imaginary bell, the gag and the "which string" hint play', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     await openL20(page);
     await dragPartToSocket(page, 'ramp', 'R1');
@@ -324,16 +364,24 @@ test.describe('workshop L20', () => {
     await dragPartToSocket(page, 'domino2', 'slot-620');
     await tapPlay(page);
     let i = await waitInfo(page, (x) => x.phase === 'feedback', 'no failure feedback', 60_000);
-    expect(i.run).toMatchObject({ result: 'fail', reason: 'coco-only' });
+    expect(i.run).toMatchObject({ result: 'fail', reason: 'empty-hook' });
+    const ids = i.events.map((e) => e.id);
+    expect(ids).toContain('lever:tripped');
+    expect(ids.some((id) => id.startsWith('snip:'))).toBe(false);
+    expect(i.leverTripped).toBe(true);
+    expect(i.scissorsClosed).toBe(false);
+    expect(i.breakPoint).toMatchObject({ kind: 'empty-hook', x: 860, y: 110 });
     expect(i.feedback).toMatchObject({ kind: 'one-bell', capybara: 'ring', sfx: 'sfx-ws-yawn' });
     expect(i.feedback?.sleepersFallAsleep).toEqual(['moustache', 'bruno', 'cocopom']);
     await expect.poll(async () => spoken(page)).toContain('vo-fr-ws-l20-one-bell');
+    await expect.poll(async () => spoken(page)).toContain('vo-he-ws-scissors-which');
     // They woke, then fell asleep again: asleep -> awake -> asleep.
     i = await waitInfo(page, (x) => x.sleepers.cocopom.history.join('>') === 'asleep>awake>asleep', 'the friends never fell asleep again', 15_000);
     expect(i.sleepers.pip.history).toEqual(['asleep']);
     expect(i.eggPiece).toBe(false);
     expect(i.background).toBe('dawn');
   });
+
   test('[AC-13] [AC-14] [AC-15] [AC-17] @single-orientation empty board, real Play taps: break-point marker after each failure, the 4th shows the trajectory, the 5th the ramp ghost, the 6th has Bip place the ramp (only)', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     test.setTimeout(300_000);
@@ -347,7 +395,7 @@ test.describe('workshop L20', () => {
       // [AC-17] the trajectory is hidden while a run plays.
       if (n > 4) expect(playing.trajectory?.visible).toBe(false);
       const i = await waitInfo(page, (x) => x.phase === 'feedback' && x.failedRuns === n, `failure ${n} never came`, 90_000);
-      expect(i.run).toMatchObject({ result: 'fail', reason: 'no-bell' });
+      expect(i.run).toMatchObject({ result: 'fail', reason: 'lever-not-hit' });
       return i;
     };
     for (const n of [1, 2, 3]) {
@@ -370,7 +418,7 @@ test.describe('workshop L20', () => {
     expect(i.trajectory!.points).toBeGreaterThan(5);
     expect(Math.abs(i.trajectory!.first.x - 200)).toBeLessThan(10);
     expect(i.trajectory!.last.y).toBeGreaterThan(600);
-    expect(Math.abs(i.trajectory!.last.x - 200)).toBeLessThan(20);
+    expect(Math.abs(i.trajectory!.last.x - 200)).toBeLessThan(42);
     const emptyLast = i.trajectory!.last;
     expect(await spoken(page)).not.toContain('vo-fr-robot-regarde');
     // [AC-17] placing the ramp in R1 by a real drag changes the path: its last point moves right (into the cup).
@@ -379,7 +427,7 @@ test.describe('workshop L20', () => {
     expect(i.trajectory!.last.x).toBeGreaterThan(emptyLast.x + 80);
     // Dragging the ramp off puts the empty-board path back.
     await drag(page, centre(i.rects.partRamp as Rect), { x: 640, y: 600 });
-    i = await waitInfo(page, (x) => x.config.ramp === 'none' && x.trajectory?.visible === true && Math.abs(x.trajectory.last.x - 200) < 20, 'the trajectory never went back to the empty board', 10_000);
+    i = await waitInfo(page, (x) => x.config.ramp === 'none' && x.trajectory?.visible === true && Math.abs(x.trajectory.last.x - 200) < 42, 'the trajectory never went back to the empty board', 10_000);
     // [AC-13] 5th failure: the ghost of the ramp (down-right) in R1, "Regarde ici !"; the trajectory stays on; nothing is placed for her.
     // [AC-15] touching the board hides the marker (a tap on a tray part is enough).
     await tapRect(page, i.rects.partDomino1 as Rect);

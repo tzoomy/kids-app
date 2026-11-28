@@ -672,7 +672,10 @@ export class WorkshopL20Scene extends Phaser.Scene {
     part.socketId = socketId;
     part.container.setDepth(14);
     playEggSfx('sfx-pop');
-    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: this.boardScaleX(part), scaleY: 1, duration, ease });
+    // Turn to the board facing at once (a flip tween would pass through scale 0 and shrink the hit rect for a moment).
+    const facing = this.boardScaleX(part);
+    part.container.scaleX = Math.sign(facing) * Math.abs(part.container.scaleX);
+    this.tweens.add({ targets: part.container, x, y, angle: 0, scaleX: facing, scaleY: 1, duration, ease });
     this.syncConfig();
   }
 
