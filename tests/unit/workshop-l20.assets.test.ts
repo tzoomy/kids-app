@@ -20,7 +20,7 @@ import { drawWorkshopPlaceholder } from '../../src/games/mysteryEgg/workshop/l20
 /** The agreed Workshop L20 keys, pinned (docs/specs/workshop-l20-assets.md; adding one is a contract change). */
 const SLEEPERS = ['moustache', 'bruno', 'plume', 'cocopom', 'pip', 'grandpere'];
 const ART = [
-  'ws-l20-bg-dawn', 'ws-l20-bg-morning', 'ws-l20-fixtures',
+  'ws-l20-bg-dawn', 'ws-l20-bg-morning', 'ws-l20-fixtures', 'ws-l20-cord', 'ws-lever', 'ws-lever-base',
   'ws-domino', 'ws-seesaw', 'ws-sandbag', 'ws-lantern', 'ws-rope', 'ws-scissors', 'ws-scissors-snip',
   'ws-bell-morning', 'ws-window-frame', 'ws-egg-piece',
   'ws-capybara-facepalm', 'ws-capybara-ring', 'ws-capybara-cheer',
@@ -37,8 +37,8 @@ const VO = [
 const ALL = [...ART, ...SFX, ...VO];
 
 describe('workshop L20 asset manifest', () => {
-  it('[AC-08] workshopAssets.json holds exactly the 47 agreed keys and parses with the shared zod schema', () => {
-    expect(ALL).toHaveLength(47);
+  it('[AC-08] workshopAssets.json holds exactly the 50 agreed keys and parses with the shared zod schema', () => {
+    expect(ALL).toHaveLength(50);
     expect(Object.keys(parseWorkshopManifest(rawWorkshop)).sort()).toEqual([...ALL].sort());
     expect([...WORKSHOP_ASSET_IDS].sort()).toEqual([...ALL].sort());
   });
@@ -69,6 +69,7 @@ describe('workshop L20 asset manifest', () => {
       'ws-l20-bg-dawn': [1280, 800], 'ws-l20-bg-morning': [1280, 800], 'ws-l20-fixtures': [1280, 800],
       'ws-domino': [28, 114], 'ws-seesaw': [336, 30], 'ws-sandbag': [84, 96], 'ws-lantern': [56, 76],
       'ws-rope': [10, 64], 'ws-scissors': [96, 64], 'ws-scissors-snip': [96, 64],
+      'ws-l20-cord': [1280, 800], 'ws-lever': [200, 32], 'ws-lever-base': [120, 40],
       'ws-bell-morning': [150, 170], 'ws-window-frame': [110, 110], 'ws-egg-piece': [110, 110],
       'ws-capybara-facepalm': [220, 280], 'ws-capybara-ring': [220, 280], 'ws-capybara-cheer': [220, 280],
       'ws-sleeper-moustache-asleep': [92, 92], 'ws-sleeper-grandpere-awake': [92, 92],
@@ -89,10 +90,10 @@ describe('workshop L20 asset manifest', () => {
 
   it('[AC-08] VO transcripts and languages are the agreed ones; Hebrew is Bip\'s hints only, feminine singular', () => {
     const expected: Record<string, [string, string]> = {
-      'vo-fr-ws-l20-story': ['fr', 'Toute la ville dort encore ! Il faut sonner les deux cloches !'],
-      'vo-he-ws-l20-goal': ['he', 'בואי נעיר את כל העיר! צריך לצלצל בשני הפעמונים, les cloches: בפעמון הקטן וגם בפעמון הגדול.'],
+      'vo-fr-ws-l20-story': ['fr', 'Toute la ville dort encore ! Il faut sonner la grande cloche du matin !'],
+      'vo-he-ws-l20-goal': ['he', 'בואי נעיר את כל העיר! צריך לצלצל בפעמון הגדול של הבוקר, la grande cloche!'],
       'vo-he-ws-dominoes-gap': ['he', 'בשורת הדומינו אסור שיהיה חור גדול.'],
-      'vo-he-ws-scissors-which': ['he', 'איזה חוט מחזיק את השק? את החוט הזה גוזרים, עם המספריים.'],
+      'vo-he-ws-scissors-which': ['he', 'איזה חוט מחזיק את השק? את החוט הזה המספריים גוזרים, אחרי שהידית סוגרת אותם.'],
       'vo-fr-ws-l20-one-bell': ['fr', 'Mmm… encore une cloche… Zzz…'],
       'vo-fr-ws-l20-bonjour': ['fr', 'Bonjour, Ville des Surprises !'],
       'vo-fr-ws-l20-success': ['fr', 'Bravo ! Tu as réveillé toute la ville !'],

@@ -230,6 +230,28 @@ export function drawWorkshopPlaceholder(g: G, id: string): boolean {
       g.fillStyle(DARK, 1);
       for (const dy of [-30, 30]) for (const dx of [-5, 5]) g.fillCircle(dx, dy, 3);
       return true;
+    case 'ws-l20-cord': // the static cord P0 -> P1 -> P2 -> scissors handle (the tip -> P0 leg is drawn live)
+      g.lineStyle(5, WOOD, 1);
+      g.lineBetween(px(1238), py(688), px(1244), py(72));
+      g.lineBetween(px(1244), py(72), px(896), py(72));
+      g.lineBetween(px(896), py(72), px(880), py(98));
+      g.fillStyle(0x6b6b6b, 1); // the three pulleys
+      for (const [x, y] of [[1238, 688], [1244, 72], [896, 72]] as const) g.fillCircle(px(x), py(y), 9);
+      return true;
+    case 'ws-lever': // 160 x 10 plank, pin at the centre, counterweight on the right tip (image centre = the pin)
+      g.fillStyle(WOOD, 1);
+      g.fillRect(-80, -5, 160, 10);
+      g.lineStyle(3, DARK, 1);
+      g.strokeRect(-80, -5, 160, 10);
+      g.fillStyle(0x6b6b6b, 1);
+      g.fillCircle(80, 0, 6.5);
+      g.fillCircle(0, 0, 4);
+      return true;
+    case 'ws-lever-base': // post under the pin + the right stop block (image 120 x 40, pin at (20, 6))
+      g.fillStyle(0x6b6b6b, 1);
+      g.fillRect(-46, -14, 12, 12);
+      g.fillRect(27.5, 5.3, 22, 10);
+      return true;
     case 'ws-seesaw':
       g.fillStyle(WOOD, 1);
       g.fillRoundedRect(-168, -7, 336, 14, 4);
