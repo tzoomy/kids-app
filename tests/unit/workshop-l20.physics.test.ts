@@ -3,9 +3,9 @@
 // ONE chain: drop -> ramp -> cup -> dominoes -> (Coco's small bell, cosmetic) -> lever -> cord -> scissors -> sandbag -> seesaw -> morning bell.
 import { describe, expect, it } from 'vitest';
 import MatterModule from 'phaser/src/physics/matter-js/CustomMain.js';
-import { DOMINO_SLOTS, FIXED_DOMINOES, L20_TIMEOUT_STEPS, LEVER_PIVOT, LEDGE, TABLE, POST, CORD, type L20Config } from '../../src/games/mysteryEgg/workshop/l20Level';
+import { CUP, DOMINO_SLOTS, FIXED_DOMINOES, L20_TIMEOUT_STEPS, LEVER_PIVOT, LEDGE, TABLE, POST, CORD, type L20Config } from '../../src/games/mysteryEgg/workshop/l20Level';
 import { L20World, simulateL20, type L20Matter } from '../../src/games/mysteryEgg/workshop/l20World';
-import { PHYSICS_TIME_SCALE, RESOLVER_PIN } from '../../src/games/mysteryEgg/physicsConfig';
+import { MIN_CATCH_FLOOR, PHYSICS_TIME_SCALE, RESOLVER_PIN } from '../../src/games/mysteryEgg/physicsConfig';
 
 const Matter = MatterModule as unknown as L20Matter;
 const STEPS_PER_SECOND = 60;
@@ -29,9 +29,14 @@ describe('workshop L20 v5.1 physics', () => {
     expect(CORD.handle).toEqual({ x: 880, y: 98 });
   });
 
-  it('[AC-01] the engine runs at timeScale 1.25 (the global v5.1 speed)', () => {
+  it('[AC-21] the engine runs at timeScale 1.25 (the global v5.1 speed)', () => {
     expect(PHYSICS_TIME_SCALE).toBe(1.25);
     expect(new L20World(Matter, solution([460, 620])).engine.timing.timeScale).toBe(1.25);
+  });
+
+  it('[AC-21] catch-floor audit: the statics the ball, the sandbag and the lantern land on are at least 20 px thick (no tunnelling at 1.25x)', () => {
+    const thick = { floor: 40, table: TABLE.y1 - TABLE.y0, ledge: LEDGE.thickness, cupFloor: CUP.floor.y1 - CUP.floor.y0 };
+    for (const [name, t] of Object.entries(thick)) expect(t, name).toBeGreaterThanOrEqual(MIN_CATCH_FLOOR);
   });
 
   it('[AC-01] the valid set {460,620} + ramp down-right + scissors A: coco -> lever:tripped -> snip:A -> goal:morning, one goal, a win', () => {
@@ -179,11 +184,11 @@ describe('workshop L20 v5.1 physics', () => {
     };
     const LIBRARY_DEFAULTS = { _restingThresh: 2, _restingThreshTangent: Math.sqrt(6) };
 
-    it('the pin is the plugin\'s values (4 / 6 / 0.9 / 0.8 / 5), not the v4 library defaults', () => {
+    it('[AC-21] the pin is the plugin\'s values (4 / 6 / 0.9 / 0.8 / 5), not the v4 library defaults', () => {
       expect({ ...RESOLVER_PIN }).toEqual({ _restingThresh: 4, _restingThreshTangent: 6, _positionDampen: 0.9, _positionWarming: 0.8, _frictionNormalMultiplier: 5 });
     });
 
-    it('both valid sets and {500,580} give the same events under the library defaults as under the plugin values', () => {
+    it('[AC-21] both valid sets and {500,580} give the same events under the library defaults as under the plugin values', () => {
       for (const slots of [[460, 620], [500, 620], [500, 580]]) {
         const plugin = withValues({ ...RESOLVER_PIN }, () => simulateL20(Matter, solution(slots)));
         const defaults = withValues(LIBRARY_DEFAULTS, () => simulateL20(Matter, solution(slots)));
@@ -192,7 +197,7 @@ describe('workshop L20 v5.1 physics', () => {
       }
     });
 
-    it('does not leak: the caller\'s global constants are restored after a run', () => {
+    it('[AC-21] does not leak: the caller\'s global constants are restored after a run', () => {
       withValues(LIBRARY_DEFAULTS, () => {
         simulateL20(Matter, solution([460, 620]));
         expect(R._restingThresh).toBe(2);

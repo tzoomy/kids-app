@@ -8,12 +8,15 @@ Spec: `docs/specs/workshop-l20.md` (draft, Pass 1). Branch `feat/workshop-l20-fi
 - 2026-11-27: AC-17 done: rung-2 trajectory (`workshop/l20Trajectory.ts`, scene dots, hook `trajectory`); ladder reordered to 3 glow / 4 trajectory / 5 ghost / 6 Bip (`RUNG_*` in `l20Hints.ts`; AC-13/AC-14 now at 5 and 6 failed runs).
 - 2026-11-27 (QA fixes): AC-02 live regression fixed (world pins Matter's resolver constants; fixed domino 700 → 710), AC-18 touch targets (48 CSS px, `l20Touch.ts`), AC-19 win screen (Play hidden, violet Continue), Gemini nits on `dotsAlong` / `trajectoryInfoOf`.
 
+- 2026-11-28: v5.1 single-chain rework done (branch `feat/workshop-l20-final`): `physicsConfig.ts`, `workshop/lever.ts`, `l20World.ts` (cord link, `goal:morning`, no snip at Play), hints/break-point reasons, scene art (lever, base, cord, flipped scissors), AC-20/AC-21, 50-run table test (`workshop-l20.sim50.test.ts`), e2e for the chain; mission 1.1 ramp slot 470 → 450. Open: Maor's OK on pivot (1125,548), event names, slot 450 (`docs/PENDING-DECISIONS.md`).
+
 ## Pending
 
 - Maor's tablet check (AC-16); the media from Gemini's `media/workshop-l20`; the map entry for L20 (`docs/PENDING-DECISIONS.md`).
 
 ## Gotchas
 
+- Matter resolver values are GLOBAL; every world pins them via `withResolverPin` (`physicsConfig.ts`, v5.1 values 4/6/0.9/0.8/5) and sets `timeScale` 1.25 via `applyPhysicsConfig`.
 - E2E: use an external Playwright config (own port), never the full suite; one spec walks fails 1-6 on an empty board (about 45 s).
 - `hintRung` is the ladder step (failed runs up to 6), not v4's rung number.
 - Phaser's MatterPhysics plugin overwrites the GLOBAL `Matter.Resolver` constants when a Matter scene is created: anything that must match the headless tests has to pin them (see `L20_RESOLVER`).

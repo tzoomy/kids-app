@@ -421,12 +421,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
     }
     this.ballView = eggArt(this, 'part-ball', BALL_START.x, BALL_START.y).setDepth(30).setScale(BALL_ART_SCALE);
 
-    // Coco's bell stands on a small pedestal on the table.
-    const stand = this.add.graphics().setDepth(11);
-    stand.fillStyle(0x9a6b45, 1);
-    stand.fillRect(COCO_BELL.x - 8, COCO_BELL.y + 50, 16, 40);
-    stand.lineStyle(3, 0x3b2a22, 1);
-    stand.strokeRect(COCO_BELL.x - 8, COCO_BELL.y + 50, 16, 40);
+    // Coco's small bell hangs free (the fixtures art holds its painted bracket; the old code-drawn pedestal sat on the lever's left tip).
     this.cocoBell = eggArt(this, 'part-bell', COCO_BELL.x, COCO_BELL.y).setDepth(12).setScale((BELL_RADIUS * 2 + 8) / displaySize('part-bell').w);
 
     // The morning bell: its body centre (sensor) is the image centre; it swings about the hook at 8% of the image height.
