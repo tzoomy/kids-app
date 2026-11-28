@@ -628,7 +628,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       // Lifting a placed part opens its socket again; every lifted part is drawn at board size (1:1 with the physics).
       if (part.socketId) this.release(part);
       this.tweens.killTweensOf(part.container);
-      part.container.setAngle(0).setScale(1.04 * (part.flipped ? -1 : 1), 1.04);
+      part.container.setAngle(0).setScale(1.04 * Math.sign(this.boardScaleX(part)), 1.04);
       this.applyHit(part, 1);
     }
     if (drag.moved) drag.part.container.setPosition(p.x + drag.dx, p.y + drag.dy);
@@ -1367,7 +1367,7 @@ export class WorkshopL20Scene extends Phaser.Scene {
       const rect = boardRectToPage(this, c.x, c.y, c.width * Math.abs(c.scaleX), c.height * Math.abs(c.scaleY));
       rects[targetOf[part.def.id]] = rect;
       const atHome = Math.abs(c.x - part.def.home.x) < 2 && Math.abs(c.y - part.def.home.y) < 2;
-      parts.push({ id: part.def.id, kind: part.def.kind, x: c.x, y: c.y, socketId: part.socketId, inTray: !part.socketId && this.dragging?.part !== part && atHome, flipped: part.flipped, rect });
+      parts.push({ id: part.def.id, kind: part.def.kind, x: c.x, y: c.y, socketId: part.socketId, inTray: !part.socketId && this.dragging?.part !== part && atHome, flipped: part.flipped, scaleX: c.scaleX, rect });
     }
     const taken = new Map<string, string>();
     for (const part of this.parts.values()) if (part.socketId) taken.set(part.socketId, part.def.id);

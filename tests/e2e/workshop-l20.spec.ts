@@ -124,6 +124,27 @@ test.describe('workshop L20', () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test('[AC-04] @single-orientation the dragged scissors already face left (the board facing), not only after the drop; a dragged unflipped ramp keeps facing right', async ({ page }, testInfo) => {
+    landscapeOnly(testInfo);
+    await openL20(page);
+    const start = await waitInfo(page, (x) => Boolean(x.rects.partScissors) && Boolean(x.rects.partRamp), 'parts missing');
+    const scissorsAt = centre(start.rects.partScissors as Rect);
+    await page.mouse.move(scissorsAt.x, scissorsAt.y);
+    await page.mouse.down();
+    await page.mouse.move(scissorsAt.x + 40, scissorsAt.y - 200, { steps: 8 });
+    const mid = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'scissors')!.y < 650, 'the scissors never left the tray');
+    expect(mid.parts.find((p) => p.id === 'scissors')!.scaleX, 'scissors scaleX while dragging').toBeLessThan(0);
+    await page.mouse.up();
+    await waitInfo(page, (x) => x.parts.find((p) => p.id === 'scissors')!.inTray, 'the wrong drop never returned the scissors');
+    const rampAt = centre(start.rects.partRamp as Rect);
+    await page.mouse.move(rampAt.x, rampAt.y);
+    await page.mouse.down();
+    await page.mouse.move(rampAt.x + 40, rampAt.y - 200, { steps: 8 });
+    const rampMid = await waitInfo(page, (x) => x.parts.find((p) => p.id === 'ramp')!.y < 650, 'the ramp never left the tray');
+    expect(rampMid.parts.find((p) => p.id === 'ramp')!.scaleX, 'ramp scaleX while dragging').toBeGreaterThan(0);
+    await page.mouse.up();
+  });
+
   test('[AC-08] @single-orientation the intro story line is the real recorded file: the .ogg answers HTTP 200 and the spy logs it as a clip (no chime, no device TTS)', async ({ page }, testInfo) => {
     landscapeOnly(testInfo);
     const ogg = page.waitForResponse((r) => r.url().endsWith('/audio/mystery-egg/vo-fr-ws-l20-story.ogg'), { timeout: 30_000 });

@@ -135,7 +135,7 @@ export interface WorkshopL20Info {
   /** Every typed socket: its type, what it accepts, centre (world px), what sits in it, and its page rectangle. */
   sockets: Array<{ id: string; type: 'ramp' | 'strip' | 'string'; accepts: L20PartKind; x: number; y: number; occupiedBy: string | null; glowing: boolean; rect: EggPageRect }>;
   /** Every tray part: where it is (world px), which socket holds it, the ramp's direction. */
-  parts: Array<{ id: string; kind: L20PartKind; x: number; y: number; socketId: string | null; inTray: boolean; flipped: boolean; rect: EggPageRect }>;
+  parts: Array<{ id: string; kind: L20PartKind; x: number; y: number; socketId: string | null; inTray: boolean; flipped: boolean; /** The container's x scale (negative = facing left; the scissors are negative on the board and while dragged). */ scaleX: number; rect: EggPageRect }>;
   /** The last drop result: `{accepted, reason}` for a part that did not snap. */
   lastDrop: { part: string; accepted: boolean; reason: string | null; socketId: string | null } | null;
   run: L20Run;
